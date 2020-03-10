@@ -1,0 +1,82 @@
+#!/bin/sh -e
+# Script to dispatch NetworkManager events
+#
+# Runs ifupdown scripts when NetworkManager fiddles with interfaces.
+# See NetworkManager(8) for further documentation of the dispatcher events.
+
+# We do not handle connectivity-change events in ifupdown so simply exit at
+# this point
+if [ "$2" = "connectivity-change" ]; then
+    exit 0;
+fi
+
+if [ -z "$1" ]; then
+    echo "$0: called with no interface" 1>&2
+    exit 1;
+fi
+
+if [ -n "$IP4_NUM_ADDRESSES" ] && [ "$IP4_NUM_ADDRESSES" -gt 0 ]; then
+   ADDRESS_FAMILIES="$ADDRESS_FAMILIES inet"
+fi
+if [ -n "$IP6_NUM_ADDRESSES" ] && [ "$IP6_NUM_ADDRESSES" -gt 0 ]; then
+   ADDRESS_FAMILIES="$ADDRESS_FAMILIES inet6"
+fi
+
+# If we have a VPN connection ignore the underlying IP address(es)
+if [ "$2" = "vpn-up" ] || [ "$2" = "vpn-down" ]; then
+   ADDRESS_FAMILIES=""
+fi
+
+if [ -n "$VPN_IP4_NUM_ADDRESSES" ] && [ "$VPN_IP4_NUM_ADDRESSES" -gt 0 ]; then
+   ADDRESS_FAMILIES="$ADDRESS_FAMILIES inet"
+fi
+if [ -n "$VPN_IP6_NUM_ADDRESSES" ] && [ "$VPN_IP6_NUM_ADDRESSES" -gt 0 ]; then
+   ADDRESS_FAMILIES="$ADDRESS_FAMILIES inet6"
+fi
+
+# We're probably bringing the interface down.
+[ -n "$ADDRESS_FAMILIES" ] || ADDRESS_FAMILIES="inet"
+
+# Fake ifupdown environment
+export IFACE="$1"
+export LOGICAL="$1"
+export METHOD="NetworkManager"
+export VERBOSITY="0"
+
+for i in $ADDRESS_FAMILIES; do
+
+    export ADDRFAM="$i"
+
+    # Run the right scripts
+    case "$2" in
+        up|vpn-up)
+            export MODE="start"
+            export PHASE="post-up"
+            run-parts /etc/network/if-up.d
+            ;;
+        down|vpn-down)
+            export MODE="stop"
+            export PHASE="post-down"
+            run-parts /etc/network/if-post-down.d
+            ;;
+# pre-up/pre-down not implemented. See
+# https://bugzilla.gnome.org/show_bug.cgi?id=387832
+#        pre-up)
+#            export MODE="start"
+#            export PHASE="pre-up"
+#            run-parts /etc/network/if-pre-up.d
+#            ;;
+#        pre-down)
+#            export MODE="stop"
+#            export PHASE="pre-down"
+#            run-parts /etc/network/if-down.d
+#            ;;
+        hostname|dhcp4-change|dhcp6-change)
+            # Do nothing
+            ;;
+        *)
+            echo "$0: called with unknown action \`$2'" 1>&2
+            exit 1
+            ;;
+    esac
+done

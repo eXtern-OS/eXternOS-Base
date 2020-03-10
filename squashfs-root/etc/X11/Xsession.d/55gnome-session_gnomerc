@@ -1,0 +1,23 @@
+# If we are running the GNOME session, source ~/.gnomerc
+
+BASESTARTUP=${STARTUP%% *}
+BASESTARTUP=${BASESTARTUP##*/}
+if [ "$BASESTARTUP" = x-session-manager ]; then
+    BASESTARTUP=$(basename $(readlink /etc/alternatives/x-session-manager))
+fi
+case "$BASESTARTUP" in
+  gnome-session*)
+    GNOMERC=$HOME/.gnomerc
+    if [ -r "$GNOMERC" ]; then
+      . "$GNOMERC"
+    fi
+    # We prepend /usr/share/gnome since its defaults.list actually points 
+    # to /etc so it is configurable.
+    if [ -z "$XDG_DATA_DIRS" ]; then
+      XDG_DATA_DIRS=/usr/share/gnome:/usr/local/share/:/usr/share/
+    elif [ -n "${XDG_DATA_DIRS##*/usr/share/gnome*}" ]; then
+      XDG_DATA_DIRS=/usr/share/gnome:"$XDG_DATA_DIRS"
+    fi
+    export XDG_DATA_DIRS
+    ;;
+esac

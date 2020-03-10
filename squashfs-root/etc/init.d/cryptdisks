@@ -1,0 +1,53 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          cryptdisks
+# Required-Start:    checkroot cryptdisks-early
+# Required-Stop:     umountroot cryptdisks-early
+# Should-Start:      udev mdadm-raid lvm2
+# Should-Stop:       udev mdadm-raid lvm2
+# X-Start-Before:    checkfs
+# X-Stop-After:      umountfs
+# X-Interactive:     true
+# Default-Start:     S
+# Default-Stop:      0 6
+# Short-Description: Setup remaining encrypted block devices.
+# Description:
+### END INIT INFO
+
+set -e
+
+if [ -r /lib/cryptsetup/cryptdisks.functions ]; then
+	. /lib/cryptsetup/cryptdisks.functions
+else
+	exit 0
+fi
+
+INITSTATE="remaining"
+DEFAULT_LOUD="yes"
+
+case "$CRYPTDISKS_ENABLE" in
+[Nn]*)
+	exit 0
+	;;
+esac
+
+case "$1" in
+start)
+	do_start
+	;;
+stop)
+	do_stop
+	;;
+restart|reload|force-reload)
+	do_stop
+	do_start
+	;;
+force-start)
+	FORCE_START="yes"
+	do_start
+	;;
+*)
+	echo "Usage: cryptdisks {start|stop|restart|reload|force-reload|force-start}"
+	exit 1
+	;;
+esac

@@ -1,0 +1,51 @@
+# vim:syntax=apparmor
+# ------------------------------------------------------------------
+#
+#    Copyright (C) 2009 Canonical Ltd.
+#
+#    This program is free software; you can redistribute it and/or
+#    modify it under the terms of version 2 of the GNU General Public
+#    License published by the Free Software Foundation.
+#
+# ------------------------------------------------------------------
+
+  # system configuration
+  /{usr,usr/local,var/lib/flatpak/exports}/share/applications/{*/,}               r,
+  /{usr,usr/local,var/lib/flatpak/exports}/share/applications/{*/,}defaults.list  r,
+  /{usr,usr/local,var/lib/flatpak/exports}/share/applications/{*/,}mimeinfo.cache r,
+  /var/lib/snapd/desktop/applications/mimeinfo.cache r,
+  /{usr,usr/local,var/lib/flatpak/exports}/share/applications/{*/,}*.desktop      r,
+  /var/lib/snapd/desktop/applications/{,*.desktop} r,
+  /usr/share/icons/               r,
+  /usr/share/icons/**             r,
+  /usr/share/pixmaps/             r,
+  /usr/share/pixmaps/**           r,
+  /usr/local/share/icons/               r,
+  /usr/local/share/icons/**             r,
+  /usr/local/share/pixmaps/             r,
+  /usr/local/share/pixmaps/**           r,
+  /var/lib/flatpak/exports/share/icons/   r,
+  /var/lib/flatpak/exports/share/icons/** r,
+
+  # communitheme snap
+  /snap/communitheme/*/share/icons/   r,
+  /snap/communitheme/*/share/icons/** r,
+
+  # this should probably go elsewhere
+  /{usr,var/lib/flatpak/exports}/share/mime/** r,
+
+  # per-user configurations
+  owner @{HOME}/.icons/                 r,
+  owner @{HOME}/.recently-used.xbel*    rw,
+  owner @{HOME}/.local/share/recently-used.xbel* rw,
+  owner @{HOME}/.config/user-dirs.dirs  r,
+  owner @{HOME}/.config/mimeapps.list   r,
+  owner @{HOME}/.local/share/{,flatpak/exports/share/}applications/               r,
+  owner @{HOME}/.local/share/{,flatpak/exports/share/}applications/*.desktop      r,
+  owner @{HOME}/.local/share/{,flatpak/exports/share/}applications/defaults.list  r,
+  owner @{HOME}/.local/share/{,flatpak/exports/share/}applications/mimeapps.list  r,
+  owner @{HOME}/.local/share/{,flatpak/exports/share/}applications/mimeinfo.cache r,
+  owner @{HOME}/.local/share/{,flatpak/exports/share/}icons/     r,
+  owner @{HOME}/.local/share/{,flatpak/exports/share/}icons/**   r,
+  owner @{HOME}/.local/share/{,flatpak/exports/share/}mime/      r,
+  owner @{HOME}/.local/share/{,flatpak/exports/share/}mime/**    r,

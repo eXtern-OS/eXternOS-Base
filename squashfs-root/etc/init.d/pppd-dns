@@ -1,0 +1,23 @@
+#!/bin/sh -e
+### BEGIN INIT INFO
+# Provides:          pppd-dns
+# Required-Start:    $local_fs
+# Required-Stop:
+# Default-Start:     S
+# Default-Stop:
+# Short-Description: Restore resolv.conf if the system crashed.
+# Description:       Restore /etc/resolv.conf if the system crashed before the
+#                    ppp link was shut down.
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+case "$1" in
+  start) ;;
+  stop|restart|force-reload) exit 0 ;;
+  *) echo "Usage: $0 {start|stop|restart|force-reload}" >&2; exit 1 ;;
+esac
+
+[ -x /etc/ppp/ip-down.d/0000usepeerdns ] \
+	&& exec /etc/ppp/ip-down.d/0000usepeerdns
+

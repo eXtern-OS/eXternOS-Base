@@ -1,0 +1,36 @@
+#!/bin/sh
+
+set -e
+
+# Description:      Remove routes to allow communication between machines which
+#                   only have an IPv4LL address assigned and those which only
+#                   have a routable address assigned. These were added by
+#                   /etc/network/if-up.d/avahi-autoipd.
+#
+#                   See http://developer.apple.com/qa/qa2004/qa1357.html for
+#                   more information.
+
+[ -x /usr/sbin/avahi-autoipd ] || exit 0
+
+[ "$IFACE" != "lo" ] || exit 0
+case "$ADDRFAM" in
+	inet) ;;
+	*) exit 0 ;;
+esac
+case "$METHOD" in
+	static|dhcp|NetworkManager) ;;
+	*) exit 0 ;;
+esac
+
+if [ -x /bin/ip ]; then
+	# route already present?
+	ip route show | grep -q '^169.254.0.0/16[[:space:]]' && exit 0
+
+	/bin/ip route del 169.254.0.0/16 dev $IFACE metric 1000 scope link || true
+elif [ -x /sbin/route ]; then
+	# route already present?
+	/sbin/route -n | grep -q "^169.254.0.0[[:space:]]" && exit 0
+
+	/sbin/route del -net 169.254.0.0 netmask 255.255.0.0 dev $IFACE metric 1000 || true
+fi
+

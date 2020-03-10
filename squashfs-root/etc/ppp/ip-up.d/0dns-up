@@ -1,0 +1,120 @@
+#!/bin/sh
+
+# $Id: 0dns-up,v 1.1.1.1 2004/05/07 03:12:59 john Exp $
+
+# 0dns-up by John Hasler 1999-2006.
+# Any possessor of a copy of this program may treat it as if it
+# were in the public domain.  I waive all rights.
+
+# Rev. Dec 22 1999 to put dynamic nameservers last.
+# Rev. Aug 20 2001 to use patch from Sergio Gelato <Sergio.Gelato@astro.su.se>.
+# Rev. Dec 12 2002 to delete USEPEERDNS variable and add MS_DNS1 and MS_DNS2.
+# Rev. Jan 5 2003 added explanatory text.
+# Rev. May 15 2003 to move operations to /var/run/pppconfig.
+# Rev. Apr 12 2004 to use resolvconf if installed.
+
+# 0dns-up sets up /etc/resolv.conf for the provider being connected to.  In
+# conjunction with pppd's usepeerdns option it also handles dynamic dns.
+# It expects to be passed the provider name in PPP_IPPARAM.
+
+# Pppconfig creates a file in /etc/ppp/resolv for each provider for which the
+# administrator chooses 'Static' or 'Dynamic' in the 'Configure Nameservers'
+# screen.  The files for providers for which 'Static' was chosen contain the
+# nameservers given by the administrator.  Those for which 'Dynamic' was chosen
+# are empty.  0dns-up fills in the nameservers when pppd gets them from the
+# provider when the connection comes up.  You can edit these files, adding 
+# 'search' or 'domain' directives or additional nameservers.  Read the 
+# resolv.conf manual first, though. 
+
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+# If pppconfig has been removed we are not supposed to do anything.
+test -f /usr/sbin/pppconfig || exit 0
+
+# If we don't have a provider we have nothing to do.
+test -z "$PPP_IPPARAM" && exit 0
+
+# Strip options.
+PROVIDER=`echo "$PPP_IPPARAM" | cut -d' ' -f1`
+
+ETC="/etc"
+RUNDIR="/var/run/pppconfig"
+RESOLVCONF="$ETC/resolv.conf"
+PPPRESOLV="$ETC/ppp/resolv"
+TEMPLATE="$RUNDIR/0dns.tempXXXXXXXX"
+RESOLVBAK="$RUNDIR/resolv.conf.bak.$PROVIDER"
+
+# Is PROVIDER something we can use?
+
+test -f "$PPPRESOLV/$PROVIDER" || exit 0
+
+if [ -x /sbin/resolvconf ]; then
+	test -n "$PPP_IFACE" || exit 1
+	/sbin/resolvconf -a "${PPP_IFACE}.pppconfig" < "$PPPRESOLV/$PROVIDER"
+	exit
+fi
+
+umask 022
+cd "$RUNDIR" || exit 1
+
+# Is resolv.conf a non-symlink on a ro root? If so give up.
+
+[ -e /proc/mounts ] || { echo "$0: Error: Could not read /proc/mounts" ; exit 1 ; }
+[ -L  "$RESOLVCONF" ] || grep " / " /proc/mounts | grep -q " rw " || exit 0
+
+
+# Put the resolv.conf for this provider in a temp file.  If we are using
+# dynamic dns it will be empty or contain any resolver options the user
+# added.  Otherwise it will be a complete resolv.conf for this provider.
+
+TEMPRESOLV=`mktemp $TEMPLATE` || exit 1
+mv "$TEMPRESOLV" "$RUNDIR/0dns.$PROVIDER" || exit 1
+TEMPRESOLV="$RUNDIR/0dns.$PROVIDER"
+cat "$PPPRESOLV/$PROVIDER" > "$TEMPRESOLV"
+
+# DNS1 and DNS2 are variables exported by pppd when using 'usepeerdns'.
+# Do we have them?  If so, we are using "dynamic dns".  Append a couple of
+# nameserver lines to the temp file.
+
+if [ "$DNS1" ] ; then
+    echo '' >> "$TEMPRESOLV"
+    echo "nameserver $DNS1" >> "$TEMPRESOLV"
+    if [ "$DNS2" ] ; then
+	echo '' >> "$TEMPRESOLV"
+        echo "nameserver $DNS2" >> "$TEMPRESOLV"
+    fi
+# ipppd uses MS_DNS1 and MS_DNS2 instead of DNS1 and DNS2.
+elif [ "$MS_DNS1" ] ; then
+    echo '' >> "$TEMPRESOLV"
+    echo "nameserver $MS_DNS1" >> "$TEMPRESOLV"
+    if [ "$MS_DNS2" ] ; then
+	echo '' >> "$TEMPRESOLV"
+        echo "nameserver $MS_DNS2" >> "$TEMPRESOLV"
+    fi
+fi
+
+# We should have something in TEMPRESOLV by now.  If not we'd 
+# better quit.
+
+if [ ! -s "$TEMPRESOLV" ]
+    then
+    rm -f "$TEMPRESOLV"
+    exit 1
+fi
+
+# We better not do anything if a RESOLVBAK already exists.
+if  ls | grep -q "resolv.conf.bak"
+    then
+    rm -f "$TEMPRESOLV"
+    exit 1
+fi
+
+# Back up resolv.conf. Follow symlinks.  Keep TEMPRESOLV
+# around for 0dns-down to look at.
+/bin/cp -Lp "$RESOLVCONF" "$RESOLVBAK" || exit 1
+/bin/cp -Lp "$TEMPRESOLV" "$RESOLVCONF" || exit 1
+chmod 644 "$RESOLVCONF" || exit 1
+
+
+# Restart nscd because resolv.conf has changed
+[ -x /etc/init.d/nscd ] && { invoke-rc.d nscd restart || true ; }

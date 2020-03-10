@@ -1,0 +1,83 @@
+#! /bin/sh
+
+# $Id: 0dns-down,v 1.2 2004/07/31 20:49:04 john Exp $
+
+# 0dns-down by John Hasler 1999-2004
+# Any possessor of a copy of this program may treat it as if it
+# were in the public domain.  I waive all rights.
+
+# Rev. Apr 12 2004 to use resolvconf if installed.
+
+# 0dns-down takes down what 0dns-up sets up.
+
+# If pppconfig has been removed we are not supposed to do anything.
+test -f /usr/sbin/pppconfig || exit 0
+
+# Strip options.
+PROVIDER=`echo "$PPP_IPPARAM" | cut -d' ' -f1`
+
+ETC="/etc"
+RUNDIR="/var/run/pppconfig"
+RESOLVCONF="$ETC/resolv.conf"
+RESOLVBAK="$RUNDIR/resolv.conf.bak.$PROVIDER"
+TEMPRESOLV="$RUNDIR/0dns.$PROVIDER"
+PPPRESOLV="$ETC/ppp/resolv"
+
+if [ -x /sbin/resolvconf ]; then
+	[ "$1" = "0dns-clean" ] && exit 0
+	test -n "$PPP_IFACE" || exit 1
+	/sbin/resolvconf -d "${PPP_IFACE}.pppconfig"
+fi
+
+umask 022
+cd "$RUNDIR" || exit 1
+
+# Are we being called by dns-clean?  If so fix up /etc/resolv.conf
+# and clean out /var/run/pppconfig.
+
+if [ "$1" = "0dns-clean" ]
+    then 
+    # Get the name of the provider active when we went down.  Assume there was only one.
+    PROVIDER=`ls -t resolv.conf.bak.* 2>/dev/null | awk 'BEGIN {FS = "." } /resolv\.conf\.bak/ {print $NF} {exit}'`
+    # If we don't have a provider we have nothing to do.
+    if [ -n "$PROVIDER " ]
+	then
+	RESOLVBAK="$RUNDIR/resolv.conf.bak.$PROVIDER"
+	[ -s "$RESOLVBAK" ] && /bin/cp -Lp "$RESOLVBAK" "$RESOLVCONF"
+    fi
+    exit 0
+fi
+
+# If we don't have a provider we have nothing to do.
+[ -z "$PROVIDER" ] && exit 0
+
+# Is PROVIDER something we can use?
+
+test -f "$PPPRESOLV/$PROVIDER" || exit 0
+
+# It is not an error for RESOLVBAK not to exist.
+
+if [ ! -f "$RESOLVBAK" ]
+    then
+    rm -f "$TEMPRESOLV"
+    exit 0
+fi
+
+# Make sure that the resolv.conf that 0dns-up installed has not been
+# altered.  If has give up.
+
+if [ `stat -c %Y "$TEMPRESOLV"` -ne `stat -c %Y "$RESOLVCONF"` ]
+then
+    rm -f "$TEMPRESOLV" "$RESOLVBAK"
+    exit 0
+fi
+
+# Restore resolv.conf.  Follow symlinks.
+
+/bin/cp -Lp "$RESOLVBAK" "$RESOLVCONF" || exit 1
+rm -f "$RESOLVBAK" "$TEMPRESOLV"
+
+# Tell nscd about what we've done.
+
+# Restart nscd because resolv.conf has changed
+[ -x /etc/init.d/nscd ] && { invoke-rc.d nscd restart || true ; }

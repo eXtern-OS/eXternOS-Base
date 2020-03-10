@@ -1,0 +1,143 @@
+#
+# Configuration file for the acpi-support package
+#
+#
+# The acpi-support package is intended as "glue" to make special functions of
+# laptops work. Specifically, it translates special function keys for some
+# laptop models into actions or generic function key presses.
+#
+
+
+#
+# Suspend/hibernate method
+# ------------------------
+#
+# When gnome-power-manager or klaptopdaemon are running, acpi-support will
+# translate the suspend and hibernate keys of laptops into special "suspend"
+# and "hibernate" keys that these daemons handle.
+#
+# Only in situations where there is no gnome-power-manager or klaptopdaemon
+# running, acpi-support needs to perform suspend/hibernate in some other way.
+# There are several options for this. The options are:
+#
+# dbus-pm:
+#    Perform suspend and hibernate actions via a DBUS request to the power
+#    management daemon. This works for power management daemons that we don't
+#    know of. (For gnome-power-manager and klaptopdaemon this will do nothing,
+#    since those will be detected when they are running, and triggered using
+#    a virtual keypress.)
+#
+# dbus-hal:
+#    Perform suspend and hibernate actions via a DBUS request directly to HAL,
+#    bypassing any running power management daemons.
+#
+# pm-utils:
+#    Use pm-suspend and pm-hibernate to suspend and hibernate. (The dbus method
+#    normally results in this as well, but calls through dbus. Use this option
+#    only if you don't have dbus installed.)
+#
+# hibernate:
+#    Use the hibernate package to suspend and hibernate.
+#
+# acpi-support:
+#    Use the legacy built-in suspend/hibernate support. (DEPRECATED)
+# 
+# none:
+#    Do not attempt to suspend/hibernate. Set SUSPEND_METHODS="none" to
+#    disable suspend/hibernate handling in acpi-support.
+#
+# If you specify dbus or pm-utils, the result will normally be the same as when
+# you suspend from your desktop environment. If you specify "hibernate" or
+# "acpi-support", be aware that this probably does not match what your desktop
+# environment would do (unless you have managed to configure something so that
+# the DBUS power management interfaces call the hibernate package).
+#
+#
+# Please specify a space separated list of options. The recommended value is
+# "dbus pm-utils"
+#
+SUSPEND_METHODS="dbus-pm dbus-hal pm-utils"
+
+
+
+#
+# LEGACY BUILT IN SUSPEND SUPPORT (DEPRECATED)
+# --------------------------------------------
+#
+# These options only work for the "acpi-support" suspend method. This is NOT
+# recommended, but is retained for backward compatibility reasons.
+#
+
+# Comment the next line to disable ACPI suspend to RAM
+ACPI_SLEEP=true
+
+# Comment the next line to disable suspend to disk
+ACPI_HIBERNATE=true
+
+# Change the following to "standby" to use ACPI S1 sleep, rather than S3.
+# This will save less power, but may work on more machines
+ACPI_SLEEP_MODE=mem
+
+# Add modules to this list to have them removed before suspend and reloaded
+# on resume. An example would be MODULES="em8300 yenta_socket"
+#
+# Note that network cards and USB controllers will automatically be unloaded 
+# unless they're listed in MODULES_WHITELIST
+MODULES=""
+
+# Add modules to this list to leave them in the kernel over suspend/resume
+MODULES_WHITELIST=""
+
+# Should we save and restore state using the VESA BIOS Extensions?
+SAVE_VBE_STATE=true
+
+# The file that we use to save the vbestate
+VBESTATE=/var/lib/acpi-support/vbestate
+
+# Should we attempt to warm-boot the video hardware on resume?
+POST_VIDEO=true
+
+# Save and restore video state?
+# SAVE_VIDEO_PCI_STATE=true
+
+# Should we switch the screen off with DPMS on suspend?
+USE_DPMS=true
+
+# Use Radeontool to switch the screen off? Seems to be needed on some machines
+# RADEON_LIGHT=true
+
+# Uncomment the next line to switch away from X and back again after resume.
+# This is needed for some hardware, but should be unnecessary on most.
+# DOUBLE_CONSOLE_SWITCH=true
+
+# Set the following to "platform" if you want to use ACPI to shut down
+# your machine on hibernation
+HIBERNATE_MODE=shutdown
+
+# Comment this out to disable screen locking on resume
+LOCK_SCREEN=true
+
+# Uncomment this line to have DMA disabled before suspend and reenabled
+# afterwards
+# DISABLE_DMA=true
+
+# Uncomment this line to attempt to reset the drive on resume. This seems
+# to be needed for some Sonys
+# RESET_DRIVE=true
+
+# Add services to this list to stop them before suspend and restart them in 
+# the resume process.
+STOP_SERVICES=""
+
+# Restart Infra Red services on resume - off by default as it crashes some
+# machines
+RESTART_IRDA=false
+
+# Add to this list network interfaces that you don't want to be stopped
+# during suspend (in fact any network interface whose name starts with
+# a prefix given in this list is skipped)
+SKIP_INTERFACES="dummy qemu"
+
+# Note: to enable "laptop mode" (to spin down your hard drive for longer
+# periods of time), install the laptop-mode-tools package and configure
+# it in /etc/laptop-mode/laptop-mode.conf. 

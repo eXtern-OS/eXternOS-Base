@@ -1,0 +1,216 @@
+#!/usr/bin/python
+###############################################################################
+# BRLTTY - A background process providing access to the console screen (when in
+#          text mode) for a blind person using a refreshable braille display.
+#
+# Copyright (C) 1995-2017 by The BRLTTY Developers.
+#
+# BRLTTY comes with ABSOLUTELY NO WARRANTY.
+#
+# This is free software, placed under the terms of the
+# GNU Lesser General Public License, as published by the Free Software
+# Foundation; either version 2.1 of the License, or (at your option) any
+# later version. Please see the file LICENSE-LGPL for details.
+#
+# Web Page: http://brltty.com/
+#
+# This software is maintained by Dave Mielke <dave@mielke.cc>.
+###############################################################################
+
+# BRLTTY Contraction Table - latex-access (executable)
+
+import sys, os
+
+def putProgramMessage (message):
+  stream = sys.stderr
+  stream.write(os.path.basename(sys.argv[0]) + ": " + message + "\n")
+  stream.flush()
+
+def syntaxError (message):
+  putProgramMessage(message)
+  exit(2)
+
+def semanticError (message):
+  putProgramMessage(message)
+  exit(3)
+
+def systemError (message):
+  putProgramMessage(message)
+  exit(4)
+
+def missingPackage (name):
+  systemError("package not installed: " + name)
+
+def putResponseProperty (keyword, value):
+  value = unicode(value)
+  if programArguments.verbose: putProgramMessage("rsp: " + keyword + "=" + value)
+
+  stream = sys.stdout
+  stream.write(keyword + "=" + value.encode("UTF-8") + "\n")
+  stream.flush()
+
+def getRequest ():
+  request = {}
+
+  while True:
+    try:
+      if programArguments.interactive:
+        line = raw_input(packageName + "> ")
+      else:
+        line = raw_input()
+    except EOFError:
+      if len(request) == 0: return None
+      semanticError("unexpected end-of-file on standard input")
+
+    line = line.decode("UTF-8")
+    components = line.split("=", 1)
+
+    if len(components) > 1:
+      (keyword, value) = components
+      keyword = keyword.strip().lower()
+
+      if programArguments.verbose: putProgramMessage("req: " + keyword + "=" + value)
+      request[keyword] = value
+      if keyword == "text": break
+
+  return request
+
+def processRequest ():
+  request = getRequest()
+  if not request: return False
+
+  for attribute in ("displayLength", "cursorOffset", "expandCurrentWord", "consumedChars"):
+    if hasattr(brailleTranslator, attribute):
+      delattr(brailleTranslator, attribute)
+
+  if request.has_key("maximum-length"):
+    brailleTranslator.displayLength = int(request["maximum-length"])
+
+  if request.has_key("cursor-position"):
+    position = int(request["cursor-position"])
+
+    if position > 0:
+      brailleTranslator.cursorOffset = position - 1
+
+      if request.has_key("expand-current-word"):
+        brailleTranslator.expandCurrentWord = int(request["expand-current-word"]) != 0
+
+  brailleTranslator.capitalisation = "6dot"
+  if request.has_key("capitalization-mode"):
+    if int(request["capitalization-mode"]) != 1:
+      brailleTranslator.capitalisation = "8dot"
+
+  text = request["text"]
+  brf = brailleTranslator.translate(textPreprocessor.translate(text))
+
+  if hasattr(brailleTranslator, "consumedChars"):
+    consumedLength = brailleTranslator.consumedChars
+    putResponseProperty("consumed-length", consumedLength)
+  else:
+    consumedLength = len(text)
+
+  if hasattr(brailleTranslator, "src2trans"):
+    offsets = brailleTranslator.src2trans
+    if len(offsets) > consumedLength: offsets = offsets[:consumedLength]
+    putResponseProperty("output-offsets", ",".join((str(offset) for offset in offsets)))
+
+  putResponseProperty("brf", brf)
+  return True
+
+def parseProgramArguments ():
+  import argparse
+  parser = argparse.ArgumentParser(
+    prog = os.path.basename(sys.argv[0]),
+    usage = "%(prog)s [option ...]",
+    description = """
+      This is an executable contraction table for BRLTTY
+      that uses the latex-access package
+      to translate LaTeX mathematical notation into braille.
+      BRLTTY can be found at [http://brltty.com/].
+      latex-access can be found at [http://www.latex-access.sourceforge.net/].
+    """
+  )
+
+  parser.add_argument(
+    "-c", "--configuration",
+    action = "store",
+    nargs = 1,
+    dest = "configuration",
+    default = (
+      os.path.join(os.path.expanduser("~"), "." + packageName),
+      "/etc/" + packageName + ".conf"
+    ),
+    help = "the configuration file to use"
+  )
+
+  parser.add_argument(
+    "-n", "--nemeth",
+    action = "store_const",
+    const = "nemeth",
+    dest = "translator",
+    help = "translate into Nemeth Code"
+  )
+
+  parser.add_argument(
+    "-u", "--ueb",
+    action = "store_const",
+    const = "ueb",
+    dest = "translator",
+    help = "translate into Unified English Braille"
+  )
+
+  parser.add_argument(
+    "-i", "--interactive",
+    action = "store_true",
+    dest = "interactive",
+    help = "enable input editing and history"
+  )
+
+  parser.add_argument(
+    "-v", "--verbose",
+    action = "store_true",
+    dest = "verbose",
+    help = "show request and response properties on standard error"
+  )
+
+  return parser.parse_args()
+
+if __name__ == "__main__":
+  packageName = "latex-access"
+
+  programArguments = parseProgramArguments()
+
+  if programArguments.interactive:
+    import readline, atexit
+    historyFile=os.path.join(os.path.expanduser("~"), "." + packageName + ".history")
+    atexit.register(readline.write_history_file, historyFile)
+    readline.read_history_file(historyFile)
+
+  try:
+    from latex_access import nemeth, ueb, preprocessor, settings
+  except ImportError:
+    missingPackage(packageName)
+
+  for configurationFile in programArguments.configuration:
+    if os.path.exists(configurationFile):
+      if programArguments.verbose:
+        putProgramMessage("configuration file: " + configurationFile)
+
+      settings.loadSettings(configurationFile)
+      break
+
+  if programArguments.translator:
+    settings.settings["brailletable"] = programArguments.translator
+
+  brailleTranslator = settings.brailleTableToUse()
+  textPreprocessor = preprocessor.preprocessor()
+
+  settings.activateSettings(
+    {
+      "braille": brailleTranslator,
+      "preprocessor": textPreprocessor
+    }
+  )
+
+  while processRequest(): pass
+

@@ -1,0 +1,86 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          ufw
+# Required-Start:    $local_fs
+# Required-Stop:     $local_fs
+# Default-Start:     S
+# Default-Stop:      1
+# Short-Description: start firewall
+# Description: Start ufw firewall
+### END INIT INFO
+
+set -e
+
+PATH="/sbin:/bin"
+
+[ -d /lib/ufw ] || exit 0
+
+. /lib/lsb/init-functions
+
+for s in "/lib/ufw/ufw-init-functions" "/etc/ufw/ufw.conf" "/etc/default/ufw" ; do
+    if [ -s "$s" ]; then
+        . "$s"
+    else
+        log_failure_msg "Could not find $s (aborting)"
+        exit 1
+    fi
+done
+
+error=0
+case "$1" in
+start)
+    if [ "$ENABLED" = "yes" ] || [ "$ENABLED" = "YES" ]; then
+        log_action_begin_msg "Starting firewall:" "ufw"
+        output=`ufw_start` || error="$?"
+        if [ "$error" = "0" ]; then
+            log_action_cont_msg "Setting kernel variables ($IPT_SYSCTL)"
+        fi
+        if [ ! -z "$output" ]; then
+            echo "$output" | while read line ; do
+                log_action_cont_msg "$line"
+            done
+        fi
+    else
+        log_action_begin_msg "Skip starting firewall:" "ufw (not enabled)"
+    fi
+    log_action_end_msg $error
+    exit $error
+    ;;
+stop)
+    if [ "$ENABLED" = "yes" ] || [ "$ENABLED" = "YES" ]; then
+        log_action_begin_msg "Stopping firewall:" "ufw"
+        output=`ufw_stop` || error="$?"
+        if [ ! -z "$output" ]; then
+            log_action_cont_msg "$output"
+        fi
+    else
+        log_action_begin_msg "Skip stopping firewall:" "ufw (not enabled)"
+    fi
+    log_action_end_msg $error
+    exit $error
+    ;;
+restart|force-reload)
+    log_action_begin_msg "Reloading firewall:" "ufw"
+    output=`ufw_reload` || error="$?"
+    if [ ! -z "$output" ]; then
+        log_action_cont_msg "$output"
+    fi
+    log_action_end_msg $error
+    exit $error
+    ;;
+status)
+    output=`ufw_status` || error="$?"
+    if [ ! -z "$output" ]; then
+        log_action_cont_msg "$output"
+    fi
+    log_action_end_msg $error
+    exit $error
+    ;;
+*)
+    echo "Usage: /etc/init.d/ufw {start|stop|restart|force-reload|status}"
+    exit 1
+    ;;
+esac
+
+exit 0

@@ -1,0 +1,59 @@
+###############################################################################
+# $Id: options.pptp,v 1.4 2012/08/30 21:34:13 quozl Exp $
+#
+# Sample PPTP PPP options file /etc/ppp/options.pptp
+# Options used by PPP when a connection is made by a PPTP client.
+# This file can be referred to by an /etc/ppp/peers file for the tunnel.
+# Changes are effective on the next connection.  See "man pppd".
+#
+# You are expected to change this file to suit your system.  As
+# packaged, it requires PPP 2.4.2 or later from http://ppp.samba.org/
+# and the kernel MPPE module available from the CVS repository also on
+# http://ppp.samba.org/, which is packaged for DKMS as kernel_ppp_mppe.
+###############################################################################
+
+# Lock the port
+lock
+
+# Authentication
+# We don't need the tunnel server to authenticate itself
+noauth
+
+# We won't do PAP, EAP, CHAP, or MSCHAP, but we will accept MSCHAP-V2
+# (you may need to remove these refusals if the server is not using MPPE)
+refuse-pap
+refuse-eap
+refuse-chap
+refuse-mschap
+
+# Compression
+# Turn off compression protocols we know won't be used
+nobsdcomp
+nodeflate
+
+# Encryption
+# (There have been multiple versions of PPP with encryption support,
+# choose which of the following sections you will use.  Note that MPPE
+# requires the use of MSCHAP-V2 during authentication)
+#
+# Note that using PPTP with MPPE and MSCHAP-V2 should be considered
+# insecure:
+# http://marc.info/?l=pptpclient-devel&m=134372640219039&w=2
+# https://github.com/moxie0/chapcrack/blob/master/README.md
+# http://technet.microsoft.com/en-us/security/advisory/2743314
+
+# http://ppp.samba.org/ the PPP project version of PPP by Paul Mackarras
+# ppp-2.4.2 or later with MPPE only, kernel module ppp_mppe.o
+# If the kernel is booted in FIPS mode (fips=1), the ppp_mppe.ko module
+# is not allowed and PPTP-MPPE is not available.
+# {{{
+# Require MPPE 128-bit encryption
+#require-mppe-128
+# }}}
+
+# http://mppe-mppc.alphacron.de/ fork from PPP project by Jan Dubiec
+# ppp-2.4.2 or later with MPPE and MPPC, kernel module ppp_mppe_mppc.o
+# {{{
+# Require MPPE 128-bit encryption
+#mppe required,stateless
+# }}}

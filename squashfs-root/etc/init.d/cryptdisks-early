@@ -1,0 +1,56 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          cryptdisks-early
+# Required-Start:    checkroot
+# Required-Stop:     umountroot
+# Should-Start:      udev mdadm-raid
+# Should-Stop:       udev mdadm-raid
+# X-Start-Before:    lvm2
+# X-Stop-After:      lvm2 umountfs
+# X-Interactive:     true
+# Default-Start:     S
+# Default-Stop:      0 6
+# Short-Description: Setup early encrypted block devices.
+# Description:
+### END INIT INFO
+
+set -e
+
+if [ -r /lib/cryptsetup/cryptdisks.functions ]; then
+	. /lib/cryptsetup/cryptdisks.functions
+else
+	exit 0
+fi
+
+INITSTATE="early"
+DEFAULT_LOUD=""
+
+# Create LUKS2 locking directory
+install -oroot -groot -m0700 -d /run/cryptsetup
+
+case "$CRYPTDISKS_ENABLE" in
+[Nn]*)
+	exit 0
+	;;
+esac
+
+case "$1" in
+start)
+	do_start
+	;;
+stop)
+	do_stop
+	;;
+restart|reload|force-reload)
+	do_stop
+	do_start
+	;;
+force-start)
+	FORCE_START="yes"
+	do_start
+	;;
+*)
+	echo "Usage: cryptdisks-early {start|stop|restart|reload|force-reload|force-start}"
+	exit 1
+	;;
+esac

@@ -1,0 +1,93 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          gdm3
+# Should-Start:      console-screen dbus network-manager
+# Required-Start:    $local_fs $remote_fs
+# Required-Stop:     $local_fs $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: GNOME Display Manager
+# Description:       Debian init script for the GNOME Display Manager
+### END INIT INFO
+#
+# Author:       Ryan Murray <rmurray@debian.org>
+#
+set -e
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON=/usr/sbin/gdm3
+PIDFILE=/var/run/gdm3.pid
+
+test -x $DAEMON || exit 0
+
+if [ -r /etc/default/locale ]; then
+  . /etc/default/locale
+  export LANG LANGUAGE
+fi
+
+. /lib/lsb/init-functions
+
+# To start gdm even if it is not the default display manager, change
+# HEED_DEFAULT_DISPLAY_MANAGER to "false."
+HEED_DEFAULT_DISPLAY_MANAGER=true
+DEFAULT_DISPLAY_MANAGER_FILE=/etc/X11/default-display-manager
+
+activate_logind() {
+  # Try to dbus activate logind to avoid a race conditions if we are not
+  # running systemd as PID1 and we have systemd << 204 package installed (see:
+  # #747292)
+  if [ ! -d /run/systemd/system ] && [ -x /lib/systemd/systemd-logind-launch ]; then
+    dbus-send --system --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus \
+      org.freedesktop.DBus.StartServiceByName string:org.freedesktop.login1 uint32:0 2>&1 > /dev/null
+  fi
+}
+
+case "$1" in
+  start)
+        CONFIGURED_DAEMON=$(basename "$(cat $DEFAULT_DISPLAY_MANAGER_FILE 2> /dev/null)")
+        if grep -wqs text /proc/cmdline; then
+            log_warning_msg "Not starting GNOME Display Manager; found 'text' in kernel commandline."
+        elif [ -e "$DEFAULT_DISPLAY_MANAGER_FILE" ] && \
+           [ "$HEED_DEFAULT_DISPLAY_MANAGER" = "true" ] && \
+           [ "$CONFIGURED_DAEMON" != gdm3 ] ; then
+                log_action_msg "Not starting GNOME Display Manager; it is not the default display manager"
+        else
+                log_daemon_msg "Starting GNOME Display Manager" "gdm3"
+                activate_logind || log_end_msg 1
+                /usr/share/gdm/generate-config
+                start-stop-daemon --start --quiet --pidfile $PIDFILE \
+			--background --exec $DAEMON || log_end_msg 1
+                log_end_msg 0
+        fi
+  ;;
+  stop)
+        log_daemon_msg "Stopping GNOME Display Manager" "gdm3"
+        set +e
+        start-stop-daemon --stop --quiet --pidfile $PIDFILE \
+                --name gdm3 --retry 5
+        set -e
+        log_end_msg $?
+  ;;
+  reload)
+        log_daemon_msg "Scheduling reload of GNOME Display Manager configuration" "gdm3"
+        /usr/share/gdm/generate-config
+        set +e
+        start-stop-daemon --stop --signal HUP --quiet --pidfile $PIDFILE \
+                --name gdm3
+        set -e
+        log_end_msg $?
+  ;;
+  status)
+        status_of_proc -p "$PIDFILE" "$DAEMON" gdm3 && exit 0 || exit $?
+  ;;
+  restart|force-reload)
+        $0 stop
+        $0 start
+  ;;
+  *)
+        echo "Usage: /etc/init.d/gdm3 {start|stop|restart|reload|force-reload|status}"
+        exit 1
+  ;;
+esac
+
+exit 0

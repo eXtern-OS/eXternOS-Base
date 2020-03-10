@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# These variables are for the use of the scripts run by run-parts.
+PPP_IFACE="$1"
+PPP_TTY="$2"
+PPP_SPEED="$3"
+PPP_LOCAL="$4"
+PPP_REMOTE="$5"
+PPP_IPPARAM="$6"
+export PPP_IFACE PPP_TTY PPP_SPEED PPP_LOCAL PPP_REMOTE PPP_IPPARAM
+
+# The environment is cleared before executing this script.
+PATH=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin
+export PATH
+
+# If /var/log/ppp-ipupdown.log exists use it for logging.
+if [ -e /var/log/ppp-ipupdown.log ]; then
+  exec >> /var/log/ppp-ipupdown.log 2>&1
+fi
+
+# This script can be used to override the .d files supplied by other packages.
+if [ -x /etc/ppp/ipv6-up.local ]; then
+  exec /etc/ppp/ipv6-up.local "$@"
+fi
+
+run-parts /etc/ppp/ipv6-up.d \
+  --arg="$1" --arg="$2" --arg="$3" --arg="$4" --arg="$5" --arg="$6"
+
+# if pon was called with the "quick" argument, stop pppd
+if [ -e /var/run/ppp-quick ]; then
+  rm /var/run/ppp-quick
+  wait
+  kill $PPPD_PID
+fi
+

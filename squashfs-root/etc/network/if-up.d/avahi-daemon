@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# Don't run the avahi-daemon unicast local check while bringing up
+# the loopback device; it's not necessary until we bring up a real network
+# device
+[ "$IFACE" != "lo" ] || exit 0
+case "$ADDRFAM" in
+	inet|inet6) ;;
+	*) exit 0 ;;
+esac
+
+# If we have an unicast .local domain, we immediately disable avahi to avoid
+# conflicts with the multicast IP4LL .local domain
+if [ -x /usr/lib/avahi/avahi-daemon-check-dns.sh ] ; then
+	exec /usr/lib/avahi/avahi-daemon-check-dns.sh
+fi

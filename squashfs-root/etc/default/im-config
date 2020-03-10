@@ -1,0 +1,37 @@
+# Default im-config mode (see im-config(8))
+
+OLDIFS="$IFS"
+IFS=':'
+desktop=
+for val in $XDG_CURRENT_DESKTOP; do
+    for d in 'Unity' 'MATE' 'GNOME'; do
+        [ "$d" = "$val" ] && { desktop="$d"; break 2; }
+    done
+done
+IFS="$OLDIFS"
+
+if [ -n "$desktop" ]; then
+    # Start best input method unless overridden below
+    IM_CONFIG_DEFAULT_MODE=auto
+else
+    # Start best input method only if CJKV environment and not overridden below
+    IM_CONFIG_DEFAULT_MODE=cjkv
+fi
+
+# Set locale dependent preferred IM over standard auto mode
+if [ "$desktop" != 'GNOME' -a "${XDG_CURRENT_DESKTOP%%:*}" != 'GNOME-Flashback' ]; then
+    IM_CONFIG_PREFERRED_RULE="zh_CN,fcitx:zh_TW,fcitx:zh_HK,fcitx:zh_SG,fcitx:ja_JP,fcitx:ko_KR,fcitx:vi_VN,fcitx"
+fi
+
+# User and system wide configuration is normally done via im-config program.
+# The above IM_CONFIG_PREFERRED_RULE sets locale dependent preferred IM
+# override rule.  If you wish to use uim over ibus just for ja_JP,
+# add :ja_JP,uim at the end of the above list.
+
+# Trace commands for debug
+# (This may cause problem configuration file generated under console mode)
+#IM_CONFIG_SETMODE="-x"
+
+# Verbose output for debug (uncomment following)
+#IM_CONFIG_VERBOSE="true"
+

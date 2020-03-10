@@ -1,0 +1,85 @@
+#!/bin/sh
+
+SAMBA_DHCP_CONF=/etc/samba/dhcp.conf
+
+netbios_setup() {
+	# No need to continue if we're called with an unsupported option
+
+	case $reason in
+	BOUND|RENEW|REBIND|REBOOT|EXPIRE|FAIL|RELEASE|STOP)
+		;;
+	*)
+		return
+		;;
+	esac
+
+	umask 022
+
+	local other_servers=""
+	local serverlist=""
+
+	# the destination file won't exist yet on the first run after 
+	# installing samba
+	if [ -e $SAMBA_DHCP_CONF ] && [ -s $SAMBA_DHCP_CONF ]
+	then
+		# don't continue if no settings have changed
+		if [ "$new_netbios_name_servers" = "$old_netbios_name_servers" ] \
+		   && [ "$new_netbios_scope" = "$old_netbios_scope" ] \
+		   && [ -n "$new_netbios_name_servers" ]
+		then
+			return
+		fi
+
+		# reparse our own file
+		other_servers=`sed -n -e"s/[[:space:]]$interface:[^[:space:]]*//g; \
+			s/^[[:space:]]*wins server[[:space:]]*=[[:space:]]*//pi" \
+			$SAMBA_DHCP_CONF`
+
+		serverlist="$other_servers"
+	fi
+
+	for server in $new_netbios_name_servers
+	do
+		serverlist="$serverlist $interface:$server"
+	done
+
+	echo -n > ${SAMBA_DHCP_CONF}.new
+
+	# If we're updating on failure/expire, AND there are no WINS
+	# servers for other interfaces, leave the file empty.
+	if [ -z "$other_servers" ]
+	then
+		if [ "$reason" = FAIL ] || [ "$reason" = EXPIRE ]
+		then
+			mv ${SAMBA_DHCP_CONF}.new $SAMBA_DHCP_CONF
+			return
+		fi
+	fi
+
+	if [ -n "$serverlist" ]
+	then
+		echo "   wins server =$serverlist" >> ${SAMBA_DHCP_CONF}.new
+	fi
+	if [ -n "$new_netbios_scope" ]
+	then
+		echo "   netbios scope = $new_netbios_scope" >> ${SAMBA_DHCP_CONF}.new
+	fi
+	mv ${SAMBA_DHCP_CONF}.new $SAMBA_DHCP_CONF
+
+	# reload the samba server
+	# We don't necessarily have the samba package installed. #414841
+	if [ -x /etc/init.d/smbd ]
+	then
+		if [ -x /bin/systemctl ]
+		then
+			if /bin/systemctl is-enabled smbd.service --quiet
+			then
+				/bin/systemctl try-reload-or-restart smbd.service
+			fi
+		else
+			/usr/sbin/invoke-rc.d smbd reload
+		fi
+	fi
+}
+
+netbios_setup

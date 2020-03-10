@@ -1,0 +1,322 @@
+# vim:syntax=apparmor
+
+# evince is not written with application confinement in mind and is designed to
+# operate within a trusted desktop session where anything running within the
+# user's session is trusted. That said, evince will often process untrusted
+# input (PDFs, images, etc). Ideally evince would be written in such a way that
+# image processing is separate from the main process and that processing
+# happens in a restrictive sandbox, but unfortunately that is not currently the
+# case. Because evince will process untrusted input, this profile aims to
+# provide some hardening, but considering evince's design and other factors such
+# as X, gsettings, accessibility, translations, DBus session and system
+# services, etc, complete confinement is not possible.
+
+#include <tunables/global>
+
+/usr/bin/evince {
+  #include <abstractions/audio>
+  #include <abstractions/bash>
+  #include <abstractions/cups-client>
+  #include <abstractions/dbus-accessibility>
+  #include <abstractions/evince>
+  #include <abstractions/ibus>
+  #include <abstractions/nameservice>
+
+  #include <abstractions/ubuntu-browsers>
+  #include <abstractions/ubuntu-console-browsers>
+  #include <abstractions/ubuntu-email>
+  #include <abstractions/ubuntu-console-email>
+  #include <abstractions/ubuntu-media-players>
+
+  # For now, let evince talk to any session services over dbus. We can
+  # blacklist any problematic ones (but note, evince uses libsecret :\)
+  #include <abstractions/dbus-session>
+
+  #include <abstractions/dbus-strict>
+  dbus (receive) bus=system,
+  # Allow getting information from various system services
+  dbus (send)
+      bus=system
+      member="Get*"
+      peer=(label=unconfined),
+  # Allow talking to avahi with whatever polkit allows
+  dbus (send)
+      bus=system
+      interface="org.freedesktop.Avahi{,.*}",
+  # Allow talking to colord with whatever polkit allows
+  dbus (send)
+      bus=system
+      interface="org.freedesktop.ColorManager{,.*}",
+
+  # Terminals for using console applications. These abstractions should ideally
+  # have 'ix' to restrict access to what only evince is allowed to do
+  #include <abstractions/ubuntu-gnome-terminal>
+
+  # By default, we won't support launching a terminal program in Xterm or
+  # KDE's konsole. It opens up too many unnecessary files for most users.
+  # People who need this functionality can uncomment the following:
+  ##include <abstractions/ubuntu-xterm>
+  ##include <abstractions/ubuntu-konsole>
+
+  /usr/bin/evince rmPx,
+  /usr/bin/evince-previewer Px,
+  /usr/bin/yelp Cx -> sanitized_helper,
+  /usr/bin/bug-buddy px,
+  # 'Show Containing Folder' (LP: #1022962)
+  /usr/bin/nautilus Cx -> sanitized_helper, # Gnome
+  /usr/bin/pcmanfm Cx -> sanitized_helper,  # LXDE
+  /usr/bin/krusader Cx -> sanitized_helper, # KDE
+  /usr/bin/thunar Cx -> sanitized_helper,   # XFCE
+
+  # For Xubuntu to launch the browser
+  /usr/bin/exo-open ixr,
+  /usr/lib/@{multiarch}/xfce4/exo-1/exo-helper-1 ixr,
+  /etc/xdg/xdg-xubuntu/xfce4/helpers.rc r,
+  /etc/xdg/xfce4/helpers.rc r,
+
+  # For text attachments
+  /usr/bin/gedit ixr,
+
+  # For Send to
+  /usr/bin/nautilus-sendto Cx -> sanitized_helper,
+
+  # GLib desktop launch helper (used under the hood by g_app_info_launch)
+  /usr/lib/@{multiarch}/glib-[0-9]*/gio-launch-desktop rmix,
+  /usr/bin/env ixr,
+
+  # allow directory listings (ie 'r' on directories) so browsing via the file
+  # dialog works
+  / r,
+  /**/ r,
+
+  # This is need for saving files in your home directory without an extension.
+  # Changing this to '@{HOME}/** r' makes it require an extension and more
+  # secure (but with 'rw', we still have abstractions/private-files-strict in
+  # effect).
+  owner @{HOME}/** rw,
+  owner /media/**  rw,
+  owner @{HOME}/.local/share/gvfs-metadata/** l,
+  owner /{,var/}run/user/*/gvfs-metadata/** l,
+
+  owner @{HOME}/.gnome2/evince/*       rwl,
+  owner @{HOME}/.gnome2/accels/        rw,
+  owner @{HOME}/.gnome2/accelsevince   rw,
+  owner @{HOME}/.gnome2/accels/evince  rw,
+
+  # Maybe add to an abstraction?
+  /etc/dconf/**                                       r,
+  owner @{HOME}/.cache/dconf/user                     rw,
+  owner @{HOME}/.config/dconf/user                    r,
+  owner /{,var/}run/user/*/dconf/                     w,
+  owner /{,var/}run/user/*/dconf/user                 rw,
+  owner /{,var/}run/user/*/dconf-service/keyfile/     w,
+  owner /{,var/}run/user/*/dconf-service/keyfile/user rw,
+
+  owner /{,var/}run/user/*/at-spi2-*/   rw,
+  owner /{,var/}run/user/*/at-spi2-*/** rw,
+
+  # from http://live.gnome.org/Evince/SupportedDocumentFormats. Allow
+  # read and write for all supported file formats
+  /**.[bB][mM][pP]     rw,
+  /**.[dD][jJ][vV][uU] rw,
+  /**.[dD][vV][iI]     rw,
+  /**.[gG][iI][fF]     rw,
+  /**.[jJ][pP][gG]     rw,
+  /**.[jJ][pP][eE][gG] rw,
+  /**.[oO][dD][pP]     rw,
+  /**.[fFpP][dD][fF]   rw,
+  /**.[pP][nN][mM]     rw,
+  /**.[pP][nN][gG]     rw,
+  /**.[pP][sS]         rw,
+  /**.[eE][pP][sS]     rw,
+  /**.[tT][iI][fF]     rw,
+  /**.[tT][iI][fF][fF] rw,
+  /**.[xX][pP][mM]     rw,
+  /**.[gG][zZ]         rw,
+  /**.[bB][zZ]2        rw,
+  /**.[cC][bB][rRzZ7]  rw,
+  /**.[xX][zZ]         rw,
+
+  # evince creates a temporary stream file like '.goutputstream-XXXXXX' in the
+  # directory a file is saved. This allows that behavior.
+  owner /**/.goutputstream-* w,
+}
+
+/usr/bin/evince-previewer {
+  #include <abstractions/audio>
+  #include <abstractions/bash>
+  #include <abstractions/cups-client>
+  #include <abstractions/dbus-accessibility>
+  #include <abstractions/evince>
+  #include <abstractions/ibus>
+  #include <abstractions/nameservice>
+
+  #include <abstractions/ubuntu-browsers>
+  #include <abstractions/ubuntu-console-browsers>
+  #include <abstractions/ubuntu-email>
+  #include <abstractions/ubuntu-console-email>
+  #include <abstractions/ubuntu-media-players>
+
+  # For now, let evince talk to any session services over dbus. We can
+  # blacklist any problematic ones (but note, evince uses libsecret :\)
+  #include <abstractions/dbus-session>
+
+  #include <abstractions/dbus-strict>
+  dbus (receive) bus=system,
+  # Allow getting information from various system services
+  dbus (send)
+      bus=system
+      member="Get*"
+      peer=(label=unconfined),
+  # Allow talking to avahi with whatever polkit allows
+  dbus (send)
+      bus=system
+      interface="org.freedesktop.Avahi{,.*}",
+  # Allow talking to colord with whatever polkit allows
+  dbus (send)
+      bus=system
+      interface="org.freedesktop.ColorManager{,.*}",
+
+
+  # Terminals for using console applications. These abstractions should ideally
+  # have 'ix' to restrict access to what only evince is allowed to do
+  #include <abstractions/ubuntu-gnome-terminal>
+
+  # By default, we won't support launching a terminal program in Xterm or
+  # KDE's konsole. It opens up too many unnecessary files for most users.
+  # People who need this functionality can uncomment the following:
+  ##include <abstractions/ubuntu-xterm>
+
+  /usr/bin/evince-previewer mr,
+  /usr/bin/yelp Cx -> sanitized_helper,
+  /usr/bin/bug-buddy px,
+
+  # Lenient, but remember we still have abstractions/private-files-strict in
+  # effect). Write is needed for 'print to file' from the previewer.
+  @{HOME}/ r,
+  @{HOME}/** rw,
+
+  # Maybe add to an abstraction?
+  owner /{,var/}run/user/*/dconf/          w,
+  owner /{,var/}run/user/*/dconf/user      rw,
+}
+
+/usr/bin/evince-thumbnailer {
+  #include <abstractions/base>
+  #include <abstractions/private-files-strict>
+
+  #include <abstractions/fonts>
+  deny @{HOME}/.{,cache/}fontconfig/** wl,
+  deny @{HOME}/missfont.log wl,
+
+  #include <abstractions/dbus-session-strict>
+  dbus (receive) bus=session,
+  dbus (send)
+    bus=session
+    path="/org/gtk/vfs/mounttracker"
+    interface="org.gtk.vfs.MountTracker"
+    member="ListMountableInfo"
+    peer=(label=unconfined),
+
+  # updating gvfs-metadata for thumbnails is unneeded, so explicitly deny it
+  deny dbus (send)
+    bus=session
+    path="/org/gtk/vfs/metadata"
+    interface="org.gtk.vfs.Metadata"
+    member="GetTreeFromDevice"
+    peer=(label=unconfined),
+  deny @{HOME}/.local/share/gvfs-metadata/* r,
+
+  # The thumbnailer doesn't need access to everything in the nameservice
+  # abstraction. Allow reading of /etc/passwd and /etc/group, but suppress
+  # logging denial of nsswitch.conf.
+  /etc/passwd r,
+  /etc/group r,
+  deny /etc/nsswitch.conf r,
+
+  # TCP/UDP network access for NFS
+  network inet  stream,
+  network inet6 stream,
+  network inet  dgram,
+  network inet6 dgram,
+
+  /etc/papersize r,
+
+  /usr/bin/evince-thumbnailer mr,
+
+  /etc/texmf/ r,
+  /etc/texmf/** r,
+  /etc/xpdf/* r,
+
+  /usr/bin/gs-esp ixr,
+  /usr/bin/mktexpk Cx -> sanitized_helper,
+  /usr/bin/mktextfm Cx -> sanitized_helper,
+  /usr/bin/dvipdfm Cx -> sanitized_helper,
+  /usr/bin/dvipdfmx Cx -> sanitized_helper,
+
+  # supported archivers
+  /{usr/,}bin/gzip ixr,
+  /{usr/,}bin/bzip2 ixr,
+  /usr/bin/unrar* ixr,
+  /usr/bin/unzip ixr,
+  /usr/bin/7zr ixr,
+  /usr/lib/p7zip/7zr ixr,
+  /usr/bin/7za ixr,
+  /usr/lib/p7zip/7za ixr,
+  /usr/bin/zipnote ixr,
+  /{usr/,}bin/tar ixr,
+  /usr/bin/xz ixr,
+
+  # miscellaneous access for the above
+  owner @{PROC}/@{pid}/fd/ r,
+  owner @{PROC}/@{pid}/mountinfo r,
+  /sys/devices/system/cpu/ r,
+
+  # allow read access to anything in /usr/share, for plugins and input methods
+  /usr/local/share/** r,
+  /usr/share/** r,
+  /usr/lib/ghostscript/** mr,
+  /var/lib/ghostscript/** r,
+  /var/lib/texmf/** r,
+
+  # from http://live.gnome.org/Evince/SupportedDocumentFormats. Allow
+  # read for all supported file formats
+  /**.[bB][mM][pP]     r,
+  /**.[dD][jJ][vV][uU] r,
+  /**.[dD][vV][iI]     r,
+  /**.[gG][iI][fF]     r,
+  /**.[jJ][pP][gG]     r,
+  /**.[jJ][pP][eE][gG] r,
+  /**.[oO][dD][pP]     r,
+  /**.[fFpP][dD][fF]   r,
+  /**.[pP][nN][mM]     r,
+  /**.[pP][nN][gG]     r,
+  /**.[pP][sS]         r,
+  /**.[eE][pP][sS]     r,
+  /**.[eE][pP][sS][fFiI23] r,
+  /**.[tT][iI][fF]     r,
+  /**.[tT][iI][fF][fF] r,
+  /**.[xX][pP][mM]     r,
+  /**.[gG][zZ]         r,
+  /**.[bB][zZ]2        r,
+  /**.[cC][bB][rRzZ7]  r,
+  /**.[xX][zZ]         r,
+
+  owner @{HOME}/.texlive*/** r,
+  owner @{HOME}/.texmf*/** r,
+  owner @{HOME}/.local/share/{,flatpak/exports/share/}mime/** r,
+  owner @{HOME}/.local/share/{,flatpak/exports/share/}mime/** r,
+
+  # With the network rules above, this allows data exfiltration for files
+  # not covered by private-files-strict.
+  @{HOME}/ r,
+  owner @{HOME}/[^.]** r,
+  owner /media/**  r,
+
+  owner /tmp/.gnome_desktop_thumbnail* w,
+  owner /tmp/gnome-desktop-thumbnailer* w,
+  owner /tmp/evince-thumbnailer*/{,**} rw,
+
+  # Site-specific additions and overrides. See local/README for details.
+  #include <local/usr.bin.evince>
+}

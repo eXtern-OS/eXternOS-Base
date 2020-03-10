@@ -1,0 +1,64 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          cups-browsed
+# Required-Start:    $syslog $remote_fs $network $named $time
+# Required-Stop:     $syslog $remote_fs $network $named $time
+# Should-Start:      avahi-daemon
+# Should-Stop:       avahi-daemon
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: cups-browsed - Make remote CUPS printers available locally
+# Description: This daemon browses Bonjour broadcasts of shared remote CUPS
+#              printers and makes these printers available locally by creating
+#              local CUPS queues pointing to the remote queues. This replaces
+#              the CUPS browsing which was dropped in CUPS 1.6.1. For the end
+#              the behavior is the same as with the old CUPS broadcasting/
+#              browsing, but in the background the standard method for network
+#              service announcement and discovery, Bonjour, is used.
+### END INIT INFO
+
+DAEMON=/usr/sbin/cups-browsed
+NAME=cups-browsed
+PIDFILE=/var/run/cups/$NAME.pid
+DESC="CUPS Bonjour daemon"
+
+unset TMPDIR
+
+test -x $DAEMON || exit 0
+
+. /lib/lsb/init-functions
+
+SSD_OPTIONS="--quiet --pidfile $PIDFILE --make-pidfile"
+
+case "$1" in
+  start)
+	log_begin_msg "Starting $DESC: $NAME"
+
+	mkdir -p `dirname "$PIDFILE"`
+	start-stop-daemon --start --oknodo --background $SSD_OPTIONS --exec $DAEMON
+	log_end_msg $?
+	;;
+  stop)
+	log_begin_msg "Stopping $DESC: $NAME"
+	start-stop-daemon --stop --retry 5 --oknodo $SSD_OPTIONS --name $NAME
+	log_end_msg $?
+        rm -f $PIDFILE
+	;;
+  restart|force-reload)
+	log_begin_msg "Restarting $DESC: $NAME"
+	if start-stop-daemon --stop --retry 5 --oknodo $SSD_OPTIONS --name $NAME; then
+		start-stop-daemon --start --background $SSD_OPTIONS --exec $DAEMON
+	fi
+	log_end_msg $?
+	;;
+  status)
+        status_of_proc "$DAEMON" "$NAME" && exit 0 || exit $?
+	;;
+  *)
+	N=/etc/init.d/${0##*/}
+	echo "Usage: $N {start|stop|force-reload|restart|status}" >&2
+	exit 1
+	;;
+esac
+
+exit 0

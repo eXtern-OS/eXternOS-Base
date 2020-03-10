@@ -1,0 +1,69 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          anacron
+# Required-Start:    $remote_fs $syslog $time
+# Required-Stop:     $remote_fs $syslog $time
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: Run anacron jobs
+# Description: The first purpose of this script is to run anacron at
+#              boot so that it can catch up with missed jobs.  Note
+#              that anacron is not a daemon.  It is run here just once
+#              and is later started by the real cron.  The second
+#              purpose of this script is that said cron job invokes
+#              this script to start anacron at those subsequent times,
+#              to keep the logic in one place.
+### END INIT INFO
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin
+
+test -x /usr/sbin/anacron || exit 0
+test -r /etc/default/anacron && . /etc/default/anacron
+
+. /lib/lsb/init-functions
+
+case "$1" in
+  start)
+    if init_is_upstart 2>/dev/null; then
+        exit 1
+    fi
+    log_daemon_msg "Starting anac(h)ronistic cron" "anacron"
+    if test x"$ANACRON_RUN_ON_BATTERY_POWER" != x"yes" && test -x /usr/bin/on_ac_power
+    then
+        /usr/bin/on_ac_power >/dev/null
+        if test $? -eq 1
+        then
+          log_progress_msg "deferred while on battery power"
+	  log_end_msg 0
+	  exit 0
+        fi
+    fi
+
+    # on_ac_power doesn't exist, on_ac_power returns 0 (ac power being used)
+    # or on_ac_power returns 255 (undefined, desktop machine without APM)
+    start-stop-daemon --start --exec /usr/sbin/anacron -- -s
+    log_end_msg 0
+    ;;
+  restart|force-reload|reload)
+	# nothing to do
+    :
+    ;;
+  stop)
+    if init_is_upstart 2>/dev/null && status anacron 2>/dev/null | grep -q start
+    then
+        exit 0
+    fi
+    log_daemon_msg "Stopping anac(h)ronistic cron" "anacron"
+    start-stop-daemon --stop --exec /usr/sbin/anacron --oknodo --quiet
+    log_end_msg 0
+    ;;
+  status)
+    exit 4
+    ;;
+  *)
+    echo "Usage: /etc/init.d/anacron {start|stop|restart|force-reload|reload}"
+    exit 2
+    ;;
+esac
+
+exit 0

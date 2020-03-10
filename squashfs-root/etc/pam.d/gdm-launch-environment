@@ -1,0 +1,10 @@
+#%PAM-1.0
+auth    requisite       pam_nologin.so
+auth    required        pam_permit.so
+@include common-account
+session optional        pam_keyinit.so force revoke
+session required        pam_limits.so
+session required        pam_env.so readenv=1
+session required        pam_env.so readenv=1 user_readenv=1 envfile=/etc/default/locale
+@include common-session
+@include common-password

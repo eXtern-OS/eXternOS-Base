@@ -1,0 +1,268 @@
+# 
+# Apport bash-completion
+#
+###############################################################################
+
+# get available symptoms
+_apport_symptoms ()
+{
+    local syms
+    if [ -r /usr/share/apport/symptoms ]; then 
+        for FILE in $(ls /usr/share/apport/symptoms); do
+            # hide utility files and symptoms that don't have a run() function
+            if [[ ! "$FILE" =~ ^_.* && -n $(egrep "^def run\s*\(.*\):" /usr/share/apport/symptoms/$FILE) ]]; then
+                syms="$syms ${FILE%.py}"
+            fi
+        done
+    fi
+    echo $syms
+
+}
+
+# completion when used without parameters
+_apport_parameterless ()
+{
+    local param
+    # parameter-less completion
+    # param= COMMAND parameters
+    #        package names
+    #        PIDs
+    #        Symptoms
+    #        any file
+    param="$dashoptions \
+           $( apt-cache pkgnames $cur 2> /dev/null ) \
+           $( command ps axo pid | sed 1d ) \
+           $( _apport_symptoms ) \
+           $( compgen -G "${cur}*" )"
+    COMPREPLY=( $( compgen -W "$param" -- $cur) )
+
+}
+
+# apport-bug ubuntu-bug completion
+_apport-bug ()
+{
+    local cur dashoptions prev param
+
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+
+    # available options
+    dashoptions='-h --help --save -v --version --tag -w --window'
+
+    case "$prev" in
+    ubuntu-bug | apport-bug)
+        case "$cur" in
+        -*)
+            # parameter completion
+            COMPREPLY=( $( compgen -W "$dashoptions" -- $cur ) )
+
+        ;;
+        *)
+            # no parameter given
+            _apport_parameterless 
+
+        ;;
+        esac
+
+    ;;
+    --save)
+        COMPREPLY=( $( compgen -o default -G "$cur*" ) )
+    
+    ;;
+    -w | --window)
+        dashoptions="--save --tag"
+        COMPREPLY=( $( compgen -W "$dashoptions" -- $cur ) )
+    ;;
+    -h | --help | -v | --version | --tag)
+        # standalone parameters
+        return 0
+
+    ;;
+    *)
+        # --save and --window make only sense once
+        dashoptions="--tag"
+        if ! [[ "${COMP_WORDS[*]}" =~ .*--save.* ]]; then
+            dashoptions="--save $dashoptions"
+        fi
+        if ! [[ "${COMP_WORDS[*]}" =~ .*--window.* || "${COMP_WORDS[*]}" =~ .*\ -w\ .* ]]; then
+            dashoptions="-w --window $dashoptions"
+        fi
+
+        case "$cur" in
+        -*)
+            # parameter completion
+            COMPREPLY=( $( compgen -W "$dashoptions" -- $cur ) )
+
+        ;;
+        *)
+            _apport_parameterless 
+
+        ;;
+        esac
+
+    ;;
+    esac
+}
+
+# apport-cli completion
+_apport-cli ()
+{
+    local cur dashoptions prev param
+
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+
+    # available options
+    dashoptions='-h --help -f --file-bug -u --update-bug -s --symptom \
+                 -c --crash-file --save -v --version --tag -w --window'
+
+    case "$prev" in
+    apport-cli)
+        case "$cur" in
+        -*)
+            # parameter completion
+            COMPREPLY=( $( compgen -W "$dashoptions" -- $cur ) )
+
+        ;;
+        *)
+            # no parameter given
+            _apport_parameterless 
+
+        ;;
+        esac
+
+    ;;
+    -f | --file-bug)
+        param="-P --pid -p --package -s --symptom"
+        COMPREPLY=( $( compgen -W "$param $(_apport_symptoms)" -- $cur) )
+
+    ;;
+    -s | --symptom)
+        COMPREPLY=( $( compgen -W "$(_apport_symptoms)" -- $cur) )
+
+    ;;
+    --save)
+        COMPREPLY=( $( compgen -o default -G "$cur*" ) )
+    
+    ;;
+    -c | --crash-file)
+        # only show *.apport *.crash files
+        COMPREPLY=( $( compgen -G "${cur}*.apport"
+                       compgen -G "${cur}*.crash" ) )
+
+    ;;
+    -w | --window)
+        dashoptions="--save --tag"
+        COMPREPLY=( $( compgen -W "$dashoptions" -- $cur ) )
+    ;;
+    -h | --help | -v | --version | --tag)
+        # standalone parameters
+        return 0
+
+    ;;
+    *)
+        dashoptions='--tag'
+
+        # most parameters only make sense once
+        if ! [[ "${COMP_WORDS[*]}" =~ .*--save.* ]]; then
+            dashoptions="--save $dashoptions"
+        fi
+        if ! [[ "${COMP_WORDS[*]}" =~ .*--window.* || "${COMP_WORDS[*]}" =~ .*\ -w\ .* ]]; then
+            dashoptions="-w --window $dashoptions"
+        fi
+        if ! [[ "${COMP_WORDS[*]}" =~ .*--symptom.* || "${COMP_WORDS[*]}" =~ .*\ -s\ .* ]]; then
+            dashoptions="-s --symptom $dashoptions"
+        fi
+        if ! [[ "${COMP_WORDS[*]}" =~ .*--update.* || "${COMP_WORDS[*]}" =~ .*\ -u\ .* ]]; then
+            dashoptions="-u --update $dashoptions"
+        fi
+        if ! [[ "${COMP_WORDS[*]}" =~ .*--file-bug.* || "${COMP_WORDS[*]}" =~ .*\ -f\ .* ]]; then
+            dashoptions="-f --file-bug $dashoptions"
+        fi
+        if ! [[ "${COMP_WORDS[*]}" =~ .*--crash-file.* || "${COMP_WORDS[*]}" =~ .*\ -c\ .* ]]; then
+            dashoptions="-c --crash-file $dashoptions"
+        fi
+
+        # use same completion as if no parameter is given
+        case "$cur" in
+        -*)
+            # parameter completion
+            COMPREPLY=( $( compgen -W "$dashoptions" -- $cur ) )
+
+        ;;
+        *)
+            _apport_parameterless 
+
+        ;;
+        esac
+
+    ;;
+    esac
+}
+
+# apport-unpack completion
+_apport-unpack ()
+{
+    local cur prev
+
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    case "$prev" in
+    apport-unpack)
+        # only show *.apport *.crash files
+        COMPREPLY=( $( compgen -G "${cur}*.apport"
+                       compgen -G "${cur}*.crash" ) )
+
+    ;;
+    esac
+}
+
+# apport-collect completion
+_apport-collect ()
+{
+    local cur prev
+
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    case "$prev" in 
+    apport-collect)
+        COMPREPLY=( $( compgen -W "-p --package --tag" -- $cur) )
+
+    ;;
+    -p | --package)
+        # list package names
+        COMPREPLY=( $( apt-cache pkgnames $cur 2> /dev/null ) )
+
+    ;;
+    --tag)
+        # standalone parameter
+        return 0
+    ;;
+    *)
+        # only complete -p/--package once
+        if [[ "${COMP_WORDS[*]}" =~ .*\ -p.* || "${COMP_WORDS[*]}" =~ .*--package.* ]]; then
+            COMPREPLY=( $( compgen -W "--tag" -- $cur) )
+        else
+            COMPREPLY=( $( compgen -W "-p --package --tag" -- $cur) )
+        fi
+        
+    ;;
+    esac
+}
+
+# bind completion to apport commands
+complete -F _apport-bug -o filenames -o dirnames ubuntu-bug
+complete -F _apport-bug -o filenames -o dirnames apport-bug
+complete -F _apport-cli -o filenames -o dirnames apport-cli
+complete -F _apport-unpack -o filenames -o dirnames apport-unpack
+complete -F _apport-collect apport-collect
+
+# vi: syntax=bash

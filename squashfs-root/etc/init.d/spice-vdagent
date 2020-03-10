@@ -1,0 +1,104 @@
+#!/bin/sh
+#
+# spice-vdagent Agent daemon for Spice guests
+#
+# chkconfig:   345 70 30
+# description: Together with a per X-session agent process the spice agent \
+#              daemon enhances the spice guest user experience with client \
+#              mouse mode, guest <-> client copy and paste support and more.
+
+### BEGIN INIT INFO
+# Provides: 	  	spice-vdagent
+# Required-Start: 	$local_fs $remote_fs
+# Required-Stop:  	$local_fs $remote_fs
+# Should-Start:   	dbus
+# Should-Stop:    	
+# Default-Start:  	2 3 4 5
+# Default-Stop:   	0 1 6
+# Short-Description: 	Agent daemon for Spice guests
+# Description:    	Together with a per X-session agent process the spice agent
+#                 	daemon enhances the spice guest user experience with client
+#                 	mouse mode, guest <-> client copy and paste support and more.
+### END INIT INFO
+
+
+exec="/usr/sbin/spice-vdagentd"
+prog="spice-vdagentd"
+pidfile="/var/run/spice-vdagentd/spice-vdagentd.pid"
+port="/dev/virtio-ports/com.redhat.spice.0"
+
+[ -e /etc/default/$prog ] && . /etc/default/$prog
+[ ! -d /var/run/spice-vdagentd ] && mkdir -p /var/run/spice-vdagentd
+
+. /lib/lsb/init-functions
+
+lockfile=/var/lock/$prog
+
+start() {
+    [ -x $exec ] || exit 5
+    [ -c $port ] || exit 0
+    modprobe uinput > /dev/null 2>&1
+    # In case the previous running vdagentd crashed
+    rm -f /var/run/spice-vdagentd/spice-vdagent-sock
+    log_daemon_msg "Starting Agent daemon for Spice guests" "spice-vdagent"
+    if start-stop-daemon --start --quiet --oknodo --pidfile $pidfile --exec $exec -- $SPICE_VDAGENTD_EXTRA_ARGS ; then
+        log_end_msg 0
+    else
+        log_end_msg 1
+    fi
+}
+
+stop() {
+    log_daemon_msg "Stopping Agent daemon for Spice guests" "spice-vdagent"
+    if start-stop-daemon --stop --quiet --oknodo --pidfile $pidfile; then
+        log_end_msg 0
+    else
+        log_end_msg 1
+    fi
+}
+
+restart() {
+    stop
+    start
+}
+
+reload() {
+    restart
+}
+
+force_reload() {
+    restart
+}
+
+status() {
+    status_of_proc -p $pidfile $exec $prog && exit 0 || exit $?
+}
+
+case "$1" in
+    start)
+        $1
+        ;;
+    stop)
+        $1
+        ;;
+    restart)
+        $1
+        ;;
+    reload)
+        $1
+        ;;
+    force-reload)
+        force_reload
+        ;;
+    status)
+        status
+        ;;
+    condrestart|try-restart)
+        status || exit 0
+        restart
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart|try-restart|reload|force-reload}"
+        exit 2
+esac
+exit $?

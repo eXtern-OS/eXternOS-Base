@@ -1,0 +1,46 @@
+#!/bin/sh
+# vim: set sts=4 expandtab:
+# Copyright (C) 2012 Osamu Aoki <osamu@debian.org>
+# Copyright (C) 2012 Aron Xu <aron@debian.org>
+# GNU General Public License version 2 or later.
+#
+# Input Method launcher hook ... see im-launch(1).
+# The hook script for dbus-launch is in 75 which changes $STARTUP string.
+# This shuld be befor this dbus-launch hook to ensure the working dbus
+# for input method.  Thus moved from 80 to 70.
+
+IMLAUNCH=/usr/bin/im-launch
+
+# If already tweaked, keep hands off :-)
+# If im-config is removed but not purged, keep hands off :-)
+if [ -z "$XMODIFIERS" ] && \
+   [ -z "$GTK_IM_MODULE" ] && \
+   [ -z "$QT_IM_MODULE" ] && \
+   [ -z "$QT4_IM_MODULE" ] && \
+   [ -z "$CLUTTER_IM_MODULE" ] && \
+   [ -r /usr/share/im-config/xinputrc.common ]; then
+    IM_CONFIG_PHASE=1
+    export IM_CONFIG_PHASE
+    # initialize all im-config common functions and parameters
+    . /usr/share/im-config/xinputrc.common
+    unset TEXTDOMAIN
+    unset TEXTDOMAINDIR
+    # source the first found configuration file
+    if [ -r "$IM_CONFIG_XINPUTRC_USR" ]; then
+        . $IM_CONFIG_XINPUTRC_USR
+    elif [ -r "$IM_CONFIG_XINPUTRC_SYS" ]; then
+        . $IM_CONFIG_XINPUTRC_SYS
+    fi
+    # always export variables even for manual configuration.
+    export XMODIFIERS
+    export GTK_IM_MODULE
+    export QT_IM_MODULE
+    export QT4_IM_MODULE
+    export CLUTTER_IM_MODULE
+fi
+
+# Change $STARTUP string to im-launch while keeping the old $STARTUP string
+# as its arguments
+if [ -x "$IMLAUNCH" ]; then
+    STARTUP="$IMLAUNCH $STARTUP"
+fi

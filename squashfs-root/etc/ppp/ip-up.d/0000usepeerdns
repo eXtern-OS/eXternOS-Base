@@ -1,0 +1,33 @@
+#!/bin/sh -e
+
+# this variable is only set if the usepeerdns pppd option is being used
+[ "$USEPEERDNS" ] || exit 0
+
+# exit if the resolvconf package is installed
+[ -x /sbin/resolvconf ] && exit 0
+
+# create the file if it does not exist
+if [ ! -e /etc/resolv.conf ]; then
+  : > /etc/resolv.conf
+fi
+
+# follow any symlink to find the real file
+REALRESOLVCONF=$(readlink --canonicalize /etc/resolv.conf)
+
+# merge the new nameservers with the other options from the old configuration
+{
+  cat /etc/ppp/resolv.conf
+  grep --invert-match '^nameserver[[:space:]]' "$REALRESOLVCONF" || true
+} > "$REALRESOLVCONF.tmp"
+
+# backup the old configuration and install the new one
+cp -a "$REALRESOLVCONF" "$REALRESOLVCONF.pppd-backup.$PPP_IFACE"
+mv -f "$REALRESOLVCONF.tmp" "$REALRESOLVCONF"
+
+# restart nscd because resolv.conf has changed
+if [ -e /var/run/nscd.pid ]; then
+  /etc/init.d/nscd restart || true
+fi
+
+exit 0
+

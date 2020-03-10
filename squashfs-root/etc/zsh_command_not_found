@@ -1,0 +1,14 @@
+# (c) Zygmunt Krynicki 2007,
+# Licensed under GPL, see COPYING for the whole text
+#
+# This script will look-up command in the database and suggest
+# installation of packages available from the repository
+
+if [[ -x /usr/lib/command-not-found ]] ; then
+	if (( ! ${+functions[command_not_found_handler]} )) ; then
+		function command_not_found_handler {
+			[[ -x /usr/lib/command-not-found ]] || return 1
+			/usr/lib/command-not-found --no-failure-msg -- ${1+"$1"} && :
+		}
+	fi
+fi
