@@ -1,0 +1,16 @@
+#!/bin/sh
+# check if package system is locked
+# return 0 if unlocked, 2 if locked, 1 on error
+set -e
+
+for f in /var/lib/dpkg/lock /var/cache/apt/archives/lock \
+    /var/lib/apt/lists/lock /run/unattended-upgrades.lock; do
+    [ -e $f ] || continue
+
+    # fuser succeeds if there is at least one user
+    if fuser $f; then
+        exit 2
+    fi
+done
+
+exit 0

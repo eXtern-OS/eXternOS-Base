@@ -1,0 +1,11 @@
+QT.KCoreAddons.VERSION = 5.64.0
+QT.KCoreAddons.MAJOR_VERSION = 5
+QT.KCoreAddons.MINOR_VERSION = 64
+QT.KCoreAddons.PATCH_VERSION = 0
+QT.KCoreAddons.name = KF5CoreAddons
+QT.KCoreAddons.module = KF5CoreAddons
+QT.KCoreAddons.defines = 
+QT.KCoreAddons.includes = /usr/include/KF5/KCoreAddons
+QT.KCoreAddons.private_includes =
+QT.KCoreAddons.libs = /usr/lib/x86_64-linux-gnu
+QT.KCoreAddons.depends = core

@@ -1,0 +1,53 @@
+#!/bin/sh
+# Fallback in case nothing else works. Look for vmlinu[xz] file in root and
+# /boot, see if there is a matching initrd, and wing it.
+. /usr/share/os-prober/common.sh
+set -e
+
+partition="$1"
+bootpart="$2"
+mpoint="$3"
+type="$4"
+
+mappedpartition=$(mapdevfs "$partition" 2>/dev/null) || mappedpartition="$partition"
+
+exitcode=1
+for kernpat in /vmlinuz /vmlinux /boot/vmlinuz /boot/vmlinux "/boot/vmlinuz*" \
+	        "/boot/vmlinux*" "/vmlinuz*" "/vmlinux*" "/kernel-*" "/boot/kernel-*"; do
+	if echo "$kernpat" | grep -q boot/; then
+		kernbootpart="$bootpart"
+	else
+		kernbootpart="$partition"
+	fi
+	for kernfile in $(eval ls -t "$mpoint$kernpat" 2>/dev/null); do
+		kernbasefile=$(echo "$kernfile" | sed "s!^$mpoint!!")
+		if [ -f "$kernfile" ] && [ ! -L "$kernfile" ]; then
+			initrdname=$(echo "$kernfile" | sed "s/vmlinu[zx]/initrd\*/")
+			# Yellow Dog Linux appends .img to it.
+			initrdname1="${initrdname}.img"
+			# Arch Linux names its initrds weirdly.  We take
+			# some care here to avoid false positives on other
+			# systems, since kernel.img could conceivably be a
+			# kernel itself.
+			initrdname2=$(echo "$kernfile" | sed -n 's/vmlinu[zx]\([0-9][0-9]*\)/kernel\1/p' | sed 's/$/.img/')
+			# Dracut initramfses are named differently again.
+			initrdname3=$(echo "$kernfile" | sed "s/vmlinu[zx]/initramfs\*/" | sed 's/$/.img/')
+			# And Gentoo's also
+			initrdname4=$(echo "$kernfile" | sed "s/kernel/initramfs\*/")
+			foundinitrd=0
+			for initrd in $(eval ls "$initrdname" "$initrdname1" "$initrdname2" "$initrdname3" "$initrdname4" 2>/dev/null); do
+				if [ "$initrd" != "$kernfile" ] && [ -f "$initrd" ] && [ ! -L "$initrd" ]; then
+					initrd=$(echo "$initrd" | sed "s!^$mpoint!!")
+					result "$partition:$kernbootpart::$kernbasefile:$initrd:root=$mappedpartition"
+					exitcode=0
+					foundinitrd=1
+				fi
+			done
+			if [ "$foundinitrd" = 0 ]; then
+				result "$partition:$kernbootpart::$kernbasefile::root=$mappedpartition"
+				exitcode=0
+			fi
+		fi
+	done
+done
+exit "$exitcode"

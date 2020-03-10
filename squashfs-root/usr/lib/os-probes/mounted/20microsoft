@@ -1,0 +1,140 @@
+#!/bin/sh
+# Detects all Microsoft OSes on a collection of partitions.
+
+. /usr/share/os-prober/common.sh
+
+partition="$1"
+mpoint="$2"
+type="$3"
+
+# This script looks for legacy BIOS bootloaders only. Skip if running UEFI
+if [ -d /sys/firmware/efi ] && [ ! -f /var/lib/partman/ignore_uefi ] && [ -z "$WINOSDATA" ]; then
+	debug "Skipping legacy bootloaders on UEFI system"
+	exit 1
+fi
+
+# Weed out stuff that doesn't apply to us
+case "$type" in
+	ntfs|ntfs-3g) debug "$1 is a NTFS partition" ;;
+	vfat) debug "$1 is a FAT32 partition" ;;
+	msdos) debug "$1 is a FAT16 partition" ;;
+	fat) debug "$1 is a FAT partition (mounted by GRUB)" ;;
+	fuse|fuseblk) debug "$1 is a FUSE partition" ;; # might be ntfs-3g
+	*) debug "$1 is not a MS partition: exiting"; exit 1 ;;
+esac
+
+found=
+# Vista (previously Longhorn)
+if item_in_dir -q bootmgr "$2"; then
+	# there might be different boot directories in different case as:
+	# boot Boot BOOT
+	for boot in $(item_in_dir boot "$2"); do
+		bcd=$(item_in_dir bcd "$2/$boot")
+		if [ -n "$bcd" ]; then
+			if   grep -aqs "W.i.n.d.o.w.s. .1.0" "$2/$boot/$bcd"; then
+				long="Windows 10"
+			elif grep -aqs "W.i.n.d.o.w.s. .8" "$2/$boot/$bcd"; then
+				long="Windows 8"
+			elif grep -aqs "W.i.n.d.o.w.s. .7" "$2/$boot/$bcd"; then
+				long="Windows 7"
+			elif grep -aqs "W.i.n.d.o.w.s. .V.i.s.t.a" "$2/$boot/$bcd"; then
+				long="Windows Vista"
+			elif grep -aqs "W.i.n.d.o.w.s. .S.e.r.v.e.r. .2.0.0.8. .R.2." "$2/$boot/$bcd"; then
+				long="Windows Server 2008 R2"
+			elif grep -aqs "W.i.n.d.o.w.s. .S.e.r.v.e.r. .2.0.0.8." "$2/$boot/$bcd"; then
+				long="Windows Server 2008"
+			elif grep -aqs "W.i.n.d.o.w.s. .R.e.c.o.v.e.r.y. .E.n.v.i.r.o.n.m.e.n.t" "$2/$boot/$bcd"; then
+				long="Windows Recovery Environment"
+			elif grep -aqs "W.i.n.d.o.w.s. .S.e.t.u.p" "$2/$boot/$bcd"; then
+				long="Windows Recovery Environment"
+			else
+				long="Windows Vista"
+			fi
+			short=Windows
+
+			found=true
+
+			break
+		fi
+	done
+fi
+
+# 2000/XP/NT4.0
+if [ -z "$found" ] && item_in_dir -q ntldr "$2" && item_in_dir -q ntdetect.com "$2"; then
+	long="Windows NT/2000/XP"
+	short=Windows
+	ini=$(item_in_dir boot.ini "$2")
+	if [ -n "$ini" ]; then
+		multicount="$(grep -e "^multi" "$2/$ini" | wc -l)"
+		scsicount="$(grep -e "^scsi" "$2/$ini" | wc -l)"
+		msoscount="$(expr "${multicount}" + "${scsicount}")"
+		if [ "$msoscount" -eq 1 ]; then
+			# We need to remove a Carriage Return at the end of
+			# the line...
+			defaultmspart="$(grep -e "^default=" "$2/$ini" | cut -d '=' -f2 | tr -d '\r')"
+			# Escape any backslashes in defaultmspart
+			grepexp="^$(echo "$defaultmspart" | sed -e 's/\\/\\\\/')="
+			# Colons not allowed; replace by spaces
+			# Accented characters (non UTF-8) cause debconf to
+			# hang, so we fall back to the default if the name
+			# contains any weird characters.
+			long="$(grep -e "$grepexp" "$2/$ini" | cut -d '"' -f2 | \
+				tr ':' ' ' | LC_ALL=C grep -v '[^a-zA-Z0-9 &()/_-]')"
+			if [ -z "$long" ]; then
+				long="Windows NT/2000/XP"
+			fi
+		else
+			long="Windows NT/2000/XP"
+		fi
+
+		found=true
+	fi
+fi
+
+# MS-DOS
+if [ -z "$found" ] && item_in_dir -q dos "$2"; then
+	long="MS-DOS 5.x/6.x/Win3.1"
+	short=MS-DOS
+
+	found=true
+fi
+
+# 95/98/Me
+if [ -z "$found" ] && item_in_dir -q windows "$2" &&
+     item_in_dir -q win.com "$2"/"$(item_in_dir windows "$2")"; then
+	long="Windows 95/98/Me"
+	short=Windows9xMe
+
+	found=true
+fi
+
+
+# Restrict to partitions containing the OS
+if [ -n "$WINOSDATA" ]; then
+    found=
+    if [ -d "$2/ProgramData/Microsoft/Windows/Start Menu/Programs/StartUp" ]; then
+        long=${long:-"Windows 8 (data)"}
+        short=${short:-"Windows"}
+        found=true
+    elif [ -d "$2/ProgramData/Microsoft/Windows/Start Menu/Programs/Startup" ]; then
+        long=${long:-"Windows 7 (data)"}
+        short=${short:-"Windows"}
+        found=true
+    elif [ -d "$2/Documents and Settings/All Users/Start Menu/Programs/Startup" ]; then
+        long=${long:-"Windows XP/Vista (data)"}
+        short=${short:-"Windows"}
+        found=true
+    elif [ -d "$2/Winnt/Profiles/All Users/Start Menu/Programs/Startup" ]; then
+        long=${long:-"Windows NT (data)"}
+        short=${short:-"Windows"}
+        found=true
+    fi
+fi
+
+if [ -z "$found" ]; then
+	exit 1
+fi
+
+label="$(count_next_label "$short")"
+result "${partition}:${long}:${label}:chain"
+exit 0

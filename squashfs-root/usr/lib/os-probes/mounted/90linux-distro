@@ -1,0 +1,150 @@
+#!/bin/sh
+# Test for linux distributions.
+set -e
+
+. /usr/share/os-prober/common.sh
+
+partition="$1"
+dir="$2"
+type="$3"
+
+# This test is inaccurate, but given separate / and /boot partitions and the
+# fact that only some architectures have ld-linux.so, I can't see anything
+# better. Make sure this test has a high number so that more accurate tests
+# can come first.
+# Unless volumes to checked are already mounted, they will be mounted using
+# GRUB's own filesystems through FUSE. Since these ATM doesn't support
+# symlinks we need to also check in $dir/usr/lib* for distributions that
+# moved /lib* to /usr and only left symlinks behind.
+# TODO: look for ld-linux.so on arches that have it
+if (ls "$dir"/lib*/ld*.so* && [ -d "$dir/boot" ] || ls "$dir"/usr/lib*/ld*.so*) >/dev/null 2>/dev/null; then
+	if [ -e "$dir/etc/os-release" ]; then
+		short="$(grep ^NAME= "$dir/etc/os-release" | sed 's/^[^=]*=//; s/^['\''"]\(.*\)['\''"]$/\1/; s/\\\(.\)/\1/g; s/[[:space:]].*//')"
+		long="$(grep ^PRETTY_NAME= "$dir/etc/os-release" | sed 's/^[^=]*=//; s/^['\''"]\(.*\)['\''"]$/\1/; s/\\\(.\)/\1/g')"
+	elif [ -e "$dir/etc/debian_version" ]; then
+		short="Debian"
+		long="$(printf "Debian GNU/Linux (%s)\n" "$(cat "$dir/etc/debian_version")")"
+	# RPM derived distributions may also have a redhat-release or
+	# mandrake-release, so check their files first.
+	elif [ -e "$dir/etc/altlinux-release" ]; then
+		short="ALTLinux"
+		long="$(cat "$dir/etc/altlinux-release")"
+	elif [ -e "$dir/etc/magic-release" ]; then
+		short="Magic"
+		long="$(cat "$dir/etc/magic-release")"
+	elif [ -e "$dir/etc/blackPanther-release" ]; then
+		short="blackPanther"
+		long="$(cat "$dir/etc/blackPanther-release")"
+	elif [ -e "$dir/etc/ark-release" ]; then
+		short="Ark"
+		long="$(cat "$dir/etc/ark-release")"
+	elif [ -e "$dir/etc/arch-release" ]; then
+		short="Arch"
+		long="$(cat "$dir/etc/arch-release")"
+	elif [ -e "$dir/etc/asplinux-release" ]; then
+		short="ASPLinux"
+		long="$(cat "$dir/etc/asplinux-release")"
+	elif [ -e "$dir/etc/lvr-release" ]; then
+		short="LvR"
+		long="$(cat "$dir/etc/lvr-release")"
+	elif [ -e "$dir/etc/caos-release" ]; then
+		short="cAos"
+		long="$(cat "$dir/etc/caos-release")"
+	elif [ -e "$dir/etc/aurox-release" ]; then
+		short="Aurox"
+		long="$(cat "$dir/etc/aurox-release")"
+	elif [ -e "$dir/etc/engarde-release" ]; then
+		short="EnGarde"
+		long="$(cat "$dir/etc/engarde-release")"
+	elif [ -e "$dir/etc/vine-release" ]; then
+		short="Vine"
+		long="$(cat "$dir/etc/vine-release")"
+	elif [ -e "$dir/etc/whitebox-release" ]; then
+		short="WhiteBox"
+		long="$(cat "$dir/etc/whitebox-release")"
+	elif [ -e "$dir/etc/pld-release" ]; then
+		short="PLD"
+		long="$(cat "$dir/etc/pld-release")"
+	elif [ -e "$dir/etc/startcom-release" ]; then
+		short="StartCom"
+		long="$(cat "$dir/etc/startcom-release")"
+	elif [ -e "$dir/etc/trustix-release" ]; then
+		short="Trustix"
+		long="$(cat "$dir/etc/trustix-release")"
+	elif [ -e "$dir/etc/openna-release" ]; then
+		short="OpenNA"
+		long="$(cat "$dir/etc/openna-release")"
+	elif [ -e "$dir/etc/mageia-release" ]; then
+		short="Mageia"
+		long="$(cat "$dir/etc/mageia-release")"
+	elif [ -e "$dir/etc/conectiva-release" ]; then
+		short="Conectiva"
+		long="$(cat "$dir/etc/conectiva-release")"
+	elif [ -e "$dir/etc/mandrake-release" ]; then
+		short="Mandrake"
+		long="$(cat "$dir/etc/mandrake-release")"
+	elif [ -e "$dir/etc/fedora-release" ]; then
+		short="Fedora"
+		long="$(cat "$dir/etc/fedora-release")"
+	elif [ -e "$dir/etc/redhat-release" ]; then
+		short="RedHat"
+		long="$(cat "$dir/etc/redhat-release")"
+	elif [ -e "$dir/etc/SuSE-release" ]; then
+		short="SuSE"
+		long="$(head -n 1 "$dir/etc/SuSE-release")"
+	elif [ -e "$dir/etc/gentoo-release" ]; then
+		short="Gentoo"
+		long="$(cat "$dir/etc/gentoo-release")"
+	elif [ -e "$dir/etc/cobalt-release" ]; then
+		short="Cobalt"
+		long="$(cat "$dir/etc/cobalt-release")"
+	elif [ -e "$dir/etc/yellowdog-release" ]; then
+		short="YellowDog"
+		long="$(cat "$dir/etc/yellowdog-release")"
+	elif [ -e "$dir/etc/turbolinux-release" ]; then
+		short="Turbolinux"
+		long="$(cat "$dir/etc/turbolinux-release")"
+	elif [ -e "$dir/etc/pardus-release" ]; then
+		short="Pardus"
+		long="$(cat "$dir/etc/pardus-release")"
+	elif [ -e "$dir/etc/kanotix-version" ]; then
+		short="Kanotix"
+		long="$(cat "$dir/etc/kanotix-version")"
+	elif [ -e "$dir/etc/slackware-version" ]; then
+		short="Slackware"
+		long="$(printf "Slackware Linux (%s)\n" "$(cat "$dir/etc/slackware-version")")"
+	elif [ -e "$dir/sbin/pkgtool" ]; then
+		short="Slackware"
+		long="Slackware Linux"
+	elif grep -qs OpenLinux "$dir/etc/issue"; then
+		short="Caldera"
+		long="Caldera OpenLinux"
+	elif [ -e "$dir/etc/frugalware-release" ]; then
+		short="Frugalware Linux"
+		long="$(cat "$dir/etc/frugalware-release")"
+	elif [ -e "$dir/etc/kdemar-release" ]; then
+		short="K-DEMar"
+		long="$(printf "K-DEMar GNU/Linux (%s)\n" "$(cat "$dir/etc/kdemar-release")")"
+	elif [ -e "$dir/etc/lfs-release" ]; then
+		short="LFS"
+		long="$(printf "Linux From Scratch (%s)\n" "$(cat "$dir/etc/lfs-release")")"
+	elif [ -e "$dir/etc/meego-release" ]; then
+		short="MeeGo"
+		long="$(head -1 "$dir/etc/meego-release")"
+	elif [ -e "$dir/etc/4MLinux-version" ]; then
+		short="4MLinux"
+		long="4MLinux $(head -1 "$dir/etc/4MLinux-version")"
+	elif [ -e "$dir/etc/devuan_version" ]; then
+		short="Devuan"
+		long="$(printf "Devuan GNU/Linux (%s)\n" "$(cat "$dir/etc/devuan_version")")"
+	else
+		short="Linux"
+		long="unknown Linux distribution"
+	fi
+	
+        label="$(count_next_label "$short")"
+	result "$partition:$long:$label:linux"
+	exit 0
+else
+	exit 1
+fi

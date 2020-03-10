@@ -1,0 +1,11 @@
+QT.KWindowSystem.VERSION = 5.64.0
+QT.KWindowSystem.MAJOR_VERSION = 5
+QT.KWindowSystem.MINOR_VERSION = 64
+QT.KWindowSystem.PATCH_VERSION = 0
+QT.KWindowSystem.name = KF5WindowSystem
+QT.KWindowSystem.module = KF5WindowSystem
+QT.KWindowSystem.defines = 
+QT.KWindowSystem.includes = /usr/include/KF5/KWindowSystem
+QT.KWindowSystem.private_includes =
+QT.KWindowSystem.libs = /usr/lib/x86_64-linux-gnu
+QT.KWindowSystem.depends = gui

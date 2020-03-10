@@ -1,0 +1,27 @@
+#!/usr/bin/python3
+
+import glob
+import logging
+import os
+import sys
+
+from CommandNotFound.db.creator import DbCreator
+from CommandNotFound import CommandNotFound
+
+
+if __name__ == "__main__":
+    if "--debug" in sys.argv[1:]:
+        logging.basicConfig(level=logging.DEBUG)
+    elif "--verbose" in sys.argv[1:]:
+        logging.basicConfig(level=logging.INFO)
+    
+    db = CommandNotFound.dbpath
+    if not os.access(os.path.dirname(db), os.W_OK):
+        print("datbase directory %s not writable" % db)
+        sys.exit(0)
+
+    command_files = glob.glob("/var/lib/apt/lists/*Commands-*")
+    if len(command_files) > 0:
+        col = DbCreator(command_files)
+        col.create(db)
+

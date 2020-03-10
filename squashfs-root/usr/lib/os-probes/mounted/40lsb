@@ -1,0 +1,48 @@
+#!/bin/sh
+# Test for LSB systems.
+set -e
+
+. /usr/share/os-prober/common.sh
+
+partition="$1"
+dir="$2"
+type="$3"
+
+lsb_field () {
+	file="$1"
+	field="$2"
+	grep ^"$field" "$file" | cut -d = -f 2 | sed 's/^"//' | sed 's/"$//' | sed 's/:/ /g'
+}
+
+file="$dir/etc/lsb-release"
+if [ ! -e "$file" ]; then
+	exit 1
+fi
+
+release=$(lsb_field "$file" DISTRIB_RELEASE)
+if [ -z "$release" ]; then
+	release=$(lsb_field "$file" DISTRIB_CODENAME)
+fi
+description=$(lsb_field "$file" DISTRIB_DESCRIPTION)
+if [ -z "$description" ]; then
+	description=$(lsb_field "$file" DISTRIB_CODENAME)
+fi
+
+if [ -n "$description" ]; then
+	if [ -n "$release" ]; then
+		long="$description ($release)"
+	else
+		long="$description"
+	fi
+else
+	exit 1
+fi
+
+short=$(lsb_field "$file" DISTRIB_ID | sed 's/ //g')
+if [ -z "$short" ]; then
+	short="UnknownLSB"
+fi
+
+label="$(count_next_label "$short")"
+result "$partition:$long:$label:linux"
+exit 0

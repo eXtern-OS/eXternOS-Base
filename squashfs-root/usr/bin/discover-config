@@ -1,0 +1,81 @@
+#! /bin/sh
+
+# $Progeny$$
+
+# This program is in the public domain.
+
+# Too bad we don't have something like sysexits.h for POSIX sh...
+EX_USAGE=64
+
+:; VARS="${VARS} major_version"; VARS="${VARS} minor_version"; VARS="${VARS} micro_version"; VARS="${VARS} version"; VARS="${VARS} cppflags"; VARS="${VARS} ldflags"; VARS="${VARS} libs"; VARS="${VARS} prefix"; VARS="${VARS} exec_prefix"; VARS="${VARS} bindir"; VARS="${VARS} sbindir"; VARS="${VARS} libexecdir"; VARS="${VARS} datadir"; VARS="${VARS} sysconfdir"; VARS="${VARS} sharedstatedir"; VARS="${VARS} localstatedir"; VARS="${VARS} libdir"; VARS="${VARS} includedir"; VARS="${VARS} oldincludedir"; VARS="${VARS} infodir"; VARS="${VARS} mandir"; VARS="${VARS} build"; VARS="${VARS} build_cpu"; VARS="${VARS} build_vendor"; VARS="${VARS} build_os"; VARS="${VARS} host"; VARS="${VARS} host_cpu"; VARS="${VARS} host_vendor"; VARS="${VARS} host_os"; VARS="${VARS} target"; VARS="${VARS} target_cpu"; VARS="${VARS} target_vendor"; VARS="${VARS} target_os"; VARS="${VARS} lt_current"; VARS="${VARS} lt_revision"; VARS="${VARS} lt_age"
+:; major_version="2"; minor_version="1"; micro_version="0"; version="${major_version}.${minor_version}.${micro_version}"; cppflags=""; ldflags=""; libs="-ldiscover -lusb -lexpat "; prefix="/usr"; exec_prefix="/usr/local"; bindir="${exec_prefix}/bin"; sbindir="/sbin"; libexecdir="${exec_prefix}/libexec"; datadir="${datarootdir}"; sysconfdir="/etc"; sharedstatedir="${prefix}/com"; localstatedir="/var"; libdir="${exec_prefix}/lib"; includedir="${prefix}/include"; oldincludedir="/usr/include"; infodir="${prefix}/share/info"; mandir="${prefix}/share/man"; build="x86_64-pc-linux-gnu"; build_cpu="x86_64"; build_vendor="pc"; build_os="linux-gnu"; host="x86_64-pc-linux-gnu"; host_cpu="x86_64"; host_vendor="pc"; host_os="linux-gnu"; target="x86_64-pc-linux-gnu"; target_cpu="x86_64"; target_vendor="pc"; target_os="linux-gnu"; lt_current="2"; lt_revision="1"; lt_age="0"
+
+usage ()
+{
+    cat <<EOF
+usage: $0 --VAR ...
+
+Print the value of the variable VAR.  Run $0 -l or $0 --list-vars for a list
+of valid variable names.
+EOF
+}
+
+listvars ()
+{
+    for i in ${VARS}; do
+        echo ${i}
+    done
+}
+
+have ()
+{
+    var=$1
+
+    for i in ${VARS}; do
+        if [ ${var} = ${i} ]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+###############################################################################
+
+if [ $# -eq 0 ]; then
+    usage
+    exit ${EX_USAGE}
+fi
+
+while [ $# -gt 0 ]; do
+    case $1 in
+    -l|--list-vars)
+        listvars
+        break
+        ;;
+
+    --)
+        usage
+        exit ${EXIT_USAGE}
+        ;;
+
+    --*)
+        var=$(echo $1 | sed -e 's/^--//' -e 's/-/_/g')
+        if have ${var}; then
+            eval val="\$${var}"
+            echo ${val}
+        else
+            usage
+            exit ${EX_USAGE}
+        fi
+        ;;
+
+    *)
+        usage
+        exit ${EX_USAGE}
+    esac
+
+    shift
+done
+
+exit 0

@@ -1,0 +1,33 @@
+#!/bin/sh
+# Detects utility (hw vendor recovery) partitions.
+
+. /usr/share/os-prober/common.sh
+
+partition="$1"
+mpoint="$2"
+type="$3"
+
+# Weed out stuff that doesn't apply to us
+case "$type" in
+	vfat)	debug "$1 is a FAT32 partition" ;;
+	msdos)	debug "$1 is a FAT16 partition" ;;
+	fat)	debug "$1 is a FAT partition (mounted by GRUB)" ;;
+	*)	debug "$1 is not a FAT partition: exiting"; exit 1 ;;
+esac
+
+# Dell Utility partitions have partition type 0xde, but no idea how to
+# cleanly detect that from shell
+if item_in_dir -q dellbio.bin "$2" && \
+   (item_in_dir -q delldiag.exe "$2" || item_in_dir -q delldiag.com "$2"); then
+	long="Dell Utility Partition"
+	short=DellUtility
+elif item_in_dir -q f11.sys "$2"; then
+	long="Acronis Secure Zone"
+	short=AcroneZone
+else
+	exit 1
+fi
+
+label="$(count_next_label "$short")"
+result "${partition}:${long}:${label}:chain"
+exit 0

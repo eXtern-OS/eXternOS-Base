@@ -1,0 +1,206 @@
+=head1 NAME
+
+Glib::Error -  Exception Objects based on GError
+
+=cut
+
+=for position SYNOPSIS
+
+=head1 SYNOPSIS
+
+  eval {
+     my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file ($filename);
+     $image->set_from_pixbuf ($pixbuf);
+  };
+  if ($@) {
+     print "$@\n";
+     if (Glib::Error::matches ($@, 'Gtk2::Gdk::Pixbuf::Error',
+                                   'unknown-format')) {
+        change_format_and_try_again ();
+     } elsif (Glib::Error::matches ($@, 'Glib::File::Error', 'noent')) {
+        change_source_dir_and_try_again ();
+     } else {
+        # don't know how to handle this
+        die $@;
+     }
+  }
+
+=cut
+
+
+
+=for position DESCRIPTION
+
+=head1 DESCRIPTION
+
+Gtk2-Perl translates GLib's GError runtime errors into Perl exceptions, by
+creating exception objects based on Glib::Error.  Glib::Error overloads the
+stringification operator, so a Glib::Error object will act like a string if
+used with print() or warn(), so most code using $@ will not even know the
+difference.
+
+The point of having exception objects, however, is that the error messages
+in GErrors are often localized with NLS translation.  Thus, it's not good
+for your code to attempt to handle errors by string matching on the the 
+error message.  Glib::Error provides a way to get to the deterministic
+error code.
+
+You will typically deal with objects that inherit from Glib::Error, such as
+Glib::Convert::Error, Glib::File::Error, Gtk2::Gdk::Pixbuf::Error, etc; these
+classes are provided by the libraries that define the error domains.  However,
+it is possible to get a base Glib::Error when the bindings encounter an unknown
+or unbound error domain.  The interface used here degrades nicely in such a
+situation, but in general you should submit a bug report to the binding
+maintainer if you get such an exception.
+
+=cut
+
+
+
+=head1 HIERARCHY
+
+  Glib::Boxed
+  +----Glib::Error
+
+
+
+=cut
+
+=for object Glib::Error Exception Objects based on GError
+=cut
+
+
+
+
+=head1 METHODS
+
+=head2 scalar = Glib::Error::new ($class, $code, $message)
+
+=head2 scalar = $class->B<new> ($code, $message)
+
+=over
+
+=item * $code (Glib::Enum) an enumeration value, depends on I<$class>
+
+=item * $message (string) 
+
+=back
+
+
+Create a new exception object of type I<$class>, where I<$class> is associated
+with a GError domain.  I<$code> should be a value from the enumeration type
+associated with this error domain.  I<$message> can be anything you like, but
+should explain what happened from the point of view of a user.
+
+
+=head2 integer = $error-E<gt>B<code> 
+
+
+This is the numeric error code.  Normally, you'll want to use C<value> instead,
+for readability.
+
+
+=head2 string = $error-E<gt>B<domain> 
+
+
+The error domain.  You normally do not need this, as the object will be blessed
+into a corresponding class.
+
+
+=head2 string = $error-E<gt>B<location> 
+
+
+The source line and file closest to the emission of the exception, in the same
+format that you'd get from croak() or die().
+
+If there's non-ascii characters in the filename Perl leaves them as
+raw bytes, so you may have to put the string through
+Glib::filename_display_name for a wide-char form.
+
+
+=head2 boolean = $error-E<gt>B<matches> ($domain, $code)
+
+=over
+
+=item * $domain (string) 
+
+=item * $code (scalar) 
+
+=back
+
+Returns true if the exception in I<$error> matches the given I<$domain> and
+I<$code>.  I<$domain> may be a class name or domain quark (that is, the real
+string used in C).  I<$code> may be an integer value or an enum nickname;
+the enum type depends on the value of I<$domain>.
+
+=head2 string = $error-E<gt>B<message> 
+
+
+The error message.  This may be localized, as it is intended to be shown to a
+user.
+
+
+=head2 Glib::Error::register ($package, $enum_package)
+
+=over
+
+=item * $package (string) class name to register as a Glib::Error.
+
+=item * $enum_package (string) class name of the enum type to use for this domain's error codes.
+
+=back
+
+Register a new error domain.  Glib::Error will be added @I<package>::ISA for
+you.  I<enum_package> must be a valid Glib::Enum type, either from a C library
+or registered with C<< Glib::Type::register_enum >>.  After registering an
+error domain, you can create or throw exceptions of this type.
+
+=head2 scalar = Glib::Error::throw ($class, $code, $message)
+
+=head2 scalar = $class->B<throw> ($code, $message)
+
+=over
+
+=item * $code (Glib::Enum) an enumeration value, depends on I<$class>
+
+=item * $message (string) 
+
+=back
+
+
+Throw an exception with a Glib::Error exception object.
+Equivalent to C<< croak (Glib::Error::new ($class, $code, $message)); >>.
+
+
+=head2 string = $error-E<gt>B<value> 
+
+
+The enumeration value nickname of the integer value in C<< $error->code >>, 
+according to this error domain.  This will not be available if the error
+object is a base Glib::Error, because the bindings will have no idea how to
+get to the correct nickname.
+
+
+
+
+=cut
+
+
+=head1 SEE ALSO
+
+L<Glib>, L<Glib::Boxed>
+
+
+=cut
+
+
+=head1 COPYRIGHT
+
+Copyright (C) 2003-2011 by the gtk2-perl team.
+
+This software is licensed under the LGPL.  See L<Glib> for a full notice.
+
+
+
+=cut
+

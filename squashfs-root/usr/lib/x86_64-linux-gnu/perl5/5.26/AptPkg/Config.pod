@@ -1,0 +1,190 @@
+#
+# This is not in Config.pm as MakeMaker can't be convinced to build a
+# manpage matching /setup|config/i
+#
+
+=head1 NAME
+
+AptPkg::Config - APT configuration interface
+
+=head1 SYNOPSIS
+
+use AptPkg::Config;
+
+=head1 DESCRIPTION
+
+The AptPkg::Config module provides an interface to B<APT>'s
+configuration mechanism.
+
+Provides a configuration file and command line parser for a
+tree-oriented configuration environment.
+
+=head2 AptPkg::Config
+
+The AptPkg::Config package implements the B<APT> Configuration class.
+
+A global instance of the libapt-pkg _config instance is provided as
+$AptPkg::Config::_config, and may be imported.
+
+The following methods are implemented:
+
+=over 4
+
+=item get(I<KEY>, [I<DEFAULT>])
+
+Fetch the value of I<KEY> from the configuration object, returning
+undef if not found (or I<DEFAULT> if given).
+
+If the key ends in ::, an array of values is returned in an array
+context, or a string containing the values separated by spaces in a
+scalar context.
+
+A trailing /f, /d, /b or /i causes file, directory, boolean or integer
+interpretation (the underlying XS call is FindAny).
+
+=item get_file(I<KEY>, [I<DEFAULT>]), get_dir(I<KEY>, [I<DEFAULT>])
+
+Variants of get which prepend the directory value from the parent key.
+The get_dir method additionally appends a `/'.
+
+For example, given the configuration file:
+
+    foo "/some/dir/" { bar "value"; }
+
+then:
+
+    $conf->get("foo::bar")	# "value"
+    $conf->get_file("foo::bar")	# "/some/dir/value"
+    $conf->get_dir("foo::bar")	# "/some/dir/value/"
+
+=item get_bool(I<KEY>, [I<DEFAULT>])
+
+Another get varient, which returns true (1) if the value contains any
+of:
+
+    1 yes true with on enable
+
+otherwise false ('').
+
+=item set(I<KEY>, I<VALUE>)
+
+Set configuration entry I<KEY> to I<VALUE>.  Returns I<VALUE>.  Note
+that empty parent entries may be created for I<KEY>s containing ::.
+
+=item exists(I<KEY>)
+
+Test if I<KEY> exists in the configuration.
+
+=item dump
+
+Principally for debugging, output the contents of the configuration
+object to stderr.
+
+=item read_file(I<FILE>, [I<AS_SECTIONAL>, [I<DEPTH>]])
+
+Load the contents of I<FILE> into the object.  The format of the file
+is described in apt.conf(5).
+
+If the I<AS_SECTIONAL> argument is true, then the file is parsed as a
+BIND-style config.  That is:
+
+    foo "bar" { baz "quux"; }
+
+is interpreted as if it were:
+
+    foo::bar { baz "quux"; }
+
+The I<DEPTH> argument may be used to restrict the number of nested
+include directives processed.
+
+=item read_dir(I<DIR>, [I<AS_SECTIONAL>, [I<DEPTH>]])
+
+Load configuration from all files in I<DIR>.
+
+=item init
+
+Initialise the configuration object with some default values for the
+libapt-pkg library and reads the default configuration file
+/etc/apt/apt.conf (or as given by the environment variable APT_CONFIG)
+if it exists.
+
+=item system
+
+Return the AptPkg::System object appropriate for this system.
+
+=item parse_cmdline(I<DEFS>, [I<ARG>, ...])
+
+Parse the arguments given by I<ARG>s based on the contents of I<DEFS>
+and returns the list of remaining arguments.
+
+Note, the function does not return if there are errors processing the
+args.  Use eval to trap such errors.
+
+I<DEFS> is a reference to an array containing a set argument
+definition arrays.  The elements of each definition define:  the short
+argument character, the long argument string, the configuration key
+and the optional argument type (defaults to Boolean).
+
+Valid argument types are defined by the strings:
+
+    HasArg	takes an argument value (-f foo)
+    IntLevel	defines an integer value (-q -q, -qq, -q2, -q=2)
+    Boolean	true/false (-d, -d=true, -d=yes, --no-d, -d=false, etc)
+    InvBoolean	same as Boolean but false with no specified sense (-d)
+    ConfigFile	load the specified configuration file
+    ArbItem	arbitrary configuration string of the form key=value
+
+The configuration key in the last two cases is ignored, and for the
+rest gives the key into which the value is placed.
+
+Single case equivalents also work (has_arg == HasArg).
+
+Example:
+
+    @files = $conf->parse_cmndline([
+	    [ 'h', 'help', 'help' ],
+	    [ 'v', 'version', 'version' ],
+	    [ 'c', 'config-file', '', ConfigFile ],
+	    [ 'o', 'option', '', ArbItem ],
+	], @ARGV);
+
+=back
+
+The module uses AptPkg::hash to provide a hash-like access to the
+object, so that $conf->{key} is equivalent to using the get/set
+methods.
+
+Additionally inherits the constructor (new) and keys methods from that
+module.
+
+Methods of the internal XS object (AptPkg::_config) such as Find may
+also be used.  See AptPkg.
+
+=head2 AptPkg::Config::Iter
+
+Iterator object for AptPkg::Config which is returned by the keys
+method.
+
+=over 4
+
+=item new(I<XS_OBJ>, [I<ROOT>])
+
+Constructor, which is invoked by the keys method.  I<ROOT>, if given
+determines the subset of the tree to walk (may be given as an argument
+to keys).
+
+=item next
+
+Returns the current key and advances to the next.
+
+=back
+
+=head1 SEE ALSO
+
+AptPkg::System(3pm), AptPkg(3pm), AptPkg::hash(3pm).
+
+=head1 AUTHOR
+
+Brendan O'Dea <bod@debian.org>
+
+=cut

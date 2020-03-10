@@ -1,0 +1,28 @@
+#!/bin/sh
+# Detects Microsoft bootloader on a EFI System Partition
+
+. /usr/share/os-prober/common.sh
+
+efi="$1"
+
+found=
+for microsoft in $(item_in_dir microsoft "$efi"); do
+	for boot in $(item_in_dir boot "$efi/$microsoft"); do
+		bcd=$(item_in_dir bcd "$efi/$microsoft/$boot")
+		bootmgfw=$(item_in_dir bootmgfw.efi "$efi/$microsoft/$boot")
+		if [ -n "$bcd" -a -n "$bootmgfw" ]; then
+			long="Windows Boot Manager"
+			short=Windows
+			path="$microsoft/$boot/$bootmgfw"
+			found=true
+			break
+		fi
+	done
+done
+
+
+if [ -n "$found" ]; then
+	label="$(count_next_label "$short")"
+	result "${path}:${long}:${label}"
+fi
+exit 0

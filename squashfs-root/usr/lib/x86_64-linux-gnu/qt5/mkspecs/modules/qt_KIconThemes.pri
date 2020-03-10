@@ -1,0 +1,11 @@
+QT.KIconThemes.VERSION = 5.64.0
+QT.KIconThemes.MAJOR_VERSION = 5
+QT.KIconThemes.MINOR_VERSION = 64
+QT.KIconThemes.PATCH_VERSION = 0
+QT.KIconThemes.name = KF5IconThemes
+QT.KIconThemes.module = KF5IconThemes
+QT.KIconThemes.defines = 
+QT.KIconThemes.includes = /usr/include/KF5/KIconThemes
+QT.KIconThemes.private_includes =
+QT.KIconThemes.libs = /usr/lib/x86_64-linux-gnu
+QT.KIconThemes.depends = widgets

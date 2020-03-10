@@ -1,0 +1,171 @@
+#!/bin/sh
+# If you are looking to change accessibility profile settings, please look in
+# bin/casper-a11y-enable.
+
+. /usr/share/debconf/confmodule
+. /etc/casper.conf
+
+PREREQ=""
+DESCRIPTION="Configuring accessibility options..."
+db_get passwd/username
+TARGET_USERNAME="$RET"
+
+setup_profile()
+{
+	if [ -n "$PROFILE_NAME" ] &&
+	   [ -d /target/usr/share/a11y-profile-manager/profiles/$PROFILE_NAME ] &&
+	   [ -x /usr/bin/a11y-profile-manager ] &&
+	   [ -x /usr/bin/dconf ] &&
+	   [ -x /target/usr/bin/dconf ]; then
+		mkdir -p /target/tmp/user-a11y-profile-settings.d
+		/usr/bin/a11y-profile-manager -s $PROFILE_NAME -i -D /target/tmp/user-a11y-profile-settings.d/01-profile
+		if [ -n "$COPY_ORCA_CONFIG" ] &&
+		   [ -x /target/usr/bin/orca ]; then
+			su -c "/usr/bin/dconf dump /org/gnome/orca/ | \
+			      sed -e 's@\[/\]@\[org/gnome/orca\]@g' -e 's@\[profile/@\[org/gnome/orca/profile/@g' \
+			      > /home/$USERNAME/02-orca" $USERNAME
+			cp /home/$USERNAME/02-orca /target/tmp/user-a11y-profile-settings.d
+			if [ -x /target/usr/sbin/unity-greeter ]; then
+				mkdir -p /target/tmp/greeter-a11y-profile-settings.d
+				cat <<EOF > /target/tmp/greeter-a11y-profile-settings.d/01-greeter
+[com/canonical/unity-greeter]
+screen-reader=true
+EOF
+				cp /home/$USERNAME/02-orca /target/tmp/greeter-a11y-profile-settings.d
+			elif [ -x /target/usr/sbin/lightdm-gtk-greeter ]; then
+				mkdir -p /target/tmp/greeter-a11y-profile-settings.d
+				cp /home/$USERNAME/02-orca /target/tmp/greeter-a11y-profile-settings.d
+			fi
+		fi
+
+		if [ -n "$UG_SETTING" ] &&
+		   [ -x /target/usr/sbin/unity-greeter ]; then
+			mkdir -p /target/tmp/greeter-a11y-profile-settings.d
+			cat <<EOF > /target/tmp/greeter-a11y-profile-settings.d/01-greeter
+[com/canonical/unity-greeter]
+$UG_SETTING=true
+EOF
+		fi
+
+		if [ -n "$LGTK_VAR" ] &&
+		   [ -x /target/usr/sbin/lightdm-gtk-greeter ]; then
+			# If there is a better way to do this, I'm not currently aware of it.
+			mkdir -p /target/var/lib/lightdm/.cache/lightdm-gtk-greeter
+			cat <<EOF > /target/var/lib/lightdm/.cache/lightdm-gtk-greeter/state
+[a11y-states]
+$LGTK_VAR=true
+EOF
+			chroot /target chown -R lightdm.lightdm /var/lib/lightdm/.cache
+		fi
+
+		chroot /target /usr/bin/dconf compile /tmp/dconf.user /tmp/user-a11y-profile-settings.d
+		mkdir -p /target/home/$TARGET_USERNAME/.config/dconf
+		mv /target/tmp/dconf.user /target/home/$TARGET_USERNAME/.config/dconf/user
+		chroot /target chown -R $TARGET_USERNAME.$TARGET_USERNAME /home/$TARGET_USERNAME/.config
+
+		if [ -d /target/tmp/greeter-a11y-profile-settings.d ]; then
+			chroot /target /usr/bin/dconf compile /tmp/dconf.greeter /tmp/greeter-a11y-profile-settings.d
+			mkdir -p /target/var/lib/lightdm/.config/dconf
+			mv /target/tmp/dconf.greeter /target/var/lib/lightdm/.config/dconf/user
+			chroot /target chown -R lightdm.lightdm /var/lib/lightdm/.config
+		fi
+
+		if [ -d /target/tmp/user-a11y-profile-settings.d ]; then
+			rm -r /target/tmp/user-a11y-profile-settings.d
+		fi
+		if [ -d /target/tmp/greeter-a11y-profile-settings.d ]; then
+			rm -r /target/tmp/greeter-a11y-profile-settings.d
+		fi
+		if [ -f /home/$USERNAME/01-profile ]; then
+			rm /home/$USERNAME/01-profile
+		fi
+		if [ -f /home/$USERNAME/02-orca ]; then
+			rm /home/$USERNAME/02-orca
+		fi
+	fi
+}
+
+for x in $(cat /proc/cmdline); do
+	case $x in
+		# Lesser Visual Impairment
+		access=v1)
+			PROFILE_NAME=high-contrast
+			UG_SETTING=high-contrast
+			setup_profile
+			exit
+                        ;;
+		# Blindness
+		access=v3)
+			PROFILE_NAME=blindness
+			COPY_ORCA_CONFIG=true
+			setup_profile
+			exit
+                        ;;
+		# Braille
+		braille=ask)
+			PROFILE_NAME=braille
+			COPY_ORCA_CONFIG=true
+			setup_profile
+			exit
+                        ;;
+		# Minor Motor Difficulties
+		access=m1)
+			PROFILE_NAME=motor-difficulties
+			setup_profile
+			exit
+                        ;;
+		# Motor Difficulties - pointing devices
+		access=m2)
+			PROFILE_NAME=onscreen-keyboard
+			UG_SETTING=onscreen-keyboard
+			setup_profile
+			exit
+                        ;;
+		esac
+done
+
+# Check the live user GSettings for the active profile if any.
+A11Y_PROFILE="$(su -c 'gsettings get com.canonical.a11y-profile-manager active-profile' $USERNAME \
+		| sed -e s/\'//g)"
+
+case "$A11Y_PROFILE" in
+	# Lesser Visual Impairment
+	*high-contrast)
+		PROFILE_NAME=$A11Y_PROFILE
+		UG_SETTING=high-contrast
+		LGTK_VAR=contrast
+		setup_profile
+		exit
+		;;
+	# Blindness
+	*blindness)
+		PROFILE_NAME=$A11Y_PROFILE
+		COPY_ORCA_CONFIG=true
+		LGTK_VAR=reader
+		setup_profile
+		exit
+		;;
+	# Braille
+	*braille)
+		PROFILE_NAME=$A11Y_PROFILE
+		COPY_ORCA_CONFIG=true
+		LGTK_VAR=reader
+		setup_profile
+		exit
+		;;
+	# Minor Motor Difficulties
+	*motor-difficulties)
+		PROFILE_NAME=$A11Y_PROFILE
+		setup_profile
+		exit
+		;;
+	# Motor Difficulties - pointing devices
+	*onscreen-keyboard)
+		PROFILE_NAME=$A11Y_PROFILE
+		UG_SETTING=onscreen-keyboard
+		LGTK_VAR=keyboard
+		setup_profile
+		exit
+		;;
+esac
+

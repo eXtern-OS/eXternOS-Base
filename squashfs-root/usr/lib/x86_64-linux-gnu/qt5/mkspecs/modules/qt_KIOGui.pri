@@ -1,0 +1,11 @@
+QT.KIOGui.VERSION = 5.64.0
+QT.KIOGui.MAJOR_VERSION = 5
+QT.KIOGui.MINOR_VERSION = 64
+QT.KIOGui.PATCH_VERSION = 0
+QT.KIOGui.name = KF5KIOGui
+QT.KIOGui.module = KF5KIOGui
+QT.KIOGui.defines = 
+QT.KIOGui.includes = /usr/include/KF5/KIOGui
+QT.KIOGui.private_includes =
+QT.KIOGui.libs = /usr/lib/x86_64-linux-gnu
+QT.KIOGui.depends = KIOCore

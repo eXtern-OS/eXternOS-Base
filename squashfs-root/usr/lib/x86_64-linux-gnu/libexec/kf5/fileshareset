@@ -1,0 +1,425 @@
+#!/usr/bin/perl -T
+use strict;
+
+########################################
+# config files
+$nfs_exports::default_options = '*(ro,all_squash)';
+$nfs_exports::conf_file = '/etc/exports';
+$smb_exports::conf_file = '/etc/samba/smb.conf';
+my $authorisation_file = '/etc/security/fileshare.conf';
+my $authorisation_group = 'fileshare';
+
+
+########################################
+# Copyright (C) 2001-2002 MandrakeSoft (pixel@mandriva.com)
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+
+########################################
+my $uid = $<;
+my $username = getpwuid($uid);
+
+########################################
+# errors
+my $usage =
+"usage: fileshareset --add <dir>
+       fileshareset --remove <dir>";
+my $not_enabled =
+qq(File sharing is not enabled.
+To enable file sharing put 
+"FILESHARING=yes" in $authorisation_file);
+       
+my $not_simple_enabled = 
+qq(Simple file sharing is not enabled.
+To enable simple file sharing put
+"SHARINGMODE=simple" in $authorisation_file);
+
+my $non_authorised =
+qq(You are not authorised to use file sharing
+To grant you the rights:
+- put "RESTRICT=no" in $authorisation_file
+- or put user "$username" in group "$authorisation_group");
+
+my $no_export_method = "can't export anything: no nfs, no smb";
+
+my %exit_codes = reverse (
+  1 => $non_authorised,
+  2 => $usage,
+
+# when adding
+  3 => "already exported", 
+  4 => "invalid mount point",
+
+# when removing
+  5 => "not exported",
+
+  6 => $no_export_method,
+  
+  7 => $not_enabled,
+  
+  8 => $not_simple_enabled,
+
+  255 => "various",
+);
+
+################################################################################
+# correct PATH needed to call /etc/init.d/... ? seems not, but...
+%ENV = ();#(PATH => '/bin:/sbin:/usr/bin:/usr/sbin');
+
+my $modify = $0 =~ /fileshareset/;
+
+authorisation::check($modify);
+
+my @exports = (
+	       -e $nfs_exports::conf_file ? nfs_exports::read() : (),
+	       -e $smb_exports::conf_file ? smb_exports::read() : (),
+	      );
+@exports or error($no_export_method);
+
+if ($modify) {
+    my ($cmd, $dir) = @ARGV;
+    $< = $>;
+    @ARGV == 2 && ($cmd eq '--add' || $cmd eq '--remove') or error($usage);
+
+    verify_mntpoint($dir);
+
+    if ($cmd eq '--add') {
+	my @errs = map { eval { $_->add($dir) }; $@ } @exports;
+	grep { !$_ } @errs or error("already exported");
+    } else {
+	my @errs = map { eval { $_->remove($dir) }; $@ } @exports;
+	grep { !$_ } @errs or error("not exported");
+    }    
+    foreach my $export (@exports) {
+	$export->write;
+	$export->update_server;
+    }
+}
+my @mntpoints = grep {$_} uniq(map { map { $_->{mntpoint} } @$_ } @exports);
+print "$_\n" foreach grep { own($_) } @mntpoints;
+
+
+sub own { $uid == 0 || (stat($_[0]))[4] == $uid }
+
+sub verify_mntpoint {
+    local ($_) = @_;
+    my $ok = 1;
+    $ok &&= m|^/|;
+    $ok &&= !m|/\.\./|;
+    $ok &&= !m|[\0\n\r]|;
+    $ok &&= -d $_;
+    $ok &&= own($_);
+    $ok or error("invalid mount point");
+}
+
+sub error {
+    my ($string) = @_;
+    print STDERR "$string\n";
+    exit($exit_codes{$string} || 255);
+}
+sub member { my $e = shift; foreach (@_) { $e eq $_ and return 1 } 0 }
+sub uniq { my %l; $l{$_} = 1 foreach @_; grep { delete $l{$_} } @_ }
+
+
+################################################################################
+package authorisation;
+
+sub read_conf {
+    my ($exclusive_lock) = @_;
+    open F_lock, $authorisation_file; # don't care if it's missing
+    flock(F_lock, $exclusive_lock ? 2 : 1) or die "can't lock $authorisation_file";
+    my %conf;
+    foreach (<F_lock>) {
+	s/#.*//; # remove comments
+	s/^\s+//; 
+	s/\s+$//;
+	/^$/ and next;
+	my ($cmd, $value) = split('=', $_, 2);
+	$conf{$cmd} = $value || warn qq(suspicious line "$_" in $authorisation_file\n);
+    }
+    # no close F_lock, keep it locked
+    \%conf
+}
+
+sub check {
+    my ($exclusive_lock) = @_;
+    my $conf = read_conf($exclusive_lock);
+    if (lc($conf->{FILESHARING}) eq 'no') {
+      ::error($not_enabled);
+    }
+    
+    if (lc($conf->{SHARINGMODE}) eq 'advanced') {
+      ::error($not_simple_enabled);
+    }
+    
+    if (lc($conf->{FILESHAREGROUP} ne '')) {
+      $authorisation_group = lc($conf->{FILESHAREGROUP});
+    }      
+    
+    if (lc($conf->{RESTRICT}) eq 'no') {
+	# ok, access granted for everybody
+    } else {
+	my @l;
+	while (@l = getgrent) {
+	    last if $l[0] eq $authorisation_group;
+	}
+	::member($username, split(' ', $l[3])) or ::error($non_authorised);
+    }
+}
+
+################################################################################
+package exports;
+
+sub find {
+    my ($exports, $mntpoint) = @_;
+    foreach (@$exports) {
+	$_->{mntpoint} eq $mntpoint and return $_;
+    }
+    undef;
+}
+
+sub add {
+    my ($exports, $mntpoint) = @_;
+    foreach (@$exports) {
+	$_->{mntpoint} eq $mntpoint and die 'add';
+    }
+    push @$exports, my $e = { mntpoint => $mntpoint };
+    $e;
+}
+
+sub remove {
+    my ($exports, $mntpoint) = @_;
+    my @l = grep { $_->{mntpoint} ne $mntpoint } @$exports;
+    @l < @$exports or die 'remove';
+    @$exports = @l;  
+}
+
+
+################################################################################
+package nfs_exports;
+
+use vars qw(@ISA $conf_file $default_options);
+BEGIN { @ISA = 'exports' }
+
+sub read {
+    my $file = $conf_file;
+    local *F;
+    open F, $file or return [];
+
+    my ($prev_raw, $prev_line, %e, @l);
+    my $line_nb = 0;
+    foreach my $raw (<F>) {
+	$line_nb++;
+	local $_ = $raw;
+	$raw .= "\n" if !/\n/;
+
+	s/#.*//; # remove comments
+
+	s/^\s+//; 
+	s/\s+$//; # remove unuseful spaces to help regexps
+
+	if (/^$/) {
+	    # blank lines ignored
+	    $prev_raw .= $raw;
+	    next;
+	}
+
+	if (/\\$/) {
+	    # line continue across lines
+	    chop; # remove the backslash
+	    $prev_line .= "$_ ";
+	    $prev_raw .= $raw;
+	    next;
+	}
+	my $line = $prev_line . $_;
+	my $raw_line = $prev_raw . $raw;
+	($prev_line, $prev_raw) = ('', '');
+
+	my ($mntpoint, $options) = $line =~ /("[^"]*"|\S+)\s+(.*)/ or die "$file:$line_nb: bad line $line\n";
+
+	# You can also specify spaces or any other unusual characters in the
+	# export path name using a backslash followed by the character code as
+	# 3 octal digits.
+	$mntpoint =~ s/\\(\d{3})/chr(oct $1)/ge;
+
+	# not accepting weird characters that would break the output
+	$mntpoint =~ m/[\0\n\r]/ and die "i won't handle this";
+	push @l, { mntpoint => $mntpoint, option => $options, raw => $raw_line };
+    }
+    bless \@l, 'nfs_exports';
+}
+
+sub write {
+    my ($nfs_exports) = @_;
+    foreach (@$nfs_exports) {
+	if (!exists $_->{options}) {
+	    $_->{options} = $default_options;
+	}
+	if (!exists $_->{raw}) {	    
+	    my $mntpoint = $_->{mntpoint} =~ /\s/ ? qq("$_->{mntpoint}") : $_->{mntpoint};
+	    $_->{raw} = sprintf("%s %s\n", $mntpoint, $_->{options});
+	}
+    }
+    local *F;
+    open F, ">$conf_file" or die "can't write $conf_file";
+    print F $_->{raw} foreach @$nfs_exports;
+}
+
+sub update_server {
+    if (fork) {
+	system('/usr/sbin/exportfs', '-r');
+	if (system('PATH=/bin:/sbin pidof rpc.mountd >/dev/null') != 0 ||
+	    system('PATH=/bin:/sbin pidof nfsd >/dev/null') != 0) {
+	    # trying to start the server...
+	    system('/etc/init.d/portmap start') if system('/etc/init.d/portmap status') != 0;
+	    system('/etc/init.d/nfs', $_) foreach 'stop', 'start';
+	}
+	exit 0;
+    }
+}
+
+################################################################################
+package smb_exports;
+
+use vars qw(@ISA $conf_file);
+BEGIN { @ISA = 'exports' }
+
+sub read {
+    my ($s, @l);
+    local *F;
+    open F, $conf_file;
+    local $_;
+    while (<F>) {
+	if (/^\s*\[.*\]/ || eof F) {
+	    #- first line in the category
+	    my ($label) = $s =~ /^\s*\[(.*)\]/;
+	    my ($mntpoint) = $s =~ /^\s*path\s*=\s*(.*)/m;
+	    push @l, { mntpoint => $mntpoint, raw => $s, label => $label };
+	    $s = '';
+	}
+	$s .= $_;
+    }
+    bless \@l, 'smb_exports';
+}
+
+sub write {
+    my ($smb_exports) = @_;
+    foreach (@$smb_exports) {
+	if (!exists $_->{raw}) {
+	    $_->{raw} = <<EOF;
+
+[$_->{label}]
+   path = $_->{mntpoint}
+   comment = $_->{mntpoint}
+   public = yes
+   guest ok = yes
+   writable = no
+   wide links = no
+EOF
+	}
+    }
+    local *F;
+    open F, ">$conf_file" or die "can't write $conf_file";
+    print F $_->{raw} foreach @$smb_exports;
+}
+
+sub add {
+    my ($exports, $mntpoint) = @_;
+    my $e = $exports->exports::add($mntpoint);
+    $e->{label} = name_mangle($mntpoint, map { $_->{label} } @$exports);
+}
+
+sub name_mangle {
+    my ($input, @others) = @_;
+
+    local $_ = $input;
+
+    # 1. first only keep legal characters. "/" is also kept for the moment
+    tr|a-z|A-Z|;
+    s|[^A-Z0-9#\-_!/]|_|g; # "$" is allowed except at the end, remove it in any case
+    
+    # 2. removing non-interesting parts
+    s|^/||;
+    s|^home/||;
+    s|_*/_*|/|g;
+    s|_+|_|g;
+
+    # 3. if size is too small (!), make it bigger
+    $_ .= "_" while length($_) < 3;
+
+    # 4. if size is too big, shorten it
+    while (length > 12) {
+	my ($s) = m|.*?/(.*)|;
+	if (length($s) > 8 && !grep { /\Q$s/ } @others) {
+	    # dropping leading directories when the resulting is still long and meaningful
+	    $_ = $s;
+	    next;
+	}
+	s|(.*)[0-9#\-_!/]|$1| and next;
+
+	# inspired by "Christian Brolin" "Long names are doom" on comp.lang.functional
+	s|(.+)[AEIOU]|$1| and next; # allButFirstVowels
+	s|(.*)(.)\2|$1$2| and next; # adjacentDuplicates
+
+	s|(.*).|$1|; # booh, :'-(
+    }
+
+    # 5. remove "/"s still there
+    s|/|_|g;
+
+    # 6. resolving conflicts
+    my $l = join("|", map { quotemeta } @others);
+    my $conflicts = qr|^($l)$|;
+    if (/$conflicts/) {
+      A: while (1) {
+	    for (my $nb = 1; length("$_$nb") <= 12; $nb++) {
+		if ("$_$nb" !~ /$conflicts/) {
+		    $_ = "$_$nb";
+		    last A;
+		}
+	    }
+	    $_ or die "can't find a unique name";
+	    # can't find a unique name, dropping the last letter
+	    s|(.*).|$1|;
+	}
+    }
+
+    # 7. done
+    $_;
+}
+
+sub update_server {
+  if (fork) {
+    system('/usr/bin/killall -HUP smbd 2>/dev/null');
+    if (system('PATH=/bin:/sbin pidof smbd >/dev/null') != 0 ||
+	system('PATH=/bin:/sbin pidof nmbd >/dev/null') != 0) {
+# trying to start the server...
+      if ( -f '/etc/init.d/smb' ) {
+	system('/etc/init.d/smb', $_) foreach 'stop', 'start';
+      }
+      elsif ( -f '/etc/init.d/samba' ) {
+	system('/etc/init.d/samba', $_) foreach 'stop', 'start';
+      }
+	  elsif ( -f '/etc/rc.d/rc.samba' ) {
+	system('/etc/rc.d/rc.samba', $_) foreach 'stop', 'start';
+	  }
+      else {
+	print STDERR "Error: Can't find the samba init script \n";
+      }
+    }
+    exit 0;
+  }
+}

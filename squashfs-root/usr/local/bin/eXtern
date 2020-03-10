@@ -1,0 +1,13 @@
+#!/bin/bash
+if test -z "$DBUS_SESSION_BUS_ADDRESS"; then
+    eval `dbus-launch --sh-syntax --exit-with-session`
+fi
+kwin --replace & wmpid=$!
+sleep 1
+if [ -f /usr/local/bin/compiz-session ]; then
+    source /usr/local/bin/compiz-session &
+else
+    xterm &
+fi
+# Wait for WM
+wait $wmpid

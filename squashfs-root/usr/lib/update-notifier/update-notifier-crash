@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+if /usr/share/apport/apport-checkreports; then
+    /usr/share/apport/apport-gtk
+else
+    if /usr/share/apport/apport-checkreports --system; then
+        if groups | grep -qE "sudo|admin" ; then
+            /usr/lib/update-notifier/system-crash-notification
+        fi
+    fi
+fi
+

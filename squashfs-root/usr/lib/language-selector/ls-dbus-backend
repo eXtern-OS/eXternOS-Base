@@ -1,0 +1,102 @@
+#!/usr/bin/python3
+
+import dbus
+import dbus.mainloop.glib
+dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+import dbus.service
+from gi.repository import GObject
+import logging
+import re
+import subprocess
+import sys
+
+import LanguageSelector.macros
+
+from LanguageSelector.utils import *
+
+DATADIR="/usr/share/language-selector/"
+
+class LanguageSelectorServer(dbus.service.Object):
+    def __init__(self, bus=dbus.SystemBus(), datadir=DATADIR):
+            bus_name = dbus.service.BusName('com.ubuntu.LanguageSelector',
+                                            bus=bus)
+            dbus.service.Object.__init__(self, bus_name, '/')
+            self._datadir = "/usr/share/language-selector/"
+            self._re_locale = re.compile(r'^[\w.@:-]+$')
+
+    def _authWithPolicyKit(self, sender, connection, priv):
+        logging.debug("_authWithPolicyKit")
+        system_bus = dbus.SystemBus()
+        obj = system_bus.get_object("org.freedesktop.PolicyKit1",
+                                    "/org/freedesktop/PolicyKit1/Authority",
+                                    "org.freedesktop.PolicyKit1.Authority")
+        policykit = dbus.Interface(obj, "org.freedesktop.PolicyKit1.Authority")
+        subject = ('system-bus-name',
+                   { 'name': dbus.String(sender, variant_level = 1) }
+                  )
+        details = { '' : '' }
+        flags = dbus.UInt32(1) #   AllowUserInteraction = 0x00000001
+        cancel_id = ''
+        (ok, notused, details) = policykit.CheckAuthorization(
+            subject, priv, details, flags, cancel_id)
+        return ok
+
+    @dbus.service.method(dbus_interface='com.ubuntu.LanguageSelector',
+			 in_signature="s", 
+			 out_signature="b",
+                         connection_keyword='connection',
+			 sender_keyword='sender')
+    def SetSystemDefaultLanguageEnv(self, sysLanguage, sender, connection):
+        """ sysLanguage - the default system LANGUAGE and LANG """
+        logging.debug("SetSystemDefaultLanguage")
+        if not self._re_locale.search(sysLanguage):
+            logging.error('SetSystemDefaultLanguage: Invalid locale "%s", rejecting', sysLanguage)
+            return False
+        if not self._authWithPolicyKit(sender, connection, "com.ubuntu.languageselector.setsystemdefaultlanguage"):
+            return False
+        conffiles = ["/etc/default/locale"]
+        findString = "LANGUAGE="
+        setString = "LANGUAGE=\"%s\"\n" % sysLanguage
+        find_string_and_replace(findString, setString, conffiles)
+        defaultLanguageLocale = language2locale(sysLanguage)
+        findString = "LANG="
+        setString = "LANG=\"%s\"\n" % defaultLanguageLocale
+        find_string_and_replace(findString, setString, conffiles)
+        return True
+
+    @dbus.service.method(dbus_interface='com.ubuntu.LanguageSelector',
+			 in_signature="s", 
+			 out_signature="b",
+                         connection_keyword='connection',
+			 sender_keyword='sender')
+    def SetSystemDefaultFormatsEnv(self, sysFormats, sender, connection):
+        """ sysFormats: various LC_* variables (de_DE.UTF-8) """
+        logging.debug("SetSystemDefaultFormatsEnv")
+        if not self._re_locale.search(sysFormats):
+            logging.error('SetSystemDefaultFormatsEnv: Invalid locale "%s", rejecting', sysFormats)
+            return False
+        if not self._authWithPolicyKit(sender, connection, "com.ubuntu.languageselector.setsystemdefaultlanguage"):
+            return False
+        conffiles = ["/etc/default/locale"]
+        macr = LanguageSelector.macros.LangpackMacros(self._datadir, sysFormats)
+        defaultFormatsLocale = macr['SYSLOCALE']
+        for var in 'LC_NUMERIC', 'LC_TIME', 'LC_MONETARY', 'LC_PAPER', 'LC_IDENTIFICATION', \
+                   'LC_NAME', 'LC_ADDRESS', 'LC_TELEPHONE', 'LC_MEASUREMENT':
+            findString = "%s=" % var
+            setString = "%s=\"%s\"\n" % (var, defaultFormatsLocale)
+            find_string_and_replace(findString, setString, conffiles)
+        """ /etc/papersize ('a4' or 'letter') """
+        papersize = subprocess.check_output(
+            ['/usr/share/language-tools/locale2papersize', defaultFormatsLocale],
+            universal_newlines=True)
+        with open('/etc/papersize', 'w') as f:
+            f.write(papersize)
+        return True
+
+if __name__ == "__main__":
+        # FIXME: use argparse
+        if len(sys.argv) > 1 and sys.argv[1] == "--debug":
+            logging.basicConfig(level=logging.DEBUG)
+        server = LanguageSelectorServer()
+        GObject.MainLoop().run()
+

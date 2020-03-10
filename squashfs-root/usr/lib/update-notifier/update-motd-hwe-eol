@@ -1,0 +1,60 @@
+#!/bin/sh -e
+#
+# helper for update-motd
+
+
+# poor mans force
+if [ "$1" = "--force" ]; then
+    NEED_EOL_CHECK=yes
+else
+    NEED_EOL_CHECK=no
+fi
+
+# check time when we did the last update check
+stamp="/var/lib/update-notifier/hwe-eol"
+
+# get list dir
+StateDir="/var/lib/apt/"
+ListDir="lists/"
+eval "$(apt-config shell StateDir Dir::State)"
+eval "$(apt-config shell ListDir Dir::State::Lists)"
+
+# get dpkg status file
+DpkgStatus="/var/lib/dpkg/status"
+eval "$(apt-config shell DpkgStatus Dir::State::status)"
+
+# get sources.list file
+EtcDir="etc/apt/"
+SourceList="sources.list"
+eval "$(apt-config shell EtcDir Dir::Etc)"
+eval "$(apt-config shell SourceList Dir::Etc::sourcelist)"
+
+# let the actual update be asynchronous to avoid stalling apt-get
+cleanup() { rm -f "$tmpfile"; }
+
+# check if we have a list file or sources.list that needs checking
+if [ -e "$stamp" ]; then
+    if [ "$(find "/$StateDir/$ListDir" "/$EtcDir/$SourceList" "/$DpkgStatus" -type f -newer "$stamp" -print -quit)" ]; then
+        NEED_EOL_CHECK=yes
+    fi
+else
+    if [ "$(find "/$StateDir/$ListDir" "/$EtcDir/$SourceList" -type f -print -quit)" ]; then
+        NEED_EOL_CHECK=yes
+    fi
+fi
+
+tmpfile=""
+trap cleanup EXIT
+tmpfile=$(mktemp -p $(dirname "$stamp"))
+
+# output something for update-motd
+if [ "$NEED_EOL_CHECK" = "yes" ]; then
+    {
+        # the script may exit with status 10 when a HWE update is needed
+        /usr/bin/hwe-support-status || true
+    } > "$tmpfile"
+    mv "$tmpfile" "$stamp"
+fi
+
+# output what we have (either cached or newly generated)
+cat "$stamp"

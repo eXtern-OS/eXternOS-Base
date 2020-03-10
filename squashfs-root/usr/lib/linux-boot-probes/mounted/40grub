@@ -1,0 +1,107 @@
+#!/bin/sh
+. /usr/share/os-prober/common.sh
+set -e
+
+partition="$1"
+bootpart="$2"
+mpoint="$3"
+type="$4"
+
+found_item=0
+
+entry_result () {
+	if [ "$ignore_item" = 0 ] && \
+	   [ -n "$kernel" ] && \
+	   [ -e "$mpoint/$kernel" ]; then
+		result "$rootpart:$bootpart:$title:$kernel:$initrd:$parameters"
+		found_item=1
+	fi
+	kernel=""
+	parameters=""
+	initrd=""
+	title=""
+	ignore_item=0
+}
+
+parse_grub_menu () {
+	mpoint="$1"
+	rootpart="$2"
+	bootpart="$3"
+	
+	kernel=""
+	parameters=""
+	initrd=""
+	title=""
+	ignore_item=0
+
+	while read line; do
+		#debug "parsing: $line"
+		set -f
+		set -- $line
+		set +f
+		case "$1" in
+			title)
+				entry_result
+				shift 1
+				title="$(echo "$@" | sed 's/://g')"
+				if echo "$title" | grep -q '(on /dev/[^)]*)$'; then
+					log "Skipping entry '$title':"
+					log "appears to be an automatic reference taken from another menu.lst"
+					ignore_item=1
+				fi
+			;;
+			kernel)
+				# Hack alert: sed off any (hdn,n) but
+				# assume the kernel is on the same
+				# partition.
+				kernel="$(echo "$2" | sed 's/(.*)//')"
+				shift 2
+				parameters="$@"
+				# Systems with a separate /boot will not have
+				# the path to the kernel in menu.lst.
+				if [ "$partition" != "$bootpart" ]; then
+					kernel="/boot$kernel"
+				fi
+			;;
+			initrd)
+				# Hack alert take 2: sed off any (hdn,n)
+				# See #566102
+				initrd="$(echo "$2" | sed 's/(.*)//')"
+				# Initrd same.
+				if [ "$partition" != "$bootpart" ]; then
+					initrd="/boot$initrd"
+				fi
+			;;
+			boot)
+				entry_result
+			;;
+			module)
+				log "Skipping entry '$title':"
+				log "parsing of entries containing 'module' lines is currently not supported"
+				ignore_item=1
+			;;
+		esac
+	done
+
+	entry_result
+}
+
+grubconf=
+if [ -e "$mpoint/boot/grub/menu.lst" ]; then
+	grubconf="menu.lst"
+elif [ -e "$mpoint/boot/grub/grub.conf" ]; then
+	grubconf="grub.conf"
+fi
+
+if [ "$grubconf" ] && \
+   ([ ! -e "$mpoint/boot/grub/grub.cfg" ] || \
+    [ "$mpoint/boot/grub/$grubconf" -nt "$mpoint/boot/grub/grub.cfg" ]); then
+	debug "parsing $grubconf"
+	parse_grub_menu "$mpoint" "$partition" "$bootpart" < "$mpoint/boot/grub/$grubconf"
+fi
+
+if [ "$found_item" = 0 ]; then
+	exit 1
+else
+	exit 0
+fi

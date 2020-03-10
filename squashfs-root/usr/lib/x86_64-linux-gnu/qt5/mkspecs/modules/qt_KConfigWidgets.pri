@@ -1,0 +1,11 @@
+QT.KConfigWidgets.VERSION = 5.64.0
+QT.KConfigWidgets.MAJOR_VERSION = 5
+QT.KConfigWidgets.MINOR_VERSION = 64
+QT.KConfigWidgets.PATCH_VERSION = 0
+QT.KConfigWidgets.name = KF5ConfigWidgets
+QT.KConfigWidgets.module = KF5ConfigWidgets
+QT.KConfigWidgets.defines = 
+QT.KConfigWidgets.includes = /usr/include/KF5/KConfigWidgets
+QT.KConfigWidgets.private_includes =
+QT.KConfigWidgets.libs = /usr/lib/x86_64-linux-gnu
+QT.KConfigWidgets.depends = KCodecs KWidgetsAddons KConfigGui KAuth

@@ -1,0 +1,71 @@
+#!/bin/sh
+# Detects all Microsoft OSes on a collection of partitions.
+
+. /usr/share/os-prober/common.sh
+
+partition="$1"
+mpoint="$2"
+type="$3"
+
+# This file is for UEFI platform only
+if [ ! -d /sys/firmware/efi ] || [ -f /var/lib/partman/ignore_uefi ]; then
+	debug "Not on UEFI platform"
+	exit 1
+fi
+
+# Weed out stuff that doesn't apply to us
+case "$type" in
+	vfat) debug "$1 is a FAT32 partition" ;;
+	msdos) debug "$1 is a FAT16 partition" ;;
+	fat) debug "$1 is a FAT partition (mounted by GRUB)" ;;
+	*) debug "$1 is $type partition: exiting"; exit 1 ;;
+esac
+
+if type udevadm > /dev/null 2>&1; then
+	udevinfo () {
+		udevadm info "$@"
+	}
+fi
+
+if type udevinfo > /dev/null 2>&1; then
+	# Skip virtual devices
+	if udevinfo -q path -n $partition | grep -q /virtual/; then
+		debug "$1 is virtual device: exiting"
+		exit 1
+	fi
+
+	eval "$(udevinfo -q property -n "$partition" | grep -E '^ID_PART_ENTRY_(TYPE|SCHEME)=')"
+	debug "$partition partition scheme is $ID_PART_ENTRY_SCHEME"
+	debug "$partition partition type is $ID_PART_ENTRY_TYPE"
+
+	if [ -z "$ID_PART_ENTRY_TYPE" -o -z "$ID_PART_ENTRY_SCHEME" -o \
+		\( "$ID_PART_ENTRY_SCHEME" != gpt -a "$ID_PART_ENTRY_SCHEME" != msdos \) -o \
+		\( "$ID_PART_ENTRY_SCHEME" = gpt -a "$ID_PART_ENTRY_TYPE" != c12a7328-f81f-11d2-ba4b-00a0c93ec93b \) -o \
+		\( "$ID_PART_ENTRY_SCHEME" = msdos -a "$ID_PART_ENTRY_TYPE" != 0xef \) ]; then
+		debug "$partition is not a ESP partition: exiting"
+		exit 1
+	fi
+else
+	debug "udevinfo and udevadm missing - cannot check partition type"
+fi
+
+efi=$(item_in_dir efi "$mpoint")
+if [ -z "$efi" ]; then
+	debug "$mpoint does not have /EFI directory: exiting"
+	exit 1
+fi
+
+ret=1
+for test in /usr/lib/os-probes/mounted/efi/*; do
+	debug "running subtest $test"
+	if [ -f "$test" ] && [ -x "$test" ]; then
+		entry=$("$test" "$mpoint/$efi")
+		if [ -n "$entry" ]; then
+			debug "bootloader $entry found by subtest $test"
+			ret=0
+			result "${partition}@/$efi/${entry}:efi"
+		fi
+	fi
+done
+
+exit $ret

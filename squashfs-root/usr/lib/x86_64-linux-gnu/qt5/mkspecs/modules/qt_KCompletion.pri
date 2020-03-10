@@ -1,0 +1,11 @@
+QT.KCompletion.VERSION = 5.64.0
+QT.KCompletion.MAJOR_VERSION = 5
+QT.KCompletion.MINOR_VERSION = 64
+QT.KCompletion.PATCH_VERSION = 0
+QT.KCompletion.name = KF5Completion
+QT.KCompletion.module = KF5Completion
+QT.KCompletion.defines = 
+QT.KCompletion.includes = /usr/include/KF5/KCompletion
+QT.KCompletion.private_includes =
+QT.KCompletion.libs = /usr/lib/x86_64-linux-gnu
+QT.KCompletion.depends = widgets

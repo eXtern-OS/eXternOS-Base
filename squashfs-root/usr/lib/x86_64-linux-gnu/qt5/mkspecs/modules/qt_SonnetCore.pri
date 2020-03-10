@@ -1,0 +1,11 @@
+QT.SonnetCore.VERSION = 5.64.0
+QT.SonnetCore.MAJOR_VERSION = 5
+QT.SonnetCore.MINOR_VERSION = 64
+QT.SonnetCore.PATCH_VERSION = 0
+QT.SonnetCore.name = KF5SonnetCore
+QT.SonnetCore.module = KF5SonnetCore
+QT.SonnetCore.defines = 
+QT.SonnetCore.includes = /usr/include/KF5/SonnetCore
+QT.SonnetCore.private_includes =
+QT.SonnetCore.libs = /usr/lib/x86_64-linux-gnu
+QT.SonnetCore.depends = core

@@ -1,0 +1,395 @@
+=head1 NAME
+
+Glib::Variant -  strongly typed value datatype
+
+=cut
+
+=for position SYNOPSIS
+
+=head1 SYNOPSIS
+
+  my $v = Glib::Variant->new ('as', ['GTK+', 'Perl']);
+  my $aref = $v->get ('as');
+
+=for position DESCRIPTION
+
+=head1 DESCRIPTION
+
+There are two sets of APIs for creating and dealing with C<Glib::Variant>s: the
+low-level API described below under L</METHODS>, and the convenience API
+described in this section.
+
+=head2 CONVENIENCE API
+
+=over
+
+=item variant = Glib::Variant->new ($format_string, $value)
+
+=item (variant1, ...) = Glib::Variant->new ($format_string, $value1, ...)
+
+Constructs a variant from C<$format_string> and C<$value>.  Also supports
+constructing multiple variants when the format string is a concatenation of
+multiple types.
+
+=item value = $variant->get ($format_string)
+
+Deconstructs C<$variant> according to C<$format_string>.
+
+=back
+
+The following symbols are currently supported in format strings:
+
+  +------------------------------+---------------------------------+
+  |            Symbol            |             Meaning             |
+  +------------------------------+---------------------------------+
+  | b, y, n, q, i, u, x, t, h, d | Boolean, byte and numeric types |
+  | s, o, g                      | String types                    |
+  | v                            | Variant types                   |
+  | a                            | Arrays                          |
+  | m                            | Maybe types                     |
+  | ()                           | Tuples                          |
+  | {}                           | Dictionary entries              |
+  +------------------------------+---------------------------------+
+
+Note that if a format string specifies an array, a tuple or a dictionary entry
+("a", "()" or "{}"), then array references are expected by C<new> and produced
+by C<get>.  For arrays of dictionary entries ("a{}"), hash references are also
+supported by C<new> and handled as you would expect.
+
+For a complete specification, see the documentation at
+
+=over
+
+=item L<https://developer.gnome.org/glib/stable/glib-GVariantType.html>
+
+=item L<https://developer.gnome.org/glib/stable/glib-GVariant.html>
+
+=item L<https://developer.gnome.org/glib/stable/gvariant-format-strings.html>
+
+=item L<https://developer.gnome.org/glib/stable/gvariant-text.html>
+
+=back
+
+=cut
+
+
+
+=head1 HIERARCHY
+
+  Glib::Variant
+
+
+
+=cut
+
+=for object Glib::Variant strongly typed value datatype
+=cut
+
+
+
+
+=head1 METHODS
+
+=head2 variant = Glib::Variant-E<gt>B<new_array> ($child_type, $children)
+
+=over
+
+=item * $child_type (Glib::VariantType) 
+
+=item * $children (scalar) 
+
+=back
+
+=head2 variant = Glib::Variant-E<gt>B<new_boolean> ($value)
+
+=over
+
+=item * $value (boolean) 
+
+=back
+
+=head2 variant = Glib::Variant-E<gt>B<new_byte> ($value)
+
+=over
+
+=item * $value (Glib::UChar) 
+
+=back
+
+=head2 variant = Glib::Variant-E<gt>B<new_bytestring> ($string)
+
+=over
+
+=item * $string (byte string) 
+
+=back
+
+Since: glib 2.26
+
+=head2 variant = Glib::Variant-E<gt>B<new_dict_entry> ($key, $value)
+
+=over
+
+=item * $key (Glib::Variant) 
+
+=item * $value (Glib::Variant) 
+
+=back
+
+=head2 variant = Glib::Variant-E<gt>B<new_double> ($value)
+
+=over
+
+=item * $value (double) 
+
+=back
+
+=head2 variant = Glib::Variant-E<gt>B<new_handle> ($value)
+
+=over
+
+=item * $value (integer) 
+
+=back
+
+=head2 variant = Glib::Variant-E<gt>B<new_int16> ($value)
+
+=over
+
+=item * $value (integer) 
+
+=back
+
+=head2 variant = Glib::Variant-E<gt>B<new_int32> ($value)
+
+=over
+
+=item * $value (integer) 
+
+=back
+
+=head2 variant = Glib::Variant-E<gt>B<new_int64> ($value)
+
+=over
+
+=item * $value (64 bit integer) 
+
+=back
+
+=head2 variant = Glib::Variant-E<gt>B<new_maybe> ($child_type, $child)
+
+=over
+
+=item * $child_type (Glib::VariantType) 
+
+=item * $child (Glib::Variant) 
+
+=back
+
+=head2 variant = Glib::Variant-E<gt>B<new_object_path> ($object_path)
+
+=over
+
+=item * $object_path (string) 
+
+=back
+
+=head2 variant = Glib::Variant-E<gt>B<new_signature> ($signature)
+
+=over
+
+=item * $signature (string) 
+
+=back
+
+=head2 variant = Glib::Variant-E<gt>B<new_string> ($string)
+
+=over
+
+=item * $string (string) 
+
+=back
+
+=head2 variant = Glib::Variant-E<gt>B<new_tuple> ($children)
+
+=over
+
+=item * $children (scalar) 
+
+=back
+
+=head2 variant = Glib::Variant-E<gt>B<new_uint16> ($value)
+
+=over
+
+=item * $value (unsigned) 
+
+=back
+
+=head2 variant = Glib::Variant-E<gt>B<new_uint32> ($value)
+
+=over
+
+=item * $value (unsigned) 
+
+=back
+
+=head2 variant = Glib::Variant-E<gt>B<new_uint64> ($value)
+
+=over
+
+=item * $value (64 bit unsigned) 
+
+=back
+
+=head2 variant = Glib::Variant-E<gt>B<new_variant> ($value)
+
+=over
+
+=item * $value (Glib::Variant) 
+
+=back
+
+=head2 boolean = $value-E<gt>B<get_boolean> 
+
+=head2 uchar = $value-E<gt>B<get_byte> 
+
+=head2 string = $value-E<gt>B<get_bytestring> 
+
+Since: glib 2.26
+
+=head2 variant = $value-E<gt>B<byteswap> 
+
+=head2 variant = $value-E<gt>B<get_child_value> ($index_)
+
+=over
+
+=item * $index_ (unsigned) 
+
+=back
+
+=head2 string = $value-E<gt>B<classify> 
+
+=head2 integer = $one-E<gt>B<compare> ($two)
+
+=over
+
+=item * $two (Glib::Variant) 
+
+=back
+
+Since: glib 2.26
+
+=head2 double = $value-E<gt>B<get_double> 
+
+=head2 boolean = $one-E<gt>B<equal> ($two)
+
+=over
+
+=item * $two (Glib::Variant) 
+
+=back
+
+=head2 integer = $value-E<gt>B<get_handle> 
+
+=head2 integer = $value-E<gt>B<hash> 
+
+=head2 integer = $value-E<gt>B<get_int16> 
+
+=head2 integer = $value-E<gt>B<get_int32> 
+
+=head2 64 bit integer = $value-E<gt>B<get_int64> 
+
+=head2 boolean = $value-E<gt>B<is_container> 
+
+=head2 boolean = $value-E<gt>B<is_normal_form> 
+
+=head2 boolean = $string-E<gt>B<is_object_path> 
+
+=head2 boolean = $value-E<gt>B<is_of_type> ($type)
+
+=over
+
+=item * $type (Glib::VariantType) 
+
+=back
+
+=head2 boolean = $string-E<gt>B<is_signature> 
+
+=head2 variant = $dictionary-E<gt>B<lookup_value> ($key, $expected_type)
+
+=over
+
+=item * $key (string) 
+
+=item * $expected_type (Glib::VariantType) 
+
+=back
+
+=head2 variant = $value-E<gt>B<get_maybe> 
+
+=head2 unsigned = $value-E<gt>B<n_children> 
+
+=head2 variant = $value-E<gt>B<get_normal_form> 
+
+=head2 variant = Glib::Variant::parse ($type, $text)
+
+=over
+
+=item * $type (Glib::VariantType) 
+
+=item * $text (string) 
+
+=back
+
+
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 string = $value-E<gt>B<print> ($type_annotate)
+
+=over
+
+=item * $type_annotate (boolean) 
+
+=back
+
+=head2 unsigned = $value-E<gt>B<get_size> 
+
+=head2 string = $value-E<gt>B<get_string> 
+
+=head2 varianttype = $value-E<gt>B<get_type> 
+
+=head2 string = $value-E<gt>B<get_type_string> 
+
+=head2 unsigned = $value-E<gt>B<get_uint16> 
+
+=head2 unsigned = $value-E<gt>B<get_uint32> 
+
+=head2 64 bit unsigned = $value-E<gt>B<get_uint64> 
+
+=head2 variant = $value-E<gt>B<get_variant> 
+
+
+
+=cut
+
+
+=head1 SEE ALSO
+
+L<Glib>, L<Glib::VariantType>
+
+
+=cut
+
+
+=head1 COPYRIGHT
+
+Copyright (C) 2003-2011 by the gtk2-perl team.
+
+This software is licensed under the LGPL.  See L<Glib> for a full notice.
+
+
+
+=cut
+

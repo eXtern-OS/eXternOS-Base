@@ -1,0 +1,11 @@
+QT.KGuiAddons.VERSION = 5.64.0
+QT.KGuiAddons.MAJOR_VERSION = 5
+QT.KGuiAddons.MINOR_VERSION = 64
+QT.KGuiAddons.PATCH_VERSION = 0
+QT.KGuiAddons.name = KF5GuiAddons
+QT.KGuiAddons.module = KF5GuiAddons
+QT.KGuiAddons.defines = 
+QT.KGuiAddons.includes = /usr/include/KF5/KGuiAddons
+QT.KGuiAddons.private_includes =
+QT.KGuiAddons.libs = /usr/lib/x86_64-linux-gnu
+QT.KGuiAddons.depends = gui

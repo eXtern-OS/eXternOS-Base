@@ -1,0 +1,110 @@
+#!/bin/sh
+. /usr/share/os-prober/common.sh
+set -e
+
+partition="$1"
+bootpart="$2"
+mpoint="$3"
+type="$4"
+
+found_item=0
+
+entry_result () {
+	if [ "$ignore_item" = 0 ] && \
+	   [ -n "$kernel" ] && \
+	   [ -e "$mpoint/$kernel" ]; then
+		result "$rootpart:$bootpart:$title:$kernel:$initrd:$parameters"
+		found_item=1
+	fi
+	kernel=""
+	parameters=""
+	initrd=""
+	title=""
+	ignore_item=0
+}
+
+parse_grub_menu () {
+	mpoint="$1"
+	rootpart="$2"
+	bootpart="$3"
+	
+	kernel=""
+	parameters=""
+	initrd=""
+	title=""
+	ignore_item=0
+
+	while read line; do
+		debug "parsing: $line"
+		set -f
+		set -- $line
+		set +f
+		case "$1" in
+			menuentry)
+				entry_result
+				shift 1
+				# The double-quoted string is the title.
+				# Make sure to look at the text of the line
+				# before 'set' mangled it.
+				title="$(echo "$line" | sed -n 's/[^"]*"\(.*\)".*/\1/p' | sed 's/://g')"
+				if [ -z "$title" ]; then
+					# ... or single-quoted?  Be careful
+					# to handle constructions like
+					# 'foo'\''bar' (which expands to
+					# foo'bar, as in shell), and to
+					# handle multiple single-quoted
+					# strings on the same line.
+					title="$(echo "$line" | sed -n "s/[^']*'\(\([^']\|'\\\\''\)*\)'.*/\1/p" | sed "s/'\\\\''/'/; s/://g")"
+				fi
+				if [ -z "$title" ]; then
+					ignore_item=1
+				elif echo "$title" | grep -q '(on /dev/[^)]*)$'; then
+					log "Skipping entry '$title':"
+					log "appears to be an automatic reference taken from another menu.lst"
+					ignore_item=1
+				fi
+			;;
+			linux)
+				# Hack alert: sed off any (hdn,n) but
+				# assume the kernel is on the same
+				# partition.
+				kernel="$(echo "$2" | sed 's/(.*)//')"
+				shift 2
+				parameters="$@"
+				# Systems with a separate /boot will not have
+				# the path to the kernel in grub.cfg.
+				if [ "$partition" != "$bootpart" ]; then
+					kernel="/boot$kernel"
+				fi
+			;;
+			initrd)
+				initrd="$(echo "$2" | sed 's/(.*)//')"
+				# Initrd same.
+				if [ "$partition" != "$bootpart" ]; then
+					initrd="/boot$initrd"
+				fi
+			;;
+			"}")
+				entry_result
+			;;
+		esac
+	done
+
+	entry_result
+}
+
+if [ -e "$mpoint/boot/grub/grub.cfg" ] && \
+   ([ ! -e "$mpoint/boot/grub/menu.lst" ] || \
+    [ "$mpoint/boot/grub/grub.cfg" -nt "$mpoint/boot/grub/menu.lst" ]); then
+	debug "parsing grub.cfg"
+	parse_grub_menu "$mpoint" "$partition" "$bootpart" < "$mpoint/boot/grub/grub.cfg"
+elif [ -e "$mpoint/boot/grub2/grub.cfg" ]; then
+	debug "parsing grub.cfg"
+	parse_grub_menu "$mpoint" "$partition" "$bootpart" < "$mpoint/boot/grub2/grub.cfg"
+fi
+
+if [ "$found_item" = 0 ]; then
+	exit 1
+else
+	exit 0
+fi

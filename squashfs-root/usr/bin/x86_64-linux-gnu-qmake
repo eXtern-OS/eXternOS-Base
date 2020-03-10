@@ -1,0 +1,22 @@
+#!/bin/sh
+
+QMAKE_MODE=
+
+if [ "x$1" = x-query ]; then
+	exec /usr/lib/qt5/bin/qmake "$@" -qtconf /usr/lib/x86_64-linux-gnu/qt5/qt.conf
+elif [ "x$1" = x-makefile ] || [ "x$1" = x-project ]; then
+	QMAKE_MODE="$1"
+	shift
+fi
+
+exec /usr/lib/qt5/bin/qmake \
+	$QMAKE_MODE \
+	-qtconf /usr/lib/x86_64-linux-gnu/qt5/qt.conf \
+	-early \
+	QMAKE_CC=${CC:-x86_64-linux-gnu-gcc} \
+	QMAKE_CXX=${CXX:-x86_64-linux-gnu-g++} \
+	QMAKE_LINK=${CXX:-x86_64-linux-gnu-g++} \
+	QMAKE_QMAKE=/usr/bin/x86_64-linux-gnu-qmake \
+	PKG_CONFIG=x86_64-linux-gnu-pkg-config \
+	-before \
+	"$@"

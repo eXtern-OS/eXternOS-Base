@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+# install all packages that "ubuntu-drivers autoinstall" installed into the
+# live system. Ubiquity calls this with --package-list /run/ubuntu-drivers.autoinstall
+
+PKGLIST=/run/ubuntu-drivers.autoinstall
+[ -e $PKGLIST ] || exit 0
+
+for p in `cat $PKGLIST`; do
+    apt-install $p
+done
+

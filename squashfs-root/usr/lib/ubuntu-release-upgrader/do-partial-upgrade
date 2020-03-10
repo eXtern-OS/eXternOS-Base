@@ -1,0 +1,114 @@
+#!/usr/bin/python3
+# -*- Mode: Python; indent-tabs-mode: nil; tab-width: 4; coding: utf-8 -*-
+#  
+#  Copyright (c) 2004-2012 Canonical
+#                2004-2008 Michael Vogt
+#                2004 Michiel Sikkes
+#  
+#  Author: Michiel Sikkes <michiel@eyesopened.nl>
+#          Michael Vogt <mvo@debian.org>
+# 
+#  This program is free software; you can redistribute it and/or 
+#  modify it under the terms of the GNU General Public License as 
+#  published by the Free Software Foundation; either version 2 of the
+#  License, or (at your option) any later version.
+# 
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+# 
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+#  USA
+
+from __future__ import print_function
+
+import os
+import subprocess
+import sys
+
+from DistUpgrade.DistUpgradeVersion import VERSION
+from DistUpgrade.DistUpgradeController import DistUpgradeController
+from DistUpgrade.DistUpgradeConfigParser import DistUpgradeConfig
+from DistUpgrade.DistUpgradeMain import (
+    setup_logging,
+    setup_view,
+)
+import locale
+import gettext
+
+from optparse import OptionParser
+
+if __name__ == "__main__":
+
+    #FIXME: Workaround a bug in optparser which doesn't handle unicode/str
+    #       correctly, see http://bugs.python.org/issue4391
+    #       Should be resolved by Python3
+    gettext.bindtextdomain("ubuntu-release-upgrader", "/usr/share/locale")
+    gettext.textdomain("ubuntu-release-upgrader")
+    translation = gettext.translation("ubuntu-release-upgrader", fallback=True)
+    if sys.version >= '3':
+        _ = translation.gettext
+    else:
+        _ = translation.ugettext
+
+    try:
+        locale.setlocale(locale.LC_ALL, "")
+    except:
+        pass
+
+    # gtk2 used to throw a exception when it failed to init the display,
+    # so back then it was safe to try to import the frontend and fallback
+    # to text if the import failed. this is no longer the case so we need
+    # do figure it out here :/
+    if "DISPLAY" in os.environ:
+        default_frontend = "DistUpgradeViewGtk3"
+    else:
+        default_frontend = "DistUpgradeViewText"
+
+    # Begin parsing of options
+    parser = OptionParser()
+    parser.add_option ("-V", "--version", action="store_true",
+                       dest="show_version", default=False,
+                       help=_("Show version and exit"))
+    parser.add_option ("--data-dir", "", dest="datadir",
+                       default="/usr/share/ubuntu-release-upgrader/",
+                       help=_("Directory that contains the data files"))
+    parser.add_option ("-f", "--frontend", default=default_frontend,
+                       dest="frontend", 
+                       help=_("Run the specified frontend"))
+
+    (options, args) = parser.parse_args()
+
+    datadir = os.path.normpath(options.datadir)+"/"
+
+    if options.show_version:
+        print("%s: version %s" % (os.path.basename(sys.argv[0]), VERSION))
+        sys.exit(0)
+
+    # raise privileges when not started as root
+    if os.getuid() != 0:
+        # apply workaround for Wayland
+        if ((options.frontend in {"DistUpgradeViewGtk3"} and
+             'WAYLAND_DISPLAY' in os.environ)):
+            subprocess.run(['xhost', '+si:localuser:root'])
+        os.execv("/usr/bin/pkexec", ["pkexec"] + sys.argv)
+
+    # we are by definition in partial upgrade mode
+    options.partial = True
+    config = DistUpgradeConfig(options.datadir)
+    logdir = setup_logging(options, config)
+    view = setup_view(options, config, logdir)
+
+    if options.frontend == "DistUpgradeViewGtk3":
+        from gi.repository import Gtk
+        import gi
+        gi.require_version("Gtk", "3.0")
+        Gtk.init_check(sys.argv)
+        Gtk.Window.set_default_icon_name("system-software-update")
+        view.label_title.set_markup("<b><big>%s</big></b>" %
+                                    _("Running partial upgrade"))
+    controller = DistUpgradeController(view, datadir=datadir)
+    controller.doPartialUpgrade()

@@ -1,0 +1,28 @@
+#!/bin/sh
+set -e
+
+. /usr/share/os-prober/common.sh
+
+partition="$1"
+dir="$2"
+type="$3"
+
+# Weed out stuff that doesn't apply to us
+case "$type" in
+	minix|minix2|ext2) ;;
+	*) exit 1 ;;
+esac
+
+if [ -f "$dir/minix" ] || [ -e "$dir/boot/image_big" ]; then
+	if [ -e "$dir/boot/image_latest" ]; then
+		boot="minix"
+	else
+		boot="chain"
+	fi
+
+	label="$(count_next_label Minix)"
+	result "$partition:Minix:$label:$boot"
+	exit 0
+else
+	exit 1
+fi

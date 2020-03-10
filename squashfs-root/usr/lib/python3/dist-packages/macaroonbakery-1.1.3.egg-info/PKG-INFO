@@ -1,0 +1,55 @@
+Metadata-Version: 1.1
+Name: macaroonbakery
+Version: 1.1.3
+Summary: A Python library port for bakery, higher level operation to work with macaroons
+Home-page: https://github.com/go-macaroon-bakery/py-macaroon-bakery
+Author: Juju UI Team
+Author-email: juju-gui@lists.ubuntu.com
+License: LGPL3
+Description-Content-Type: UNKNOWN
+Description: ===============
+        Macaroon Bakery
+        ===============
+        
+        A Python library for working with macaroons.
+        
+        
+        Installation
+        ------------
+        The easiest way to install macaroonbakery is via pip::
+        
+            $ pip install macaroonbakery
+        
+        macaroonbakery was developed around pymacaroons. On ubuntu, you
+        can get libsodium from a ppa::
+        
+        	$ sudo add-apt-repository ppa:yellow/ppa -y
+        	$ apt-get install libsodium13
+        
+        Usage
+        -----
+        Interacting with a protected url, you can use the BakeryAuth provided to deal
+        with the macaroon bakery
+        
+            >>> from macaroonbakery import httpbakery
+            >>> jar = requests.cookies.RequestsCookieJar()
+            >>> resp = requests.get('some protected url',
+                                    cookies=jar,
+                                    auth=httpbakery.BakeryAuth(cookies=jar))
+            >>> resp.raise_for_status()
+        
+        
+        You can use any cookie storage you'd like so next subsequent calls the macaroon
+        saved in the cookie jar will be directly used and will not require
+        any other authentication (for example, cookielib.FileCookieJar).
+        
+Keywords: macaroon cookie
+Platform: UNKNOWN
+Classifier: Development Status :: 2 - Pre-Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.5

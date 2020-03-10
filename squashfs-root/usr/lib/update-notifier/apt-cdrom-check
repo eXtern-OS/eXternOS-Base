@@ -1,0 +1,93 @@
+#!/bin/sh
+#
+# helper to check if we actually have an ubuntu CD
+#
+# Returncode:
+# 0 - no ubuntu CD
+# 1 - CD with packages 
+# 2 - dist-upgrader CD
+# 3 - aptoncd media
+# (if the returncodes change, make sure to update src/cdroms.c)
+# 
+
+mount_point="$1"
+aptoncd_file="$mount_point/aptoncd.info"
+
+# sanity checks
+if [ -z "$mount_point" ]; then
+    exit 0
+fi
+
+if [ -f "$aptoncd_file" ]; then
+    exit 3
+fi
+
+if [ ! -d "$mount_point/ubuntu" ] && [ ! -f "$mount_point/cdromupgrade" ]; then
+    exit 0
+fi
+
+# check if there are "Packages" files on the cd (and ignore the 
+# debian-installer dir)
+find "$mount_point/dists/"  -name "Packages.gz" | grep -q -v debian-installer
+
+# 1 means "no lines were selected" in grep (no Packages file but the 
+# debian-installer ones)
+if [ $? -eq 1 ]; then
+    exit 0
+fi
+
+# get some apt-config vars
+label_start=0
+cdrom_id=""
+
+apt_dir="/"
+apt_state_dir="var/lib/apt/"
+apt_cdrom_list="cdrom.list"
+eval $(apt-config shell apt_dir Dir \
+                        apt_state_dir Dir::State \
+                        apt_cdrom_list Dir::State::cdroms)
+
+
+
+# identifying ... [afkdsjaf] line
+line=$(apt-cdrom -d="$1" -m ident|grep "\[.*\]")
+
+# remove the stuff before "Identifying... [dasjflkd]" -> "dasjflkd"
+line=${line%]*}
+cdrom_id=${line#*\[}
+
+if [ -z "$cdrom_id" ]; then
+    # something bad happened here, we return "not yet scanned" as 
+    # fallback (because we are cheap)
+    return 1
+fi
+
+# [cdrom-id] -> cdrom-id  
+if grep -s -q "$cdrom_id"  $apt_dir$apt_state_dir$apt_cdrom_list; then
+    # already in sources.list, ignore
+    exit 0
+fi
+
+# so this is a CD we don't know yet and it has packages. good!
+THIS_VERSION=$(lsb_release -sr)
+VERSION_ON_MEDIA=$(awk {'print $2'} "$mount_point/.disk/info")
+
+# now check if it contains a signed dist-upgrader
+for d in "$mount_point"/dists/*/main/dist-upgrader/binary-all/; do
+    if [ -d "$d" ]; then
+        # ok, we have one, now check the authentication 
+        GPG="gpgv --ignore-time-conflict --keyring /etc/apt/trusted.gpg"
+        if $GPG "$d/"*.tar.gz.gpg "$d"/*.tar.gz; then
+	# verified ok, we have a valid upgrader, if it was not ok, the
+	# fallback to the end is ok because we still have packages on it
+            if dpkg --compare-versions "$THIS_VERSION" lt "$VERSION_ON_MEDIA"; then
+                exit 2
+            fi
+        fi
+    fi
+done
+
+# we got an ubuntu CD with packages
+if dpkg --compare-versions "$THIS_VERSION" lt "$VERSION_ON_MEDIA"; then
+    exit 1
+fi

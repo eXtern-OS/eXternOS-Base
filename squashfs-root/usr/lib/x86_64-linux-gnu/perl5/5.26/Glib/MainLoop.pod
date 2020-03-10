@@ -1,0 +1,294 @@
+=head1 NAME
+
+Glib::MainLoop -  An event source manager
+
+=cut
+
+=for position DESCRIPTION
+
+=head1 DESCRIPTION
+
+Event-driven programs need some sort of loop which watches for events and
+launches the appropriate actions.  Glib::MainLoop provides this functionality.
+
+Mainloops have context, provided by the MainContext object.  For the most part
+you can use the default context (see C<default>), but if you want to create a
+subcontext for a nested loop which doesn't have the same event sources, etc,
+you can.
+
+Event sources, attached to main contexts, watch for events to happen, and
+launch appropriate actions.  Glib provides a few ready-made event sources,
+the Glib::Timeout, Glib::Idle, and io watch (C<< Glib::IO->add_watch >>).
+
+Under the hood, Gtk+ adds event sources for GdkEvents to dispatch events to
+your widgets.  In fact, Gtk2 provides an abstraction of Glib::MainLoop (See
+C<< Gtk2->main >> and friends), so you may rarely have cause to use
+Glib::MainLoop directly.
+
+Note: As of version 1.080, the Glib module uses a custom event source to
+ensure that perl's safe signal handling and the glib polling event loop
+play nicely together.  It is no longer necessary to install a timeout to
+ensure that async signals get handled in a timely manner.
+
+=head1 CONSTANTS
+
+C<SOURCE_REMOVE> and C<SOURCE_CONTINUE> are designed for use as the
+return values from timeout, idle and I/O watch source functions.  They
+return true to keep running or false to remove themselves.  These
+constants can help you get that the right way around.
+
+    Glib::SOURCE_CONTINUE     # true
+    Glib::SOURCE_REMOVE       # false
+
+=cut
+
+
+
+=for object Glib::MainLoop
+=cut
+
+=for object Glib::MainLoop An event source manager
+=cut
+
+=for object Glib::MainLoop
+=cut
+
+=for object Glib::MainLoop
+=cut
+
+=for object Glib::MainLoop
+=cut
+
+=for object Glib::MainLoop
+=cut
+
+=for object Glib::MainLoop
+=cut
+
+
+
+
+=head1 METHODS
+
+=head2 maincontext thingamabob = Glib::MainContext-E<gt>B<new> 
+
+=head2 mainloop = Glib::MainLoop-E<gt>B<new> ($context=undef, $is_running=FALSE)
+
+=over
+
+=item * $context (Glib::MainContext thingamabob) 
+
+=item * $is_running (boolean) 
+
+=back
+
+=head2 integer = Glib::Timeout-E<gt>B<add> ($interval, $callback, $data=undef, $priority=G_PRIORITY_DEFAULT)
+
+=over
+
+=item * $interval (integer) number of milliseconds
+
+=item * $callback (subroutine) 
+
+=item * $data (scalar) 
+
+=item * $priority (integer) 
+
+=back
+
+
+Run I<$callback> every I<$interval> milliseconds until I<$callback> returns
+false.  Returns a source id which may be used with C<< Glib::Source->remove >>.
+Note that a mainloop must be active for the timeout to execute.
+
+
+=head2 integer = Glib::Idle-E<gt>B<add> ($callback, $data=undef, $priority=G_PRIORITY_DEFAULT_IDLE)
+
+=over
+
+=item * $callback (subroutine) 
+
+=item * $data (scalar) 
+
+=item * $priority (integer) 
+
+=back
+
+
+Run I<$callback> when the mainloop is idle.  If I<$callback> returns false,
+it will uninstall itself, otherwise, it will run again at the next idle
+iteration.  Returns a source id which may be used with
+C<< Glib::Source->remove >>.
+
+
+=head2 integer = Glib::Timeout-E<gt>B<add_seconds> ($interval, $callback, $data=undef, $priority=G_PRIORITY_DEFAULT)
+
+=over
+
+=item * $interval (integer) 
+
+=item * $callback (scalar) 
+
+=item * $data (scalar) 
+
+=item * $priority (integer) 
+
+=back
+
+Since: glib 2.14
+
+=head2 integer = Glib::IO-E<gt>B<add_watch> ($fd, $condition, $callback, $data=undef, $priority=G_PRIORITY_DEFAULT)
+
+=over
+
+=item * $fd (integer) file descriptor, e.g. fileno($filehandle)
+
+=item * $condition (Glib::IOCondition) 
+
+=item * $callback (subroutine) 
+
+=item * $data (scalar) 
+
+=item * $priority (integer) 
+
+=back
+
+
+Run I<$callback> when there is an event on I<$fd> that matches I<$condition>.
+The watch uninstalls itself if I<$callback> returns false.
+Returns a source id that may be used with C<< Glib::Source->remove >>.
+
+Glib's IO channels serve the same basic purpose as Perl's file handles, so
+for the most part you don't see GIOChannels in Perl.  The IO watch integrates
+IO operations with the main loop, which Perl file handles don't do.  For
+various reasons, this function requires raw file descriptors, not full
+file handles.  See C<fileno> in L<perlfunc>.
+
+
+=head2 maincontext thingamabob = $loop-E<gt>B<get_context> 
+
+=head2 maincontext thingamabob = Glib::MainContext-E<gt>B<default> 
+
+=head2 boolean = $context-E<gt>B<is_owner> 
+
+Since: glib 2.12
+
+=head2 boolean = $loop-E<gt>B<is_running> 
+
+=head2 boolean = $context-E<gt>B<iteration> ($may_block)
+
+=over
+
+=item * $may_block (boolean) 
+
+=back
+
+=head2 integer = Glib::main_depth 
+
+Find the current main loop recursion level.  This is handy in fringe
+situations, but those are very rare; see the C API reference for a more
+in-depth discussion.
+
+Since: glib 2.4
+
+=head2 boolean = $context-E<gt>B<pending> 
+
+=head2 $loop-E<gt>B<quit> 
+
+=head2 boolean = Glib::Source-E<gt>B<remove> ($tag)
+
+=over
+
+=item * $tag (integer) 
+
+=back
+
+
+Remove an event source.  I<$tag> is the number returned by things like
+C<< Glib::Timeout->add >>, C<< Glib::Idle->add >>, and
+C<< Glib::IO->add_watch >>.
+
+
+=head2 $loop-E<gt>B<run> 
+
+=head2 integer = Glib::Child-E<gt>B<watch_add> ($pid, $callback, $data=undef, $priority=G_PRIORITY_DEFAULT)
+
+=over
+
+=item * $pid (integer) child process ID
+
+=item * $callback (subroutine) 
+
+=item * $data (scalar) 
+
+=item * $priority (integer) 
+
+=back
+
+
+Add a source to the default main context which will call
+
+    &$callback ($pid, $waitstatus, $data)
+
+when child process $pid terminates.  The return value is a source id
+which can be used with C<< Glib::Source->remove >>.  When the callback
+is made the source is removed automatically.
+
+In a non-threaded program Glib implements this source by installing a
+SIGCHLD handler.  Don't change $SIG{CHLD} in Perl or the callback will
+never run.
+
+
+Since: glib 2.4
+
+
+
+=cut
+
+
+=head1 ENUMS AND FLAGS
+
+=head2 flags Glib::IOCondition
+
+
+
+=over
+
+=item * 'in' / 'G_IO_IN'
+
+=item * 'out' / 'G_IO_OUT'
+
+=item * 'pri' / 'G_IO_PRI'
+
+=item * 'err' / 'G_IO_ERR'
+
+=item * 'hup' / 'G_IO_HUP'
+
+=item * 'nval' / 'G_IO_NVAL'
+
+=back
+
+
+
+
+=cut
+
+
+=head1 SEE ALSO
+
+L<Glib>
+
+
+=cut
+
+
+=head1 COPYRIGHT
+
+Copyright (C) 2003-2011 by the gtk2-perl team.
+
+This software is licensed under the LGPL.  See L<Glib> for a full notice.
+
+
+
+=cut
+

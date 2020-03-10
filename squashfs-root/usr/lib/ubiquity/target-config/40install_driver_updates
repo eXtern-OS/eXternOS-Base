@@ -1,0 +1,24 @@
+#! /bin/sh
+set -e
+
+if [ ! -d /var/cache/driver-updates ]; then
+	exit 0
+fi
+
+install_dir=/var/cache/driver-updates
+
+trap "rm -rf /target$install_dir" EXIT HUP INT QUIT TERM
+mkdir -p "/target$install_dir"
+cp -a /var/cache/driver-updates/*.deb "/target$install_dir/" || exit 0
+
+# We cannot leave packages in a bad state. So if the install fails, remove
+# it. This will get caught in /var/log/syslog.
+for deb in "/target$install_dir"/*; do
+	[ -f "$deb" ] || continue
+	debbase="${deb##*/}"
+	if ! chroot /target dpkg -i "$install_dir/$debbase"; then
+		chroot /target dpkg -P "${debbase%%_*}"
+	fi
+done
+
+exit 0

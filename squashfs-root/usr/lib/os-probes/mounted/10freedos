@@ -1,0 +1,23 @@
+#!/bin/sh
+
+. /usr/share/os-prober/common.sh
+
+partition="$1"
+mpoint="$2"
+type="$3"
+
+# Weed out stuff that doesn't apply to us
+case "$type" in
+	vfat) debug "$1 is a FAT32 partition" ;;
+	msdos) debug "$1 is a FAT16 partition" ;;
+	fat) debug "$1 is a FAT partition (mounted by GRUB)" ;;
+	*) debug "$1 is not a FAT partition: exiting"; exit 1 ;;
+esac
+
+if item_in_dir -q kernel.sys "$2" && item_in_dir -q command.com "$2"; then
+	label="$(count_next_label FreeDOS)"
+	result "$1:FreeDOS:$label:chain"
+	exit 0
+else
+	exit 1
+fi

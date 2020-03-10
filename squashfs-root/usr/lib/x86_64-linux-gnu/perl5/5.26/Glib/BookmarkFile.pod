@@ -1,0 +1,605 @@
+=head1 NAME
+
+Glib::BookmarkFile -  Parser for bookmark files
+
+=cut
+
+=for position SYNOPSIS
+
+=head1 SYNOPSIS
+
+  use Glib;
+
+  $date .= $_ while (<DATA>);
+
+  $b = Glib::BookmarkFile->new;
+  $b->load_from_data($data);
+  $uri = 'file:///some/path/to/a/file.txt';
+  if ($b->has_item($uri)) {
+  	$title = $b->get_title($uri);
+	$desc  = $b->get_description($uri);
+
+	print "Bookmark for `$uri' ($title):\n";
+	print "  $desc\n";
+  }
+  0;
+
+  __DATA__
+  <?xml version="1.0" encoding="UTF-8"?>
+  <xbel version="1.0"
+        xmlns:bookmark="http://www.freedesktop.org/standards/desktop-bookmarks"
+        xmlns:mime="http://www.freedesktop.org/standards/shared-mime-info">
+    <bookmark href="file:///tmp/test-file.txt" added="2006-03-22T18:54:00Z" modified="2006-03-22T18:54:00Z" visited="2006-03-22T18:54:00Z">
+      <title>Test File</title>
+      <desc>Some test file</desc>
+      <info>
+        <metadata owner="http://freedesktop.org">
+          <mime:mime-type type="text/plain"/>
+          <bookmark:applications>
+            <bookmark:application name="Gedit" exec="gedit %u" timestamp="1143053640" count="1"/>
+          </bookmark:applications>
+        </metadata>
+      </info>
+    </bookmark>
+  </xbel>
+
+=for position DESCRIPTION
+
+=head1 DESCRIPTION
+
+B<Glib::BookmarkFile> lets you parse, edit or create files containing lists
+of bookmarks to resources pointed to by URIs, with some meta-data bound to
+them, following the Desktop Bookmark Specification.  The recent files support
+inside GTK+ uses this type of files to store the list of recently used
+files.
+
+The syntax of bookmark files is described in detail in the Desktop Bookmarks
+Specification, here is a quick summary: bookmark files use a subclass of the
+XML Bookmark Exchange Language (XBEL) document format, defining meta-data
+such as the MIME type of the resource pointed by a bookmark, the list of
+applications that have registered the same URI and the visibility of the
+bookmark.
+
+=cut
+
+
+
+=for object Glib::BookmarkFile Parser for bookmark files
+=cut
+
+
+
+
+=head1 METHODS
+
+=head2 bookmarkfile = Glib::BookmarkFile-E<gt>B<new> 
+
+=head2 $bookmark_file-E<gt>B<add_application> ($uri, $name, $exec)
+
+=over
+
+=item * $uri (string) 
+
+=item * $name (string or undef) 
+
+=item * $exec (string or undef) 
+
+=back
+
+Adds the application with $name and $exec to the list of
+applications that have registered a bookmark for $uri into
+$bookmark_file.
+
+Every bookmark inside a C<Glib::BookmarkFile> must have at least an
+application registered.  Each application must provide a name, a
+command line useful for launching the bookmark, the number of times
+the bookmark has been registered by the application and the last
+time the application registered this bookmark.
+
+If $name is undef, the name of the application will be the
+same returned by Glib::get_application_name(); if $exec is undef,
+the command line will be a composition of the program name as
+returned by Glib::get_prgname() and the "%u" modifier, which will
+be expanded to the bookmark's URI.
+
+This function will automatically take care of updating the
+registrations count and timestamping in case an application
+with the same $name had already registered a bookmark for
+$uri inside the bookmark file.  If no bookmark for $uri is found
+one is created.
+
+=head2 $bookmark_file-E<gt>B<add_group> ($uri, $group)
+
+=over
+
+=item * $uri (string) 
+
+=item * $group (string) 
+
+=back
+
+Adds $group to the list of groups to which the bookmark for $uri
+belongs to.  If no bookmark for $uri is found one is created.
+
+=head2 unix timestamp = $bookmark_file-E<gt>B<get_added> ($uri)
+
+=over
+
+=item * $uri (string) 
+
+=back
+
+=for apidoc __gerror__
+Gets the time the bookmark for $uri was added to $bookmark_file.
+
+=head2 $bookmark_file-E<gt>B<set_added> ($uri, $value)
+
+=over
+
+=item * $uri (string) 
+
+=item * $value (unix timestamp) 
+
+=back
+
+Sets the time the bookmark for $uri was added.
+If no bookmark for $uri is found one is created.
+
+=head2 ($exec, $count, $stamp) = $bookmark_file->B<get_app_info> ($uri, $name)
+
+=over
+
+=item * $uri (string) 
+
+=item * $name (string) 
+
+=back
+
+Gets the registration information of $name for the bookmark for
+$uri.  See Glib::BookmarkFile::set_app_info() for more information about
+the returned data.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $bookmark_file-E<gt>B<set_app_info> ($uri, $name, $exec, $count, $stamp)
+
+=over
+
+=item * $uri (string) 
+
+=item * $name (string) 
+
+=item * $exec (string) 
+
+=item * $count (integer) 
+
+=item * $stamp (unix timestamp) 
+
+=back
+
+Sets the meta-data of application $name inside the list of
+applications that have registered a bookmark for $uri inside
+$bookmark_file.
+
+You should rarely use this method; use Glib::BookmarkFile::add_application()
+and Glib::BookmarkFile::remove_application() instead.
+
+$name can be any UTF-8 encoded string used to identify an application.
+$exec can have one of these two modifiers: "%f", which will be expanded
+as the local file name retrieved from the bookmark's URI; "%u", which
+will be expanded as the bookmark's URI. The expansion is done automatically
+when retrieving the stored command line using the
+Glib::BookmarkFile::get_app_info() method.
+$count is the number of times the application has registered the
+bookmark; if it is < 0, the current registration count will be increased
+by one, if it is 0, the application with $name will be removed from
+the list of registered applications.
+$stamp is the Unix time of the last registration, as returned by time(); if
+it is -1, the current time will be used.
+
+If you try to remove an application by setting its registration count to
+zero, and no bookmark for $uri is found, %FALSE is returned and an
+exception is fired.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 list = $bookmark_file->B<get_applications> ($uri)
+
+=over
+
+=item * $uri (string) 
+
+=back
+
+Retrieves the names of the applications that have registered the
+bookmark for $uri.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $bookmark_file->B<get_description> ($uri)
+
+=over
+
+=item * $uri (string) 
+
+=back
+
+Gets the description of the bookmark for $uri.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $bookmark_file-E<gt>B<set_description> ($uri, $description)
+
+=over
+
+=item * $uri (string) 
+
+=item * $description (string) 
+
+=back
+
+Sets the description of the bookmark for $uri.  If no bookmark for $uri
+is found one is created.
+
+=head2 list = $bookmark_file-E<gt>B<get_groups> ($uri)
+
+=over
+
+=item * $uri (string) 
+
+=back
+
+Retrieves the list of group names of the bookmark for $uri.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $bookmark_file-E<gt>B<set_groups> ($uri, ...)
+
+=over
+
+=item * $uri (string) 
+
+=item * ... (list) one or more group names
+
+=back
+
+Sets a list of group names for the item with URI $uri.  Each previously
+set group name list is removed.  If no bookmark for $uri is found one
+is created.
+
+=head2 boolean = $bookmark_file-E<gt>B<has_application> ($uri, $name)
+
+=over
+
+=item * $uri (string) 
+
+=item * $name (string) 
+
+=back
+
+Checks whether the bookmark for $uri inside $bookmark_file has
+been registered by application $name.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 boolean = $bookmark_file-E<gt>B<has_group> ($uri, $group)
+
+=over
+
+=item * $uri (string) 
+
+=item * $group (string) 
+
+=back
+
+Checks whether $group appears in the list of groups to which
+the bookmark for $uri belongs to.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 boolean = $bookmark_file-E<gt>B<has_item> ($uri)
+
+=over
+
+=item * $uri (string) 
+
+=back
+
+Looks whether the bookmark file has a bookmark for $uri.
+
+=head2 ($href, $mime_type) = $bookmark_file->B<get_icon> ($uri)
+
+=over
+
+=item * $uri (string) 
+
+=back
+
+Gets the icon of the bookmark for $uri.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $bookmark_file-E<gt>B<set_icon> ($uri, $href, $mime_type)
+
+=over
+
+=item * $uri (string) 
+
+=item * $href (string or undef) 
+
+=item * $mime_type (string or undef) 
+
+=back
+
+Sets the icon for the bookmark for $uri.  If $href is undef, unsets
+the currently set icon.
+
+=head2 boolean = $bookmark_file-E<gt>B<get_is_private> ($uri)
+
+=over
+
+=item * $uri (string) 
+
+=back
+
+
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $bookmark_file-E<gt>B<set_is_private> ($uri, $is_private)
+
+=over
+
+=item * $uri (string) 
+
+=item * $is_private (boolean) 
+
+=back
+
+
+
+=head2 $bookmark_file-E<gt>B<load_from_data> ($buf)
+
+=over
+
+=item * $buf (scalar) 
+
+=back
+
+Parses a string containing a bookmark file structure.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 ($full_path) = $bookmark_file->B<load_from_data_dirs> ($file)
+
+=over
+
+=item * $file (localized file name) 
+
+=back
+
+
+Parses a bookmark file, searching for it inside the data directories.
+If a file is found, it returns the full path.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $bookmark_file-E<gt>B<load_from_file> ($file)
+
+=over
+
+=item * $file (localized file name) 
+
+=back
+
+Parses a bookmark file.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 string = $bookmark_file-E<gt>B<get_mime_type> ($uri)
+
+=over
+
+=item * $uri (string) 
+
+=back
+
+Gets the MIME type of the bookmark for $uri.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $bookmark_file-E<gt>B<set_mime_type> ($uri, $mime_type)
+
+=over
+
+=item * $uri (string) 
+
+=item * $mime_type (string) 
+
+=back
+
+Sets the MIME type of the bookmark for $uri.  If no bookmark for $uri
+is found one is created.
+
+=head2 unix timestamp = $bookmark_file-E<gt>B<get_modified> ($uri)
+
+=over
+
+=item * $uri (string) 
+
+=back
+
+=for apidoc __gerror__
+Gets the time the bookmark for $uri was last modified.
+
+=head2 $bookmark_file-E<gt>B<set_modified> ($uri, $value)
+
+=over
+
+=item * $uri (string) 
+
+=item * $value (unix timestamp) 
+
+=back
+
+Sets the time the bookmark for $uri was last modified.
+If no bookmark for $uri is found one is created.
+
+=head2 $bookmark_file-E<gt>B<move_item> ($old_uri, $new_uri)
+
+=over
+
+=item * $old_uri (string) 
+
+=item * $new_uri (string or undef) 
+
+=back
+
+Changes the URI of a bookmark item from $old_uri to $new_uri.  Any
+existing bookmark for $new_uri will be overwritten.  If $new_uri is
+undef, then the bookmark is removed.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $bookmark_file-E<gt>B<remove_application> ($uri, $name)
+
+=over
+
+=item * $uri (string) 
+
+=item * $name (string) 
+
+=back
+
+Removes application registered with $name from the list of applications
+that have registered a bookmark for $uri inside $bookmark_file.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $bookmark_file-E<gt>B<remove_group> ($uri, $group)
+
+=over
+
+=item * $uri (string) 
+
+=item * $group (string) 
+
+=back
+
+Removes $group from the list of groups to which the bookmark
+for $uri belongs to.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $bookmark_file-E<gt>B<remove_item> ($uri)
+
+=over
+
+=item * $uri (string) 
+
+=back
+
+Removes the bookmark for $uri from the bookmark file.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 integer = $bookmark_file-E<gt>B<get_size> 
+
+Gets the number of bookmarks inside the bookmark file.
+
+=head2 $bookmark_file->B<get_title> ($uri, $title)
+
+=over
+
+=item * $uri (string) 
+
+=back
+
+Gets the title of the bookmark for $uri.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $bookmark_file-E<gt>B<set_title> ($uri, $title)
+
+=over
+
+=item * $uri (string) 
+
+=item * $title (string) 
+
+=back
+
+Sets the title of the bookmark for $uri.  If no bookmark for $uri is found
+one is created.
+
+=head2 string = $bookmark_file-E<gt>B<to_data> 
+
+Returns the bookmark file as a string.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $bookmark_file-E<gt>B<to_file> ($file)
+
+=over
+
+=item * $file (localized file name) 
+
+=back
+
+Saves the contents of a bookmark file into a file.  The write operation
+is guaranteed to be atomic by writing the contents of the bookmark file
+to a temporary file and then moving the file to the target file.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 list = $bookmark_file->B<get_uris>
+
+Returns the URI of all the bookmarks in the bookmark file.
+
+=head2 unix timestamp = $bookmark_file-E<gt>B<get_visited> ($uri)
+
+=over
+
+=item * $uri (string) 
+
+=back
+
+=for apidoc __gerror__
+Gets the time the bookmark for $uri was last visited.
+
+=head2 $bookmark_file-E<gt>B<set_visited> ($uri, $value)
+
+=over
+
+=item * $uri (string) 
+
+=item * $value (unix timestamp) 
+
+=back
+
+Sets the time the bookmark for $uri was last visited.
+If no bookmark for $uri is found one is created.
+
+
+
+=cut
+
+
+=head1 SEE ALSO
+
+L<Glib>
+
+
+=cut
+
+
+=head1 COPYRIGHT
+
+Copyright (C) 2003-2011 by the gtk2-perl team.
+
+This software is licensed under the LGPL.  See L<Glib> for a full notice.
+
+
+
+=cut
+

@@ -1,0 +1,11 @@
+QT.KWidgetsAddons.VERSION = 5.64.0
+QT.KWidgetsAddons.MAJOR_VERSION = 5
+QT.KWidgetsAddons.MINOR_VERSION = 64
+QT.KWidgetsAddons.PATCH_VERSION = 0
+QT.KWidgetsAddons.name = KF5WidgetsAddons
+QT.KWidgetsAddons.module = KF5WidgetsAddons
+QT.KWidgetsAddons.defines = 
+QT.KWidgetsAddons.includes = /usr/include/KF5/KWidgetsAddons
+QT.KWidgetsAddons.private_includes =
+QT.KWidgetsAddons.libs = /usr/lib/x86_64-linux-gnu
+QT.KWidgetsAddons.depends = widgets

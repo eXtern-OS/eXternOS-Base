@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+# Make sure that the IPC_LOCK capability is added to the gnome-keyring-daemon
+# binary after installation, since file system caps aren't supported by the
+# LiveCD's squashfs.
+
+PROGRAM=/usr/bin/gnome-keyring-daemon
+
+if [ -e /target/sbin/setcap ] && [ -e /target/$PROGRAM ]; then
+    if chroot /target setcap CAP_IPC_LOCK=ep $PROGRAM >/dev/null 2>&1; then
+        logger --tag ubiquity "Setting capabilities for gnome-keyring-daemon using Linux Capabilities failed."
+    fi
+fi

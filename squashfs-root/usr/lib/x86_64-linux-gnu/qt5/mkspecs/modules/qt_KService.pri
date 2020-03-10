@@ -1,0 +1,11 @@
+QT.KService.VERSION = 5.64.0
+QT.KService.MAJOR_VERSION = 5
+QT.KService.MINOR_VERSION = 64
+QT.KService.PATCH_VERSION = 0
+QT.KService.name = KF5Service
+QT.KService.module = KF5Service
+QT.KService.defines = 
+QT.KService.includes = /usr/include/KF5/KService
+QT.KService.private_includes =
+QT.KService.libs = /usr/lib/x86_64-linux-gnu
+QT.KService.depends = KConfigCore

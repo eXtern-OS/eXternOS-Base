@@ -1,0 +1,64 @@
+#
+# Copyright (c) 2004-2012 by the cairo perl team (see the file README)
+#
+# Licensed under the LGPL, see LICENSE file for more information.
+#
+
+TYPEMAP
+
+# For backwards compatibility: The typemap shipped with perl 5.6.2 apparently
+# don't know const char *.
+const char * 	   	T_PV
+
+char_utf8 *             T_PV_UTF8
+const char_utf8 *       T_PV_UTF8
+
+cairo_bool_t		T_UV
+
+cairo_font_extents_t *	T_CAIRO_FONT_EXTENTS
+cairo_text_extents_t *	T_CAIRO_TEXT_EXTENTS
+cairo_glyph_t *		T_CAIRO_GLYPH
+cairo_text_cluster_t *	T_CAIRO_TEXT_CLUSTER
+cairo_path_t *		T_CAIRO_PATH
+
+FT_Face			T_FT_FACE
+
+# -----------------------------------------------------------------------------
+
+INPUT
+
+T_PV_UTF8
+	sv_utf8_upgrade ($arg);
+	$var = ($type) SvPV_nolen ($arg);
+
+T_CAIRO_GLYPH
+	$var = SvCairoGlyph ($arg);
+
+T_CAIRO_TEXT_CLUSTER
+	$var = SvCairoTextCluster ($arg);
+
+T_CAIRO_PATH
+	$var = SvCairoPath ($arg);
+
+# -----------------------------------------------------------------------------
+
+OUTPUT
+
+T_PV_UTF8
+	sv_setpv ((SV*)$arg, $var);
+	SvUTF8_on ($arg);
+
+T_CAIRO_FONT_EXTENTS
+	$arg = newSVCairoFontExtents ($var);
+
+T_CAIRO_TEXT_EXTENTS
+	$arg = newSVCairoTextExtents ($var);
+
+T_CAIRO_GLYPH
+	$arg = newSVCairoGlyph ($var);
+
+T_CAIRO_TEXT_CLUSTER
+	$arg = newSVCairoTextCluster ($var);
+
+T_CAIRO_PATH
+	$arg = newSVCairoPath ($var);

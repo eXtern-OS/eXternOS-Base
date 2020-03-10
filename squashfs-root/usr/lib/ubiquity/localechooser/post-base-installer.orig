@@ -1,0 +1,159 @@
+#! /bin/sh
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+# Avoid locale errors when using apt-install (logical consequence
+# of the fact that locales is not yet installed).
+export IT_LANG_OVERRIDE=C
+
+
+db_get debian-installer/locale
+LOCALE="$RET"
+
+# Set locale to C if it has not yet been set
+# This can happen during e.g. s390 installs where localechooser is not run
+[ "$LOCALE" ] || LOCALE="C.UTF-8"
+
+if [ "$LOCALE" != "C" ] && [ "$LOCALE" != "C.UTF-8" ]; then
+	db_get debian-installer/language
+	LANGLIST="$RET"
+fi
+
+EXTRAS=""
+if db_get localechooser/supported-locales; then
+	EXTRAS="$(echo "$RET" | sed 's/,//g')"
+fi
+
+LANGUAGE="${LOCALE%%_*}"
+
+LOCALE_TRANSLATIONS="$LOCALE"
+
+case ${LOCALE%%_*} in
+    pt|zh)
+	# In the special cases of Portuguese and Chinese, selecting a
+	# different location may imply a different dialect of the language.
+	# In such cases, make LANG reflect the selected language (for
+	# messages, character types, and collation) and make the other
+	# locale categories reflect the selected language.
+	db_get localechooser/languagelist
+	ORIG_LANGUAGE="$RET"
+	db_get debian-installer/country
+	COUNTRY="$RET"
+
+	if grep -q "^$ORIG_LANGUAGE;" /usr/share/localechooser/languagelist; then
+		SUPPORTEDLOCALES=/usr/share/localechooser/SUPPORTED
+		if [ ! -f "$SUPPORTEDLOCALES" ]; then
+			SUPPORTEDLOCALES=/usr/share/i18n/SUPPORTED
+		fi
+
+		LOCALE_TRANSLATIONS="$(grep "^$ORIG_LANGUAGE;" /usr/share/localechooser/languagelist | cut -d';' -f4)"
+		newlocale="$(echo "$LOCALE" | sed "s/_[A-Z][A-Z]*/_$COUNTRY/")"
+		if grep -q "^${newlocale%%[.@]*}[.@ ]" $SUPPORTEDLOCALES && \
+		   [ "$newlocale" != "$LOCALE_TRANSLATIONS" ]; then
+			LOCALE="$newlocale"
+			LANGLIST="$(grep "^$ORIG_LANGUAGE;" /usr/share/localechooser/languagelist | cut -d';' -f5)"
+		fi
+	fi
+	;;
+esac
+
+# Enable translations
+if [ "$LOCALE" != "C" ] && [ "$LOCALE" != "C.UTF-8" ] || [ "$EXTRAS" ]; then
+	apt-install locales || true
+fi
+
+set_field () {
+	local file category value
+	file="$1"
+	category="$2"
+	value="$3"
+
+	if grep -qs "^#* *$category=" "$file"; then
+		sed -i "s,^#* *$category=.*,$category=\"$value\"," "$file"
+	else
+		echo "$category=\"$value\"" >> "$file"
+	fi
+}
+
+# Set global locale and language, and make sure the glibc locale is
+# generated.
+DESTFILE="/target/etc/default/locale"
+if [ -e $DESTFILE ]; then
+	if grep -q '^LANG=' $DESTFILE; then
+		sed -i 's/^LANG=.*/LANG=\"'"$LOCALE_TRANSLATIONS"'\"/' $DESTFILE
+	elif grep -q '^# LANG=' $DESTFILE; then
+		sed -i 's/^# LANG=.*/LANG=\"'"$LOCALE_TRANSLATIONS"'\"/' $DESTFILE
+	else
+		echo "LANG=\"$LOCALE_TRANSLATIONS\"" >> $DESTFILE
+	fi
+	# We set LANGUAGE only if the languagelist is a list of
+	# languages with alternatives. Otherwise, setting it is useless
+	if echo "$LANGLIST" | grep -q ":"; then
+		if grep -q '^LANGUAGE=' $DESTFILE; then
+			sed -i 's/^LANGUAGE=.*/LANGUAGE=\"'"$LANGLIST"'\"/' $DESTFILE
+		elif grep -q '^# LANGUAGE=' $DESTFILE; then
+			sed -i 's/^# LANGUAGE=.*/LANGUAGE=\"'"$LANGLIST"'\"/' $DESTFILE
+		else
+			echo "LANGUAGE=\"$LANGLIST\"" >> $DESTFILE
+		fi
+	fi
+fi
+# Fallback in case the file wasn't provided by locales, or the format
+# changed.
+if [ ! -e "$DESTFILE" ] || ! grep -q '^LANG=' $DESTFILE; then
+	mkdir -p "${DESTFILE%/*}"
+	echo "LANG=\"$LOCALE_TRANSLATIONS\"" >> $DESTFILE
+	if echo "$LANGLIST" | grep -q ":"; then
+		echo "LANGUAGE=\"$LANGLIST\"" >> $DESTFILE
+	fi
+fi
+if [ "$LOCALE_TRANSLATIONS" != "$LOCALE" ]; then
+	for category in \
+		LC_NUMERIC LC_TIME LC_MONETARY LC_PAPER LC_NAME LC_ADDRESS \
+		LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION; do
+		set_field /target/etc/default/locale "$category" "$LOCALE"
+	done
+fi
+
+# For languages that have no chance to be displayed at the Linux console
+# let's set root's environment with a non localized environment
+ROOTPROFILE="/target/root/.profile"
+# We must map the language to its "level" from languagelist
+LANGUAGECODE=`echo $LOCALE|cut -f1 -d_`
+# For language with multiple entries such as pt/pt_BR or zh_CN/zh_TW
+# we don't really care about the entry we will match as the level will always
+# be the same
+LEVEL=`cat /usr/share/localechooser/languagelist |\
+	cut -f 2-3 -d\; | \
+	grep "$LANGUAGECODE" | \
+	head -n 1 | \
+	cut -f1 -d\;`
+if [ "$LEVEL" = "3" ] || [ "$LEVEL" = "4" ]; then
+	echo "# Installed by Debian Installer:" >>$ROOTPROFILE
+	echo "#  no localization for root because $LOCALE" >>$ROOTPROFILE
+	echo "#  cannot be properly displayed at the Linux console" >>$ROOTPROFILE
+	echo "LANG=C.UTF-8" >>$ROOTPROFILE
+	echo "LANGUAGE=C.UTF-8" >>$ROOTPROFILE
+fi
+
+locale_gen () {
+	local loc
+	for loc; do
+		# Create a skeleton locale-langpack subdirectory so that
+		# /usr/share/language-tools/language-options knows that this
+		# locale is supposed to have a meaningful existence.
+		mkdir -p "/target/usr/share/locale-langpack/${loc%_*}"
+	done
+	log-output -t localechooser chroot /target /usr/sbin/locale-gen "$@"
+}
+
+if [ "$LOCALE" != C ] && [ "$LOCALE" != "C.UTF-8" ]; then
+	locale_gen "$LOCALE" || true
+fi
+if [ "$EXTRAS" ]; then
+	locale_gen $EXTRAS || true
+fi
+
+exit 0

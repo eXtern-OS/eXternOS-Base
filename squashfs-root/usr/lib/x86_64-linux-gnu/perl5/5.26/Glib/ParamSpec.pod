@@ -1,0 +1,598 @@
+=head1 NAME
+
+Glib::ParamSpec -  encapsulates metadate needed to specify parameters
+
+=cut
+
+=for position DESCRIPTION
+
+=head1 DESCRIPTION
+
+Glib::ParamSpec encapsulates the metadata required to specify parameters.
+You will see these most often when creating new Glib::Object types; see
+C<< Glib::Type->register >> and L<Glib::Object::Subclass>.
+
+Parameter specifications allow you to provide limits for validation as 
+well as nicknames and blurbs to document the parameters.  Blurbs show up
+in reference documentation such as this page or the gtk+ C API reference;
+i'm not really sure where the nicknames get used.  The Perl bindings for
+the most part ignore the difference between dashes and underscores in
+the paramspec names, which typically find use as the actual keys for 
+object parameters.
+
+It's worth noting that Glib offers various sizes of integer and floating
+point values, while Perl really only deals with full integers and double
+precision floating point values.  The size distinction is important for
+the underlying C libraries.
+
+=cut
+
+
+
+=head1 HIERARCHY
+
+  Glib::ParamSpec
+
+
+
+=cut
+
+=for object Glib::ParamSpec encapsulates metadate needed to specify parameters
+
+=cut
+
+
+
+
+=head1 METHODS
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<IV> ($name, $nick, $blurb, $minimum, $maximum, $default_value, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $minimum (integer) 
+
+=item * $maximum (integer) 
+
+=item * $default_value (integer) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<UV> ($name, $nick, $blurb, $minimum, $maximum, $default_value, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $minimum (unsigned) 
+
+=item * $maximum (unsigned) 
+
+=item * $default_value (unsigned) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+=head2 string = $pspec-E<gt>B<get_blurb> 
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<boolean> ($name, $nick, $blurb, $default_value, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $default_value (boolean) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<boxed> ($name, $nick, $blurb, $package, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $package (string) name of the class, derived from Glib::Boxed, of the objects this property will hold.
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<char> ($name, $nick, $blurb, $minimum, $maximum, $default_value, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $minimum (integer) 
+
+=item * $maximum (integer) 
+
+=item * $default_value (integer) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+=head2 scalar = $pspec-E<gt>B<get_default_value> 
+
+(This is the C level C<g_param_value_set_default> function.)
+
+Note that on a C<Glib::Param::Unichar> the return is a single-char
+string.  This is the same as the constructor
+C<< Glib::ParamSpec->unichar >>, but it's not the same as
+C<Glib::Object> C<< get_property >> / C<< set_property >>, so an
+C<ord()> conversion is needed if passing the default value to a
+unichar C<set_property>.
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<double> ($name, $nick, $blurb, $minimum, $maximum, $default_value, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $minimum (double) 
+
+=item * $maximum (double) 
+
+=item * $default_value (double) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<enum> ($name, $nick, $blurb, $enum_type, $default_value, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $enum_type (string) 
+
+=item * $default_value (scalar) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<flags> ($name, $nick, $blurb, $flags_type, $default_value, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $flags_type (string) 
+
+=item * $default_value (scalar) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+=head2 paramflags = $pspec-E<gt>B<get_flags> 
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<float> ($name, $nick, $blurb, $minimum, $maximum, $default_value, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $minimum (double) 
+
+=item * $maximum (double) 
+
+=item * $default_value (double) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<gtype> ($name, $nick, $blurb, $is_a_type, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $is_a_type (string or undef) The name of a class whose subtypes are allowed as values of the property.  Use C<undef> to allow any type.
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+
+
+Since: glib 2.10
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<int> ($name, $nick, $blurb, $minimum, $maximum, $default_value, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $minimum (integer) 
+
+=item * $maximum (integer) 
+
+=item * $default_value (integer) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<int64> ($name, $nick, $blurb, $minimum, $maximum, $default_value, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $minimum (64 bit integer) 
+
+=item * $maximum (64 bit integer) 
+
+=item * $default_value (64 bit integer) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<long> ($name, $nick, $blurb, $minimum, $maximum, $default_value, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $minimum (integer) 
+
+=item * $maximum (integer) 
+
+=item * $default_value (integer) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+=head2 string = $paramspec->B<get_name>
+
+
+
+Dashes in the name are converted to underscores.
+
+
+=head2 string = $pspec-E<gt>B<get_nick> 
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<object> ($name, $nick, $blurb, $package, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $package (string) name of the class, derived from Glib::Object, of the objects this property will hold.
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<override> ($name, $overridden)
+
+=over
+
+=item * $name (string) 
+
+=item * $overridden (Glib::ParamSpec) 
+
+=back
+
+Since: glib 2.4
+
+=head2 string = $pspec-E<gt>B<get_owner_type> 
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<param_spec> ($name, $nick, $blurb, $package, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $package (string) name of the class, derived from Glib::ParamSpec, of the objects this property will hold.
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+
+
+=head2 paramspec or undef = $pspec-E<gt>B<get_redirect_target> 
+
+Since: glib 2.4
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<scalar> ($name, $nick, $blurb, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+ParamSpec to be used for any generic perl scalar, including references to
+complex objects.
+
+Currently C<Gtk2::Builder> cannot set object properties of this type
+(there's no hooks for property value parsing, as of Gtk 2.20), so
+prefer the builtin types if buildable support for an object matters.
+A C<boxed> of C<Glib::Strv> can give an array of strings.  A signal
+handler callback can do most of what a coderef might.
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<string> ($name, $nick, $blurb, $default_value, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $default_value (string or undef) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<uchar> ($name, $nick, $blurb, $minimum, $maximum, $default_value, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $minimum (unsigned) 
+
+=item * $maximum (unsigned) 
+
+=item * $default_value (unsigned) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<uint> ($name, $nick, $blurb, $minimum, $maximum, $default_value, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $minimum (unsigned) 
+
+=item * $maximum (unsigned) 
+
+=item * $default_value (unsigned) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<uint64> ($name, $nick, $blurb, $minimum, $maximum, $default_value, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $minimum (64 bit unsigned) 
+
+=item * $maximum (64 bit unsigned) 
+
+=item * $default_value (64 bit unsigned) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<ulong> ($name, $nick, $blurb, $minimum, $maximum, $default_value, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $minimum (unsigned) 
+
+=item * $maximum (unsigned) 
+
+=item * $default_value (unsigned) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+=head2 paramspec = Glib::ParamSpec-E<gt>B<unichar> ($name, $nick, $blurb, $default_value, $flags)
+
+=over
+
+=item * $name (string) 
+
+=item * $nick (string) 
+
+=item * $blurb (string) 
+
+=item * $default_value (character) 
+
+=item * $flags (Glib::ParamFlags) 
+
+=back
+
+=head2 string = $pspec-E<gt>B<get_value_type> 
+
+=head2 bool = $paramspec->B<value_validate> ($value)
+
+=head2 (bool, newval) = $paramspec->B<value_validate> ($value)
+
+=over
+
+=item * $value (scalar) 
+
+=back
+
+In scalar context return true if $value must be modified to be valid
+for $paramspec, or false if it's valid already.  In array context
+return also a new value which is $value made valid.
+
+$value must be the right type for $paramspec (with usual stringizing,
+numizing, etc).  C<value_validate> checks the further restrictions
+such as minimum and maximum for a numeric type or allowed characters
+in a string.  The "made valid" return is then for instance clamped to
+the min/max, or offending chars replaced by a substitutor.
+
+=head2 integer = $pspec-E<gt>B<values_cmp> ($value1, $value2)
+
+=over
+
+=item * $value1 (scalar) 
+
+=item * $value2 (scalar) 
+
+=back
+
+Compares I<value1> with I<value2> according to I<pspec>, and returns -1, 0 or
++1, if value1 is found to be less than, equal to or greater than value2,
+respectively.
+
+
+
+=cut
+
+
+=head1 ENUMS AND FLAGS
+
+=head2 flags Glib::ParamFlags
+
+
+
+=over
+
+=item * 'readable' / 'G_PARAM_READABLE'
+
+=item * 'writable' / 'G_PARAM_WRITABLE'
+
+=item * 'construct' / 'G_PARAM_CONSTRUCT'
+
+=item * 'construct-only' / 'G_PARAM_CONSTRUCT_ONLY'
+
+=item * 'lax-validation' / 'G_PARAM_LAX_VALIDATION'
+
+=item * 'private' / 'G_PARAM_PRIVATE'
+
+=back
+
+
+
+
+=cut
+
+
+=head1 SEE ALSO
+
+L<Glib>
+
+
+=cut
+
+
+=head1 COPYRIGHT
+
+Copyright (C) 2003-2011 by the gtk2-perl team.
+
+This software is licensed under the LGPL.  See L<Glib> for a full notice.
+
+
+
+=cut
+

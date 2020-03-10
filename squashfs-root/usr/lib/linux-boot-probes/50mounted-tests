@@ -1,0 +1,112 @@
+#!/bin/sh
+# Sub-tests that require a mounted partition.
+. /usr/share/os-prober/common.sh
+set -e
+
+do_unmount() {
+	if [ "$mounted" ]; then
+		umount "$tmpmnt/boot" 2>/dev/null || true
+		if ! umount "$tmpmnt"; then
+			warn "failed to umount $tmpmnt"
+		fi
+	fi
+	for dm_device in $dm_devices; do
+		if [ -e "$dm_device" ]; then
+			debug "remove device mapper device $dm_device"
+			dmsetup remove $dm_device
+		fi
+	done
+	rmdir "$tmpmnt" || true
+}
+
+partition="$1"
+
+types="$(fs_type "$partition")"
+if [ "$types" = NOT-DETECTED ]; then
+	debug "$1 type not recognised; skipping"
+	exit 0
+elif [ "$types" = swap ]; then
+	debug "$1 is a swap partition; skipping"
+	exit 0
+elif [ "$types" = crypto_LUKS ]; then
+	debug "$1 is a LUKS partition; skipping"
+	exit 0
+elif [ "$types" = ntfs ]; then
+	if type ntfs-3g >/dev/null 2>&1; then
+		types='ntfs-3g ntfs'
+	fi
+elif [ -z "$types" ]; then
+	if is_dos_extended_partition "$partition"; then
+		debug "$1 looks like an extended dos partition; skipping"
+		exit 0
+	fi
+	if type cryptsetup >/dev/null 2>&1 && \
+	   cryptsetup luksDump "$partition" >/dev/null 2>&1; then
+		debug "$1 is a LUKS partition; skipping"
+		exit 0
+	fi
+	types="$(grep -v nodev /proc/filesystems)"
+fi
+
+tmpmnt=/var/lib/os-prober/mount
+if [ ! -d "$tmpmnt" ]; then
+	mkdir "$tmpmnt"
+fi
+
+mounted=
+dm_devices=
+if type grub-mount >/dev/null 2>&1 && \
+   type grub-probe >/dev/null 2>&1 && \
+   grub-mount "$partition" "$tmpmnt" 2>/dev/null; then
+	mounted=1
+	type="$(grub-probe -d "$partition" -t fs)"
+	[ "$type" ] || type=fuseblk
+elif dm_device="$(do_dmsetup osprober-linux "$partition")" && \
+     [ "$dm_device" ]; then
+	dm_devices="$dm_device"
+	for type in $types; do
+		if mountinfo=`mount -o ro -t "$type" "$dm_device" "$tmpmnt" 2>&1`; then
+			debug "mounted as $type filesystem"
+			mounted=1
+			case "$type" in
+			    btrfs)
+				if [ -x "$tmpmnt/@/lib" ] && \
+				   ! mount --bind "$tmpmnt/@" "$tmpmnt"; then
+					warn "failed to mount btrfs subvolume @ on $partition"
+					if ! umount $tmpmnt; then
+						warn "failed to umount $tmpmnt"
+					fi
+					mounted=
+				fi
+				;;
+			esac	
+			break
+		else
+			debug "mounting $dm_device ($partition) as $type failed: $mountinfo"
+		fi
+	done
+fi
+
+if [ "$mounted" ]; then
+	linux_mount_boot "$partition" "$tmpmnt"
+	bootpart="${mountboot%% *}"
+	mounted="${mountboot#* }"
+	if [ "$dm_device" ]; then
+		dm_devices="$dm_device $dm_devices"
+	fi
+
+	for test in /usr/lib/linux-boot-probes/mounted/*; do
+		if [ -f "$test" ] && [ -x "$test" ]; then
+			debug "running $test $partition $bootpart $tmpmnt $type"
+			if $test "$partition" "$bootpart" "$tmpmnt" "$type"; then
+				debug "$test succeeded"
+				do_unmount
+				exit 0
+			fi
+		fi
+	done
+fi
+do_unmount
+
+# No tests found anything.
+exit 1

@@ -1,0 +1,12 @@
+#! /bin/sh
+# Some scripts use this to figure out the architecture. In ubiquity, just
+# call dpkg instead, except that --print-os needs a bit of special-casing.
+if [ "$1" = --print-os ]; then
+    # TODO: hardcoded for now
+    echo linux
+elif [ "$1" = -c ]; then
+    # udpkg -c has simpler output than dpkg -c.
+    dpkg --fsys-tarfile "$2" | tar t
+else
+    exec dpkg "$@"
+fi

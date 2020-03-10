@@ -1,0 +1,11 @@
+QT.SonnetUi.VERSION = 5.64.0
+QT.SonnetUi.MAJOR_VERSION = 5
+QT.SonnetUi.MINOR_VERSION = 64
+QT.SonnetUi.PATCH_VERSION = 0
+QT.SonnetUi.name = KF5SonnetUi
+QT.SonnetUi.module = KF5SonnetUi
+QT.SonnetUi.defines = 
+QT.SonnetUi.includes = /usr/include/KF5/SonnetUi
+QT.SonnetUi.private_includes =
+QT.SonnetUi.libs = /usr/lib/x86_64-linux-gnu
+QT.SonnetUi.depends = widgets

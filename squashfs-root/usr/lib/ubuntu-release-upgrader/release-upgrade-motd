@@ -1,0 +1,40 @@
+#!/bin/sh -e
+#
+#    91-release-upgrade - display upgrade message or update the cache
+#                         in the background
+#
+#    Copyright (C) 2010 Canonical Ltd.
+#
+#    Authors: Dustin Kirkland <kirkland@canonical.com>
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, version 3 of the License.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+stamp=/var/lib/ubuntu-release-upgrader/release-upgrade-available
+if [ -f "$stamp" ]; then
+	# Stamp exists, see if it's expired
+	now=$(date +%s)
+        lastrun=$(stat -c %Y "$stamp") 2>/dev/null || lastrun=0
+        expiration=$(expr $lastrun + 86400)
+        if [ $now -ge $expiration ]; then
+		# Older than 1 day old, so update in the background
+		/usr/lib/ubuntu-release-upgrader/check-new-release -q > "$stamp" &
+	elif [ -s "$stamp" ]; then
+		# Less than 1 day old, and non-empty, so display now
+		cat "$stamp"
+		echo
+	fi
+else
+	# No cache at all, so update in the background
+	/usr/lib/ubuntu-release-upgrader/check-new-release -q > "$stamp" &
+fi

@@ -1,0 +1,21 @@
+#!/bin/sh
+
+. /usr/share/os-prober/common.sh
+
+partition="$1"
+mpoint="$2"
+type="$3"
+
+# Weed out stuff that doesn't apply to us
+case "$type" in
+	qnx4) debug "$partition is a QNX4 partition" ;;
+	*) debug "$partition is not a QNX4 partition: exiting"; exit 1 ;;
+esac
+
+if [ -e "$mpoint/.boot" ]; then
+	label="$(count_next_label QNX)"
+	result "$partition:QNX:$label:chain"
+	exit 0
+else
+	exit 1
+fi

@@ -1,0 +1,11 @@
+QT.KCrash.VERSION = 5.64.0
+QT.KCrash.MAJOR_VERSION = 5
+QT.KCrash.MINOR_VERSION = 64
+QT.KCrash.PATCH_VERSION = 0
+QT.KCrash.name = KF5Crash
+QT.KCrash.module = KF5Crash
+QT.KCrash.defines = 
+QT.KCrash.includes = /usr/include/KF5/KCrash
+QT.KCrash.private_includes =
+QT.KCrash.libs = /usr/lib/x86_64-linux-gnu
+QT.KCrash.depends = core

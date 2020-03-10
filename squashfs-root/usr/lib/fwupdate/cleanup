@@ -1,0 +1,31 @@
+#!/bin/sh
+set -e
+if [ -e "/var/lib/fwupdate/done" ]; then
+	exit 0
+fi
+
+efibootmgr -q
+
+BOOTNUM=$(efibootmgr | grep "Linux.Firmware.Updater" | sed "s/\ .*//; s/*//; s/Boot//")
+if [ -n "$BOOTNUM" ]; then
+	for num in $BOOTNUM; do
+		efibootmgr -q -b "$num" -B
+	done
+fi
+
+
+for x in /boot/efi/EFI/ubuntu/fw/fwupdate-* ; do
+	if [ "${x}" != "/boot/efi/EFI/ubuntu/fw/fwupdate-*" ]; then
+		rm -f "${x}"
+	fi
+done
+for x in /sys/firmware/efi/efivars/fwupdate-*-0abba7dc-e516-4167-bbf5-4d9d1c739416 ; do
+	if [ "${x}" != "/sys/firmware/efi/efivars/fwupdate-*-0abba7dc-e516-4167-bbf5-4d9d1c739416" ]; then
+		if lsattr "${x}" 2>/dev/null | cut -d\  -f1 | cut -d- -f5 | grep -q i ; then
+			chattr -i "${x}"
+		fi
+		rm -f "${x}"
+	fi
+done
+
+touch "/var/lib/fwupdate/done"

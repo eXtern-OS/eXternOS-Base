@@ -1,0 +1,21 @@
+[Unit]
+Description=Launch and configure input method
+PartOf=graphical-session.target
+
+[Service]
+Type=forking
+ExecStart=/bin/sh -ec ' \
+    . /etc/X11/Xsession.d/70im-config_launch; \
+    if [ "$$IM_CONFIG_PHASE" = 1 ]; then \
+        export IM_CONFIG_PHASE=2; \
+        . /usr/share/im-config/xinputrc.common; \
+        if [ -r "$$IM_CONFIG_XINPUTRC_USR" ]; then \
+            . $$IM_CONFIG_XINPUTRC_USR; \
+        elif [ -r "$$IM_CONFIG_XINPUTRC_SYS" ]; then \
+            . $$IM_CONFIG_XINPUTRC_SYS; \
+        fi; \
+        for v in XMODIFIERS GTK_IM_MODULE QT_IM_MODULE QT4_IM_MODULE CLUTTER_IM_MODULE; do \
+            initctl set-env -gr $$v=$$(eval "echo \\$$$${v}") || true; \
+            dbus-update-activation-environment --systemd $$v; \
+        done; \
+    fi'

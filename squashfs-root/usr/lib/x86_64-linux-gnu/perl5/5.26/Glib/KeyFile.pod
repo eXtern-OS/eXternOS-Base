@@ -1,0 +1,648 @@
+=head1 NAME
+
+Glib::KeyFile -  Parser for .ini-like files
+
+=cut
+
+=for position SYNOPSIS
+
+=head1 SYNOPSIS
+
+  use Glib;
+
+  $data .= $_ while (<DATA>);
+
+  $f = Glib::KeyFile->new;
+  $f->load_from_data($data);
+  if ($f->has_group('Main') && $f->has_key('Main', 'someotherkey')) {
+      $val = $f->get_integer('Main', 'someotherkey');
+      print $val . "\n";
+  }
+  0;
+  __DATA__
+  # a comment
+  [MainSection]
+  somekey=somevalue
+  someotherkey=42
+  someboolkey=true
+  listkey=1;1;2;3;5;8;13;21
+  localekey=Good Morning
+  localekey[it]=Buon giorno
+  localekey[es]=Buenas dias
+  localekey[fr]=Bonjour
+
+=for position DESCRIPTION
+
+=head1 DESCRIPTION
+
+B<Glib::KeyFile> lets you parse, edit or create files containing groups of
+key-value pairs, which we call key files for lack of a better name. Several
+freedesktop.org specifications use key files now, e.g the Desktop Entry
+Specification and the Icon Theme Specification.
+
+The syntax of key files is described in detail in the Desktop Entry
+Specification, here is a quick summary: Key files consists of groups of
+key-value pairs, interspersed with comments.
+
+=cut
+
+
+
+=for object Glib::KeyFile Parser for .ini-like files
+=cut
+
+
+
+
+=head1 METHODS
+
+=head2 keyfile = Glib::KeyFile-E<gt>B<new> 
+
+=head2 boolean = $key_file->B<get_boolean> ($group_name, $key)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=back
+
+Retrieves a boolean value from $key inside $group_name.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 list = $key_file->B<get_boolean_list> ($group_name, $key)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=back
+
+Retrieves a list of booleans from $key inside $group_name.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $key_file-E<gt>B<set_boolean_list> ($group_name, $key, ...)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=item * ... (list) list of booleans
+
+=back
+
+Sets a list of booleans in $key inside $group_name.  If $key cannot be found
+then it is created.  If $group_name cannot be found then it is created.
+
+=head2 $key_file-E<gt>B<set_boolean> ($group_name, $key, $value)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=item * $value (boolean) 
+
+=back
+
+Sets a boolean value to $key inside $group_name.
+If $key is not found, it is created.
+
+=head2 string = $key_file-E<gt>B<get_comment> ($group_name=undef, $key=undef)
+
+=over
+
+=item * $group_name (string or undef) 
+
+=item * $key (string or undef) 
+
+=back
+
+Retreives a comment above $key from $group_name.  If $key is undef then
+$comment will be read from above $group_name.  If both $key and $group_name
+are undef, then $comment will be read from above the first group in the file.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $key_file-E<gt>B<set_comment> ($group_name, $key, $comment)
+
+=over
+
+=item * $group_name (string or undef) 
+
+=item * $key (string or undef) 
+
+=item * $comment (string) 
+
+=back
+
+Places a comment above $key from $group_name.  If $key is undef then $comment
+will be written above $group_name.  If both $key and $group_name are undef,
+then $comment will be written above the first group in the file.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 double = $key_file-E<gt>B<get_double> ($group_name, $key)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=back
+
+Retrieves a double value from $key inside $group_name.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+Since: glib 2.12
+
+=head2 list = $key_file->B<get_double_list> ($group_name, $key)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=back
+
+Retrieves a list of doubles from $key inside $group_name.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+Since: glib 2.12
+
+=head2 $key_file-E<gt>B<set_double_list> ($group_name, $key, ...)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=item * ... (list) list of doubles
+
+=back
+
+Sets a list of doubles in $key inside $group_name.  If $key cannot be found
+then it is created.  If $group_name cannot be found then it is created.
+
+Since: glib 2.12
+
+=head2 $key_file-E<gt>B<set_double> ($group_name, $key, $value)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=item * $value (double) 
+
+=back
+
+Sets a double value to $key inside $group_name.
+If $key is not found, it is created.
+
+Since: glib 2.12
+
+=head2 list = $key_file->B<get_groups>
+
+Returns the list of groups inside the key_file.
+
+=head2 boolean = $key_file-E<gt>B<has_group> ($group_name)
+
+=over
+
+=item * $group_name (string) 
+
+=back
+
+Checks whether $group_name is present in $key_file.
+
+=head2 boolean = $key_file-E<gt>B<has_key> ($group_name, $key)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=back
+
+Checks whether $group_name has $key in it.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 integer = $key_file->B<get_integer> ($group_name, $key)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=back
+
+Retrieves an integer value from $key inside $group_name.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 list = $key_file->B<get_integer_list> ($group_name, $key)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=back
+
+Retrieves a list of integers from $key inside $group_name.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $key_file-E<gt>B<set_integer_list> ($group_name, $key, ...)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=item * ... (list) list of integers
+
+=back
+
+Sets a list of doubles in $key inside $group_name.  If $key cannot be found
+then it is created.  If $group_name cannot be found then it is created.
+
+=head2 $key_file-E<gt>B<set_integer> ($group_name, $key, $value)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=item * $value (integer) 
+
+=back
+
+Sets an integer value to $key inside $group_name.
+If $key is not found, it is created.
+
+=head2 list = $key_file->B<get_keys> ($group_name)
+
+=over
+
+=item * $group_name (string) 
+
+=back
+
+Returns the list of keys inside a group of the key file.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $key_file-E<gt>B<set_list_separator> ($separator)
+
+=over
+
+=item * $separator (string) 
+
+=back
+
+Sets the list separator character.
+
+=head2 boolean = $key_file-E<gt>B<load_from_data> ($buf, $flags)
+
+=over
+
+=item * $buf (scalar) 
+
+=item * $flags (Glib::KeyFileFlags) 
+
+=back
+
+Parses a string containing a key file structure.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 boolean = $key_file->B<load_from_data_dirs> ($file, $flags)
+
+=head2 (boolean, scalar) = $key_file->B<load_from_data_dirs> ($file, $flags)
+
+=over
+
+=item * $file (string) 
+
+=item * $flags (Glib::KeyFileFlags) 
+
+=back
+
+
+Parses a key file, searching for it inside the data directories.
+In scalar context, it returns a boolean value (true on success, false otherwise);
+in array context, it returns a boolean value and the full path of the file.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 boolean = $key_file->B<load_from_dirs> ($file, $flags, @search_dirs)
+
+=head2 (boolean, scalar) = $key_file->B<load_from_dirs> ($file, $flags, @search_dirs)
+
+=over
+
+=item * $file (string) 
+
+=item * $flags (Glib::KeyFileFlags) 
+
+=item * ... (list) 
+
+=back
+
+
+Parses a key file, searching for it inside the specified directories.
+In scalar context, it returns a boolean value (true on success, false otherwise);
+in array context, it returns a boolean value and the full path of the file.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+Since: glib 2.14
+
+=head2 boolean = $key_file-E<gt>B<load_from_file> ($file, $flags)
+
+=over
+
+=item * $file (string) 
+
+=item * $flags (Glib::KeyFileFlags) 
+
+=back
+
+Parses a key file.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 string = $key_file-E<gt>B<get_locale_string> ($group_name, $key, $locale=undef)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=item * $locale (string or undef) 
+
+=back
+
+Returns the value associated with $key under $group_name translated in the
+given $locale if available.  If $locale is undef then the current locale is
+assumed.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 list = $key_file-E<gt>B<get_locale_string_list> ($group_name, $key, $locale)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=item * $locale (string) 
+
+=back
+
+
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $key_file-E<gt>B<set_locale_string_list> ($group_name, $key, $locale, ...)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=item * $locale (string) 
+
+=item * ... (list) 
+
+=back
+
+Associates a list of string values for $key and $locale under $group_name.
+If the translation for $key cannot be found then it is created.
+
+=head2 $key_file-E<gt>B<set_locale_string> ($group_name, $key, $locale, $string)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=item * $locale (string) 
+
+=item * $string (string) 
+
+=back
+
+=head2 $key_file-E<gt>B<remove_comment> ($group_name=undef, $key=undef)
+
+=over
+
+=item * $group_name (string or undef) 
+
+=item * $key (string or undef) 
+
+=back
+
+Removes a comment from a group in a key file.  If $key is undef, the comment
+will be removed from above $group_name.  If both $key and $group_name are
+undef, the comment will be removed from the top of the key file.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $key_file-E<gt>B<remove_group> ($group_name)
+
+=over
+
+=item * $group_name (string) 
+
+=back
+
+Removes a group from a key file.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $key_file-E<gt>B<remove_key> ($group_name, $key)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=back
+
+Removes a key from $group_name.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 string = $key_file-E<gt>B<get_start_group> 
+
+Returns the first group inside a key file.
+
+=head2 string = $key_file->B<get_string> ($group_name, $key)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=back
+
+Retrieves a string value from $key inside $group_name.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 list = $key_file->B<get_string_list> ($group_name, $key)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=back
+
+Retrieves a list of strings from $key inside $group_name.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $key_file-E<gt>B<set_string_list> ($group_name, $key, ...)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=item * ... (list) list of strings
+
+=back
+
+Sets a list of strings in $key inside $group_name.  The strings will be escaped
+if contain special characters.  If $key cannot be found then it is created.  If
+$group_name cannot be found then it is created.
+
+=head2 $key_file-E<gt>B<set_string> ($group_name, $key, $value)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=item * $value (string) 
+
+=back
+
+Sets a string value to $key inside $group_name.  The string will be escaped if
+it contains special characters.
+If $key is not found, it is created.
+
+=head2 string = $key_file-E<gt>B<to_data> 
+
+Returns the key file as a string.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 string = $key_file-E<gt>B<get_value> ($group_name, $key)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=back
+
+Retrieves the literal value of $key inside $group_name.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $key_file-E<gt>B<set_value> ($group_name, $key, $value)
+
+=over
+
+=item * $group_name (string) 
+
+=item * $key (string) 
+
+=item * $value (string) 
+
+=back
+
+Sets the literal value of $key inside $group_name.
+If $key cannot be found, it is created.
+If $group_name cannot be found, it is created.
+
+
+
+=cut
+
+
+=head1 ENUMS AND FLAGS
+
+=head2 flags Glib::KeyFileFlags
+
+
+
+=over
+
+=item * 'none' / 'G_KEY_FILE_NONE'
+
+=item * 'keep-comments' / 'G_KEY_FILE_KEEP_COMMENTS'
+
+=item * 'keep-translations' / 'G_KEY_FILE_KEEP_TRANSLATIONS'
+
+=back
+
+
+
+
+=cut
+
+
+=head1 SEE ALSO
+
+L<Glib>
+
+
+=cut
+
+
+=head1 COPYRIGHT
+
+Copyright (C) 2003-2011 by the gtk2-perl team.
+
+This software is licensed under the LGPL.  See L<Glib> for a full notice.
+
+
+
+=cut
+

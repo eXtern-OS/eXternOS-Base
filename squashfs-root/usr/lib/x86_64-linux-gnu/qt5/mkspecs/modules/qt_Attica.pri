@@ -1,0 +1,11 @@
+QT.Attica.VERSION = 5.64.0
+QT.Attica.MAJOR_VERSION = 5
+QT.Attica.MINOR_VERSION = 64
+QT.Attica.PATCH_VERSION = 0
+QT.Attica.name = KF5Attica
+QT.Attica.module = KF5Attica
+QT.Attica.defines = 
+QT.Attica.includes = /usr/include/KF5/Attica
+QT.Attica.private_includes =
+QT.Attica.libs = /usr/lib/x86_64-linux-gnu
+QT.Attica.depends = core

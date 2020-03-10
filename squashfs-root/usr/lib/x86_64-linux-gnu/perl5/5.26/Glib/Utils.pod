@@ -1,0 +1,213 @@
+=head1 NAME
+
+Glib::Utils -  Miscellaneous utility functions
+
+=cut
+
+=for position SYNOPSIS
+
+=head1 SYNOPSIS
+
+  use Glib;
+  Glib::set_application_name (Glib::get_real_name."'s Cool Program");
+
+  print "app name is ".Glib::get_application_name()."\n";
+
+=for position DESCRIPTION
+
+=head1 DESCRIPTION
+
+Here are some useful miscellaneous utilities.
+GLib is a portability library, providing portable utility functions for
+C programs.  As such, most of these functions seem to violate the Glib
+binding principle of not duplicating functionality that Perl already
+provides, but there's a distinction for each one, i swear.  The functions
+for dealing with user information are provided on all GLib-supported
+platforms, not just where POSIX (which provides similar information) is
+available, and even work on platforms where %ENV may not include the
+expected information.  Also, the "application name" referred to by
+(set|get)_application_name is a human readable name, distinct from the
+actual program name provided by Perl's own $0.
+
+=cut
+
+
+
+=for object Glib::Utils Miscellaneous utility functions
+=cut
+
+
+
+
+=head1 METHODS
+
+=head2 string = Glib::get_application_name 
+
+Get the human-readable application name set by C<set_application_name>.
+
+Since: glib 2.2
+
+=head2 Glib::set_application_name ($application_name)
+
+=over
+
+=item * $application_name (string) 
+
+=back
+
+Set the human-readable application name.
+
+Since: glib 2.2
+
+=head2 string = Glib::get_home_dir 
+
+Find the current user's home directory, by system-dependent/appropriate
+means.
+
+=head2 list = Glib::get_language_names 
+
+Computes a list of applicable locale names, which can be used to e.g. construct
+locale-dependent filenames or search paths. The returned list is sorted from
+most desirable to least desirable and always contains the default locale "C".
+
+Since: glib 2.6
+
+=head2 string = Glib::get_real_name 
+
+Get the current user's real name.
+
+=head2 string = Glib::strerror ($err)
+
+=over
+
+=item * $err (integer) 
+
+=back
+
+Return a string describing the given errno value, like "No such file
+or directory" for ENOENT.  This is translated into the user's
+preferred language and is a utf8 wide-char string (unlike a $!
+string (L<perlvar>) or POSIX::strerror (L<POSIX>) which are locale
+codeset bytes).
+
+=head2 string = Glib::strsignal ($signum)
+
+=over
+
+=item * $signum (integer) 
+
+=back
+
+Return a string describing the given signal number, like "Segmentation
+violation" for SIGSEGV.  This is translated into the user's preferred
+language and is a utf8 wide-char string.
+
+=head2 list = Glib::get_system_config_dirs 
+
+Returns an ordered list of base directories in which to access system-wide
+configuration information.
+
+Since: glib 2.6
+
+=head2 list = Glib::get_system_data_dirs 
+
+Returns an ordered list of base directories in which to access system-wide
+application data.
+
+Since: glib 2.6
+
+=head2 string = Glib::get_tmp_dir 
+
+Get the temp dir as appropriate for the current system.  See the GLib docs
+for info on how it works.
+
+=head2 string = Glib::get_user_cache_dir 
+
+Gets the base directory in which to store non-essential, cached data specific
+to particular user.
+
+Since: glib 2.6
+
+=head2 string = Glib::get_user_config_dir 
+
+Gets the base directory in which to store user-specific application
+configuration information such as user preferences and settings.
+
+Since: glib 2.6
+
+=head2 string = Glib::get_user_data_dir 
+
+Get the base directory for application data such as icons that is customized
+for a particular user.
+
+Since: glib 2.6
+
+=head2 string = Glib::get_user_name 
+
+Get the current user's name by whatever system-dependent means necessary.
+
+=head2 string = Glib::get_user_special_dir ($directory)
+
+=over
+
+=item * $directory (Glib::UserDirectory) 
+
+=back
+
+Returns the full path of a special directory using its logical id.
+
+Since: glib 2.14
+
+
+
+=cut
+
+
+=head1 ENUMS AND FLAGS
+
+=head2 enum Glib::UserDirectory
+
+=over
+
+=item * 'desktop' / 'G_USER_DIRECTORY_DESKTOP'
+
+=item * 'documents' / 'G_USER_DIRECTORY_DOCUMENTS'
+
+=item * 'download' / 'G_USER_DIRECTORY_DOWNLOAD'
+
+=item * 'music' / 'G_USER_DIRECTORY_MUSIC'
+
+=item * 'pictures' / 'G_USER_DIRECTORY_PICTURES'
+
+=item * 'public-share' / 'G_USER_DIRECTORY_PUBLIC_SHARE'
+
+=item * 'templates' / 'G_USER_DIRECTORY_TEMPLATES'
+
+=item * 'videos' / 'G_USER_DIRECTORY_VIDEOS'
+
+=back
+
+
+
+
+=cut
+
+
+=head1 SEE ALSO
+
+L<Glib>
+
+
+=cut
+
+
+=head1 COPYRIGHT
+
+Copyright (C) 2003-2011 by the gtk2-perl team.
+
+This software is licensed under the LGPL.  See L<Glib> for a full notice.
+
+
+
+=cut
+

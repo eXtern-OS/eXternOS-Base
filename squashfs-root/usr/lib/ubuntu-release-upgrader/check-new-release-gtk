@@ -1,0 +1,195 @@
+#!/usr/bin/python3
+# check-new-release-gtk - this is called periodically in the background
+#                         (currently by update-notifier every 48h) to
+#                         gather information about new releases of Ubuntu
+#                         or to nag about no longer supported versions
+#  
+#  Copyright (c) 2010,2011 Canonical
+#  
+#  Author: Michael Vogt <mvo@ubuntu.com>
+# 
+#  This program is free software; you can redistribute it and/or 
+#  modify it under the terms of the GNU General Public License as 
+#  published by the Free Software Foundation; either version 2 of the
+#  License, or (at your option) any later version.
+# 
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+# 
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+#  USA
+
+from __future__ import print_function
+
+from gi.repository import Gio
+from gi.repository import GLib
+from gi.repository import Gtk
+import locale
+import logging
+import os
+import subprocess
+import sys
+import time
+
+import gettext
+from optparse import OptionParser
+
+from UpdateManager.Core.utils import init_proxy
+
+from DistUpgrade.DistUpgradeFetcher import DistUpgradeFetcherGtk
+from UpdateManager.MetaReleaseGObject import MetaRelease
+from DistUpgrade.SimpleGtk3builderApp import SimpleGtkbuilderApp
+
+#FIXME: Workaround a bug in optparser which doesn't handle unicode/str
+#       correctly, see http://bugs.python.org/issue4391
+#       Should be resolved by Python3
+gettext.bindtextdomain("ubuntu-release-upgrader", "/usr/share/locale")
+gettext.textdomain("ubuntu-release-upgrader")
+translation = gettext.translation("ubuntu-release-upgrader", fallback=True)
+if sys.version >= '3':
+  _ = translation.gettext
+else:
+  _ = translation.ugettext
+
+# overwrite default upgrade fetcher and make it not show the
+# release notes by default
+class DistUpgradeFetcher(DistUpgradeFetcherGtk):
+    def showReleaseNotes(self):
+      # nothing to do
+      return True
+
+
+class CheckNewReleaseGtk(SimpleGtkbuilderApp):
+  """ Gtk version of the release notes check/download """
+
+  # the timeout until we give up
+  FETCH_TIMEOUT = 20
+
+  def __init__(self, options):
+    self.options = options
+    self.datadir = options.datadir
+    self.new_dist = None
+    logging.debug("running with devel=%s proposed=%s" % (
+            options.devel_release, options.proposed_release))
+    m = MetaRelease(useDevelopmentRelease=options.devel_release,
+                    useProposed=options.proposed_release)
+    m.connect("new-dist-available", self.new_dist_available)
+    GLib.timeout_add_seconds(self.FETCH_TIMEOUT, self.timeout, None)
+
+  def _run_dialog(self, dialog):
+    window = Gtk.Window()
+    window.set_title(_("Software Updater"))
+    window.set_icon_name("system-software-update")
+    window.set_position(Gtk.WindowPosition.CENTER)
+    window.set_resizable(False)
+
+    window.add(dialog)
+    dialog.start()
+    window.show_all()
+    Gtk.main()
+
+  def new_dist_available(self, meta_release, new_dist):
+    logging.debug("new_dist_available: %s" % new_dist)
+    self.new_dist = new_dist
+    client =  Gio.Settings.new("com.ubuntu.update-manager")
+    ignore_dist = client.get_string("check-new-release-ignore")
+    # only honor the ignore list if the distro is still supported, otherwise
+    # go into nag mode
+    if (ignore_dist == new_dist.name and
+        meta_release.no_longer_supported is None):
+        logging.warning("found new dist '%s' but it is on the ignore list" % new_dist.name)
+        sys.exit()
+
+    # show alert on unsupported distros
+    if meta_release.no_longer_supported is not None:
+        subprocess.call(['update-manager', '--no-update'])
+        Gtk.main_quit()
+    else:
+        self.build_ui()
+        self.window_main.set_title(_("Ubuntu %(version)s Upgrade Available") % {'version': new_dist.version})
+        self.window_main.show()
+
+  def close(self):
+    self.window_main.destroy()
+    Gtk.main_quit()
+
+  def build_ui(self):
+    SimpleGtkbuilderApp.__init__(self, self.datadir+"/gtkbuilder/UpgradePromptDialog.ui", "ubuntu-release-upgrader")
+
+  def on_button_upgrade_now_clicked(self, button):
+    logging.debug("upgrade now")
+    extra_args = []
+    if options.devel_release:
+        extra_args += ["--devel-release"]
+    if options.proposed_release:
+        extra_args += ["--proposed"]
+    os.execv("/usr/bin/do-release-upgrade",
+             ["do-release-upgrade",
+             "--frontend=DistUpgradeViewGtk3"] + extra_args)
+
+  def on_button_ask_me_later_clicked(self, button):
+    logging.debug("ask me later")
+    # check again in a week
+    next_check = time.time() + 7*24*60*60
+    client = Gio.Settings("com.ubuntu.update-notifier")
+    client.set_uint("release-check-time", int(next_check))
+    Gtk.main_quit()
+
+  def on_button_dont_upgrade_clicked(self, button):
+    #print("don't upgrade")
+    s = _("You have declined the upgrade to Ubuntu %s") % self.new_dist.version
+    self.dialog_really_do_not_upgrade.set_markup("<b>%s</b>" % s)
+    if self.dialog_really_do_not_upgrade.run() == Gtk.ResponseType.OK:
+        client = Gio.Settings("com.ubuntu.update-manager")
+        client.set_string("check-new-release-ignore", self.new_dist.name)
+    Gtk.main_quit()
+
+  def on_linkbutton_release_notes_clicked(self, linkbutton):
+    # gtk will do the right thing if uri is set
+    pass
+
+  def window_delete_event_cb(self, window, event):
+    Gtk.main_quit()
+
+  def timeout(self, user_data):
+    if self.new_dist is None:
+      logging.warning("timeout reached, exiting")
+      Gtk.main_quit()
+
+if __name__ == "__main__":
+
+  Gtk.init_check(sys.argv)
+
+  try:
+    locale.setlocale(locale.LC_ALL, "")
+  except:
+    pass
+
+  init_proxy()
+
+  parser = OptionParser()
+  parser.add_option ("-d", "--devel-release", action="store_true",
+                     dest="devel_release", default=False,
+                     help=_("Check if upgrading to the latest devel release "
+                          "is possible"))
+  parser.add_option ("-p", "--proposed", action="store_true",
+                     dest="proposed_release", default=False,
+                     help=_("Try upgrading to the latest release using "
+                            "the upgrader from $distro-proposed"))
+  # mostly useful for development
+  parser.add_option ("", "--datadir", default="/usr/share/ubuntu-release-upgrader")
+  parser.add_option ("", "--debug", action="store_true", default=False,
+                     help=_("Add debug output"))
+  (options, args) = parser.parse_args()
+  if options.debug:
+      logging.basicConfig(level=logging.DEBUG)
+
+  # create object
+  cnr = CheckNewReleaseGtk(options)
+
+  Gtk.main()
+

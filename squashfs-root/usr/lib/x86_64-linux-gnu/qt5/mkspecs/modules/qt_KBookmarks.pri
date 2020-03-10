@@ -1,0 +1,11 @@
+QT.KBookmarks.VERSION = 5.64.0
+QT.KBookmarks.MAJOR_VERSION = 5
+QT.KBookmarks.MINOR_VERSION = 64
+QT.KBookmarks.PATCH_VERSION = 0
+QT.KBookmarks.name = KF5Bookmarks
+QT.KBookmarks.module = KF5Bookmarks
+QT.KBookmarks.defines = 
+QT.KBookmarks.includes = /usr/include/KF5/KBookmarks
+QT.KBookmarks.private_includes =
+QT.KBookmarks.libs = /usr/lib/x86_64-linux-gnu
+QT.KBookmarks.depends = widgets xml

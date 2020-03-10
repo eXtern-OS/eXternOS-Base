@@ -1,0 +1,131 @@
+#!/bin/sh
+
+# Copyright (C) 2011-2014 Junjiro R. Okajima
+#
+# This program, aufs is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+verbose=0
+if [ "$1" = -v ]
+then
+	verbose=1
+	shift
+fi
+
+test $# -ne 2 &&
+{
+	echo Invalid argument
+	echo Usage: $(basename $0) '[-v]' aufs_mntpnt branch_path
+	printf '\tprint PIDs which make the branch busy and un-removable.\n'
+	printf '\t-v prints additional information, the inode number in aufs,\n'
+	printf '\tthe branch index, and the actual inode number on that branch.\n'
+} 1>&2 &&
+exit 1
+
+set -eu
+f=/etc/default/aufs
+test ! -e $f &&
+echo $f is not installed 1>&2 &&
+exit 1
+ . $f
+
+mntent=$(FindMntEnt "$1")
+test ! "$mntent" &&
+echo No such aufs mount point "$1" 1>&2 &&
+exit 1
+
+mntpnt=$(echo $mntent | cut -f2 -d' ')
+
+SetDir br "$2"
+mntopts=$(MntOpts "$1")
+si=$(echo $mntopts | sed -e 's/^.*,si=\([^,]*\),*.*$/\1/')
+d=/sys/fs/aufs/si_$si
+if [ -r $d/br0 ]
+then
+	# it may be very long and shell may not be able to handle as wildcard
+	bindex=$(find $d -name 'br*' |
+		xargs -r grep -l "^${br}=" |
+		xargs -r basename |
+		cut -c3-)
+else
+	bi=$(echo $mntpopts |
+		sed -e 's/^.*,br://' |
+		tr ':' '\n' |
+		rev |
+		cut -f2- -d= |
+		rev |
+		grep -n "^${br}=" |
+		cut -f1 -d:)
+	# the origin in aufs is zero.
+	bindex=$(($bi - 1))
+fi
+
+########################################
+# here we go
+lsof -FDiR "$mntpnt" |
+awk -v g_ppid=$$ \
+	-v g_dev=$(stat -c %D "$mntpnt") \
+	-v root=$AUFS_ROOT_INO \
+'
+function pr()
+{
+	if (inum) {
+		print pid, inum;
+		inum = "";
+	}
+}
+/^p/ {
+	pr();
+	pid = substr($0, 2);
+	do_print = 1;
+	next;
+}
+/^R/ {
+	ppid = substr($0, 2);
+	if (ppid == g_ppid)
+		do_print = 0;
+	next;
+}
+/^D/ {
+	dev = substr($0, 4);
+	if (dev != g_dev)
+		do_print = 0;
+	next;
+}
+/^i/ && do_print {
+	n = substr($0, 2);
+	if (n != root)
+		inum = inum " " n;
+}
+END {
+	pr();
+}
+' |
+#tee /dev/tty |
+while read pid ino
+do
+	# it may be very long and shell may not be able to handle as parameters
+	echo "$ino" |
+	xargs -r auibusy "$mntpnt" $bindex |
+	{
+		if [ $verbose -eq 1 ]
+		then
+			sed -e s/^/$pid'	/'
+		else
+			test $(wc -c) -ne 0 &&
+			echo $pid
+		fi
+	}
+done |
+uniq

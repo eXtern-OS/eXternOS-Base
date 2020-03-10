@@ -1,0 +1,136 @@
+=head1 NAME
+
+Glib::Signal -  Object customization and general purpose notification
+
+=cut
+
+=for position DESCRIPTION
+
+=head1 DESCRIPTION
+
+This page describes some functions related to signals in Glib.  Since most
+things you can do with signals are tied to L<Glib::Object> instances, the
+majority of the signal functions are documented there.
+
+=head2 Thread safety
+
+Some libraries, most notably GStreamer, sometimes invoke signal handlers from a
+foreign thread that has no Perl interpreter associated with it.  When this
+happens, we have no choice but to hand the marshalling over to the main loop
+which in turn later wakes up the main thread and lets it handle the request.
+We cannot invoke the signal handler from the foreign thread since the Perl
+interpreter may not be used concurrently.
+
+The downside to this approach is that the foreign thread is blocked until the
+main thread has finished executing the signal handler.  This might lead to
+deadlocks.  It might help in this case to wrap the crucial parts of the signal
+handler inside a L<Glib::Idle> callback so that the signal handler can return
+directly.
+
+=cut
+
+
+
+=for object Glib::Signal Object customization and general purpose notification
+
+=cut
+
+
+
+
+=head1 METHODS
+
+=head2 integer = Glib-E<gt>B<install_exception_handler> ($func, $data=undef)
+
+=over
+
+=item * $func (subroutine) 
+
+=item * $data (scalar) 
+
+=back
+
+
+Install a subroutine to be executed when a signal emission traps an exception
+(a croak or die).  I<$func> should return boolean (true if the handler should
+remain installed) and expect to receive a single scalar.  This scalar will be a
+private copy of $@ which the handler can mangle to its heart's content.
+
+Returns an identifier that may be used with C<remove_exception_handler>.
+
+See C<gperl_install_exception_handler()> in L<Glib::xsapi>.
+
+
+=head2 Glib-E<gt>B<remove_exception_handler> ($tag)
+
+=over
+
+=item * $tag (integer) 
+
+=back
+
+
+Remove the exception handler identified by I<$tag>, as returned by
+C<install_exception_handler>.  If I<$tag> cannot be found, this
+does nothing.
+
+WARNING:  Do not call this function from within an exception handler.
+If you want to remove your handler during its execution just have it
+return false.
+
+See C<gperl_remove_exception_handler()> in L<Glib::xsapi>.
+
+
+
+
+=cut
+
+
+=head1 ENUMS AND FLAGS
+
+=head2 flags Glib::SignalFlags
+
+
+
+=over
+
+=item * 'run-first' / 'G_SIGNAL_RUN_FIRST'
+
+=item * 'run-last' / 'G_SIGNAL_RUN_LAST'
+
+=item * 'run-cleanup' / 'G_SIGNAL_RUN_CLEANUP'
+
+=item * 'no-recurse' / 'G_SIGNAL_NO_RECURSE'
+
+=item * 'detailed' / 'G_SIGNAL_DETAILED'
+
+=item * 'action' / 'G_SIGNAL_ACTION'
+
+=item * 'no-hooks' / 'G_SIGNAL_NO_HOOKS'
+
+=back
+
+
+
+
+=cut
+
+
+=head1 SEE ALSO
+
+L<Glib>, L<Glib::Object>
+
+
+=cut
+
+
+=head1 COPYRIGHT
+
+Copyright (C) 2003-2011 by the gtk2-perl team.
+
+This software is licensed under the LGPL.  See L<Glib> for a full notice.
+
+
+
+=cut
+

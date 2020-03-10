@@ -1,0 +1,18 @@
+[Unit]
+Description=Start gnome-keyring as SSH agent
+Before=graphical-session-pre.target ssh-agent.service
+PartOf=graphical-session-pre.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -ec 'if [ -z "${SSH_AUTH_SOCK}" ] && \
+    ! grep -s -q X-GNOME-Autostart-enabled=false ~/.config/autostart/gnome-keyring-ssh.desktop /etc/xdg/autostart/gnome-keyring-ssh.desktop; then \
+        eval $$(/usr/bin/gnome-keyring-daemon --start --components ssh); \
+        dbus-update-activation-environment --verbose --systemd SSH_AUTH_SOCK=$$SSH_AUTH_SOCK SSH_AGENT_LAUNCHER=gnome-keyring; \
+        initctl set-env --global SSH_AUTH_SOCK=$$SSH_AUTH_SOCK || true; \
+    fi'
+ExecStopPost=/bin/sh -ec 'if [ "${SSH_AGENT_LAUNCHER}" = gnome-keyring ]; then \
+        dbus-update-activation-environment --systemd  SSH_AUTH_SOCK=; \
+        initctl unset-env --global SSH_AUTH_SOCK || true; \
+    fi'

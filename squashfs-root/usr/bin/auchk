@@ -1,0 +1,167 @@
+#!/bin/sh -
+
+# Copyright (C) 2005-2011 Junjiro R. Okajima
+#
+# This program, aufs is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+set -eu
+#set -x
+
+EEcho() # str
+{
+	echo $0: $@ 1>&2
+}
+
+f=/etc/default/aufs
+. $f
+
+Usage()
+{
+	cat <<- EOF
+	$0 [OPTION] writable_branch '[...]'
+	-q | --quiet:
+	-w | --whiteout:
+	-r | --real:
+	-s | --skip:
+	EOF
+}
+
+Pass() # title
+{
+	pass=$(($pass + 1))
+	test $opt_q -ne 1 && EEcho \[Pass $pass\] $@
+	true
+}
+
+Remove() # file
+{
+	if [ -d "$1" ]
+	then
+		if [ $opt_r -eq 1 ]
+		then
+			rm -fvr "$1" || :
+		else
+			rm -ir "$1" || :
+		fi
+	else
+		rm -v "$1" || :
+	fi
+}
+
+opt_q=0
+opt_w=0
+opt_r=0
+opt_s=0
+for i
+do
+	case $(getopt -o qwrs --long quiet,whiteout,real,skip -- $i | sed -e 's/^ *//' -e 's/ --$//' ) in
+	-q|--quiet)	opt_q=1;;
+	-w|--whiteout)	opt_w=1;;
+	-r|--real)	opt_r=1;;
+	-s|--skip)	opt_s=1;;
+	--)		;;
+	*)		break;;
+	esac
+	shift
+done
+
+for i
+do
+	test $opt_q -ne 1 && EEcho Checking "$i" for aufs
+
+	cd "$i"
+	case $(stat -f -c %T .) in
+	aufs|UNKNOWN*${AUFS_SUPER_MAGIC_HEX}*)
+		EEcho $i must not be aufs
+		cd $OLDPWD
+		continue
+		;;
+	esac
+
+	########################################
+	pass=0
+	Pass Illegal whiteout
+	find . -name '.wh.*' ! -name '.wh..wh.*' -printf '%h\0%f\0' |
+	xargs -r0n2 |
+	while read dir wh
+	do
+		#echo \""$dir"\" \""$wh"\"
+		base=$(echo "$wh" | cut -c5-)
+		test ! -e "$dir/$base" && continue
+
+		ls -ld "$dir/$wh" "$dir/$base"
+		if [ $opt_w -eq 1 ]
+		then ans=w
+		elif [ $opt_r -eq 1 ]
+		then ans=r
+		elif [ $opt_s -eq 1 ]
+		then ans=s
+		else
+			read -p 'Which to remove [whiteout/real/skip]? ' ans \
+				< /dev/tty > /dev/tty 2>&1
+		fi
+		case "$ans" in
+		[wW]*)	Remove "$dir/$wh" || :;;
+		[rR]*)	Remove "$dir/$base" || :;;
+		*)	echo skipped;;
+		esac
+	done
+
+	########################################
+	Pass Remained pseudo-links
+	did=0
+	for plink in ${AUFS_WH_PLINKDIR}/*
+	do
+		test ! -e "$plink" && break
+		if [ -d "$plink" ]
+		then
+			EEcho illegal "$plink"
+			continue
+		fi
+
+		did=1
+		#ls -l "$plink" || :
+		find . -inum $(basename "$plink" | cut -f2 -d .) -ls || :
+	done
+	if [ $did -ne 0 ]
+	then
+		cat <<- EOF
+		They will be maintained at remount or umount time,
+		if you installed aufs helper scripts (See README
+		in detail).
+		If "$i" is not a writeble branch of CURRENTLY mounted
+		aufs, you need to maintain them by yourself.
+		EOF
+	fi
+
+	########################################
+	Pass Remained temp files
+	for tmp in ${AUFS_WH_ORPHDIR}/*
+	do
+		test ! -e "$tmp" && break
+		if [ -d "$tmp" ]
+		then
+			EEcho illegal "$tmp"
+			continue
+		fi
+
+		ls -l "$tmp" || :
+		rm -i "$tmp" || :
+	done
+
+	# nothing to do for xinodir
+
+	cd $OLDPWD
+done

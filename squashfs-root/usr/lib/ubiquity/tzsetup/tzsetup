@@ -1,0 +1,109 @@
+#!/bin/sh
+set -e
+
+. /usr/share/debconf/confmodule
+db_capb backup
+
+# Leave preseeded time zone untouched if seen flag is set
+db_fget time/zone seen
+if [ "$RET" = true ]; then
+	exit 0
+fi
+
+UTC=
+db_get debconf/priority
+case $RET in
+    medium|low)	UTC=1 ;;
+esac
+
+# Get description for UTC timezone
+db_metaget tzsetup/text/UTC description
+UTC_CHOICE="$RET"
+
+db_get debian-installer/country
+CC="$RET"
+
+detected=
+STATE=0
+while :; do
+	case $STATE in
+	    0)
+		db_get tzsetup/geoip_server
+		if [ -n "$RET" ]; then
+			server="$RET"
+			if db_get mirror/http/proxy && [ "$RET" ]; then
+				export http_proxy="$RET"
+			fi
+			detected=$(wget "$server" -T 15 -t 1 -O - 2>/dev/null | grep "TimeZone" \
+				| LC_ALL=C sed 's,.*<TimeZone>\(.*\)</TimeZone>.*,\1,')
+		fi
+		if [ -n "$detected" ] && [ "$detected" != "None" ]; then
+			db_register time/zone time/zone # might be registered to something else
+			db_set time/zone "$detected"
+			db_subst tzsetup/detected ZONE $detected
+			db_input high tzsetup/detected || true
+		fi
+		;;
+	    1)
+		select_zone=1
+		# If the zone was automatically detected, then skip asking
+		# the user to select a timezone, otherwise ask. 
+		if [ -n "$detected" ] && [ "$detected" != "None" ]; then
+			db_get tzsetup/detected
+			if [ "$RET" = true ]; then
+				select_zone=0
+			fi
+		fi
+		;;
+	    2)
+		if [ "$select_zone" -eq 1 ]; then
+			db_register time/zone time/zone
+			# per-country templates are used for countries with multiple choices
+			# At medium/low priority UTC is dynamically added to the list at medium/low
+			if db_get "tzsetup/country/$CC"; then
+				priority=high
+				db_metaget tzsetup/country/$CC default
+				zone=$RET
+
+				db_metaget tzsetup/country/$CC choices-c
+				db_subst time/zone CHOICES-C "$RET${UTC:+, UTC}"
+				db_metaget tzsetup/country/$CC choices
+				db_subst time/zone CHOICES "$RET${UTC:+, $UTC_CHOICE}"
+
+				# First get type of description and use that to get actual description
+				db_metaget tzsetup/country/$CC description
+				db_metaget tzsetup/descriptions/$RET description
+				db_subst time/zone DESCRIPTION "$RET"
+			else
+				priority=medium
+				zone=$(grep "^$CC" /usr/lib/ubiquity/tzsetup/tzmap | cut -d ' ' -f 2)
+
+				db_subst time/zone CHOICES-C "$zone${UTC:+, UTC}"
+				db_subst time/zone CHOICES "$zone${UTC:+, $UTC_CHOICE}"
+				db_metaget tzsetup/descriptions/zone description
+				db_subst time/zone DESCRIPTION "$RET"
+			fi
+
+			db_get time/zone
+			if [ -z "$RET" ]; then
+				db_set time/zone "$zone"
+			fi
+
+			db_input $priority time/zone || :
+		fi
+		;;
+	    *)
+		break
+		;;
+	esac
+
+	if db_go; then
+		STATE=$(($STATE + 1))
+	else
+		STATE=$(($STATE - 1))
+	fi
+done
+
+if [ "$STATE" = -1 ]; then
+	exit 10 # back to menu
+fi

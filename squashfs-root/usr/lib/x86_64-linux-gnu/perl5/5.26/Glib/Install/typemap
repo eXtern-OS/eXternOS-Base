@@ -1,0 +1,290 @@
+# Copyright (C) 2003-2005, 2010 by the gtk2-perl team (see the file AUTHORS for
+# the full list)
+# 
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Library General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+# 
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Library General Public License for
+# more details.
+# 
+# You should have received a copy of the GNU Library General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# $Id$
+#
+
+TYPEMAP
+
+gboolean	T_BOOL
+gint		T_IV
+guint		T_UV
+gint8		T_IV
+guint8		T_UV
+gint16		T_IV
+guint16		T_UV
+gint32		T_IV
+guint32		T_UV
+gint64		T_GINT64
+guint64		T_GUINT64
+gshort		T_SHORT
+gushort		T_U_SHORT
+glong		T_IV
+gulong		T_UV
+gunichar	T_GUNICHAR
+gchar		T_IV
+guchar		T_UV
+gfloat		T_FLOAT
+gdouble		T_DOUBLE
+gsize		T_UV
+gssize		T_IV
+gpointer	T_PTR
+
+gchar *				T_GCHAR
+const gchar *			T_GCHAR
+gchar_own *			T_GCHAR_OWN
+gchar_length *			T_GCHAR_LEN
+const gchar_length *		T_GCHAR_LEN
+gchar_utf8_length *		T_GCHAR_UTF8_LEN
+const gchar_utf8_length *	T_GCHAR_UTF8_LEN
+gchar_ornull *			T_GCHAR_ORNULL
+gchar_own_ornull *		T_GCHAR_OWN_ORNULL
+const gchar_ornull *		T_GCHAR_ORNULL
+
+char_ornull *			T_CHAR_ORNULL
+char_own *			T_CHAR_OWN
+char_own_ornull *		T_CHAR_OWN_ORNULL
+const char_ornull *		T_CHAR_ORNULL
+
+char_byte *			T_CHAR_BYTE
+const char_byte *		T_CHAR_BYTE
+char_byte_ornull *		T_CHAR_BYTE_ORNULL
+const char_byte_ornull *	T_CHAR_BYTE_ORNULL
+
+guchar *			T_GUCHAR
+const guchar *			T_GUCHAR
+
+GObject*		T_GPERL_GENERIC_WRAPPER
+GObject_ornull*		T_GPERL_GENERIC_WRAPPER
+GObject_noinc*		T_GPERL_GENERIC_WRAPPER
+
+GParamSpec*		T_GPERL_GENERIC_WRAPPER
+GParamSpec_ornull*	T_GPERL_GENERIC_WRAPPER
+GParamFlags		T_GPERL_GENERIC_WRAPPER
+
+GSignalFlags		T_GPERL_GENERIC_WRAPPER
+
+GKeyFile*		T_GPERL_GENERIC_WRAPPER
+GKeyFileFlags		T_GPERL_GENERIC_WRAPPER
+
+GBookmarkFile*		T_GPERL_GENERIC_WRAPPER
+
+GIOCondition		T_G_TYPE_IO_CONDITION
+
+GMainContext*		T_G_MAIN_CONTEXT
+GMainLoop*		T_G_MAIN_LOOP
+
+GPerlFilename		T_GPERL_FILENAME
+GPerlFilename_const	T_GPERL_FILENAME
+GPerlFilename_own	T_GPERL_FILENAME_OWN
+GPerlFilename_ornull	T_GPERL_FILENAME_ORNULL
+
+GOptionContext *	T_GPERL_GENERIC_WRAPPER
+GOptionContext_own *	T_GPERL_GENERIC_WRAPPER
+GOptionGroup *		T_GPERL_GENERIC_WRAPPER
+GOptionGroup_own *	T_GPERL_GENERIC_WRAPPER
+
+GUserDirectory		T_GPERL_GENERIC_WRAPPER
+
+GVariant *		T_GPERL_GENERIC_WRAPPER
+const GVariant *	T_GPERL_GENERIC_WRAPPER
+GVariant_noinc *	T_GPERL_GENERIC_WRAPPER
+
+GVariantType *		T_GPERL_GENERIC_WRAPPER
+const GVariantType *	T_GPERL_GENERIC_WRAPPER
+GVariantType_own *	T_GPERL_GENERIC_WRAPPER
+
+GBytes *		T_GPERL_GENERIC_WRAPPER
+GBytes_own *		T_GPERL_GENERIC_WRAPPER
+
+###############################################################################
+INPUT
+
+# a general-purpose typemap... strips any trailing star and/or leading "const",
+# leaving only the type name in the form SvMyType.  this allows you to make a
+# typedef such as "typedef MyType MyType_ornull", and SvMyType_ornull will be
+# called for those.
+T_GPERL_GENERIC_WRAPPER
+	$var = Sv${(my $ntype = $type) =~ s/(?:const\s+)?([:\w]+)(?:\s*\*)$/$1/x;
+	           \$ntype} ($arg);
+
+T_GINT64
+	$var = SvGInt64 ($arg);
+
+T_GUINT64
+	$var = SvGUInt64 ($arg);
+
+T_GUNICHAR
+	$var = g_utf8_get_char (SvGChar ($arg));
+
+T_GCHAR
+	/* same as SvGChar(), but not in a function */
+	sv_utf8_upgrade ($arg);
+	$var = ($type)SvPV_nolen ($arg);
+
+T_GCHAR_ORNULL
+	/* same as SvGChar(), but allows undef as NULL */
+	if (gperl_sv_is_defined ($arg)) {
+		sv_utf8_upgrade ($arg);
+		$var = ($type)SvPV_nolen ($arg);
+	} else {
+		$var = NULL;
+	}
+
+T_GCHAR_LEN
+	sv_utf8_upgrade ($arg);
+	$var = ($type)SvPV ($arg, STRLEN_length_of_$var);
+        XSauto_length_of_$var = STRLEN_length_of_$var;
+
+T_GCHAR_UTF8_LEN
+	sv_utf8_upgrade ($arg);
+	$var = ($type)SvPV ($arg, STRLEN_length_of_$var);
+        XSauto_length_of_$var = g_utf8_strlen ($var, STRLEN_length_of_$var);
+
+T_GUCHAR
+	$var = ($type)SvPV_nolen ($arg);
+
+T_CHAR_ORNULL
+	if (gperl_sv_is_defined ($arg)) {
+		$var = ($type)SvPV_nolen ($arg);
+	} else {
+		$var = NULL;
+	}
+
+T_CHAR_BYTE
+	$var = ($type)SvPVbyte_nolen ($arg);
+
+T_CHAR_BYTE_ORNULL
+	if (gperl_sv_is_defined ($arg)) {
+		$var = ($type)SvPVbyte_nolen ($arg);
+	} else {
+		$var = NULL;
+	}
+
+T_G_TYPE_IO_CONDITION
+	$var = gperl_convert_flags (G_TYPE_IO_CONDITION, $arg);
+
+T_G_MAIN_CONTEXT
+	if (!gperl_sv_is_ref ($arg)) {
+		$var = NULL;
+	} else {
+		$var = INT2PTR ($type, SvIV (SvRV ($arg)));
+	}
+T_G_MAIN_LOOP
+	$var = INT2PTR ($type, SvIV (SvRV ($arg)))
+
+T_GPERL_FILENAME
+	$var = ($type) gperl_filename_from_sv ($arg)
+
+T_GPERL_FILENAME_ORNULL
+	$var = ($type)
+		(gperl_sv_is_defined ($arg)
+		 ? gperl_filename_from_sv ($arg)
+		 : NULL)
+
+###############################################################################
+OUTPUT
+
+T_GPERL_GENERIC_WRAPPER
+	$arg = newSV${(my $ntype = $type) =~ s/(?:const\s+)?([:\w]+)(?:\s*\*)$/$1/;
+		      \$ntype} ($var);
+
+T_GINT64
+	$arg = newSVGInt64 ($var);
+
+T_GUINT64
+	$arg = newSVGUInt64 ($var);
+
+T_GUNICHAR
+	{
+	gchar temp[6];
+	gint length = g_unichar_to_utf8 ($var, temp);
+	sv_setpvn ((SV*)$arg, temp, length);
+	SvUTF8_on ($arg);
+	}
+
+T_GCHAR
+	/* same as newSVGChar(), but not in a function */
+	sv_setpv ((SV*)$arg, $var);
+	SvUTF8_on ($arg);
+
+T_GCHAR_ORNULL
+	/* newSVGChar() allows NULL, but T_GCHAR does not. allow NULL. */
+	if ($var) {
+		sv_setpv ((SV*)$arg, $var);
+		SvUTF8_on ($arg);
+	} else {
+		SvSetSV ($arg, &PL_sv_undef);
+	}
+
+T_GCHAR_OWN
+	/* used when we can directly own the returned string. */
+	/* we have to copy in the case when perl's malloc != gtk's malloc,
+         * so best copy all the time. */
+	sv_setpv ((SV*)$arg, $var);
+	SvUTF8_on ($arg);
+        g_free ($var);
+
+T_GCHAR_OWN_ORNULL
+	if ($var) {
+		sv_setpv ((SV*)$arg, $var);
+		SvUTF8_on ($arg);
+	        g_free ($var);
+	} else {
+		SvSetSV ($arg, &PL_sv_undef);
+	}
+
+T_CHAR_ORNULL
+	if ($var) {
+		sv_setpv ((SV*)$arg, $var);
+	} else {
+		SvSetSV ($arg, &PL_sv_undef);
+	}
+
+T_CHAR_OWN_ORNULL
+	if ($var) {
+		sv_setpv ((SV*)$arg, $var);
+		g_free ($var);
+	} else {
+		SvSetSV ($arg, &PL_sv_undef);
+	}
+
+T_GUCHAR
+	sv_setpv ((SV*)$arg, (char*)$var);
+
+T_CHAR_OWN
+	sv_setpv ((SV*)$arg, $var);
+        g_free ($var);
+
+T_G_TYPE_IO_CONDITION
+	$arg = gperl_convert_back_flags (G_TYPE_IO_CONDITION, $var);
+
+T_G_MAIN_CONTEXT
+	sv_setref_pv ($arg, \"Glib::MainContext\", $var);
+	g_main_context_ref ($var);
+
+T_G_MAIN_LOOP
+	sv_setref_pv ($arg, \"Glib::MainLoop\", $var);
+	g_main_loop_ref ($var);
+
+T_GPERL_FILENAME
+	sv_setsv ($arg, sv_2mortal (gperl_sv_from_filename ($var)));
+
+T_GPERL_FILENAME_OWN
+	sv_setsv ($arg, sv_2mortal (gperl_sv_from_filename ($var)));
+        g_free ($var);
+

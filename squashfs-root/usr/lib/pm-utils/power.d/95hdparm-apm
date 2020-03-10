@@ -1,0 +1,98 @@
+#! /bin/sh
+#
+# This script adjusts hard drive APM settings using hdparm. The hardware
+# defaults (usually hdparm -B 127) cause excessive head load/unload cycles
+# on many modern hard drives. We therefore set hdparm -B 254 while on AC
+# power. On battery we set hdparm -B 128; this still does not guarantee
+# disk parking, but is safer than causing lots of mechanical wear on disks
+# as we seem to get currently with 127.
+#
+# Refactored from acpi-support's 90-hdparm.sh for pm-utils
+
+if grep -wq "nohdparm" /proc/cmdline ; then
+    exit 0
+fi
+
+# Do nothing when called via /etc/init.d/acpi-support; udev rules take care
+# of setting the initial hdparm policy for us.
+if ([ "$previous" ] && [ "$runlevel" ]) || [ "$runlevel" = S ]; then
+    exit 0
+fi
+
+if [ -e /usr/sbin/laptop_mode ] ; then 
+	LMT_CONTROL_HD_POWERMGMT=$(. /etc/laptop-mode/laptop-mode.conf && echo "$CONTROL_HD_POWERMGMT")
+	if [ "$LMT_CONTROL_HD_POWERMGMT" != 0 ] \
+	   && [ -e /var/run/laptop-mode-tools/enabled ]
+	then
+		# Laptop mode controls hdparm -B settings, we don't.
+		exit 0
+	fi
+fi
+
+. /lib/hdparm/hdparm-functions
+
+resume_hdparm_apm()
+{
+	for dev in /dev/sd? /dev/hd? ; do
+		apm_opt=
+		if [ -b $dev ] && hdparm_try_apm $dev ; then
+			# Check for APM support; discard errors since not all
+			# drives support HDIO_GET_IDENTITY (-i).
+			if hdparm -i $dev 2> /dev/null | grep -q 'AdvancedPM=yes'
+			then
+				for option in $(hdparm_options $dev); do
+					case $option in
+						-B*)
+							apm_opt=$option
+							;;
+						*)
+							;;
+					esac
+				done
+				if [ -n "$apm_opt" ]; then
+					hdparm $apm_opt $dev
+				fi
+			fi
+		fi
+	done
+}
+
+resume_hdparm_spindown()
+{
+	for dev in /dev/sd? /dev/hd? ; do
+		apm_opt=
+		if [ -b $dev ] && hdparm_try_apm $dev ; then
+			# Check for APM support; discard errors since not all
+			# drives support HDIO_GET_IDENTITY (-i).
+			if hdparm -i $dev 2> /dev/null | grep -q 'AdvancedPM=yes'
+			then
+				for option in $(hdparm_options $dev); do
+					case $option in
+						-S*)
+							apm_opt=$option
+							;;
+						*)
+							;;
+					esac
+				done
+				if [ -n "$apm_opt" ]; then
+					hdparm $apm_opt $dev
+				fi
+			fi
+		fi
+	done
+}
+
+case "$1" in
+	true|false) # powersaving on/off
+		resume_hdparm_apm
+		;;
+	thaw|resume)
+		resume_hdparm_apm
+		# only set the -S option on resuming, not necessary for power.d
+		resume_hdparm_spindown
+		;;
+	*)
+		exit 254
+		;;
+esac

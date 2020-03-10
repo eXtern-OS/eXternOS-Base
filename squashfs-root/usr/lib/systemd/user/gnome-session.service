@@ -1,0 +1,11 @@
+[Unit]
+Description=GNOME Session Manager
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=/bin/sh -exc '[ "$DESKTOP_SESSION" != "gnome-classic" ] || export GNOME_SHELL_SESSION_MODE=classic; \
+    export GNOME_SESSION_XDG_SESSION_PATH=${XDG_SESSION_PATH}; \
+    [ "$DESKTOP_SESSION" = gnome-flashback-metacity ] && \
+        exec gnome-session --session=$DESKTOP_SESSION --disable-acceleration-check || \
+        exec gnome-session --session=$DESKTOP_SESSION'
+ExecStopPost=-/bin/sh -xc '[ "${XDG_SESSION_PATH}" = "${GNOME_SESSION_XDG_SESSION_PATH}" ] && /usr/bin/dbus-send --type=method_call --address=${UPSTART_SESSION} /com/ubuntu/Upstart com.ubuntu.Upstart0_6.EndSession'

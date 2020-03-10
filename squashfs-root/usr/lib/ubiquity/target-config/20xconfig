@@ -1,0 +1,11 @@
+#! /bin/sh
+set -e
+
+if [ -f /etc/X11/xorg.conf ]; then
+    cp -a /etc/X11/xorg.conf /target/etc/X11/xorg.conf
+    # requires x11-common (>= 7.0.0-0ubuntu1)
+    mkdir -p /target/var/lib/x11
+    chroot /target sh -c 'md5sum /etc/X11/xorg.conf > /var/lib/x11/xorg.conf.md5sum'
+fi
+
+exit 0

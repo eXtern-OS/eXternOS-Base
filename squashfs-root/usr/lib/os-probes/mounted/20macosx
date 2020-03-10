@@ -1,0 +1,32 @@
+#!/bin/sh -e
+# Detects Mac OS X. I don't yet know how Mac OS <= 9 fits into this.
+. /usr/share/os-prober/common.sh
+
+partition="$1"
+mpoint="$2"
+type="$3"
+
+debug() {
+  if [ -z "$OS_PROBER_DISABLE_DEBUG" ]; then
+    logger -t macosx-prober "debug: $@"
+  fi
+}
+
+# Weed out stuff that doesn't apply to us
+case "$type" in
+  hfsplus) debug "$1 is an HFS+ partition" ;;
+  *) debug "$1 is not an HFS+ partition: exiting"; exit 1 ;;
+esac
+
+# Could use a better test than this.
+# /System/Library/CoreServices/SystemVersion.plist has version information,
+# but I don't think it exists on Mac OS <= 9, and it's XML so parsing in
+# shell will be nasty.
+
+if [ -e "$2/mach_kernel" ]; then
+  label="$(count_next_label MacOSX)"
+  result "$1:Mac OS X:$label:macosx"
+  exit 0
+else
+  exit 1
+fi

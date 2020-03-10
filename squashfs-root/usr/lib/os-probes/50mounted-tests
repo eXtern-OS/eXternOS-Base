@@ -1,0 +1,105 @@
+#!/bin/sh
+# Sub-tests that require a mounted partition.
+set -e
+partition="$1"
+
+. /usr/share/os-prober/common.sh
+
+do_unmount() {
+	if [ "$mounted" ]; then
+		if ! umount "$tmpmnt"; then
+			warn "failed to umount $tmpmnt"
+		fi
+	fi
+	if [ -e "$dm_device" ]
+	then
+		debug "remove device mapper device $dm_device"
+		dmsetup remove $dm_device
+	fi
+	rmdir "$tmpmnt" || true
+}
+
+types="$(fs_type "$partition")"
+if [ "$types" = NOT-DETECTED ]; then
+	debug "$1 type not recognised; skipping"
+	exit 0
+elif [ "$types" = swap ]; then
+	debug "$1 is a swap partition; skipping"
+	exit 0
+elif [ "$types" = crypto_LUKS ]; then
+	debug "$1 is a LUKS partition; skipping"
+	exit 0
+elif [ "$types" = LVM2_member ]; then
+	debug "$1 is an LVM member; skipping"
+	exit 0
+elif [ "$types" = ntfs ]; then
+	if type ntfs-3g >/dev/null 2>&1; then
+		types='ntfs-3g ntfs'
+	fi
+elif [ -z "$types" ]; then
+	if type cryptsetup >/dev/null 2>&1 && \
+	   cryptsetup luksDump "$partition" >/dev/null 2>&1; then
+		debug "$1 is a LUKS partition; skipping"
+		exit 0
+	fi
+	for type in $(grep -v nodev /proc/filesystems); do
+		# hfsplus filesystems are mountable as hfs. Try hfs last so
+		# that we can tell the difference.
+		if [ "$type" = hfs ]; then
+			delaytypes="${delaytypes:+$delaytypes }$type"
+		elif [ "$type" = fuseblk ]; then
+			if type ntfs-3g >/dev/null 2>&1; then
+				types="${types:+$types }ntfs-3g"
+			fi
+		else
+			types="${types:+$types }$type"
+		fi
+	done
+fi
+
+tmpmnt=/var/lib/os-prober/mount
+if [ ! -d "$tmpmnt" ]; then
+	mkdir "$tmpmnt"
+fi
+
+mounted=
+if type grub-mount >/dev/null 2>&1 && \
+   type grub-probe >/dev/null 2>&1 && \
+   grub-mount "$partition" "$tmpmnt" 2>/dev/null; then
+	mounted=1
+	type="$(grub-probe -d "$partition" -t fs)" || true
+	if [ "$type" ]; then
+		debug "mounted using GRUB $type filesystem driver"
+	else
+		debug "mounted using GRUB, but unknown filesystem?"
+		type=fuseblk
+	fi
+elif dm_device="$(do_dmsetup osprober "$partition")" && \
+     [ "$dm_device" ]; then
+	for type in $types $delaytypes; do
+		if mountinfo=`mount -o ro -t "$type" "$dm_device" "$tmpmnt" 2>&1`; then
+			debug "mounted as $type filesystem"
+			mounted=1
+			break
+		else
+			debug "mounting $dm_device ($partition) as $type failed: $mountinfo"
+		fi
+	done
+fi
+
+if [ "$mounted" ]; then
+	for test in /usr/lib/os-probes/mounted/*; do
+		debug "running subtest $test"
+		if [ -f "$test" ] && [ -x "$test" ]; then
+			if "$test" "$partition" "$tmpmnt" "$type"; then
+				debug "os found by subtest $test"
+				do_unmount
+				exit 0
+			fi
+		fi
+	done
+fi
+do_unmount
+
+# No tests found anything.
+exit 1

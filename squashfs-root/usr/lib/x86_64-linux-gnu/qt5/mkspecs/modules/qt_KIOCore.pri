@@ -1,0 +1,11 @@
+QT.KIOCore.VERSION = 5.64.0
+QT.KIOCore.MAJOR_VERSION = 5
+QT.KIOCore.MINOR_VERSION = 64
+QT.KIOCore.PATCH_VERSION = 0
+QT.KIOCore.name = KF5KIOCore
+QT.KIOCore.module = KF5KIOCore
+QT.KIOCore.defines = 
+QT.KIOCore.includes = /usr/include/KF5/KIOCore
+QT.KIOCore.private_includes =
+QT.KIOCore.libs = /usr/lib/x86_64-linux-gnu
+QT.KIOCore.depends = KCoreAddons KService

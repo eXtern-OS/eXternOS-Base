@@ -1,0 +1,265 @@
+=head1 NAME
+
+Glib::OptionGroup -  group of options for command line option parsing
+
+=cut
+
+=for position SYNOPSIS
+
+=head1 SYNOPSIS
+
+  my ($verbose, $source, $filenames) = ('', undef, []);
+
+  my $entries = [
+    { long_name => 'verbose',
+      short_name => 'v',
+      arg_type => 'none',
+      arg_value => \$verbose,
+      description => 'be verbose' },
+
+    { long_name => 'source',
+      short_name => 's',
+      arg_type => 'string',
+      arg_value => \$source,
+      description => 'set the source',
+      arg_description => 'source' },
+
+    [ 'filenames', 'f', 'filename-array', \$filenames ],
+  ];
+
+  my $context = Glib::OptionContext->new ('- urgsify your life');
+  $context->add_main_entries ($entries, 'C');
+  $context->parse ();
+
+  # $verbose, $source, and $filenames are now updated according to the
+  # command line options given
+
+=cut
+
+
+
+=head1 HIERARCHY
+
+  Glib::Boxed
+  +----Glib::OptionGroup
+
+
+
+=cut
+
+=for object Glib::OptionGroup group of options for command line option parsing
+
+=cut
+
+
+
+
+=head1 METHODS
+
+=head2 optioncontext = Glib::OptionContext-E<gt>B<new> ($parameter_string)
+
+=over
+
+=item * $parameter_string (string) 
+
+=back
+
+=head2 optiongroup = Glib::OptionGroup->B<new> (key => value, ...)
+
+=over
+
+=back
+
+
+Creates a new option group from the given key-value pairs.  The valid keys are
+name, description, help_description, and entries.  The first three specify
+strings while the last one, entries, specifies an array reference of option
+entries.  Example:
+
+  my $group = Glib::OptionGroup->new (
+                name => 'urgs',
+                description => 'Urgs Urgs Urgs',
+                help_description => 'Help with Urgs',
+                entries => \@entries);
+
+An option entry is a hash reference like this:
+
+  { long_name => 'verbose',
+    short_name => 'v',
+    flags => [qw/reverse hidden in-main/],
+    arg_type => 'none',
+    arg_value => \$verbose,
+    description => 'verbose desc.',
+    arg_description => 'verbose arg desc.' }
+
+Of those keys only long_name, arg_type, and arg_value are required.  So this is
+a valid option entry too:
+
+  { long_name => 'package-names',
+    arg_type => 'string-array',
+    arg_value => \$package_names }
+
+For convenience, option entries can also be specified as array references
+containing long_name, short_name, arg_type, and arg_value:
+
+  [ 'filenames', 'f', 'filename-array', \$filenames ]
+
+If you don't want an option to have a short name, specify undef for it:
+
+  [ 'filenames', undef, 'filename-array', \$filenames ]
+
+
+=head2 $context-E<gt>B<add_group> ($group)
+
+=over
+
+=item * $group (Glib::OptionGroup) 
+
+=back
+
+=head2 $context-E<gt>B<add_main_entries> ($entries, $translation_domain)
+
+=over
+
+=item * $entries (scalar) reference to an array of option entries
+
+=item * $translation_domain (string) 
+
+=back
+
+
+
+=head2 boolean = $context-E<gt>B<get_help_enabled> 
+
+=head2 $context-E<gt>B<set_help_enabled> ($help_enabled)
+
+=over
+
+=item * $help_enabled (boolean) 
+
+=back
+
+=head2 boolean = $context-E<gt>B<get_ignore_unknown_options> 
+
+=head2 $context-E<gt>B<set_ignore_unknown_options> ($ignore_unknown)
+
+=over
+
+=item * $ignore_unknown (boolean) 
+
+=back
+
+=head2 optiongroup = $context-E<gt>B<get_main_group> 
+
+=head2 $context-E<gt>B<set_main_group> ($group)
+
+=over
+
+=item * $group (Glib::OptionGroup) 
+
+=back
+
+=head2 boolean = $context-E<gt>B<parse> 
+
+This method works directly on I<@ARGV>.
+
+May croak with a L<Glib::Error> in $@ on failure.
+
+=head2 $group-E<gt>B<set_translate_func> ($func, $data=undef)
+
+=over
+
+=item * $func (scalar) 
+
+=item * $data (scalar) 
+
+=back
+
+=head2 $group-E<gt>B<set_translation_domain> ($domain)
+
+=over
+
+=item * $domain (string) 
+
+=back
+
+
+
+=cut
+
+
+=head1 ENUMS AND FLAGS
+
+=head2 enum Glib::OptionArg
+
+
+
+=over
+
+=item * 'none' / 'G_OPTION_ARG_NONE'
+
+=item * 'string' / 'G_OPTION_ARG_STRING'
+
+=item * 'int' / 'G_OPTION_ARG_INT'
+
+=item * 'callback' / 'G_OPTION_ARG_CALLBACK'
+
+=item * 'filename' / 'G_OPTION_ARG_FILENAME'
+
+=item * 'string-array' / 'G_OPTION_ARG_STRING_ARRAY'
+
+=item * 'filename-array' / 'G_OPTION_ARG_FILENAME_ARRAY'
+
+=item * 'double' / 'G_OPTION_ARG_DOUBLE'
+
+=item * 'int64' / 'G_OPTION_ARG_INT64'
+
+=back
+
+
+=head2 flags Glib::OptionFlags
+
+
+
+=over
+
+=item * 'hidden' / 'G_OPTION_FLAG_HIDDEN'
+
+=item * 'in-main' / 'G_OPTION_FLAG_IN_MAIN'
+
+=item * 'reverse' / 'G_OPTION_FLAG_REVERSE'
+
+=item * 'no-arg' / 'G_OPTION_FLAG_NO_ARG'
+
+=item * 'filename' / 'G_OPTION_FLAG_FILENAME'
+
+=item * 'optional-arg' / 'G_OPTION_FLAG_OPTIONAL_ARG'
+
+=item * 'noalias' / 'G_OPTION_FLAG_NOALIAS'
+
+=back
+
+
+
+
+=cut
+
+
+=head1 SEE ALSO
+
+L<Glib>, L<Glib::Boxed>
+
+
+=cut
+
+
+=head1 COPYRIGHT
+
+Copyright (C) 2003-2011 by the gtk2-perl team.
+
+This software is licensed under the LGPL.  See L<Glib> for a full notice.
+
+
+
+=cut
+

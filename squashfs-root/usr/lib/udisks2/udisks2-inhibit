@@ -1,0 +1,26 @@
+#!/bin/sh
+# Avoid udisks mounting while a program is running. This is mostly useful
+# for installers.
+# This is similar to udisks 1.x's "udisks --inhibit .." command.
+# Author: Martin Pitt <martin.pitt@ubuntu.com>
+
+set -e
+
+[ -n "$1" ] || {
+    echo "Usage: $0 <command> [<arguments> ...]" >&2
+    exit 1
+}
+
+[ "`id -u`" = 0 ] || {
+    echo "You need to run this script as root" >&2
+    exit 1
+}
+
+mkdir -p /run/udev/rules.d
+echo 'SUBSYSTEM=="block", ENV{UDISKS_IGNORE}="1"' > /run/udev/rules.d/90-udisks-inhibit.rules
+trap "rm -f /run/udev/rules.d/90-udisks-inhibit.rules; udevadm control --reload; udevadm trigger --subsystem-match=block" EXIT HUP INT QUIT ILL ABRT FPE KILL SEGV PIPE ALRM TERM BUS
+udevadm control --reload
+udevadm trigger --subsystem-match=block
+
+# run wrapped command
+"$@"

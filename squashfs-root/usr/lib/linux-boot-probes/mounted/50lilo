@@ -1,0 +1,126 @@
+#!/bin/sh
+. /usr/share/os-prober/common.sh
+set -e
+
+partition="$1"
+bootpart="$2"
+mpoint="$3"
+type="$4"
+
+found_item=0
+
+title=""
+rootdev=""
+kernel=""
+parameters=""
+initrd=""
+read_only=""
+added_parameters=0
+default_rootdev=""
+default_kernel=""
+default_parameters=""
+default_initrd=""
+default_read_only=""
+
+dequote () {
+	item="${1%\"}"
+	echo "${item#\"}"
+}
+
+addparams () {
+	# Any parameters we find replace the default parameters, but
+	# otherwise append.
+	if [ "$added_parameters" = 0 ]; then
+		parameters="$1"
+		added_parameters=1
+	else
+		parameters="${parameters:+$parameters }$1"
+	fi
+}
+
+recordstanza () {
+	if [ -n "$kernel" ] && [ -n "$title" ]; then
+		if [ -e "$mpoint/$kernel" ] && [ -e "$mpoint/$initrd" ]; then
+			if [ "$read_only" ]; then
+				parameters="ro $parameters"
+			fi
+			if [ "$rootdev" ]; then
+				parameters="root=$rootdev $parameters"
+			fi
+			parameters="${parameters% }"
+			result "$rootpart:$bootpart:$title:$kernel:$initrd:$parameters"
+			found_item=1
+		else
+			debug "cannot find $kernel or $initrd, not recording"
+		fi
+		title=""
+		rootdev="$default_rootdev"
+		kernel="$default_kernel"
+		parameters="$default_parameters"
+		initrd="$default_initrd"
+		read_only="$default_read_only"
+		added_parameters=0
+	else
+		# Everything before set default values.
+		default_rootdev="$rootdev"
+		default_kernel="$kernel"
+		default_parameters="$parameters"
+		default_initrd="$initrd"
+		default_read_only="$read_only"
+	fi
+}
+
+parse_lilo_conf () {
+	mpoint="$1"
+	rootpart="$2"
+	bootpart="$3"
+	IFS=" 	="
+	while read line; do
+		debug "parsing: $line"
+		set -f
+		set -- $line
+		set +f
+		case "$1" in
+			root)
+				rootdev=$(dequote "$2")
+			;;
+			image)
+				recordstanza
+				# Dereference if symbolic link
+				kernel="$(readlink -f "$(dequote "$2")")"
+			;;
+			append)
+				addparams "$(dequote "${line#append=}")"
+			;;
+			initrd)
+				# Dereference if symbolic link
+				initrd="$(readlink -f "$(dequote "$2")")"
+				;;
+			label)
+				shift 1
+				title="$(dequote "$*" | sed -e 's/:/ /g')"
+			;;
+			other)
+				recordstanza
+			;;
+			read-only)
+				read_only=1
+			;;
+			vga)
+				addparams "$line"
+			;;
+		esac
+	done
+	recordstanza
+}
+
+if [ -e "$mpoint/etc/lilo.conf" ]; then
+	debug "parsing lilo.conf"
+	parse_lilo_conf "$mpoint" "$partition" "$bootpart" < "$mpoint/etc/lilo.conf"
+fi
+
+if [ "$found_item" = 0 ]; then
+	exit 1
+else
+	exit 0
+fi

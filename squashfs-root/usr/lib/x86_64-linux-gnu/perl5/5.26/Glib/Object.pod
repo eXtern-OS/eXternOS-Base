@@ -1,0 +1,575 @@
+=head1 NAME
+
+Glib::Object -  Bindings for GObject
+
+=cut
+
+=for position DESCRIPTION
+
+=head1 DESCRIPTION
+
+GObject is the base object class provided by the gobject library.  It provides
+object properties with a notification system, and emittable signals.
+
+Glib::Object is the corresponding Perl object class.  Glib::Objects are
+represented by blessed hash references, with a magical connection to the
+underlying C object.
+
+=head2 get and set
+
+Some subclasses of C<Glib::Object> override C<get> and C<set> with methods
+more useful to the subclass, for example C<Gtk2::TreeModel> getting and
+setting row contents.
+
+This is usually done when the subclass has no object properties.  Any object
+properties it or a further subclass does have can always be accessed with
+C<get_property> and C<set_property> (together with C<find_property> and
+C<list_properties> to enquire about them).
+
+Generic code for any object subclass can use the names C<get_property> and
+C<set_property> to be sure of getting the object properties as such.
+
+=cut
+
+
+
+=head1 HIERARCHY
+
+  Glib::Object
+
+
+
+=cut
+
+=for object Glib::Object Bindings for GObject
+=cut
+
+
+
+
+=head1 METHODS
+
+=head2 object = $class->B<new> (...)
+
+=over
+
+=item * ... (list) key/value pairs, property values to set on creation
+
+=back
+
+
+
+
+Instantiate a Glib::Object of type I<$class>.  Any key/value pairs in
+I<...> are used to set properties on the new object; see C<set>.
+This is designed to be inherited by Perl-derived subclasses (see
+L<Glib::Object::Subclass>), but you can actually use it to create
+any GObject-derived type.
+
+
+=head2 scalar = Glib::Object-E<gt>B<new_from_pointer> ($pointer, $noinc=FALSE)
+
+=over
+
+=item * $pointer (unsigned) a C pointer value as an integer.
+
+=item * $noinc (boolean) if true, do not increase the GObject's reference count when creating the Perl wrapper.  this typically means that when the Perl wrapper will own the object.  in general you don't want to do that, so the default is false.
+
+=back
+
+
+
+
+Create a Perl Glib::Object reference for the C object pointed to by I<$pointer>.
+You should need this I<very> rarely; it's intended to support foreign objects.
+
+NOTE: the cast from arbitrary integer to GObject may result in a core dump without
+warning, because the type-checking macro G_OBJECT() attempts to dereference the
+pointer to find a GTypeClass structure, and there is no portable way to validate
+the pointer.
+
+
+=head2 unsigned = $object-E<gt>B<get_data> ($key)
+
+=over
+
+=item * $key (string) 
+
+=back
+
+
+Fetch the integer stored under the object data key I<$key>.  These values do not
+have types; type conversions must be done manually.  See C<set_data>.
+
+
+=head2 $object-E<gt>B<set_data> ($key, $data)
+
+=over
+
+=item * $key (string) 
+
+=item * $data (scalar) 
+
+=back
+
+
+GObject provides an arbitrary data mechanism that assigns unsigned integers
+to key names.  Functionality overlaps with the hash used as the Perl object
+instance, so we strongly recommend you use hash keys for your data storage.
+The GObject data values cannot store type information, so they are not safe
+to use for anything but integer values, and you really should use this method
+only if you know what you are doing.
+
+
+=head2 pspec or undef = $object_or_class_name->B<find_property> ($name)
+
+=over
+
+=item * $name (string) 
+
+=back
+
+Find the definition of object property I<$name> for I<$object_or_class_name>.
+Return C<undef> if no such property.  For
+the returned data see L<Glib::Object::list_properties>.
+
+=head2 $object-E<gt>B<freeze_notify> 
+
+
+Stops emission of "notify" signals on I<$object>. The signals are queued
+until C<thaw_notify> is called on I<$object>.
+
+
+=head2 $object-E<gt>B<get> (...)
+
+=over
+
+=item * ... (list) list of property names
+
+=back
+
+
+Alias for C<get_property> (see L</get and set> above).
+
+
+=head2 $object->B<set> (key => $value, ...)
+
+=over
+
+=item * ... (list) key/value pairs
+
+=back
+
+
+Alias for C<set_property> (see L</get and set> above).
+
+
+=head2 list = $object_or_class_name->B<list_properties>
+
+=over
+
+=back
+
+List all the object properties for I<$object_or_class_name>; returns them as
+a list of hashes, containing these keys:
+
+=over
+
+=item name
+
+The name of the property
+
+=item type
+
+The type of the property
+
+=item owner_type
+
+The type that owns the property
+
+=item descr
+
+The description of the property
+
+=item flags
+
+The Glib::ParamFlags of the property
+
+=back
+
+
+=head2 $object-E<gt>B<notify> ($property_name)
+
+=over
+
+=item * $property_name (string) 
+
+=back
+
+
+Emits a "notify" signal for the property I<$property> on I<$object>.
+
+
+=head2 gpointer = $object-E<gt>B<get_pointer> 
+
+
+Complement of C<new_from_pointer>.
+
+
+=head2 $object-E<gt>B<get_property> (...)
+
+=over
+
+=back
+
+
+Fetch and return the values for the object properties named in I<...>.
+
+
+=head2 $object->B<set_property> (key => $value, ...)
+
+=over
+
+=back
+
+
+Set object properties.
+
+
+=head2 unsigned = $object_or_class_name-E<gt>B<signal_add_emission_hook> ($detailed_signal, $hook_func, $hook_data=undef)
+
+=over
+
+=item * $detailed_signal (string) of the form "signal-name::detail"
+
+=item * $hook_func (subroutine) 
+
+=item * $hook_data (scalar) 
+
+=back
+
+Add an emission hook for a signal.  The hook will be called for any emission
+of that signal, independent of the instance.  This is possible only for
+signals which don't have the C<G_SIGNAL_NO_HOOKS> flag set.
+
+The I<$hook_func> should be reference to a subroutine that looks something
+like this:
+
+  sub emission_hook {
+      my ($invocation_hint, $parameters, $hook_data) = @_;
+      # $parameters is a reference to the @_ to be passed to
+      # signal handlers, including the instance as $parameters->[0].
+      return $stay_connected;  # boolean
+  }
+
+This function returns an id that can be used with C<remove_emission_hook>.
+
+Since 1.100.
+
+=head2 list = $instance-E<gt>B<signal_chain_from_overridden> (...)
+
+=over
+
+=item * ... (list) 
+
+=back
+
+
+Chain up to an overridden class closure; it is only valid to call this from
+a class closure override.
+
+Translation: because of various details in how GObjects are implemented,
+the way to override a virtual method on a GObject is to provide a new "class
+closure", or default handler for a signal.  This happens when a class is
+registered with the type system (see Glib::Type::register and
+L<Glib::Object::Subclass>).  When called from inside such an override, this
+method runs the overridden class closure.  This is equivalent to calling
+$self->SUPER::$method (@_) in normal Perl objects.
+
+
+=head2 unsigned = $instance-E<gt>B<signal_connect> ($detailed_signal, $callback, $data=undef)
+
+=over
+
+=item * $detailed_signal (string) 
+
+=item * $callback (subroutine) 
+
+=item * $data (scalar) arbitrary data to be passed to each invocation of I<callback>
+
+=back
+
+
+
+
+Register I<callback> to be called on each emission of I<$detailed_signal>.
+Returns an identifier that may be used to remove this handler with
+C<< $object->signal_handler_disconnect >>.
+
+
+=head2 unsigned = $instance-E<gt>B<signal_connect_after> ($detailed_signal, $callback, $data=undef)
+
+=over
+
+=item * $detailed_signal (string) 
+
+=item * $callback (scalar) 
+
+=item * $data (scalar) 
+
+=back
+
+
+Like C<signal_connect>, except that I<$callback> will be run after the default
+handler.
+
+
+=head2 unsigned = $instance-E<gt>B<signal_connect_swapped> ($detailed_signal, $callback, $data=undef)
+
+=over
+
+=item * $detailed_signal (string) 
+
+=item * $callback (scalar) 
+
+=item * $data (scalar) 
+
+=back
+
+
+Like C<signal_connect>, except that I<$data> and I<$object> will be swapped
+on invocation of I<$callback>.
+
+
+=head2 retval = $object->B<signal_emit> ($name, ...)
+
+=over
+
+=item * $name (string) the name of the signal
+
+=item * ... (list) any arguments to pass to handlers.
+
+=back
+
+
+
+
+
+Emit the signal I<name> on I<$object>.  The number and types of additional
+arguments in I<...> are determined by the signal; similarly, the presence
+and type of return value depends on the signal being emitted.
+
+
+=head2 $ihint = $instance->B<signal_get_invocation_hint>
+
+Get a reference to a hash describing the innermost signal currently active
+on C<$instance>.  Returns undef if no signal emission is active.  This
+invocation hint is the same object passed to signal emission hooks, and
+contains these keys:
+
+=over
+
+=item signal_name
+
+The name of the signal being emitted.
+
+=item detail
+
+The detail passed on for this emission.  For example, a C<notify> signal will
+have the property name as the detail.
+
+=item run_type
+
+The current stage of signal emission, one of "run-first", "run-last", or
+"run-cleanup".
+
+=back
+
+
+=head2 $object-E<gt>B<signal_handler_block> ($handler_id)
+
+=over
+
+=item * $handler_id (unsigned) 
+
+=back
+
+=head2 $object-E<gt>B<signal_handler_disconnect> ($handler_id)
+
+=over
+
+=item * $handler_id (unsigned) 
+
+=back
+
+=head2 boolean = $object-E<gt>B<signal_handler_is_connected> ($handler_id)
+
+=over
+
+=item * $handler_id (unsigned) 
+
+=back
+
+=head2 $object-E<gt>B<signal_handler_unblock> ($handler_id)
+
+=over
+
+=item * $handler_id (unsigned) 
+
+=back
+
+=head2 integer = $instance-E<gt>B<signal_handlers_block_by_func> ($func, $data=undef)
+
+=over
+
+=item * $func (subroutine) function to block
+
+=item * $data (scalar) data to match, ignored if undef
+
+=back
+
+
+
+=head2 integer = $instance-E<gt>B<signal_handlers_disconnect_by_func> ($func, $data=undef)
+
+=over
+
+=item * $func (subroutine) function to block
+
+=item * $data (scalar) data to match, ignored if undef
+
+=back
+
+
+
+=head2 integer = $instance-E<gt>B<signal_handlers_unblock_by_func> ($func, $data=undef)
+
+=over
+
+=item * $func (subroutine) function to block
+
+=item * $data (scalar) data to match, ignored if undef
+
+=back
+
+
+
+=head2 scalar = $object_or_class_name-E<gt>B<signal_query> ($name)
+
+=over
+
+=item * $name (string) 
+
+=back
+
+Look up information about the signal I<$name> on the instance type
+I<$object_or_class_name>, which may be either a Glib::Object or a package
+name.
+
+See also C<Glib::Type::list_signals>, which returns the same kind of
+hash refs as this does.
+
+Since 1.080.
+
+=head2 $object_or_class_name-E<gt>B<signal_remove_emission_hook> ($signal_name, $hook_id)
+
+=over
+
+=item * $signal_name (string) 
+
+=item * $hook_id (unsigned) 
+
+=back
+
+Remove a hook that was installed by C<add_emission_hook>.
+
+Since 1.100.
+
+=head2 $instance-E<gt>B<signal_stop_emission_by_name> ($detailed_signal)
+
+=over
+
+=item * $detailed_signal (string) 
+
+=back
+
+=head2 $object-E<gt>B<thaw_notify> 
+
+
+Reverts the effect of a previous call to C<freeze_notify>. This causes all
+queued "notify" signals on I<$object> to be emitted.
+
+
+=head2 boolean = Glib::Object-E<gt>B<set_threadsafe> ($threadsafe)
+
+=over
+
+=item * $threadsafe (boolean) 
+
+=back
+
+Enables/disables threadsafe gobject tracking. Returns whether or not tracking
+will be successful and thus whether using perl ithreads will be possible.
+
+=head2 $object-E<gt>B<tie_properties> ($all=FALSE)
+
+=over
+
+=item * $all (boolean) if FALSE (or omitted) tie only properties for this object's class, if TRUE tie the properties of this and all parent classes.
+
+=back
+
+
+A special method available to Glib::Object derivatives, it uses perl's tie
+facilities to associate hash keys with the properties of the object. For
+example:
+
+  $button->tie_properties;
+  # equivilent to $button->set (label => 'Hello World');
+  $button->{label} = 'Hello World';
+  print "the label is: ".$button->{label}."\n";
+
+Attempts to write to read-only properties will croak, reading a write-only
+property will return '[write-only]'.
+
+Care must be taken when using tie_properties with objects of types created with
+Glib::Object::Subclass as there may be clashes with existing hash keys that
+could cause infinite loops. The solution is to use custom property get/set
+functions to alter the storage locations of the properties.
+
+
+
+=cut
+
+
+=head1 SIGNALS
+
+=over
+
+=item B<notify> (Glib::Object, Glib::ParamSpec)
+
+=back
+
+
+
+=cut
+
+
+=head1 SEE ALSO
+
+L<Glib>
+
+
+=cut
+
+
+=head1 COPYRIGHT
+
+Copyright (C) 2003-2011 by the gtk2-perl team.
+
+This software is licensed under the LGPL.  See L<Glib> for a full notice.
+
+
+
+=cut
+

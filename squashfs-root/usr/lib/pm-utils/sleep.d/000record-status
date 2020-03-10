@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# Record the current operation to allow failure detection.
+
+STAMPFILE="/var/lib/pm-utils/status"
+
+case "$1" in
+       hibernate|suspend)
+	       mkdir -p `dirname $STAMPFILE`
+               echo "$1" >"$STAMPFILE"
+               ;;
+       thaw|resume) 
+               rm -f "$STAMPFILE"
+               ;;
+esac
+

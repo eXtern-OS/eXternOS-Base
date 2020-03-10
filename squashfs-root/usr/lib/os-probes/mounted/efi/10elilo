@@ -1,0 +1,24 @@
+#!/bin/sh
+# Detects ELILO bootloader on a EFI System Partition
+
+. /usr/share/os-prober/common.sh
+
+efi="$1"
+
+found=
+
+elilo=`find $1 -name "elilo.efi"`
+if [ -n "$elilo" ]; then
+	bdir="${elilo%/*}"
+	bdir="${elilo##*/}"
+	long="ELILO Boot Manager"
+	short="ELILO"
+	path=${bdir}/elilo.efi
+	found=true
+fi  
+
+if [ -n "$found" ]; then
+	label="$(count_next_label "$short")"
+	result "${path}:${long}:${label}"
+fi
+exit 0

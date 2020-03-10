@@ -1,0 +1,11 @@
+#! /bin/sh
+set -e
+
+# livecd-rootfs deletes the Gnome icon cache for Kubuntu CDs to save space, recreate it here
+
+if [ -e "/target/usr/share/kubuntu-default-settings/" ] && [ -e "/target/usr/bin/gtk-update-icon-cache" ]; then
+    chroot /target gtk-update-icon-cache /usr/share/icons/hicolor
+    chroot /target gtk-update-icon-cache /usr/share/icons/oxygen
+fi
+
+exit 0

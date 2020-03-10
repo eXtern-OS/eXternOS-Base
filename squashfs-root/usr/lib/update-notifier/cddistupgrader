@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+
+CDROM_MOUNT="$1"
+
+for d in "$CDROM_MOUNT"/dists/*/main/dist-upgrader/binary-all/; do
+    if [ -d "$d" ]; then
+        UPGRADER_DIR="$d"
+        break
+    fi
+done
+
+TAR=$(basename "$UPGRADER_DIR"/*.tar.gz)
+CODENAME=${TAR%.tar.gz}
+
+# get a tempdir
+TMPDIR=$(mktemp -t -d distupgrade.XXXXXX)
+cd $TMPDIR
+
+# extract the tar
+tar xzf "$UPGRADER_DIR"/"$TAR"
+
+# apply any patches needed before running the upgrade
+for apatch in /usr/share/update-notifier/upgrader-patches/*.diff; do
+    if patch --dry-run < "$apatch"; then
+        patch < "$apatch"
+    fi
+done
+
+# run it
+"$TMPDIR"/"$CODENAME" --cdrom "$CDROM_MOUNT"

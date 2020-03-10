@@ -1,0 +1,373 @@
+#!/usr/bin/perl
+#
+# dpkg-repack puts humpty-dumpty back together again.
+#
+# Copyright © 1996-2006 Joey Hess <joeyh@debian.org>
+# Copyright © 2012,2014-2016 Guillem Jover <guillem@debian.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+use strict;
+use warnings;
+
+use File::stat;
+use File::Temp;
+use Dpkg::Path qw(find_command);
+use Dpkg::Control;
+use Dpkg::Control::Fields;
+use Getopt::Long;
+
+my $VERSION = '1.43';
+
+my $error_flag;
+my $rootdir;
+my $arch;
+my @deb_options;
+my $generate;
+my $tags = '';
+my %tag = (
+    description => 1,
+    version => 0,
+);
+
+sub Syntax {
+    print { *STDERR } <<USAGE;
+Usage: dpkg-repack [option...] package-name...
+
+Options:
+      --root=<dir>      Take package from filesystem rooted on <dir>.
+      --arch=<arch>     Force the package to be built for architecture <arch>.
+      --generate        Generate build directory but do not build deb.
+      --tag=<type>      Tag the package as being repackaged.
+                          Types: none, description, version, all.
+  -d, --deb-option=<option>
+                        Pass build <option> to dpkg-deb.
+  -?, --help            Show this usage information.
+      --version         Show the version.
+
+<package-name> is the name of the package(s) to attempt to repack.
+USAGE
+}
+
+sub Version {
+    print 'dpkg-repack ' . $VERSION . "\n";
+}
+
+sub Info {
+    print "dpkg-repack: @_\n";
+}
+
+sub Warn {
+    print { *STDERR } "dpkg-repack: @_\n";
+}
+
+sub Error {
+    Warn @_;
+    $error_flag = 1;
+}
+
+sub Die {
+    Error('Fatal Error:', @_);
+    exit 1;
+}
+
+# Run a system command, and print an error message if it fails.
+sub SafeSystem {
+    my $errormessage = pop @_;
+
+    my $ret = system @_;
+    if (int($ret / 256) > 0) {
+        $errormessage = 'Error running: ' . join ' ', @_
+            if !$errormessage;
+        Error($errormessage);
+    }
+}
+
+sub SafeChmod {
+    my ($dir, $perms) = @_;
+
+    chmod $perms, $dir or Error("Unable to change permissions on \"$dir\": $!");
+}
+
+# Make the passed directory, print an error message if it fails.
+sub SafeMkdir {
+    my ($dir, $perms) = @_;
+
+    mkdir $dir, $perms or Error("Unable to make directory, \"$dir\": $!");
+    # mkdir doesn't do sticky bits and suidness.
+    SafeChmod($dir, $perms);
+}
+
+# This makes the directories we will rebuild the package in.
+sub Make_Dirs {
+    my $pkgname = shift;
+    my %opts = (
+        TEMPLATE => "dpkg-repack.$pkgname.XXXXXX",
+        CLEANUP => !$generate,
+    );
+
+    my $dir = File::Temp->newdir(%opts);
+    SafeChmod($dir, 0755);
+    SafeMkdir("$dir/DEBIAN", 0755);
+
+    return $dir;
+}
+
+# Get package control file via dpkg -s.
+sub Extract_Status {
+    my $pkgname = shift;
+
+    my $inst = Dpkg::Control->new(type => CTRL_FILE_STATUS);
+
+    open my $fh, '-|', 'dpkg', "--root=$rootdir/", '-s', $pkgname
+        or Die "Unable to locate $pkgname in the package list.";
+    $inst->parse($fh, "dpkg status for $pkgname");
+    close $fh;
+
+    if ($inst->{Status} !~ m/^\S+\s+\S+\s+installed$/) {
+        Die "Package $pkgname not fully installed: $inst->{Status}";
+    }
+
+    return $inst;
+}
+
+# Install the control file from the installed package control information.
+sub Install_Control {
+    my ($build_dir, $inst) = @_;
+
+    my $ctrl = Dpkg::Control->new(type => CTRL_PKG_DEB);
+
+    # XXX: Versions prior to dpkg 1.18.2 do not properly propagate the
+    # Maintainer field, workaround it here.
+    if (not field_is_allowed_in('Maintainer', CTRL_FILE_STATUS)) {
+        field_register('Maintainer', CTRL_PKG_DEB | CTRL_FILE_STATUS);
+    }
+
+    field_transfer_all($inst, $ctrl);
+
+    # Add something to the Description to mention dpkg-repack.
+    if ($tag{description}) {
+        my $date = qx'date -R';
+        chomp $date;
+
+        $ctrl->{Description} .= "\n";
+        $ctrl->{Description} .= "\n";
+        $ctrl->{Description} .= "(Repackaged on $date by dpkg-repack.)";
+    }
+    if ($tag{version}) {
+        $ctrl->{Version} .= '+repack';
+    }
+
+    if ($arch) {
+        $ctrl->{Architecture} = $arch;
+    }
+
+    $ctrl->save("$build_dir/DEBIAN/control");
+    SafeSystem 'chown', '0:0', "$build_dir/DEBIAN/control", '';
+}
+
+# Install all the files in the DEBIAN directory. (Except control file and
+# file list file.)
+sub Install_DEBIAN {
+    my ($build_dir, $inst, @conffiles) = @_;
+
+    my @control_files;
+    open my $q_fh, '-|', "dpkg-query --admindir=$rootdir/var/lib/dpkg --control-path $inst->{Package} 2>/dev/null"
+        or Die "dpkg-query failed: $!";
+    while (my $fn = <$q_fh>) {
+        chomp $fn;
+        push @control_files, $fn;
+    }
+    close $q_fh;
+
+    foreach my $fn (@control_files) {
+        my ($basename) = $fn =~ m/^.*\.(.*?)$/;
+        SafeSystem 'cp', '-p', $fn, "$build_dir/DEBIAN/$basename", '';
+    }
+
+    # Conffiles have to be handled specially, because dpkg-query --control-path
+    # does not list the conffiles file. Also, we need to generate one that only
+    # contains conffiles that are still present on the filesystem.
+    if (@conffiles) {
+        open my $out_fh, '>', "$build_dir/DEBIAN/conffiles"
+            or Die "write conffiles: $!";
+        foreach (@conffiles) {
+            print { $out_fh } "$_\n";
+        }
+        close $out_fh;
+        SafeSystem 'chown', '0:0', "$build_dir/DEBIAN/conffiles", '';
+    }
+}
+
+# This looks at the list of files in this package, and places them
+# all on the directory tree.
+sub Install_Files {
+    my ($build_dir, $inst) = @_;
+
+    # There are two types of conffiles. Obsolete conffiles should be
+    # skipped, while other conffiles should be included if present.
+    my @conffiles = ();
+    my @obsolete_conffiles;
+    foreach my $line (split /\n/, $inst->{Conffiles} // '') {
+        if ($line =~ /^(.*)\s+(\S+)\s+obsolete$/) {
+            push @obsolete_conffiles, $1;
+        } elsif ($line =~ /^(.*)\s+(\S+)$/) {
+            push @conffiles, $1;
+        }
+    }
+
+    # We need a list of all the files, for later lookups when we test to
+    # see where symlinks point to. Note that because we parse the output
+    # of the command (for diversions, below) it's important to make sure
+    # it runs with English language output.
+    my $lc_all = $ENV{LC_ALL};
+    $ENV{LC_ALL} = 'C';
+    my @filelist = split /\n/, qx{dpkg --root=$rootdir/ -L $inst->{Package}};
+    $ENV{LC_ALL} = $lc_all if defined $lc_all; # important to reset it.
+
+    # Set up a hash for easy lookups.
+    my %filelist = map { $_ => 1 } @filelist;
+
+    my $fn;
+    for (my $x = 0; $x <= $#filelist; $x++) {
+        my $origfn = $filelist[$x];
+
+        # dpkg -L spits out extra lines to report diversions. We have to
+        # parse those (ugly), to find out where the file was diverted to,
+        # and use the diverted file.
+        if (defined $filelist[$x + 1] &&
+            ($filelist[$x + 1] =~ m/locally diverted to: (.*)/ ||
+             $filelist[$x + 1] =~ m/diverted by .*? to: (.*)/)) {
+            $fn = "$rootdir/$1";
+            # Skip over that line.
+            $x++;
+        } elsif ($origfn =~ m/package diverts others to: (.*)/) {
+            # Not a file at all, skip over it.
+            next;
+        } else {
+            $fn = $rootdir . $origfn;
+        }
+
+        if (grep { $_ eq $fn } @obsolete_conffiles) {
+            Warn("Skipping obsolete conffile $fn");
+            next;
+        }
+
+        if (!-e $fn && !-l $fn) {
+            Error "File not found: $fn" unless grep { $_ eq $fn } @conffiles;
+        } elsif ((-d $fn and not -l $fn) or
+                 (-d $fn and -l $fn and not $filelist{readlink($fn)} and
+                  ($x + 1 <= $#filelist and $filelist[$x + 1] =~ m/^\Q$origfn\E\//))) {
+            # If the package contains a file, that locally looks like a symlink
+            # pointing to a directory that is not in the package, then change
+            # it to a real directory in the repacked package. This assummes
+            # that in this case, the symlink was a local change (e.g., /usr
+            # is a symlink).
+            #
+            # However, if the directory in question contains no files in the
+            # filelist for this package, don't do that, just preserve the
+            # symlink in the repacked package. This handles the case where a
+            # package contains a symlink to a directory elsewhere.
+            #
+            # We rely on the order of the filelist listing parent directories
+            # first, and then their contents. There has to be a better way to
+            # do this!
+            my $f = '';
+            foreach my $dir (split(m/\/+/, $origfn)) {
+                $f .= "/$dir";
+                next if -d $build_dir . $f;
+                my $st = stat($rootdir . $f);
+                SafeMkdir "$build_dir/$f", $st->mode;
+                chown($st->uid, $st->gid, "$build_dir/$f");
+            }
+        } elsif (-p $fn) {
+            # Copy a named pipe with cp -a.
+            SafeSystem 'cp', '-a', $fn, "$build_dir/$origfn", '';
+        } else {
+            SafeSystem 'cp', '-pd', $fn, "$build_dir/$origfn", '';
+        }
+    }
+
+    return @conffiles;
+}
+
+# Some sanity checks.
+if ($> != 0) {
+    # Try to exec self with fakeroot if we are not running as root.
+    if (find_command('fakeroot')) {
+        exec 'fakeroot', '-u', $0, @ARGV;
+    }
+    Die 'This program should be run as root (or you could use fakeroot -u). Aborting.';
+}
+if (exists $ENV{FAKED_MODE} && $ENV{FAKED_MODE} ne 'unknown-is-real') {
+    Warn 'fakeroot run without its -u flag may corrupt some file permissions.';
+}
+
+# Parse parameters.
+$rootdir = '';
+my $ret = GetOptions(
+    'root|r=s', \$rootdir,
+    'arch|a=s', \$arch,
+    'deb-option|d=s@', \@deb_options,
+    'generate|g' , \$generate,
+    'tag=s', \$tags,
+    'help|?', sub { Syntax(); exit 0; },
+    'version', sub { Version(); exit 0; },
+);
+
+# Handle metadata tagging.
+foreach my $type (split /,/, $tags) {
+    if ($type eq 'none') {
+        $tag{$_} = 0 foreach (keys %tag);
+    } elsif ($type eq 'all') {
+        $tag{$_} = 1 foreach (keys %tag);
+    } elsif (exists $tag{$type}) {
+        $tag{$type} = 1;
+    } else {
+        Die("unknown --tag type '$type'");
+    }
+}
+
+if (not @ARGV or not $ret) {
+    Syntax();
+    exit 1;
+}
+
+foreach my $pkgname (@ARGV) {
+    my $inst = Extract_Status($pkgname);
+
+    # If the umask is set wrong, the directories will end up with the wrong
+    # perms. (Is this still needed?)
+    umask 022;
+
+    # Generate the directory tree.
+    my $build_dir = Make_Dirs($pkgname);
+    my @conffiles = Install_Files($build_dir, $inst);
+    Install_DEBIAN($build_dir, $inst, @conffiles);
+    Install_Control($build_dir, $inst);
+
+    # Do we need to create the binary packages?
+    if ($generate) {
+        Info("created $build_dir for $pkgname");
+    } else {
+        # Let dpkg-deb do its magic.
+        SafeSystem('dpkg-deb', @deb_options, '--build', $build_dir, '.', '');
+    }
+
+    if ($error_flag) {
+        Error('Problems were encountered in processing.');
+        Error('The package may be broken.');
+        $error_flag = 0;
+    }
+}

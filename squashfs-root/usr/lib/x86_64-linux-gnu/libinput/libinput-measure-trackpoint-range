@@ -1,0 +1,200 @@
+#!/usr/bin/env python3
+# vim: set expandtab shiftwidth=4:
+# -*- Mode: python; coding: utf-8; indent-tabs-mode: nil -*- */
+#
+# Copyright © 2017 Red Hat, Inc.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice (including the next
+# paragraph) shall be included in all copies or substantial portions of the
+# Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+#
+
+import sys
+import argparse
+try:
+    import evdev
+    import evdev.ecodes
+    import pyudev
+except ModuleNotFoundError as e:
+    print('Error: {}'.format(str(e)), file=sys.stderr)
+    print('One or more python modules are missing. Please install those '
+          'modules and re-run this tool.')
+    sys.exit(1)
+
+MINIMUM_EVENT_COUNT = 1000
+
+
+class InvalidDeviceError(Exception):
+    pass
+
+
+class Delta(object):
+    def __init__(self, x=0, y=0):
+        self.x = x
+        self.y = y
+
+    def __bool_(self):
+        return self.x != 0 or self.y != 0
+
+
+class Device(object):
+    def __init__(self, path):
+        if path is None:
+            path = self._find_trackpoint_device()
+        self.path = path
+
+        self.device = evdev.InputDevice(self.path)
+
+        print("Using {}: {}\n".format(self.device.name, path))
+
+        self.deltas = []
+        self.nxdeltas = 0
+        self.nydeltas = 0
+
+        self.current_delta = Delta()
+        self.max_delta = Delta(0, 0)
+
+    def _find_trackpoint_device(self):
+        context = pyudev.Context()
+        for device in context.list_devices(subsystem='input'):
+            if not device.get('ID_INPUT_POINTINGSTICK', 0):
+                continue
+
+            if not device.device_node or \
+               not device.device_node.startswith('/dev/input/event'):
+                continue
+
+            return device.device_node
+
+        raise InvalidDeviceError("Unable to find a trackpoint device")
+
+    def handle_rel(self, event):
+        if event.code == evdev.ecodes.REL_X:
+            self.current_delta.x = event.value
+            if self.max_delta.x < abs(event.value):
+                self.max_delta.x = abs(event.value)
+        elif event.code == evdev.ecodes.REL_Y:
+            self.current_delta.y = event.value
+            if self.max_delta.y < abs(event.value):
+                self.max_delta.y = abs(event.value)
+
+    def handle_syn(self, event):
+        self.deltas.append(self.current_delta)
+        if self.current_delta.x != 0:
+            self.nxdeltas += 1
+        if self.current_delta.y != 0:
+            self.nydeltas += 1
+
+        self.current_delta = Delta()
+
+        print("\rTrackpoint sends: max x:{:3d}, max y:{:3} samples [{}, {}]"
+              .format(
+                self.max_delta.x, self.max_delta.y,
+                self.nxdeltas, self.nydeltas,
+              ), end="")
+
+    def read_events(self):
+        for event in self.device.read_loop():
+            if event.type == evdev.ecodes.EV_REL:
+                self.handle_rel(event)
+            elif event.type == evdev.ecodes.EV_SYN:
+                self.handle_syn(event)
+
+    def print_summary(self):
+        print("\n")  # undo the \r from the status line
+        if not self.deltas:
+            return
+
+        if len(self.deltas) < MINIMUM_EVENT_COUNT:
+            print("WARNING: *******************************************\n"
+                  "WARNING: Insufficient samples, data is not reliable\n"
+                  "WARNING: *******************************************\n")
+
+        print("Histogram for x axis deltas, in counts of 5")
+        xs = [d.x for d in self.deltas]
+        minx = min(xs)
+        maxx = max(xs)
+        for i in range(minx, maxx + 1):
+            xc = len([x for x in xs if x == i])
+            xc = int(xc/5)  # counts of 5 is enough
+            print("{:4}: {}".format(i, "+" * xc, end=""))
+
+        print("Histogram for y axis deltas, in counts of 5")
+        ys = [d.y for d in self.deltas]
+        miny = min(ys)
+        maxy = max(ys)
+        for i in range(miny, maxy + 1):
+            yc = len([y for y in ys if y == i])
+            yc = int(yc/5)  # counts of 5 is enough
+            print("{:4}: {}".format(i, "+" * yc, end=""))
+
+        axs = sorted([abs(x) for x in xs])
+        ays = sorted([abs(y) for y in ys])
+
+        avgx = int(sum(axs)/len(axs))
+        avgy = int(sum(ays)/len(ays))
+
+        medx = axs[int(len(axs)/2)]
+        medy = ays[int(len(ays)/2)]
+
+        pc95x = axs[int(len(axs) * 0.95)]
+        pc95y = ays[int(len(ays) * 0.95)]
+
+        print("Average for abs deltas: x: {:3} y: {:3}".format(avgx, avgy))
+        print("Median for abs deltas: x: {:3} y: {:3}".format(medx, medy))
+        print("95% percentile for abs deltas: x: {:3} y: {:3}"
+              .format(pc95x, pc95y)
+              )
+
+
+def main(args):
+    parser = argparse.ArgumentParser(
+                description="Measure the trackpoint delta coordinate range"
+             )
+    parser.add_argument('path', metavar='/dev/input/event0',
+                        nargs='?', type=str, help='Path to device (optional)')
+
+    args = parser.parse_args()
+
+    try:
+        device = Device(args.path)
+
+        print(
+           "This tool measures the commonly used pressure range of the\n"
+           "trackpoint. Push the trackpoint:\n"
+           "- Four times around the screen edges\n"
+           "- From the top left to the bottom right and back, twice\n"
+           "- From the top right to the bottom left and back, twice\n"
+           "A minimum of {} events for each axis is required\n"
+           "\n"
+           "Movements should emulate fast pointer movement on the screen\n"
+           "but not use excessive pressure that would not be used\n"
+           "during day-to-day movement. For best results, run this tool \n"
+           "several times to get an idea of the common range.\n"
+           "\n".format(MINIMUM_EVENT_COUNT))
+        device.read_events()
+    except KeyboardInterrupt:
+        device.print_summary()
+    except (PermissionError, OSError):
+        print("Error: failed to open device. Are you running as root?")
+    except InvalidDeviceError as e:
+        print("Error: {}".format(e))
+
+
+if __name__ == "__main__":
+    main(sys.argv)

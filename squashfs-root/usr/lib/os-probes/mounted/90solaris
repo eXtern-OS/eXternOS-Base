@@ -1,0 +1,19 @@
+#!/bin/sh
+# Attempt to check if solaris is installed in this system
+# looking at the /etc/system parameters file and /etc/vfstab.
+
+set -e
+
+. /usr/share/os-prober/common.sh
+
+partition="$1"
+dir="$2"
+type="$3"
+
+if [ -f "$dir/etc/system" ] && [ -f "$dir/etc/vfstab" ]; then
+        label="$(count_next_label Solaris)"
+	result "$partition:Solaris/IA32:$label:chain"
+	exit 0
+else
+	exit 1
+fi

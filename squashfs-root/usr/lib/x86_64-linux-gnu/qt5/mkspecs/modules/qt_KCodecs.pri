@@ -1,0 +1,11 @@
+QT.KCodecs.VERSION = 5.64.0
+QT.KCodecs.MAJOR_VERSION = 5
+QT.KCodecs.MINOR_VERSION = 64
+QT.KCodecs.PATCH_VERSION = 0
+QT.KCodecs.name = KF5Codecs
+QT.KCodecs.module = KF5Codecs
+QT.KCodecs.defines = 
+QT.KCodecs.includes = /usr/include/KF5/KCodecs
+QT.KCodecs.private_includes =
+QT.KCodecs.libs = /usr/lib/x86_64-linux-gnu
+QT.KCodecs.depends = core

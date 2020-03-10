@@ -1,0 +1,18 @@
+#!/bin/sh
+set -e
+
+. /usr/share/debconf/confmodule
+
+if db_get jackd/tweak_rt_limits; then
+	# Using DEBCONF_DB_REPLACE is a hack to force configdb to be
+	# read-only, which debconf-copydb doesn't currently arrange for
+	# itself.
+	DEBCONF_DB_REPLACE=configdb debconf-copydb configdb targetdb \
+		-p jackd/tweak_rt_limits \
+		--config=Name:targetdb --config=Driver:File \
+		--config=Mode:0644 \
+		--config=Filename:/target/var/cache/debconf/config.dat
+	casper-reconfigure /target jackd2
+fi
+
+exit 0

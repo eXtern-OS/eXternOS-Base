@@ -1,0 +1,12 @@
+#! /bin/sh
+set -e
+
+if egrep -q 'braille=ask|brltty' /proc/cmdline && [ -f /etc/brltty.conf ]; then
+	if [ -e /target/etc/brltty.conf ]; then
+		mv /target/etc/brltty.conf /target/etc/brltty.conf.orig
+	fi
+	cp -a /etc/brltty.conf /target/etc/brltty.conf
+	chroot /target systemctl enable brltty
+fi
+
+exit 0

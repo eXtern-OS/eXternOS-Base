@@ -1,0 +1,337 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+"""Process new requests to download per-package data"""
+# Copyright (C) 2012 Canonical Ltd
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of version 3 of the GNU General Public License as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+import glob
+import os
+import sys
+import subprocess
+import traceback
+import debian.deb822
+import string
+import debconf
+from datetime import datetime
+
+# avoid hanging forever (LP: #1243090)
+import socket
+socket.setdefaulttimeout(60)
+
+
+DATADIR = "/usr/share/package-data-downloads/"
+STAMPDIR = "/var/lib/update-notifier/package-data-downloads/"
+NOTIFIER_SOURCE_FILE = \
+    "/usr/share/update-notifier/package-data-downloads-failed"
+NOTIFIER_FILE = "/var/lib/update-notifier/user.d/data-downloads-failed"
+NOTIFIER_PERMANENT_SOURCE_FILE = NOTIFIER_SOURCE_FILE + '-permanently'
+NOTIFIER_PERMANENT_FILE = NOTIFIER_FILE + '-permanently'
+
+failures = []
+permanent_failures = []
+
+
+def create_or_update_stampfile(file):
+    """Create or update the indicated stampfile, and remove failure flags"""
+
+    try:
+        with open(file, 'w'):
+            pass
+    # Ignore errors
+    except Exception:
+        traceback.print_exc(file=sys.stderr)
+
+    os.utime(file, None)
+
+    for ext in ('.failed', '.permanent-failure'):
+        if os.path.exists(file + ext):
+            os.unlink(file + ext)
+
+
+def mark_hook_failed(hook_name, permanent=False):
+    """Create a stampfile recording that a hook failed
+
+    We create separate stampfiles for failed hooks so we can
+    keep track of how long the hook has been failing and if the failure
+    should be considered permanent."""
+
+    if permanent:
+        filename = hook_name + '.permanent-failure'
+    else:
+        filename = hook_name + '.failed'
+
+    failure_file = os.path.join(STAMPDIR, filename)
+    try:
+        with open(failure_file, 'w'):
+            pass
+
+    # Ignore errors
+    except Exception:
+        traceback.print_exc(file=sys.stderr)
+
+    for ext in ('', '.failed', '.permanent-failure'):
+        stampfile = hook_name + ext
+        if filename != stampfile \
+           and os.path.exists(os.path.join(STAMPDIR, stampfile)):
+            os.unlink(os.path.join(STAMPDIR, stampfile))
+
+
+def hook_is_permanently_failed(hook_name):
+    """Check if this hook has been marked as permanently failing.
+
+    If so, don't raise any more errors about it."""
+
+    failure_file = os.path.join(STAMPDIR, hook_name + '.permanent-failure')
+    return os.path.exists(failure_file)
+
+
+def hook_aged_out(hook_name):
+    """Check if this hook has been failing consistently for >= 3 days"""
+
+    failure_file = os.path.join(STAMPDIR, hook_name + '.failed')
+    try:
+        hook_date = datetime.fromtimestamp(os.stat(failure_file).st_ctime)
+        cur_time = datetime.now()
+        d = cur_time - hook_date
+        if d.days >= 3:
+            return True
+    except OSError:
+        pass
+    except Exception:
+        traceback.print_exc(file=sys.stderr)
+    return False
+
+
+def record_failure(hook):
+    """Record that the named hook has failed"""
+    if hook_aged_out(hook):
+        permanent_failures.append(hook)
+    else:
+        failures.append(hook)
+
+
+def existing_permanent_failures():
+    """Return the list of all previously recorded permanent failures"""
+
+    files = glob.glob(os.path.join(STAMPDIR, "*.permanent-failure"))
+    return [os.path.splitext(os.path.basename(path))[0] for path in files]
+
+
+def trigger_update_notifier(failures, permanent=False):
+    """Tell update-notifier that there were failed packages"""
+
+    try:
+        if permanent:
+            with open(NOTIFIER_PERMANENT_SOURCE_FILE, 'r',
+                      encoding='utf-8') as f:
+                input = f.read()
+            output_file = open(NOTIFIER_PERMANENT_FILE, 'w', encoding='utf-8')
+        else:
+            with open(NOTIFIER_SOURCE_FILE, 'r', encoding='utf-8') as f:
+                input = f.read()
+            output_file = open(NOTIFIER_FILE, 'w', encoding='utf-8')
+    except Exception:
+        # Things failed and we can't even notify about it.  Break the
+        # trigger so that there's some error propagation, even if not
+        # the most pleasant sort.
+        traceback.print_exc(file=sys.stderr)
+        sys.exit(1)
+
+    packages = [os.path.basename(failure) for failure in failures]
+    output_file.write(
+        string.Template(input).substitute(
+            {'packages': ", ".join(packages)}))
+    output_file.close()
+
+
+def get_hook_file_names():
+    res = []
+    for relfile in os.listdir(DATADIR):
+        # ignore files ending in .dpkg-*
+        if (os.path.splitext(relfile)[1] and
+                os.path.splitext(relfile)[1].startswith(".dpkg")):
+            continue
+        res.append(relfile)
+    return res
+
+
+# we use apt-helper here as this gives us the exact same proxy behavior
+# as apt-get itself (environment/apt-config proxy settings/autodiscover)
+def download_file(uri, sha256_hashsum):
+    """Download a URI and checks the given hashsum using apt-helper
+
+    Returns: path to the downloaded file or None
+    """
+    download_dir = os.path.join(STAMPDIR, "partial")
+    dest_file = os.path.join(download_dir, os.path.basename(uri))
+    ret = subprocess.call(
+        ["/usr/lib/apt/apt-helper",
+         "download-file", uri, dest_file, "SHA256:" + sha256_hashsum])
+    if ret != 0:
+        if os.path.exists(dest_file):
+            os.remove(dest_file)
+        return None
+    return dest_file
+
+
+def print_maybe(*args, **kwargs):
+    """Version of print() that ignores failure"""
+    try:
+        print(*args, **kwargs)
+    except OSError:
+        pass
+
+
+def process_download_requests():
+    """Process requests to download package data files
+
+    Iterate over /usr/share/package-data-downloads and download any
+    package data specified in the contained file, then hand off to
+    the indicated handler for further processing.
+
+    Successful downloads are recorded in
+    /var/lib/update-notifier/package-data-downloads to avoid unnecessary
+    repeat handling.
+
+    Failed downloads are reported to the user via the
+    update-notifier interface."""
+
+    # Iterate through all the available hooks.  If we get a failure
+    # processing any of them (download failure, checksum failure, or
+    # failure to run the hook script), record it but continue processing
+    # the rest of the hooks since some of them may succeed.
+    for relfile in get_hook_file_names():
+
+        stampfile = os.path.join(STAMPDIR, relfile)
+        file = os.path.join(DATADIR, relfile)
+        try:
+            if not os.path.exists(NOTIFIER_FILE) and \
+                    not os.path.exists(NOTIFIER_PERMANENT_FILE):
+                hook_date = os.stat(file).st_mtime
+                stamp_date = os.stat(stampfile).st_mtime
+                if hook_date < stamp_date:
+                    continue
+            elif os.path.exists(stampfile):
+                continue
+
+        except Exception as e:
+            if not isinstance(e, OSError):
+                traceback.print_exc(file=sys.stderr)
+
+        hook = debian.deb822.Deb822()
+        files = []
+        sums = []
+        for para in hook.iter_paragraphs(open(file)):
+            if 'Script' in para:
+                if not files:
+                    record_failure(relfile)
+                    break
+                command = [para['Script']]
+
+                if 'Should-Download' in para:
+                    db = debconf.DebconfCommunicator('update-notifier')
+                    try:
+                        should = db.get(para['Should-Download'])
+                        if should == "false":
+                            # Do nothing with this file.
+                            break
+                    except (DebconfError, KeyError):
+                        pass
+                    finally:
+                        db.shutdown()
+
+                print_maybe("%s: processing..." % (relfile))
+
+                # Download each file and verify the sum
+                try:
+                    downloaded = set()
+                    for i in range(len(files)):
+                        print_maybe("%s: downloading %s" % (relfile, files[i]))
+                        dest_file = download_file(files[i], sums[i])
+                        if dest_file:
+                            command.append(dest_file)
+                            downloaded.add(dest_file)
+                        else:
+                            record_failure(relfile)
+                            break
+                    if relfile in failures + permanent_failures:
+                        break
+
+                    sys.stdout.flush()
+                    result = subprocess.call(command)
+                    if result:
+                        # There's no sense redownloading if the script fails
+                        permanent_failures.append(relfile)
+                    else:
+                        create_or_update_stampfile(stampfile)
+                    # cleanup
+                    for f in downloaded:
+                        os.remove(f)
+                    break
+                except Exception:
+                    traceback.print_exc(file=sys.stderr)
+
+                record_failure(relfile)
+                # The 'script' is always the last stanza
+                break
+
+            # Not in a 'script' stanza, so we should have some urls
+            try:
+                files.append(para['Url'])
+                sums.append(para['Sha256'])
+            except Exception as e:
+                print_maybe("%s: Error processing!" % (relfile))
+                if not isinstance(e, KeyError):
+                    traceback.print_exc(file=sys.stderr)
+                record_failure(relfile)
+                break
+
+    previous_failures = existing_permanent_failures()
+
+    # We only report about "permanent" failures when there are new ones,
+    # but we want the whole list of permanently-failing hooks so when
+    # we clobber the update-notifier file we don't lose information the
+    # user may not have seen yet
+    if permanent_failures:
+        new_failures = False
+        for failure in permanent_failures:
+            if failure not in previous_failures:
+                mark_hook_failed(failure, permanent=True)
+                previous_failures.append(failure)
+                new_failures = True
+        if new_failures:
+            trigger_update_notifier(previous_failures, permanent=True)
+        # 2016-09-19 14:36 reset the list of permanent_failures as it caused
+        # tests not to be idempotent
+        permanent_failures.clear()
+    if not previous_failures and os.path.exists(NOTIFIER_PERMANENT_FILE):
+        os.unlink(NOTIFIER_PERMANENT_FILE)
+
+    # Filter out new failure reports for permanently-failed packages
+    our_failures = [x for x in failures if x not in previous_failures]
+    # 2016-09-19 14:36 reset the list of permanent_failures as it caused
+    # tests not to be idempotent
+    failures.clear()
+
+    if our_failures:
+        for failure in our_failures:
+            mark_hook_failed(failure)
+        trigger_update_notifier(our_failures)
+    elif os.path.exists(NOTIFIER_FILE):
+        os.unlink(NOTIFIER_FILE)
+
+
+if __name__ == "__main__":
+    process_download_requests()

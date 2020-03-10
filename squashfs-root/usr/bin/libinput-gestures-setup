@@ -1,0 +1,217 @@
+#!/bin/bash
+# User setup script.
+# (C) Mark Blakeney, Aug 2016.
+
+PROG="$(basename $0)"
+NAME=${PROG%-*}
+
+BINDIR="/usr/bin"
+APPDIR="/usr/share/applications"
+ICOBAS="/usr/share/icons/hicolor"
+ICODIR="$ICOBAS/128x128/apps"
+OCODIR="/usr/share/pixmaps"
+DOCDIR="/usr/share/doc/$NAME"
+CNFDIR="/etc"
+HCFDIR="${XDG_CONFIG_HOME:-$HOME/.config}"
+AUTDIR="$HCFDIR/autostart"
+
+usage() {
+    echo "Usage:"
+    echo "As root: sudo $PROG install|uninstall"
+    echo "As user: $PROG start|stop|restart|autostart|autostop|status"
+    echo
+    echo "-d <dir> (option sets DESTDIR for install/uninstall)"
+    echo "-r (force allow root to perform user commands. PLEASE AVOID USING THIS!)"
+    exit 1
+}
+
+# Process command line options
+DESTDIR=""
+FORCEROOT=0
+while getopts d:r c; do
+    case $c in
+    d) DESTDIR="$OPTARG";;
+    r) FORCEROOT=1;;
+    \?) usage;;
+    esac
+done
+
+shift $((OPTIND - 1))
+
+if [[ $# -ne 1 ]]; then
+    usage
+fi
+
+cmd="$1"
+
+# Launch given desktop app. First work out most suitable launcher.
+# Pretty crude at present but should work for at least GNOME and KDE.
+launch() {
+    local app="$1"
+
+    if echo $XDG_CURRENT_DESKTOP | grep -q KDE; then
+	if hash kioclient5 &>/dev/null; then
+	    kioclient5 exec "$APPDIR/$app.desktop" >/dev/null
+	    return $?
+	elif hash kioclient &>/dev/null; then
+	    kioclient exec "$APPDIR/$app.desktop" >/dev/null
+	    return $?
+	fi
+    fi
+
+    if hash gtk-launch &>/dev/null; then
+	gtk-launch "$app"
+	return $?
+    fi
+
+    if hash i3-msg &>/dev/null; then
+	i3-msg exec $BINDIR/$app >/dev/null
+	# i3-msg will return successfully even if "$app" fails to start
+	return $?
+    fi
+
+    echo "Don't know how to invoke $app.desktop" >&2
+    return 1
+}
+
+# Set up desktop entry link for auto start of app, if it doesn't already
+# exist
+auto_start() {
+    if [[ ! -f $APPDIR/$NAME.desktop ]]; then
+	if [[ -e $AUTDIR/$NAME.desktop ]]; then
+	    echo "Removed old $AUTDIR/$NAME.desktop"
+	    rm -f $AUTDIR/$NAME.desktop
+	fi
+	return 1
+    fi
+
+    if ! cmp -s $APPDIR/$NAME.desktop $AUTDIR/$NAME.desktop; then
+	mkdir -p $AUTDIR
+	cp $APPDIR/$NAME.desktop $AUTDIR
+	echo "installed or updated $AUTDIR/$NAME.desktop"
+    fi
+    return 0
+}
+
+# Action given user command
+user_action() {
+    local cmd=$1
+
+    if [[ $cmd == start ]]; then
+	if [[ ! -f $APPDIR/$NAME.desktop ]]; then
+	    echo "$NAME is not installed."
+	    exit 1
+	fi
+	if launch "$NAME"; then
+	    echo "$NAME started."
+	fi
+    elif [[ $cmd == stop ]]; then
+	for prog in libinput-debug-events $NAME; do
+	    if pkill -u $USER -f "$prog\$|$prog " &>/dev/null; then
+		echo "$prog stopped."
+	    fi
+	done
+    elif [[ $cmd == autostart ]]; then
+	if ! auto_start; then
+	    echo "$NAME is not installed."
+	    exit 1
+	fi
+    elif [[ $cmd == autostop ]]; then
+	rm -fv $AUTDIR/$NAME.desktop
+    elif [[ $cmd == status ]]; then
+	if [[ -f $APPDIR/$NAME.desktop ]]; then
+	    echo "$NAME is installed."
+	else
+	    echo "$NAME is not installed."
+	fi
+	if [[ -f $AUTDIR/$NAME.desktop ]]; then
+	    echo "$NAME is set to autostart."
+	else
+	    echo "$NAME is not set to autostart."
+	fi
+	if pgrep -u $USER -f "$NAME\$|$NAME " &>/dev/null; then
+	    echo "$NAME is running."
+	else
+	    echo "$NAME is not running."
+	fi
+	if [[ -f $HCFDIR/$NAME.conf ]]; then
+	    echo "$NAME is using custom configuration."
+	else
+	    echo "$NAME is using default configuration."
+	fi
+    else
+	usage
+    fi
+}
+
+if [[ $cmd == install || $cmd == uninstall ]]; then
+    DESTDIR="${DESTDIR%%+(/)}"
+    if [[ -z $DESTDIR && $(id -un) != root ]]; then
+	echo "Install or uninstall must be run as sudo/root."
+	exit 1
+    fi
+
+    # Remove any old files from earlier versions of program
+    rm -f $DESTDIR$OCODIR/$NAME.png
+
+    if [[ $cmd == install ]]; then
+	install -CDv -m 755 -t $DESTDIR$BINDIR $NAME-setup
+	install -CDv -m 755 -t $DESTDIR$BINDIR $NAME
+	install -CDv -m 644 -t $DESTDIR$APPDIR $NAME.desktop
+	install -CDv -m 644 -t $DESTDIR$ICODIR $NAME.png
+	install -CDv -m 644 -t $DESTDIR$CNFDIR $NAME.conf
+	install -CDv -m 644 -t $DESTDIR$DOCDIR README.md
+
+	# Also install HTML file if markdown is available
+	if hash markdown &>/dev/null; then
+	    markdown -o $DESTDIR$DOCDIR/README.html README.md
+	fi
+    else
+	rm -rfv $DESTDIR$BINDIR/$NAME
+	rm -rfv $DESTDIR$APPDIR/$NAME.desktop
+	rm -rfv $DESTDIR$ICODIR/$NAME.png
+	rm -rfv $DESTDIR$CNFDIR/$NAME.conf
+	rm -rfv $DESTDIR$DOCDIR
+	rm -rfv $DESTDIR$BINDIR/$NAME-setup
+    fi
+
+    if [[ -z $DESTDIR ]]; then
+	if [[ -x /usr/bin/update-desktop-database ]]; then
+	    /usr/bin/update-desktop-database -q
+	fi
+	if [[ -x /usr/bin/gtk-update-icon-cache ]]; then
+	    /usr/bin/gtk-update-icon-cache $ICOBAS
+	fi
+    fi
+else
+    if [[ $(id -un) == root && $FORCEROOT == 0 ]]; then
+	echo "Non-installation commands must be run as your own user."
+	exit 1
+    fi
+
+    # Remove any old configuration from earlier versions of program
+    rm -fv ~/bin/$NAME 2>/dev/null
+    rm -fv ~/.local/bin/$NAME 2>/dev/null
+    rm -fv ~/.local/share/applications/$NAME.desktop 2>/dev/null
+    rm -fv ~/.local/share/icons/$NAME.png 2>/dev/null
+
+    # Look for and update any autostart file if it is a link or not
+    # pointing to the latest desktop entry. Apparently user autostart
+    # files should not be symlinks to system dir files.
+    if [[ -e $AUTDIR/$NAME.desktop ]]; then
+	if [[ -L $AUTDIR/$NAME.desktop ]]; then
+	    echo "Removed old $AUTDIR/$NAME.desktop link"
+	    rm -f $AUTDIR/$NAME.desktop
+	fi
+	auto_start
+    fi
+
+    if [[ $cmd == restart ]]; then
+	user_action "stop"
+	user_action "start"
+    else
+	user_action $cmd
+    fi
+fi
+
+exit 0

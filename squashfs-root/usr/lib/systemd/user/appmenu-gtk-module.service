@@ -1,0 +1,18 @@
+[Unit]
+Description=Appmenu GTK Module Environment variables
+After=dbus.service
+Before=gnome-session.service
+PartOf=graphical-session.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -ec '\
+        GTK_MODULES="{GTK_MODULES:+GTK_MODULES:}appmenu-gtk-module";\
+        /usr/bin/dbus-update-activation-environment --verbose --systemd GTK_MODULES'
+ExecStopPost=/bin/sh -ec '\
+        GTK_MODULES=(echo -n {GTK_MODULES} | /usr/bin/awk -v RS=: -v ORS=: "/^appmenu-gtk-module/ {next} {print}" | /usr/bin/sed -e "s/:*$//");\
+        /usr/bin/dbus-update-activation-environment --verbose --systemd GTK_MODULES'
+
+[Install]
+WantedBy=gnome-session.target mate-session.target

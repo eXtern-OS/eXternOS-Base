@@ -1,0 +1,11 @@
+QT.KGlobalAccel.VERSION = 5.64.0
+QT.KGlobalAccel.MAJOR_VERSION = 5
+QT.KGlobalAccel.MINOR_VERSION = 64
+QT.KGlobalAccel.PATCH_VERSION = 0
+QT.KGlobalAccel.name = KF5GlobalAccel
+QT.KGlobalAccel.module = KF5GlobalAccel
+QT.KGlobalAccel.defines = 
+QT.KGlobalAccel.includes = /usr/include/KF5/KGlobalAccel
+QT.KGlobalAccel.private_includes =
+QT.KGlobalAccel.libs = /usr/lib/x86_64-linux-gnu
+QT.KGlobalAccel.depends = dbus widgets

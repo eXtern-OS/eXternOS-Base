@@ -1,0 +1,59 @@
+#!/bin/sh -e
+#
+# helper for update-motd
+
+
+# poor mans force
+if [ "$1" = "--force" ]; then
+    NEED_UPDATE_CHECK=yes
+else
+    NEED_UPDATE_CHECK=no
+fi
+
+# check time when we did the last update check
+stamp="/var/lib/update-notifier/updates-available"
+
+# get list dir
+StateDir="/var/lib/apt/"
+ListDir="lists/"
+eval "$(apt-config shell StateDir Dir::State)"
+eval "$(apt-config shell ListDir Dir::State::Lists)"
+
+# get dpkg status file
+DpkgStatus="/var/lib/dpkg/status"
+eval "$(apt-config shell DpkgStatus Dir::State::status)"
+
+# get sources.list file
+EtcDir="etc/apt/"
+SourceList="sources.list"
+eval "$(apt-config shell EtcDir Dir::Etc)"
+eval "$(apt-config shell SourceList Dir::Etc::sourcelist)"
+
+# let the actual update be asynchronous to avoid stalling apt-get
+cleanup() { rm -f "$tmpfile"; }
+
+# check if we have a list file or sources.list that needs checking
+if [ -e "$stamp" ]; then
+    if [ "$(find "/$StateDir/$ListDir" "/$EtcDir/$SourceList" "/$DpkgStatus" -type f -newer "$stamp" -print -quit)" ]; then
+        NEED_UPDATE_CHECK=yes
+    fi
+else
+    if [ "$(find "/$StateDir/$ListDir" "/$EtcDir/$SourceList" -type f -print -quit)" ]; then
+        NEED_UPDATE_CHECK=yes
+    fi
+fi
+
+tmpfile=""
+trap cleanup EXIT
+tmpfile=$(mktemp -p $(dirname "$stamp"))
+
+# output something for update-motd
+if [ "$NEED_UPDATE_CHECK" = "yes" ]; then
+    {
+
+        echo ""
+        /usr/lib/update-notifier/apt-check --human-readable
+        echo ""
+    } > "$tmpfile"
+    mv "$tmpfile" "$stamp"
+fi
