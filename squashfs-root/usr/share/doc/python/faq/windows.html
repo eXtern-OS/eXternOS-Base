@@ -1,0 +1,912 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Python Windows FAQ</title>
+<meta name="date" content="2005-07-26" />
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 7614 2013-02-21 15:55:51Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title, .code .error {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math, pre.code {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+pre.code .ln { color: grey; } /* line numbers */
+pre.code, code { background-color: #eeeeee }
+pre.code .comment, code .comment { color: #5C6576 }
+pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
+pre.code .literal.string, code .literal.string { color: #0C5404 }
+pre.code .name.builtin, code .name.builtin { color: #352B84 }
+pre.code .deleted, code .deleted { background-color: #DEB0A1}
+pre.code .inserted, code .inserted { background-color: #A3D289}
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+/* "booktabs" style (no vertical lines) */
+table.docutils.booktabs {
+  border: 0px;
+  border-top: 2px solid;
+  border-bottom: 2px solid;
+  border-collapse: collapse;
+}
+table.docutils.booktabs * {
+  border: 0px;
+}
+table.docutils.booktabs th {
+  border-bottom: thin solid;
+  text-align: left;
+}
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="python-windows-faq">
+<h1 class="title">Python Windows FAQ</h1>
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr><th class="docinfo-name">Date:</th>
+<td>2005-07-26</td></tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>8295</td></tr>
+<tr class="field"><th class="docinfo-name">Web site:</th><td class="field-body"><a class="reference external" href="http://www.python.org/">http://www.python.org/</a></td>
+</tr>
+</tbody>
+</table>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="auto-toc simple">
+<li><a class="reference internal" href="#how-do-i-run-a-python-program-under-windows" id="id1">1&nbsp;&nbsp;&nbsp;How do I run a Python program under Windows?</a></li>
+<li><a class="reference internal" href="#how-do-i-make-python-scripts-executable" id="id2">2&nbsp;&nbsp;&nbsp;How do I make python scripts executable?</a></li>
+<li><a class="reference internal" href="#why-does-python-sometimes-take-so-long-to-start" id="id3">3&nbsp;&nbsp;&nbsp;Why does Python sometimes take so long to start?</a></li>
+<li><a class="reference internal" href="#where-is-freeze-for-windows" id="id4">4&nbsp;&nbsp;&nbsp;Where is Freeze for Windows?</a></li>
+<li><a class="reference internal" href="#is-a-pyd-file-the-same-as-a-dll" id="id5">5&nbsp;&nbsp;&nbsp;Is a <tt class="docutils literal">*.pyd</tt> file the same as a DLL?</a></li>
+<li><a class="reference internal" href="#how-can-i-embed-python-into-a-windows-application" id="id6">6&nbsp;&nbsp;&nbsp;How can I embed Python into a Windows application?</a></li>
+<li><a class="reference internal" href="#how-do-i-use-python-for-cgi" id="id7">7&nbsp;&nbsp;&nbsp;How do I use Python for CGI?</a></li>
+<li><a class="reference internal" href="#how-do-i-keep-editors-from-inserting-tabs-into-my-python-source" id="id8">8&nbsp;&nbsp;&nbsp;How do I keep editors from inserting tabs into my Python source?</a></li>
+<li><a class="reference internal" href="#how-do-i-check-for-a-keypress-without-blocking" id="id9">9&nbsp;&nbsp;&nbsp;How do I check for a keypress without blocking?</a></li>
+<li><a class="reference internal" href="#how-do-i-emulate-os-kill-in-windows" id="id10">10&nbsp;&nbsp;&nbsp;How do I emulate os.kill() in Windows?</a></li>
+<li><a class="reference internal" href="#why-does-os-path-isdir-fail-on-nt-shared-directories" id="id11">11&nbsp;&nbsp;&nbsp;Why does os.path.isdir() fail on NT shared directories?</a></li>
+<li><a class="reference internal" href="#cgi-py-or-other-cgi-programming-doesn-t-work-sometimes-on-nt-or-win95" id="id12">12&nbsp;&nbsp;&nbsp;cgi.py (or other CGI programming) doesn't work sometimes on NT or win95!</a></li>
+<li><a class="reference internal" href="#why-doesn-t-os-popen-work-in-pythonwin-on-nt" id="id13">13&nbsp;&nbsp;&nbsp;Why doesn't os.popen() work in PythonWin on NT?</a></li>
+<li><a class="reference internal" href="#why-doesn-t-os-popen-win32pipe-popen-work-on-win9x" id="id14">14&nbsp;&nbsp;&nbsp;Why doesn't os.popen()/win32pipe.popen() work on Win9x?</a></li>
+<li><a class="reference internal" href="#pyrun-simplefile-crashes-on-windows-but-not-on-unix-why" id="id15">15&nbsp;&nbsp;&nbsp;PyRun_SimpleFile() crashes on Windows but not on Unix; why?</a></li>
+<li><a class="reference internal" href="#importing-tkinter-fails-on-windows-95-98-why" id="id16">16&nbsp;&nbsp;&nbsp;Importing _tkinter fails on Windows 95/98: why?</a></li>
+<li><a class="reference internal" href="#how-do-i-extract-the-downloaded-documentation-on-windows" id="id17">17&nbsp;&nbsp;&nbsp;How do I extract the downloaded documentation on Windows?</a></li>
+<li><a class="reference internal" href="#missing-cw3215mt-dll-or-missing-cw3215-dll" id="id18">18&nbsp;&nbsp;&nbsp;Missing cw3215mt.dll (or missing cw3215.dll)</a></li>
+<li><a class="reference internal" href="#warning-about-ctl3d32-version-from-installer" id="id19">19&nbsp;&nbsp;&nbsp;Warning about CTL3D32 version from installer</a></li>
+</ul>
+</div>
+<div class="section" id="how-do-i-run-a-python-program-under-windows">
+<h1><a class="toc-backref" href="#id1">1&nbsp;&nbsp;&nbsp;How do I run a Python program under Windows?</a></h1>
+<p>This is not necessarily a straightforward question. If you are already
+familiar with running programs from the Windows command line then
+everything will seem obvious; otherwise, you might need a little more
+guidance. There are also differences between Windows 95, 98, NT, ME,
+2000 and XP which can add to the confusion.</p>
+<p>Unless you use some sort of integrated development environment,
+you will end up <em>typing</em> Windows commands into what is variously referred
+to as a &quot;DOS window&quot; or &quot;Command prompt window&quot;. Usually you can
+create such a window from your Start menu; under Windows 2000
+the menu selection is
+&quot;Start | Programs | Accessories | Command Prompt&quot;.  You should be
+able to recognize when you have started such a window because you will
+see a Windows &quot;command prompt&quot;, which usually looks like this:</p>
+<pre class="literal-block">
+C:\&gt;
+</pre>
+<p>The letter may be different, and there might be other things after it,
+so you might just as easily see something like:</p>
+<pre class="literal-block">
+D:\Steve\Projects\Python&gt;
+</pre>
+<p>depending on how your computer has been set up and what else you have
+recently done with it. Once you have started such a window, you are
+well on the way to running Python programs.</p>
+<p>You need to realize that your Python scripts have to be processed by
+another program called the Python interpreter. The
+interpreter reads your script, compiles it into bytecodes, and then executes the bytecodes to run your
+program. So, how do you arrange for the interpreter to handle your
+Python?</p>
+<p>First, you need to make sure that your command window recognises the
+word &quot;python&quot; as an instruction to start the interpreter. If you have
+opened a command window, you should try entering the command <tt class="docutils literal">python</tt>
+and hitting return.  You should then  see something like:</p>
+<pre class="literal-block">
+Python 2.2 (#28, Dec 21 2001, 12:21:22) [MSC 32 bit (Intel)] on win32
+Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
+&gt;&gt;&gt;
+</pre>
+<p>You have started the interpreter in &quot;interactive mode&quot;. That means you
+can enter Python statements or expressions interactively and have them
+executed or evaluated while you wait. This is one of Python's
+strongest features. Check it by entering a few expressions of your
+choice and seeing the results:</p>
+<pre class="literal-block">
+&gt;&gt;&gt; print &quot;Hello&quot;
+Hello
+&gt;&gt;&gt; &quot;Hello&quot; * 3
+HelloHelloHello
+</pre>
+<p>Many people use the interactive mode as a convenient yet highly
+programmable calculator.
+When you want to end your interactive Python session, hold the Ctrl
+key down while you enter a Z, then hit the &quot;Enter&quot; key to get back to
+your Windows command prompt.</p>
+<p>You may also find that you have a
+Start-menu entry such as &quot;Start | Programs | Python 2.2 | Python
+(command line)&quot; that results in you seeing the <tt class="docutils literal">&gt;&gt;&gt;</tt> prompt in a new
+window. If so, the window will disappear after you enter the
+Ctrl-Z character; Windows is running a single &quot;python&quot; command in the window,
+and closes it when you terminate the interpreter.</p>
+<p>If the <tt class="docutils literal">python</tt> command, instead of displaying the interpreter
+prompt <tt class="docutils literal">&gt;&gt;&gt;</tt>, gives you a message like:</p>
+<pre class="literal-block">
+'python' is not recognized as an internal or external command,
+operable program or batch file.
+</pre>
+<p>or:</p>
+<pre class="literal-block">
+Bad command or filename
+</pre>
+<p>then you need to make sure that your computer knows where to find the
+Python interpreter. To do this you will have to modify a setting
+called PATH, which is a list of directories where Windows
+will look for programs. You should arrange for Python's
+installation directory to be added to the PATH of every command window
+as it starts. If you installed Python fairly recently then the command</p>
+<pre class="literal-block">
+dir C:\py*
+</pre>
+<p>will probably tell you where it is installed; the usual location is
+something like <tt class="docutils literal"><span class="pre">C:\Python23</span></tt>.  Otherwise you will be reduced to a search of your
+whole disk ... use &quot;Tools | Find&quot;
+or hit the &quot;Search&quot; button and look for &quot;python.exe&quot;. Supposing you
+discover that Python is installed in the <tt class="docutils literal"><span class="pre">C:\Python23</span></tt> directory (the
+default at the time of writing), you should make sure that
+entering the command</p>
+<pre class="literal-block">
+c:\Python23\python
+</pre>
+<p>starts up the interpreter as above (and don't forget you'll need a
+&quot;CTRL-Z&quot; and an &quot;Enter&quot; to get out of it). Once you have verified the
+directory, you need to add it to the start-up routines your computer
+goes through.  For older versions of Windows the easiest way to do
+this is to edit the <tt class="docutils literal"><span class="pre">C:\AUTOEXEC.BAT</span></tt> file. You would want to add a line
+like the following to <tt class="docutils literal">AUTOEXEC.BAT</tt>:</p>
+<pre class="literal-block">
+PATH C:\Python23;%PATH%
+</pre>
+<p>For Windows NT, 2000 and (I assume) XP, you will need to add a string
+such as</p>
+<pre class="literal-block">
+;C:\Python23
+</pre>
+<p>to the current setting for the PATH environment variable, which you
+will find in the properties window of &quot;My Computer&quot; under the
+&quot;Advanced&quot; tab. Note that if you have sufficient privilege you might
+get a choice of installing the settings either for the Current User or
+for System. The latter is preferred if you want everybody to be able
+to run Python on the machine.</p>
+<p>If you aren't confident doing any of these manipulations yourself, ask
+for help!  At this stage you may want to reboot your system
+to make absolutely sure the new setting has taken effect. You probably
+won't need to reboot for Windows NT, XP or 2000. You can also avoid it in
+earlier versions by editing the file <tt class="docutils literal"><span class="pre">C:\WINDOWS\COMMAND\CMDINIT.BAT</span></tt>
+instead of <tt class="docutils literal">AUTOEXEC.BAT</tt>.</p>
+<p>You should now be able to start a new command window, enter <tt class="docutils literal">python</tt>
+at the <tt class="docutils literal">C:&gt;</tt> (or whatever) prompt, and see the <tt class="docutils literal">&gt;&gt;&gt;</tt> prompt that
+indicates the Python interpreter is reading interactive commands.</p>
+<p>Let's suppose you have a program called <tt class="docutils literal">pytest.py</tt> in directory
+<tt class="docutils literal"><span class="pre">C:\Steve\Projects\Python</span></tt>. A session to run that program might look
+like this:</p>
+<pre class="literal-block">
+C:\&gt; cd \Steve\Projects\Python
+C:\Steve\Projects\Python&gt; python pytest.py
+</pre>
+<p>Because you added a file name to the command to start the interpreter,
+when it starts up it reads the Python script in the named file,
+compiles it, executes it, and terminates, so you see another <tt class="docutils literal"><span class="pre">C:\&gt;</span></tt>
+prompt.  You might also have entered</p>
+<pre class="literal-block">
+C:\&gt; python \Steve\Projects\Python\pytest.py
+</pre>
+<p>if you hadn't wanted to change your current directory.</p>
+<p>Under NT, 2000 and XP you may well find that the installation process
+has also arranged that the command <tt class="docutils literal">pytest.py</tt>
+(or, if the file isn't in the current directory,
+<tt class="docutils literal"><span class="pre">C:\Steve\Projects\Python\pytest.py</span></tt>)
+will automatically recognize the &quot;.py&quot; extension and run the Python
+interpreter on the named file. Using this feature is fine, but <em>some</em>
+versions of Windows have bugs which mean that this form isn't exactly
+equivalent to using the interpreter explicitly, so be careful.</p>
+<p>The important things to remember are:</p>
+<ol class="arabic">
+<li><p class="first">Start Python from the Start Menu, or make sure the PATH is set
+correctly so Windows can find the Python interpreter.</p>
+<pre class="literal-block">
+python
+</pre>
+<p>should give you a '&gt;&gt;&gt;&quot; prompt from the Python interpreter. Don't
+forget the CTRL-Z and ENTER to terminate the interpreter (and, if you
+started the window from the Start Menu, make the window disappear).</p>
+</li>
+<li><p class="first">Once this works, you run programs with commands:</p>
+<pre class="literal-block">
+python {program-file}
+</pre>
+</li>
+<li><p class="first">When you know the commands to use you can build Windows shortcuts
+to run the Python interpreter on any of your scripts, naming
+particular working directories, and adding them to your menus.
+Take a look at</p>
+<pre class="literal-block">
+python --help
+</pre>
+<p>if your needs are complex.</p>
+</li>
+<li><p class="first">Interactive mode (where you see the <tt class="docutils literal">&gt;&gt;&gt;</tt> prompt) is best used
+for checking that individual statements and expressions do
+what you think they will, and for developing code by experiment.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="how-do-i-make-python-scripts-executable">
+<h1><a class="toc-backref" href="#id2">2&nbsp;&nbsp;&nbsp;How do I make python scripts executable?</a></h1>
+<p>On Windows 2000, the standard Python installer already associates the
+.py extension with a file type (Python.File) and gives that file type
+an open command that runs the interpreter (D:\Program
+Files\Python\python.exe &quot;%1&quot; %*).  This is enough to make scripts
+executable from the command prompt as 'foo.py'.  If you'd rather be
+able to execute the script by simple typing 'foo' with no extension
+you need to add .py to the PATHEXT environment variable.</p>
+<p>On Windows NT, the steps taken by the installer as described above
+allow you to run a script with 'foo.py', but a longtime bug in the NT
+command processor prevents you from redirecting the input or output of
+any script executed in this way.  This is often important.</p>
+<p>The incantation for making a Python script executable under WinNT
+is to give the file an extension of .cmd and add the following as the first
+line:</p>
+<pre class="literal-block">
+&#64;setlocal enableextensions &amp; python -x %~f0 %* &amp; goto :EOF
+</pre>
+</div>
+<div class="section" id="why-does-python-sometimes-take-so-long-to-start">
+<h1><a class="toc-backref" href="#id3">3&nbsp;&nbsp;&nbsp;Why does Python sometimes take so long to start?</a></h1>
+<p>Usually Python starts very quickly on Windows, but occasionally there
+are bug reports that Python suddenly begins to take a long time to
+start up.  This is made even more puzzling because Python will work fine
+on other Windows systems which appear to be configured identically.</p>
+<p>The problem may be caused by a misconfiguration of virus checking
+software on the problem machine.  Some virus scanners have been known
+to introduce startup overhead of two orders of magnitude when the
+scanner is configured to monitor all reads from the filesystem.  Try
+checking the configuration of virus scanning software on your systems
+to ensure that they are indeed configured identically.  McAfee, when
+configured to scan all file system read activity, is a particular
+offender.</p>
+</div>
+<div class="section" id="where-is-freeze-for-windows">
+<h1><a class="toc-backref" href="#id4">4&nbsp;&nbsp;&nbsp;Where is Freeze for Windows?</a></h1>
+<p>&quot;Freeze&quot; is a program that allows you to ship a Python program
+as a single stand-alone executable file.  It is <em>not</em> a compiler;
+your programs don't run any faster, but they are more easily
+distributable, at least to platforms with the same OS and CPU.  Read the
+README file of the freeze program for more disclaimers.</p>
+<p>You can use freeze on Windows, but you must download the source
+tree (see <a class="reference external" href="http://www.python.org/download/download_source.html">http://www.python.org/download/download_source.html</a>).
+The freeze program is in the <tt class="docutils literal">Tools\freeze</tt> subdirectory of the source
+tree.</p>
+<p>You need the Microsoft VC++ compiler, and you probably need to build
+Python.  The required project files are in the PCbuild directory.</p>
+</div>
+<div class="section" id="is-a-pyd-file-the-same-as-a-dll">
+<h1><a class="toc-backref" href="#id5">5&nbsp;&nbsp;&nbsp;Is a <tt class="docutils literal">*.pyd</tt> file the same as a DLL?</a></h1>
+<p>Yes, .pyd files are dll's, but there are a few differences.  If you
+have a DLL named <tt class="docutils literal">foo.pyd</tt>, then it must have a function initfoo().  You
+can then write Python &quot;import foo&quot;, and Python will search for foo.pyd
+(as well as foo.py, foo.pyc) and if it finds it, will attempt to call
+initfoo() to initialize it.  You do not link your .exe with foo.lib,
+as that would cause Windows to require the DLL to be present.</p>
+<p>Note that the search path for foo.pyd is PYTHONPATH, not the same as
+the path that Windows uses to search for foo.dll.  Also, foo.pyd need
+not be present to run your program, whereas if you linked your program
+with a dll, the dll is required.  Of course, foo.pyd is required if
+you want to say &quot;import foo&quot;.  In a DLL, linkage is declared in the
+source code with __declspec(dllexport).  In a .pyd, linkage is defined
+in a list of available functions.</p>
+</div>
+<div class="section" id="how-can-i-embed-python-into-a-windows-application">
+<h1><a class="toc-backref" href="#id6">6&nbsp;&nbsp;&nbsp;How can I embed Python into a Windows application?</a></h1>
+<p>Embedding the Python interpreter in a Windows app can be summarized as
+follows:</p>
+<ol class="arabic">
+<li><p class="first">Do _not_ build Python into your .exe file directly.  On Windows,
+Python must be a DLL to handle importing modules that are themselves
+DLL's.  (This is the first key undocumented fact.) Instead, link to
+pythonNN.dll; it is typically installed in <tt class="docutils literal"><span class="pre">C:\Windows\System</span></tt>.
+NN is the Python version, a number such as &quot;23&quot; for Python 2.3.</p>
+<p>You can link to Python statically or dynamically.  Linking
+statically means linking against pythonNN.lib, while dynamically
+linking means linking against pythonNN.dll.  The drawback to
+dynamic linking is that your app won't run if pythonNN.dll does not
+exist on your system.
+(General note: pythonNN.lib is the so-called &quot;import lib&quot; corresponding
+to python.dll.  It merely defines symbols for the linker.)</p>
+<p>Linking dynamically greatly simplifies link options; everything happens
+at run time.  Your code must load pythonNN.dll using the Windows
+LoadLibraryEx() routine.  The code must also use access routines and
+data in pythonNN.dll (that is, Python's C API's) using pointers
+obtained by the Windows GetProcAddress() routine.  Macros can make
+using these pointers transparent to any C code that calls routines in
+Python's C API.</p>
+<p>Borland note: convert pythonNN.lib to OMF format using Coff2Omf.exe
+first.</p>
+</li>
+<li><p class="first">If you use SWIG, it is easy to create a Python &quot;extension module&quot;
+that will make the app's data and methods available to Python.  SWIG
+will handle just about all the grungy details for you.  The result is C
+code that you link <em>into</em> your .exe file (!)  You do _not_ have to
+create a DLL file, and this also simplifies linking.</p>
+</li>
+<li><p class="first">SWIG will create an init function (a C function) whose name depends
+on the name of the extension module.  For example, if the name of the
+module is leo, the init function will be called initleo().  If you use
+SWIG shadow classes, as you should, the init function will be called
+initleoc().  This initializes a mostly hidden helper class used by the
+shadow class.</p>
+<p>The reason you can link the C code in step 2 into your .exe file is that
+calling the initialization function is equivalent to importing the
+module into Python! (This is the second key undocumented fact.)</p>
+</li>
+<li><p class="first">In short, you can use the following code to initialize the Python
+interpreter with your extension module.</p>
+<pre class="literal-block">
+#include &quot;python.h&quot;
+...
+Py_Initialize();  // Initialize Python.
+initmyAppc();  // Initialize (import) the helper class.
+PyRun_SimpleString(&quot;import myApp&quot;) ;  // Import the shadow class.
+</pre>
+</li>
+<li><p class="first">There are two problems with Python's C API which will become apparent
+if you use a compiler other than MSVC, the compiler used to build
+pythonNN.dll.</p>
+<p>Problem 1: The so-called &quot;Very High Level&quot; functions that take FILE *
+arguments will not work in a multi-compiler environment because each compiler's
+notion of a struct FILE will be different.  From an implementation
+standpoint these are very _low_ level functions.</p>
+<p>Problem 2: SWIG generates the following code when generating wrappers to
+void functions:</p>
+<pre class="literal-block">
+Py_INCREF(Py_None);
+_resultobj = Py_None;
+return _resultobj;
+</pre>
+<p>Alas, Py_None is a macro that expands to a reference to a complex data
+structure called _Py_NoneStruct inside pythonNN.dll.  Again, this code
+will fail in a mult-compiler environment.  Replace such code by:</p>
+<pre class="literal-block">
+return Py_BuildValue(&quot;&quot;);
+</pre>
+<p>It may be possible to use SWIG's %typemap command to make the change
+automatically, though I have not been able to get this to work (I'm a
+complete SWIG newbie).</p>
+</li>
+<li><p class="first">Using a Python shell script to put up a Python interpreter window
+from inside your Windows app is not a good idea; the resulting window
+will be independent of your app's windowing system.  Rather, you (or the
+wxPythonWindow class) should create a &quot;native&quot; interpreter window.  It
+is easy to connect that window to the Python interpreter.  You can
+redirect Python's i/o to _any_ object that supports read and write, so
+all you need is a Python object (defined in your extension module) that
+contains read() and write() methods.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="how-do-i-use-python-for-cgi">
+<h1><a class="toc-backref" href="#id7">7&nbsp;&nbsp;&nbsp;How do I use Python for CGI?</a></h1>
+<p>On the Microsoft IIS server or on the Win95 MS Personal Web Server you
+set up Python in the same way that you would set up any other
+scripting engine.</p>
+<p>Run regedt32 and go to:</p>
+<pre class="literal-block">
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\ScriptMap
+</pre>
+<p>and enter the following line (making any specific changes that your system may need):</p>
+<pre class="literal-block">
+.py :REG_SZ: c:\&lt;path to python&gt;\python.exe -u %s %s
+</pre>
+<p>This line will allow you to call your script with a simple reference like:
+<a class="reference external" href="http://yourserver/scripts/yourscript.py">http://yourserver/scripts/yourscript.py</a>
+provided &quot;scripts&quot; is an &quot;executable&quot; directory for your server (which
+it usually is by default).
+The &quot;-u&quot; flag specifies unbuffered and binary mode for stdin - needed when working with binary data.</p>
+<p>In addition, it is recommended that using
+&quot;.py&quot; may not be a good idea for the file extensions when used in this
+context (you might want to reserve <tt class="docutils literal">*.py</tt> for support modules and
+use <tt class="docutils literal">*.cgi</tt> or <tt class="docutils literal">*.cgp</tt> for &quot;main program&quot; scripts).</p>
+<p>In order to set up Internet Information Services 5 to use Python for CGI processing, please see the following links:</p>
+<blockquote>
+<a class="reference external" href="http://www.e-coli.net/pyiis_server.html">http://www.e-coli.net/pyiis_server.html</a> (for Win2k Server)
+<a class="reference external" href="http://www.e-coli.net/pyiis.html">http://www.e-coli.net/pyiis.html</a> (for Win2k pro)</blockquote>
+<p>Configuring Apache is much simpler.
+In the Apache configuration file <tt class="docutils literal">httpd.conf</tt>, add the following line at
+the end of the file:</p>
+<pre class="literal-block">
+ScriptInterpreterSource Registry
+</pre>
+<p>Then, give your Python CGI-scripts the extension .py and put them in the cgi-bin directory.</p>
+</div>
+<div class="section" id="how-do-i-keep-editors-from-inserting-tabs-into-my-python-source">
+<h1><a class="toc-backref" href="#id8">8&nbsp;&nbsp;&nbsp;How do I keep editors from inserting tabs into my Python source?</a></h1>
+<p>The FAQ does not recommend using tabs, and <a class="reference external" href="http://www.python.org/peps/pep-0008.html">the Python style guide</a>
+recommends 4 spaces for distributed Python code; this is also the
+Emacs python-mode default.</p>
+<p>Under any editor, mixing tabs and spaces is a bad idea.  MSVC is no
+different in this respect, and is easily configured to use spaces:
+Take Tools -&gt; Options -&gt; Tabs, and for file type &quot;Default&quot; set &quot;Tab
+size&quot; and &quot;Indent size&quot; to 4, and select the &quot;Insert spaces&quot; radio
+button.</p>
+<p>If you suspect mixed tabs and spaces are causing problems in leading
+whitespace, run Python with the -t switch or run
+<tt class="docutils literal">Tools/Scripts/tabnanny.py</tt> to check a directory tree in batch mode.</p>
+</div>
+<div class="section" id="how-do-i-check-for-a-keypress-without-blocking">
+<h1><a class="toc-backref" href="#id9">9&nbsp;&nbsp;&nbsp;How do I check for a keypress without blocking?</a></h1>
+<p>Use the msvcrt module.  This is a standard Windows-specific extension
+module.  It defines a function kbhit() which checks whether a keyboard
+hit is present, and getch() which gets one character without echoing
+it.</p>
+</div>
+<div class="section" id="how-do-i-emulate-os-kill-in-windows">
+<h1><a class="toc-backref" href="#id10">10&nbsp;&nbsp;&nbsp;How do I emulate os.kill() in Windows?</a></h1>
+<p>Use win32api:</p>
+<pre class="literal-block">
+def kill(pid):
+    &quot;&quot;&quot;kill function for Win32&quot;&quot;&quot;
+    import win32api
+    handle = win32api.OpenProcess(1, 0, pid)
+    return (0 != win32api.TerminateProcess(handle, 0))
+</pre>
+</div>
+<div class="section" id="why-does-os-path-isdir-fail-on-nt-shared-directories">
+<h1><a class="toc-backref" href="#id11">11&nbsp;&nbsp;&nbsp;Why does os.path.isdir() fail on NT shared directories?</a></h1>
+<p>The solution appears to be always append the &quot;\&quot; on
+the end of shared drives.</p>
+<pre class="literal-block">
+&gt;&gt;&gt; import os
+&gt;&gt;&gt; os.path.isdir( '\\\\rorschach\\public')
+0
+&gt;&gt;&gt; os.path.isdir( '\\\\rorschach\\public\\')
+1
+</pre>
+<p>It helps to think of share points as being like drive letters.
+Example:</p>
+<pre class="literal-block">
+k: is not a directory
+k:\ is a directory
+k:\media is a directory
+k:\media\ is not a directory
+</pre>
+<p>The same rules apply if you substitute &quot;k:&quot; with &quot;\conkyfoo&quot;:</p>
+<pre class="literal-block">
+\\conky\foo  is not a directory
+\\conky\foo\ is a directory
+\\conky\foo\media is a directory
+\\conky\foo\media\ is not a directory
+</pre>
+</div>
+<div class="section" id="cgi-py-or-other-cgi-programming-doesn-t-work-sometimes-on-nt-or-win95">
+<h1><a class="toc-backref" href="#id12">12&nbsp;&nbsp;&nbsp;cgi.py (or other CGI programming) doesn't work sometimes on NT or win95!</a></h1>
+<p>Be sure you have the latest python.exe, that you are using
+python.exe rather than a GUI version of Python and that you
+have configured the server to execute</p>
+<pre class="literal-block">
+&quot;...\python.exe -u ...&quot;
+</pre>
+<p>for the CGI execution.  The -u (unbuffered) option on NT and
+Win95 prevents the interpreter from altering newlines in the
+standard input and output.  Without it post/multipart requests
+will seem to have the wrong length and binary (e.g. GIF)
+responses may get garbled (resulting in broken images, PDF files,
+and other binary downloads failing).</p>
+</div>
+<div class="section" id="why-doesn-t-os-popen-work-in-pythonwin-on-nt">
+<h1><a class="toc-backref" href="#id13">13&nbsp;&nbsp;&nbsp;Why doesn't os.popen() work in PythonWin on NT?</a></h1>
+<p>The reason that os.popen() doesn't work from within PythonWin is due
+to a bug in Microsoft's C Runtime Library (CRT). The CRT assumes you
+have a Win32 console attached to the process.</p>
+<p>You should use the win32pipe module's popen() instead which doesn't
+depend on having an attached Win32 console.</p>
+<p>Example:</p>
+<pre class="literal-block">
+import win32pipe
+f = win32pipe.popen('dir /c c:\\')
+print f.readlines()
+f.close()
+</pre>
+</div>
+<div class="section" id="why-doesn-t-os-popen-win32pipe-popen-work-on-win9x">
+<h1><a class="toc-backref" href="#id14">14&nbsp;&nbsp;&nbsp;Why doesn't os.popen()/win32pipe.popen() work on Win9x?</a></h1>
+<p>There is a bug in Win9x that prevents os.popen/win32pipe.popen* from
+working. The good news is there is a way to work around this problem.
+The Microsoft Knowledge Base article that you need to lookup is:
+Q150956. You will find links to the knowledge base at:
+<a class="reference external" href="http://www.microsoft.com/kb">http://www.microsoft.com/kb</a>.</p>
+</div>
+<div class="section" id="pyrun-simplefile-crashes-on-windows-but-not-on-unix-why">
+<h1><a class="toc-backref" href="#id15">15&nbsp;&nbsp;&nbsp;PyRun_SimpleFile() crashes on Windows but not on Unix; why?</a></h1>
+<p>This is very sensitive to the compiler vendor, version and (perhaps)
+even options.  If the FILE* structure in your embedding program isn't
+the same as is assumed by the Python interpreter it won't work.</p>
+<p>The Python 1.5.* DLLs (<tt class="docutils literal">python15.dll</tt>) are all compiled
+with MS VC++ 5.0 and with multithreading-DLL options (<tt class="docutils literal">/MD</tt>).</p>
+<p>If you can't change compilers or flags, try using Py_RunSimpleString().
+A trick to get it to run an arbitrary file is to construct a call to
+execfile() with the name of your file as argument.</p>
+<p>Also note that you can not mix-and-match Debug and Release versions.  If you
+wish to use the Debug Multithreaded DLL, then your module _must_ have an
+&quot;_d&quot; appended to the base name.</p>
+</div>
+<div class="section" id="importing-tkinter-fails-on-windows-95-98-why">
+<h1><a class="toc-backref" href="#id16">16&nbsp;&nbsp;&nbsp;Importing _tkinter fails on Windows 95/98: why?</a></h1>
+<p>Sometimes, the import of _tkinter fails on Windows 95 or 98,
+complaining with a message like the following:</p>
+<pre class="literal-block">
+ImportError: DLL load failed: One of the library files needed
+to run this application cannot be found.
+</pre>
+<p>It could be that you haven't installed Tcl/Tk, but if you did
+install Tcl/Tk, and the Wish application works correctly,
+the problem may be that its installer didn't
+manage to edit the autoexec.bat file correctly.  It tries to add a
+statement that changes the PATH environment variable to include
+the Tcl/Tk 'bin' subdirectory, but sometimes this edit doesn't
+quite work.  Opening it with notepad usually reveals what the
+problem is.</p>
+<p>(One additional hint, noted by David Szafranski: you can't use
+long filenames here; e.g. use <tt class="docutils literal"><span class="pre">C:\PROGRA~1\Tcl\bin</span></tt> instead of
+<tt class="docutils literal"><span class="pre">C:\Program</span> Files\Tcl\bin</tt>.)</p>
+</div>
+<div class="section" id="how-do-i-extract-the-downloaded-documentation-on-windows">
+<h1><a class="toc-backref" href="#id17">17&nbsp;&nbsp;&nbsp;How do I extract the downloaded documentation on Windows?</a></h1>
+<p>Sometimes, when you download the documentation package to a Windows
+machine using a web browser, the file extension of the saved file
+ends up being .EXE.  This is a mistake; the extension should be .TGZ.</p>
+<p>Simply rename the downloaded file to have the .TGZ extension, and
+WinZip will be able to handle it.  (If your copy of WinZip doesn't,
+get a newer one from <a class="reference external" href="http://www.winzip.com">http://www.winzip.com</a>.)</p>
+</div>
+<div class="section" id="missing-cw3215mt-dll-or-missing-cw3215-dll">
+<h1><a class="toc-backref" href="#id18">18&nbsp;&nbsp;&nbsp;Missing cw3215mt.dll (or missing cw3215.dll)</a></h1>
+<p>Sometimes, when using Tkinter on Windows, you get an error that
+cw3215mt.dll or cw3215.dll is missing.</p>
+<p>Cause: you have an old Tcl/Tk DLL built with cygwin in your path
+(probably <tt class="docutils literal"><span class="pre">C:\Windows</span></tt>).  You must use the Tcl/Tk DLLs from the
+standard Tcl/Tk installation (Python 1.5.2 comes with one).</p>
+</div>
+<div class="section" id="warning-about-ctl3d32-version-from-installer">
+<h1><a class="toc-backref" href="#id19">19&nbsp;&nbsp;&nbsp;Warning about CTL3D32 version from installer</a></h1>
+<p>The Python installer issues a warning like this:</p>
+<pre class="literal-block">
+This version uses ``CTL3D32.DLL`` whitch is not the correct version.
+This version is used for windows NT applications only.
+</pre>
+<p>[Tim Peters]
+This is a Microsoft DLL, and a notorious
+source of problems.  The message means what it says:  you have the wrong version
+of this DLL for your operating system.  The Python installation did not
+cause this -- something else you installed previous to this overwrote the
+DLL that came with your OS (probably older shareware of some sort, but
+there's no way to tell now).  If you search for &quot;CTL3D32&quot; using any search
+engine (AltaVista, for example), you'll find hundreds and hundreds of web
+pages complaining about the same problem with all sorts of installation
+programs.  They'll point you to ways to get the correct version reinstalled
+on your system (since Python doesn't cause this, we can't fix it).</p>
+<p>David A Burton has written a little program to fix this.  Go to
+<a class="reference external" href="http://www.burtonsys.com/download.html">http://www.burtonsys.com/download.html</a> and click on &quot;ctl3dfix.zip&quot;</p>
+</div>
+</div>
+</body>
+</html>

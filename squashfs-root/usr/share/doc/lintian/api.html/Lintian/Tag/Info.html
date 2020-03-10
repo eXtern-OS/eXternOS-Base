@@ -1,0 +1,234 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Tag::Info</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#CLASS_METHODS'>CLASS METHODS</a>
+  <li class='indexItem indexItem1'><a href='#INSTANCE_METHODS'>INSTANCE METHODS</a>
+  <li class='indexItem indexItem1'><a href='#DIAGNOSTICS'>DIAGNOSTICS</a>
+  <li class='indexItem indexItem1'><a href='#FILES'>FILES</a>
+  <li class='indexItem indexItem1'><a href='#ENVIRONMENT'>ENVIRONMENT</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Tag::Info - Lintian interface to tag metadata</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre>    my $cs = Lintian::CheckScript-&#62;new (&#34;$ENV{&#39;LINTIAN_ROOT&#39;}/checks/&#34;,
+                                        &#39;files&#39;);
+    my $tag_info = $cs-&#62;get_tag (&#39;some-tag&#39;);
+    print &#34;Tag info is:\n&#34;;
+    print $tag_info-&#62;description(&#39;text&#39;, &#39;   &#39;);
+    print &#34;\nTag info in HTML is:\n&#34;;
+    print $tag_info-&#62;description(&#39;html&#39;, &#39;   &#39;);</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>This module provides an interface to tag metadata as gleaned from the *.desc files describing the checks. It can be used to retrieve specific metadata elements or to format the tag description.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS_METHODS"
+>CLASS METHODS</a></h1>
+
+<dl>
+<dt><a name="new(HASH,_SCRIPT_NAME,_SCRIPT_TYPE)"
+>new(HASH, SCRIPT_NAME, SCRIPT_TYPE)</a></dt>
+
+<dd>
+<p>Creates a new Lintian::Tag:Info.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="INSTANCE_METHODS"
+>INSTANCE METHODS</a></h1>
+
+<dl>
+<dt><a name="certainty()"
+>certainty()</a></dt>
+
+<dd>
+<p>Returns the certainty of the tag.</p>
+
+<dt><a name="code()"
+>code()</a></dt>
+
+<dd>
+<p>Returns the one-letter code for the tag. This will be a letter chosen from <code>E</code>, <code>W</code>, <code>I</code>, or <code>P</code>, based on the tag severity, certainty, and other attributes (such as whether experimental is set). This code will never be <code>O</code> or <code>X</code>; overrides and experimental tags are handled separately.</p>
+
+<dt><a name="description([FORMAT_[,_INDENT]])"
+>description([FORMAT [, INDENT]])</a></dt>
+
+<dd>
+<p>Returns the formatted description (the Info field) for a tag. FORMAT must be either <code>text</code> or <code>html</code> and defaults to <code>text</code> if no format is specified. If <code>text</code>, returns wrapped paragraphs formatted in plain text with a right margin matching the Text::Wrap default, preserving as verbatim paragraphs that begin with whitespace. If <code>html</code>, return paragraphs formatted in HTML.</p>
+
+<p>If INDENT is specified, the string INDENT is prepended to each line of the formatted output.</p>
+
+<dt><a name="experimental()"
+>experimental()</a></dt>
+
+<dd>
+<p>Returns true if this tag is experimental, false otherwise.</p>
+
+<dt><a name="severity([$real])"
+>severity([$real])</a></dt>
+
+<dd>
+<p>Returns the severity of the tag; if $real is a truth value the real (original) severity is returned, otherwise the effective severity is returned.</p>
+
+<p>See set_severity()</p>
+
+<dt><a name="set_severity($severity)"
+>set_severity($severity)</a></dt>
+
+<dd>
+<p>Modifies the effective severity of the tag.</p>
+
+<dt><a name="script()"
+>script()</a></dt>
+
+<dd>
+<p>Returns the check script corresponding to this tag.</p>
+
+<dt><a name="sources()"
+>sources()</a></dt>
+
+<dd>
+<p>Returns, as a list, the keywords for the sources of this tag from the references header. This is only the top-level source, not any more-specific section or chapter.</p>
+
+<dt><a name="tag()"
+>tag()</a></dt>
+
+<dd>
+<p>Returns the tag name.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DIAGNOSTICS"
+>DIAGNOSTICS</a></h1>
+
+<p>The following exceptions may be thrown:</p>
+
+<dl>
+<dt><a name="no_tag_specified"
+>no tag specified</a></dt>
+
+<dd>
+<p>The Lintian::Tag::Info::new constructor was called without passing a tag as an argument.</p>
+
+<dt><a name="unknown_output_format_%s"
+>unknown output format %s</a></dt>
+
+<dd>
+<p>An unknown output format was passed as the FORMAT argument of description(). FORMAT must be either <code>text</code> or <code>html</code>.</p>
+</dd>
+</dl>
+
+<p>The following fatal internal errors may be reported:</p>
+
+<dl>
+<dt><a name="can&#39;t_open_%s:_%s"
+>can&#39;t open %s: %s</a></dt>
+
+<dd>
+<p>The specified file, which should be part of the standard Lintian data files, could not be opened. The file may be missing or have the wrong permissions.</p>
+
+<dt><a name="missing_Check-Script_field_in_%s"
+>missing Check-Script field in %s</a></dt>
+
+<dd>
+<p>The specified check description file has no Check-Script field in its header section. This probably indicates the file doesn&#39;t exist or has some significant formatting error.</p>
+
+<dt><a name="missing_Tag_field_in_%s"
+>missing Tag field in %s</a></dt>
+
+<dd>
+<p>The specified check description file has a tag section that has no Tag field.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="FILES"
+>FILES</a></h1>
+
+<dl>
+<dt><a name="LINTIAN_ROOT/checks/*.desc"
+>LINTIAN_ROOT/checks/*.desc</a></dt>
+
+<dd>
+<p>The tag description files, from which tag metadata is read. All files matching this shell glob expression will be read looking for tag data.</p>
+
+<dt><a name="LINTIAN_ROOT/data/output/manual-references"
+>LINTIAN_ROOT/data/output/manual-references</a></dt>
+
+<dd>
+<p>Information about manual references. Each non-comment, non-empty line of this file contains four fields separated by <code>::</code>. The first field is the name of the manual, the second field is the section or empty for data about the whole manual, the third field is the title, and the fourth field is the URL. The URL is optional.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="ENVIRONMENT"
+>ENVIRONMENT</a></h1>
+
+<dl>
+<dt><a name="LINTIAN_ROOT"
+>LINTIAN_ROOT</a></dt>
+
+<dd>
+<p>This variable specifies Lintian&#39;s root directory. It defaults to <em>/usr/share/lintian</em> if not set. The <b>lintian</b> program normally takes care of setting it.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Russ Allbery &#60;rra@debian.org&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1)</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

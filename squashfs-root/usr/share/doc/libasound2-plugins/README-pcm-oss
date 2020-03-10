@@ -1,0 +1,33 @@
+OSS <--> ALSA PCM plugin
+========================
+
+This plugin converts the ALSA API over OSS API.  With this plugin,
+ALSA native apps can run on OSS drivers.
+
+This plugin provides the PCM type "oss".  The typical configuration
+looks like below:
+
+	pcm.oss {
+		type oss
+		device /dev/dsp
+	}
+
+Put the above to ~/.asoundrc (or /etc/asound.conf), and use "oss" PCM
+with your ALSA apps.  For example,
+
+	% aplay -Doss foo.wav
+
+For playing arbitrary formats, you should use "plug" layer together,
+
+	% aplay -Dplug:oss foo.wav
+
+The oss plugin can have an option: device.  This specifies the device
+file path of OSS to open.  If not given, /dev/dsp is used.
+
+The function supported by this plugin is limited.  For example, you
+cannot use dmix together with this plugin.  Don't expect too much :)
+
+The plugin is installed in /usr/lib/alsa-lib directory as default,
+which is the default search path of additional plugins for alsa-lib.
+On a 64bit system like x86-64, the proper prefix option (typically,
+--prefix=/usr/lib64) must be given to configure script.

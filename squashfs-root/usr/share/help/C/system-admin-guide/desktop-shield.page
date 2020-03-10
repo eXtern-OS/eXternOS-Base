@@ -1,0 +1,80 @@
+<page  xmlns="http://projectmallard.org/1.0/"
+       xmlns:its="http://www.w3.org/2005/11/its"
+       type="topic" style="task"
+       id="desktop-shield">
+
+  <info>
+    <link type="guide" xref="appearance" />
+
+    <revision pkgversion="3.22" date="2017-01-09" status="draft" />
+
+    <credit type="author copyright">
+      <name>Matthias Clasen</name>
+      <email its:translate="no">matthias.clasen@gmail.com</email>
+      <years>2012</years>
+    </credit>
+    <credit type="author copyright">
+      <name>Michael Hill</name>
+      <email its:translate="no">mdhillca@gmail.com</email>
+      <years>2012</years>
+    </credit>
+    <credit type="editor">
+      <name>Jana Svarova</name>
+      <email its:translate="no">jana.svarova@gmail.com</email>
+      <years>2013</years>
+    </credit>
+    <credit type="editor">
+      <name>Petr Kovar</name>
+      <email its:translate="no">pknbe@volny.cz</email>
+      <years>2017</years>
+    </credit>
+
+    <include href="legal.xml" xmlns="http://www.w3.org/2001/XInclude"/>
+
+    <desc>Change the background of the lock screen shield.</desc>
+  </info>
+
+  <title>Change the lock screen shield</title>
+
+  <p>The <em>lock screen shield</em> is the screen that quickly slides down when
+  the system is locked. The background of the lock screen shield is controlled by
+  the <sys>org.gnome.desktop.screensaver.picture-uri</sys> GSettings key. Since
+  <sys>GDM</sys> uses its own <sys>dconf</sys> profile, you can set the default
+  background by changing the settings in that profile.</p>
+
+<steps>
+  <title>Set the org.gnome.desktop.screensaver.picture-uri key</title>
+  <include href="dconf-snippets.xml"
+      xpointer="xpointer(/*/*[@xml:id='dconf-profile-gdm'])"
+      xmlns="http://www.w3.org/2001/XInclude"/>
+  <item><p>Create a <sys>gdm</sys> database for machine-wide settings in
+  <file>/etc/dconf/db/gdm.d/<var>01-screensaver</var></file>:</p>
+  <code>[org/gnome/desktop/screensaver]
+picture-uri='file://<var>/opt/corp/background.jpg</var>'</code>
+  <p>Replace <var>/opt/corp/background.jpg</var> with the path to
+  the image file you want to use as the lock screen background.</p>
+  <p>Supported formats are PNG, JPG, JPEG, and TGA. The image will be scaled if
+  necessary to fit the screen.</p>
+  </item>
+  <include href="dconf-snippets.xml"
+      xpointer="xpointer(/*/*[@xml:id='dconf-update'])"
+      xmlns="http://www.w3.org/2001/XInclude"/>
+  <item><p>You must log out before the system-wide settings take effect.</p>
+  </item>
+</steps>
+
+<p>Next time you lock the screen, the new lock screen shield will show in the
+background. In the foreground, time, date and the current day of the week will
+be displayed.</p>
+
+<section id="troubleshooting-background">
+  <title>What if the background does not update?</title>
+
+  <p>Make sure that you have run the <cmd its:translate="no">dconf update</cmd>
+  command to update the system databases.</p>
+
+  <p>In case the background does not update, try restarting <sys>GDM</sys>.
+  <!-- For more information see <link xref="gdm-restart" />.--></p>
+</section>
+
+</page>

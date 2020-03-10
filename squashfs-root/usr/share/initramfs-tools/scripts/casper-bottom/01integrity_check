@@ -1,0 +1,22 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+if grep -q integrity-check /proc/cmdline; then
+	casper-md5check /cdrom /cdrom/md5sum.txt < /dev/tty8 > /dev/tty8
+	reboot
+	while :; do sleep 60; done
+fi

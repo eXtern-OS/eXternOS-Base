@@ -1,0 +1,124 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      type="topic" style="task"
+      id="logout-automatic">
+
+  <info>
+    <link type="guide" xref="login#management" />
+<!--    <link type="seealso" xref="dconf-profiles" />-->
+    <link type="seealso" xref="dconf-lockdown" />
+    <link type="seealso" xref="login-automatic" />
+
+    <revision pkgversion="3.12" date="2014-06-18" status="review"/>
+
+    <credit type="author copyright">
+      <name>Ekaterina Gerasimova</name>
+      <email>kittykat3756@gmail.com</email>
+      <years>2013</years>
+    </credit>
+
+    <credit type="editor">
+      <name>Petr Kovar</name>
+      <email>pknbe@volny.cz</email>
+      <years>2014</years>
+    </credit>
+
+    <include href="legal.xml" xmlns="http://www.w3.org/2001/XInclude"/>
+
+    <desc>End an idle user session.</desc>
+
+  </info>
+
+  <title>Configure automatic logout</title>
+
+  <p>User sessions that have been idle for a specific period of time can be
+  ended automatically. You can set different behaviour based on whether the
+  machine is running from a battery or from mains power by setting the
+  corresponding <sys its:translate="no">dconf</sys> key, then locking it.</p>
+
+  <note style="warning">
+    <p>Keep in mind that users can potentially lose unsaved data if an idle
+    session is automatically ended.</p>
+  </note>
+
+  <steps>
+    <title>Set automatic logout for a mains powered machine</title>
+    <include href="dconf-snippets.xml"
+             xpointer="xpointer(/*/*[@xml:id='dconf-profile-user'])"
+             xmlns="http://www.w3.org/2001/XInclude"/>
+    <include href="dconf-snippets.xml"
+             xpointer="xpointer(/*/*[@xml:id='dconf-profile-user-dir'])"
+             xmlns="http://www.w3.org/2001/XInclude"/>
+    <item>
+      <p>Create a <code>local</code> database for machine-wide settings in
+      <file>/etc/dconf/db/local.d/00-autologout</file>:</p>
+      <listing>
+        <code>
+[org/gnome/settings-daemon/plugins/power]
+# Set the timeout to 900 seconds when on mains power
+sleep-inactive-ac-timeout=900
+# Set action after timeout to be logout when on mains power
+sleep-inactive-ac-type='logout'
+</code>
+      </listing>
+    </item>
+    <item>
+      <p>Override the user's setting and prevent the user from changing it in
+      <file>/etc/dconf/db/local.d/locks/autologout</file>:</p>
+      <listing>
+        <code>
+# Lock automatic logout settings
+/org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-timeout
+/org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type
+</code>
+</listing>
+    </item>
+    <include href="dconf-snippets.xml"
+      xpointer="xpointer(/*/*[@xml:id='dconf-update'])"
+      xmlns="http://www.w3.org/2001/XInclude"/>
+    <include href="dconf-snippets.xml"
+             xpointer="xpointer(/*/*[@xml:id='dconf-logoutin'])"
+             xmlns="http://www.w3.org/2001/XInclude"/>
+  </steps>
+
+  <!-- There will shortly be a way to get key descriptions using gsettings, we
+       should recommend this instead of listing the terms here. See
+       https://bugzilla.gnome.org/show_bug.cgi?id=668232 -->
+  <p>The following GSettings keys are of interest:</p>
+  <terms>
+    <item>
+      <title><code>org.gnome.settings-daemon.plugins.power.sleep-inactive-ac-timeout</code></title>
+      <p>The number of seconds that the computer needs to be inactive before it
+      goes to sleep if it is running from AC power.</p>
+    </item>
+    <item>
+      <title><code>org.gnome.settings-daemon.plugins.power.sleep-inactive-ac-type</code></title>
+      <p>What should happen when the timeout has passed if the computer is
+      running from AC power.</p>
+    </item>
+    <item>
+      <title><code>org.gnome.settings-daemon.plugins.power.sleep-inactive-battery-timeout</code></title>
+      <p>The number of seconds that the computer needs to be inactive before it
+      goes to sleep if it is running from battery power.</p>
+    </item>
+    <item>
+      <title><code>org.gnome.settings-daemon.plugins.power.sleep-inactive-battery-type</code></title>
+      <p>What should happen when the timeout has passed if the computer is
+      running from battery power.</p>
+    </item>
+  </terms>
+
+  <p>You can run <cmd>gsettings range</cmd> on a key for a list of values which
+  you can use. For example: </p>
+  
+  <screen>$ <input>gsettings range org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type</input>
+enum
+'blank' # blanks the screen
+'suspend' # suspends the system
+'shutdown' # starts a standard shutdown procedure
+'hibernate' # hibernates the system
+'interactive' # shows a pop-up query asking the user what to do
+'nothing' # does nothing
+'logout' # log out from the session</screen>
+
+</page>

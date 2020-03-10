@@ -1,0 +1,545 @@
+<!DOCTYPE node PUBLIC
+"-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node name="/" xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+  <interface name='org.freedesktop.fwupd'>
+    <doc:doc>
+      <doc:description>
+        <doc:para>
+          The interface used for quering firmware for the system.
+        </doc:para>
+      </doc:description>
+    </doc:doc>
+
+    <!--***********************************************************-->
+    <property name='DaemonVersion' type='s' access='read'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            The daemon version.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </property>
+
+    <!--***********************************************************-->
+    <property name='Status' type='u' access='read'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            The daemon status, e.g. <doc:tt>decompressing</doc:tt>.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </property>
+
+    <!--***********************************************************-->
+    <property name='Percentage' type='u' access='read'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            The job percentage completion, or 0 for unknown.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </property>
+
+    <!--***********************************************************-->
+    <method name='GetDevices'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Gets a list of all the devices that are supported.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg type='aa{sv}' name='devices' direction='out'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>An array of devices, with any properties set on each.</doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+
+    <!--***********************************************************-->
+    <method name='GetReleases'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Gets a list of all the releases for a specific device.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg type='s' name='device_id' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              A device ID.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg type='aa{sv}' name='releases' direction='out'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              An array of releases (with the release number as the key),
+              with any properties set on each.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+
+    <!--***********************************************************-->
+    <method name='GetDowngrades'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Gets a list of all the downgrades possible for a specific device.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg type='s' name='device_id' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              A device ID.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg type='aa{sv}' name='releases' direction='out'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              An array of releases (with the release number as the key),
+              with any properties set on each.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+
+    <!--***********************************************************-->
+    <method name='GetUpgrades'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Gets a list of all the upgrades possible for a specific device.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg type='s' name='device_id' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              A device ID.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg type='aa{sv}' name='releases' direction='out'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              An array of releases (with the release number as the key),
+              with any properties set on each.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+
+    <!--***********************************************************-->
+    <method name='GetDetails'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Gets details about a local firmware file.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg type='h' name='handle' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              An index into the array of file descriptors that may have
+              been sent with the DBus message.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg type='aa{sv}' name='results' direction='out'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>An array of results, with any properties set on each.</doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+
+    <!--***********************************************************-->
+    <method name='GetHistory'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Gets a list of all the past firmware updates.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg type='aa{sv}' name='devices' direction='out'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>An array of devices, with any properties set on each.</doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+
+    <!--***********************************************************-->
+    <method name='Install'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Schedules a firmware to be installed.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg type='s' name='id' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              An ID, typically a GUID of the hardware to update, or the string
+              <doc:tt>*</doc:tt> to match any applicable hardware.</doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg type='h' name='handle' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              An index into the array of file descriptors that may have
+              been sent with the DBus message.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg type='a{sv}' name='options' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              Options to be used when constructing the profile, e.g.
+              <doc:tt>offline=True</doc:tt>.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+
+    <!--***********************************************************-->
+    <method name='Verify'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Verifies firmware on a device by reading it back and performing
+            a cryptographic hash, typically SHA1.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg type='s' name='id' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              An ID, typically a GUID of the hardware.</doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+
+    <!--***********************************************************-->
+    <method name='VerifyUpdate'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Updates the cryptographic hash stored for a device.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg type='s' name='id' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              An ID, typically a GUID of the hardware.</doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+
+    <!--***********************************************************-->
+    <method name='Unlock'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Unlock the device to allow firmware access.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg type='s' name='id' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              An ID, typically a GUID of the hardware.</doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+
+    <!--***********************************************************-->
+    <method name='GetResults'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Gets the results of an offline update.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg type='s' name='id' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              An ID, typically a GUID of the hardware that was updated, or the
+              string <doc:tt>*</doc:tt> to match any hardware.</doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg type='a{sv}' name='results' direction='out'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>Results about the update, e.g. <doc:tt>success=True</doc:tt></doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+
+    <!--***********************************************************-->
+    <method name='GetRemotes'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Gets the list of remotes.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg type='aa{sv}' name='results' direction='out'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>The array remotes, with properties</doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+
+    <!--***********************************************************-->
+    <method name='ClearResults'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Clears the results of an offline update.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg type='s' name='id' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              An ID, typically a GUID of the hardware that was updated, or the
+              string <doc:tt>*</doc:tt> to match any hardware.</doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+
+    <!--***********************************************************-->
+    <method name='ModifyDevice'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Modifies a remote in some way.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg type='s' name='device_id' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              A device ID, or the string <doc:tt>*</doc:tt> to match any hardware.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg type='s' name='key' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              The key, e.g. 'Flags'.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg type='s' name='value' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              The value of the correct type, e.g. a URL.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+
+    <!--***********************************************************-->
+    <method name='UpdateMetadata'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Adds AppStream resource information from a session client.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg type='s' name='remote_id' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              Remote ID to tag the metadata objects with, e.g. 'lvfs-testing'.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg type='h' name='data' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              File handle to AppStream metadata.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg type='h' name='signature' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              File handle to AppStream metadata GPG signature.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+
+    <!--***********************************************************-->
+    <method name='ModifyRemote'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Modifies a remote in some way.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg type='s' name='remote_id' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              Remote ID, e.g. 'lvfs-testing'.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg type='s' name='key' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              The key, e.g. 'Enabled'.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg type='s' name='value' direction='in'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              The value of the correct type, e.g. a URL.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+
+    <!--***********************************************************-->
+    <signal name='Changed'>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Some value on the interface or the number of devices or
+            profiles has changed.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </signal>
+
+    <!--***********************************************************-->
+    <signal name='DeviceAdded'>
+      <arg type='a{sv}' name='device' direction='out'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>A device structure.</doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            A device has been added.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </signal>
+
+    <!--***********************************************************-->
+    <signal name='DeviceRemoved'>
+      <arg type='a{sv}' name='device' direction='out'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>A device structure.</doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            A device has been removed.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </signal>
+
+    <!--***********************************************************-->
+    <signal name='DeviceChanged'>
+      <arg type='a{sv}' name='device' direction='out'>
+        <doc:doc>
+          <doc:summary>
+            <doc:para>A device structure.</doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            A device has been changed.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </signal>
+
+  </interface>
+</node>

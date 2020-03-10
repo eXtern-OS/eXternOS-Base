@@ -1,0 +1,89 @@
+#!/usr/bin/perl -w
+# override-file -- lintian collector script
+
+# Copyright (C) 1999 by Darren Benham
+# Derived from debian-readme by Richard Braakman
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, you can find it on the World Wide
+# Web at http://www.gnu.org/copyleft/gpl.html, or write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+
+package Lintian::coll::override_file;
+
+no lib '.';
+
+use strict;
+use warnings;
+use autodie;
+
+use lib "$ENV{'LINTIAN_ROOT'}/lib";
+use Lintian::Util qw(internal_error gunzip_file is_ancestor_of);
+
+sub collect {
+    my ($pkg, $type, $dir) = @_;
+
+    -d "$dir/unpacked"
+      or internal_error('override-file invoked with wrong dir argument');
+
+    if (-e "$dir/override"){
+        unlink("$dir/override");
+    }
+
+    # Pick the first of these files that exists.  Prefer
+    # source/lintian-overrides to source.lintian-overrides for source
+    # packages.
+    my (@overrides, $file);
+    if ($type eq 'source') {
+        @overrides = (
+            "$dir/unpacked/debian/source/lintian-overrides",
+            "$dir/unpacked/debian/source.lintian-overrides"
+        );
+    } else {
+        @overrides = ("$dir/unpacked/usr/share/lintian/overrides/$pkg");
+    }
+    for my $override (@overrides) {
+        if (-f $override) {
+            $file = $override;
+        } elsif (-f "$override.gz") {
+            $file = "$override.gz";
+        }
+        last if $file;
+    }
+
+    if (defined $file and not is_ancestor_of("$dir/unpacked", $file)) {
+        # unsafe, pretend we didn't see it.
+        undef $file;
+    }
+
+    if (not defined $file) {
+        # no override found
+    } elsif ($file =~ /\.gz$/) {
+        gunzip_file($file, "$dir/override");
+    } else {
+        link($file, "$dir/override");
+    }
+
+    return;
+}
+
+collect(@ARGV) if $0 =~ m,(?:^|/)override-file$,;
+
+1;
+
+# Local Variables:
+# indent-tabs-mode: nil
+# cperl-indent-level: 4
+# End:
+# vim: syntax=perl sw=4 sts=4 sr et

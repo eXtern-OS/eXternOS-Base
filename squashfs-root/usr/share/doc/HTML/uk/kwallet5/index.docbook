@@ -1,0 +1,805 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN" "dtd/kdedbx45.dtd" [
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Ukrainian "INCLUDE">
+]>
+
+<book id="kwallet5" lang="&language;">
+<bookinfo>
+<title
+>Підручник з &kwallet5;</title>
+
+<authorgroup>
+<author
+>&George.Staikos; &George.Staikos.mail; </author>
+<author
+>&Lauri.Watts; &Lauri.Watts.mail; </author>
+<othercredit role="developer"
+><firstname
+>George</firstname
+><surname
+>Staikos</surname
+> <affiliation
+><address
+>&George.Staikos.mail;</address
+></affiliation>
+<contrib
+>Розробник</contrib>
+</othercredit>
+<othercredit role="translator"
+><firstname
+>Юрій</firstname
+><surname
+>Чорноіван</surname
+><affiliation
+><address
+><email
+>yurchor@ukr.net</email
+></address
+></affiliation
+><contrib
+>Переклад українською</contrib
+></othercredit
+> 
+</authorgroup>
+
+<legalnotice
+>&FDLNotice;</legalnotice>
+
+<date
+>5 липня 2016 року</date>
+<releaseinfo
+>Програми 16.04</releaseinfo>
+
+<abstract>
+<para
+>Підсистема сховищ паролів є зручним і безпечним способом керування вашими паролями.</para>
+
+</abstract>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>Kwallet</keyword>
+<keyword
+>паролі</keyword>
+<keyword
+>форми</keyword>
+</keywordset>
+
+</bookinfo>
+
+<chapter id="introduction">
+<title
+>Вступ</title>
+
+<para
+>Під керуванням користувачів комп’ютера знаходиться великий об’єм даних, деякі з них є конфіденційними. Зокрема, зазвичай, у вас має бути досить багато паролів. Запам’ятати їх важко, записувати їх на папері або у текстовому файлі небезпечно.</para>
+
+<para
+>За допомогою &kwallet5; ви можете у безпечний спосіб зберігати паролі та інші конфіденційні дані. Для доступу до цих даних вам знадобиться лише один пароль, вам не доведеться запам’ятовувати безліч паролів та інших реєстраційних даних, якими ви користуєтеся. </para>
+
+<sect1 id="kwallet-create">
+
+<title
+>Створення сховища паролів (торбинки)</title>
+
+<para
+>Торбинка — це сховище паролів. Зазвичай, достатньо одного сховища паролів, захищеного основним паролем, але ви можете упорядкувати власну збірку паролів за торбинками за допомогою &kwalletmanager5;.</para>
+
+<para
+>Типово, для зберігання ваших паролів буде використано торбинку із назвою <guilabel
+>kdewallet</guilabel
+>. Цю торбинку захищено паролем до вашого облікового запису. Програма автоматично відкриватиме її під час входу до системи, якщо встановлено і належним чином налаштовано kwallet_pam. У деяких дистрибутивах (наприклад у Archlinux) типово kwallet_pam не встановлено.</para>
+
+
+<para
+>Інші торбинки має бути відкрито вручну.</para>
+
+<para
+>Створити нове сховище паролів можна у два способи:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Скористатися пунктом меню <menuchoice
+><guimenu
+>Файл</guimenu
+><guimenuitem
+>Нова торбинка</guimenuitem
+></menuchoice
+> у вікні програми &kwalletmanager5;.</para
+></listitem>
+
+<listitem
+><para
+>Скористатися кнопкою <guibutton
+>Створити</guibutton
+> у модулі <guilabel
+>Торбинки KDE</guilabel
+> програми «Системні параметри».</para
+></listitem>
+</itemizedlist>
+
+<para
+>Якщо ви ще не створили жодної торбинки з паролями, див. розділ щодо <link linkend="kwallet-using"
+>користування &kwallet5;</link
+>. </para>
+
+<para
+>У &kwallet5; передбачено два різних способи зберігання ваших даних:</para>
+
+<screenshot>
+<screeninfo
+>Вибір шифрування</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="wallet-encryption-selection.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Вибір шифрування</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<variablelist>
+
+<varlistentry>
+<term
+>Шифрування Blowfish</term>
+<listitem>
+<para
+>&kwallet5; зберігає ваші конфіденційні дані у файлі, зашифрованому за допомогою потужного шифрування, дані з файла доступні всім програмам і захищені головним паролем, який визначаєте ви.</para>
+
+<screenshot>
+<screeninfo
+>Створення торбинки з шифруванням Blowfish</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="first-open-request.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Створення торбинки з шифруванням Blowfish</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Дані буде зашифровано за допомогою <ulink url="http://www.schneier.com/blowfish.html"
+>алгоритму шифрування симетричними блоками Blowfish</ulink
+>, ключ шифрування буде визначено за <ulink url="http://www.ietf.org/rfc/rfc3174.txt"
+>хешем SHA-1</ulink
+> пароля, буде використано 156-бітовий (20-байтовий) ключ. Дані у файлі торбинки зберігатимуться як хеш SHA-1 і перевірятимуться перед дешифруванням та наданням доступу програмам. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+>Шифрування GPG</term>
+<listitem>
+<para
+>За допомогою GnuPG ви можете скористатися потужними алгоритмами шифрування і захистити дані міцними ключами, доступ до яких можна отримати лише вказавши пароль.</para>
+
+<screenshot>
+<screeninfo
+>Ключа GPG не знайдено</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="error-nokey.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Ключа GPG не знайдено</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+<para
+>На наведених вище знімках вікон показано випадок, коли у системі не було знайдено придатного для шифрування ключа GPG. Будь ласка, скористайтеся для створення ключа програмами, подібними до &kgpg; або &kleopatra; і повторіть спробу.</para>
+
+<para
+>Якщо програмі вдалося знайти ключ GPG, нею буде показано наведене наступне діалогове вікно, за допомогою якого ви зможете вибрати ключ, який буде використано для вашої нової торбинки. </para>
+<screenshot>
+<screeninfo
+>Вибір ключа шифрування</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="key-selection.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Вибір ключа шифрування</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Після того, як буде вибрано ключ, &kwallet5; використовуватиме для збереження торбинок та їхнього відкриття GPG. Діалогове вікно введення пароля буде показано лише один раз. Навіть якщо торбинку буде закрито після початкового відкриття, наступні відкриття протягом одного сеансу роботи відбуватимуться без потреби у введенні пароля. </para>
+
+<para
+>Протягом того самого сеансу роботи можна працювати одночасно з файлами торбинок у різних форматах. &kwallet5; автоматично визначить формат файла і завантажить належний модуль для його обробки.</para>
+
+<para
+>Щоб скористатися вашими конфіденційними даними з класичної торбинки для паролів за допомогою нового модуля обробки, виконайте такі дії:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Створіть торбинку з шифруванням GPG.</para
+></listitem>
+<listitem
+><para
+>Запустіть &kwalletmanager5; за допомогою &krunner; (комбінація клавіш <keycombo
+>&Alt; <keycap
+>F2</keycap
+></keycombo
+>) або іншого засобу запуску програм (меню) і виберіть стару торбинку, потім скористайтеся пунктом меню <menuchoice
+><guimenu
+>Файл</guimenu
+> <guimenuitem
+>Експортувати шифроване</guimenuitem
+></menuchoice
+> для створення файла архіву з конфіденційними даними. </para
+></listitem>
+<listitem
+><para
+>Виберіть нову засновану на GPG торбинку, потім скористайтеся пунктом меню <menuchoice
+><guimenu
+>Файл</guimenu
+> <guimenuitem
+>Імпортувати зашифроване</guimenuitem
+></menuchoice
+> і виберіть збережений вами файл.</para>
+</listitem>
+
+<listitem
+><para
+>Відкрийте вікно програми «Системні параметри» і виберіть пункт <menuchoice
+><guimenu
+>Параметри облікового запису</guimenu
+> <guimenuitem
+>Торбинки KDE</guimenuitem
+></menuchoice
+>, потім виберіть створену торбинку GPG у спадному списку <guilabel
+>Типово використовувати торбинку</guilabel
+>. </para
+></listitem>
+</itemizedlist>
+
+<para
+>Крім того, можна скористатися пунктом <guimenuitem
+>Імпортувати торбинку</guimenuitem
+>, але у цьому випадку вам доведеться вибрати файл <filename class="extension"
+>.kwl</filename
+>, що відповідає вашій старій торбинці, що зберігається у теці <filename class="directory"
+>kwalletd</filename
+> каталогу, адресу якого можна визначити за допомогою команди <userinput
+>qtpaths --paths GenericDataLocation</userinput
+>. </para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+<tip>
+<para
+>&kwallet5; підтримує декілька торбинок, отже, для забезпечення найвищого рівня безпеки, вам слід використовувати одну торбинку для локальних паролів, а іншу для мережевих паролів і даних форм. Таку поведінку можна налаштувати у модулі Системних параметрів, що відповідає за &kwallet5;, за типових же налаштувань програма зберігатиме всі дані у одній торбинці з назвою <guilabel
+>kdewallet</guilabel
+>.</para>
+</tip>
+
+<para
+>Типово торбинку закрито, це означає, що вам слід вказати пароль для того, щоб її відкрити. Після того, як торбинку буде відкрито, будь-який з процесів користувача зможе прочитати її вміст. Наслідком цього може бути зниження рівня захищеності системи.</para>
+</sect1>
+
+<sect1 id="kwallet-using">
+<title
+>Користування &kwallet5;</title>
+
+<para
+>Якщо ви відвідаєте, наприклад, службу стеження за вадами &kde; і введете ваші реєстраційні дані вперше, програма відкриє діалогове вікно, у якому запропонує вам зберегти пароль у зашифрованій торбинці:</para>
+
+<screenshot>
+<screeninfo
+>Запит на збереження реєстраційних відомостей</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="save-login-information.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Запит на збереження реєстраційних відомостей</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Якщо ви бажаєте зберегти ці відомості, натисніть кнопку <guibutton
+>Зберегти</guibutton
+>. У випадку, якщо вами ще не було створено торбинки, у наступному діалоговому вікні програма попросить вас вибрати модуль шифрування і створить торбинку з назвою kdewallet. </para>
+
+<para
+>Наступного відвідання вами цього вебсайта програма отримає реєстраційні дані з відкритої торбинки і автоматично заповнить поля форми цими даними.</para>
+
+<screenshot>
+<screeninfo
+>Автоматично заповнені дані щодо реєстрації</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="prefilled-forms.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Автоматично заповнені дані щодо реєстрації</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Якщо торбинку закрито, програма надішле запит на відкриття торбинки. Введіть пароль торбинки і натисніть кнопку <guibutton
+>Відкрити</guibutton
+>.</para>
+
+<screenshot>
+<screeninfo
+>Запит на відкриття торбинки</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="openwallet-request.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Запит на відкриття торбинки</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Після цього програму буде з’єднано з торбинкою, що дасть їй змогу прочитати реєстраційні дані з торбинки і відновити реєстраційні відомості для потрібного вебсайта. Після з’єднання програми з торбинкою програма автоматично отримає доступ до всіх реєстраційних відомостей, які зберігаються у торбинці.</para>
+
+</sect1>
+
+</chapter>
+
+<chapter id="kwalletmanager5">
+<title
+>&kwalletmanager5;</title>
+
+<para
+>&kwalletmanager5; призначено для виконання декількох завдань. По-перше, він надає вам змогу бачити, чи відкрито якусь з торбинок, які саме торбинки відкрито і які програми використовують кожну з торбинок. За допомогою &kwalletmanager5; ви можете скасувати для програми дозвіл на доступ до торбинки.</para>
+
+<para
+>За його допомогою ви також можете керувати торбинками, встановленими у системі, створювати і вилучати торбинки, а також працювати з їх вмістом (змінювати ключі тощо).</para>
+
+<para
+>Запустити програму &kwalletmanager5; можна за допомогою пункту <menuchoice
+> <guimenu
+>Програми</guimenu
+> <guisubmenu
+>Інструменти</guisubmenu
+> <guisubmenu
+>Системні утиліти</guisubmenu
+><guimenuitem
+>Засіб керування торбинками</guimenuitem
+></menuchoice
+>. Крім того, ви можете запустити &krunner; за допомогою клавіатурного скорочення <keycombo action="simul"
+>&Alt;<keycap
+>F2</keycap
+></keycombo
+>, а потім ввести <command
+>kwalletmanager5</command
+>.</para>
+
+<para
+>Якщо навести вказівник миші на піктограму торбинки у системному лотку і клацнути лівою кнопкою миші, буде показано вікно керування торбинками паролів &kde;.</para>
+<para>
+<screenshot>
+<screeninfo
+>Головне вікно з однією торбинкою</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwalletmanager.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Головне вікно з однією торбинкою</phrase>
+</textobject>
+<caption
+><para
+>Головне вікно з однією торбинкою</para
+></caption>
+</mediaobject>
+</screenshot>
+</para>
+
+<!--FIXME
+How to get assistant "First Use"? kwalletwizardpageintro.ui
+Last code change with http://websvn.kde.org/?view=revision&revision=882694
+see also https://bugs.kde.org/show_bug.cgi?id=290309
+-->
+<sect1 id="kwalletmanager-wallet-window">
+<title
+>Вікно торбинки</title>
+
+<para
+>Якщо вами було створено декілька торбинок, усі створені торбинки буде показано ліворуч.</para>
+
+<para
+>Наведення вказівника миші на торбинку у вікні засобу керування торбинками &kde; з наступним клацанням лівою кнопкою миші відкриє вікно, у якому буде показано стан торбинки і вміст відкритої торбинки. Кожна торбинка може містити довільну кількість тек, у яких зберігатиметься інформацію про паролі. Типово, у торбинці міститься дві теки з назвами Form Data (дані форм) і Passwords (паролі). </para>
+
+<screenshot>
+<screeninfo
+>Головне вікно з двома торбинками</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-edit.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Головне вікно з двома торбинками</phrase>
+</textobject>
+<caption
+><para
+>Головне вікно з двома торбинками</para
+></caption>
+</mediaobject>
+</screenshot>
+<para
+>Натисніть кнопку <guibutton
+>Відкрити</guibutton
+>, щоб переглянути вміст закритої торбинки. Програма попросить вас ввести основний пароль торбинки.</para>
+
+<sect2>
+<title
+>Вкладка «Вміст»</title>
+
+<para
+>Вкладку <guilabel
+>Вміст</guilabel
+> поділено на три розділи:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Рядка пошуку, призначеного для фільтрування записів у поточній торбинці</para
+></listitem>
+<listitem
+><para
+>Деревоподібний перегляд тек, що містяться у торбинці. Натискання символів <guiicon
+>&gt;</guiicon
+> / <guiicon
+>v</guiicon
+> призведе до розгортання або згортання гілок дерева.</para
+></listitem>
+<listitem
+><para
+>Вміст позначеного запису теки буде показано праворуч. Типово пароль та значення буде приховано. Щоб наказати програмі показувати та отримати доступ до редагування записів позначте пункт <guilabel
+>Показувати значення</guilabel
+> або натисніть кнопку <guilabel
+>Показати вміст</guilabel
+>. </para
+></listitem>
+</itemizedlist>
+
+<para
+>Теки можна додавати або вилучати за допомогою контекстного меню. Вибір теки призводить до показу її списку записів і резюме. Вибір запису у теці призводить до показу вмісту на панелі вмісту записів і надає вам змогу змінювати запис.</para>
+
+<para
+>Записи також можна створювати, перейменовувати і вилучати за допомогою контекстного меню вмісту теки.</para>
+
+<para
+>Всі теки і записи можна перетягувати і скидати у інші торбинки або теки, відповідно. Ця можливість надає вам змогу легко пакувати нові торбинки для перенесення до іншого середовища. Наприклад, можна створити нову торбинку і скопіювати її не портативний пристрій з флеш-пам’яттю. На такий пристрій можна перенести важливі паролі так, щоб ви мали до них доступ, коли працюватимете за іншими комп’ютерами.</para>
+
+<sect3 id="kwallet-import-export">
+<title
+>Імпортування та експортування</title>
+<para
+>Якщо вам потрібно перенести ваші паролі на інший пристрій або комп’ютер, скористайтеся пунктами дій з меню <guimenu
+>Файл</guimenu
+>. За допомогою пункту <guimenuitem
+>Експортувати шифроване</guimenuitem
+> можна експортувати торбинки у форматі шифрованого файла архіву. Під час імпортування такого файла архіву за допомогою пункту меню <guimenuitem
+>Імпортувати зашифроване</guimenuitem
+> вам доведеться ввести головний пароль торбинки. </para>
+<para
+>Крім того, файлом <filename class="extension"
+>.xml</filename
+> можна скористатися для перенесення торбинки. Пам’ятайте, що паролі у цьому файлі зберігаються у форматі нешифрованого тексту. </para>
+</sect3>
+
+<sect3 id="kwallet-adding-entries">
+<title
+>Додавання записів вручну</title>
+<para
+>Відкрийте контекстне меню за допомогою клацання правою кнопкою миші на пункті <guilabel
+>Карти</guilabel
+> або <guilabel
+>Паролі</guilabel
+> у ієрархічному списку <guilabel
+>Тека</guilabel
+>. Виберіть у меню пункт <guimenuitem
+>Створити</guimenuitem
+> або <guimenuitem
+>Створити теку</guimenuitem
+> і вкажіть назву нового запису.</para>
+<para
+>На панелі вмісту тек виберіть у контекстному меню пункт <guilabel
+>Створити теку</guilabel
+> пунктів «Дані форми» або «Паролі». Для паролів натисніть кнопку <guilabel
+>Показати вміст</guilabel
+> і введіть новий пароль. Для карт вам слід додати <guilabel
+>Ключ</guilabel
+> і <guilabel
+>Значення</guilabel
+>. Натисніть кнопку <guilabel
+>Зберегти</guilabel
+>, щоб зберегти нові записи у зашифрованому файлі торбинки. </para>
+</sect3>
+</sect2>
+
+<sect2>
+<title
+>Вкладка «Програми»</title>
+<para>
+<screenshot>
+<screeninfo
+>Вкладка «Програми»</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-applications.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Вкладка «Програми»</phrase>
+</textobject>
+<caption
+><para
+>Вкладка «Програми»</para
+></caption>
+</mediaobject>
+</screenshot>
+</para>
+<para
+>У першому списку буде показано список усіх програм, пов’язаних з позначеною торбинкою. Скористайтеся кнопкою праворуч від кожного з пунктів для від’єднання відповідної програми від торбинки.</para>
+
+<para
+>У другому списку буде показано усі програми, яким відкрито доступ до цієї торбинки. Натисніть кнопку праворуч від пункту у списку, щоб відкликати доступ. </para>
+<!-- FIXME difference to remove the policy in kwallermanager settings dialog?-->
+</sect2>
+</sect1>
+
+</chapter>
+
+<chapter id="kwallet-kcontrol-module">
+<title
+>Як налаштувати &kwallet5;</title>
+
+<sect1 id="wallet-preferences">
+<title
+>Параметри торбинок</title>
+
+<para
+>У &kwallet5; є невеличка панель налаштування, на якій розташовано декілька параметрів, які надають вам змогу підлаштувати &kwallet5; для ваших особистих потреб. Але більшості користувачів вистачає і типових параметрів &kwallet5;.</para>
+
+<para
+>Залиште позначку у цьому полі, щоб повністю увімкнути підсистему торбинки &kde;. Якщо позначки у цьому полі не буде, &kwallet5; буде повністю вимкнено і всі інші параметри ні на що не впливатимуть, &kwallet5; не вестиме запис інформації і не заповнюватиме для вас форми.</para>
+
+<variablelist>
+<title
+><guilabel
+>Замикання торбинки</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Замикати, якщо не використовується більше, ніж:</guilabel
+></term>
+<listitem>
+<para
+>Замкнути поточну торбинку після вказаного періоду відсутності активності. Якщо ви бажаєте позначити цей параметр, вам слід також вказати тривалість періоду, типовою є тривалість у 10 хвилин. Якщо торбинку буде замкнено, для доступу до неї слід буде знову ввести пароль.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Замикати при запуску зберігача екрана</guilabel
+></term>
+<listitem>
+<para
+>Замикати торбинку після запуску зберігача екрана. Після замикання торбинки слід буде знову ввести пароль, щоб знову її відкрити.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Замикати, коли остання програма припинить використання</guilabel
+></term>
+<listitem>
+<para
+>Замикати торбинку після того, як виконання всіх програм, що нею користувалися буде завершено. Зверніть увагу на те, що ваші торбинки буде замкнено, лише якщо буде зупинено виконання всіх програм, які ними користуються. Після замикання торбинки слід буде знову ввести пароль, щоб знову її відкрити.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title
+><guilabel
+>Автоматичний вибір торбинки</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Типово використовувати торбинку:</guilabel
+></term>
+<listitem>
+<para
+>Виберіть торбинку, яку слід використовувати типово. Будь ласка, зверніть увагу на те, що автоматично під час входу до системи буде відкрито лише торбинку <guilabel
+>kdewallet</guilabel
+>, якщо пароль до неї збігається із паролем до вашого облікового запису. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Окрема торбинка для локальних паролів:</guilabel
+></term>
+<listitem>
+<para
+>Якщо позначено цей параметр, слід буде обрати окрему торбинку для локальних паролів.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title
+><guilabel
+>Менеджер торбинок</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Відображати менеджер у системному лотку</guilabel
+></term>
+<listitem>
+<para
+>Увімкнути показ піктограми засобу керування паролями у системному лотку.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Ховати піктограму при замиканні останньої відкритої торбинки</guilabel
+></term>
+<listitem>
+<para
+>Якщо більше не використовується жодної з торбинок, вилучити піктограму торбинки з системного лотка.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Ну, і нарешті, там є кнопка з написом <guibutton
+>Запустити менеджер торбинок</guibutton
+>, її натискання призводить саме до тої дії, про яку говорить напис на кнопці.</para>
+<para
+>Цю кнопку можна буде побачити, лише якщо не запущено &kwalletmanager5;.</para>
+</sect1>
+
+<sect1 id="wallet-access-control">
+<title
+>Керування доступом</title>
+
+<para
+>На цій сторінці є лише один параметр:</para>
+
+<variablelist>
+<varlistentry>
+<term
+><guilabel
+>Просити підтвердження, коли програма звертається до торбинки</guilabel
+></term>
+<listitem>
+<para
+>Повідомляти вас, коли програма намагається отримати доступ до торбинки.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Під цим параметром розташовано графічне представлення ієрархічного дерева керування доступом до ваших торбинок.</para>
+
+<screenshot>
+<screeninfo
+>Керування доступом</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-access-control.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Керування доступом</phrase>
+</textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Наведення вказівника миші на символ <guiicon
+>&gt;</guiicon
+> з наступним клацанням лівою кнопкою розгортає дерево. У цьому дереві ви побачите назви всіх програм, які надіслали запит на доступ до торбинки і правила, які ви для них встановили. Змінювати правила безпосередньо у ієрархічному списку не можна, але можна вилучати записи наведенням вказівника миші на запис з наступним клацанням правою кнопкою миші і вибором пункту <guimenuitem
+>Вилучити</guimenuitem
+> з контекстного меню, що з’явиться, або простим вибором запису і натисканням клавіші <keycap
+>Del</keycap
+>.</para>
+
+<para
+>Програмі, якій було надано доступ до торбинки, буде надано доступ до всіх паролів, що зберігаються у торбинці.</para>
+
+<para
+>Якщо ви помилково налаштували якусь програму на використання програми для керування сховищами паролів, вилучіть на цій сторінці правила для цієї програми.</para>
+<!-- FIXME difference to Revoke Authorization in kwallermanager?-->
+<para
+>Під час наступного запуску цієї програми ви зможете визначити нові правила доступу до торбинки. </para>
+<screenshot>
+<screeninfo
+>Запит щодо доступу на відкриття торбинки</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="application-request-to-open-wallet.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Запит щодо доступу на відкриття торбинки</phrase>
+</textobject>
+<caption
+><para
+>Програма надсилає запит щодо доступу до торбинки</para
+></caption>
+</mediaobject>
+</screenshot>
+
+</sect1>
+
+</chapter>
+
+<chapter id="advanced-features">
+<title
+>Додаткові можливості</title>
+
+<para
+>Торбинки з вікна &kwalletmanager5; можна перетягувати і скидати у потрібне місце. Це надає вам змогу перетягнути торбинку у вікно засобу для роботи з файлами, у цьому вікні ви зможете обрати дію, яку слід виконати з торбинкою: копіювати, пересунути, створити посилання на торбинку, що забажаєте.</para>
+
+<para
+>Цією можливістю можна скористатися, щоб зберегти торбину на портативному носії, такому, як картка пам’яті USB, отже, ви зможете забрати ваші паролі на роботу або у відпустку і мати доступ до важливих для вас сайтів.</para>
+
+</chapter>
+
+<chapter id="credits-and-license">
+<title
+>Подяки і ліцензування</title>
+
+<para
+>&kwallet5; &copy; 2003 &George.Staikos;</para>
+<para
+>Авторські права на документацію &copy; &Lauri.Watts; і &George.Staikos;</para>
+
+<para
+>Переклад українською: Юрій Чорноіван <email
+>yurchor@ukr.net</email
+></para
+> 
+&underFDL; &underGPL; </chapter>
+
+&documentation.index;
+
+</book>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+
+// vim:ts=2:sw=2:tw=78:noet
+-->

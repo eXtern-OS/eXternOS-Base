@@ -1,0 +1,181 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ECMEnableSanitizers &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ECMFindModuleHelpers" href="ECMFindModuleHelpers.html" />
+    <link rel="prev" title="ECMCreateQmFromPoFiles" href="ECMCreateQmFromPoFiles.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ECMFindModuleHelpers.html" title="ECMFindModuleHelpers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ECMCreateQmFromPoFiles.html" title="ECMCreateQmFromPoFiles"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" accesskey="U">ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ecmenablesanitizers">
+<span id="module:ECMEnableSanitizers"></span><h1>ECMEnableSanitizers<a class="headerlink" href="#ecmenablesanitizers" title="Permalink to this headline">¶</a></h1>
+<p>Enable compiler sanitizer flags.</p>
+<p>The following sanitizers are supported:</p>
+<ul class="simple">
+<li>Address Sanitizer</li>
+<li>Memory Sanitizer</li>
+<li>Thread Sanitizer</li>
+<li>Leak Sanitizer</li>
+<li>Undefined Behaviour Sanitizer</li>
+</ul>
+<p>All of them are implemented in Clang, depending on your version, and
+there is an work in progress in GCC, where some of them are currently
+implemented.</p>
+<p>This module will check your current compiler version to see if it
+supports the sanitizers that you want to enable</p>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>Simply add:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">include</span><span class="p">(</span><span class="n">ECMEnableSanitizers</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>to your <code class="docutils literal"><span class="pre">CMakeLists.txt</span></code>. Note that this module is included in
+KDECompilerSettings, so projects using that module do not need to also
+include this one.</p>
+<p>The sanitizers are not enabled by default. Instead, you must set
+<code class="docutils literal"><span class="pre">ECM_ENABLE_SANITIZERS</span></code> (either in your <code class="docutils literal"><span class="pre">CMakeLists.txt</span></code> or on the
+command line) to a semicolon-separated list of sanitizers you wish to enable.
+The options are:</p>
+<ul class="simple">
+<li>address</li>
+<li>memory</li>
+<li>thread</li>
+<li>leak</li>
+<li>undefined</li>
+<li>fuzzer</li>
+</ul>
+<p>The sanitizers “address”, “memory” and “thread” are mutually exclusive.  You
+cannot enable two of them in the same build.</p>
+<p>“leak” requires the  “address” sanitizer.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">To reduce the overhead induced by the instrumentation of the sanitizers, it
+is advised to enable compiler optimizations (<code class="docutils literal"><span class="pre">-O1</span></code> or higher).</p>
+</div>
+</div>
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>This is an example of usage:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">build</span>
+<span class="n">cd</span> <span class="n">build</span>
+<span class="n">cmake</span> <span class="o">-</span><span class="n">DECM_ENABLE_SANITIZERS</span><span class="o">=</span><span class="s1">&#39;address;leak;undefined&#39;</span> <span class="o">..</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Most of the sanitizers will require Clang. To enable it, use:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">DCMAKE_CXX_COMPILER</span><span class="o">=</span><span class="n">clang</span><span class="o">++</span>
+</pre></div>
+</div>
+</div>
+<p>Since 1.3.0.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ECMEnableSanitizers</a><ul>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ECMCreateQmFromPoFiles.html"
+                        title="previous chapter">ECMCreateQmFromPoFiles</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ECMFindModuleHelpers.html"
+                        title="next chapter">ECMFindModuleHelpers</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/module/ECMEnableSanitizers.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ECMFindModuleHelpers.html" title="ECMFindModuleHelpers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ECMCreateQmFromPoFiles.html" title="ECMCreateQmFromPoFiles"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" >ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

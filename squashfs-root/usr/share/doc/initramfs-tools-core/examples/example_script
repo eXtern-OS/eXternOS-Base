@@ -1,0 +1,48 @@
+#!/bin/sh
+
+#
+# This script is run inside of the initramfs environment during the
+# system boot process.  It is installed there by 'update-initramfs'.
+# The # package that owns it may opt to install it in an appropriate
+# location under "/usr/share/initramfs-tools/scripts/".
+#
+# see initramfs-tools(8) for more details.
+
+#
+# List the soft prerequisites here.  This is a space separated list of
+# names, of scripts that are in the same directory as this one, that
+# must be run before this one can be.
+#
+PREREQ=""
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+	prereqs
+	exit 0
+	;;
+mountfail) # Called if the script has previously registered a mountroot
+           # failure.
+	# Check status, and display any relevant information about the
+	# failure if there is a problem, then exit with a status of 1.
+	;;
+esac
+
+# Do the work here.
+
+# If this script is to be placed in either init-premount, or local-top,
+# register a mountroot failure hook, so that further information can be given
+# to the user, in the event that the root device cannot be found.
+
+. /scripts/functions
+
+add_mountroot_fail_hook
+
+echo "Got here!"
+
+exit 0

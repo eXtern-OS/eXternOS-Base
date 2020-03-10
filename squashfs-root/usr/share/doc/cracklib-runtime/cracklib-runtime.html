@@ -1,0 +1,565 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>cracklib utilities</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"></HEAD
+><BODY
+CLASS="article"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="ARTICLE"
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="title"
+><A
+NAME="AEN1"
+>cracklib utilities</A
+></H1
+><H3
+CLASS="author"
+><A
+NAME="AEN33"
+>Jean Pierre LeJacq</A
+></H3
+><H3
+CLASS="author"
+><A
+NAME="AEN38"
+>Martin Pitt</A
+></H3
+><H3
+CLASS="author"
+><A
+NAME="AEN43"
+>Jan Dittberner</A
+></H3
+><P
+CLASS="copyright"
+>Copyright &copy; 1998, 1999 Jean Pierre LeJacq</P
+><P
+CLASS="copyright"
+>Copyright &copy; 2003 Martin Pitt</P
+><P
+CLASS="copyright"
+>Copyright &copy; 2008 Jan Dittberner</P
+><P
+CLASS="pubdate"
+>$Date: 2008-06-26 21:38:06 +0200 (Do, 26 Jun 2008) $<BR></P
+><DIV
+><DIV
+CLASS="abstract"
+><P
+></P
+><A
+NAME="AEN4"
+></A
+><P
+><SPAN
+CLASS="application"
+>cracklib2</SPAN
+> is a library
+      containing a C function which may be used in a <A
+HREF="/cgi-bin/man/man2html/passwd+1"
+TARGET="_top"
+>passwd
+      (1)</A
+> like program. The idea is simple: try to prevent
+      users from choosing passwords that could be guessed by <A
+HREF="http://www.crypticide.com/alecm/security/c50-faq.html"
+TARGET="_top"
+><SPAN
+CLASS="application"
+><TT
+CLASS="filename"
+>crack</TT
+></SPAN
+></A
+>
+      by filtering them out, at
+      source. <SPAN
+CLASS="application"
+>cracklib2</SPAN
+> is
+      <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>not</I
+></SPAN
+> a replacement <A
+HREF="/cgi-bin/man/man2html/passwd+1"
+TARGET="_top"
+>passwd
+      (1)</A
+> program. <SPAN
+CLASS="application"
+>cracklib2</SPAN
+> is a
+      <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>library</I
+></SPAN
+>.</P
+><P
+><FONT
+COLOR="RED"
+>cracklib-runtime</FONT
+> contains run-time support programs which use the shared library in <FONT
+COLOR="RED"
+>libcrack2</FONT
+> including programs to build the password dictionary databases used by the functions in the shared library.</P
+><P
+></P
+></DIV
+></DIV
+><HR></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+>1. <A
+HREF="#AEN49"
+>Upstream <FONT
+COLOR="RED"
+>cracklib2</FONT
+> utilities.</A
+></DT
+><DD
+><DL
+><DT
+>1.1. <A
+HREF="#AEN52"
+><FONT
+COLOR="RED"
+>cracklib2</FONT
+> dictionary utilities.</A
+></DT
+><DD
+><DL
+><DT
+>1.1.1. <A
+HREF="#s-cracklib-format"
+>cracklib-format</A
+></DT
+><DT
+>1.1.2. <A
+HREF="#s-cracklib-packer"
+>cracklib-packer</A
+></DT
+><DT
+>1.1.3. <A
+HREF="#AEN69"
+>cracklib-unpacker</A
+></DT
+><DT
+>1.1.4. <A
+HREF="#AEN78"
+>create-cracklib-dict</A
+></DT
+></DL
+></DD
+><DT
+>1.2. <A
+HREF="#AEN87"
+><FONT
+COLOR="RED"
+>cracklib2</FONT
+>'s test utility
+      <SPAN
+CLASS="application"
+>cracklib-check.</SPAN
+></A
+></DT
+></DL
+></DD
+><DT
+>2. <A
+HREF="#AEN97"
+>Debian <FONT
+COLOR="RED"
+>cracklib2</FONT
+> utilities.</A
+></DT
+><DD
+><DL
+><DT
+>2.1. <A
+HREF="#AEN100"
+>update-cracklib</A
+></DT
+></DL
+></DD
+><DT
+>3. <A
+HREF="#AEN112"
+>Debian dictionaries</A
+></DT
+><DD
+><DL
+><DT
+>3.1. <A
+HREF="#s-debian-dictionary-location"
+>Database location for cracklib utilities.</A
+></DT
+><DT
+>3.2. <A
+HREF="#AEN125"
+>Word lists for creating dictionary databases.</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+><DIV
+CLASS="section"
+><H2
+CLASS="section"
+><A
+NAME="AEN49"
+>1. Upstream <FONT
+COLOR="RED"
+>cracklib2</FONT
+> utilities.</A
+></H2
+><DIV
+CLASS="section"
+><H3
+CLASS="section"
+><A
+NAME="AEN52"
+>1.1. <FONT
+COLOR="RED"
+>cracklib2</FONT
+> dictionary utilities.</A
+></H3
+><DIV
+CLASS="section"
+><H4
+CLASS="section"
+><A
+NAME="s-cracklib-format"
+>1.1.1. cracklib-format</A
+></H4
+><P
+><SPAN
+CLASS="application"
+>cracklib-format</SPAN
+> takes a list
+        of text files each containing a list of words, one per line,
+        It lowercases all words, removes control characters, and
+        sorts the lists. It outputs the cleaned up list to standard
+        output.
+        </P
+><P
+>For more information see the manual page of <A
+HREF="/cgi-bin/man/man2html?cracklib-format+8"
+TARGET="_top"
+><SPAN
+CLASS="application"
+>cracklib-format</SPAN
+></A
+>.</P
+></DIV
+><DIV
+CLASS="section"
+><HR><H4
+CLASS="section"
+><A
+NAME="s-cracklib-packer"
+>1.1.2. cracklib-packer</A
+></H4
+><P
+><SPAN
+CLASS="application"
+>cracklib-packer</SPAN
+> reads from
+        standard input a list of sorted and cleaned words and creates
+        a database from the result.</P
+><P
+>For more information see the manual page of <A
+HREF="/cgi-bin/man/man2html?cracklib-packer+8"
+TARGET="_top"
+><SPAN
+CLASS="application"
+>cracklib-packer</SPAN
+></A
+>.</P
+></DIV
+><DIV
+CLASS="section"
+><HR><H4
+CLASS="section"
+><A
+NAME="AEN69"
+>1.1.3. cracklib-unpacker</A
+></H4
+><P
+><SPAN
+CLASS="application"
+>cracklib-unpacker</SPAN
+> reads from
+        a database created by <A
+HREF="#s-cracklib-packer"
+><SPAN
+CLASS="application"
+>cracklib-packer</SPAN
+></A
+>
+        and outputs on standard output the list of words that make up
+        the database.</P
+><P
+>For more information see the manual page of <A
+HREF="/cgi-bin/man/man2html?cracklib-unpacker+8"
+TARGET="_top"
+><SPAN
+CLASS="application"
+>cracklib-unpacker</SPAN
+></A
+>.</P
+></DIV
+><DIV
+CLASS="section"
+><HR><H4
+CLASS="section"
+><A
+NAME="AEN78"
+>1.1.4. create-cracklib-dict</A
+></H4
+><P
+><SPAN
+CLASS="application"
+>create-cracklib-dict</SPAN
+> takes
+        one or more word list files as arguments and converts them
+        into cracklib dictionaries for use by password checking
+        programs. The results are placed in the default compiled-in
+        dictionary location (<A
+HREF="#s-debian-dictionary-location"
+>Section 3.1</A
+>).</P
+><P
+>If you wish to store the dictionary in a different
+        location, use the <A
+HREF="#s-cracklib-format"
+>cracklib-format</A
+> and <A
+HREF="#s-cracklib-packer"
+><SPAN
+CLASS="application"
+>cracklib-packer</SPAN
+></A
+>
+        commands directly.</P
+></DIV
+></DIV
+><DIV
+CLASS="section"
+><HR><H3
+CLASS="section"
+><A
+NAME="AEN87"
+>1.2. <FONT
+COLOR="RED"
+>cracklib2</FONT
+>'s test utility
+      <SPAN
+CLASS="application"
+>cracklib-check.</SPAN
+></A
+></H3
+><P
+><SPAN
+CLASS="application"
+>cracklib-check</SPAN
+> takes a list of
+      passwords from stdin and checks them via libcrack2's <A
+HREF="/cgi-bin/man/man2html/FascistCheck+3"
+TARGET="_top"
+>FascistCheck</A
+>
+      sub routine.</P
+><P
+><SPAN
+CLASS="application"
+>cracklib-check</SPAN
+> prints each
+      checked password and the corresponding result of <A
+HREF="/cgi-bin/man/man2html/FascistCheck+3"
+TARGET="_top"
+>FascistCheck</A
+>
+      to stdout. The password and the result are separated by a
+      colon.</P
+></DIV
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="AEN97"
+>2. Debian <FONT
+COLOR="RED"
+>cracklib2</FONT
+> utilities.</A
+></H2
+><DIV
+CLASS="section"
+><H3
+CLASS="section"
+><A
+NAME="AEN100"
+>2.1. update-cracklib</A
+></H3
+><P
+><SPAN
+CLASS="application"
+>update-cracklib</SPAN
+> uses <A
+HREF="#s-cracklib-format"
+><SPAN
+CLASS="application"
+>cracklib-format</SPAN
+></A
+>
+      and <A
+HREF="#s-cracklib-packer"
+><SPAN
+CLASS="application"
+>cracklib-packer</SPAN
+></A
+>
+      to update the default cracklib dictionary it uses the word lists
+      configured in
+      <TT
+CLASS="filename"
+>/etc/cracklib/cracklib.conf</TT
+>.</P
+><P
+>For more information see the manual page of <A
+HREF="/cgi-bin/man/man2html?update-cracklib+8"
+TARGET="_top"
+><SPAN
+CLASS="application"
+>cracklib-format</SPAN
+></A
+>.</P
+></DIV
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="AEN112"
+>3. Debian dictionaries</A
+></H2
+><P
+><SPAN
+CLASS="application"
+>cracklib2</SPAN
+> uses a word database
+    that is in a binary format generated by the utilities <A
+HREF="#s-cracklib-format"
+><SPAN
+CLASS="application"
+>cracklib-format</SPAN
+></A
+>
+    and <A
+HREF="#s-cracklib-packer"
+><SPAN
+CLASS="application"
+>cracklib-packer</SPAN
+></A
+>. Three
+    files are created with the suffixes of .hwm, .pwd, and .pwi. These
+    files are not byte-order independent, in fact they are probably
+    architecture specific, mostly due to speed constraints.</P
+><DIV
+CLASS="section"
+><HR><H3
+CLASS="section"
+><A
+NAME="s-debian-dictionary-location"
+>3.1. Database location for cracklib utilities.</A
+></H3
+><P
+>All cracklib utilities can use a dictionary database
+      location specified as a command line argument. The utilities use
+      a default dictionary database if nothing else is specified. On a
+      Debian system the database is located in the directory
+      <TT
+CLASS="filename"
+>/var/cache/cracklib/cracklib_dict</TT
+> and is
+      generated daily with the program
+      <TT
+CLASS="filename"
+>/etc/cron.daily/cracklib</TT
+>.</P
+></DIV
+><DIV
+CLASS="section"
+><HR><H3
+CLASS="section"
+><A
+NAME="AEN125"
+>3.2. Word lists for creating dictionary databases.</A
+></H3
+><P
+><SPAN
+CLASS="application"
+>cracklib2</SPAN
+> is only as good as the word dictionary database you create. Basically, you want to include any word that a malicious user could guess. It could include:
+      <P
+></P
+><UL
+><LI
+><P
+>Names (including nicknames and user ids) of all users.</P
+></LI
+><LI
+><P
+>Names of pets, relatives, cars, ... of all users.</P
+></LI
+><LI
+><P
+>Computer, network, printer, ... names.</P
+></LI
+><LI
+><P
+>Insurance numbers, employee numbers, ... of users.  *
+          ...</P
+></LI
+></UL
+>
+      </P
+><P
+>Debian provides a number of word lists that can be used as
+      sources for creating the cracklib2 dictionary database. The
+      package wenglish provides a standard ASCII word list that can be
+      directly used. The package ispell also supplies a large word
+      list but it is in binary format. I haven't figured out how to
+      decode this binary format so that the resulting word list can be
+      used by cracklib2.</P
+></DIV
+></DIV
+></DIV
+></BODY
+></HTML
+>

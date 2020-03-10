@@ -1,0 +1,47 @@
+#!/bin/sh 
+INSTALLDIR="/usr/local/bin"
+SPOOLDIR="/var/spool/lpd"
+PAPER=letter
+for paper in letter legal a3 a4 ; do
+    if [ "$1" = "$paper" ] ; then
+	PAPER=$paper
+    fi
+done
+
+echo "PAPERSIZE used by  ghostscript will be $PAPER"
+
+for PRINTER in color coloreco bw bweco ascii ; do
+    
+    SEDCMD="sed s/^#PAPER=$PAPER/PAPER=$PAPER/  $PRINTER.if"
+    $SEDCMD > $INSTALLDIR/$PRINTER.if 
+    chmod 0755 $INSTALLDIR/$PRINTER.if
+
+    if [ ! -d $SPOOLDIR/$PRINTER ] ; then 
+       	mkdir -p $SPOOLDIR/$PRINTER
+       	touch $SPOOLDIR/$PRINTER/log
+       	touch $SPOOLDIR/$PRINTER/acct
+    fi
+
+done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

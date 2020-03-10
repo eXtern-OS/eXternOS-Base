@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.72">
+ <TITLE>Linux 2.4 NAT HOWTO: Where is the official Web Site and List?</TITLE>
+ <LINK HREF="NAT-HOWTO-3.html" REL=next>
+ <LINK HREF="NAT-HOWTO-1.html" REL=previous>
+ <LINK HREF="NAT-HOWTO.html#toc2" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="NAT-HOWTO-3.html">Next</A>
+<A HREF="NAT-HOWTO-1.html">Previous</A>
+<A HREF="NAT-HOWTO.html#toc2">Contents</A>
+<HR>
+<H2><A NAME="s2">2.</A> <A HREF="NAT-HOWTO.html#toc2">Where is the official Web Site and List?</A></H2>
+
+<P>There are three official sites:
+<UL>
+<LI>Thanks to 
+<A HREF="http://netfilter.filewatcher.org/">Filewatcher</A>.</LI>
+<LI>Thanks to 
+<A HREF="http://netfilter.samba.org/">The Samba Team and SGI</A>.</LI>
+<LI>Thanks to 
+<A HREF="http://netfilter.gnumonks.org/">Harald Welte</A>.</LI>
+</UL>
+</P>
+
+<P>You can reach all of them using round-robin DNS via
+<A HREF="http://www.netfilter.org/">http://www.netfilter.org/</A> and 
+<A HREF="http://www.iptables.org/">http://www.iptables.org/</A></P>
+
+<P>For the official netfilter mailing list, see
+<A HREF="http://www.netfilter.org/contact.html#list">netfilter List</A>.</P>
+
+<H2><A NAME="ss2.1">2.1</A> <A HREF="NAT-HOWTO.html#toc2.1">What is Network Address Translation?</A>
+</H2>
+
+<P>Normally, packets on a network travel from their source (such as your
+home computer) to their destination (such as www.gnumonks.org)
+through many different links: about 19 from where I am in Australia.
+None of these links really alter your packet: they just send it
+onward.</P>
+
+<P>If one of these links were to do NAT, then they would alter the source
+or destinations of the packet as it passes through.  As you can
+imagine, this is not how the system was designed to work, and hence
+NAT is always something of a crock.  Usually the link doing NAT will
+remember how it mangled a packet, and when a reply packet passes
+through the other way, it will do the reverse mangling on that reply
+packet, so everything works.</P>
+
+<H2><A NAME="ss2.2">2.2</A> <A HREF="NAT-HOWTO.html#toc2.2">Why Would I Want To Do NAT?</A>
+</H2>
+
+<P>In a perfect world, you wouldn't.  Meanwhile, the main reasons are:</P>
+<P>
+<DL>
+<DT><B>Modem Connections To The Internet</B><DD>
+<P>Most ISPs give you a single IP
+address when you dial up to them.  You can send out packets with any
+source address you want, but only replies to packets with this source
+IP address will return to you.  If you want to use multiple different
+machines (such as a home network) to connect to the Internet through
+this one link, you'll need NAT.</P>
+
+<P>This is by far the most common use of NAT today, commonly known as
+`masquerading' in the Linux world.  I call this SNAT, because you
+change the <B>source</B> address of the first packet.</P>
+
+<DT><B>Multiple Servers</B><DD>
+<P>Sometimes you want to change where packets
+heading into your network will go.  Frequently this is because (as
+above), you have only one IP address, but you want people to be able
+to get into the boxes behind the one with the `real' IP address.  If
+you rewrite the destination of incoming packets, you can manage this.
+This type of NAT was called port-forwarding under previous versions of
+Linux.</P>
+
+<P>A common variation of this is load-sharing, where the mapping
+ranges over a set of machines, fanning packets out to them.  If you're
+doing this on a serious scale, you may want to look at</P>
+<P>
+<A HREF="http://linuxvirtualserver.org/">Linux Virtual Server</A>.</P>
+
+<DT><B>Transparent Proxying</B><DD>
+<P>Sometimes you want to pretend that each
+packet which passes through your Linux box is destined for a program
+on the Linux box itself.  This is used to make transparent proxies: a
+proxy is a program which stands between your network and the outside
+world, shuffling communication between the two.  The transparent part
+is because your network won't even know it's talking to a proxy,
+unless of course, the proxy doesn't work.</P>
+
+<P>Squid can be configured to work this way, and it is called
+redirection or transparent proxying under previous Linux versions.</P>
+</DL>
+</P>
+
+<HR>
+<A HREF="NAT-HOWTO-3.html">Next</A>
+<A HREF="NAT-HOWTO-1.html">Previous</A>
+<A HREF="NAT-HOWTO.html#toc2">Contents</A>
+</BODY>
+</HTML>

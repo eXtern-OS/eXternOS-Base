@@ -1,0 +1,148 @@
+<?xml version="1.0" ?>
+<!DOCTYPE article PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+"dtd/kdedbx45.dtd" [
+  <!ENTITY kdebugdialog5 "<application>KDebugDialog</application>">
+  <!ENTITY kappname "&kdebugdialog;">
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % English "INCLUDE" > <!-- change language only here -->
+  
+  
+]>
+
+<article id="kdebugdialog5" lang="&language;">
+<title>KDebugDialog</title>
+<articleinfo>
+<authorgroup>
+<author>&David.Faure; &David.Faure.mail;</author>
+<!-- TRANS:ROLES_OF_TRANSLATORS -->
+</authorgroup>
+
+<date>2016-04-02</date>
+<releaseinfo>Frameworks 5.21</releaseinfo>
+
+<keywordset>
+<keyword>KDE</keyword>
+<keyword>KDebugdialog</keyword>
+<keyword>Debug</keyword>
+</keywordset>
+</articleinfo>
+
+
+<para>&kdebugdialog; is a dialog box for managing diagnostic messages at runtime.
+It features a simple and a full mode.</para>
+<para>In order to be able to make changes  
+<guilabel>Disable all debug output</guilabel> has to be unchecked.</para>
+
+<note>
+<para>Only for applications using the Frameworks library kdelibs4support.</para>
+<para>kDebug() has been deprecated in &kde; Frameworks 5, in favour of &Qt;'s builtin categorized
+logging, see<ulink  url="http://doc.qt.io/qt-5/qloggingcategory.html">QLoggingCategory</ulink>.
+Use the program <ulink url="https://commits.kde.org/kdebugsettings">kdebugsettings</ulink>
+to enable/disable qCDebug.
+</para>
+</note>
+
+<variablelist>
+<varlistentry>
+<term>Simple mode</term>
+<listitem>
+<para>If you simply start <command>kdebugdialog5</command>, you will
+see a list of <quote>areas</quote>, that can be disabled or enabled. A
+<function>kDebug(area)</function> call in the code will show
+something in the debug output only if the area is enabled.</para>
+
+<note><para>Note that kWarning, kError and kFatal always appear,
+they are <emphasis>NOT</emphasis> controlled by this setting. </para></note>
+
+<para>Enter a matching string into the <guilabel>Search</guilabel> 
+box at the top of the list, this allows you to filter the areas 
+which are displayed in the list view.
+Use the buttons below the list to select or deselect all items in the view
+(the other areas are not effected) or change the debug output for a single
+item using the check box in front of it.
+</para>
+
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>Full mode</term>
+<listitem>
+<para>If you start <command>kdebugdialog5</command>
+<option>--fullmode</option>, then for every severity level you can
+define separately what should be done with the diagnostic messages of
+that level, and the same for each debug area.</para>
+
+<para>In full mode, first you should select the debug area you are
+interested in from the list at the left of the dialog using the 
+search box at the top of the list.</para>
+
+<para>You may independently set the output for various types of
+messages:</para>
+
+<itemizedlist>
+<listitem><para><guilabel>Information</guilabel></para></listitem>
+<listitem><para><guilabel>Warning</guilabel></para></listitem>
+<listitem><para><guilabel>Error</guilabel></para></listitem>
+<listitem><para><guilabel>Fatal Error</guilabel></para></listitem>
+</itemizedlist>
+
+<para>For each of these types, you can set the following:</para>
+
+<variablelist>
+<varlistentry>
+<term><guilabel>Output to:</guilabel></term>
+<listitem>
+<para>In this Combobox, you can choose where the messages
+should be output. The choices are: <quote>File</quote>, <quote>Message
+Box</quote>, <quote>Shell</quote> (meaning stderr) and
+<quote>Syslog</quote>. Please do not direct fatal messages to syslog
+unless you are the system administrator yourself. The default is
+<quote>Shell</quote>.</para> 
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><guilabel>Filename:</guilabel></term>
+<listitem><para>This is only enabled when you have chosen
+<quote>File</quote> as the output and provides the name of that file
+(which is interpreted as relative to the current folder). The
+default is <filename>kdebug.dbg</filename>.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>Apart from this, you can also tick the check box <guilabel>Abort
+on fatal errors</guilabel>. In this case, if a diagnostic message with
+the severity level <computeroutput>KDEBUG_FATAL</computeroutput> is
+output, the application aborts with a SIGABRT after outputting the
+message.</para>
+
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>When you close the dialog by pressing <guibutton>OK</guibutton>,
+your entries apply immediately and are saved in
+<filename>$<envar>XDG_CONFIG_HOME</envar>/kdebugrc</filename> 
+(~/.config/kdebugrc by default). When you press
+<guibutton>Cancel</guibutton>, your entries are discarded and the old
+ones are restored.</para>
+
+<para>Credits to Kalle Dalheimer for the original version of
+&kdebugdialog;</para>
+
+<!-- TRANS:CREDIT_FOR_TRANSLATORS -->
+
+&underFDL;
+
+</article>
+<!--
+Local Variables:
+mode: sgml
+sgml-omittag: nil
+sgml-general-insert-case: lower
+sgml-shorttag: t
+End:
+-->
+

@@ -1,0 +1,298 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><meta charset="UTF-8"><TITLE
+>Advanced usage</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="Lintian User's Manual"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Vendor specific data files"
+HREF="section-2.6.html"><LINK
+REL="NEXT"
+TITLE="The laboratory"
+HREF="section-3.2.html"></HEAD
+><BODY
+CLASS="chapter"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Lintian User's Manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="section-2.6.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="section-3.2.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="chapter"
+><H1
+><A
+NAME="chapter-3"
+></A
+>Chapter 3. Advanced usage</H1
+><DIV
+CLASS="sect1"
+><H1
+CLASS="sect1"
+><A
+NAME="section-3.1"
+>3.1. How Lintian works</A
+></H1
+><P
+>Lintian is divided into the following layers:</P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>frontend</I
+></SPAN
+></DT
+><DD
+><P
+>&#13;              the command line interface (currently, this layer
+              consists of two scripts,
+              namely <B
+CLASS="command"
+>lintian</B
+>
+              and <B
+CLASS="command"
+>lintian-info</B
+>)
+             </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>checks</I
+></SPAN
+></DT
+><DD
+><P
+>&#13;              a set of modules that check different aspects of packages.
+            </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>data collectors</I
+></SPAN
+></DT
+><DD
+><P
+>&#13;              a set of scripts that prepares specific information
+              about a package needed by the check modules
+            </P
+></DD
+></DL
+></DIV
+><P
+>&#13;        When you check a package with Lintian, the following steps are
+        performed (not exactly in this order&#8212;but the details aren't important
+        now):
+      </P
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>&#13;            An entry is created for the package in
+            the <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>laboratory</I
+></SPAN
+> (or
+            just <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>lab</I
+></SPAN
+>).
+          </P
+></LI
+><LI
+><P
+>&#13;            Some data is collected about the package. (That is done by
+            the so-called <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>data collector</I
+></SPAN
+>
+            scripts.) For example, the <B
+CLASS="command"
+>file</B
+> program
+            is run on each file in the package and the output is
+            stored in the lab.
+          </P
+></LI
+><LI
+><P
+>&#13;            The <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>checks</I
+></SPAN
+> are run over the package
+            and report any discovered policy violations or other
+            errors. These scripts don't access the package contents
+            directly, but use the collected data as input.
+          </P
+></LI
+><LI
+><P
+>&#13;            Depending on the <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>lab mode</I
+></SPAN
+> Lintian
+            uses (see below), the whole lab directory is removed
+            again.  If the lab is not removed, parts of the data
+            collected may be auto cleaned to reduce disk space.
+          </P
+></LI
+></OL
+><P
+>&#13;        This separation of the <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>check</I
+></SPAN
+>
+        from the <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>data collector scripts</I
+></SPAN
+> makes it
+        possible to run Lintian several times over a package without
+        having to recollect all the data each time. In addition, the
+        checker scripts do not have to worry about packaging details
+        since this is abstracted away by the collector scripts.
+      </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="section-2.6.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="section-3.2.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Vendor specific data files</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>The laboratory</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

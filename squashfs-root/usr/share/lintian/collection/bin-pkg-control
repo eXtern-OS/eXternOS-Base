@@ -1,0 +1,130 @@
+#!/usr/bin/perl -w
+# bin-pkg-control -- lintian collector script
+
+# Copyright (C) 1998 Christian Schwarz
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, you can find it on the World Wide
+# Web at http://www.gnu.org/copyleft/gpl.html, or write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+
+package Lintian::coll::bin_pkg_control;
+
+no lib '.';
+
+use strict;
+use warnings;
+use autodie;
+
+use constant ERROR_FILES => qw(control-index-errors control-errors);
+
+use lib "$ENV{'LINTIAN_ROOT'}/lib";
+use Lintian::Command qw(spawn reap);
+use Lintian::Util qw(delete_dir internal_error pipe_tee run_cmd);
+
+sub collect {
+    my ($pkg, $type, $dir) = @_;
+    my (@jobs, $job, $in_fd, @out_fds, $err);
+
+    if (-e "$dir/control"){
+        delete_dir("$dir/control")
+          or internal_error('Cannot remove old control dir');
+    }
+
+    for my $file ('control-index.gz', ERROR_FILES) {
+        my $path = "$dir/$file";
+        unlink($path) if -e $path;
+    }
+
+    mkdir("$dir/control", 0777);
+
+    # The following calls use knowledge of the .deb format for speed
+
+    # (replaces dpkg-deb -e)
+    # extract control files' tarball
+    $in_fd = FileHandle->new;
+    spawn(
+        { fail => 'error', pipe_out => $in_fd },
+        ['dpkg-deb', '--ctrl-tarfile', "$dir/deb"]);
+
+    $job = {
+        fail => 'error',
+        err => "$dir/control-errors",
+        pipe_in => FileHandle->new,
+    };
+    push(@out_fds, $job->{'pipe_in'});
+    push(@jobs, $job);
+    # extract the tarball's contents
+    spawn(
+        $job,
+        [
+            'tar', '--no-same-owner','--no-same-permissions', '-mxf',
+            '-', '-C',"$dir/control",
+        ]);
+
+    $job = {
+        fail => 'error',
+        out  => "$dir/control-index.gz",
+        err  => "$dir/control-index-errors",
+        pipe_in => FileHandle->new,
+    };
+
+    push(@out_fds, $job->{'pipe_in'});
+    push(@jobs, $job);
+    # create index of control.tar.gz
+    spawn(
+        $job, ['tar', '-stvf', '-'],'|', ['sort', '-k', '6'],
+        '|', ['gzip', '-9nc'],
+    );
+
+    $in_fd->blocking(1);
+    for my $out_pipe (@out_fds) {
+        $out_pipe->blocking(1);
+    }
+    eval {pipe_tee($in_fd, \@out_fds);};
+    $err = $@;
+    eval {
+        close($in_fd);
+        for my $fd (@out_fds) {
+            close($fd);
+        }
+        reap(@jobs);
+        undef(@jobs);
+    };
+    $err ||= $@;
+    if ($err) {
+        die $err;
+    }
+
+    # fix permissions
+    run_cmd('chmod', '-R', 'u+rX,o-w', "$dir/control");
+
+    # Remove empty error files...
+    for my $file (ERROR_FILES) {
+        my $path = "$dir/$file";
+        unlink($path) if -z $path;
+    }
+
+    return;
+}
+
+collect(@ARGV) if $0 =~ m,(?:^|/)bin-pkg-control$,;
+
+1;
+
+# Local Variables:
+# indent-tabs-mode: nil
+# cperl-indent-level: 4
+# End:
+# vim: syntax=perl sw=4 sts=4 sr et

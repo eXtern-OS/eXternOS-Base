@@ -1,0 +1,28 @@
+#!/bin/sh
+
+PREREQ=""
+DESCRIPTION="Disabling gnome-initial-setup..."
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+
+log_begin_msg "$DESCRIPTION"
+
+# Users want to try Ubuntu GNOME, not configure their system
+mkdir -p /root/home/$USERNAME/.config
+touch /root/home/$USERNAME/.config/gnome-initial-setup-done
+chroot /root chown -R $USERNAME.$USERNAME /home/$USERNAME/.config
+
+log_end_msg

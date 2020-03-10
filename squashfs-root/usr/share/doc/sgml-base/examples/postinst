@@ -1,0 +1,31 @@
+#!/bin/sh
+## ----------------------------------------------------------------------
+## debian/postinst: postinstallation script for foo
+## ----------------------------------------------------------------------
+
+## ----------------------------------------------------------------------
+## Abort if any command returns an error value
+set -e
+
+## --------------------------------------------------------------
+## Install SGML catalog entries
+PACKAGE=foo
+CENTRALCAT="/etc/sgml/${PACKAGE}.cat"
+ORDCATS="${PACKAGE}/dtd/sgml/1.0/catalog ${PACKAGE}/entities/catalog"
+if [ "$1" = "configure" ]
+then
+    install-sgmlcatalog --quiet --remove ${PACKAGE} || true
+    for ordcat in ${ORDCATS}
+    do
+        update-catalog --quiet --add ${CENTRALCAT} /usr/share/sgml/${ordcat}
+    done
+    update-catalog --quiet --add --super ${CENTRALCAT}
+fi
+
+## ----------------------------------------------------------------------
+## Automatically added sections
+#DEBHELPER#
+
+exit 0
+
+## ----------------------------------------------------------------------

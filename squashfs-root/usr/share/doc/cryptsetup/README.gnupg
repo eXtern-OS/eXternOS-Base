@@ -1,0 +1,38 @@
+using GnuPG keys for LUKS dm-crypt devices in Debian
+----------------------------------------------------
+
+The Debian cryptsetup package provides the keyscript decrypt_gnupg for setups
+with a GnuPG encrypted LUKS keyfile.
+
+The following example assumes that you store the encrypted keyfile in
+/etc/keys/cryptkey.gpg. LUKS device is /dev/<luks_device>.
+
+First, you'll have to create the encrypted keyfile:
+
+# dd if=/dev/random bs=1 count=256 | gpg --no-options --no-random-seed-file \
+	--no-default-keyring --keyring /dev/null --secret-keyring /dev/null \
+	--trustdb-name /dev/null --symmetric --output /etc/keys/cryptkey.gpg
+
+Next the LUKS device needs to be formated with the key. For that, the
+decrypt_gnupg keyscript can be used:
+
+# /lib/cryptsetup/scripts/decrypt_gnupg /etc/keys/crytpkey.gpg | \
+	cryptsetup --key-file=- luksFormat /dev/<luks_device>
+
+In order to unlock the encrypted LUKS device automatically during boot process,
+add the following to /etc/crypttab:
+
+cdev1	/dev/<luks_device>	/etc/keys/cryptkey.gpg	luks,keyscript=decrypt_gnupg
+
+
+decrypting the keyfile at initramfs stage
+-----------------------------------------
+
+If the device is to be unlocked at initramfs stage (such as for the root FS or
+the resume device), the provided initramfs hooks should do all additionally
+required work for you when the initramfs is created or updated.
+
+Be warned though, that for such devices the GnuPG encrypted key is copied to
+the initramfs by the initramfs cryptgnupg hook. If you don't want this, you
+should take a look at the initramfs cryptgnupg hook, which is located at
+/usr/share/initramfs-tools/hooks/cryptgnupg.

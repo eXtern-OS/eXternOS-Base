@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Test::Lintian::Harness</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#FUNCTIONS'>FUNCTIONS</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Test::Lintian::Harness -- Helper tools for t/runtests</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre>  use Test::Lintian::Harness qw(up_to_date);
+  if (not up_to_date(&#39;some/build-stamp&#39;, &#39;some/dir&#39;)) {
+    # do rebuild
+  }</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Helper functions for t/runtests.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="FUNCTIONS"
+>FUNCTIONS</a></h1>
+
+<dl>
+<dt><a name="skip_reaon(SKIP_FILE)"
+>skip_reaon(SKIP_FILE)</a></dt>
+
+<dd>
+<p>Return the (human-readable) reason for skipping a test by reading the SKIP_FILE.</p>
+
+<dt><a name="copy_template_dir(SKEL_DIR,_TEST_SRC_DIR,_TEST_TARGET_DIR,_[EXCL_SKEL[,_EXCL_SRC]])"
+>copy_template_dir(SKEL_DIR, TEST_SRC_DIR, TEST_TARGET_DIR, [EXCL_SKEL[, EXCL_SRC]])</a></dt>
+
+<dd>
+<p>Populate TEST_TARGET_DIR with files/dirs from SKEL_DIR and TEST_SRC_DIR. If given, EXCL_SKEL and EXCL_SRC must be a listref containing rsync &#34;--exclude&#34; options.</p>
+
+<dt><a name="runsystem(CMD...)"
+>runsystem(CMD...)</a></dt>
+
+<dd>
+<p>Run CMD via system, but throw an error if CMD does not return 0.</p>
+
+<dt><a name="runsystem_ok(CMD...)"
+>runsystem_ok(CMD...)</a></dt>
+
+<dd>
+<p>Run CMD via system, but throw an error if CMD does not return 0 or 1.</p>
+
+<p>Returns 1 if CMD returned successfully (i.e. 0), otherwise 0.</p>
+
+<p>This is mostly useful for running Lintian, which may return 0 or 1 on &#34;success&#34;.</p>
+
+<dt><a name="up_to_date(STAMPFILE,_DIR[,_RUNNER_TS])"
+>up_to_date(STAMPFILE, DIR[, RUNNER_TS])</a></dt>
+
+<dd>
+<p>Returns true if the mtime of STAMPFILE is greater than or equal to the mtime of all files in DIR. If RUNNER_TS is given, then the mtime of STAMPFILE must also be greater than or equal to the value of RUNNER_TS.</p>
+
+<p>If STAMPFILE does not exist, this function returns false unconditionally.</p>
+
+<dt><a name="check_test_depends(TESTDATA)"
+>check_test_depends(TESTDATA)</a></dt>
+
+<dd>
+<p>Given a TESTDATA with a dependency requirement, check whether the dependency requirement is satisfied. If satisfied, return <code>undef</code>, otherwise return a (human-readable) string containing the missing dependencies.</p>
+
+<dt><a name="read_test_desc(FILENAME)"
+>read_test_desc(FILENAME)</a></dt>
+
+<dd>
+<p>Parse FILENAME as a test description file, do a quick validation of its contents and return it in a hashref. This is similar <a href="../../Lintian/Util.html#get_dsc_control_(DSCFILE)" class="podlinkpod"
+>get_dsc_control (DSCFILE)</a> except for the extra validation.</p>
+
+<dt><a name="fill_in_tmpl(FILE,_DATA)"
+>fill_in_tmpl(FILE, DATA)</a></dt>
+
+<dd>
+<p>Create FILE using &#34;${FILE}.in&#34; as a template and DATA as template data.</p>
+
+<dt><a name="chdir_runcmd(DIR,_CMD_REF[,_LOG_FILE])"
+>chdir_runcmd(DIR, CMD_REF[, LOG_FILE])</a></dt>
+
+<dd>
+<p>Fork, chdir to DIR and exec the command (plus arguments) contained in CMD_REF. The child process&#39;s STDERR is merged into its STDOUT. The STDOUT stream of the child process is either directed to the path denoted by LOG_FILE (if given and not <code>undef</code>) or to <i>/dev/null</i>.</p>
+
+<p>Returns 0 on success and non-zero otherwise.</p>
+
+<dt><a name="is_tag_in_file(TAGNAME,_FILENAME)"
+>is_tag_in_file(TAGNAME, FILENAME)</a></dt>
+
+<dd>
+<p>Returns true if FILENAME appears to be output from Lintian, which emitted TAGNAME from that run.</p>
+
+<dt><a name="find_tests_for_tag(TAGNAME,_GLOB_EXPR)"
+>find_tests_for_tag(TAGNAME, GLOB_EXPR)</a></dt>
+
+<dd>
+<p>Find checks for the Lintian tag denoted by TAGNAME that match the GLOB_EXPR. Note that GLOB_EXPR must match only the &#34;desc&#34; file of the tests.</p>
+
+<p>This function returns a list of the test-data for each of these tests.</p>
+
+<dt><a name="generic_find_test_for_tag(TAGNAME,_GLOB_EXPR[,_TCODE])"
+>generic_find_test_for_tag(TAGNAME, GLOB_EXPR[, TCODE])</a></dt>
+
+<dd>
+<p>Looks for TAGNAME in all files returned by using glob on GLOB_EXPR. TCODE is called for each file with TAGNAME as first argument and the filename as second argument. TCODE is expected to return a truth value that if the test should be run. If TCODE returns something that is not just a raw truth value (e.g. a hash ref), this will be taken as the &#34;test&#34;, otherwise this sub will attempt to guess the test name from the file.</p>
+
+<p>If TCODE is omitted, <a href="#is_tag_in_file(TAGNAME%2C_FILENAME)" class="podlinkpod"
+>&#34;is_tag_in_file(TAGNAME, FILENAME)&#34;</a> will be used.</p>
+
+<p>Returns a list of values returned by TCODE or guessed test names (as per above)</p>
+</dd>
+</dl>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

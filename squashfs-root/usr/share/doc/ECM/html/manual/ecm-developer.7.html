@@ -1,0 +1,346 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ecm-developer(7) &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ecm-find-modules(7)" href="ecm-find-modules.7.html" />
+    <link rel="prev" title="ecm(7)" href="ecm.7.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ecm-find-modules.7.html" title="ecm-find-modules(7)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ecm.7.html" title="ecm(7)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="target" id="manual:ecm-developer(7)"></span><div class="section" id="ecm-developer-7">
+<h1><a class="toc-backref" href="#id1">ecm-developer(7)</a><a class="headerlink" href="#ecm-developer-7" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#ecm-developer-7" id="id1">ecm-developer(7)</a><ul>
+<li><a class="reference internal" href="#writing-modules" id="id2">Writing Modules</a><ul>
+<li><a class="reference internal" href="#find-modules" id="id3">Find Modules</a><ul>
+<li><a class="reference internal" href="#components" id="id4">Components</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#submitting-modules" id="id5">Submitting Modules</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="writing-modules">
+<h2><a class="toc-backref" href="#id2">Writing Modules</a><a class="headerlink" href="#writing-modules" title="Permalink to this headline">¶</a></h2>
+<p>The CMake 3 documentation (and <a class="reference external" href="https://www.cmake.org/cmake/help/git-master/manual/cmake-developer.7.html">cmake-developer(7)</a> in particular) has a lot of
+useful information about writing CMake modules, including a large section
+devoted to find modules. This guide will only highlight things that are
+particular to the Extra CMake Modules project.</p>
+<p>Most of these are stylistic points. For example, the license header for a module
+in ECM should look like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#=============================================================================</span>
+<span class="c1"># Copyright 20XX Your Name &lt;your.email@example.com&gt;</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions</span>
+<span class="c1"># are met:</span>
+<span class="c1">#</span>
+<span class="c1"># 1. Redistributions of source code must retain the copyright</span>
+<span class="c1">#    notice, this list of conditions and the following disclaimer.</span>
+<span class="c1"># 2. Redistributions in binary form must reproduce the copyright</span>
+<span class="c1">#    notice, this list of conditions and the following disclaimer in the</span>
+<span class="c1">#    documentation and/or other materials provided with the distribution.</span>
+<span class="c1"># 3. The name of the author may not be used to endorse or promote products</span>
+<span class="c1">#    derived from this software without specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS&#39;&#39; AND ANY EXPRESS OR</span>
+<span class="c1"># IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES</span>
+<span class="c1"># OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.</span>
+<span class="c1"># IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,</span>
+<span class="c1"># INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT</span>
+<span class="c1"># NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,</span>
+<span class="c1"># DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY</span>
+<span class="c1"># THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT</span>
+<span class="c1"># (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF</span>
+<span class="c1"># THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+</pre></div>
+</div>
+<p>Functions should be used instead of macros unless there is a good reason not to
+(and that reason should be noted in a comment), and lowercase should be used for
+macros, functions and commands.</p>
+<p>4 spaces is the generally-recommended indent, although there are several files
+that use 2 spaces; consistency within a file is more important than consistency
+across files.</p>
+<p>If in doubt, look at how other modules in Extra CMake Modules are written, and
+follow the same pattern.</p>
+<div class="section" id="find-modules">
+<h3><a class="toc-backref" href="#id3">Find Modules</a><a class="headerlink" href="#find-modules" title="Permalink to this headline">¶</a></h3>
+<p>A good template for find module documentation is:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#.rst:</span>
+<span class="c1"># FindFoo</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1"># Finds the Foo library.</span>
+<span class="c1">#</span>
+<span class="c1"># This will define the following variables:</span>
+<span class="c1">#</span>
+<span class="c1"># ``Foo_FOUND``</span>
+<span class="c1">#     True if (the requested version of) Foo is available</span>
+<span class="c1"># ``Foo_VERSION``</span>
+<span class="c1">#     The version of Foo, if it is found</span>
+<span class="c1"># ``Foo_LIBRARIES``</span>
+<span class="c1">#     This can be passed to target_link_libraries() instead of the ``Foo::Foo``</span>
+<span class="c1">#     target</span>
+<span class="c1"># ``Foo_INCLUDE_DIRS``</span>
+<span class="c1">#     This should be passed to target_include_directories() if the target is not</span>
+<span class="c1">#     used for linking</span>
+<span class="c1"># ``Foo_DEFINITIONS``</span>
+<span class="c1">#     This should be passed to target_compile_options() if the target is not</span>
+<span class="c1">#     used for linking</span>
+<span class="c1">#</span>
+<span class="c1"># If ``Foo_FOUND`` is TRUE, it will also define the following imported target:</span>
+<span class="c1">#</span>
+<span class="c1"># ``Foo::Foo``</span>
+<span class="c1">#     The Foo library</span>
+<span class="c1">#</span>
+<span class="c1"># In general we recommend using the imported target, as it is easier to use.</span>
+<span class="c1"># Bear in mind, however, that if the target is in the link interface of an</span>
+<span class="c1"># exported library, it must be made available by the package config file.</span>
+</pre></div>
+</div>
+<p>Note the use of definition lists for the variables.</p>
+<p>Because of the <a class="reference internal" href="../module/ECMUseFindModules.html#module:ECMUseFindModules" title="ECMUseFindModules"><code class="xref ecm ecm-module docutils literal"><span class="pre">ECMUseFindModules</span></code></a> module, projects may easily make
+local copies of find modules, and may install those copies with their own CMake
+project config files. For this reason, find modules should include the full BSD
+3-clause license:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#=============================================================================</span>
+<span class="c1"># Copyright 20XX Your Name &lt;your.email@example.com&gt;</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions</span>
+<span class="c1"># are met:</span>
+<span class="c1">#</span>
+<span class="c1"># 1. Redistributions of source code must retain the copyright</span>
+<span class="c1">#    notice, this list of conditions and the following disclaimer.</span>
+<span class="c1"># 2. Redistributions in binary form must reproduce the copyright</span>
+<span class="c1">#    notice, this list of conditions and the following disclaimer in the</span>
+<span class="c1">#    documentation and/or other materials provided with the distribution.</span>
+<span class="c1"># 3. The name of the author may not be used to endorse or promote products</span>
+<span class="c1">#    derived from this software without specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS&#39;&#39; AND ANY EXPRESS OR</span>
+<span class="c1"># IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES</span>
+<span class="c1"># OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.</span>
+<span class="c1"># IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,</span>
+<span class="c1"># INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT</span>
+<span class="c1"># NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,</span>
+<span class="c1"># DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY</span>
+<span class="c1"># THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT</span>
+<span class="c1"># (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF</span>
+<span class="c1"># THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="c1">#=============================================================================</span>
+</pre></div>
+</div>
+<p>Find modules should always provide imported targets in addition to the
+traditional variables (like <code class="docutils literal"><span class="pre">Foo_LIBRARIES</span></code>, etc).</p>
+<p>Unlike find modules shipped with CMake, if the module requires a specific CMake
+version it is not enough to warn when the minimum required version is not high
+enough: you should also produce an error when the actual CMake version being
+used is not high enough. This can be done with:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">if</span><span class="p">(</span><span class="s">CMAKE_VERSION</span> <span class="s">VERSION_LESS</span> <span class="s">2.8.12</span><span class="p">)</span>
+    <span class="nb">message</span><span class="p">(</span><span class="s">FATAL_ERROR</span> <span class="s2">&quot;CMake 2.8.12 is required by FindFoo.cmake&quot;</span><span class="p">)</span>
+<span class="nb">endif</span><span class="p">()</span>
+<span class="nb">if</span><span class="p">(</span><span class="s">CMAKE_MINIMUM_REQUIRED_VERSION</span> <span class="s">VERSION_LESS</span> <span class="s">2.8.12</span><span class="p">)</span>
+    <span class="nb">message</span><span class="p">(</span><span class="s">AUTHOR_WARNING</span> <span class="s2">&quot;Your project should require at least CMake 2.8.12 to use FindFoo.cmake&quot;</span><span class="p">)</span>
+<span class="nb">endif</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../module/ECMFindModuleHelpers.html#module:ECMFindModuleHelpers" title="ECMFindModuleHelpers"><code class="xref ecm ecm-module docutils literal"><span class="pre">ECMFindModuleHelpers</span></code></a> module has several useful functions and
+macros. For example, it allows you to replace the above version check with:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">ecm_find_package_version_check</span><span class="p">(</span><span class="s">Foo</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="components">
+<h4><a class="toc-backref" href="#id4">Components</a><a class="headerlink" href="#components" title="Permalink to this headline">¶</a></h4>
+<p>Using <a class="reference internal" href="../module/ECMFindModuleHelpers.html#module:ECMFindModuleHelpers" title="ECMFindModuleHelpers"><code class="xref ecm ecm-module docutils literal"><span class="pre">ECMFindModuleHelpers</span></code></a>, creating a find module for a library with
+several inter-dependent components is reasonably straightforward. After the
+documentation, you need to include the module and do the usual version check:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">include</span><span class="p">(</span><span class="s">ECMFindModuleHelpers</span><span class="p">)</span>
+<span class="nb">ecm_find_package_version_check</span><span class="p">(</span><span class="s">Foo</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The important macros are <code class="docutils literal"><span class="pre">ecm_find_package_parse_components</span></code> and
+<code class="docutils literal"><span class="pre">ecm_find_package_handle_library_components</span></code>.  These take a list of
+components, and query other variables you provide to find out the information
+they require.  The documentation for <a class="reference internal" href="../module/ECMFindModuleHelpers.html#module:ECMFindModuleHelpers" title="ECMFindModuleHelpers"><code class="xref ecm ecm-module docutils literal"><span class="pre">ECMFindModuleHelpers</span></code></a> provides
+more information, but a simple setup might look like:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="p">(</span><span class="s">Foo_known_components</span> <span class="s">Bar</span> <span class="s">Baz</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">Foo_Bar_pkg_config</span> <span class="s2">&quot;foo-bar&quot;</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">Foo_Bar_lib</span> <span class="s2">&quot;bar&quot;</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">Foo_Bar_header</span> <span class="s2">&quot;foo/bar.h&quot;</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">Foo_Bar_pkg_config</span> <span class="s2">&quot;foo-baz&quot;</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">Foo_Baz_lib</span> <span class="s2">&quot;baz&quot;</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">Foo_Baz_header</span> <span class="s2">&quot;foo/baz.h&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If <code class="docutils literal"><span class="pre">Baz</span></code> depends on <code class="docutils literal"><span class="pre">Bar</span></code>, for example, you can specify this with</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="p">(</span><span class="s">Foo_Baz_component_deps</span> <span class="s2">&quot;Bar&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then call the macros:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">ecm_find_package_parse_components</span><span class="p">(</span><span class="s">Foo</span>
+    <span class="s">RESULT_VAR</span> <span class="s">Foo_components</span>
+    <span class="s">KNOWN_COMPONENTS</span> <span class="o">${</span><span class="nv">Foo_known_components</span><span class="o">}</span>
+<span class="p">)</span>
+<span class="nb">ecm_find_package_handle_library_components</span><span class="p">(</span><span class="s">Foo</span>
+    <span class="s">COMPONENTS</span> <span class="o">${</span><span class="nv">Foo_components</span><span class="o">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Of course, if your components need unusual handling, you may want to replace
+<code class="docutils literal"><span class="pre">ecm_find_package_handle_library_components</span></code> with, for example, a <code class="docutils literal"><span class="pre">foreach</span></code>
+loop over the components (the body of which should implement most of what a
+normal find module does, including setting <code class="docutils literal"><span class="pre">Foo_&lt;component&gt;_FOUND</span></code>).</p>
+<p>At this point, you should set <code class="docutils literal"><span class="pre">Foo_VERSION</span></code> using whatever information you
+have available (such as from parsing header files).  Note that
+<code class="docutils literal"><span class="pre">ecm_find_package_handle_library_components</span></code> will set it to the version
+reported by pkg-config of the first component found, but this depends on the
+presence of pkg-config files, and the version of a component may not be the same
+as the version of the whole package.  After that, finish off with</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">include</span><span class="p">(</span><span class="s">FindPackageHandleStandardArgs</span><span class="p">)</span>
+<span class="nb">find_package_handle_standard_args</span><span class="p">(</span><span class="s">Foo</span>
+    <span class="s">FOUND_VAR</span>
+        <span class="s">Foo_FOUND</span>
+    <span class="s">REQUIRED_VARS</span>
+        <span class="s">Foo_LIBRARIES</span>
+    <span class="s">VERSION_VAR</span>
+        <span class="s">Foo_VERSION</span>
+    <span class="s">HANDLE_COMPONENTS</span>
+<span class="p">)</span>
+
+<span class="nb">include</span><span class="p">(</span><span class="s">FeatureSummary</span><span class="p">)</span>
+<span class="nb">set_package_properties</span><span class="p">(</span><span class="s">Foo</span> <span class="s">PROPERTIES</span>
+    <span class="s">URL</span> <span class="s2">&quot;https://www.foo.example.com/&quot;</span>
+    <span class="s">DESCRIPTION</span> <span class="s2">&quot;A library for doing useful things&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="submitting-modules">
+<h2><a class="toc-backref" href="#id5">Submitting Modules</a><a class="headerlink" href="#submitting-modules" title="Permalink to this headline">¶</a></h2>
+<p>Proposed new modules should be submitted using the <a class="reference external" href="https://git.reviewboard.kde.org/">KDE Review Board instance</a>,
+and be assigned to the <code class="docutils literal"><span class="pre">buildsystem</span></code> and <code class="docutils literal"><span class="pre">extracmakemodules</span></code> groups.  You
+should be able to point to two separate projects that will make use of the
+module.</p>
+<p>The mailing list can be found at
+<a class="reference external" href="https://mail.kde.org/mailman/listinfo/kde-buildsystem">https://mail.kde.org/mailman/listinfo/kde-buildsystem</a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ecm-developer(7)</a><ul>
+<li><a class="reference internal" href="#writing-modules">Writing Modules</a><ul>
+<li><a class="reference internal" href="#find-modules">Find Modules</a><ul>
+<li><a class="reference internal" href="#components">Components</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#submitting-modules">Submitting Modules</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ecm.7.html"
+                        title="previous chapter">ecm(7)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ecm-find-modules.7.html"
+                        title="next chapter">ecm-find-modules(7)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/manual/ecm-developer.7.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ecm-find-modules.7.html" title="ecm-find-modules(7)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ecm.7.html" title="ecm(7)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

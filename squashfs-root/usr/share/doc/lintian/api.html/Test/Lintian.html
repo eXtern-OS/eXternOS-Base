@@ -1,0 +1,249 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Test::Lintian</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#FUNCTIONS'>FUNCTIONS</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Test::Lintian -- Check Lintian files for issues</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre> # file 1
+ use Test::Lintian;
+ use Test::More import =&#62; [&#39;done_testing&#39;];
+ test_load_profiles(&#39;some/path&#39;);
+ 
+ done_testing;
+ 
+ # file 2
+ use Test::Lintian;
+ use Test::More import =&#62; [&#39;done_testing&#39;];
+ load_profile_for_test(&#39;vendor/profile&#39;, &#39;some/path&#39;, &#39;/usr/share/lintian&#39;);
+ test_check_desc(&#39;some/path/checks&#39;);
+ test_load_checks(&#39;some/path/checks&#39;);
+ test_tags_implemented(&#39;some/path/checks&#39;);
+ 
+ done_testing;</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>A testing framework for testing various Lintian files for common errors.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="FUNCTIONS"
+>FUNCTIONS</a></h1>
+
+<dl>
+<dt><a name="test_check_desc([OPTS,_]CHECKS...)"
+>test_check_desc([OPTS, ]CHECKS...)</a></dt>
+
+<dd>
+<p>Test check desc files (and the tags in them) for common errors.</p>
+
+<p>OPTS is an optional HASHREF containing key/value pairs, which are described below.</p>
+
+<p>CHECKS is a list of paths in which to check desc files. Any given element in CHECKS can be either a file or a dir. Files are assumed to be check desc file. Directories are searched and all <i>.desc</i> files in those dirs are processed.</p>
+
+<p>As the number of tests depends on the number of tags in desc, it is difficult to &#34;plan ahead&#34; when using this test. It is therefore recommended to not specify a plan and use done_testing().</p>
+
+<p>This sub uses a Data file (see <a href="#load_profile_for_test_(%5BPROFNAME%5B%2C_INC...%5D%5D)" class="podlinkpod"
+>&#34;load_profile_for_test ([PROFNAME[, INC...]])&#34;</a>).</p>
+
+<p>OPTS may contain the following key/value pairs:</p>
+
+<dl>
+<dt><a name="coll-dir"
+>coll-dir</a></dt>
+
+<dd>
+<p>Path to the collection directory (defaults to: /usr/share/lintian/collection). This is mostly useful for testing Lintian itself.</p>
+
+<p>If set to <code>undef</code>, the test of Needs-Info containing only existing collections will be skipped.</p>
+
+<dt><a name="filter"
+>filter</a></dt>
+
+<dd>
+<p>If defined, it is a filter function that examines $_ (or its first argument) and returns a truth value if <code>$_</code> should be considered or false otherwise. <code>$_</code> will be the path to the current file (or dir) in question; it may be relative or absolute.</p>
+
+<p>NB: <i>all</i> elements in CHECKS are subject to the filter.</p>
+
+<p>CAVEAT: If the filter rejects a directory, none of the files in it will be considered either. Even if the filter accepts a file, that file will only be processed if it has the proper extension (i.e. with <i>.desc</i>).</p>
+
+<dt><a name="translation"
+>translation</a></dt>
+
+<dd>
+<p>If defined and a truth value, the desc files are expected to contain translations. Otherwise, they must be regular checks.</p>
+</dd>
+</dl>
+
+<dt><a name="test_load_profiles(ROOT,_INC...)"
+>test_load_profiles(ROOT, INC...)</a></dt>
+
+<dd>
+<p>Test that all profiles in <i>ROOT/profiles</i> are loadable. INC will be the INC path used as include path for the profile.</p>
+
+<p>If INC is omitted, then the include path will consist of (ROOT, &#39;/usr/share/lintian&#39;). Otherwise, INC will be used as is (and should include ROOT).</p>
+
+<p>This sub will do one test per profile loaded.</p>
+
+<dt><a name="test_load_checks([OPTS,_]DIR[,_CHECKNAMES...])"
+>test_load_checks([OPTS, ]DIR[, CHECKNAMES...])</a></dt>
+
+<dd>
+<p>Test that the Perl module implementation of the checks can be loaded and has a run sub.</p>
+
+<p>OPTS is an optional HASHREF containing key/value pairs, which are described below.</p>
+
+<p>DIR is the directory where the checks can be found.</p>
+
+<p>CHECKNAMES is a list of check names. If CHECKNAMES is given, only the checks in this list will be processed. Otherwise, all the checks in DIR will be processed.</p>
+
+<p>For planning purposes, every check processed counts for 2 tests and the call itself does on additional check. So if CHECKNAMES contains 10 elements, then 21 tests will be done (2 * 10 + 1). Filtered out checks will <i>not</i> be counted.</p>
+
+<p>All data files created at compile time or in the file scope will be loaded immediately (instead of lazily as done during the regular runs). This is done to spot missing data files or typos in their names. Therefore, this sub will load a profile if one hasn&#39;t been loaded already. (see <a href="#load_profile_for_test_(%5BPROFNAME%5B%2C_INC...%5D%5D)" class="podlinkpod"
+>&#34;load_profile_for_test ([PROFNAME[, INC...]])&#34;</a>)</p>
+
+<p>OPTS may contain the following key/value pairs:</p>
+
+<dl>
+<dt><a name="filter"
+>filter</a></dt>
+
+<dd>
+<p>If defined, it is a filter function that examines $_ (or its first argument) and returns a truth value if <code>$_</code> should be considered or false otherwise. <code>$_</code> will be the path to the current file (or dir) in question; it may be relative or absolute.</p>
+
+<p>NB: filter is <i>not</i> used if CHECKNAMES is given.</p>
+
+<p>CAVEAT: If the filter rejects a directory, none of the files in it will be considered either. Even if the filter accepts a file, that file will only be processed if it has the proper extension (i.e. with <i>.desc</i>).</p>
+</dd>
+</dl>
+
+<dt><a name="test_tags_implemented_([OPTS,_]DIR[,_CHECKNAMES...])"
+>test_tags_implemented ([OPTS, ]DIR[, CHECKNAMES...])</a></dt>
+
+<dd>
+<p>Test a given check implements all the tags listed in its desc file. For planning purposes, each check counts as one test and the call itself do one additional check. So if 10 checks are tested, the plan should account for 11 tests.</p>
+
+<p>This is a simple scan of the source code looking asserting that the tag names <i>appear</i> (in the actual code part). For a vast majority of Lintian&#39;s tags it is reliable enough to be useful. However it has false-positives and false-negatives - the former can be handled via &#34;exclude-pattern&#34; (see below).</p>
+
+<p>The DIR argument is the directory in which to find the checks.</p>
+
+<p>CHECKNAMES is a list of the check names. If CHECKNAMES is given, only the checks in this list will be processed. Otherwise, all the checks in DIR will be processed.</p>
+
+<p>The optional parameter OPTS is a hashref. If passed it must be the first argument. The following key/value pairs are defined:</p>
+
+<dl>
+<dt><a name="exclude-pattern"
+>exclude-pattern</a></dt>
+
+<dd>
+<p>The value is assumed to be a regex (or a string describing a regex). Any tag matching this regex will be excluded from this test and is assumed to be implemented (regardless of whether that is true or not).</p>
+
+<p>This is useful for avoiding false-positives with cases like:</p>
+
+<pre>  foreach my $x (@y) {
+    tag &#34;some-tag-for-$x&#34;, &#34;blah blah $x&#34;
+        unless f($x);
+  }</pre>
+
+<dt><a name="filter"
+>filter</a></dt>
+
+<dd>
+<p>If defined, it is a filter function that examines $_ (or its first argument) and returns a truth value if <code>$_</code> should be considered or false otherwise. <code>$_</code> will be the path to the current file (or dir) in question; it may be relative or absolute.</p>
+
+<p>NB: filter is <i>not</i> used if CHECKNAMES is given.</p>
+
+<p>CAVEAT: If the filter rejects a directory, none of the files in it will be considered either. Even if the filter accepts a file, that file will only be processed if it has the proper extension (i.e. with <i>.desc</i>).</p>
+</dd>
+</dl>
+
+<p>As mentioned, this test assert that the tag name appears in the code. Consider the following example:</p>
+
+<pre> my $tagname = &#39;my-tag&#39;;
+ $tagname = &#39;my-other-tag&#39; if $condition;</pre>
+
+<p>In this example, this test would conclude that &#39;my-tag&#39; and &#39;my-other-tag&#39; are both implemented. Which is good when $tagname is eventually passed to <a href="../Lintian/Tags.html#tag" class="podlinkpod"
+>tag</a>, and a false-negative otherwise.</p>
+
+<p>Comment lines are <i>not</i> ignored, so comments can be used as an alternative to the exclude-pattern (above).</p>
+
+<dt><a name="load_profile_for_test_([PROFNAME[,_INC...]])"
+>load_profile_for_test ([PROFNAME[, INC...]])</a></dt>
+
+<dd>
+<p>Load a Lintian::Profile and ensure Data files can be used. This is needed if the test needs to access a data file or if a special profile is needed for the test. It does <i>not</i> test the profile for issues.</p>
+
+<p>PROFNAME is the name of the profile to load. It can be omitted, in which case the sub ensures that a profile has been loaded. If no profile has been loaded, &#39;debian/main&#39; will be loaded.</p>
+
+<p>INC is a list of extra &#34;include dirs&#34; (or Lintian &#34;roots&#34;) to be used for finding the profile. If not specified, it defaults to <i>$ENV{&#39;LINTIAN_TEST_ROOT&#39;}</i> and <i>/usr/share/lintian</i> (in order). INC is ignored if a profile has already been loaded.</p>
+
+<p>CAVEAT: Only one profile can be loaded in a given test. Once a profile has been loaded, it is not possible to replace it with another one. So if this is invoked multiple times, PROFNAME must be omitted or must match the name of the loaded profile.</p>
+
+<dt><a name="program_name_to_perl_paths(PROGNAME)"
+>program_name_to_perl_paths(PROGNAME)</a></dt>
+
+<dd>
+<p>Map the program name (e.g. <code>$0</code>) to a list of directories or/and files that should be processed.</p>
+
+<p>This helper sub is mostly useful for splitting up slow tests run over all Perl scripts/modules in Lintian. This allows better use of multiple cores. Example:</p>
+
+<pre>  t/scripts/my-test/
+   runner.pl
+   checks.t -&#62; runner.pl
+   collection.t -&#62; runner.pl
+   ...</pre>
+
+<p>And then in runner.pl:</p>
+
+<pre>  use Test::Lintian;
+  
+  my @paths = program_name_to_perl_paths($0);
+  # test all files/dirs listed in @paths</pre>
+
+<p>For a more concrete example, see t/scripts/01-critic/ and the files/symlinks beneath it.</p>
+</dd>
+</dl>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

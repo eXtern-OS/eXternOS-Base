@@ -1,0 +1,89 @@
+Using Fonts in X-Window System
+------------------------------
+By Anuradha Ratnaweera
+
+Copy all your fonts to a suitable location, typically to
+/usr/local/share/fonts.
+
+    mkdir -p /usr/local/share/fonts
+    cp lklug.ttf /usr/local/share/fonts/
+
+X Window System uses two different font systems and the
+fonts have to be added to both of them.
+
+XFT
+---
+
+This is the new system
+
+* If you have /etc/fonts/fonts.conf, check if the line
+
+    <dir>/usr/local/share/fonts</dir>
+
+  exits in the file.  If so, you are done. 
+
+  Otherwise, if you have /etc/fonts/local.conf, add the line
+
+    <dir>/usr/local/share/fonts</dir>
+
+  If local.conf is not there, add it to /etc/fonts/fonts.conf.
+
+* See if the font is in X by running
+
+    fc-list
+
+  and grepping for the relevent font (may be with an -i)
+
+* If the font is not found, try running
+
+    fc-cache -v -f
+
+  as root.
+
+* You do NOT have to restart X (good news).
+
+X core
+------
+
+* Create fonts.scale and fonts.dir files
+
+    cd /usr/local/share/fonts/
+    /usr/bin/X11/mkfontscale
+    /usr/bin/X11/mkfontdir
+
+  (If you are running and old XFree86 version, mkfontscale may
+  not be available.  Just grab the mkfontscale.c file from
+  one of the cvsweb sites and compile it with cc.  However, OTF
+  files may not be recognized by old XFree86 systems.)
+
+* If you are using a font server, add /usr/local/share/fonts to
+  "catalogue" variable in /etc/X11/fs/config, and restart font server.
+
+    /etc/init.d/xfs restart
+
+* If you are NOT using a font server, add the line
+
+    FontPath  "/usr/local/fonts"
+
+  to the "Files" section in /etc/X11/xorg.conf (if you are using a
+  X server from x.org), or /etc/X11/XF86Config or /etc/X11/XF86Config-4
+  (if you are using a xfree86 X server).
+
+  Also make sure that the line
+
+    Load      "freetype"
+
+  is there in the "Module" section.  If not add the line.
+
+  Now restart X.
+
+* See if the font is available by running
+
+    xlsfonts
+
+  and grepping for the font name (probably with an -i).
+
+Links:
+http://www.xfree86.org/current/fonts.html
+http://www.tldp.org/HOWTO/FDU/index.html
+

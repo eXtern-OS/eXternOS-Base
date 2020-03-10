@@ -1,0 +1,48 @@
+ufw
+---
+On installation, ufw is not automatically enabled. To load the firewall and
+enable it on boot, run:
+
+# ufw enable
+
+See 'man ufw' and README for more information.
+
+
+Upgrading
+---------
+It is important to note that to properly support remote users, the firewall
+will not be automatically restarted during upgrades. After an upgrade, either
+reboot or perform:
+
+# /etc/init.d/ufw restart
+
+Please note that the above command will briefly open the firewall before
+reloading the rules.
+
+
+Preseeding
+----------
+ufw has support for preseeding. To enable a default deny firewall, add to your
+preseed file:
+ufw ufw/enable boolean true
+
+And to allow a service, use:
+ufw ufw/allow_known_ports multiselect SSH, WWW
+
+Currently, ufw knows about the following services:
+ Cups		# tcp and udp port 631
+ DNS		# tcp and udp port 53
+ Imap (Secure)	# tcp port 993
+ Pop3 (Secure)	# tcp port 995
+ SSH		# tcp port 22
+ Samba		# udp ports 137, 138 and tcp ports 139, 445
+ Smtp		# tcp port 25
+ WWW		# tcp port 80
+ WWW (Secure)	# tcp port 443
+
+You may also add additional ports by supplying a space separated list of
+services from /etc/services, a port number or a port/protocol combination. Eg:
+ufw ufw/allow_custom_ports string auth 8080 1194/udp 
+
+Please keep in mind that these ports and services are not associated with ufw
+application profiles.

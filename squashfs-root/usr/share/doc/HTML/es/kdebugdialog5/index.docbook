@@ -1,0 +1,248 @@
+<?xml version="1.0" ?>
+<!DOCTYPE article PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+"dtd/kdedbx45.dtd" [
+  <!ENTITY kdebugdialog5 "<application
+>KDebugDialog</application
+>">
+  <!ENTITY kappname "&kdebugdialog;">
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Spanish "INCLUDE"
+> <!-- change language only here -->
+  
+  
+]>
+
+<article id="kdebugdialog5" lang="&language;">
+<title
+>KDebugDialog</title>
+<articleinfo>
+<authorgroup>
+<author
+>&David.Faure; &David.Faure.mail;</author>
+<othercredit role="translator"
+> <firstname
+>Rocío</firstname
+> <surname
+>Gallego</surname
+> <affiliation
+><address
+><email
+>traducciones@rociogallego.com</email
+></address
+></affiliation
+> <contrib
+>Traducción</contrib
+> </othercredit
+><othercredit role="translator"
+><firstname
+>Pablo</firstname
+><surname
+>de Vicente</surname
+><affiliation
+><address
+><email
+>pvicentea@nexo.es</email
+></address
+></affiliation
+><contrib
+>Traductor</contrib
+></othercredit
+> <othercredit role="translator"
+> <firstname
+>Marcos</firstname
+> <surname
+>Fouces Lago</surname
+> <affiliation
+><address
+><email
+>mfouces@yahoo.es</email
+></address
+></affiliation
+> <contrib
+>Traductor</contrib
+> </othercredit
+> 
+</authorgroup>
+
+<date
+>02-04-2016</date>
+<releaseinfo
+>Frameworks 5.21</releaseinfo>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>KDebugdialog</keyword>
+<keyword
+>Depuración</keyword>
+</keywordset>
+</articleinfo>
+
+
+<para
+>&kdebugdialog; es un cuadro de diálogo para administrar mensajes de diagnóstico en tiempo de ejecución. Posee un modo simple y otro completo.</para>
+<para
+>Para poder hacer cambios, debe dejar sin marcar <guilabel
+>Desactivar toda la salida de depuración</guilabel
+>.</para>
+
+<note>
+<para
+>Solo para aplicaciones que usan la biblioteca kdelibs4support de Frameworks.</para>
+<para
+>KDebug() se ha dejado de utilizar en &kde; Frameworks 5 en favor de los registros integrados y categorizados de &Qt;; consulte <ulink url="http://doc.qt.io/qt-5/qloggingcategory.html"
+>QLoggingCategory</ulink
+>.  Utilice el programa <ulink url="https://commits.kde.org/kdebugsettings"
+>kdebugsettings</ulink
+> para activar o desactivar qCDebug. </para>
+</note>
+
+<variablelist>
+<varlistentry>
+<term
+>Modo simple</term>
+<listitem>
+<para
+>Si inicia <command
+>kdebugdialog5</command
+>, verá una lista de «áreas» que se pueden activar o desactivar. Una llamada a un área de <function
+>kDebug(area)</function
+> en el código mostrará algo en la salida de depuración solo si ese área está activada.</para>
+
+<note
+><para
+>Tenga en cuenta que kWarning, kError y kFatal siempre aparecen, ya que <emphasis
+>NO</emphasis
+> se controlan desde esta configuración. </para
+></note>
+
+<para
+>Introduzca una cadena en el cuadro  <guilabel
+>Buscar</guilabel
+> en la parte superior de la lista, que le permitirá filtrar las áreas a mostrar en ella. Utilice los botones que están debajo de la lista para seleccionar o deseleccionar todos los elementos de la vista (el resto de áreas no se verán afectadas), o la casilla de verificación delante de ella para cambiar la salida de depuración de un solo elemento. </para>
+
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+>Modo completo</term>
+<listitem>
+<para
+>Si usted inicia <command
+>kdebugdialog5</command
+> <option
+>--fullmode</option
+>, puede definir separadamente para cada nivel de severidad lo que se debería hacer con los mensajes de diagnóstico en ese nivel y lo mismo para cada área de depuración.</para>
+
+<para
+>En modo completo, deberá seleccionar en primer lugar el área de depuración de su interés en la lista que hay en la parte izquierda del diálogo usando el cuadro de búsqueda situado sobre ella.</para>
+
+<para
+>Independientemente, podrá configurar la salida para los diversos tipos de mensajes:</para>
+
+<itemizedlist>
+<listitem
+><para
+><guilabel
+>Información</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Aviso</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Error</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Error grave</guilabel
+></para
+></listitem>
+</itemizedlist>
+
+<para
+>Para cada uno de ellos puede configurar lo siguiente:</para>
+
+<variablelist>
+<varlistentry>
+<term
+><guilabel
+>Salida a:</guilabel
+></term>
+<listitem>
+<para
+>En este cuadro desplegable puede seleccionar dónde se mostrarán los mensajes de salida. Puede escoger entre «Archivo», «Cuadro de mensajes», «Shell» (es decir stderr) y «Syslog». Por favor, no envíe mensajes de error grave a syslog si no es usted el administrador del sistema. El valor predefinido es «Shell».</para
+> 
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Nombre de archivo:</guilabel
+></term>
+<listitem
+><para
+>Esto solo está activado cuando usted ha elegido «Archivo» como salida y sirve para proporcionar el nombre de ese archivo (cuya ruta se considera relativa al directorio sobre el que se encuentre). El nombre predeterminado es <filename
+>kdebug.dbg</filename
+>.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Además de esto, también puede seleccionar la opción <guilabel
+>Abandonar si errores fatales</guilabel
+>. En este caso, si se genera un mensaje de diagnóstico con un nivel de gravedad <computeroutput
+>KDEBUG_FATAL</computeroutput
+>, la aplicación se detendrá con una señal de SIGABRT después de generar el mensaje.</para>
+
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Cuando cierre el diálogo pulsando <guibutton
+>Aceptar</guibutton
+>, sus entradas se aplicarán inmediatamente y se guardarán en <filename
+> $<envar
+>XDG_CONFIG_HOME</envar
+>/kdebugrc</filename
+> (~/.config/kdebugrc by default). Cuando pulse <guibutton
+>Cancelar</guibutton
+>, sus entradas se descartarán y se restaurarán las antiguas.</para>
+
+<para
+>Reconocimientos a Kalle Dalheimer por la versión original de &kdebugdialog;</para>
+
+<para
+>Traducido por Rocío Gallego <email
+>traducciones@rociogallego.com</email
+>, Pablo de Vicente <email
+>pvicentea@nexo.es</email
+> y Marcos Fouces Lago <email
+>mfouces@yahoo.es</email
+>.</para
+> 
+
+&underFDL;
+
+</article>
+<!--
+Local Variables:
+mode: sgml
+sgml-omittag: nil
+sgml-general-insert-case: lower
+sgml-shorttag: t
+End:
+-->
+

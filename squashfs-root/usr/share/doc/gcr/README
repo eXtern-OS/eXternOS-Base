@@ -1,0 +1,43 @@
+GCR is a library for displaying certificates, and crypto UI, accessing
+key stores. It also provides the viewer for crypto files on the GNOME
+desktop.
+
+GCK is a library for accessing PKCS#11 modules like smart cards, in a
+(G)object oriented way.
+
+
+DEBUG TRACING
+==============
+
+The Gcr and Gck libraries contain statements which help debug flow
+and logic. In many cases these help you track down problems.
+
+Use the environment variable GCR_DEBUG='all' or GCR_HELP='xxx' to
+display either all messages or a specific category of debug messages.
+To figure out what you can use in place of the 'xxx' category above,
+use GCR_DEBUG='help' and you'll see a list of all the messages.
+
+Example to display all debug messages:
+
+ $ GCR_DEBUG=all gcr-viewer /path/to/certificate.crt
+ (gcr-viewer:9418): Gcr-DEBUG: gcr_pkcs11_initialize_async: starting initialize of registered modules
+ ...
+
+Example to display the various debug categories:
+
+ $ GCR_DEBUG=help gcr-viewer /path/to/certificate.crt
+ Supported debug values: library certificate-chain parse gnupg trust import key prompt all help
+
+Example to display debug messages for a specific category:
+
+ $ GCR_DEBUG=library gcr-viewer /path/to/certificate.crt
+ (gcr-viewer:9503): Gcr-DEBUG: gcr_pkcs11_initialize_async: starting initialize of registered modules
+ ...
+
+If you wish to permanently enable certain debug messages, include compiler
+directives like this when configuring this library:
+
+ $ CFLAGS='-DGCR_DEBUG=library' ./configure ...
+
+For the Gck debug messages simply replace 'GCR_DEBUG' with 'GCK_DEBUG'
+in the above examples.

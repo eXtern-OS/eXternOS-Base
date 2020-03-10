@@ -1,0 +1,44 @@
+#!/bin/sh -e
+
+OPTION=FRAMEBUFFER
+PREREQS=""
+
+prereqs() { echo "$PREREQS"; }
+
+case "$1" in
+    prereqs)
+    prereqs
+    exit 0
+    ;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+[ -r /etc/default/brltty ] && . /etc/default/brltty
+
+[ -x /bin/brltty ] || exit 0
+
+if [ "$START_IN_INITRAMFS" = "true" -o "$START_IN_INITRAMFS" = "yes" ]; then
+  echo -n "Installing BRLTTY into initramfs..."
+
+  cp -a /etc/brltty/ $DESTDIR/etc/
+  cp /etc/brltty.conf $DESTDIR/etc/
+
+  cp -a /lib/brltty/ $DESTDIR/lib/
+
+  mkdir -p $DESTDIR/usr/lib/x86_64-linux-gnu
+  cp -a /usr/lib/x86_64-linux-gnu/gconv \
+    $DESTDIR/usr/lib/x86_64-linux-gnu
+
+  copy_exec /bin/brltty $DESTDIR/bin/
+
+  manual_add_modules pcspkr
+  manual_add_modules uinput
+
+  echo "done"
+else
+  mkdir -p $DESTDIR/lib/brltty
+  copy_exec /usr/share/brltty/initramfs/brltty.sh /lib/brltty
+  mkdir -p $DESTDIR/sbin
+  copy_exec /sbin/brltty-setup /sbin
+fi

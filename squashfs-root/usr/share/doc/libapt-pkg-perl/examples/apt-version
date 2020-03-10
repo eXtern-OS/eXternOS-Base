@@ -1,0 +1,80 @@
+#!/usr/bin/perl
+
+#
+# Example: demonstrate APT version methods
+#
+# Usage: apt-version compare VER1 VER2
+#                    rel_compare REL1 REL2
+#                    check_dep PKG OP DEP
+#                    upstream VER
+#
+
+use AptPkg::Config '$_config';
+use AptPkg::System '$_system';
+use AptPkg::Version;
+
+(my $self = $0) =~ s#.*/##;
+
+# initialise the global config object with the default values
+$_config->init;
+
+# determine the appropriate system type
+$_system = $_config->system;
+
+# fetch a versioning system
+my $vs = $_system->versioning;
+
+print '[System: ', $_system->label, '; Versioning type: ', $vs->label, "]\n";
+
+sub describe
+{
+    return 'earlier than' if $_[0] < 0;
+    return 'later than'   if $_[0] > 0;
+    'the same as';
+}
+
+while ($_ = shift)
+{
+    # compare VER1 VER2
+    /^comp(?:are)?$/ and do {
+	die "Usage: $self compare VER1 VER2\n" if @ARGV < 2;
+	my ($ver1, $ver2) = splice @ARGV, 0, 2;
+	print "* package version `$ver1' is ",
+	    (describe $vs->compare($ver1, $ver2)), " `$ver2'\n";
+
+	next;
+    };
+
+    # rel_compare REL1 REL2
+    /^rel(?:[_-]comp(?:are)?)?$/ and do {
+	die "Usage: $self rel_compare REL1 REL2\n" if @ARGV < 2;
+	my ($ver1, $ver2) = splice @ARGV, 0, 2;
+	print "* release version `$ver1' is ",
+	    (describe $vs->rel_compare($ver1, $ver2)), " `$ver2'\n";
+
+	next;
+    };
+
+    # check_dep PKG OP DEP
+    /^check(?:[_-]dep)?$/ and do {
+	die "Usage: $self check_dep PKG OP DEP\n" if @ARGV < 3;
+	my ($pkg, $op, $dep) = splice @ARGV, 0, 3;
+	my $r = $vs->check_dep($pkg, $op, $dep) ? 'satisfies'
+		    : 'does not satisfy';
+
+	print "* package version `$pkg' $r the dependency `($op $dep)'\n";
+	next;
+    };
+
+    # upstream VER
+    /^upstream$/ and do {
+	die "Usage: $self upstream VER\n" if @ARGV < 1;
+	my $ver = shift;
+	print "* upstream component of package version `$ver' is `",
+	    $vs->upstream($ver), "'\n";
+
+	next;
+    };
+
+    die "$self: unknown action `$_'\n";
+}

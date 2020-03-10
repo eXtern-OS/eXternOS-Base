@@ -1,0 +1,12 @@
+#!/usr/bin/perl -w
+
+## Submitted by Dave Mitchell <davem@fdgroup.co.uk>
+
+use IPC::Run qw(run timeout);
+
+$IPC::Run::debug = 10;
+
+warn "parent id=$$\n";
+$res = run [ './nosuchfile', 0 ], \"foo", \$out, \$err;
+warn "running after 'run',
+        pid=$$\n\$?=$?\nstderr=[[[[$err]]]]\nstdout=[[[[$out]]]]\n";

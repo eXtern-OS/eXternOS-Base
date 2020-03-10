@@ -1,0 +1,25 @@
+#!/bin/sh
+## ----------------------------------------------------------------------
+## debian/prerm: preremoval script for foo
+## ----------------------------------------------------------------------
+
+## ----------------------------------------------------------------------
+## Abort if any command returns an error value
+set -e
+
+## --------------------------------------------------------------
+## Remove SGML catalog entries
+PACKAGE=foo
+CENTRALCAT="/etc/sgml/${PACKAGE}.cat"
+if [ "$1" = "remove" ] || [ "$1" = "upgrade" ]
+then
+    update-catalog --quiet --remove --super ${CENTRALCAT}
+fi
+
+## ----------------------------------------------------------------------
+## Automatically added sections
+#DEBHELPER#
+
+exit 0
+
+## ----------------------------------------------------------------------

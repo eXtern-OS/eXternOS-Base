@@ -1,0 +1,108 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      type="topic" style="task"
+      id="mime-types-custom">
+
+  <info>
+    <link type="guide" xref="software#management" />
+    <link type="seealso" xref="mime-types" />
+    <link type="seealso" xref="mime-types-custom-user" />
+    <revision pkgversion="3.12" date="2014-06-17" status="review"/>
+
+    <credit type="author">
+      <name>Petr Kovar</name>
+      <email>pknbe@volny.cz</email>
+    </credit>
+
+    <include href="legal.xml" xmlns="http://www.w3.org/2001/XInclude"/>
+
+  </info>
+
+    <title>Add a custom MIME type for all users</title>
+    <p>
+      To add a custom MIME type for all users on the system and register a default
+      application for that MIME type, you need to create a new MIME type
+      specification file in the <file>/usr/share/mime/packages/</file>
+      directory and a <file>.desktop</file> file in the
+      <file>/usr/share/applications/</file> directory.
+    </p>
+    <steps>
+      <title>Add a custom <sys>application/x-newtype</sys>
+      MIME Type for All Users</title>
+      <item>
+        <p>
+          Create the <file>/usr/share/mime/packages/application-x-newtype.xml</file>
+          file:
+        </p>
+        <code mime="application/xml"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-newtype">
+    <comment>new mime type</comment>
+    <glob pattern="*.xyz"/>
+  </mime-type>
+</mime-info>]]></code>
+      <p>
+        The sample <file>application-x-newtype.xml</file> file above
+        defines a new MIME type <sys>application/x-newtype</sys>
+        and assigns file names with the <file>.xyz</file> extension to
+        that MIME type.
+      </p>
+      </item>
+      <item>
+        <p>
+          Create a new <file>.desktop</file> file named, for example,
+          <file>myapplication1.desktop</file>, and place it in the
+          <file>/usr/share/applications/</file> directory:
+        </p>
+        <code>[Desktop Entry]
+Type=Application
+MimeType=application/x-newtype
+Name=<var>My Application 1</var>
+Exec=<var>myapplication1</var></code>
+      <p>
+        The sample <file>myapplication1.desktop</file> file above
+        associates the <sys>application/x-newtype</sys> MIME type
+        with an application named <app>My Application 1</app>,
+        which is run by a command <cmd>myapplication1</cmd>.
+      </p>
+      </item>
+      <item>
+        <p>As root, update the MIME database for your changes to take effect:</p>
+        <screen><output># </output><input>update-mime-database /usr/share/mime</input>
+        </screen>
+      </item>
+      <item>
+        <p>As root, update the application database:</p>
+        <screen><output># </output><input>update-desktop-database /usr/share/applications</input>
+        </screen>
+      </item>
+      <item>
+        <p>
+          To verify that you have successfully associated
+          <file>*.xyz</file> files with the
+          <sys>application/x-newtype</sys> MIME type, first create
+          an empty file, for example <file>test.xyz</file>:
+        </p>
+        <screen><output>$ </output><input>touch test.xyz</input></screen>
+        <p>
+          Then run the <cmd>gio info</cmd> command:
+        </p>
+        <screen><output>$ </output><input>gio info test.xyz | grep "standard::content-type"</input>
+  standard::content-type: application/x-newtype</screen>
+        </item>
+        <item>
+          <p>
+          To verify that <file>myapplication1.desktop</file> has been
+          correctly set as the default registered application for the
+          <sys>application/x-newtype</sys> MIME type, run the
+          <cmd>gio mime</cmd> command:
+          </p>
+        <screen><output>$ </output><input>gio mime application/x-newtype</input>
+Default application for “application/x-newtype”: myapplication1.desktop
+Registered applications:
+	myapplication1.desktop
+Recommended applications:
+	myapplication1.desktop</screen>
+      </item>
+    </steps>
+</page>
+

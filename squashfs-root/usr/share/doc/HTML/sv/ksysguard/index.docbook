@@ -1,0 +1,721 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+ "dtd/kdedbx45.dtd" [
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Swedish "INCLUDE"
+> <!-- change language only here -->
+]>
+
+<book id="ksysguard" lang="&language;">
+<bookinfo>
+<title
+>Handbok för systemövervakaren</title>
+
+<authorgroup>
+<author
+>&Chris.Schlaeger;&Chris.Schlaeger.mail; </author>
+
+<othercredit role="developer"
+>&John.Tapsell; &John.Tapsell.mail; </othercredit>
+
+<othercredit role="developer"
+>&Chris.Schlaeger;&Chris.Schlaeger.mail; </othercredit>
+
+<othercredit role="developer"
+>&Tobias.Koenig;&Tobias.Koenig.mail; </othercredit>
+
+<othercredit role="translator"
+> <firstname
+>Stefan</firstname
+> <surname
+>Asserhäll</surname
+> <affiliation
+><address
+><email
+>stefan.asserhall@bredband.net</email
+></address
+></affiliation
+> <contrib
+>Översättare</contrib
+></othercredit
+> 
+</authorgroup>
+
+<copyright>
+<year
+>2000</year>
+<holder
+>&Chris.Schlaeger;</holder>
+</copyright>
+
+<legalnotice
+>&FDLNotice;</legalnotice>
+
+<date
+>2016-01-31</date>
+<releaseinfo
+>&plasma; 5.9</releaseinfo>
+
+<abstract
+><para
+>Systemövervakaren är en nätverksredo aktivitetshanterare och ett systemövervakarprogram.</para
+></abstract
+> 
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>Ksysguard</keyword>
+<keyword
+>processövervakare</keyword>
+<keyword
+>prestandaövervakare</keyword>
+<keyword
+>systemövervakare</keyword>
+<keyword
+>top</keyword>
+<keyword
+>ps</keyword>
+</keywordset>
+</bookinfo>
+
+<chapter id="introduction">
+<title
+>Inledning</title>
+
+<para
+>Systemövervakaren är &plasma;s aktivitets- och prestandaövervakare. </para>
+<para
+>Den innehåller en klient-server arkitektur som tillåter övervakning av så väl lokala som fjärrdatorer. Det grafiska gränssnittet använder så kallade sensorer för att hämta informationen som visas. En sensor kan erbjuda enkla värden eller mer komplex information som tabeller. En eller flera skärmar tillhandahålls för varje sorts information. Skärmar organiseras i arbetsblad som kan sparas och laddas oberoende av varandra. Alltså är systemövervakaren inte bara en enkel aktivitetshanterare utan ett mycket kraftfullt verktyg för att hantera stora serverinstallationer.</para>
+
+</chapter>
+
+<chapter id="usingtheksysguard">
+<title
+>Att använda systemövervakaren</title>
+
+<sect1 id="getting-started">
+<title
+>Att komma igång</title>
+
+<para
+>Systemövervakaren kan startas från programstartmenyn, genom att välja <guimenuitem
+>Systemövervakaren</guimenuitem
+> i menyn <menuchoice
+><guimenu
+>Program</guimenu
+> <guisubmenu
+>Systemverktyg</guisubmenu
+></menuchoice
+>. Som ett alternativ kan du starta den genom att skriva <command
+>ksysguard</command
+> i en terminal.</para>
+
+<para
+>Systemövervakarens huvudfönster består av en menyrad, en valfri verktygsrad och statusrad, och arbetsytan. Egna arbetsblad visar också sensorbläddraren. </para>
+<!--
+<para
+>Download, Save, Import tabs</para>
+-->
+<para
+>Normalt visar Systemövervakaren två arbetsblad: <guilabel
+>Processtabell</guilabel
+> och <guilabel
+>Systembelastning</guilabel
+>. Processtabellen listar processer som kör, och låter användaren styra dem. Flera processer kan markeras och styras på en gång. Arbetsbladet <guilabel
+>Systembelastning</guilabel
+> visar diagram med systemets belastning: <guilabel
+>Processorhistorik</guilabel
+>, <guilabel
+>Historik för minnes och växlingsminne</guilabel
+> och <guilabel
+>Nätverkshistorik</guilabel
+>. </para>
+
+<para
+>Den här förvalda inställningen är tillräcklig för att en oerfaren användare ska kunna göra en del systemhantering. En erfaren användare eller till och med en systemadministratör för ett stort datorlabb har annorlunda behov. För att hantera en stor mängd olika användare är systemövervakaren mycket flexibel.</para>
+
+<note
+><para
+>Du kan visa en <guilabel
+>Processtabell</guilabel
+> när som helst genom att använda den globala genvägen <keycombo action="simul"
+>&Ctrl;&Esc;</keycombo
+>. Processtabellen visas i ett fönster som heter <guilabel
+>Systemaktivitet</guilabel
+>. </para
+></note>
+
+</sect1>
+
+<sect1 id="process-controller">
+<title
+>Processtabell</title>
+
+<para
+>Processtabellen ger dig en lista på processer i systemet. Listan kan sorteras enligt varje kolumn. Klicka bara med vänster musknapp på kolumnens rubrik. </para>
+
+<para
+>Använd <guilabel
+>Vad är det här</guilabel
+>-hjälpen för kolumnrubrikerna för att få ytterligare information om värdet som visas där.</para>
+
+<para
+>I en process sammanhangsberoende meny i listvyn finns ytterligare alternativ som att ändra prioritet, skicka signaler till processen, byta till programmets fönster, visa detaljerad minnesinformation och döda processen.</para>
+
+<para
+>Listan visar följande information om varje process. Observera att alla egenskaper är inte tillgängliga på alla operativsystem.</para>
+
+<table>
+<title
+>Standardkolumner i processtabellen</title>
+<tgroup cols="2">
+<tbody>
+<row>
+<entry
+><guilabel
+>Namn</guilabel
+></entry>
+<entry
+>Namnet på den körbara fil som startade processen</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Användarnamn</guilabel
+></entry>
+<entry
+>Användaren som äger processen</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Processor %</guilabel
+></entry>
+<entry
+>Processens nuvarande totala processoranvändning, dividerat med antalet processorkärnor i datorn</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Minne</guilabel
+></entry>
+<entry
+><para
+>Det här är storleken på det verkliga fysiska minnet som processen använder själv, och approximerar processens privata minnesanvändning.</para>
+<para
+>Det omfattar inte något växlingsminne, och inte heller kodstorleken för delade bibliotek.</para>
+<para
+>Det är oftast det mest användbara värdet för att bedöma ett programs minnesanvändning.</para
+></entry>
+</row>
+<row>
+<entry
+><guilabel
+>Delat minne</guilabel
+></entry>
+<entry
+>Det här är den ungefärliga storleken på det verkliga fysiska minnet som processen delade bibliotek använder. Minnet delas mellan alla processer som använder biblioteken.</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Fönsternamn</guilabel
+></entry>
+<entry
+>Namn på eventuella fönster som processen visar</entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<table>
+<title
+>Ytterligare kolumner i processtabellen</title>
+<tgroup cols="2">
+<tbody>
+<row>
+<entry
+><guilabel
+>Process-ID</guilabel
+></entry>
+<entry
+>Den unika processidentifieraren som identifierar processen</entry>
+</row>
+<row>
+<entry
+><guilabel
+>TTY</guilabel
+></entry>
+<entry
+>Kontrollterminalen som processen kör på</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Prioritet</guilabel
+></entry>
+<entry
+>Prioriteten som processen kör med. För normal schemaläggning, går den från 19 (mycket snäll, lägst prioritet) till -19 (högsta prioritet)</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Processortid</guilabel
+></entry>
+<entry
+>Den totala användar- och systemtid som processen har kört, visad som minuter:sekunder</entry>
+</row>
+<row>
+<entry
+><guilabel
+>I/O-läsning</guilabel
+></entry>
+<entry
+>Antal lästa byte. <guilabel
+>Enheter att visa</guilabel
+> och <guilabel
+>Visad information</guilabel
+> kan ändras med den sammanhangsberoende menyn i kolumnens rubrik.</entry>
+</row>
+<row>
+<entry
+><guilabel
+>I/O-skrivning</guilabel
+></entry>
+<entry
+>Antal skrivna byte. <guilabel
+>Enheter att visa</guilabel
+> och <guilabel
+>Visad information</guilabel
+> kan ändras med den sammanhangsberoende menyn i kolumnens rubrik.</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Virtuell storlek</guilabel
+></entry>
+<entry
+>Det här är storleken på det virtuella minnesutrymme som processen använder, inklusive delade bibliotek, grafikminne, filer på disk, och så vidare. Värdet är nästan meningslöst. Använd den sammanhangsberoende menyn för att välja <guilabel
+>Enheter att visa</guilabel
+>.</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Kommando</guilabel
+></entry>
+<entry
+>Kommandot som processen startades med</entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<para
+>Ovanför tabellen finns tre kontroller som beskrivs från vänster till höger.</para>
+
+<sect2 id="thekillbutton">
+<title
+>Avsluta processer</title>
+
+<para
+>Om du har markerat en eller flera processer kan du trycka på knappen <guibutton
+>Avsluta process</guibutton
+> för att döda dem. En så kallad <errorcode
+>SIGKILL</errorcode
+> skickas till processerna och gör att de avslutas omedelbart. Om dessa program fortfarande har data som inte sparats kommer den att gå förlorad. Använd därför den här knappen med försiktighet.</para>
+</sect2>
+
+<sect2 id="the-filter-bar">
+<title
+>Filterrad</title>
+
+<para
+>Filtrera vilka processer som visas med texten som anges här. Texten kan vara en partiell strängmatchning av processens <guilabel
+>Namn</guilabel
+>, <guilabel
+>Kommando</guilabel
+> eller <guilabel
+>Fönsternamn</guilabel
+>. Den kan också vara ett <guilabel
+>Användarnamn</guilabel
+> eller process-id nummer.</para>
+
+</sect2>
+
+<sect2 id="the-process-filter">
+<title
+>Processfilter</title>
+
+<para
+>Processfiltret kan användas för att reducera antalet processer som visas i tabellen. Du kan filtrera bort processer som du inte är intresserad av. För närvarande kan du visa <guilabel
+>Alla processer</guilabel
+> med en enkel visning eller trädvisning, bara <guilabel
+>Systemprocesser</guilabel
+>, bara <guilabel
+>Användarprocesser</guilabel
+> eller bara dina <guilabel
+>Egna processer</guilabel
+>.</para>
+
+<para
+>Trädvyn har konstruerats för att visa förhållandet mellan processer som körs. En process som startats av en annan process kallas en underprocess, Ett träd är ett elegant sätt att visa det här förhållandet. Processen <emphasis
+>init</emphasis
+> är den process som startar alla övriga.</para>
+
+<para
+>Om du inte är intresserad av underprocesserna för en viss process kan du klicka på den lilla rutan till vänster om huvudprocessen och delträdet göms. Ett klick till på rutan gör att delträdet visas igen.</para>
+
+</sect2>
+
+</sect1>
+
+<sect1 id="the-workspace">
+<title
+>Arbetsyta</title>
+
+<para
+>Arbetsytan är organiserad som arbetsblad. Välj <guimenuitem
+>Ny flik...</guimenuitem
+> i menyn <guimenu
+>Arkiv</guimenu
+> för att skapa ett nytt arbetsblad. En dialogruta dyker upp där du kan ange namnet, dimensionerna och uppdateringsintervallet för arbetsbladet. För att ta bort ett arbetsblad igen, välj <guimenuitem
+>Stäng flik</guimenuitem
+> i menyn <guimenu
+>Arkiv</guimenu
+>. Alla ändringar sparas till arbetsbladsfilen. Om ett arbetsblad aldrig har sparats blir du tillfrågad om ett filnamn. Arbetsblad består av celler organiserade i ett rutnät.</para>
+
+<para
+>Varje cell kan fyllas med en skärm med en eller flera sensorer. Du kan fylla en cell genom att dra en sensor från sensorbläddraren och släppa den på cellen. Om det finns mer än en typ av skärm tillgänglig för den sortens sensor, visas en meny. Du kan då välja vilken skärm du föredrar att använda. Vissa typer av skärmar kan visa mer än en sensor. Lägg till fler sensorer till skärmar genom att dra dem från sensorbläddraren och släppa dem på befintliga skärmar.</para>
+
+<para
+>Arbetsblad kan anpassas genom att klicka på <guimenuitem
+>Flikegenskaper</guimenuitem
+> i menyn <guimenu
+>Visa</guimenu
+>. I dialogrutan som visas kan du se dimensionerna och uppdateringsintervallet.</para>
+
+<para
+>Skärmar kan anpassas genom att klicka på dem med höger musknapp. En meny visas där du kan välja om du vill ändra egenskaperna för den skärmen eller ta bort den från arbetsbladet.</para>
+
+<sect2 id="the-sensor-browser">
+<title
+>Sensorbläddrare</title>
+<para
+>Sensorbläddraren exponerar Systemövervakarens avancerade funktioner. Du måste först gå till menyn <guimenu
+>Arkiv</guimenu
+> och skapa ett nytt arbetsblad för att kunna använda den. Den visas så fort ett eget arbetsblad är valt.</para>
+<para
+>Sensorbläddraren visar all registrerade värddatorer och deras sensorer i en trädvy. Klicka på trädhandtagen för att öppna eller stänga en gren. Varje sensor övervakar ett särskilt systemvärde.</para>
+<tip
+><para
+>Efter du har ställt in ditt egna arbetsblad, flytta avdelaren till fönstrets högra kant för att dölja sensorbläddraren.</para
+> 
+<para
+>Om sensorbläddraren inte syns på ett eget arbetsblad, är den troligtvis dold. För att visa den, välj fönstrets högra kant och dra den åt vänster.</para
+></tip>
+</sect2>
+
+<sect2 id="line-graph">
+<title
+>Linjediagram</title>
+
+<para
+>Linjediagrammet lägger till ögonblicksvärden på en eller flera sensorer efter hand. Om flera sensorer visas, läggs värdena ovanpå varandra i olika färger. Om skärmen är stor nog ritas ett rutnät för att visa intervallet för de tillagda värdena. Normalt är automatintervalläget aktiverat, så minimala och maximala värden ställs in automatiskt. Ibland vill du ha låsta minimala och maximala värden. I detta fall kan du stänga av automatintervalläget och ange värdena i inställningsdialogrutan.</para>
+</sect2>
+
+<sect2 id="digital-display">
+<title
+>Digital visning</title>
+
+<para
+>Multimetern visar sensorvärden som en digital mätare. I inställningsdialogrutan kan du ange minimala och maximala värden. Om intervallet överskrids färgas skärmen med varningsfärgen.</para>
+</sect2>
+
+<sect2 id="bargraph">
+<title
+>Stapeldiagram</title>
+
+<para
+>Stapeldiagrammet visar sensorvärden som rörliga staplar. I inställningsdialogrutan kan du ange minimala och maximala värden för intervallet och en undre och övre gräns. Om intervallet överskrids färgas skärmen med varningsfärgen.</para>
+</sect2>
+
+<sect2 id="sensorlogger">
+<title
+>Logga till fil</title>
+
+<para
+>Sensorloggningen visar inte några värden, men loggar dem i en fil med ytterligare datum- och tidsinformation. I inställningsdialogrutan kan du ange minimala och maximala värden för sensorn. Om intervallet överskrids färgas posten i sensortabellen med varningsfärgen.</para>
+</sect2>
+
+<sect2 id="partition-table">
+<title
+>Partitionstabell</title>
+
+<para
+><guilabel
+>Partitionsanvändning</guilabel
+> har en särskild tabellsensor som visar information om alla monterade partitioner.</para>
+</sect2>
+
+<sect2 id="connectingtootherhosts">
+<title
+>Ansluta till andra värddatorer</title>
+<!--FIXME https://techbase.kde.org/Development/Tutorials/Sensors -->
+<para
+>Observera att menyalternativet <guimenuitem
+>Övervaka annan dator</guimenuitem
+> bara är tillgängligt för egna flikar.</para>
+
+<para
+>Använd <guimenuitem
+>Övervaka annan dator...</guimenuitem
+> i menyn <guimenu
+>Arkiv</guimenu
+> för att ansluta till en ny värddator. En dialogruta visas som låter dig ange namnet på värddatorn du vill ansluta till. Under namnet kan du välja anslutningsmetod. Förvalt värde är <application
+>ssh</application
+>, det säkra skalet. Som ett alternativ kan <application
+>rsh</application
+>, fjärrskalet, demonläge eller ett eget kommando användas. Klicka på <guibutton
+>Ok</guibutton
+> för att upprätta förbindelsen. Kort därefter visas den nya värddatorn i sensorbläddraren och du kan bläddra i listan av sensorer.</para>
+
+<para
+>För att koppla ner från en värddator, måste &ksysguard; stängas av och startas om igen.</para>
+
+<para
+>För att upprätta en förbindelse måste ett program som heter <application
+>ksysguardd</application
+>, som kan startas i följande två lägen, installeras på den nya värddatorn.</para>
+
+<variablelist>
+<varlistentry>
+<term
+>demonläge</term>
+<listitem>
+<para
+>Du kan starta <application
+>ksysguardd</application
+> vid uppstart med <guilabel
+>demon</guilabel
+>läge genom att lägga till <parameter
+>-d</parameter
+> som väljare. I det här fallet måste du välja demonläge i anslutningsdialogrutan för <application
+>ksysguard</application
+>. En nackdel med den här anslutningstypen är att du kommer inte kunna avbryta eller ändra snällhet för en process i <guilabel
+>Processtabell</guilabel
+> och dataöverföring via nätverket kommer inte att krypteras. Följaktligen rekommenderas inte demonläge.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term
+>skalläge</term>
+<listitem>
+<para
+>I det här läget startas <application
+>ksysguardd</application
+> vid anslutning av <application
+>ksysguard</application
+>. För att möjliggöra detta måste platsen för det ingå i din <envar
+>PATH</envar
+>. Tyvärr så kör inte ssh din <filename
+>.profile</filename
+>-fil, så din vanliga inställning av <envar
+>PATH</envar
+> är inte tillgänglig. Istället används en förvald <envar
+>PATH</envar
+> som <parameter
+>/bin:/usr/bin</parameter
+>. Eftersom &plasma; troligtvis inte är installerat i dessa kataloger måste du skapa eller uppdatera en fil i din hemkatalog. Filen heter <filename
+>environment</filename
+>, och måste finnas i en gömd katalog som heter <filename
+>.ssh</filename
+>. För mer detaljer se <application
+>ssh</application
+>-manualsidan. Filen måste innehålla en rad som den följande:</para>
+
+<screen
+><userinput
+>PATH=/bin:/usr/bin:/opt/kde/bin</userinput
+>
+</screen>
+
+<para
+>under förutsättning att <application
+>ksysguardd</application
+> finns i <filename
+>/opt/kde/bin/ksysguardd</filename
+>.</para>
+
+<tip
+><para
+>När du använder <application
+>ssh</application
+> bör du försäkra dig om att du har din <filename
+>identity.pub</filename
+> installerad på fjärrdatorn och att värddatornyckeln för fjärrdatorn redan är registrerad på din maskin. Om du inte ställer in <filename
+>identity.pub</filename
+> rätt, blir du tillfrågad om ditt lösenord varje gång du startar Systemövervakaren. Det enklaste sättet att kontrollera detta är att skriva <command
+>ssh <option
+>remotehost ksysguardd</option
+></command
+> på kommandoraden. Om du hälsas med <application
+>ksysguardd</application
+> kan du skriva <userinput
+>quit</userinput
+>, och allt är i sin ordning.</para
+></tip>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<note
+><para
+>För experter: <application
+>ksysguardd</application
+> är ett mycket litet program som bara länkas med libc. Därför kan det också användas på maskiner som inte har en fullständig &plasma;-installation, som servrar. Många större distributioner tillhandahåller ett separat <application
+>ksysguardd</application
+>-paket för din bekvämlighet. Om du väljer alternativet med eget kommando i värddatoranslutningen måste du ange hela kommandot för att starta <application
+>ksysguardd</application
+>.</para
+></note>
+
+</sect2>
+
+<!-- This was removed with revision 517573, but how to disconnect then?
+<sect2 id="disconnecting-hosts">
+<title
+>Disconnecting hosts</title>
+
+<para
+>To disconnect from a host, select the host in the sensor browser and
+choose <guimenuitem
+>Disconnect Host</guimenuitem
+> from the
+<guimenu
+>File</guimenu
+> menu. If you still have sensors in use, the display
+frames will be grayed and the displays won't update any longer.</para>
+</sect2>
+-->
+</sect1>
+
+</chapter>
+
+<chapter id="multiple-platforms">
+<title
+>Anpassa <application
+>ksysguardd</application
+></title>
+
+<para
+>Det grafiska gränssnittet är tillgängligt på alla plattformar som &plasma; kan användas på. Serverdelen finns för närvarande bara på följande &UNIX;-varianter:</para>
+
+<variablelist>
+<varlistentry>
+<term
+>&Linux;</term>
+<listitem
+><para
+>För att <application
+>ksysguardd</application
+> ska fungera måste &Linux;-kärnan kompileras med <filename
+>/proc</filename
+>-filsystemet aktiverat. Detta är normalinställningen och de flesta &Linux;-distributioner har den redan.</para
+> </listitem>
+</varlistentry>
+<varlistentry>
+<term
+>FreeBSD</term>
+<listitem
+><para
+>Programmet <application
+>ksysguardd</application
+> måste ägas av gruppen <systemitem class="groupname"
+>kmem</systemitem
+>  och måste ha setgid-biten satt.</para
+></listitem
+> 
+</varlistentry>
+<varlistentry>
+<term
+>&Solaris;</term>
+<listitem
+><para
+>Ännu inte skriven</para
+></listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Stöd för ytterligare plattformar håller på att förberedas. Din hjälp skulle vara mycket uppskattad.</para>
+</chapter>
+
+<chapter id="credits-and-license">
+<title
+>Tack till och licens</title>
+
+<para
+>&ksysguard; utvecklas och underhålls för närvarande av John Tapsell john.tapsell@kde.org. &ksysguard; är en omskrivning av <application
+>KTop</application
+>, KDE 1.x aktivitetshanterare. Flera andra har arbetat med <application
+>KTop</application
+>:</para>
+
+<itemizedlist>
+<listitem
+><para
+>A. Sanda <email
+>alex@darkstar.ping.at</email
+></para
+></listitem>
+<listitem
+><para
+>Ralf Mueller <email
+>ralf@bj-ig.de</email
+></para
+></listitem>
+<listitem
+><para
+>&Bernd.Johannes.Wuebben; <email
+>wuebben@math.cornell.edu</email
+></para
+></listitem>
+<listitem
+><para
+>Nicolas Leclercq <email
+>nicknet@planete.net</email
+></para
+></listitem>
+</itemizedlist>
+
+<para
+>Överföring till andra plattformar än &Linux; utfördes av:</para>
+
+<itemizedlist>
+<listitem
+><para
+>FreeBSD: Hans Petter Bieker <email
+>zerium@traad.lavvu.no</email
+></para
+></listitem>
+</itemizedlist>
+
+<para
+>Översättning Stefan Asserhäll <email
+>stefan.asserhall@bredband.net</email
+></para
+> 
+&underFDL; &underGPL; </chapter>
+
+</book>
+<!--
+Local Variables:
+mode: sgml
+sgml-omittag: nil
+sgml-shorttag: t
+End:
+-->
+

@@ -1,0 +1,65 @@
+TODO
+UPDATE (June 10, 2002) 
+*  Striping in images like ghostscript' example image "tiger.ps'
+   has been eliminated by just making sure that black ink is never overprinted
+   by color ink.   A major reworking  to cutswath.c and some improvements to
+   image.c were needed.  This is probably the final work done on this driver..
+
+--------------------------------
+Code issues (comments by duncan):
+* implement data compression for color as well as
+  black and white printing.
+* check out the new information about the buffer on the printer.
+  (mentioned on ppa.devel by andrew in early 2000)
+* cleaning head codes needed. (or put them into PUP);
+  document the codes in  the ppa docs here.
+* should multiple color sweeps in a swath (gMaxpass=4)
+  alternate between right-to-left and left-to-right ?
+
+* The Windows driver  also has a "normal" mode with gMaxPass=2, and well
+  as "econofast" (gMaxPass=1) and high quality (gMaxPass=4).  It
+  alternates color passes in one direction with black passes in the
+  other direction, at the same vertical position.
+  If this structure is adopted, maybe the way the 600dpi resolution of black
+  if reduced to 300dpi resolution in dither.c should be rethought.
+  (Why not keep 600dpi black resolution ?).
+
+* A FS_black_dither routine is needed in black-only printing, for high-quality
+  black-only images.
+
+
+* add autodetection of device via IEEE 1284 and other methods
+* redo debugging support	(done ajv)
+* add extra .conf parameters to avoid recompiles (done: ajv & giorgio)
+* getopt() rather than current handling	(done:	ajv 19991003)
+
+Distribution and Installation issues
+
+* *BSD compatibility (partially there: ajv 19991021)
+* update README and all doco
+* update installation instructions for major distributions (caldera, RH, etc)
+* Translate man page into other languages
+* add autoconf support ? (NetBSD and alpha issues)
+* update CREDITS
+* Make install target	(done: ajv)
+* make syslog configurable; stdout or syslog (done: ajv 19991021)
+
+CALIBRATION
+* CALIBRATE doco, and supporting .ps file to generate page
+
+Long Term wants
+
+* write instructions on how to speed up parallel port (Linux 2.2.x and later)
+* write hppaconf (KDE)?
+* gs native filter rather than take pnm/pbm/ppm files
+* scpd to monitor printer status, and provide support for console alerts
+  (These are dumb printers, so ...)
+
+
+
+
+
+
+
+
+

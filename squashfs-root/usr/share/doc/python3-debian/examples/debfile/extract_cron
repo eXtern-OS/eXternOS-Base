@@ -1,0 +1,41 @@
+#!/usr/bin/python
+
+# extract_cron - extract cron-related files from .deb s
+# Copyright (C) 2007 Stefano Zacchiroli <zack@debian.org>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+"""Extracts all cron-related files from a (list of) .deb package(s)."""
+
+from __future__ import print_function
+
+import os
+import re
+import sys
+
+from debian import debfile
+
+def is_cron(fname):
+    return re.match(r'^etc/cron\.(d|daily|hourly|monthly|weekly)\b', fname)
+
+if __name__ == '__main__':
+    if not sys.argv[1:]:
+        print("Usage: extract_cron DEB ...")
+        sys.exit(1)
+
+    for fname in sys.argv[1:]:
+        deb = debfile.DebFile(fname)
+        cron_files = filter(is_cron, list(deb.data))
+        for cron_file in cron_files:
+            print('Extracting cron-related file %s ...' % cron_file)
+            path = os.path.join('.', cron_file)
+            dir = os.path.dirname(path)
+            if not os.path.exists(dir):
+                os.mkdir(dir)
+            out = open(path, 'w')
+            out.write(deb.data.get_content(cron_file))
+            out.close()
+

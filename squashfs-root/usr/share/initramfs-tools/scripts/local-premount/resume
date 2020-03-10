@@ -1,0 +1,60 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+if [ -z "${resume}" ] || [ ! -e /sys/power/resume ]; then
+	exit 0
+fi
+
+. /scripts/functions
+. /scripts/local
+
+PAGE_SIZE=4096
+if [ -x /bin/getconf ]; then
+	PAGE_SIZE=$(getconf PAGESIZE)
+fi
+export PAGE_SIZE
+
+if ! local_device_setup ${resume} "suspend/resume device" false; then
+	exit 0
+fi
+
+DEV=$(readlink ${resume})
+DEV=/sys/class/block/${DEV##*/}/dev
+if [ -r "$DEV" ]; then
+        read MAJMIN < "$DEV"
+fi
+if [ -z "$MAJMIN" ]; then
+        exit 1
+fi
+
+if [ "${resume_offset}" -ge 0 ] 2>/dev/null; then
+	offset_option=$((${resume_offset} * ${PAGE_SIZE}))
+	SWAPTYPE=$(blkid -p -O ${offset_option} "${resume}" -s TYPE -o value)
+	MAJMIN="${MAJMIN}:${resume_offset}"
+else
+	SWAPTYPE=$(blkid -p -o value -s TYPE "${resume}")
+fi
+
+case "${SWAPTYPE}" in
+    swsuspend|s1suspend|s2suspend|ulsuspend|tuxonice)
+	if [ -x /bin/plymouth ] && plymouth --ping; then
+		plymouth message --text="Resuming from $resume"
+	fi
+
+	echo "${MAJMIN}" > /sys/power/resume
+	;;
+esac

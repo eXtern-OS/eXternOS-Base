@@ -1,0 +1,96 @@
+Thanks for using Grilo!
+
+=== What is Grilo? ===
+
+Grilo is a framework for browsing and searching media content from various
+sources using a single API.
+
+=== Where can I find more? ===
+
+We have a wiki page at
+https://wiki.gnome.org/Projects/Grilo
+
+You can subscribe to our mailing list:
+http://mail.gnome.org/mailman/listinfo/grilo-list
+
+You can join us on the IRC:
+#grilo on GIMPNet
+
+=== How do I start? ===
+
+If you are using Ubuntu you can install binary packages by configuring
+our PPA, check the wiki page above for details. Otherwise you  have
+to download Grilo's source code from GNOME's repository and build it
+-don't worry, it takes only a few seconds-, see the section below
+if you want to do that.
+
+Once you have Grilo installed, you may want to play around with the
+examples (See section "Examples") or check its documentation 
+and tutorials (See section "Documentation").
+
+=== Building from git ===
+
+$ git clone git://git.gnome.org/grilo
+$ cd grilo
+$ ./autogen.sh
+$ make
+
+=== Examples ===
+
+If you are looking for some example to play with you can try grilo-test-ui,
+a simple GTK+ based test application for testing purposes. You can find it
+under tools/grilo-test-ui. It allows users to:
+
+1) Browse predefined content categories from browseable sources (like
+"Youtube", "Jamendo" or "UPnP").
+2) Search content by text on searchable sources (like "Youtube", "Jamanedo"
+or "Flickr").
+3) Query sources using source-specific syntax (for sources implementing
+this feature).
+4) Organize and define the source's content hierarchy (for sources
+implementing this feature like "bookmarks" or
+"podcasts").
+5) Check available metadata for the media. 
+
+For this application to work you need some Grilo plugins that act as media
+sources, that is, plugins that provide the actual content that you will
+browse and search using the application. You can get a bunch of plugins for
+Grilo from the grilo-plugins package here:
+
+http://git.gnome.org/browse/grilo-plugins
+
+If you are looking for a step-by-step guide from beginning to end, here it is:
+
+# Building Grilo
+
+$ git clone git://git.gnome.org/grilo
+$ cd grilo
+$ ./autogen.sh
+$ make
+
+# Building Grilo Plugins and setting GRL_PLUGIN_PATH
+
+$ export PKG_CONFIG_PATH=$PWD:$PKG_CONFIG_PATH
+$ cd ..
+$ git clone git://git.gnome.org/grilo-plugins
+$ cd grilo-plugins
+$ ./autogen.sh
+$ make
+$ make install
+
+# Running grilo-test-ui
+
+$ cd ../grilo
+$ tools/grilo-test-ui/grilo-test-ui
+
+=== Documentation ===
+
+If you are looking for documentation you should add the --enable-gtk-doc
+option to the autogen.sh execution:
+
+$ ./autogen.sh --enable-gtk-doc
+$ make
+
+Then point your browser to open the file doc/reference/html/index.html
+
+Enjoy!

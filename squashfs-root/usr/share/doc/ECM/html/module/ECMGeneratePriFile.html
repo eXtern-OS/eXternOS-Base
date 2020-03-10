@@ -1,0 +1,168 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ECMGeneratePriFile &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ECMGenerateQmlTypes" href="ECMGenerateQmlTypes.html" />
+    <link rel="prev" title="ECMGeneratePkgConfigFile" href="ECMGeneratePkgConfigFile.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ECMGenerateQmlTypes.html" title="ECMGenerateQmlTypes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ECMGeneratePkgConfigFile.html" title="ECMGeneratePkgConfigFile"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" accesskey="U">ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ecmgenerateprifile">
+<span id="module:ECMGeneratePriFile"></span><h1>ECMGeneratePriFile<a class="headerlink" href="#ecmgenerateprifile" title="Permalink to this headline">¶</a></h1>
+<p>Generate a <code class="docutils literal"><span class="pre">.pri</span></code> file for the benefit of qmake-based projects.</p>
+<p>As well as the function below, this module creates the cache variable
+<code class="docutils literal"><span class="pre">ECM_MKSPECS_INSTALL_DIR</span></code> and sets the default value to <code class="docutils literal"><span class="pre">mkspecs/modules</span></code>.
+This assumes Qt and the current project are both installed to the same
+non-system prefix.  Packagers who use <code class="docutils literal"><span class="pre">-DCMAKE_INSTALL_PREFIX=/usr</span></code> will
+certainly want to set <code class="docutils literal"><span class="pre">ECM_MKSPECS_INSTALL_DIR</span></code> to something like
+<code class="docutils literal"><span class="pre">share/qt5/mkspecs/modules</span></code>.</p>
+<p>The main thing is that this should be the <code class="docutils literal"><span class="pre">modules</span></code> subdirectory of either
+the default qmake <code class="docutils literal"><span class="pre">mkspecs</span></code> directory or of a directory that will be in the
+<code class="docutils literal"><span class="pre">$QMAKEPATH</span></code> environment variable when qmake is run.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_generate_pri_file</span><span class="p">(</span><span class="n">BASE_NAME</span> <span class="o">&lt;</span><span class="n">baseName</span><span class="o">&gt;</span>
+                      <span class="n">LIB_NAME</span> <span class="o">&lt;</span><span class="n">libName</span><span class="o">&gt;</span>
+                      <span class="p">[</span><span class="n">DEPS</span> <span class="s2">&quot;&lt;dep&gt; [&lt;dep&gt; [...]]&quot;</span><span class="p">]</span>
+                      <span class="p">[</span><span class="n">FILENAME_VAR</span> <span class="o">&lt;</span><span class="n">filename_variable</span><span class="o">&gt;</span><span class="p">]</span>
+                      <span class="p">[</span><span class="n">INCLUDE_INSTALL_DIR</span> <span class="o">&lt;</span><span class="nb">dir</span><span class="o">&gt;</span><span class="p">]</span>
+                      <span class="p">[</span><span class="n">LIB_INSTALL_DIR</span> <span class="o">&lt;</span><span class="nb">dir</span><span class="o">&gt;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>If your CMake project produces a Qt-based library, you may expect there to be
+applications that wish to use it that use a qmake-based build system, rather
+than a CMake-based one.  Creating a <code class="docutils literal"><span class="pre">.pri</span></code> file will make use of your
+library convenient for them, in much the same way that CMake config files make
+things convenient for CMake-based applications.</p>
+<p>ecm_generate_pri_file() generates just such a file.  It requires the
+<code class="docutils literal"><span class="pre">PROJECT_VERSION_STRING</span></code> variable to be set.  This is typically set by
+<a class="reference internal" href="ECMSetupVersion.html#module:ECMSetupVersion" title="ECMSetupVersion"><code class="xref ecm ecm-module docutils literal"><span class="pre">ECMSetupVersion</span></code></a>, although the project() command in CMake 3.0.0 and
+later can also set this.</p>
+<p>BASE_NAME specifies the name qmake project (.pro) files should use to refer to
+the library (eg: KArchive).  LIB_NAME is the name of the actual library to
+link to (ie: the first argument to add_library()).  DEPS is a space-separated
+list of the base names of other libraries (for Qt libraries, use the same
+names you use with the <code class="docutils literal"><span class="pre">QT</span></code> variable in a qmake project file, such as “core”
+for QtCore).  FILENAME_VAR specifies the name of a variable to store the path
+to the generated file in.</p>
+<p>INCLUDE_INSTALL_DIR is the path (relative to <code class="docutils literal"><span class="pre">CMAKE_INSTALL_PREFIX</span></code>) that
+include files will be installed to. It defaults to
+<code class="docutils literal"><span class="pre">${INCLUDE_INSTALL_DIR}/&lt;baseName&gt;</span></code> if the <code class="docutils literal"><span class="pre">INCLUDE_INSTALL_DIR</span></code> variable
+is set. If that variable is not set, the <code class="docutils literal"><span class="pre">CMAKE_INSTALL_INCLUDEDIR</span></code> variable
+is used instead, and if neither are set <code class="docutils literal"><span class="pre">include</span></code> is used.  LIB_INSTALL_DIR
+operates similarly for the installation location for libraries; it defaults to
+<code class="docutils literal"><span class="pre">${LIB_INSTALL_DIR}</span></code>, <code class="docutils literal"><span class="pre">${CMAKE_INSTALL_LIBDIR}</span></code> or <code class="docutils literal"><span class="pre">lib</span></code>, in that order.</p>
+<p>Example usage:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">ecm_generate_pri_file</span><span class="p">(</span>
+    <span class="s">BASE_NAME</span> <span class="s">KArchive</span>
+    <span class="s">LIB_NAME</span> <span class="s">KF5KArchive</span>
+    <span class="s">DEPS</span> <span class="s2">&quot;core&quot;</span>
+    <span class="s">FILENAME_VAR</span> <span class="s">pri_filename</span>
+<span class="p">)</span>
+<span class="nb">install</span><span class="p">(</span><span class="s">FILES</span> <span class="o">${</span><span class="nv">pri_filename</span><span class="o">}</span> <span class="s">DESTINATION</span> <span class="o">${</span><span class="nv">ECM_MKSPECS_INSTALL_DIR</span><span class="o">}</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A qmake-based project that wished to use this would then do:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">QT</span> <span class="o">+=</span> <span class="n">KArchive</span>
+</pre></div>
+</div>
+<p>in their <code class="docutils literal"><span class="pre">.pro</span></code> file.</p>
+<p>Since pre-1.0.0.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ECMGeneratePkgConfigFile.html"
+                        title="previous chapter">ECMGeneratePkgConfigFile</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ECMGenerateQmlTypes.html"
+                        title="next chapter">ECMGenerateQmlTypes</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/module/ECMGeneratePriFile.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ECMGenerateQmlTypes.html" title="ECMGenerateQmlTypes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ECMGeneratePkgConfigFile.html" title="ECMGeneratePkgConfigFile"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" >ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

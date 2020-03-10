@@ -1,0 +1,40 @@
+#!/bin/sh -e
+#
+# updates the ~/.pam_environment config file
+
+homedir=$1
+locale_name=$2
+language_list=$3
+
+[ -n "$homedir" -a -n "$locale_name" ] || exit 1
+
+langtoolsdir=/usr/share/language-tools
+
+# create ~/.pam_environment if it doesn't exist
+touch "$homedir/.pam_environment" || exit 1
+
+save_to_pam_env() {
+    var=$1; value=$2
+    if [ "$( grep -E "^$var(\s+DEFAULT|=)" .pam_environment )" ]; then
+        sed -r -i "s/^$var(\s+DEFAULT|=).*/$var\tDEFAULT=$value/" .pam_environment
+    else
+        echo "$var\tDEFAULT=$value" >> .pam_environment
+    fi
+}
+
+cd "$homedir" 
+if [ -n "$language_list" ]; then
+    save_to_pam_env 'LANGUAGE' $language_list
+    save_to_pam_env 'LANG' $locale_name
+else
+    for var in 'LC_NUMERIC' 'LC_TIME' 'LC_MONETARY' 'LC_PAPER' 'LC_NAME' \
+               'LC_ADDRESS' 'LC_TELEPHONE' 'LC_MEASUREMENT' 'LC_IDENTIFICATION'; do
+        save_to_pam_env $var $locale_name
+    done
+    papersize=$( $langtoolsdir/locale2papersize $locale_name )
+    save_to_pam_env 'PAPERSIZE' $papersize
+    echo $locale_name
+fi    
+
+exit 0
+

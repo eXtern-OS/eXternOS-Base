@@ -1,0 +1,259 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Tags</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#CLASS_METHODS'>CLASS METHODS</a>
+  <li class='indexItem indexItem1'><a href='#INSTANCE_METHODS'>INSTANCE METHODS</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#Configuration'>Configuration</a>
+    <li class='indexItem indexItem2'><a href='#File_Metadata'>File Metadata</a>
+    <li class='indexItem indexItem2'><a href='#Statistics'>Statistics</a>
+    <li class='indexItem indexItem2'><a href='#Tag_Reporting'>Tag Reporting</a>
+  </ul>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Tags - Manipulate and output Lintian tags</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre>    my $tags = Lintian::Tags-&#62;new;
+    my $proc = Lintian::Processable::Package-&#62;new (&#39;/path/to/file&#39;);
+    $tags-&#62;file_start ($proc);
+    $tags-&#62;file_overrides (&#39;/path/to/an/overrides-file&#39;);
+    $tags-&#62;tag (&#39;lintian-tag&#39;, &#39;extra tag information&#39;);
+    tag (&#39;other-lintian-tag&#39;, &#39;with some extra data&#39;);
+    tag (&#39;third-lintian-tag&#39;); # with no extra).
+    my %overrides = $tags-&#62;overrides ($proc);
+    my %stats = $tags-&#62;statistics;
+    if ($tags-&#62;displayed (&#39;lintian-tag&#39;)) {
+        # do something if that tag would be displayed...
+    }</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>This module stores metadata about Lintian tags, stores configuration about which tags should be displayed, handles displaying tags if appropriate, and stores cumulative statistics about what tags have been seen. It also accepts override information and determines whether a tag has been overridden, keeping override statistics. Finally, it supports answering metadata questions about Lintian tags, such as what references Lintian has for that tag.</p>
+
+<p>Each Lintian::Tags object has its own tag list, file list, and associated statistics. Separate Lintian::Tags objects can be maintained and used independently. However, as a convenience for Lintian&#39;s most typical use case and for backward compatibility, the first created Lintian::Tags object is maintained as a global default. The tag() method can be called as a global function instead of a method, in which case it will act on that global default Lintian::Tags object.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS_METHODS"
+>CLASS METHODS</a></h1>
+
+<dl>
+<dt><a name="new()"
+>new()</a></dt>
+
+<dd>
+<p>Creates a new Lintian::Tags object, initializes all of its internal statistics and configuration to the defaults, and returns the newly created object.</p>
+
+<dt><a name="tag(TAG,_[EXTRA,_...])"
+>tag(TAG, [EXTRA, ...])</a></dt>
+
+<dd>
+<p>Issue the Lintian tag TAG, possibly suppressing it or not displaying it based on configuration. EXTRA, if present, is additional information to display with the tag. It can be given as a list of strings, in which case they&#39;re joined by a single space before display.</p>
+
+<p>This method can be called either as a class method (which is exported by the Lintian::Tags module) or as an instance method. If called as a class method, it uses the first-constructed Lintian::Tags object as its underlying object.</p>
+
+<p>This method throws an exception if it is called without file_start() being called first or if an attempt is made to issue an unknown tag.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="INSTANCE_METHODS"
+>INSTANCE METHODS</a></h1>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Configuration"
+>Configuration</a></h2>
+
+<dl>
+<dt><a name="display(OPERATION,_RELATION,_SEVERITY,_CERTAINTY)"
+>display(OPERATION, RELATION, SEVERITY, CERTAINTY)</a></dt>
+
+<dd>
+<p>Configure which tags are displayed by severity and certainty. OPERATION is <code>+</code> to display the indicated tags, <code>-</code> to not display the indicated tags, or <code>=</code> to not display any tags except the indicated ones. RELATION is one of <code>&#60;</code>, <code>&#60;=</code>, <code>=</code>, <code>&#62;=</code>, or <code>&#62;</code>. The OPERATION will be applied to all pairs of severity and certainty that match the given RELATION on the SEVERITY and CERTAINTY arguments. If either of those arguments are undefined, the action applies to any value for that variable. For example:</p>
+
+<pre>    $tags-&#62;display(&#39;=&#39;, &#39;&#62;=&#39;, &#39;important&#39;);</pre>
+
+<p>turns off display of all tags and then enables display of any tag (with any certainty) of severity important or higher.</p>
+
+<pre>    $tags-&#62;display(&#39;+&#39;, &#39;&#62;&#39;, &#39;normal&#39;, &#39;possible&#39;);</pre>
+
+<p>adds to the current configuration display of all tags with a severity higher than normal and a certainty higher than possible (so important/certain and serious/certain).</p>
+
+<pre>    $tags-&#62;display(&#39;-&#39;, &#39;=&#39;, &#39;minor&#39;, &#39;possible&#39;);</pre>
+
+<p>turns off display of tags of severity minor and certainty possible.</p>
+
+<p>This method throws an exception on errors, such as an unknown severity or certainty or an impossible constraint (like <code>&#62; serious</code>).</p>
+
+<dt><a name="show_experimental(BOOL)"
+>show_experimental(BOOL)</a></dt>
+
+<dd>
+<p>If BOOL is true, configure experimental tags to be shown. If BOOL is false, configure experimental tags to not be shown.</p>
+
+<dt><a name="show_overrides(BOOL)"
+>show_overrides(BOOL)</a></dt>
+
+<dd>
+<p>If BOOL is true, configure overridden tags to be shown. If BOOL is false, configure overridden tags to not be shown.</p>
+
+<dt><a name="sources([SOURCE_[,_...]])"
+>sources([SOURCE [, ...]])</a></dt>
+
+<dd>
+<p>Limits the displayed tags to only those from the listed sources. One or more sources may be given. If no sources are given, resets the Lintian::Tags object to display tags from any source. Tag sources are the names of references from the Ref metadata for the tags.</p>
+
+<dt><a name="profile(PROFILE)"
+>profile(PROFILE)</a></dt>
+
+<dd>
+<p>Use the PROFILE (Lintian::Profile) to determine which tags are suppressed, the severity of the tags and which tags are non-overridable.</p>
+</dd>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="File_Metadata"
+>File Metadata</a></h2>
+
+<dl>
+<dt><a name="file_start(PROC)"
+>file_start(PROC)</a></dt>
+
+<dd>
+<p>Adds a new file from a processable, initializes the data structures used for statistics and overrides, and makes it the default file for which tags will be issued. Also call Lintian::Output::print_end_pkg() to end the previous file, if any, and Lintian::Output::print_start_pkg() to start the new file.</p>
+
+<p>This method throws an exception if the file being added was already added earlier.</p>
+
+<dt><a name="file_overrides(OVERRIDE-FILE)"
+>file_overrides(OVERRIDE-FILE)</a></dt>
+
+<dd>
+<p>Read OVERRIDE-FILE and add the overrides found there which match the metadata of the current file (package and type). The overrides are added to the overrides hash in the info hash entry for the current file.</p>
+
+<p>file_start() must be called before this method. This method throws an exception if there is no current file and calls fail() if the override file cannot be opened.</p>
+
+<dt><a name="load_overrides"
+>load_overrides</a></dt>
+
+<dd>
+<p>Loads overrides for the current file. This is basically a short-hand for finding the overrides file in the lab and calling <a href="#file_overrides(OVERRIDE-FILE)" class="podlinkpod"
+>files_overrides</a> on it if it is present.</p>
+
+<dt><a name="file_end()"
+>file_end()</a></dt>
+
+<dd>
+<p>Ends processing of a file.</p>
+
+<p>This does two things. First it emits &#34;unused-override&#34; tags for all unused overrides. Secondly, it calls Lintian::Output::print_end_pkg to mark the end of the package.</p>
+
+<p>Note that this method is called by file_start if it detects another entry is already active.</p>
+</dd>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Statistics"
+>Statistics</a></h2>
+
+<dl>
+<dt><a name="overrides(PROC)"
+>overrides(PROC)</a></dt>
+
+<dd>
+<p>Returns a reference to the overrides hash for the given processable. The keys of this hash are the tags for which are overrides. The value for each key is another hash, whose keys are the extra data matched by that override and whose values are the counts of tags that matched that override. Overrides matching any tag by that name are stored with the empty string as metadata, so:</p>
+
+<pre>    my $overrides = $tags-&#62;overrides(&#39;/some/file&#39;);
+    print &#34;$overrides-&#62;{&#39;some-tag&#39;}{&#39;&#39;}\n&#34;;</pre>
+
+<p>will print out the number of tags that matched a general override for the tag some-tag, regardless of what extra data was associated with it.</p>
+
+<dt><a name="statistics([PROC])"
+>statistics([PROC])</a></dt>
+
+<dd>
+<p>Returns a reference to the statistics hash for the given processable or, if PROC is omitted, a reference to the full statistics hash for all files. In the latter case, the returned hash reference has as keys the file names and as values the per-file statistics.</p>
+
+<p>The per-file statistics has a set of hashes of keys to times seen in tags: tag names (the <code>tags</code> key), severities (the <code>severity</code> key), certainties (the <code>certainty</code> key), and tag codes (the <code>types</code> key). It also has an <code>overrides</code> key which has as its value another hash with those same four keys, which keeps statistics on overridden tags (not included in the regular counts).</p>
+</dd>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Tag_Reporting"
+>Tag Reporting</a></h2>
+
+<dl>
+<dt><a name="displayed(TAG)"
+>displayed(TAG)</a></dt>
+
+<dd>
+<p>Returns true if the given tag would be displayed given the current configuration, false otherwise. This does not check overrides, only whether the tag severity, certainty, and source warrants display given the configuration.</p>
+
+<dt><a name="suppressed(TAG)"
+>suppressed(TAG)</a></dt>
+
+<dd>
+<p>Returns true if the given tag would be suppressed given the current configuration, false otherwise. This is different than displayed() in that a tag is only suppressed if Lintian treats the tag as if it&#39;s never been seen, doesn&#39;t update statistics, and doesn&#39;t change its exit status. Tags are suppressed via profile().</p>
+
+<dt><a name="ignored_overrides()"
+>ignored_overrides()</a></dt>
+
+<dd>
+<p>Returns a hash of tags, for which overrides have been ignored. The keys are tag names and the value is the number of overrides that has been ignored.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Russ Allbery &#60;rra@debian.org&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1), Lintian::Output(3), Lintian::Tag::Info(3)</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

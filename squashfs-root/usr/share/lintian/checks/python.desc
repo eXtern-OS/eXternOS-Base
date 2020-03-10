@@ -1,0 +1,121 @@
+Check-Script: python
+Author: Chris Lamb <lamby@debian.org>
+Type: source, binary
+Info: This script checks Python-related issues
+Needs-Info: unpacked, changelog-file
+
+Tag: new-package-should-not-package-python2-module
+Severity: normal
+Certainty: certain
+Info: This package appears to be the initial packaging of a new upstream
+ software package (ie. it contains a single changelog entry). However, it
+ ships the specified module for Python 2.
+ .
+ Python 2.x modules should not be packaged unless strictly necessary (such
+ as being explicitly requested by an end-user or required as part of a
+ dependency chain) as the 2.x series of Python is due for deprecation and
+ will not be maintained past 2020.
+ .
+ If upstream have not moved or have no intention to move to Python 3,
+ please be certain that Debian would benefit from the inclusion, continued
+ maintenance burden and (eventual) removal of this package before you
+ upload.
+ .
+ This warning can be ignored if the package is not intended for Debian or
+ if it is a split of an existing Debian package. This warning can also be
+ ignored if viewed on https://lintian.debian.org/.
+ .
+ Please do not override this warning; rather, add a justification to your
+ changelog entry; Lintian looks in this version's changelog entry for the
+ specified package name or the phrase "Python 2 version" or similar.
+
+Tag: python-foo-but-no-python3-foo
+Severity: normal
+Certainty: certain
+Info: This source package appears to generate the specified Python 2 package
+ without creating a variant for Python 3.
+ .
+ The 2.x series of Python is due for deprecation and will not be maintained
+ past 2020.
+ .
+ If upstream have not moved or have no intention to move to Python 3, please
+ be certain that Debian would benefit from the continued inclusion of this
+ package and, if not, consider removing it.
+ .
+ Alternatively, ensure that the corresponding package specifies the
+ <tt>${python3:Depends}</tt> substvar in its binary dependencies.
+
+Tag: build-depends-on-python-sphinx-only
+Severity: normal
+Certainty: certain
+Info: This package Build-Depends on the Python 2.x version of the Sphinx
+ documentation generator.
+ .
+ The 2.x series of Python is due for deprecation and will not be maintained
+ past 2020.
+ .
+ Some Python modules may need to depend on both <tt>python-sphinx</tt> and
+ <tt>python3-sphinx</tt> but please consider moving to only Build-Depending on
+ the <tt>python3-sphinx</tt> package instead.
+
+Tag: alternatively-build-depends-on-python-sphinx-and-python3-sphinx
+Severity: normal
+Certainty: certain
+Info: This package alternatively Build-Depends on the Python 2 or Python 3
+ version of the Sphinx documentation generator.
+ .
+ The 2.x series of Python is due for deprecation and will not be maintained
+ past 2020.
+ .
+ Please replace the alternative with a single build dependency on
+ <tt>python3-sphinx</tt>.
+
+Tag: dependency-on-python-version-marked-for-end-of-life
+Severity: wishlist
+Certainty: certain
+Ref: https://wiki.debian.org/Python/Python3Port, https://www.python.org/dev/peps/pep-0373/
+Info: The package specifies a dependency on Python 2.x which is due for
+ deprecation and will not be maintained past 2020.
+ .
+ Please port the package to use Python 3 instead or ask upstream to do so.
+ .
+ If upstream have not moved (or have no intention to move) to Python 3, please
+ be certain that Debian benefits from the inclusion of this package.
+
+Tag: django-package-does-not-depend-on-django
+Severity: normal
+Certainty: certain
+Info: This package appears to be library module for the Django web development
+ framework but it does not specify a binary dependency on the Django package
+ itself.
+ .
+ Please add a Depends on <tt>python-django</tt> or <tt>python3-django</tt>.
+
+Tag: mismatched-python-substvar
+Severity: normal
+Certainty: certain
+Info: The specified package declares a dependency on <tt>${python:Depends}</tt>
+ whilst appearing to be a Python 2.x package or a dependency on
+ <tt>${python3:Depends}</tt> when it appears to be a package for Python 2.x.
+ .
+ Please adjust the substvar to match the intended Python version.
+
+Tag: python-package-depends-on-package-from-other-python-variant
+Severity: normal
+Certainty: certain
+Info: Either the specified Python 3.x package declares a dependency on a
+ Python 2.x package, or the specified Python 2.x package depends on a Python
+ 3.x pakvage.
+ .
+ This is likely a typo in <tt>debian/control</tt> or due to misconfigured
+ calls to, for example, <tt>dh_installdocs --link-doc=PKG</tt>.
+Ref: #884692
+
+Tag: python-package-missing-depends-on-python
+Severity: serious
+Certainty: certain
+Info: The specified Python package ships Python modules under
+ <tt>/usr/lib</tt> but does not specify any dependency on Python.
+ .
+ This is likely an omission, the result of a typo in
+ <tt>debian/control</tt> or the file should not be installed.

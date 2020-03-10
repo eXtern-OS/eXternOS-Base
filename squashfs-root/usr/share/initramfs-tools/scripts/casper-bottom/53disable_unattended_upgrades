@@ -1,0 +1,30 @@
+#!/bin/sh
+
+PREREQ=""
+DESCRIPTION="Disabling security unattended-upgrades..."
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+
+log_begin_msg "$DESCRIPTION"
+
+# Stop downloading and installing security updates automatically
+# as they can fill up a Live CD or presistent environment. (LP: #1619188)
+SECURITY='"${distro_id}:${distro_codename}-security";'
+if grep -q "^\s\+$SECURITY$" /root/etc/apt/apt.conf.d/50unattended-upgrades; then
+    sed -i "s/\(\s\+\)$SECURITY/\/\/\1$SECURITY/" /root/etc/apt/apt.conf.d/50unattended-upgrades
+fi
+
+log_end_msg

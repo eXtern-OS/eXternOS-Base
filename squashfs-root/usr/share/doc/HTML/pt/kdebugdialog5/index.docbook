@@ -1,0 +1,230 @@
+<?xml version="1.0" ?>
+<!DOCTYPE article PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+"dtd/kdedbx45.dtd" [
+  <!ENTITY kdebugdialog5 "<application
+>KDebugDialog</application
+>">
+  <!ENTITY kappname "&kdebugdialog;">
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Portuguese "INCLUDE"
+> <!-- change language only here -->
+  
+  
+]>
+
+<article id="kdebugdialog5" lang="&language;">
+<title
+>KDebugDialog</title>
+<articleinfo>
+<authorgroup>
+<author
+>&David.Faure; &David.Faure.mail;</author>
+<othercredit role="translator"
+><firstname
+>José</firstname
+><surname
+>Pires</surname
+><affiliation
+><address
+><email
+>zepires@gmail.com</email
+></address
+></affiliation
+><contrib
+>Tradução</contrib
+></othercredit
+> 
+</authorgroup>
+
+<date
+>2016-04-02</date>
+<releaseinfo
+>Plataformas 5.21</releaseinfo>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>KDebugdialog</keyword>
+<keyword
+>Depurar</keyword>
+</keywordset>
+</articleinfo>
+
+
+<para
+>O &kdebugdialog; é uma janela para gerir as mensagens de diagnóstico em pleno funcionamento. Oferece um modo simples e um completo.</para>
+<para
+>Para poder fazer as alterações, a opção <guilabel
+>Desactivar todo o resultado de depuração</guilabel
+> terá de ser desligada.</para>
+
+<note>
+<para
+>Só para as aplicações que usam a biblioteca das Plataformas kdelibs4support.</para>
+<para
+>O kDebug() foi descontinuado nas Plataformas do &kde; 5, sendo substituído pelo registo por categorias de base do &Qt; - veja o <ulink url="http://doc.qt.io/qt-5/qloggingcategory.html"
+>QLoggingCategory</ulink
+>. Use o programa <ulink url="https://commits.kde.org/kdebugsettings"
+>kdebugsettings</ulink
+> para activar/desactivar o 'qCDebug'. </para>
+</note>
+
+<variablelist>
+<varlistentry>
+<term
+>Modo simples</term>
+<listitem>
+<para
+>Se você escrever simplesmente <command
+>kdebugdialog5</command
+>, verá uma lista de <quote
+>áreas</quote
+> que podem estar activas ou inactivas. Uma chamada <function
+>kDebug(área)</function
+> no código irá mostrar algo na janela de depuração só se a área estiver activa.</para>
+
+<note
+><para
+>Repare que o kWarning, o kError e o kFatal aparecem sempre, dado que <emphasis
+>NÃO</emphasis
+> são controlados por esta configuração. </para
+></note>
+
+<para
+>Introduza um texto correspondente no campo <guilabel
+>Procurar</guilabel
+> do topo da lista, o que lhe permite filtrar as áreas que aparecem na área da lista. Use os botões abaixo da lista para seleccionar ou deseleccionar todos os itens na área (as outras áreas não são afectadas) ou mudar o resultado da depuração para um único item, usando a opção de marcação à frente do mesmo. </para>
+
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+>Modo completo</term>
+<listitem>
+<para
+>Se você correr o <command
+>kdebugdialog5</command
+> <option
+>--fullmode</option
+>, poderá definir separadamente em cada nível de segurança o que deve ser feito com as mensagens de diagnóstico desse nível, e isto para cada área de depuração.</para>
+
+<para
+>No modo completo, deverá seleccionar em primeiro lugar a área de depuração na qual está interessado na lista que se encontra à esquerda da janela, usando o campo de pesquisa no seu topo.</para>
+
+<para
+>O utilizador poderá alterar independentemente o resultado para os vários tipos de mensagens:</para>
+
+<itemizedlist>
+<listitem
+><para
+><guilabel
+>Informação</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Aviso</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Erro</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Erro Fatal</guilabel
+></para
+></listitem>
+</itemizedlist>
+
+<para
+>Para cada um destes tipos, poderá definir o seguinte:</para>
+
+<variablelist>
+<varlistentry>
+<term
+><guilabel
+>Resultado para:</guilabel
+></term>
+<listitem>
+<para
+>Nesta lista poderá escolher onde as mensagens devem ser mostradas. As opções são: <quote
+>Ficheiro</quote
+>, <quote
+>Mensagem</quote
+>, <quote
+>Terminal</quote
+> (neste caso, o 'stderr') e <quote
+>Syslog</quote
+>. Se possível, não envie mensagens para o 'syslog', a não ser que seja o próprio administrador do sistema. O valor por omissão é <quote
+>Terminal</quote
+>.</para
+> 
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Nome do ficheiro:</guilabel
+></term>
+<listitem
+><para
+>Isto só faz sentido quando você seleccionar um <quote
+>Ficheiro</quote
+> como destino; nele, deverá indicar o nome desse ficheiro (este é interpretado relativamente à pasta actual). Por omissão, é o <filename
+>kdebug.dbg</filename
+>.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>À parte disto, poderá também assinalar a opção <guilabel
+>Abortar nos erros fatais</guilabel
+>. Neste caso, se for mostrada uma mensagem com o nível de severidade <computeroutput
+>KDEBUG_FATAL</computeroutput
+>, a aplicação termina com um SIGABRT depois de mostrar a mensagem.</para>
+
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Quando fechar a janela com o <guibutton
+>OK</guibutton
+>, as suas opções são aplicadas e gravadas no <filename
+>$<envar
+>XDG_CONFIG_HOME</envar
+>/kdebugrc</filename
+> ('~/.config/kdebugrc', por omissão). Quando o utilizador carregar em <guibutton
+>Cancelar</guibutton
+>, estas serão ignoradas e as antigas serão repostas.</para>
+
+<para
+>Créditos de Kalle Dalheimer pela versão original do &kdebugdialog;</para>
+
+<para
+>Tradução de José Nuno Pires <email
+>zepires@gmail.com</email
+></para
+> 
+
+&underFDL;
+
+</article>
+<!--
+Local Variables:
+mode: sgml
+sgml-omittag: nil
+sgml-general-insert-case: lower
+sgml-shorttag: t
+End:
+-->
+

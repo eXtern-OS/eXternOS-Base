@@ -1,0 +1,69 @@
+#!/bin/sh
+#
+# A chatscript that will attempt to dial multiple numbers in sequence, until
+# you get connected.
+#
+# To use: edit /etc/peers/provider, and change the connect line to read:
+# connect "/usr/local/bin/redialer"
+#
+# See below for configuration.
+
+# This is a list of chatscripts to use to get connected, and (optional)
+# telephone numbers to call for each of those chatscripts.
+#
+# Note that in the chatscripts, you may use #NUMBER#, this will be replaced
+# with the number it is calling. You might want to use this to only have one
+# chatscript that is used for all numbers, or you might need multiple
+# chatscripts.
+
+PHONE1=123456789
+CHAT1=/etc/chatscripts/provider
+
+PHONE2=912345678
+CHAT2=/etc/chatscripts/provider
+
+PHONE3=891234567
+CHAT3=/etc/chatscripts/provider
+
+PHONE4=789123456
+CHAT4=/etc/chatscripts/provider
+
+PHONE5=001234567
+CHAT5=/etc/chatscripts/provider
+
+# How long to sleep between retries:
+#
+# Note that this is a parameter to sleep so use "15s" for 15 seconds,
+# "1m" for 1 minute, etc
+SLEEP_DELAY=1s
+
+# The code below does the dialing.
+
+attempt=0
+while : ; do
+        attempt=`expr $attempt + 1`
+        NUMBER=`eval echo '$PHONE'$attempt`
+        CHAT=`eval echo '$CHAT'$attempt`
+        if [ ! "$CHAT" ]; then
+                attempt=0
+        else
+                logger "Dialing attempt number: $attempt"
+                sed s/#NUMBER#/$NUMBER/ $CHAT >/etc/chatscripts/tmpchat
+                /usr/sbin/chat -v -f /etc/chatscripts/tmpchat
+                rm -f /etc/chatscripts/tmpchat
+                case $? in
+                        0) logger Connection established ; exit 0;;
+                        1) logger chat: exit 1, see manpage for details. ; exit 1;;
+                        2) logger chat: exit 2, see manpage for details. ; exit 2;;
+                        3) logger chat: exit 3, see manpage for details. ;;
+                        4) logger Line busy. ;;
+                        5) logger No Carrier. ;;
+                        6) logger A call is coming. Exiting! ; exit 1;;
+                        7) logger No dialtone. ;;
+                        8) logger An error occured. Exiting! ; exit 1;;
+                        *) logger chat: exit $?, see manpage for details. ;;
+                esac
+                logger "Waiting $SLEEP_DELAY seconds before next try."
+                sleep $SLEEP_DELAY
+        fi
+done

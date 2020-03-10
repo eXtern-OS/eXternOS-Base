@@ -1,0 +1,259 @@
+<?xml version="1.0" ?>
+<!DOCTYPE article PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+"dtd/kdedbx45.dtd" [
+  <!ENTITY kdebugdialog5 "<application
+>KDebugDialog</application
+>">
+  <!ENTITY kappname-n '<application>К‑исправљачки-дијалог</application>'>
+  <!ENTITY kappname-g '<application>К‑исправљачког-дијалога</application>'>
+  <!ENTITY kappname-d '<application>К‑исправљачком-дијалогу</application>'>
+  <!ENTITY kappname-a '<application>К‑исправљачки-дијалог</application>'>
+  <!ENTITY kappname-i '<application>К‑исправљачким-дијалогом</application>'>
+  <!ENTITY kappname-l '<application>К‑исправљачком-дијалогу</application>'>
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Serbian "INCLUDE"
+> <!-- change language only here -->
+  
+  
+]>
+
+<article id="kdebugdialog5" lang="&language;">
+<title
+>К‑исправљачки-дијалог</title>
+<articleinfo>
+<authorgroup>
+<author
+><personname
+><firstname
+>Давид</firstname
+> <surname
+>Фор</surname
+></personname
+> &David.Faure.mail;</author>
+<othercredit role="translator"
+><firstname
+>Драган</firstname
+><surname
+>Пантелић</surname
+><affiliation
+><address
+><email
+>falcon-10@gmx.de</email
+></address
+></affiliation
+><contrib
+>превод</contrib
+></othercredit
+> 
+</authorgroup>
+
+<date
+>2. 4. 2016.</date>
+<releaseinfo
+>Радни оквири КДЕ‑а 5.21</releaseinfo>
+
+<keywordset>
+<keyword
+>КДЕ</keyword>
+<keyword
+>К‑исправљачки-дијалог</keyword>
+<keyword
+>исправљање</keyword>
+</keywordset>
+</articleinfo>
+
+
+<para
+><application
+>К‑исправљачки-дијалог</application
+> служи за управљање дијагностичким порукама при извршавању. Поседује једноставни и пуни режим.</para>
+<para
+>Да бисте могли ишта да мењате, <guilabel
+>Без исправљачког излаза</guilabel
+> мора бити празно.</para>
+
+<note>
+<para
+>Само за програме који користе библиотеку <literal
+>kdelibs4support</literal
+> Радних оквира КДЕ‑а.</para>
+<para
+><literal
+>kDebug()</literal
+> је превазиђено у Радним оквирима КДЕ‑а 5, у корист КуТ‑овог уграђеног бележења по категоријама (види <ulink url="http://doc.qt.io/qt-5/qloggingcategory.html"
+><literal
+>QLoggingCategory</literal
+></ulink
+>). Користите наредбу <ulink url="https://commits.kde.org/kdebugsettings"
+><command
+>kdebugsettings</command
+></ulink
+> да укључите и искључите <literal
+>qCDebug()</literal
+>. </para>
+</note>
+
+<variablelist>
+<varlistentry>
+<term
+>једноставни режим</term>
+<listitem>
+<para
+>Ако просто покренете <command
+>kdebugdialog5</command
+>, добићете списак „области“ за укључивање или искључивање. Позив <literal
+>kDebug(<replaceable
+>област</replaceable
+>)</literal
+> у коду приказаће нешто у исправљачком излазу само ако је дата област укључена.</para>
+
+<note
+><para
+>Запазите да се <function
+>kWarning</function
+>, <function
+>kError</function
+> и <function
+>kFatal</function
+> увек појављују — ова поставка се <emphasis
+>не</emphasis
+> односи на њих. </para
+></note>
+
+<para
+>Уношењем ниске за поклапање у поље претраге при врху списка можете филтрирати приказане области. Користите дугмад испод списка да изаберете или поништите избор свих ставки у приказу (области које се не виде неће бити захваћене), или задајте исправљачки излаз за појединачне ставке попуњавањем кућице до њих. </para>
+
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+>пуни режим</term>
+<listitem>
+<para
+>Ако покренете <command
+>kdebugdialog5</command
+> уз опцију <option
+>--fullmode</option
+>, тада за сваки степен критичности можете засебно дефинисати шта треба да се уради са дијагностичком поруком тог степена, и исто за сваку исправљачку област.</para>
+
+<para
+>У пуном режиму, прво бирате исправљачку област која вас занима са списка на левој страни дијалога. Можете искористити и поље за претрагу на врху списка.</para>
+
+<para
+>Потом можете независно поставити излаз за разне типове порука:</para>
+
+<itemizedlist>
+<listitem
+><para
+><guilabel
+>Информација</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Упозорење</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Грешка</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Кобна грешка</guilabel
+></para
+></listitem>
+</itemizedlist>
+
+<para
+>За сваки тип можете поставити следеће:</para>
+
+<variablelist>
+<varlistentry>
+<term
+><guilabel
+>Излаз у:</guilabel
+></term>
+<listitem>
+<para
+>У овом падајућем списку бирате да ли ће се поруке исписивати у: <guilabel
+>Фајл</guilabel
+>, <guilabel
+>дијалог с поруком</guilabel
+>, <guilabel
+>шкољку</guilabel
+> (тј. стдгр.) или <guilabel
+>системски дневник</guilabel
+>. Није добро да шаљете кобне поруке у системски дневник, осим ако сте баш ви систем-администратор. Подразумевано је <guilabel
+>шкољку</guilabel
+>.</para
+> 
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Име фајла:</guilabel
+></term>
+<listitem
+><para
+>Укључено кад сте као излаз изабрали фајл, и наводи име тог фајла (релативно према текућој фасцикли). Подразумевано је <filename
+>kdebug.dbg</filename
+>.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Сем овога, можете попунити и кућицу <guilabel
+>Обустави при кобној грешци</guilabel
+>. У том случају, ако је излаз дијагностичка порука са степеном критичности <literal
+>KDEBUG_FATAL</literal
+>, после издавања поруке програм се обуставља уз СИГАБРТ.</para>
+
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Кад затворите дијалог притиском на дугме <guibutton
+>У реду</guibutton
+>, начињене измене одмах се примењују и уписују у фајл <filename
+>$<envar
+>XDG_CONFIG_HOME</envar
+>/kdebugrc</filename
+> (подразумевано <filename
+>~/.config/kdebugrc</filename
+>). Ако притисните <guibutton
+>Одустани</guibutton
+>, измене се одбацују и враћају стари уноси.</para>
+
+<para
+>Заслуге за првобитну верзију <application
+>К‑исправљачког-дијалога</application
+> припадају Матијасу Калеу Далхајмеру.</para>
+
+<para
+>Превео Драган Пантелић <email
+>falcon-10@gmx.de</email
+>.</para
+> 
+
+&underFDL;
+
+</article>
+<!--
+Local Variables:
+mode: sgml
+sgml-omittag: nil
+sgml-general-insert-case: lower
+sgml-shorttag: t
+End:
+-->
+

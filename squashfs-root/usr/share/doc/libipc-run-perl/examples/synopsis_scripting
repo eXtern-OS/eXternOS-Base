@@ -1,0 +1,24 @@
+#!/usr/bin/perl -w
+use strict;
+
+my @cat = qw( cat );
+my ( $in_q, $out_q, $err_q );
+
+use IPC::Run qw( start pump finish timeout );
+
+# Incrementally read from / write to scalars.  Note that $in_q
+# is a queue that is drained as it is used. $h is for "harness".
+my $h = start \@cat, \$in_q, \$out_q, \$err_q, timeout(10), debug => 1;
+
+$in_q .= "some input\n";
+pump $h until $out_q =~ /input\n/g;
+
+$in_q .= "some more input\n";
+pump $h until $out_q =~ /\G.*more input\n/;
+
+$in_q .= "some final input\n";
+finish $h or die "cat returned $?";
+
+warn $err_q if $err_q;
+print $out_q ;    ## All of cat's output
+

@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.72">
+ <TITLE>Linux 2.4 Packet Filtering HOWTO: Advice on Packet Filter Design</TITLE>
+ <LINK HREF="packet-filtering-HOWTO-10.html" REL=previous>
+ <LINK HREF="packet-filtering-HOWTO.html#toc11" REL=contents>
+</HEAD>
+<BODY>
+Next
+<A HREF="packet-filtering-HOWTO-10.html">Previous</A>
+<A HREF="packet-filtering-HOWTO.html#toc11">Contents</A>
+<HR>
+<H2><A NAME="s11">11.</A> <A HREF="packet-filtering-HOWTO.html#toc11">Advice on Packet Filter Design</A></H2>
+
+<P>Common wisdom in the computer security arena is to block everything,
+then open up holes as neccessary.  This is usually phrased `that which
+is not explicitly allowed is prohibited'.  I recommend this approach
+if security is your maximal concern.</P>
+
+<P>Do not run any services you do not need to, even if you think you
+have blocked access to them.</P>
+
+<P>If you are creating a dedicated firewall, start by running nothing,
+and blocking all packets, then add services and let packets through as
+required.</P>
+
+<P>I recommend security in depth: combine tcp-wrappers (for
+connections to the packet filter itself), proxies (for connections
+passing through the packet filter), route verification and packet
+filtering.  Route verification is where a packet which comes from an
+unexpected interface is dropped: for example, if your internal network
+has addresses 10.1.1.0/24, and a packet with that source address comes
+in your external interface, it will be dropped.  This can be enabled
+for one interface (ppp0) like so:</P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+# echo 1 > /proc/sys/net/ipv4/conf/ppp0/rp_filter
+#
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+<P>Or for all existing and future interfaces like this:</P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+# for f in /proc/sys/net/ipv4/conf/*/rp_filter; do
+#     echo 1 > $f
+# done
+#
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+<P>Debian does this by default where possible.  If you have asymmetric
+routing (ie. you expect packets coming in from strange directions),
+you will want to disable this filtering on those interfaces.</P>
+
+<P>Logging is useful when setting up a firewall if something isn't
+working, but on a production firewall, always combine it with the
+`limit' match, to prevent someone from flooding your logs.</P>
+
+<P>I highly recommend connection tracking for secure systems: it
+introduces some overhead, as all connections are tracked, but is very
+useful for controlling access to your networks.  You may need to load
+the `ip_conntrack.o' module if your kernel does not load modules
+automatically, and it's not built into the kernel.  If you want to
+accurately track complex protocols, you'll need to load the
+appropriate helper module (eg. `ip_conntrack_ftp.o').</P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+# iptables -N no-conns-from-ppp0
+# iptables -A no-conns-from-ppp0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+# iptables -A no-conns-from-ppp0 -m state --state NEW -i ! ppp0 -j ACCEPT
+# iptables -A no-conns-from-ppp0 -i ppp0 -m limit -j LOG --log-prefix "Bad packet from ppp0:"
+# iptables -A no-conns-from-ppp0 -i ! ppp0 -m limit -j LOG --log-prefix "Bad packet not from ppp0:"
+# iptables -A no-conns-from-ppp0 -j DROP
+
+# iptables -A INPUT -j no-conns-from-ppp0
+# iptables -A FORWARD -j no-conns-from-ppp0
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+
+<P>Building a good firewall is beyond the scope of this HOWTO, but my
+advice is `always be minimalist'.  See the Security HOWTO for more
+information on testing and probing your box.</P>
+
+<HR>
+Next
+<A HREF="packet-filtering-HOWTO-10.html">Previous</A>
+<A HREF="packet-filtering-HOWTO.html#toc11">Contents</A>
+</BODY>
+</HTML>

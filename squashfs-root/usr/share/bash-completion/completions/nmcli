@@ -1,0 +1,116 @@
+# nmcli(1) completion
+
+_nmcli_array_delete_at()
+{
+    eval "local ARRAY=(\"\${$1[@]}\")"
+    local i
+    local tmp=()
+    local lower=$2
+    local upper=${3:-$lower}
+
+    # for some reason the following fails. So this clumsy workaround...
+    #   A=(a "")
+    #   echo " >> ${#A[@]}"
+    #    >> 2
+    #   A=("${A[@]:1}")
+    #   echo " >> ${#A[@]}"
+    #    >> 0
+    # ... seriously???
+
+    for i in "${!ARRAY[@]}"; do
+        if [[ "$i" -lt "$2" || "$i" -gt "${3-$2}" ]]; then
+            tmp=("${tmp[@]}" "${ARRAY[$i]}")
+        fi
+    done
+    eval "$1=(\"\${tmp[@]}\")"
+}
+
+_nmcli()
+{
+    local cur words cword i output
+    _init_completion || return
+
+    # we don't care about any arguments after the current cursor position
+    # because we only parse from left to right. So, if there are some arguments
+    # right of the cursor, just ignore them. Also don't care about ${words[0]}.
+    _nmcli_array_delete_at words $((cword+1)) ${#words[@]}
+    _nmcli_array_delete_at words 0
+
+    # _init_completion returns the words with all the quotes and escaping
+    # characters. We don't care about them, drop them at first.
+    for i in ${!words[@]}; do
+        words[i]="$(printf '%s' "${words[i]}" | xargs printf '%s\n' 2>/dev/null || true)"
+    done
+
+    # In case the cursor is not at the end of the line,
+    # $cur consists of spaces that we want do remove.
+    # For example: `nmcli connection modify id  <TAB>  lo`
+    if [[ "$cur" =~ ^[[:space:]]+ ]]; then
+        cur=''
+    fi
+
+    output="$(nmcli --complete-args "${words[@]}" 2>/dev/null)"
+
+    # Bail out early if we're completing a file name
+    if [ $? = 65 ]; then
+        compopt -o default
+        COMPREPLY=()
+        return 0
+    fi
+
+    local IFS=$'\n'
+    COMPREPLY=( $( compgen -W '$output' -- $cur ) )
+
+    # Now escape special characters (spaces, single and double quotes),
+    # so that the argument is really regarded a single argument by bash.
+    # See http://stackoverflow.com/questions/1146098/properly-handling-spaces-and-quotes-in-bash-completion
+    local escaped_single_quote="'\''"
+    local i=0
+    local entry
+    for entry in ${COMPREPLY[*]}
+    do
+        if [[ "${cur:0:1}" == "'" ]]; then
+            # started with single quote, escaping only other single quotes
+            # [']bla'bla"bla\bla bla --> [']bla'\''bla"bla\bla bla
+            COMPREPLY[$i]="${entry//\'/${escaped_single_quote}}"
+        elif [[ "${cur:0:1}" == '"' ]]; then
+            # started with double quote, escaping all double quotes and all backslashes
+            # ["]bla'bla"bla\bla bla --> ["]bla'bla\"bla\\bla bla
+            entry="${entry//\\/\\\\}"
+            entry="${entry//\"/\\\"}"
+            entry="${entry//!/\"\\!\"}"
+            COMPREPLY[$i]="$entry"
+        else
+            # no quotes in front, escaping _everything_
+            # [ ]bla'bla"bla\bla bla --> [ ]bla\'bla\"bla\\bla\ bla
+            entry="${entry//\\/\\\\}"
+            entry="${entry//\'/\'}"
+            entry="${entry//\"/\\\"}"
+            entry="${entry// /\\ }"
+            entry="${entry//\(/\\(}"
+            entry="${entry//)/\\)}"
+            entry="${entry//!/\\!}"
+            entry="${entry//&/\\&}"
+            COMPREPLY[$i]="$entry"
+        fi
+        (( i++ ))
+    done
+
+    # Work-around bash_completion issue where bash interprets a colon
+    # as a separator.
+    # Colon is escaped here. Change "\\:" back to ":".
+    # See also:
+    # http://stackoverflow.com/questions/28479216/how-to-give-correct-suggestions-to-tab-complete-when-my-words-contains-colons
+    # http://stackoverflow.com/questions/2805412/bash-completion-for-maven-escapes-colon/12495727
+    i=0
+    for entry in ${COMPREPLY[*]}
+    do
+        entry="${entry//\\\\:/:}"
+        COMPREPLY[$i]=${entry}
+        (( i++ ))
+    done
+
+} &&
+complete -F _nmcli nmcli
+
+# ex: ts=4 sw=4 et filetype=sh

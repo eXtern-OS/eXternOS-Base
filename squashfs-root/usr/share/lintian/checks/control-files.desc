@@ -1,0 +1,61 @@
+Check-Script: control-files
+Author: Christian Schwarz <schwarz@debian.org>
+Abbrev: ctl
+Type: binary, udeb
+Info: Check for unknown control files in the binary package.
+Needs-Info: bin-pkg-control
+
+Tag: unknown-control-file
+Severity: normal
+Certainty: possible
+Ref: policy 2.2*
+Info: The package contains an unknown control file.  Policy says that
+ putting additional files in the package control area is not generally a
+ good idea.
+
+Tag: not-allowed-control-file
+Severity: serious
+Certainty: certain
+Info: The package contains a control file that is not allowed in this
+ type of package. Some control files are only allowed in either .deb
+ or .udeb packages and must not be included in packages of the other
+ type. You should probably just remove the file.
+
+Tag: control-file-is-empty
+Severity: normal
+Certainty: possible
+Info: The package contains an empty control file, which is most probably
+ an error.
+
+Tag: control-file-has-bad-permissions
+Severity: serious
+Certainty: certain
+Ref: policy 10.9
+Info: The <tt>config</tt>, <tt>postinst</tt>, <tt>postrm</tt>,
+ <tt>preinst</tt>, and <tt>prerm</tt> control files should use mode 0755;
+ all other control files should use 0644.
+
+Tag: control-file-has-bad-owner
+Severity: serious
+Certainty: certain
+Ref: policy 10.9
+Info: All control files should be owned by root/root.
+
+Tag: control-file-is-not-a-file
+Severity: serious
+Certainty: certain
+Info: The package contains a control file that is not a regular file.
+
+Tag: ctrl-script
+Severity: classification
+Certainty: certain
+Info: This package has one or more maintainer scripts (or other
+ executable control files).
+ .
+ This flags any control file with the executable bit set.
+
+Tag: no-ctrl-scripts
+Severity: classification
+Certainty: certain
+Info: The package does not rely on any maintainer scripts (or other
+ executable control files).

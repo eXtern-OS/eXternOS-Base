@@ -1,0 +1,34 @@
+#! /bin/sh
+set -e
+
+if [ -f /cdrom/casper/vmlinuz ]; then
+    # If /cdrom is mounted but not writable, just exit
+    : >> "/cdrom/casper/vmlinuz" > /dev/null 2>&1 || exit 0
+
+    # If UBIQUITY_ONLY is set in the environment, also exit
+    [ -n "$UBIQUITY_ONLY" ] && exit 0
+fi
+
+update-initramfs.distrib "$@"
+if [ -e /initrd.img ]; then
+    bootdir=
+else
+    bootdir=/boot
+fi
+# initrd.img may exist when vmlinuz doesn't; for example, if
+# update-initramfs is run on a fresh live USB stick without upgrading the
+# kernel.
+if [ -e "$bootdir/initrd.img" ]; then
+    if [ -e /cdrom/casper/initrd.lz ]; then
+        zcat "$bootdir/initrd.img" | lzma -9c >/cdrom/casper/initrd.lz.new
+        mv /cdrom/casper/initrd.lz.new /cdrom/casper/initrd.lz
+    else
+        cp "$bootdir/initrd.img" /cdrom/casper/initrd.gz.new
+        mv /cdrom/casper/initrd.gz.new /cdrom/casper/initrd.gz
+    fi
+fi
+if [ -e "$bootdir/vmlinuz" ]; then
+    cp "$bootdir/vmlinuz" /cdrom/casper/vmlinuz.new
+    mv /cdrom/casper/vmlinuz.new /cdrom/casper/vmlinuz
+fi
+exit 0

@@ -1,0 +1,56 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      type="topic" style="task"
+      id="login-userlist-disable">
+
+  <info>
+    <link type="guide" xref="login#appearance" />
+    <revision pkgversion="3.11" date="2014-01-29" status="draft"/>
+    <revision pkgversion="3.14" date="2014-06-17" status="review"/>
+
+    <credit type="author copyright">
+      <name>Michael Hill</name>
+      <email>mdhillca@gmail.com</email>
+      <years>2012</years>
+    </credit>
+    <credit type="editor">
+      <name>David King</name>
+      <email>amigadave@amigadave.com</email>
+      <years>2014</years>
+    </credit>
+    <credit type="editor">
+      <name>Petr Kovar</name>
+      <email>pknbe@volny.cz</email>
+      <years>2014</years>
+    </credit>
+
+    <include href="legal.xml" xmlns="http://www.w3.org/2001/XInclude"/>
+
+    <desc>Make users type in their username on the login screen.</desc>
+   </info>
+
+  <title>Disable the user list</title>
+
+  <p>You can disable the user list shown on the login screen by setting the
+  <sys>org.gnome.login-screen.disable-user-list</sys> GSettings key.</p>
+  <p>When the user list is disabled, users need to type their user name and
+  password at the prompt to log in.</p>
+  <steps>
+    <title>Set the org.gnome.login-screen.disable-user-list key</title>
+    <include href="dconf-snippets.xml"
+      xpointer="xpointer(/*/*[@xml:id='dconf-profile-gdm'])"
+      xmlns="http://www.w3.org/2001/XInclude"/>
+    <item>
+      <p>Create a <sys>gdm</sys> keyfile for machine-wide settings in
+      <file>/etc/dconf/db/gdm.d/00-login-screen</file>:</p>
+        <code>[org/gnome/login-screen]
+# Do not show the user list
+disable-user-list=true
+</code>
+    </item>
+    <include href="dconf-snippets.xml"
+      xpointer="xpointer(/*/*[@xml:id='dconf-update'])"
+      xmlns="http://www.w3.org/2001/XInclude"/>
+  </steps>
+
+</page>

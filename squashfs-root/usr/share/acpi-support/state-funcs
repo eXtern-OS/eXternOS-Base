@@ -1,0 +1,96 @@
+#!/bin/sh
+# Paul Sladen, 2006-03-28, 2007-03-26
+# Library functions to check/change status of wireless
+
+# Return 0 if there is, allowing you to write   if isAnyWirelessPoweredOn; then ...
+isAnyWirelessPoweredOn()
+{
+    for DEVICE in /sys/class/net/* ; do
+	if [ -d $DEVICE/wireless ]; then
+	    for RFKILL in $DEVICE/phy80211/rfkill*/state $DEVICE/device/rfkill/rfkill*/state
+	    do
+		if [ -r "$RFKILL" ] && [ "$(cat "$RFKILL")" -eq 1 ]
+		then
+		    return 0
+		fi
+	    done
+	    # if any of the wireless devices are turned on then return success
+	    if [ -r $DEVICE/device/power/state ] && [ "`cat $DEVICE/device/power/state`" -eq 0 ]
+	    then
+		return 0
+	    fi
+	    if [ -r $DEVICE/device/rf_kill ] && [ "`cat $DEVICE/device/rf_kill`" -eq 0 ]
+	    then
+		return 0
+	    fi
+	fi
+    done
+
+    # otherwise return failure
+    return 1
+}
+
+# Takes no parameters, toggles all wireless devices.
+# TODO: Should possible toggle all wireless devices to the state of the first one.
+# Attempts to use 'rf_kill' first, and then tries 'power/state', though that
+# will fail on >=2.6.18 kernels since upstream removed the functionality...
+toggleAllWirelessStates()
+{
+    for DEVICE in /sys/class/net/* ; do
+	if [ -d $DEVICE/wireless ] ; then
+	    # $DEVICE is a wireless device.
+
+	    FOUND=
+	    # Yes, that's right... the new interface reverses the truth values.
+	    ON=1
+	    OFF=0
+	    for CONTROL in $DEVICE/device/rfkill/rfkill*/state; do
+		if [ -w "$CONTROL" ]; then
+		    FOUND=1
+
+		    if [ "$(cat "$CONTROL")" = "$ON" ] ; then
+			# It's powered on. Switch it off.
+			echo -n "$OFF" > "$CONTROL"
+		    else
+			# It's powered off. Switch it on.
+			echo -n "$ON" > "$CONTROL"
+		    fi
+		fi
+	    done
+	    # it might be safe to assume that a device only supports one
+	    # interface at a time; but just in case, we short-circuit
+	    # here to avoid toggling the power twice
+	    if [ -n "$FOUND" ]; then
+		continue
+	    fi
+
+	    ON=0
+	    OFF=1  # 1 for rf_kill, 2 for power/state
+	    for CONTROL in $DEVICE/device/rf_kill $DEVICE/device/power/state ; do
+		if [ -w $CONTROL ] ; then
+		    # We have a way of controlling the device, lets try
+		    if [ "`cat $CONTROL`" = 0 ] ; then
+			# It's powered on. Switch it off.
+			if echo -n $OFF > $CONTROL ; then 
+			    break
+			else
+			    OFF=2 # for power/state, second time around
+			fi
+		    else
+			# It's powered off. Switch it on.
+			if echo -n $ON > $CONTROL ; then
+			    break
+			fi
+		    fi
+		fi
+	    done
+	fi
+    done
+}
+
+# Pass '1' to blink suspending LED and '0' to stop LED
+setLEDThinkpadSuspending()
+{
+    action=`test "$1" -ne 0 && echo blink || echo off`
+    test -w /proc/acpi/ibm/led && echo -n 7 "$action" > /proc/acpi/ibm/led
+}

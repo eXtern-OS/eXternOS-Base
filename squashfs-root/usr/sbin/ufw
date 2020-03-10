@@ -1,0 +1,159 @@
+#! /usr/bin/python3
+#
+# ufw: front-end for Linux firewalling (cli)
+#
+# Copyright 2008-2018 Canonical Ltd.
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License version 3,
+#    as published by the Free Software Foundation.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+from __future__ import print_function
+import os
+import sys
+import warnings
+
+import ufw.frontend
+from ufw.common import UFWError
+from ufw.util import error, warn, msg, _findpath, create_lock, release_lock
+
+import gettext
+kwargs = {}
+if sys.version_info[0] < 3:
+    # In Python 2, ensure that the _() that gets installed into built-ins
+    # always returns unicodes.  This matches the default behavior under Python
+    # 3, although that keyword argument is not present in the Python 3 API.
+    kwargs['unicode'] = True
+gettext.install(ufw.common.programName, **kwargs)
+
+version = "0.36"
+
+# relocate root and data directories if specified
+args = []
+rootdir = None
+datadir = None
+for i in sys.argv:
+    if i.startswith('--rootdir='):
+        if len(i.split('=')) == 2:
+            rootdir = i.split('=')[1]
+        else:
+            error('--rootdir is empty')
+    elif i.startswith('--datadir='):
+        if len(i.split('=')) == 2:
+            datadir = i.split('=')[1]
+        else:
+            error('--datadir is empty')
+    else:
+        args.append(i)
+
+# Internationalization
+gettext.bindtextdomain(ufw.common.programName, \
+                       os.path.join(_findpath(ufw.common.trans_dir, rootdir),
+                                    'messages'))
+gettext.textdomain(ufw.common.programName)
+try:
+    # BAW: I'm not sure why both this and the .install() above is here, but
+    # let's roll with it for now.  This is the Python 2 version, which ensures
+    # we get unicodes.
+    _ = gettext.ugettext
+except AttributeError:
+    # Python 3 always returns unicodes.
+    _ = gettext.gettext
+
+if sys.version_info[0] < 2 or \
+   (sys.version_info[0] == 2 and sys.version_info[1] < 6):
+    msg(ufw.common.programName + _(": Need at least python 2.6)\n"), \
+        sys.stderr)
+    sys.exit(1)
+
+
+def clean_warning(message, category, filename, lineno, file=None, line=""):
+    warn(message)
+
+
+if __name__ == "__main__":
+    warnings.showwarning = clean_warning
+    app_action = False
+    pr = None
+
+    # Remember, will have to take --force into account if we use it with 'app'
+    idx = 1
+    if len(args) > 1 and args[1].lower() == "--dry-run":
+        idx += 1
+
+    if len(args) > idx and args[idx].lower() == "app":
+        app_action = True
+
+    try:
+        pr = ufw.frontend.parse_command(args)
+    except ValueError:
+        msg(ufw.frontend.get_command_help())
+        sys.exit(1)
+    except UFWError as e:
+        error(e.value)
+    except Exception:
+        raise
+
+    if pr.action == "help" or pr.action == "--help":
+        msg(ufw.frontend.get_command_help())
+        sys.exit(0)
+    elif pr.action == "version" or pr.action == "--version":
+        msg(ufw.common.programName + " " + version)
+        msg("Copyright 2008-2015 Canonical Ltd.")
+        sys.exit(0)
+
+    try:
+        ui = ufw.frontend.UFWFrontend(pr.dryrun, rootdir=rootdir,
+                                      datadir=datadir)
+    except UFWError as e:
+        error(e.value)
+    except Exception:
+        raise
+
+    if datadir is None:
+        lockfile = '/run/ufw.lock'
+        if os.getuid() != 0 or 'TESTSTATE' in os.environ:
+            lockfile = os.path.join(ufw.common.state_dir, 'ufw.lock')
+    else:
+        lockfile = os.path.join(_findpath(ufw.common.state_dir, datadir),
+                                'ufw.lock')
+
+    lock = create_lock(lockfile=lockfile, dryrun=pr.dryrun)
+    res = ""
+    try:
+        if app_action and 'type' in pr.data and pr.data['type'] == 'app':
+            res = ui.do_application_action(pr.action, pr.data['name'])
+        else:
+            bailout = False
+            if pr.action == "enable" and not pr.force and \
+               not ui.continue_under_ssh():
+                res = _("Aborted")
+                bailout = True
+
+            if not bailout:
+                if 'rule' in pr.data:
+                    res = ui.do_action(pr.action, pr.data['rule'], \
+                                       pr.data['iptype'], pr.force)
+                else:
+                    res = ui.do_action(pr.action, "", "", pr.force)
+
+        if res != "":
+            msg(res)
+
+    except UFWError as e:
+        error(e.value)
+    except Exception:
+        raise
+    finally:
+        release_lock(lock)
+
+    sys.exit(0)

@@ -1,0 +1,73 @@
+#!/bin/sh
+
+PREREQ=""
+DESCRIPTION="Setting up init..."
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+
+log_begin_msg "$DESCRIPTION"
+
+# Arrange for shells on virtual consoles, rather than login prompts
+
+if [ -n "$USERNAME" ]; then
+	if [ -f /root/etc/inittab ]; then
+		sed -i -e "s|^\([^:]*:[^:]*:[^:]*\):.*getty.*\<\(tty[0-9]*\).*$|\1:/bin/login -f $USERNAME </dev/\2 >/dev/\2 2>\&1|" /root/etc/inittab
+	fi
+	if [ "/root/etc/init/tty*" != "$(echo /root/etc/init/tty*)" ]; then
+		for f in /root/etc/init/tty*; do
+			sed -i -e "s|^exec.*|exec /bin/login -f $USERNAME </dev/$(basename $f .conf) > /dev/$(basename $f .conf) 2>\&1|" $f
+		done
+		for x in $(cat /proc/cmdline); do
+			case $x in
+				textonly|automatic-ubiquity|only-ubiquity|noninteractive)
+					rm -f /root/etc/rc?.d/[SK]??[gkx]dm
+					rm -f /root/etc/rc?.d/[SK]??sddm
+					;;
+			esac
+		done
+	fi
+
+	# Since we use autologin, lastlog doesn't make sense on the console.
+	sed -i '/^[^#].*pam_lastlog\.so/s/^/# /' /root/etc/pam.d/login
+fi
+
+# This has the nice side effect of the cron.{daily,weekly,monthly} jobs in
+# /etc/crontab remaining disabled, yet also not run by anacron
+if [ -x /root/usr/sbin/anacron ]; then
+	chroot /root dpkg-divert --add --rename --quiet /usr/sbin/anacron
+	ln -s /bin/true /root/usr/sbin/anacron
+fi
+
+# No point, really
+rm -f /root/etc/rc?.d/[SK]??postfix
+
+# Avoid clobbering the user's clock
+rm -f /root/etc/rc?.d/K??hwclock.sh /root/etc/init/hwclock-save.conf
+
+# Disable readahead since it doesn't play well with squashfs + unionfs
+# use chmod instead of mv to not trigger unionfs bugs.
+if [ -e /root/sbin/readahead-list ]; then
+	chmod -x /root/sbin/readahead-list
+fi
+
+# Disable ureadahead too since we don't ship a pack file for it anyway, so
+# all we'll end up doing is profiling the live CD boot. ureadahead also
+# breaks partman occasionally by reading from its synchronisation FIFOs.
+rm -f /root/etc/init/ureadahead*.conf
+
+log_end_msg
+
+exit 0

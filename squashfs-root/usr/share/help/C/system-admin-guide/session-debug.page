@@ -1,0 +1,65 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      type="topic" style="task" id="session-debug">
+
+  <info>
+    <link type="guide" xref="sundry#session" />
+    <revision version="0.1" date="2014-01-28" status="draft"/>
+
+    <credit type="author copyright">
+      <name>Matthias Clasen</name>
+      <email>matthias.clasen@gmail.com</email>
+      <years>2012</years>
+    </credit>
+    <credit type="editor">
+      <name>Jana Svarova</name>
+      <email>jana.svarova@gmail.com</email>
+      <years>2013</years>
+    </credit>
+    <credit type="editor">
+      <name>Petr Kovar</name>
+      <email>pknbe@volny.cz</email>
+      <years>2014</years>
+    </credit>
+
+    <desc>What happened to <file>~/.xsession-errors</file>?</desc>
+  </info>
+
+  <title>Debug session problems</title>
+
+  <comment>
+    <cite date="2013-07-19">Kat</cite>
+    <p>systemd is not a dependency of GNOME: this page should instruct the user
+    to look in the syslog, and then expland that if systemd is running, the
+    logs will be redirected to the journal.</p>
+  </comment>
+
+  <p>If you want to find more information about a problem in a session or want
+  to fix it, consult the system log, which stores log data for your user session
+  and applications.</p>
+
+  <p>The <file>~/.xsession-errors</file> X session log file has been deprecated
+  and is no longer used.</p>
+
+<section id="session-log-systemd">
+  <title>View session log on systemd-based systems</title>
+  <p>On systemd-based systems, you can find the session log data in the
+  <app>systemd</app> journal, which stores the data in a binary format. To view
+  the logs, use the <cmd>journalctl</cmd> command.</p>
+
+  <steps>
+    <title>To view your user session logs:</title>
+    <item><p>Determine your user ID (<sys>uid</sys>) by running the following
+    command: </p>
+    <screen><output>$ </output><input>id --user</input>
+1000</screen></item>
+    <item><p>View the journal logs for the user ID determined above:</p>
+    <screen><output>$ </output><input>journalctl _UID=1000</input></screen>
+    </item>
+  </steps>
+
+  <p>For more information on the systemd journal, see the
+  <link href="man:journalctl"><cmd>journalctl</cmd></link>(1) man page.</p>
+</section>
+
+</page>

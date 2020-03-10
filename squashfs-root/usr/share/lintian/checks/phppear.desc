@@ -1,0 +1,82 @@
+Check-Script: phppear
+Author: Mathieu Parent <sathieu@debian.org>
+Abbrev: phppear
+Type: source
+Needs-Info: unpacked
+Info: This script checks if the packages comply with various aspects of the
+ Debian PHP policy.
+
+Tag: pear-package-without-pkg-php-tools-builddep
+Severity: normal
+Certainty: possible
+Info: The package contains a package.xml or package2.xml file but doesn't
+ build-depend on pkg-php-tools.
+ .
+ pkg-php-tools is the recommended tool for building PEAR and PECL packages. For
+ more information, install it and read the included README.PEAR.
+
+Tag: pear-channel-without-pkg-php-tools-builddep
+Severity: normal
+Certainty: possible
+Info: The package contains a channel.xml file but doesn't build-depend on
+ pkg-php-tools.
+ .
+ pkg-php-tools is the recommended tool for building PEAR and PECL packages. For
+ more information, install it and read the included README.PEAR.
+
+Tag: pear-package-but-missing-dependency
+Severity: normal
+Certainty: possible
+Info: The package is a PEAR package but its control file doesn't have
+ ${phppear:Debian-Depends} in Depends or ${phppear:Debian-Recommends}.
+
+Tag: pear-package-not-using-substvar
+Severity: wishlist
+Certainty: possible
+Info: The package is a PEAR package but its control file doesn't have
+ ${phppear:summary} or ${phppear:description} in its description fields.
+ .
+ Those substitution variables should only be used if the description
+ included in PEAR package is of sufficient quality and respect Debian
+ packaging best practices.
+Ref: https://www.debian.org/doc/manuals/developers-reference/best-pkging-practices.html#bpp-desc-basics
+
+Tag: pear-package-feature-requires-newer-pkg-php-tools
+Severity: normal
+Certainty: possible
+Info: The package requires a newer pkg-php-tools for a specific feature.
+
+Tag: pecl-package-requires-build-dependency
+Severity: normal
+Certainty: possible
+Info: The package is a PECL package but its control file doesn't have
+ php-dev or dh-php as a build dependency.
+
+Tag: composer-package-without-pkg-php-tools-builddep
+Severity: wishlist
+Certainty: possible
+Info: The package contains a composer.json file but doesn't build-depend on
+ pkg-php-tools.
+ .
+ pkg-php-tools is the recommended tool for building PHP Composer packages. For
+ more information, install it and read the included README.Composer.
+
+Tag: missing-pkg-php-tools-buildsystem
+Severity: normal
+Certainty: possible
+Info: The package uses pkg-php-tools but dh command is called without
+ --buildsystem=phppear
+ .
+ pkg-php-tools build system is the recommended tool for building PHP PEAR
+ packages. For more information, install it and read the included README.PEAR.
+
+Tag: missing-pkg-php-tools-addon
+Severity: normal
+Certainty: possible
+Info: The package uses pkg-php-tools but dh command is called without
+ --with phppear or --with phpcomposer. A PECL package should also have
+ --with php.
+ .
+ pkg-php-tools db addons are the recommended tool for building PHP PEAR or
+ Composer packages. For more information, install it and read the included
+ README.PEAR or README.Composer.

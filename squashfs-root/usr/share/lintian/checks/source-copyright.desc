@@ -1,0 +1,414 @@
+Check-Script: source-copyright
+Author: Jakub Wilk <jwilk@debian.org>
+Abbrev: scpy
+Type: source
+Needs-Info: unpacked, src-orig-index, java-info
+Info: This script checks if a source package conforms to policy
+ with regard to copyright files.
+ .
+ Each source package should have a debian/copyright file.
+
+Tag: debian-copyright-is-symlink
+Severity: normal
+Certainty: certain
+Info: The file <tt>debian/copyright</tt> is a symlink instead of a regular
+ file.  This makes package checking and manipulation more difficult.
+ .
+ This problem may have prevented Lintian from performing other checks.
+
+Tag: no-debian-copyright
+Severity: minor
+Certainty: certain
+Ref: policy 12.5
+Info: Every package must include the file <tt>/usr/share/doc/<i>pkg</i>/copyright</tt>.
+ A copy of this file should be in <tt>debian/copyright</tt> in the source package.
+
+Tag: no-dep5-copyright
+Severity: pedantic
+Certainty: certain
+Info: This package does not use a machine-readable debian/copyright file.
+ .
+ This format makes it easier to review licenses and can be easily parsed
+ by Lintian.
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+
+Tag: unknown-copyright-format-uri
+Severity: pedantic
+Certainty: wild-guess
+Info: The copyright file appears to intended as machine-readable, but Lintian
+ cannot recognize its format URI.  It could be a typo for a common URI or a
+ syntax error in the first paragraph.  Please file a bug against Lintian if you
+ believe that the copyright file in syntactically valid and the URI is
+ correct.
+
+Tag: boilerplate-copyright-format-uri
+Severity: normal
+Certainty: possible
+Info: Format URI of the machine-readable copyright file contains
+ <tt>VERSIONED_FORMAT_URL</tt> or <tt>REVISION</tt> string.  Please replace it
+ with an actual URI or an actual revision number respectively.
+
+Tag: insecure-copyright-format-uri
+Severity: pedantic
+Certainty: certain
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: Format URI of the machine-readable copyright file uses the plain HTTP
+ unencrypted transport protocol.  Using HTTPS is preferred since policy 4.0.0.
+ .
+ Please use
+ <tt>https://www.debian.org/doc/packaging-manuals/copyright-format/<i>version</i>/</tt>
+ as the format URI instead.
+
+Tag: wiki-copyright-format-uri
+Severity: pedantic
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: Format URI of the machine-readable copyright file refers to Debian Wiki.
+ .
+ Debian Wiki is not used for the format development anymore.  Please use
+ <tt>https://www.debian.org/doc/packaging-manuals/copyright-format/<i>version</i>/</tt>
+ as the format URI instead.
+
+Tag: unversioned-copyright-format-uri
+Severity: pedantic
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: Format URI of the machine-readable copyright file is not versioned.
+ .
+ Please use
+ <tt>https://www.debian.org/doc/packaging-manuals/copyright-format/<i>version</i>/</tt>
+ as the format URI instead.
+
+Tag: out-of-date-copyright-format-uri
+Severity: pedantic
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: A newer version of the machine-readable copyright file specification,
+ than the one referenced by the copyright file, is available.
+ .
+ This problem may have prevented Lintian from performing other checks.
+
+Tag: syntax-error-in-dep5-copyright
+Severity: normal
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: The machine-readable copyright file didn't pass Debian control file
+ syntax check.
+ .
+ This issue may hide other issues as Lintian skips some checks on the
+ file in this case.
+
+Tag: obsolete-field-in-dep5-copyright
+Severity: normal
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: The machine-readable copyright file uses a field, that used to be defined
+ by the specification, but has been renamed since then.
+ .
+ Please use Format instead of Format-Specification.
+ .
+ Please use Upstream-Contact instead of Contact, Maintainer or Upstream-Maintainer.
+ .
+ Please use Upstream-Name instead of Name.
+
+Tag: comma-separated-files-in-dep5-copyright
+Severity: normal
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: A list of files in the machine-readable copyright format appears to be
+ separated by commas.  The file list should be whitespace separated instead.
+ .
+ Please note this tag is only emitted once per checked copyright file.
+
+Tag: missing-field-in-dep5-copyright
+Severity: normal
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: The paragraph in the machine readable copyright file is missing a field
+ that is required by the specification.
+
+Tag: empty-short-license-in-dep5-copyright
+Severity: normal
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: The short license field in the machine readable copyright file
+ is empty.
+
+Tag: license-problem-undefined-license
+Severity: serious
+Certainty: possible
+Ref: https://ftp-master.debian.org/REJECT-FAQ.html
+Info: Your copyright file references a license that is not defined.
+ Due to copyright law or treaties, files that are not available under
+ a defined license are non-free and non-re-distributable.
+ .
+ Referencing an undefined license could mean the file cannot be
+ distributed in Debian or it could simply mean that the existing
+ license needs to be documented. In both cases,
+ the copyright file should be updated to reflect reality.
+ .
+ Please re-package the package without the file (if possible)
+ or ask the FTP-masters to remove the package.
+ .
+ If the package has been uploaded to Debian before, and if
+ affected files cannot be distributed in Debian please
+ remember to also notify snapshot.debian.org about this
+ package containing a non-distributable file.
+
+Tag: invalid-short-name-in-dep5-copyright
+Severity: minor
+Certainty: certain
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: The “License” field contains a short name observed to be a
+ misspelling of one of the standard short names.
+
+Tag: space-in-std-shortname-in-dep5-copyright
+Severity: minor
+Certainty: certain
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: The “License” field contains a short name with a space, which
+ does not conform to the specification.
+
+Tag: bad-exception-format-in-dep5-copyright
+Severity: minor
+Certainty: certain
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: The “License” field contains a short name with a bad exception
+ format. According to specification format of exception is:
+ shortlicencename with exceptionname exception.
+ .
+ If more than one exception applies to a single license,
+ an arbitrary short name must be used instead.
+
+Tag: missing-license-paragraph-in-dep5-copyright
+Severity: normal
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: The files paragraph in the machine readable copyright file references a
+ license, for which no standalone license paragraph exists.
+
+Tag: missing-license-text-in-dep5-copyright
+Severity: normal
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: The standalone “License” paragraph contains only short license
+ name, but not the license text.
+
+Tag: unused-license-paragraph-in-dep5-copyright
+Severity: minor
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: The license paragraph in the machine-readable copyright file is not
+ referenced by any files paragraph.  It could be a typo in the license name or
+ the license paragraph is simply not needed and can be removed.
+
+Tag: unknown-paragraph-in-dep5-copyright
+Severity: normal
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: The machine-readable copyright file contains a paragraph that is neither
+ a standalone license paragraph nor a files paragraph.
+
+Tag: field-name-typo-in-dep5-copyright
+Severity: normal
+Certainty: possible
+Info: The listed field name is a likely misspelling of one of the documented
+ DEP-5 fields.
+ .
+ Lintian will continue by using the "misspelled" variant, but other parsers
+ are unlikely to do so.
+ .
+ Implementation detail: The typo is detected by using "Levenshtein
+ edit distance".  Therefore, if the typo involve several characters,
+ Lintian may not detect it.
+
+Tag: ambiguous-paragraph-in-dep5-copyright
+Severity: normal
+Certainty: possible
+Ref: #652380, https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: The paragraph has a "License" and a "Copyright" field, but no
+ "Files" field.  Technically, this is a valid paragraph per the DEP-5
+ specification.  However, it is mostly likely a mistake.
+ .
+ If it is a <tt>stand-alone license paragraph</tt>, the "Copyright"
+ field is not needed and should be removed.  On the other hand, if it
+ is a <tt>files paragraph</tt>, it is missing the "Files" field.
+ .
+ Please note that while the "Files" field was optional in some cases
+ in some of the earlier draft versions, it is mandatory in <i>all</i>
+ <tt>files paragraphs</tt> in the current specification.
+ .
+ Lintian will attempt to guess what you intended and continue based on
+ its guess.  If the guess is wrong, you may see spurious tags related
+ to this paragraph.
+
+Tag: pipe-symbol-used-as-license-disjunction
+Severity: normal
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: In contrast to package dependencies, the pipe symbol or vertical
+ bar does not indicate a logical disjunction or OR-relationship
+ between two license short names. Instead, the keyword "or" between
+ two license names indicates the dual licensing.
+
+Tag: dep5-file-paragraph-references-header-paragraph
+Severity: normal
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: The Files paragraph uses a reference to a license which is
+ only defined in the Header paragraph.  The copyright specification
+ requires that the Files paragraph either contains the full license
+ itself or references a "stand-alone" License paragraph, and not the
+ Header paragraph.
+
+Tag: dep5-copyright-license-name-not-unique
+Severity: normal
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: This paragraph defines an already defined license.
+ .
+ According to the specification, short license names are required to be
+ unique within a single copyright file.
+ .
+ This tag could be raised by something like this:
+ .
+  Files: filea ...
+  Copyright: 2009, ...
+  License: LGPL-2.1
+   This program is free software;
+          ...
+ .
+  Files: fileb ...
+  Copyright: 2009, ...
+  License: LGPL-2.1
+   This program is free software;
+   ...
+ .
+ In this case, you redefine LGPL-2.1 license. You should use
+ a stand-alone paragraph or merge the two files (using a single
+ paragraph).
+
+Tag: invalid-escape-sequence-in-dep5-copyright
+Severity: normal
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: The only allowed escape sequences are "\*", "\?" and "\\" (without
+ quotes) to produce a literal star, question mark and backslash, respectively.
+ Without the escaping backslash, the star and question mark take the role of
+ globbing operators similar to shell globs which is why they have to be
+ escaped. No other escapable characters than "*", "?" and "\" exist.
+
+Tag: wildcard-matches-nothing-in-dep5-copyright
+Severity: minor
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: The wildcard that was specified matches no file in the source tree.
+ This either indicates that you should fix the wildcard so that it matches
+ the intended file or that you can remove the wildcard. Notice that in
+ contrast to shell globs, the "*" (star or asterisk) matches slashes and
+ leading dots.
+
+Tag: file-without-copyright-information
+Severity: normal
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: The source tree contains a file which was not matched by any of
+ the <tt>Files</tt> paragraphs in debian/copyright. Either adjust existing
+ wildcards to match that file or add a new <tt>Files</tt> paragraph.
+
+Tag: unused-file-paragraph-in-dep5-copyright
+Severity: minor
+Certainty: possible
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Info: The <tt>Files</tt> paragraph in debian/copyright appears to be
+ superfluous as it is does not match any files.
+ .
+ You should be able to safely remove it.
+ .
+ This can also be caused by incorrect relative ordering of paragraphs.
+
+Tag: source-includes-file-in-files-excluded
+Severity: serious
+Certainty: possible
+Info: A file specified in the <tt>Files-Excluded</tt> field in
+ debian/copyright exists in the source tree.
+ .
+ This might be a DFSG violation, the referenced files are probably not
+ attributed in <tt>debian/copyright</tt>, or the upstream tarball was simply
+ not repacked as intended. Alternatively, the field is simply out of date.
+ .
+ mk-origtargz(1) is typically responsible for removing such files. Support
+ in <tt>git-buildpackage</tt> is being tracked in #812721.
+
+Tag: missing-notice-file-for-apache-license
+Severity: serious
+Certainty: possible
+Info: The package appears to be licensed under the Apache 2.0 license and
+ a <tt>NOTICE</tt> file (or similar) exists in the source tree. However, no
+ files called <tt>NOTICE</tt> or <tt>NOTICE.txt</tt> are installed in any
+ of the binary packages.
+ .
+ The Apache 2.0 license requires distributing of such files:
+ .
+  (d) If the Work includes a "NOTICE" text file as part of its
+      distribution, then any Derivative Works that You distribute must
+      include a readable copy of the attribution notices contained
+      within such NOTICE file [..]
+ .
+ Please include the file in your package, for example by adding
+ <tt>path/to/NOTICE</tt> to a <tt>debian/package.docs</tt> file.
+Ref: /usr/share/common-licenses/Apache-2.0
+
+Tag: files-excluded-without-copyright-format-1.0
+Severity: serious
+Certainty: certain
+Info: The <tt>Files-Excluded</tt> field in <tt>debian/copyright</tt> is
+ used to exclude files from upstream source packages such as when they
+ violate the Debian Free Software Guidelines
+ .
+ However, this field will be ignored by uscan(1) if the <tt>copyright</tt>
+ file is not declared as following the <tt>1.0</tt> format.
+ .
+ Please ensure your <tt>debian/copyright</tt> file starts with the
+ following line:
+ .
+   Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Ref: uscan(1)
+
+Tag: global-files-wildcard-not-first-paragraph-in-dep5-copyright
+Severity: normal
+Certainty: certain
+Info: The specified paragraph in the machine readable copyright file references
+ all possible files but is not the first paragraph. For example:
+ .
+  Files: filea
+  Copyright: 2009, ...
+ .
+  Files: *
+  Copyright: 2010, ...
+ .
+ As the paragraphs is matched on a "last match wins" principle, all proceeding
+ paragraphs are overridden.
+Ref: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+
+Tag: missing-explanation-for-contrib-or-non-free-package
+Severity: wishlist
+Certainty: certain
+Info: The specified package is in the contrib or non-free archive
+ area but does not include a "Comment" (or "Disclaimer") field in
+ its copyright file.
+ .
+ Please add a brief comment why this package cannot be part of the
+ main Debian distribution.
+Ref: policy 12.5
+
+Tag: missing-explanation-for-repacked-upstream-tarball
+Severity: wishlist
+Certainty: possible
+Info: The version of this package contains <tt>dfsg</tt>, <tt>ds</tt>,
+ or <tt>debian</tt> which normally indicates that the upstream source
+ has been repackaged, but there is no "Comment" or "Files-Excluded"
+ field in its copyright file which explains the reason why.
+ .
+ Please add a comment why this tarball was repacked or add a suitable
+ "Files-Excluded" field.

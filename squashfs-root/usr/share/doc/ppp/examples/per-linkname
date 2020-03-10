@@ -1,0 +1,33 @@
+Date: Mon, 06 Oct 2003 16:00:25 +0200
+From: Eyal Rozenberg <rozenbrg@barak-online.net>
+Subject: ppp per-linkname script dir
+
+(I'm writing you as the maintainer of the Debian ppp package)
+
+On my system, I sometime find it necessary to run different commands for 
+different peers/providers after the ppp connection, like specific 
+complex routing configuration, etc. To do so I have added the files 
+/etc/ppp/ip-up.d/00peer-specific and /etc/ppp/ip-down.d/00peer-specific
+whose contents is:
+------------------------------------------------------------------
+
+#!/bin/bash
+#
+# run peer-specific (or, rather, 'link-name' specific) scripts
+
+if [ -n "$LINKNAME" ] ; then
+         run-parts /etc/ppp/ip-up.d/$LINKNAME
+fi
+
+exit 0
+
+------------------------------------------------------------------
+
+and the same thing for if-down.d (but with its respective directory 
+name). To use these, one must set the linkname pppd option in the files 
+under /etc/ppp/peers - but that's a good idea anyway.
+
+Perhaps you would consider adding such files to the ppp package.
+
+Eyal Rozenberg
+

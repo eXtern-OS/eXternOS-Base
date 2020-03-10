@@ -1,0 +1,144 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+. /scripts/casper-helpers
+
+mountpoint=/cdrom
+
+is_updates_path() {
+	# Driver packages are stored in ubuntu-drivers/<kver>/
+	# subdirectory. Each package contains a module for a specific
+	# kernel flavour.
+	path=$1
+	abi="$(uname -r)"
+	kver="$(echo "$abi" | cut -d- -f1,2)"
+	kbase="$(echo "$abi" | cut -d- -f1)"
+	for leaf in "$abi" "$kver" "$kbase"; do
+		update_dir="$path/ubuntu-drivers/$leaf"
+		[ -d "$update_dir" ] || continue
+		if [ "$(echo $update_dir/*_$DPKG_ARCH.deb)" != \
+			"$update_dir/*_$DPKG_ARCH.deb" ]; then
+			echo "$update_dir"
+			return 0
+		fi
+	done
+	return 1
+}
+
+is_nice_device() {
+    sysfs_path="${1#/sys}"
+    if udevadm test-builtin path_id "${sysfs_path}" | egrep -q "ID_PATH=(usb|pci-[^-]*-(ide|scsi|usb))"; then
+        return 0
+    fi
+    return 1
+}
+
+check_dev_updates ()
+{
+    sysdev="${1}"
+    devname="${2}"
+    if [ -z "${devname}" ]; then
+        devname=$(sys2dev "${sysdev}")
+    fi
+
+    fstype=$(get_fstype "${devname}")
+    if is_supported_fs ${fstype}; then
+        mount -t ${fstype} -o ro "${devname}" $mountpoint || continue
+        if is_updates_path $mountpoint; then
+            return 0
+        else
+            umount $mountpoint
+        fi
+    fi
+
+    return 1
+}
+
+find_driver_updates() {
+    for sysblock in $(echo /sys/block/* | tr ' ' '\n' | grep -v loop | grep -v ram); do
+        devname=$(sys2dev "${sysblock}")
+        fstype=$(get_fstype "${devname}")
+        if /lib/udev/cdrom_id ${devname} > /dev/null; then
+            if check_dev_updates "null" "${devname}" ; then
+                return 0
+            fi
+        elif is_nice_device "${sysblock}" ; then
+            for dev in $(subdevices "${sysblock}"); do
+                if check_dev_updates "${dev}" ; then
+                    return 0
+                fi
+            done
+        fi
+    done
+    return 1
+}
+
+
+updates="false"
+
+for x in $(cat /proc/cmdline); do
+	case $x in
+		debian-installer/driver-update=*)
+			updates=${x#debian-installer/driver-update=}
+			;;
+	esac
+done
+
+if [ "$updates" != "true" ]; then
+	log_end_msg
+	exit 0
+fi
+
+# Not sure what to do for network installs. I assume there isn't even a CD
+# for this anyway, so fail.
+if [ -n "${NETBOOT}" ]; then
+	log_end_msg
+	exit 0;
+fi
+
+eject
+log_wait_msg "Insert a driver CD and press ENTER ($DPKG_ARCH)"
+
+log_begin_msg "Looking for driver update CD"
+
+for i in 0 1 2 3 4 5 6 7 8 9 a b c d e f 10 11 12 13; do
+	updates_root=$(find_driver_updates)
+	if [ "${updates_root}" ]; then
+		break;
+	fi
+	sleep 1
+done
+
+log_end_msg
+
+if [ -z "${updates_root}" ]; then
+	log_begin_msg "Could not find driver updates"
+	log_wait_msg "Re-insert install CD and press ENTER"
+	exit 0
+fi
+
+log_begin_msg "Copying driver updates to temporary location"
+
+mkdir -p /tmp/driver-updates
+cp $updates_root/*_$DPKG_ARCH.deb /tmp/driver-updates/
+umount $mountpoint
+eject
+
+log_end_msg
+
+log_wait_msg "Re-insert install CD and press ENTER."

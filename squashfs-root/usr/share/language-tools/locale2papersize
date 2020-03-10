@@ -1,0 +1,18 @@
+#!/bin/sh -e
+#
+# locale2papersize outputs the paper size "a4" or "letter" based on
+# the height and width in the locale that is passed as an argument.
+
+export LC_PAPER=$1
+
+height=$( locale height )
+width=$( locale width )
+
+if [ "$height" = 279 -a "$width" = 216 ]; then
+    size=letter
+else
+    size=a4
+fi
+
+echo $size
+

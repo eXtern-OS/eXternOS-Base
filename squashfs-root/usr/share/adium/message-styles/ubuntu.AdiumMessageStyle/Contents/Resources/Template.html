@@ -1,0 +1,195 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<base href="%@">
+	
+	<script type="text/javascript">
+	//<![CDATA[	
+	   var isDebug = false;
+
+	   //Do this on load
+		function initEvents() {
+			if(document.getElementById("heading") == null){
+				document.getElementById("bodyNode").style.marginTop = "5px";
+			}
+			
+			if(isDebug == false) {
+				 document.getElementById("debug").style.display = "none";
+			}
+	       	       
+			alignChat(true);
+		}
+
+	   //Debugging function
+	   function trace(msg) {
+			var node = document.createElement("div");
+			var debugCon = document.getElementById("debug");
+			node.innerHTML = msg;
+			debugCon.appendChild(node);
+		}
+		
+	
+		//Appending new content to the message view
+		function appendMessage(html) {
+			var shouldScroll = nearBottom();
+			
+			appendMessageNoScroll(html, shouldScroll);
+		}
+			
+		function appendMessageNoScroll(html, shouldScroll) {
+			shouldScroll = shouldScroll || false;
+			
+			//Remove any existing insertion point
+			var insert = document.getElementById("insert");
+			
+			if(insert) insert.parentNode.removeChild(insert);
+			
+			//Append the new message to the bottom of our chat block
+			var chat = document.getElementById("Chat");
+			var range = document.createRange();
+			range.selectNode(chat);
+			var documentFragment = range.createContextualFragment(html);
+			
+			var myFrag = chat.appendChild(documentFragment);
+			
+			var frag = document.querySelectorAll(".chatItem")[document.querySelectorAll(".chatItem").length-1];
+			fadeIn(frag);
+			
+			alignChat(shouldScroll);
+		}
+		
+		function fadeIn(myNode) {
+		    myNode.style.visibility = "visible";
+		    myNode.style.opacity = 0;
+		    setTimeout(function() {
+			myNode.style.WebkitTransition = "opacity 0.35s ease-in";
+			myNode.style.opacity = 1;
+		    }, 0);
+		}
+		
+		
+		function appendNextMessage(html){
+			var shouldScroll = nearBottom();
+			
+			appendNextMessageNoScroll(html, shouldScroll);
+		}
+
+		function appendNextMessageNoScroll(html, shouldScroll){
+			shouldScroll = shouldScroll || false;
+			
+			//Locate the insertion point
+			var insert = document.getElementById("insert");
+		
+			//make new node
+			range = document.createRange();
+			range.selectNode(insert.parentNode);
+			newNode = range.createContextualFragment(html);
+			
+			//swap
+			var pointer = insert.parentNode;
+			insert.parentNode.replaceChild(newNode,insert);			
+			var els = pointer.getElementsByTagName("div");
+
+			alignChat(shouldScroll);
+		}
+		
+		function nearBottom() {
+			var fastResizeSafety = 20; //px
+			// Quick window shrink may move marker offscreen before we notice
+			// and re-scroll to catch up.  With a little buffer here, the
+			// bottom marker has to go off-screen more before we forget that we
+			// were at the end.
+
+			var bottomOfConversation = document.getElementById("bottomMarker").offsetTop - 20;
+			var bottomOfWindow = document.body.scrollTop + window.innerHeight;
+			return (bottomOfConversation <= bottomOfWindow);
+
+		}
+		
+		var intervall_scroll;
+		function scrollToBottom() {
+			var bottomMarker = document.getElementById("bottomMarker");
+
+			// Use smart scroll function if we have it.  (We probably do.)
+			if (bottomMarker && bottomMarker.scrollIntoView) {
+				bottomMarker.scrollIntoView(true);
+				return;
+			}
+
+			//document.body.scrollTop = (document.body.scrollHeight-window.innerHeight);
+			//return;
+			if( intervall_scroll ) clearInterval( intervall_scroll );
+			intervall_scroll = setInterval( function() {
+				var target_scroll = (document.body.scrollHeight-window.innerHeight);
+				var scrolldiff = target_scroll - document.body.scrollTop;
+				if ( document.body.scrollTop != target_scroll ) {
+					var saved_scroll = document.body.scrollTop;
+					document.body.scrollTop += scrolldiff / 5 + ( scrolldiff >= 0 ? (scrolldiff != 0 ) : -1 );
+				 } else {
+				 	saved_scroll = -1;
+					clearInterval( intervall_scroll );
+				 }
+			} , 10 );
+			return;
+		}
+		
+		//Dynamically exchange the active stylesheet
+		function setStylesheet( id, url ) {
+			var code = "<style id=\"" + id + "\" type=\"text/css\" media=\"screen,print\">";
+			if( url.length ) code += "@import url( \"" + url + "\" );";
+			code += "</style>";
+			var range = document.createRange();
+			var head = document.getElementsByTagName( "head" ).item(0);
+			range.selectNode( head );
+			documentFragment = range.createContextualFragment( code );
+			head.removeChild( document.getElementById( id ) );
+			head.appendChild( documentFragment );
+		}
+		
+		//Align our chat to the bottom of the window.  If true is passed, view will also be scrolled down
+		function alignChat(shouldScroll) {
+
+			var windowHeight = window.innerHeight;
+			
+			if(windowHeight > 0) {
+				var contentElement = document.getElementById('Chat');
+				var contentHeight = contentElement.offsetHeight;
+				if (windowHeight - contentHeight > 0) {
+					contentElement.style.position = 'relative';
+					contentElement.style.top = '0px';
+				} else {
+					contentElement.style.position = 'static';
+				}
+			}
+			
+			if(shouldScroll) scrollToBottom();
+		}
+		
+		function windowDidResize() {
+			// Window is changing size.  Should we keep up with the bottom,
+			// where new messages are coming in, or at the top, where the user
+			// is perhaps reading?  Use a heuristic of checking to see if we're
+			// scrolled to the bottom to decide whether to stick with the
+			// bottom.
+
+			alignChat(nearBottom());
+		}
+		
+		window.onresize = windowDidResize;
+		//]]>
+	</script>
+
+	<style id="mainStyle" type="text/css" media="screen,print">	@import url( "%@" ); @import url("Variants/Green on Yellow Alternating.css"); </style>
+
+</head>
+<body style="==bodyBackground==" id="bodyNode" onload="initEvents()">
+%@
+<div id="Chat">
+</div>
+%@
+<div id="debug"></div>
+
+<div id="bottomMarker" />
+
+</body>
+</html>

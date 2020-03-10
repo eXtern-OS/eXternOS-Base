@@ -1,0 +1,91 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      type="topic" style="task"
+      id="login-logo">
+
+  <info>
+    <link type="guide" xref="login#appearance"/>
+    <!--<link type="seealso" xref="gdm-restart"/>-->
+    <revision pkgversion="3.11" date="2014-01-29" status="draft"/>
+
+    <credit type="author copyright">
+      <name>Matthias Clasen</name>
+      <email>matthias.clasen@gmail.com</email>
+      <years>2012</years>
+    </credit>
+    <credit type="author copyright">
+      <name>Michael Hill</name>
+      <email>mdhillca@gmail.com</email>
+      <years>2012</years>
+    </credit>
+    <credit type="author copyright editor">
+      <name>Ekaterina Gerasimova</name>
+      <email>kittykat3756@gmail.com</email>
+      <years>2013</years>
+    </credit>
+    <credit type="editor">
+      <name>Petr Kovar</name>
+      <email>pknbe@volny.cz</email>
+      <years>2013</years>
+    </credit>
+
+    <desc>Edit a <sys its:translate="no">GDM</sys>
+     <sys its:translate="no">dconf</sys>
+     profile to display an image on the login screen.</desc>
+   </info>
+
+  <title>Add a greeter logo to the login screen</title>
+
+  <comment>
+    <cite date="2012-11-07" href="mailto:mdhillca@gmail.com">Michael Hill</cite>
+    <p>Adapted from l-g-o SysAdminGuide page.</p>
+  </comment>
+
+  <p>The greeter logo on the login screen is controlled by the
+  <sys>org.gnome.login-screen.logo</sys> 
+  
+  GSettings key. Since <sys>GDM</sys> uses its own
+  <sys>dconf</sys> profile, you can add a greeter logo by changing
+  the settings in that profile.</p>
+  
+  <p>When choosing an appropriate picture for the logo to your login screen, 
+  consider the following picture requirements:</p>
+  
+  <list>
+  <item><p>All the major formats are supported: ANI, BPM, GIF, ICNS, ICO, 
+  JPEG, JPEG 2000, PCX, PNM, PBM, PGM, PPM, GTIFF, RAS, TGA, TIFF, XBM, 
+  WBMP, XPM, and SVG.</p></item>
+  <item><p>The size of the picture scales proportionally to the height of 
+  48 pixels. So, if you set the logo to 1920x1080, for example, it changes 
+  into an 85x48 thumbnail of the original picture.</p></item>
+  </list>
+  
+  <steps>
+  <title>Set the org.gnome.login-screen.logo key</title>
+    <include href="dconf-snippets.xml"
+      xpointer="xpointer(/*/*[@xml:id='dconf-profile-gdm'])"
+      xmlns="http://www.w3.org/2001/XInclude"/>
+  <item><p>Create a <sys>gdm</sys> database for machine-wide settings in
+  <file>/etc/dconf/db/gdm.d/<var>01-logo</var></file>:</p>
+  <code>[org/gnome/login-screen]
+  logo='<var>/usr/share/pixmaps/logo/greeter-logo.png</var>'
+  </code>
+  <p>Replace <var>/usr/share/pixmaps/logo/greeter-logo.png</var>
+  with the path to the image file you want to use as the greeter logo.
+  </p></item>
+    <include href="dconf-snippets.xml"
+      xpointer="xpointer(/*/*[@xml:id='dconf-update'])"
+      xmlns="http://www.w3.org/2001/XInclude"/>
+  </steps>
+
+  <section id="login-logo-not-update">
+  <title>What if the logo does not update?</title>
+
+  <p>Make sure that you have run the <cmd>dconf update</cmd>
+  command to update the system databases.</p>
+
+  <p>In case the logo does not update, try restarting <sys>GDM</sys>.
+  <!--For more information, see <link xref="gdm-restart"/>.--></p>
+  </section>
+
+</page>

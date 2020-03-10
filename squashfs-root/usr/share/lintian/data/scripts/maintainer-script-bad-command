@@ -1,0 +1,46 @@
+# complain (tag) when we encounters some commands on maintainer script
+# format is:
+# tag ~~in cat string ~~ package exception ~~ only in file ~~ regexp
+#
+# Where:
+#   - tag is the tag to emit
+#   - when in cat string is true check in HERE document
+#   - package exception is a regexp for checking only in some package
+#     Use empty string for checking in all package.
+#   - only in file is a regexp for checking only in some maintainer script
+#     Empty means check in all files.
+#   - regexp is the regexp to check. First group ($1) will be printed if found as extra tag info
+#     You could use the special variable ${LEADIN} if needed (see below).
+#
+# ${LEADIN}:
+# When detecting commands inside shell scripts, use this regex to match the
+# beginning of the command rather than checking whether the command is at the
+# beginning of a line.
+#
+# Please alpha sort by tag
+#
+# Please use maintainer-script-should-not- for tag name
+
+# ftpmaster auto reject so do not rename
+install-info-used-in-maintainer-script                          ~~ 1 ~~                    ~~          ~~\binstall-info\b
+# ftpmaster auto reject so do not rename
+maintainer-script-removes-device-files                          ~~ 0 ~~                    ~~          ~~^\s*rm\s+(?:[^>]*\s)?(/dev/(?!(?:shm/|\.[^.]+))[^/ ]+)
+
+maintainer-script-should-not-hide-init-failure                  ~~ 0 ~~                    ~~          ~~invoke-rc.d.*\|\| \s+ exit \s+ 0
+maintainer-script-should-not-modify-ld-so-conf                  ~~ 0 ~~^libc               ~~          ~~(?:\A\s*(?:cp|mv)\s+.*\s+|>\s*)/etc/ld\.so\.conf\s*(?:\s|\Z)
+maintainer-script-should-not-modify-netbase-managed-file        ~~ 0 ~~                    ~~          ~~(?:\A\s*(?:cp|mv)\s+.*\s+|>\s*)(/etc/(?:services|protocols|rpc))\s*(?:\s|\Z)
+maintainer-script-should-not-use-adduser-system-without-home    ~~ 1 ~~                    ~~          ~~(adduser\s(?:(?!.*(?<=\s)--home\s.*\s--system).*(?<=\s)--system(?=\s)(?!.*\s--home\s+(?:["]?/(?!home/)|["]?\$[\(\[\{]?))|--home\s+["]?/home/.*\s--system(?:\s|$)).*)
+maintainer-script-should-not-use-deprecated-chown-usage         ~~ 0 ~~                    ~~          ~~(chown(?:\s+--?[A-Za-z-]+)*\s+[-_A-Za-z0-9]+\.[-_A-Za-z0-9]+)\s+
+maintainer-script-should-not-use-dpkg-status-directly           ~~ 1 ~~^(base-files|dpkg)$ ~~          ~~/var/lib/dpkg/status\b
+maintainer-script-should-not-use-fc-cache                       ~~ 0 ~~^(fontconfig)$      ~~          ~~${LEADIN}(?:/usr/bin/)?fc-cache(?:\s|\Z)
+maintainer-script-should-not-use-gconftool                      ~~ 1 ~~^(gconf\d)$         ~~          ~~(?:/usr/bin/)?gconftool(?:-\d)?(?:\s|\Z)
+maintainer-script-should-not-use-install-sgmlcatalog            ~~ 1 ~~                    ~~          ~~\binstall-sgmlcatalog\b
+maintainer-script-should-not-use-recursive-chown-or-chmod       ~~ 1 ~~                    ~~          ~~\b(?:chmod|chown).*(?:-R|--recursive)\b
+maintainer-script-should-not-use-service                        ~~ 1 ~~                    ~~          ~~${LEADIN}service\b
+maintainer-script-should-not-use-start-stop-daemon              ~~ 0 ~~                    ~~          ~~\bstart-stop-daemon(?=\s)(?!.*\s--stop\b)
+maintainer-script-should-not-use-update-alternatives-remove     ~~ 1 ~~                    ~~^postrm$  ~~\b update\-alternatives\s+\-\-remove\b
+maintainer-script-should-not-use-update-alternatives-set        ~~ 1 ~~                    ~~          ~~^(?!\s*echo\s+["'][^'"]*)\bupdate\-alternatives\s+\-\-(?:set|set\-selections|config)\b
+trailing-slash-for-dpkg-maintscript-helper-symlink_to_dir       ~~ 1 ~~                    ~~          ~~ dpkg-maintscript-helper\s+symlink_to_dir\s+[^\s]+/\s
+maintainer-script-may-use-dir_to_symlink_helper                 ~~ 1 ~~                    ~~          ~~ ln[ ]*-f?s.*doc
+
+

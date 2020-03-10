@@ -1,0 +1,230 @@
+Check-Script: patch-systems
+Author: Marc Brockschmidt <he@debian.org>
+Abbrev: pat
+Type: source
+Info: This script checks for various possible problems when using patch systems
+Needs-Info: unpacked, diffstat
+
+Tag: dpatch-build-dep-but-no-patch-list
+Severity: normal
+Certainty: certain
+Info: Using dpatch requires you to explicitly list all patches you want
+ to apply in debian/patches/00list. This package build-depends on dpatch,
+ but does not provide a patch list.  You should either remove the dpatch
+ build dependency or add a patch list.
+ .
+ Note that an empty file cannot be represented in the Debian diff, so an
+ empty patch list will disappear in the source package.  If you intended
+ for the series file to be empty, add a comment line.
+
+Tag: dpatch-index-references-non-existent-patch
+Severity: important
+Certainty: certain
+Info: In the 00list file listing all your dpatches, you referenced a file
+ that does not exist. This will lead to a fatal error when calling dpatch.
+
+Tag: dpatch-missing-description
+Severity: wishlist
+Certainty: certain
+Info: dpatch files should carry a description of the included patch.
+ Description lines start with "## DP:".
+ .
+ As well as a description of the purpose and function of the patch, the
+ description should ideally contain author information, a URL for the bug
+ report (if any), Debian or upstream bugs fixed by it, upstream status,
+ the Debian version and date the patch was first included, and any other
+ information that would be useful if someone were investigating the
+ patch and underlying problem.  Please consider using the DEP-3 format for
+ this information.
+Ref: http://dep.debian.net/deps/dep3/
+
+Tag: quilt-patch-using-template-description
+Severity: wishlist
+Certainty: certain
+Info: The patch contains a standard DEP-3 template description
+ included by dpkg-source(1).  Please consider replacing the template
+ with a real description.  You can edit the description by using
+ <tt>quilt header -e</tt> when the patch is at the top of the stack.
+ Alternatively, editing the patch in most text editors should work
+ as well.
+Ref: http://dep.debian.net/deps/dep3/
+
+Tag: quilt-build-dep-but-no-series-file
+Severity: normal
+Certainty: certain
+Info: Using quilt requires you to explicitly list all patches you want
+ to apply in debian/patches/series.  This package build-depends on quilt,
+ but does not provide a patch list.  You should either remove the quilt
+ build dependency or add a series file.
+ .
+ Note that an empty file cannot be represented in the Debian diff, so an
+ empty series file will disappear in the source package.  If you intended
+ for the series file to be empty, add a comment line.
+
+Tag: quilt-series-but-no-build-dep
+Severity: normal
+Certainty: possible
+Info: The package contains a debian/patches/series file usually used by
+ quilt to apply patches at build time, but quilt is not listed in the
+ build dependencies.
+ .
+ You should either remove the series file if it's effectively not useful
+ or add quilt to the build-dependencies if quilt is used during the build
+ process.
+ .
+ If you don't need quilt during build but only during maintenance work,
+ then you can override this warning.
+
+Tag: quilt-series-without-trailing-newline
+Severity: serious
+Certainty: possible
+Info: The package contains a debian/patches/series file
+ that doesn't end with a newline. dpkg-source may silently
+ corrupt this file.
+Ref: #584233
+
+Tag: quilt-patch-with-non-standard-options
+Severity: normal
+Certainty: certain
+Info: The quilt series file contains non-standard options to apply some of
+ the listed patches. Quilt uses '-p1' by default if nothing is specified
+ after the name of the patch and the current series file specify something
+ else for some of the patches listed.
+ .
+ For compatibility with the source "3.0 (quilt)" source package format,
+ you should avoid using any option at all and make sure that your patches
+ apply with "-p1". This can be done by refreshing all patches like this:
+ quilt pop -a; while quilt push; do quilt refresh -pab; done
+
+Tag: quilt-series-references-non-existent-patch
+Severity: important
+Certainty: certain
+Info: In the series file listing all your quilt patches, you referenced a
+ file that does not exist. This will lead to a fatal error when calling quilt.
+
+Tag: quilt-patch-missing-description
+Severity: wishlist
+Certainty: certain
+Info: quilt patch files should start with a description of patch.  All
+ lines before the start of the patch itself are considered part of the
+ description.  You can edit the description with <tt>quilt header -e</tt>
+ when the patch is at the top of the stack.
+ .
+ As well as a description of the purpose and function of the patch, the
+ description should ideally contain author information, a URL for the bug
+ report (if any), Debian or upstream bugs fixed by it, upstream status,
+ the Debian version and date the patch was first included, and any other
+ information that would be useful if someone were investigating the
+ patch and underlying problem.  Please consider using the DEP-3 format for
+ this information.
+Ref: http://dep.debian.net/deps/dep3/
+
+Tag: patch-modifying-debian-files
+Severity: important
+Certainty: certain
+Info: A patch stored in <tt>debian/patches/</tt> should never modify files
+ in the <tt>debian</tt> directory (even when it's only creating new files)
+ because the <tt>debian</tt> directory is always directly provided by the
+ Debian packaging.
+ And you shouldn't have to modify what you choose to provide in the first
+ place.
+ .
+ If the patch provides a new file (say a manual page), place that file
+ in the upstream directory hierarchy as if it was ready to be submitted.
+
+Tag: patch-system-but-direct-changes-in-diff
+Severity: minor
+Certainty: certain
+Info: The package uses a patch system, but the Debian diff.gz contains
+ changes to files or creation of additional files outside of the
+ <tt>debian</tt> directory.  This often indicates accidental changes that
+ weren't meant to be in the package or changes that were supposed to be
+ separated out into a patch.  The package will also more easily support
+ possible future source package formats if all changes outside the
+ <tt>debian</tt> directory are stored as patches.
+
+Tag: format-3.0-but-debian-changes-patch
+Severity: minor
+Certainty: certain
+Info: This package declares source format 3.0 (quilt), but the Debian
+ .debian.tar.gz file contains a debian-changes-VERSION patch, which represents
+ direct changes to files outside of the <tt>debian</tt> directory. This often
+ indicates accidental changes that weren't meant to be in the package or changes
+ that were supposed to be separated out into a patch.
+ .
+ If this is intentional, you may wish to consider adding
+ <tt>single-debian-patch</tt> to <tt>debian/source/options</tt>, and/or a patch
+ header to <tt>debian/source/patch-header</tt> explaining why this is done.
+
+Tag: more-than-one-patch-system
+Severity: minor
+Certainty: certain
+Info: Either the build-dependencies list more than one patch system or the
+ package uses the <tt>3.0 (quilt)</tt> source format but also has a
+ dependency on <tt>dpatch</tt>.  It's unlikely that you need both patch
+ systems at the same time, and having multiple patch systems in play
+ simultaneously can make understanding and modifying the source package
+ unnecessarily complex.
+
+Tag: direct-changes-in-diff-but-no-patch-system
+Severity: pedantic
+Certainty: certain
+Info: The Debian diff.gz contains changes to files or creation of additional
+ files outside the <tt>debian</tt> directory.  Keeping the changes as separate
+ patches under the control of a patch system allows for more fine grained
+ control over them.  The package will also more easily support  possible
+ future source package formats if all changes outside the <tt>debian</tt>
+ directory are stored as patches.
+ .
+ If the diff only creates new files that can be copied into place by the
+ package build rules, consider putting them in the <tt>debian</tt>
+ directory rather than using a patch system.
+
+Tag: patch-system-but-no-source-readme
+Severity: normal
+Certainty: certain
+Info: This package build-depends on a patch system such as dpatch or
+ quilt, but there is no <tt>debian/README.source</tt> file.  This file is
+ recommended for any package where <tt>dpkg-source -x</tt> does not result
+ in the preferred form for making modifications to the package.
+ .
+ If you are using quilt and the package needs no other special handling
+ instructions, you may want to add a <tt>debian/README.source</tt>
+ referring to <tt>/usr/share/doc/quilt/README.source</tt>.  Similarly, you
+ can refer to <tt>/usr/share/doc/dpatch/README.source.gz</tt> for dpatch.
+Ref: policy 4.14
+
+Tag: patch-file-present-but-not-mentioned-in-series
+Severity: normal
+Certainty: certain
+Info: The specified patch is present under the <tt>debian/patches</tt>
+ directory but is not mentioned in any "series" or "00list" file.
+ .
+ This may mean that a patch was created with the intention of modifying
+ the package but is not being applied.
+ .
+ Please either add the filename to the series file, or ensure it is
+ commented-out in a form that Lintian can recognise, for example:
+ .
+   0001_fix-foo.patch
+   # 0002_fix-bar.patch
+
+Tag: package-uses-deprecated-dpatch-patch-system
+Severity: pedantic
+Certainty: certain
+Info: The dpatch patch system has been deprecated and superceded by the
+ "3.0 (quilt)" source format.
+ .
+ Please migrate the patches in the <tt>debian/patches</tt> directory and
+ the <tt>00list</tt> file to use this source format.
+Ref: dpatch(1), dpkg-source(1)
+
+Tag: spelling-error-in-patch-description
+Severity: minor
+Certainty: certain
+Info: Lintian found a spelling or capitalization error in the description
+ for this patch. Lintian has a list of common misspellings that it looks
+ for. It does not have a dictionary like a spelling checker does.
+ .
+ Patch filenames or descriptions that refer to "spelling" or "typo" (or
+ similar) are ignored by Lintian.

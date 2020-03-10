@@ -1,0 +1,107 @@
+NAME
+
+    XML::Twig - Tree interface to XML documents allowing processing chunk
+                by chunk of huge documents.
+
+                
+
+SUMMARY (see perldoc XML::Twig for full details)
+
+XML::Twig is (yet another!) XML transformation module. 
+
+Its strong points: can be used to process huge documents while still
+being in tree mode; not bound by DOM or SAX, so it is very perlish and
+offers a very comprehensive set of methods; simple to use; DWIMs as
+much as possible
+
+What it doesn't offer: full SAX support (it can export SAX, but only
+reads XML), full XPath support (unless you use XML::Twig::XPath), nor
+DOM support.
+
+Other drawbacks: it is a big module, and with over 500 methods available
+it can be a bit overwhelming. A good starting point is the tutorial at
+http://xmltwig.org/xmltwig/tutorial/index.html. In fact the whole
+XML::Twig page at http://xmltwig.org/xmltwig/ has plenty of information
+to get you started with XML::Twig
+
+TOOLS
+
+XML::Twig comes with a few tools built on top of it:
+
+  xml_pp           XML pretty printer
+  xml_grep         XML grep - grep XML files using XML::Twig's subset of XPath
+  xml_split        split big XML files
+  xml_merge        merge back files created by xml_split
+  xml_spellcheck   spellcheck XML files skipping tags
+
+Running perl Makefile.PL will prompt you for each tool installation. 
+  perl Makefile.PL -y     will install all of the tools without prompt
+  perl Makefile.PL -n     will skip the installation of the tools
+
+
+SYNOPSYS
+
+  single-tree mode    
+    my $t= XML::Twig->new();
+    $t->parsefile( 'doc.xml');
+    $t->print;
+
+  chunk mode 
+    # print the document, at most one full section is loaded in memory
+    my $t= XML::Twig->new( twig_handlers => { section => \&flush});
+    $t->parsefile( 'doc.xml');
+    $t->flush;
+    sub flush { (my $twig, $section)= @_; $twig->flush; }
+    
+  sub-tree mode 
+    # print all section title's in the document,
+    # all other elements are ignored (and not stored)
+    my $t= XML::Twig->new( 
+            twig_roots => { 'section/title' => sub { $_->print, "\n" } }
+                         );
+    $t->parsefile( 'doc.xml');
+    
+INSTALLATION
+
+    perl Makefile.PL
+    make
+    make test
+    make install
+
+DEPENDENCIES
+
+    XML::Twig needs XML::Parser (and the expat library) installed
+   
+    Modules that can enhance XML::Twig are:
+
+    Scalar::Util or WeakRef 
+      to avoid memory leaks
+    Encode or Text::Iconv or Unicode::Map8 and Unicode::Strings 
+      to do encoding conversions
+    Tie::IxHash 
+      to use the keep_atts_order option
+    XML::XPathEngine 
+      to use XML::Twig::XPath
+    LWP 
+      to use parseurl
+    HTML::Entities
+      to use the html_encode filter
+    HTML::TreeBuilder
+      to process HTML instead of XML
+
+CHANGES
+
+    See the Changes file    
+
+AUTHOR
+
+    Michel Rodriguez (mirod@cpan.org)
+    The Twig page is at http://www.xmltwig.org/xmltwig
+    git project repository: http://github.com/mirod/xmltwig
+    See the XML::Twig tutorial at http://www.xmltwig.org/xmltwig/tutorial/index.html
+
+COPYRIGHT
+
+       Copyright (c) 1999-2012, Michel Rodriguez. All Rights Reserved.
+       This library is free software; you can redistribute it and/or modify
+       it under the same terms as Perl itself.

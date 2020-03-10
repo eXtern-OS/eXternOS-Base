@@ -1,0 +1,34 @@
+Distribution Upgrade tools for Ubuntu
+-------------------------------------
+
+This tool implements the spec at:
+https://wiki.ubuntu.com/AutomaticUpgrade
+
+Broadly speaking a upgrade from one version to the next consists 
+of three things:
+
+1) The user must be informed about the new available distro
+   (possibly release notes as well) and run the upgrade tool
+2) The upgrade tool must be able to download updated information
+   how to perform the upgrade (e.g. additional steps like upgrading 
+   certain libs first)
+3) The upgrade tools runs and installs/remove packages and does
+   some additional steps like post-release cleanup
+
+
+The steps in additon to upgrading the installed packages fall into this 
+categories:
+* switch to new sources.list entries
+* adding the default user to new groups (warty, scanner group)
+* remove packages/install others (breezy, R:mozilla-firefox, RI:firefox, 
+  install ubuntu-desktop package again, R:portmap, I:language-package*)
+* check conffile settings (breezy: /etc/X11/xorg.conf; warty: /etc/modules)
+* check if {ubuntu,kubuntu,edubuntu}-desktop is installed
+* ask/change mirrors (breezy)
+* breezy: install new version of libgtk2.0-0 from hoary-updates, then 
+  restart synaptic
+* reboot
+
+
+The tool need a backported "python-vte" and "python-apt" to work on
+breezy.

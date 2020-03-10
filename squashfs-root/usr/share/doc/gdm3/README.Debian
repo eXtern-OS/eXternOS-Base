@@ -1,0 +1,52 @@
+GDM for Debian
+==============
+
+Configuration overview
+----------------------
+
+The configuration for the GDM daemon is completely different from the 
+older versions (in former package gdm).
+
+For the daemon itself:
+ * The autologin options can be chosen from the “User” tab of the GNOME control
+   center.
+ * Other options (like XDMCP) can be set in /etc/gdm3/custom.conf. The 
+   list of available options can be found in /usr/share/gdm/gdm.schemas.
+
+The greeter - which is the interface that welcomes you on the 
+computer - uses a minimal GNOME session to startup. Its settings are set 
+through GSettings, but using a specific configuration.
+ * You can force the GSettings settings in /etc/gdm3/greeter.dconf-defaults.
+ * After changing any of the settings, you need to run “systemctl reload gdm”
+   to take them into account.
+
+
+X11 authentication
+------------------
+
+Upon session startup, GDM sets the XAUTHORITY environment variable to a 
+session-specific file in /var/run/gdm3.
+
+Applications and scripts that assume this file is set to ~/.Xauthority 
+will not work. To access the display you need both DISPLAY and 
+XAUTHORITY variables.
+
+"I get ugly fonts"
+------------------
+
+In the past, as a quick workaround, GDM imposed a 96 DPI settings by
+passing "-dpi 96" to the X server on startup.  This is a bad idea as
+there's no reason to override standard DPI detection mechanisms for all
+screens which might or might not be 96 DPI screens.
+
+DPI should be computed automatically based on the information on your
+screen that Xorg gets; ideally, Xorg would get the DPI right, but you
+can help Xorg by configuring it with your exact screen properties.
+
+
+Face Browser
+------------
+
+If you enable the face browser in the greeter, GDM will look for face 
+files (any image format supported by GTK+). You can configure the face 
+for your user in the “User” tab of the GNOME control center.

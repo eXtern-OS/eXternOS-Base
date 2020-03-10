@@ -1,0 +1,312 @@
+<?xml version="1.0" ?>
+<!DOCTYPE article PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+"dtd/kdedbx45.dtd" [
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Catalan  "INCLUDE">
+]>
+<article id="autostart" lang="&language;">
+<articleinfo>
+<title
+>Inici automàtic</title>
+<authorgroup>
+<author
+>&Anne-Marie.Mahfouf;</author>
+&traductor.Antoni.Bella; 
+</authorgroup>
+
+<date
+>25 de març de 2018</date>
+<releaseinfo
+>&plasma; 5.12</releaseinfo>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>Arranjament del sistema</keyword>
+<keyword
+>inici automàtic</keyword>
+<keyword
+>fitxer d'escriptori</keyword>
+<keyword
+>fitxer de script</keyword>
+</keywordset>
+</articleinfo>
+
+<sect1 id="kcm_autostart">
+<title
+>Gestor de l'inici automàtic</title>
+
+<para
+>Aquest mòdul és una eina de configuració per a la gestió dels programes que s'inicien amb el vostre &plasma; personal. Permet afegir programes o scripts perquè s'executin automàticament durant l'inici o sortida de la vostra sessió del &plasma; i per a gestionar-los.</para>
+
+<note
+><para
+>Si us plau, tingueu en compte que els canvis en aquest mòdul s'aplicaran immediatament.</para
+></note>
+
+<para
+>El programa escaneja les carpetes <filename
+>$HOME/.config/autostart/</filename
+>, <filename class="directory"
+>$HOME/.config/plasma-workspace/env</filename
+> i <filename class="directory"
+>$HOME/.config/plasma-workspace/shutdown</filename
+> per a comprovar quins programes i scripts hi ha, i els mostra. Us permetrà gestionar-los amb facilitat. </para>
+
+<note
+><para
+>Tingueu en compte que podeu canviar la ubicació de la carpeta <filename class="directory"
+>Autostart</filename
+> al programa &systemsettings;, categoria <guilabel
+>Personalització</guilabel
+>, <menuchoice
+><guimenu
+>Aplicacions</guimenu
+> <guimenuitem
+>Ubicacions</guimenuitem
+></menuchoice
+> i establir una carpeta diferent de <filename class="directory"
+>$HOME/.config/autostart</filename
+>.</para
+></note>
+
+<para
+>Llegiu també <ulink url="help:/kcontrol/kcmsmserver"
+>Sessió de l'escriptori</ulink
+> i <ulink url="help:/kcontrol/kded"
+>Serveis en segon pla</ulink
+> per a informació sobre com configurar el comportament de l'inici de la vostra sessió del &plasma;.</para>
+
+<para
+>Algunes aplicacions &kde; manegen el comportament de l'inici automàtic pel seu compte, &pex;, podeu habilitar o inhabilitar l'inici automàtic d'una aplicació des del seu diàleg de configuració (el &kalarm;) o podeu utilitzar <menuchoice
+><guimenu
+>Fitxer</guimenu
+><guimenuitem
+>Surt</guimenuitem
+></menuchoice
+> (el &konversation;, &kopete;), altrament l'aplicació encara s'estarà executant a la safata del sistema i es reiniciarà durant el proper inici de la sessió. </para>
+
+<sect2 id="migration">
+<title
+>Migració des dels espais de treball del &kde; 4</title>
+<para
+>Per a migrar la vostra configuració personal de l'inici automàtic des dels espais de treball del &kde; 4:</para>
+<simplelist>
+<member
+>Copieu els fitxers «desktop» des de <filename class="directory"
+>$HOME/.kde/Autostart</filename
+> a <filename class="directory"
+>$HOME/.config/autostart</filename
+></member>
+<member
+>Copieu els fitxers dels scripts per abans de l'inici des de <filename class="directory"
+>$HOME/.kde/Autostart</filename
+> a <filename class="directory"
+>$HOME/.config/plasma-workspace/env</filename
+></member>
+<member
+>Copieu els fitxers dels scripts per a la sortida des de <filename class="directory"
+>$HOME/.kde/Autostart</filename
+> a <filename class="directory"
+>$HOME/.config/plasma-workspace/shutdown</filename
+></member>
+</simplelist>
+</sect2>
+
+<!--FIXME Disabling Autostart Files Provided By Your Distribution -> http://www.sharpley.org.uk/node/8 -->
+
+<sect2 id="current">
+<title
+>Fitxers mostrats</title>
+<para
+>La part principal del mòdul mostra els programes que es carreguen quan s'està iniciant el &plasma; i els scripts mentre s'executa, surt o abans d'iniciar.</para>
+
+<variablelist>
+<varlistentry
+><term
+><guilabel
+>Nom</guilabel
+></term>
+<listitem>
+<para
+>No es pot modificar aquesta columna. Indica el nom del programa o script que voleu iniciar amb el &plasma;. El nom s'extreu del fitxer «Desktop» amb la clau «Name» per a un programa i «Filename» per a un script. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry
+><term
+><guilabel
+>Ordre</guilabel
+></term>
+<listitem>
+<para
+>Aquesta columna llista les ordres que s'executen en iniciar el programa. Les ordres per a un programa es poden modificar mitjançant el botó <guibutton
+>Propietats</guibutton
+> o fent doble clic a la fila programa. L'ordre s'extreu del fitxer «Desktop» amb la clau «Exec». </para>
+<para
+>Per a un script, l'ordre és el camí cap a l'script, i no es pot modificar. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry
+><term
+><guilabel
+>Estat</guilabel
+></term>
+<listitem>
+<para
+>Aquest ajustament només està disponible per als programes a través de fitxers «Desktop». Podeu posar un programa a la carpeta <filename class="directory"
+>Autostart</filename
+> (d'inici automàtic), però desactivar que s'executi en iniciar el &plasma;. Desmarcant l'estat <guilabel
+>Activat</guilabel
+> del programa farà que no s'executi durant l'inici. </para>
+<para
+>El fet de desmarcar l'estat <guilabel
+>Activat</guilabel
+> del programa estableix la propietat «Hidden» a «true», en el fitxer «Desktop», a la carpeta <filename class="directory"
+>Autostart</filename
+>. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry
+><term
+><guilabel
+>Executa en</guilabel
+></term>
+<listitem>
+<para
+>Els programes (fitxers «Desktop») només es poden executar durant l'inici. Els scripts es poden executar durant l'<guilabel
+>Inici</guilabel
+>, <guilabel
+>Aturada</guilabel
+> o <guilabel
+>Abans de l'inici de sessió</guilabel
+>. Aquesta columna permet canviar quan s'executa l'script. «Inici» és quan s'inicia el &plasma;, «Aturada» és en tancar la sessió del &plasma; i «Abans de l'inici de sessió» és abans que el &plasma; comenci a iniciar-se. </para>
+<para
+>Els scripts i fitxers «desktop» establerts a ser executats durant l'<guilabel
+>Inici</guilabel
+> són copiats o es crea un enllaç simbòlic en <filename class="directory"
+>$HOME/.config/autostart</filename
+> i seran executats durant l'inici del &plasma;. </para>
+<para
+>Els scripts establerts a ser executats durant l'<guilabel
+>Aturada</guilabel
+> són copiats o es crea un enllaç simbòlic en el directori <filename class="directory"
+>$HOME/.config/plasma-workspace/shutdown</filename
+> i seran executats automàticament durant l'aturada del &plasma;, una vegada l'usuari hagi tancat la sessió. </para>
+<para
+>Els scripts establerts a ser executats durant l'<guilabel
+>Inici previ al &plasma;</guilabel
+> són copiats o es crea un enllaç simbòlic en <filename class="directory"
+>$HOME/.config/plasma-workspace/env</filename
+> i seran inclosos durant l'inici del &plasma; (és a on l'script <filename
+>startkde</filename
+> cercarà els scripts). </para>
+<note
+><para
+>El &plasma; només pot llegir els scripts amb l'extensió <filename
+>.sh</filename
+> per als modes <guilabel
+>Abans de l'inici de sessió</guilabel
+> i <guilabel
+>Aturada</guilabel
+>. </para
+></note>
+</listitem>
+</varlistentry>
+</variablelist>
+</sect2>
+
+<sect2 id="actions">
+<title
+>Accions</title>
+<para
+>A la part inferior hi ha alguns botons per a canviar el mode en què està configurat l'inici automàtic. Podeu afegir i eliminar programes o scripts, o canviar les seves propietats. </para>
+
+<variablelist>
+<varlistentry
+><term
+><guibutton
+>Afegeix un programa</guibutton
+></term>
+<listitem>
+<para
+>En fer clic en aquest botó es mostrarà el diàleg estàndard del &plasma; <guilabel
+>Tria l'aplicació</guilabel
+> i us permet escollir quin programa iniciar. Després de triar el programa, feu clic a <guibutton
+>D'acord</guibutton
+> i se us oferiran les propietats per aquest programa. </para>
+<para
+>Això copiarà el fitxer «Desktop» del programa a la vostra carpeta <filename class="directory"
+>Autostart</filename
+>. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry
+><term
+><guibutton
+>Afegeix un script</guibutton
+></term>
+<listitem>
+<para
+>Aquest botó obrirà un diàleg que us demanarà la ubicació de l'script que voleu afegir. Si manteniu marcada (per omissió) <guilabel
+>Crea com un enllaç simbòlic</guilabel
+>, llavors l'script serà afegit com un enllaç simbòlic. Si no marqueu aquesta opció, l'script serà copiat a la carpeta local corresponent. </para>
+</listitem>
+</varlistentry>
+<varlistentry
+><term
+><guibutton
+>Elimina</guibutton
+></term>
+<listitem>
+<para
+>Eliminarà immediatament el fitxer «Desktop» per al programa, l'script o un enllaç simbòlic en la carpeta <filename class="directory"
+>Autostart</filename
+>. </para>
+</listitem>
+</varlistentry>
+<varlistentry
+><term
+><guibutton
+>Propietats</guibutton
+></term>
+<listitem>
+<para
+>Aquest botó (sols s'habilita per als programes, &ead;, fitxers «Desktop») us permet canviar les propietats del programa o script. Disposeu de propietats generals, propietats de permisos, obtenir una vista prèvia quan sigui aplicable i propietats relacionades amb l'aplicació per als programes. </para>
+</listitem>
+</varlistentry>
+<varlistentry
+><term
+><guibutton
+>Avançat</guibutton
+></term>
+<listitem>
+<para
+>Aquest botó sols s'aplica als programes (&ead;, fitxers «Desktop»). Un diàleg us demanarà si voleu que el programa s'iniciï només al &plasma; (i no en altres entorns d'escriptori que pugueu fer funcionar). Per omissió, el programa s'iniciarà automàticament en tots els entorns d'escriptori que executeu. Marcant <guilabel
+>Engega automàticament només en el Plasma</guilabel
+> s'iniciarà automàticament el programa sols si s'inicia l'entorn d'escriptori &plasma;. </para>
+<para
+>Això estableix el valor Plasma a la clau «OnlyShowIn» al fitxer «Desktop» del programa. </para>
+</listitem>
+</varlistentry>
+</variablelist>
+</sect2>
+</sect1>
+</article>
+
+<!--
+Local Variables:
+mode: xml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+
+vim:tabstop=2:shiftwidth=2:expandtab
+kate: space-indent on; indent-width 2; tab-width 2; indent-mode none;
+-->

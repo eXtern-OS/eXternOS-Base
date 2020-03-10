@@ -1,0 +1,28 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case $1 in
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+if [ ! -x /sbin/dhclient ]; then
+	exit 0
+fi
+
+. /usr/share/initramfs-tools/scripts/functions
+. /usr/share/initramfs-tools/hook-functions
+
+copy_exec /bin/run-parts
+copy_exec /sbin/dhclient
+copy_exec /sbin/dhclient-script
+cp -a /usr/lib/initramfs-tools/etc/dhcp/ $DESTDIR/etc/dhcp/
+mkdir -p $DESTDIR/var/lib/dhcp/

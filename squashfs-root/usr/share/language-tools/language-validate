@@ -1,0 +1,82 @@
+#!/bin/sh -e
+
+lang=$1
+validated_language=
+
+test -n "$lang" || exit 1
+
+langtoolsdir=/usr/share/language-tools
+
+#
+# discard possible fallback languages
+#
+lang=${lang%%:*}
+
+#
+# remove possible encoding part
+#
+if [ $lang != ${lang%.utf8*} ]; then
+    lang=${lang%.*}${lang#*.utf8}
+elif [ $lang != ${lang%.UTF-8*} ]; then
+    lang=${lang%.*}${lang#*.UTF-8}
+fi
+
+#
+# make sure that the output is a valid language option
+#
+options=$( $langtoolsdir/language-options )
+
+# exact match
+for opt in $options; do
+    if [ $opt = $lang ]; then
+        validated_language=$lang
+        break
+    fi
+done
+
+if [ -z "$validated_language" ]; then
+    langcode=${lang%%[_@]*}
+
+    # try the "main" country code if any
+    main_country=
+    is_variant=false
+    while read line; do
+        if [ "${line%%[[:space:]]*}" = $langcode ]; then
+            main_country=${line##*[[:space:]]}
+            if [ $lang != ${lang#*@} ]; then
+                main_country=$main_country@${lang#*@}
+                is_variant=true
+            fi
+            break
+        fi
+    done < $langtoolsdir/main-countries
+    if [ -n "$main_country" ]; then
+        for opt in $options; do
+            if [ $main_country = $opt ]; then
+                validated_language=$main_country
+                break
+            fi
+        done
+    fi
+
+    # try out fitting language option without paying regard to
+    # country code
+    if [ -z "$validated_language" ]; then
+        for opt in $options; do
+            if [ "${opt%%[_@]*}" = $langcode -a $langcode != 'zh' ]; then
+                if $is_variant && [ $opt = ${opt#*@} ]; then
+                    continue
+                fi
+                validated_language=$opt
+                break
+            fi
+        done
+    fi
+fi
+
+if [ -z "$validated_language" ]; then
+    validated_language='en'
+fi
+
+echo $validated_language
+

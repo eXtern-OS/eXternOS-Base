@@ -1,0 +1,46 @@
+#!/usr/bin/perl -w
+
+## Demonstration of chatting with a bash shell.
+
+use strict;
+
+use IPC::Run qw( start pump finish timeout );
+
+$IPC::Run::debug = 10;
+
+my ( $in, $out );
+
+die "usage: runsu <user> <password>" unless @ARGV;
+
+my $user = @ARGV > 1 ? shift : $ENV{USER} || $ENV{USERNAME};
+my $passwd = shift;
+
+my $h = start(
+    [ qw(su - ), $user ], '<pty<', \$in, '>pty>', \$out,
+    timeout(5),
+);
+
+pump $h until $out =~ /^password/im;
+
+$in = "$passwd\n";
+
+## Assume atomic prompt writes
+## and that a non-word is the last char in the prompt.
+$out = '';
+pump $h until $out =~ /([^\r\n\w]\s*)(?!\n)$/;
+my $prompt = $1;
+
+print "Detected prompt string = '$prompt'\n";
+
+$prompt = quotemeta $prompt;
+
+for (qw( ls ps fOoBaR pwd )) {
+    $in  = $_ . "\n";
+    $out = '';
+    $h->timeout(5);    # restart the timeout
+    pump $h until $out =~ s/\A((?s:.*))(?=^.*?$prompt(?!\n)\Z)//m;
+    print map { "su: $_\n" } split( /\n/m, $1 );
+}
+
+$in = "exit\n";
+finish $h ;

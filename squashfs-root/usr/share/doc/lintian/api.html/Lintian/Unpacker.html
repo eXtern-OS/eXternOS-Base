@@ -1,0 +1,225 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Unpacker</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#CLASS_METHODS'>CLASS METHODS</a>
+  <li class='indexItem indexItem1'><a href='#INSTANCE_METHODS'>INSTANCE METHODS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Unpacker -- Job handler to unpack collections</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre> use Lintian::DepMap::Properties;
+ use Lintian::Unpacker;
+ 
+ my $done = 1;
+ my $joblimit = 4;
+ my $collmap = Lintian::DepMap::Properties-&#62;new;
+ my %requested = ( &#39;debfiles&#39; =&#62; 1 );
+ # Initialise $collmap with the collections and their relations
+ # - Each node in $collmap should an instance of L::CollScript
+ #   as property.
+ my $unpacker = Lintian::Unpacker-&#62;new ($collmap, \%requested,
+                                        $joblimit);
+ 
+ while (1) {
+     my $errhandler = sub {}; # Insert hook
+     my @lpkgs; # List of Lintian::Lab::Entry instances
+     $unpacker-&#62;reset_worklist;
+     next unless $unpacker-&#62;prepare_tasks ($errhandler, @lpkgs);
+ 
+     my %hooks = (
+         &#39;coll-hook&#39; =&#62; sub {}, # Insert hook
+         &#39;finish-hook&#39; =&#62; sub {}, # Insert hook
+     );
+     $unpacker-&#62;process_tasks ();
+     last if $done;
+ }</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>An unpacker class to extract data from lab entries and make it available via <a href="../Lintian/Collect.html" class="podlinkpod"
+>Lintian::Collect</a>.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS_METHODS"
+>CLASS METHODS</a></h1>
+
+<dl>
+<dt><a name="new_(COLLMAP,_PROFILE[,_OPTIONS])"
+>new (COLLMAP, PROFILE[, OPTIONS])</a></dt>
+
+<dd>
+<p>Creates a new unpacker.</p>
+
+<p>COLLMAP is a <a href="../Lintian/DepMap/Properties.html" class="podlinkpod"
+>Lintian::DepMap::Properties</a> describing the dependencies between the collections. Each node in COLLMAP must have a <a href="../Lintian/CollScript.html" class="podlinkpod"
+>Lintian::CollScript</a> as property.</p>
+
+<p>OPTIONS is an optional hashref containing optional configurations. If a key is not present, its value is assumed to be <code>undef</code> unless otherwise stated. The following key/values are available:</p>
+
+<dl>
+<dt><a name="&#34;profile&#34;"
+>&#34;profile&#34;</a></dt>
+
+<dd>
+<p>If this key is present and its value is defined, the value must be <a href="../Lintian/Profile.html" class="podlinkpod"
+>Lintian::Profile</a>. The unpacker will use the enabled checks of the Profile to determine what collections to use.</p>
+
+<p>If &#34;profile&#34; is not present or its value is undefined, then all collections in COLLMAP will be unpacked.</p>
+
+<dt><a name="&#34;extra-coll&#34;"
+>&#34;extra-coll&#34;</a></dt>
+
+<dd>
+<p>If this key is present and its value is defined, it must be a reference to a hash table. The keys are considered names of &#34;extra&#34; collections to unpack. The values in this table is ignored.</p>
+
+<p>Extra collections will be unpacked on top of other collections.</p>
+
+<p>NB: This value is ignored if &#34;profile&#34; is not given.</p>
+
+<dt><a name="&#34;jobs&#34;"
+>&#34;jobs&#34;</a></dt>
+
+<dd>
+<p>This value is the max number of jobs to be run in parallel. Can be changed with the <a href="#jobs" class="podlinkpod"
+>&#34;jobs&#34;</a> method later. If omitted, it defaults to 0. Refer to <a href="#jobs" class="podlinkpod"
+>&#34;jobs&#34;</a> for more info.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="INSTANCE_METHODS"
+>INSTANCE METHODS</a></h1>
+
+<dl>
+<dt><a name="prepare_tasks_(ERRHANDLER,_LAB-ENTRY...)"
+>prepare_tasks (ERRHANDLER, LAB-ENTRY...)</a></dt>
+
+<dd>
+<p>Prepare a number of <a href="../Lintian/Lab/Entry.html" class="podlinkpod"
+>lab entries</a> for unpacking.</p>
+
+<p>The ERRHANDLER should be a code ref, which will be invoked in case that an entry is not in the laboratory and cannot be created (via the create method). It is invoked once per failed entry giving the entry as first (and only) argument.</p>
+
+<p>If ERRHANDLER returns normally, the entry is skipped (and will not be unpacked later). If ERRHANDLER croaks/dies/etc., the method will attempt to update the status file for any entry it created before passing back the error to the caller (via die).</p>
+
+<p>LAB-ENTRY is an array of lab entries to be processed. They must be instances of <a href="../Lintian/Lab/Entry.html" class="podlinkpod"
+>Lintian::Lab::Entry</a>, but do not have to exists. They will be created as needed.</p>
+
+<p>Returns a truth value if at least one entry needs to be processed and it did not cause an error. Otherwise, it returns <code>undef</code>.</p>
+
+<p>NB: The status file is not updated for created entries on successful return. It should either be done by running the process_tasks method or manually.</p>
+
+<dt><a name="process_tasks_(HOOKS)"
+>process_tasks (HOOKS)</a></dt>
+
+<dd>
+<p>Process the current tasks. This method blocks until all tasks and jobs have terminated.</p>
+
+<p>The return value is unspecified.</p>
+
+<p>HOOKS (if given) is a hashref of hooks. The following hooks are available:</p>
+
+<dl>
+<dt><a name="coll-hook_(LPKG,_EVENT,_COLL,_PID[,_STATUS])"
+>coll-hook (LPKG, EVENT, COLL, PID[, STATUS])</a></dt>
+
+<dd>
+<p>Called each time a new collection job is started or finished.</p>
+
+<p>LPKG is the <a href="../Lintian/Lab/Entry.html" class="podlinkpod"
+>entry</a> it is applied to. COLL is the <a href="../Lintian/CollScript.html" class="podlinkpod"
+>collection</a> being applied. EVENT is either &#34;start&#34; for a new job or &#34;finish&#34; for a job terminating.</p>
+
+<p>PID is the process id of the job. If EVENT is &#34;start&#34; this can be -1 to signal a failure.</p>
+
+<p>STATUS is the exit status of the finishing job. It is only available if EVENT is &#34;finish&#34; and if STATUS is non-zero is considered an error.</p>
+</dd>
+</dl>
+
+<dt><a name="reset_worklist"
+>reset_worklist</a></dt>
+
+<dd>
+<p>Wait for all running jobs (see <a href="#wait_for_jobs" class="podlinkpod"
+>&#34;wait_for_jobs&#34;</a>) and discard the current worklist.</p>
+
+<dt><a name="wait_for_jobs"
+>wait_for_jobs</a></dt>
+
+<dd>
+<p>Block and wait for all running jobs to terminate. Usually this is not needed unless process_tasks was interrupted somehow.</p>
+
+<dt><a name="kill_jobs"
+>kill_jobs</a></dt>
+
+<dd>
+<p>Forcefully terminate all running jobs. Usually this is not needed unless process_tasks was interrupted somehow.</p>
+
+<dt><a name="jobs"
+>jobs</a></dt>
+
+<dd>
+<p>Returns or sets the max number of jobs to be processed in parallel.</p>
+
+<p>If the limit is 0, then there is no limit for the number of parallel jobs.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Niels Thykier &#60;niels@thykier.net&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1), Lintian::CollScript(3), Lintian::Lab::Entry(3)</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

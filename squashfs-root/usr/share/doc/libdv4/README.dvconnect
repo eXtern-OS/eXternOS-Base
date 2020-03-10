@@ -1,0 +1,46 @@
+dvconnect is a small utility to send / capture raw data from / to the
+camcorder over an OHCI complient IEEE 1394 firewire adapter. It has to be
+an OHCI adapter since we use the video1394 interface. (It could be done for
+receiving without it, but for sending it's the only way to go!)
+
+You should also install the latest Linux Kernel version (> 2.4.12 I think) 
+since otherwise the necessary patches for DV _sending_ are not included.
+
+dvconnect was written to be simple and fast. 
+If it doesn't work for you, you might want to check out dvgrab from 
+Arne Schirmacher... (http://www.schirmacher.de)
+
+Since the video1394 interface is not fully developed, you have to do some
+parameter twiddling to make it work.
+
+First, do
+
+	modprobe ohci1394
+	modprobe video1394
+
+Then try to catch some test-video data using:
+
+	dvconnect >test.dv
+
+Verify, using playdv if you are in doubt.
+
+If that worked, try
+	
+	dvconnect -s --syt-offset=OFFSET <test.dv
+
+to send the data back to your camcorder. Where OFFSET is some number between
+10000-26000. The default is 11000 (should work for everyone, but
+in fact it doesn't...) You know, that you got it, when the picture in the view
+finder stands still and no gray boxes are jumping around anymore.
+
+If your harddisk is not fast enough or your system is under load then you
+can control the user-space memory buffer using -b and the kernel buffer
+using -k. 
+
+	The kernel buffer should be large enough to bring dvconnect over
+one scheduler slice. (approx 1/10 second) 
+	The user-space memory buffer should be large enough to compensate 
+for varying disk transfer rates. (defaults to 10 seconds on PAL)
+
+	dvconnect will always warn you, if you got broken frames but 
+only if it is in capture mode! 

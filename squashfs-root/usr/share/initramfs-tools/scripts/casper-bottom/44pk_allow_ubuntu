@@ -1,0 +1,35 @@
+#!/bin/sh
+
+PREREQ=""
+DESCRIPTION="Grant administrative PolicyKit privileges to default user..."
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+
+log_begin_msg "$DESCRIPTION"
+
+# configure PolicyKit in live session
+mkdir -p /root/var/lib/polkit-1/localauthority/10-vendor.d
+cat << EOF > /root/var/lib/polkit-1/localauthority/10-vendor.d/10-live-cd.pkla
+# Policy to allow the livecd user to bypass policykit
+[Live CD user permissions]
+Identity=unix-user:$USERNAME;unix-user:lightdm
+Action=*
+ResultAny=no
+ResultInactive=yes
+ResultActive=yes
+EOF
+
+log_end_msg

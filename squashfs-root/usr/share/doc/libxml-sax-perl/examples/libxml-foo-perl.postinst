@@ -1,0 +1,30 @@
+#!/bin/sh
+## ----------------------------------------------------------------------
+## debian/postinst : postinstallation script for libxml-foo-perl
+## ----------------------------------------------------------------------
+## This file is provided as an example for packages providing a
+## SAX parser. See /usr/share/doc/libxml-sax-perl/README.Debian.gz .
+## ----------------------------------------------------------------------
+
+## ----------------------------------------------------------------------
+set -e
+
+## ----------------------------------------------------------------------
+if [ "$1" = configure ]
+then
+    if [ -n "$2" ] && dpkg --compare-versions "$2" lt x.x-x
+    then
+        update-perl-sax-parsers --remove XML::FOO
+    fi
+
+    update-perl-sax-parsers --add XML::FOO --priority 60
+    update-perl-sax-parsers --update
+fi
+
+## ---------------------------------------------------------------------- 
+## automatically generated debhelper commands
+#DEBHELPER#
+
+exit 0
+
+## ----------------------------------------------------------------------

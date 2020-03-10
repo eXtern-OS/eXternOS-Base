@@ -1,0 +1,33 @@
+#! /bin/sh
+set -e
+
+DEFAULTS_GENERATED=/var/lib/gdm3/greeter-dconf-defaults
+DEFAULTS_DIR=/usr/share/gdm/dconf
+
+if [ -d /var/lib/gdm3 ]; then
+  needed=no
+  if [ -f $DEFAULTS_GENERATED ]; then
+    for f in \
+        $DEFAULTS_DIR $DEFAULTS_DIR/*-settings \
+        $DEFAULTS_DIR/locks $DEFAULTS_DIR/locks/*-locks \
+        /etc/gdm3/greeter.dconf-defaults; do
+      if [ "$f" -nt $DEFAULTS_GENERATED ]; then
+        needed=yes
+        break
+      fi
+    done
+  else
+    needed=yes
+  fi
+  if [ "$needed" = yes ]; then
+    dconf compile $DEFAULTS_GENERATED $DEFAULTS_DIR
+  fi
+fi
+
+for i in $(pidof dconf-service); do
+  if [ "$(stat -c %U /proc/$i)" = gdm ]; then
+    kill -HUP $i || true
+  fi
+done
+
+exit 0

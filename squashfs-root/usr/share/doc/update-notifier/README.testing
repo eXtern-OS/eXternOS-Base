@@ -1,0 +1,33 @@
+This applet has no unittests (yet).
+
+In order to test changes you need to kill update-notifier from your
+running session (there can only be one) and start it from your local
+build dir. Make sure you build with --prefix=/usr (or some other
+location where your ui files are). Then you can do the
+following:
+
+Test updates:
+Install a package from a previous version and check if update-notifier
+detects that and shows a update icon. Run apt-get update and check if
+it detects that a package manager is running.
+
+Test hooks:
+Copy a example hook file into /usr/lib/update-notifier/user.d/ (or
+touch it) and touch /var/lib/update-notifier/dpkg-run-stamp to trigger
+it reading the hooks.  Modify ~/.update-notifier/hooks_seen to
+simulate certain conditions. Add identical files to "user.d" to test
+the duplicates detection.
+
+Test reboot notification:
+Run /usr/share/update-notifier/notify-reboot-required and then do
+touch /var/lib/update-notifier/dpkg-run-stamp.
+
+Test cdrom detection:
+Put a ubuntu CD into the driver and verify that its detected.
+
+Test auto-launch:
+The "faketime" package is useful for testing the auto-launch
+funtionatliy
+$ NO_FAKE_STAT=1 faketime '10 days' update-notifier --debug-updates
+# aftwards the launch time in u-m needs to be reset
+$ gsettings reset com.ubuntu.update-manager launch-time

@@ -1,0 +1,36 @@
+#! /bin/sh
+
+PREREQ=""
+DESCRIPTION="Setting up a serial tty..."
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+
+for x in $(cat /proc/cmdline); do
+    case $x in
+        serialtty=*)
+            tty=${x#serialtty=}
+            log_begin_msg "$DESCRIPTION"
+            cat > /root/etc/init/${tty}.conf <<EOF
+start on stopped rc RUNLEVEL=[2345]
+stop on runlevel [!2345]
+
+respawn
+exec /sbin/getty -L 115200 ${tty} vt100
+EOF
+            log_end_msg
+            ;;
+    esac
+done

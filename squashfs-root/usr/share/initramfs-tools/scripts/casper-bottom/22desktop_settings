@@ -1,0 +1,62 @@
+#!/bin/sh
+
+PREREQ=""
+DESCRIPTION="Applying desktop settings..."
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+
+log_begin_msg "$DESCRIPTION"
+
+# Apply the gsettings overrides
+## Avoid adding duplicate sections when using persistent storage
+if [ -f /root/usr/share/glib-2.0/schemas/casper.gschema.override ]; then
+    rm /root/usr/share/glib-2.0/schemas/casper.gschema.override
+fi
+
+schemas_version=$(chroot /root /usr/bin/dpkg-query -W --showformat='${Version}' gsettings-desktop-schemas 2>/dev/null) || schemas_version=""
+COMPILE_SCHEMAS=no
+if [ -n "$schemas_version" ]; then
+    printf "[org.gnome.desktop.lockdown]\ndisable-lock-screen=true\n" >> /root/usr/share/glib-2.0/schemas/casper.gschema.override
+    printf "[org.gnome.desktop.screensaver]\nlock-enabled=false\n" >> /root/usr/share/glib-2.0/schemas/casper.gschema.override
+    printf "[org.gnome.nautilus.desktop]\ntrash-icon-visible=false\n" >> /root/usr/share/glib-2.0/schemas/casper.gschema.override
+    COMPILE_SCHEMAS=yes
+fi
+
+if [ -f /root/usr/share/glib-2.0/schemas/org.gnome.software.gschema.xml ]; then
+    # disable gnome-software automatically downloading updates
+    printf "[org.gnome.software]\ndownload-updates=false\n" >> /root/usr/share/glib-2.0/schemas/casper.gschema.override
+    COMPILE_SCHEMAS=yes
+fi
+
+if [ "${COMPILE_SCHEMAS}" = "yes" ]; then
+    chroot /root glib-compile-schemas /usr/share/glib-2.0/schemas/
+fi
+
+# Apply the kde-profile overrides
+if [ -f /root/usr/share/kubuntu-default-settings/kde-profile/default/share/config/kdesktoprc ]; then
+    if [ -f /rofs/usr/share/kubuntu-default-settings/kde-profile/default/share/config/kdesktoprc ]; then
+        cp /rofs/usr/share/kubuntu-default-settings/kde-profile/default/share/config/kdesktoprc \
+            /root/usr/share/kubuntu-default-settings/kde-profile/default/share/config/kdesktoprc
+    else
+        rm /root/usr/share/kubuntu-default-settings/kde-profile/default/share/config/kdesktoprc
+    fi
+fi
+
+if [ -d /root/usr/share/kubuntu-default-settings/kde-profile/default/share/config ]; then
+    printf "[ScreenSaver]\nLock=false\n" >> /root/usr/share/kubuntu-default-settings/kde-profile/default/share/config/kdesktoprc
+fi
+
+log_end_msg

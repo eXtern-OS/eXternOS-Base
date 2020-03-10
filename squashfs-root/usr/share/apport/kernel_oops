@@ -1,0 +1,44 @@
+#!/usr/bin/python3
+#
+# Collect information about a kernel oops.
+#
+# Copyright (c) 2008 Canonical Ltd.
+# Author: Matt Zimmerman <mdz@canonical.com>
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.  See http://www.gnu.org/copyleft/gpl.html for
+# the full text of the license.
+
+import os
+import sys
+import apport.fileutils
+
+from apport import unicode_gettext as _
+
+checksum = None
+if len(sys.argv) > 1:
+    checksum = sys.argv[1]
+
+oops = sys.stdin.read()
+
+pr = apport.Report('KernelOops')
+pr['Failure'] = 'oops'
+pr['Tags'] = 'kernel-oops'
+pr['Annotation'] = _('Your system might become unstable '
+                     'now and might need to be restarted.')
+package = apport.packaging.get_kernel_package()
+pr.add_package(package)
+pr['SourcePackage'] = 'linux'
+
+pr['OopsText'] = oops
+u = os.uname()
+pr['Uname'] = '%s %s %s' % (u[0], u[2], u[4])
+
+# write report
+try:
+    with apport.fileutils.make_report_file(pr, uid=checksum) as f:
+        pr.write(f)
+except (IOError, OSError) as e:
+    apport.fatal('Cannot create report: ' + str(e))

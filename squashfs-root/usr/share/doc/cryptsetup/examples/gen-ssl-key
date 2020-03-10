@@ -1,0 +1,26 @@
+#!/bin/sh
+#
+# script to generate a keyfile that is encrypted with openssl
+#
+# Written 2005 by Markus Nass <generalstone@gmx.net>
+# Improved 2006 by Jonas Meurer <jonas@freesources.org>
+# Further improved 2006 by Markus Nass <generalstone@gmx.net>
+
+usage() {
+  echo "Usage: $0 <key>"
+  exit 1
+}
+
+if [ "$1" = "" -o "$1" = "-h" -o "$1" = "--help" ]; then
+  usage
+fi
+
+if [ -x /usr/bin/openssl ]; then
+	key=`tempfile`
+	dd if=/dev/random of=$key bs=1c count=256
+	openssl enc -aes-256-cbc -e -salt -in $key -out $1
+	#rm -f $key; key=""
+	shred -uz $key; key=""
+else
+	echo "/usr/bin/openssl is not available" && exit 1
+fi

@@ -1,0 +1,19 @@
+#!/usr/bin/perl -w
+
+## An example of how to daemonize.  See the IPC::Run LIMITATIONS section for
+## some reasons why this can be a bit dangerous.
+
+use strict;
+
+use IPC::Run qw( run close_terminal );
+
+run(
+    sub {
+        # ... your code here ...
+        sleep 15;
+    },
+    init => sub {
+        close_terminal;
+        exit if fork;
+    }
+);

@@ -1,0 +1,50 @@
+Check-Script: application-not-library
+Author: Axel Beckert <abe@debian.org>
+Type: binary
+Needs-Info: unpacked
+Info: application packaged like a library (imported from pkg-perl-tools)
+
+Tag: libapp-perl-package-name
+Severity: important
+Certainty: possible
+Info: This package contains a program in $PATH and is named
+ libapp-*-perl which usually implies that the upstream project on CPAN
+ is under the App:: hierarchy for applications. Instead of
+ libfoo-bar-perl it should be named foo-bar.
+ .
+ People tend to skip library-like named packages when looking for
+ applications in the package list and hence wouldn't notice this
+ package.
+Ref: https://pkg-perl.alioth.debian.org/policy.html#package_naming_policy
+
+Tag: library-package-name-for-application
+Severity: normal
+Certainty: wild-guess
+Experimental: yes
+Info: This package contains a program in $PATH but is named like a
+ library. E.g. instead of libfoo-bar-perl it should be named just
+ foo-bar.
+ .
+ People tend to skip library-like named packages when looking for
+ applications in the package list and hence wouldn't notice this
+ package.  See the reference for some (not perl-specific) reasoning.
+ .
+ In case the program in $PATH is only a helper tool and the package is
+ primarily a library, please add a Lintian override for this tag.
+Ref: https://pkg-perl.alioth.debian.org/policy.html#package_naming_policy
+
+Tag: application-in-library-section
+Severity: normal
+Certainty: wild-guess
+Experimental: yes
+Info: This package contains a binary in $PATH but is in a section just
+ thought for libraries. It likely should be in another section like
+ e.g. utils, text, devel, misc, etc., but not in e.g. perl, ruby or
+ python.
+ .
+ People tend to skip these package sections when looking for
+ applications in the package list and hence wouldn't notice this
+ package.
+ .
+ In case the program in $PATH is only a helper tool and the package is
+ primarily a library, please add a Lintian override for this tag.

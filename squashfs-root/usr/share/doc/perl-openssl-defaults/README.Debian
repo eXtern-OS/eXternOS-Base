@@ -1,0 +1,40 @@
+Dependencies for packages exposing OpenSSL binary interface to Perl code
+========================================================================
+
+This information is only relevant for maintainers of Debian packages
+of Perl XS modules dealing with OpenSSL.
+
+Packages exposing libssl binary objects like SSL_CTX struct pointers
+to Perl code need to be compiled against the same version of OpenSSL to
+avoid binary incompatibility issues. See <https://bugs.debian.org/848113>.
+
+Compatibility can be ensured by depending on the "perl-openssl-abi-x"
+virtual package, where the name is dynamically generated from the SONAME
+of the libssl.so symlink included in the libssl-dev package. There can
+be only one such package on the system at a time, so this guarantees
+that all the installed packages share the same compatibility level.
+
+To generate this dependency, please build-depend on perl-openssl-defaults
+and do one of the following:
+
+debhelper using dh:
+
+Use the "perl_openssl" addon and ensure ${perl:Depends} is used in
+debian/control.
+
+The debian/rules file might look as follows:
+
+  #!/usr/bin/make -f
+  %:
+          dh $@ --with perl_openssl
+
+old-style debhelper:
+
+Run dh_perl_openssl after dh_perl and ensure ${perl:Depends} is used in
+debian/control.
+
+packages not using debhelper:
+
+Include /usr/share/perl-openssl-defaults/perl-openssl.make in debian
+rules and use PERL_OPENSSL_ABI_VERSION.
+

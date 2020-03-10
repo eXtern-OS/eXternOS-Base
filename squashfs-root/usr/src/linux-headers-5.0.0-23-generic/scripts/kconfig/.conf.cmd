@@ -1,0 +1,1 @@
+cmd_scripts/kconfig/conf := gcc   -o scripts/kconfig/conf scripts/kconfig/conf.o scripts/kconfig/confdata.o scripts/kconfig/expr.o scripts/kconfig/symbol.o scripts/kconfig/preprocess.o scripts/kconfig/zconf.lex.o scripts/kconfig/zconf.tab.o   

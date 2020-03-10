@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Data</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#Interface_for_the_CODE_argument'>Interface for the CODE argument</a>
+  </ul>
+  <li class='indexItem indexItem1'><a href='#CLASS_METHODS'>CLASS METHODS</a>
+  <li class='indexItem indexItem1'><a href='#INSTANCE_METHODS'>INSTANCE METHODS</a>
+  <li class='indexItem indexItem1'><a href='#DIAGNOSTICS'>DIAGNOSTICS</a>
+  <li class='indexItem indexItem1'><a href='#FILES'>FILES</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Data - Lintian interface to query lists of keywords</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre>    my $keyword;
+    my $list = Lintian::Data-&#62;new(&#39;type&#39;);
+    if ($list-&#62;known($keyword)) {
+        # do something ...
+    }
+    my $hash = Lintian::Data-&#62;new(&#39;another-type&#39;, qr{\s++});
+    if ($hash-&#62;value($keyword) &#62; 1) {
+        # do something ...
+    }
+    if ($list-&#62;value($keyword) &#62; 1) {
+        # do something ...
+    }
+    my @keywords = $list-&#62;all;</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Lintian::Data provides a way of loading a list of keywords or key/value pairs from a file in the Lintian root and then querying that list. The lists are stored in the <em>data</em> directory of the Lintian root and consist of one keyword or key/value pair per line. Blank lines and lines beginning with <code>#</code> are ignored. Leading and trailing whitespace is stripped.</p>
+
+<p>If requested, the lines are split into key/value pairs with a given separator regular expression. Otherwise, keywords are taken verbatim as they are listed in the file and may include spaces.</p>
+
+<p>This module allows lists such as menu sections, doc-base sections, obsolete packages, package fields, and so forth to be stored in simple, easily editable files.</p>
+
+<p>NB: By default Lintian::Data is lazy and defers loading of the data file until it is actually needed.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Interface_for_the_CODE_argument"
+>Interface for the CODE argument</a></h2>
+
+<p>This section describes the interface between for the CODE argument for the class method new.</p>
+
+<p>The sub will be called once for each key/pair with three arguments, KEY, VALUE and CURVALUE. The first two are the key/value pair parsed from the data file and CURVALUE is current value associated with the key. CURVALUE will be <code>undef</code> the first time the sub is called with that KEY argument.</p>
+
+<p>The sub can then modify VALUE in some way and return the new value for that KEY. If CURVALUE is not <code>undef</code>, the sub may return <code>undef</code> to indicate that the current value should still be used. It is not permissible for the sub to return <code>undef</code> if CURVALUE is <code>undef</code>.</p>
+
+<p>Where Perl semantics allow it, the sub can modify CURVALUE and the changes will be reflected in the result. As an example, if CURVALUE is a hashref, new keys can be inserted etc.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS_METHODS"
+>CLASS METHODS</a></h1>
+
+<dl>
+<dt><a name="new(TYPE_[,SEPARATOR[,_CODE]])"
+>new(TYPE [,SEPARATOR[, CODE]])</a></dt>
+
+<dd>
+<p>Creates a new Lintian::Data object for the given TYPE. TYPE is a partial path relative to the <em>data</em> directory and should correspond to a file in that directory. The contents of that file will be loaded into memory and returned as part of the newly created object. On error, new() throws an exception.</p>
+
+<p>If SEPARATOR is given, it will be used as a regular expression for splitting the lines into key/value pairs.</p>
+
+<p>If CODE is also given, it is assumed to be a sub that will pre-process the key/value pairs. See the <a href="#Interface_for_the_CODE_argument" class="podlinkpod"
+>&#34;Interface for the CODE argument&#34;</a> above.</p>
+
+<p>A given file will only be loaded once. If new() is called again with the same TYPE argument, the data previously loaded will be reused, avoiding multiple file reads.</p>
+
+<dt><a name="set_vendor(PROFILE)"
+>set_vendor(PROFILE)</a></dt>
+
+<dd>
+<p>Specifies vendor profile. It must be set before the first data file is loaded.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="INSTANCE_METHODS"
+>INSTANCE METHODS</a></h1>
+
+<dl>
+<dt><a name="all()"
+>all()</a></dt>
+
+<dd>
+<p>Returns all keywords listed in the data file as a list in original order. In a scalar context, returns the number of keywords.</p>
+
+<dt><a name="known(KEYWORD)"
+>known(KEYWORD)</a></dt>
+
+<dd>
+<p>Returns true if KEYWORD was listed in the data file represented by this Lintian::Data instance and false otherwise.</p>
+
+<dt><a name="value(KEYWORD)"
+>value(KEYWORD)</a></dt>
+
+<dd>
+<p>Returns the value attached to KEYWORD if it was listed in the data file represented by this Lintian::Data instance and the undefined value otherwise. If SEPARATOR was not given, the value will &#39;1&#39;.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DIAGNOSTICS"
+>DIAGNOSTICS</a></h1>
+
+<dl>
+<dt><a name="no_data_type_specified"
+>no data type specified</a></dt>
+
+<dd>
+<p>new() was called without a TYPE argument.</p>
+
+<dt><a name="unknown_data_type_%s"
+>unknown data type %s</a></dt>
+
+<dd>
+<p>The TYPE argument to new() did not correspond to a file in the <em>data</em> directory of the Lintian root.</p>
+
+<dt><a name="undefined_value_for_%s_(type:_%s)"
+>undefined value for %s (type: %s)</a></dt>
+
+<dd>
+<p>The CODE argument return undef for the KEY and no previous value for that KEY was available.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="FILES"
+>FILES</a></h1>
+
+<dl>
+<dt><a name="LINTIAN_INCLUDE_DIR/data"
+>LINTIAN_INCLUDE_DIR/data</a></dt>
+
+<dd>
+<p>The files loaded by this module must be located in this directory. Relative paths containing a <code>/</code> are permitted, so files may be organized in subdirectories in this directory.</p>
+
+<p>Note that lintian supports multiple LINTIAN_INCLUDE_DIRs.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Russ Allbery &#60;rra@debian.org&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1), <a href="https://lintian.debian.org/manual/section-2.6.html" class="podlinkurl"
+>https://lintian.debian.org/manual/section-2.6.html</a></p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

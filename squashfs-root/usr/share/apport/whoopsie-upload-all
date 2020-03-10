@@ -1,0 +1,170 @@
+#!/usr/bin/python3
+
+# Process all pending crashes and mark them for whoopsie upload, but do not
+# upload them to any other crash database. Wait until whoopsie is done
+# uploading.
+#
+# Copyright (c) 2013 Canonical Ltd.
+# Author: Martin Pitt <martin.pitt@ubuntu.com>
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.  See http://www.gnu.org/copyleft/gpl.html for
+# the full text of the license.
+
+import os
+import sys
+import time
+import subprocess
+import argparse
+import fcntl
+
+import apport.fileutils
+import apport
+
+
+def process_report(report):
+    '''Collect information for a report and mark for whoopsie upload
+
+    errors.ubuntu.com does not collect any hook data anyway, so we do not need
+    to bother collecting it.
+
+    Return path of upload stamp if report was successfully processed, or None
+    otherwise.
+    '''
+    upload_stamp = '%s.upload' % report.rsplit('.', 1)[0]
+    if os.path.exists(upload_stamp):
+        print('%s already marked for upload, skipping' % report)
+        return upload_stamp
+
+    report_stat = None
+
+    r = apport.Report()
+    # make sure we're actually on the hook to write this updated report
+    # before we start doing expensive collection operations
+    try:
+        with open(report, 'rb') as f:
+            try:
+                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except IOError:
+                print('%s already being processed, skipping' % report)
+                return None
+            r.load(f, binary='compressed')
+            report_stat = os.stat(report)
+    except Exception as e:
+        sys.stderr.write('ERROR: cannot load %s: %s\n' % (report, str(e)))
+        return None
+    if r.get('ProblemType', '') != 'Crash' and 'ExecutablePath' not in r:
+        print('  skipping, not a crash')
+        return None
+    if 'Dependencies' in r:
+        print('%s already has info collected' % report)
+    else:
+        print('Collecting info for %s...' % report)
+        r.add_os_info()
+        try:
+            r.add_package_info()
+        except (SystemError, ValueError) as e:
+            sys.stderr.write('ERROR: cannot add package info on %s: %s\n' %
+                             (report, str(e)))
+            return None
+        # add information from package specific hooks
+        try:
+            r.add_hooks_info(None)
+        except Exception as e:
+            sys.stderr.write('WARNING: hook failed for processing %s: %s\n' % (report, str(e)))
+
+        try:
+            r.add_gdb_info()
+        except (IOError, EOFError, OSError) as e:
+            sys.stderr.write('ERROR: processing %s: %s\n' % (report, str(e)))
+            if os.path.exists(report):
+                os.unlink(report)
+            return None
+
+        # write updated report
+        with open(report, 'ab') as f:
+            os.chmod(report, 0)
+            r.write(f, only_new=True)
+            os.chmod(report, 0o640)
+
+    # now tell whoopsie to upload the report
+    print('Marking %s for whoopsie upload' % report)
+    apport.fileutils.mark_report_upload(report)
+    assert os.path.exists(upload_stamp)
+    os.chown(upload_stamp, report_stat.st_uid, report_stat.st_gid)
+    return upload_stamp
+
+
+def collect_info():
+    '''Collect information for all reports
+
+    Return set of all generated upload stamps.
+    '''
+    if os.geteuid() != 0:
+        sys.stderr.write('WARNING: Not running as root, cannot process reports'
+                         ' which are not owned by uid %i\n' % os.getuid())
+
+    stamps = set()
+    reports = apport.fileutils.get_all_reports()
+    for r in reports:
+        res = process_report(r)
+        if res:
+            stamps.add(res)
+
+    return stamps
+
+
+def wait_uploaded(stamps, timeout):
+    '''Wait until all reports were uploaded.
+
+    Times out after a given number of seconds.
+
+    Return True if all reports were uploaded, False if there are some missing.
+    '''
+    print('Waiting for whoopsie to upload reports (timeout: %i s)' % timeout)
+
+    while timeout >= 0:
+        # determine missing stamps
+        missing = ''
+        for stamp in stamps:
+            uploaded = stamp + 'ed'
+            if os.path.exists(stamp) and not os.path.exists(uploaded):
+                missing += uploaded + ' '
+        if not missing:
+            return True
+
+        print('  missing (remaining: %i s): %s' % (timeout, missing))
+        time.sleep(10)
+        timeout -= 10
+
+    return False
+
+
+#
+# main
+#
+parser = argparse.ArgumentParser(description='Noninteractively upload all '
+                                 'Apport crash reports to errors.ubuntu.com')
+parser.add_argument('-t', '--timeout', default=0, type=int,
+                    help='seconds to wait for whoopsie to upload the reports (default: do not wait)')
+opts = parser.parse_args()
+
+# parse args
+
+
+# verify that whoopsie is running
+if subprocess.call(['pidof', 'whoopsie'], stdout=subprocess.PIPE) != 0:
+    sys.stderr.write('ERROR: whoopsie is not running\n')
+    sys.exit(1)
+
+stamps = collect_info()
+# print('stamps:', stamps)
+if stamps:
+    if opts.timeout > 0:
+        if not wait_uploaded(stamps, opts.timeout):
+            sys.exit(2)
+        print('All reports uploaded successfully')
+    else:
+        print('All reports processed')

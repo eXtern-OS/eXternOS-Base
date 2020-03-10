@@ -1,0 +1,10 @@
+#!/bin/sh
+#
+# This preprocesses a set of word lists into a suitable form for input
+# into cracklib-packer
+#
+gzip -cdf "$@" |
+    grep -v '^\(#\|$\)' |
+    tr '[A-Z]' '[a-z]' |
+    tr -cd '\012[a-z][0-9]' |
+    sort -u

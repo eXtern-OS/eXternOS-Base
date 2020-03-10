@@ -1,0 +1,90 @@
+XZ Utils for Debian
+===================
+
+Contents:
+ 1. History
+ 2. Differences from standard XZ Utils
+ 3. LZMA Utils compatibility
+ 4. Configuration
+
+History
+-------
+
+XZ Utils should have been called LZMA Utils 4.42, but it came too late.
+The old .lzma file format has some problems, worst of which is the lack
+of magic number, but it gets enough use to still need to be supported.
+See /usr/share/doc/xz-utils/history.txt.gz for the full story.
+
+Differences from standard XZ Utils
+----------------------------------
+
+XZ Utils 5.1.y has some experimental features which are disabled in
+Debian to allow interfaces to evolve.  Debian liblzma is also modified
+to avoid breakage when the same process loads liblzma2 from Debian 6.0
+(squeeze) and liblzma5.
+
+abi-threaded-encoder
+  Disable threaded compression in liblzma and xz.
+
+abi-version-script
+  liblzma: Do not pretend to satisfy dependencies on XZ_5.1.1alpha.
+
+abi-liblzma2-compat, configure-liblzma2-compat
+  Do not check reserved fields past the historical end of the
+  lzma_stream structure if liblzma.so.2 is loaded in the same
+  process image.  Likewise when linked statically.
+  (See bug #649522.)
+
+man-date, man-xz-lvv-minver (from upstream)
+  Document the "Minimum version required to decompress" field of
+  "xz --robot -v -v --list" output.
+
+xz-lvv-empty-block-minver (from upstream)
+  Fix the version number printed by "xz -lvv" for files with Blocks
+  of zero uncompressed_size: the decoder bug preventing reading such
+  files was fixed in xz 5.0.2, not 5.0.3.
+
+decoder-check-first-0x00 (from upstream)
+  Check that the first byte of range encoded data is zero to catch
+  broken files sooner.
+
+Changes in 5.1.2alpha not applied:
+
+  Docs: Language fix to 01_compress_easy.c
+  xz: Add incomplete support for --block-list
+  INSTALL: Document --enable-symbol-versions
+  configure: Add a comment about *-linux tuples for clarity
+  TODO: Warn that threads and fork() do not mix well
+  Bump the version number and update NEWS for 5.1.2alpha
+
+LZMA Utils compatibility
+------------------------
+
+To support old scripts and muscle memory, XZ Utils can emulate the
+legacy LZMA Utils interface.  To use this feature, you can install some
+subset of the following list of symbolic links to your $PATH.
+
+	lzma, unlzma, lzcat -> /usr/bin/xz
+	lzgrep, lzegrep, lzfgrep -> /usr/bin/xzgrep
+	lzless -> /usr/bin/xzless
+	lzmore -> /usr/bin/xzmore
+	lzdiff, lzcmp -> /usr/bin/xzdiff
+
+If you would like XZ Utils to provide these commands by default for
+all users, use "update-alternatives --config lzma".
+
+Configuration
+-------------
+
+The memory usage of xz can vary from a few hundred kilobytes to several
+gigabytes depending on the compression settings.  If you would like xz
+to automatically scale down its settings while compressing to decrease
+memory usage, you can declare so by adding an option like the
+following to your environment (e.g., in ~/.profile):
+
+	XZ_DEFAULTS=--memlimit-compress=256MiB
+	export XZ_DEFAULTS
+
+See the "Memory usage" section of the xz(1) manual page for details.
+
+ -- Jonathan Nieder <jrnieder@gmail.com>  Mon, 10 Sep 2012 14:35:27 -0700

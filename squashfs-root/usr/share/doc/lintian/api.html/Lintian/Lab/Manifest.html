@@ -1,0 +1,238 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Lab::Manifest</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#CLASS_METHODS'>CLASS METHODS</a>
+  <li class='indexItem indexItem1'><a href='#INSTANCE_METHODS'>INSTANCE METHODS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Lab::Manifest -- Lintian Lab manifest</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre> use Lintian::Lab::Manifest;
+ 
+ my $plist = Lintian::Lab::Manifest-&#62;new (&#39;binary&#39;);
+ # Read the file
+ $plist-&#62;read_list(&#39;info/binary-packages&#39;);
+ # fetch the entry for lintian (if any)
+ my $entry = $plist-&#62;get(&#39;lintian&#39;, &#39;2.5.2&#39;, &#39;all&#39;);
+ if ( $entry &#38;&#38; exits $entry-&#62;{&#39;version&#39;} ) {
+    print &#34;Lintian has version $entry-&#62;{&#39;version&#39;}\n&#34;;
+ }
+ # delete all lintian entries
+ $plist-&#62;delete(&#39;lintian&#39;);
+ # Write to file if changed
+ if ($plist-&#62;dirty) {
+    $plist-&#62;write_list(&#39;info/binary-packages&#39;);
+ }</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Instances of this class provide access to the packages list used by the lab as caches.</p>
+
+<p>The data structure is basically a tree (using hashes). For binaries is looks (something) like:</p>
+
+<pre> $self-&#62;{&#39;state&#39;}{$name}{$version}{$architecture}</pre>
+
+<p>The (order of the) fields used in the tree are listed in the @{BIN,SRC,CHG}_QUERY lists below. The fields may (and generally do) differ between package types.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS_METHODS"
+>CLASS METHODS</a></h1>
+
+<dl>
+<dt><a name="new_(TYPE[,_GROUPING])"
+>new (TYPE[, GROUPING])</a></dt>
+
+<dd>
+<p>Creates a new packages list for a certain type of packages. This type defines the format of the files.</p>
+
+<p>The known types are: * binary * changes * source * udeb * GROUP</p>
+
+<p>If TYPE is GROUP, then GROUPING should be omitted.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="INSTANCE_METHODS"
+>INSTANCE METHODS</a></h1>
+
+<dl>
+<dt><a name="dirty"
+>dirty</a></dt>
+
+<dd>
+<p>Returns a truth value if the manifest has changed since it was last written.</p>
+
+<dt><a name="type"
+>type</a></dt>
+
+<dd>
+<p>Returns the type of packages that this manifest has information about. (one of binary, udeb, source or changes)</p>
+
+<dt><a name="read_list_(FILE)"
+>read_list (FILE)</a></dt>
+
+<dd>
+<p>Reads a manifest from FILE. Any records already in the manifest will be discarded before reading the contents.</p>
+
+<p>On success, this will clear the <a href="#dirty" class="podlinkpod"
+>&#34;dirty&#34;</a> flag and on error it will croak.</p>
+
+<dt><a name="write_list_(FILE)"
+>write_list (FILE)</a></dt>
+
+<dd>
+<p>Writes the manifest to FILE.</p>
+
+<p>On success, this will clear the <a href="#dirty" class="podlinkpod"
+>&#34;dirty&#34;</a> flag and on error it will croak.</p>
+
+<p>On error, the contents of FILE are undefined.</p>
+
+<dt><a name="visit_all_(VISITOR[,_KEY1,_...,_KEYN])"
+>visit_all (VISITOR[, KEY1, ..., KEYN])</a></dt>
+
+<dd>
+<p>Visits entries and passes them to VISITOR. If any keys are passed they are used to reduce the search. See get for a list of (common) keys.</p>
+
+<p>The VISITOR is called as:</p>
+
+<pre> VISITOR-&#62;(ENTRY, KEYS)</pre>
+
+<p>where ENTRY is the entry and KEYS are the keys to be used to look up this entry via get method. So for the lintian 2.5.2 binary the keys would be something like: (&#39;lintian&#39;, &#39;2.5.2&#39;, &#39;all&#39;)</p>
+
+<dt><a name="get_(KEYS...)"
+>get (KEYS...)</a></dt>
+
+<dd>
+<p>Fetches the entry for KEYS (if any). Returns <code>undef</code> if the entry is not known. If KEYS is exactly one item, it is assumed to be a <a href="../../Lintian/Processable.html" class="podlinkpod"
+>Lintian::Processable</a> and the correct keys are extracted from it.</p>
+
+<p>Otherwise, the keys are (in general and in order):</p>
+
+<dl>
+<dt><a name="package/source"
+>package/source</a></dt>
+
+<dd>
+<dt><a name="version"
+>version</a></dt>
+
+<dd>
+<dt><a name="architecture"
+>architecture</a></dt>
+
+<dd>
+<p>except for source packages</p>
+</dd>
+</dl>
+
+<dt><a name="set_(ENTRY)"
+>set (ENTRY)</a></dt>
+
+<dd>
+<p>Inserts ENTRY into the manifest. This may replace an existing entry.</p>
+
+<p>Note: The interesting fields from ENTRY are copied, so later changes to ENTRY will not affect the data in the manifest.</p>
+
+<dt><a name="set_transient_marker_(TRANSIENT,_KEYS...)"
+>set_transient_marker (TRANSIENT, KEYS...)</a></dt>
+
+<dd>
+<p>Set or clear transient flag. Transient entries are not written to the disk (i.e. They will not appear in the file created/written by <a href="#write_list_(FILE)" class="podlinkpod"
+>&#34;write_list (FILE)&#34;</a>). KEYS is passed as is passed to <a href="#get_(KEYS...)" class="podlinkpod"
+>&#34;get (KEYS...)&#34;</a>.</p>
+
+<p>By default all entries are persistent.</p>
+
+<dt><a name="delete_(KEYS...)"
+>delete (KEYS...)</a></dt>
+
+<dd>
+<p>Removes the entry/entries found by KEYS (if any). KEYS must contain at least one item - if the list of keys cannot uniquely identify a single element, all &#34;matching&#34; elements will be removed. Examples:</p>
+
+<pre> # Delete the gcc-4.6 entry at version 4.6.1-4 that is also architecture i386
+ $manifest-&#62;delete (&#39;gcc-4.6&#39;, &#39;4.6.1-4&#39;, &#39;i386&#39;);
+ 
+ # Delete all gcc-4.6 entries at version 4.6.1-4 regardless of their
+ # architecture
+ $manifest-&#62;delete (&#39;gcc-4.6&#39;, &#39;4.6.1-4&#39;);
+ 
+ # Delete all gcc-4.6 entries regardless of version and architecture
+ $manifest-&#62;delete (&#39;gcc-4.6&#39;)</pre>
+
+<p>If KEYS is exactly one item, it is assumed to be a <a href="../../Lintian/Processable.html" class="podlinkpod"
+>Lintian::Processable</a>. If so, the proper keys will be extracted from that processable and (if present) that one element will be removed.</p>
+
+<p>This will mark the list as dirty if an element was removed. If it returns a truth value, an element was removed - otherwise it will return 0.</p>
+
+<p>See <a href="#get_(KEYS...)" class="podlinkpod"
+>&#34;get (KEYS...)&#34;</a> for the key names.</p>
+
+<dt><a name="diff_(MANIFEST)"
+>diff (MANIFEST)</a></dt>
+
+<dd>
+<p>Returns a <a href="../../Lintian/Lab/ManifestDiff.html" class="podlinkpod"
+>diff</a> between this manifest and MANIFEST.</p>
+
+<p>This instance is considered the &#34;original&#34; and MANIFEST is &#34;new&#34; version of the manifest. (See the olist and nlist methods of <a href="../../Lintian/Lab/ManifestDiff.html" class="podlinkpod"
+>Lintian::Lab::ManifestDiff</a> for more information.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Niels Thykier &#60;niels@thykier.net&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1)</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

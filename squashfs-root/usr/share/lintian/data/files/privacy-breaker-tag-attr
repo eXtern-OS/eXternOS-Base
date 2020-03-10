@@ -1,0 +1,22 @@
+# tag attribute url file helper
+# format is name ~~ keyword1 && keyword2 || keyword3 && keyword4~~ secondary keyword ~~ regex (xsm) $1 is whole $2 tag $3 is url 
+# in regex &URL is replaced by URL regex
+# could not use @import
+import           ~~ @import     && url                                            ~~ (([@]import) \s+ url \s* \( \s* \"(&URL)\" \s* \) \s*;)
+applet           ~~ codebase="http  && <applet    || codebase="ftp  && <applet  || codebase="//  && <applet ~~ (<(applet) (?:\s[^>]+)? \s+ codebase="(&URL)" [^>]*>)
+div src=         ~~ src="http       && <div       || src="ftp       && <div     || src="//       && <div    ~~ (<(div) (?:\s[^>]+)? \s+ src="(&URL)" [^>]*>)
+div data-href=   ~~ data-href="http && <div       || data-href="ftp && <div     || data-href="// && <div    ~~ (<(div) (?:\s[^>]+)? \s+ data-href="(&URL)" [^>]*>)
+embed            ~~ src="http       && <embed     || src="ftp       && <embed   || src="//       && <embed  ~~ (<(embed) (?:\s[^>]+)? \s+ src="(&URL)" [^>]*>)
+frame            ~~ src="http       && <frame     || src="ftp       && <frame   || src="//       && <frame  ~~ (<(frame) (?:\s[^>]+)? \s+ src="(&URL)" [^>]*>)
+iframe           ~~ src="http       && <iframe    || src="ftp       && <iframe  || src="//       && <iframe ~~ (<(iframe) (?:\s[^>]+)? \s+ src="(&URL)" [^>]*>)
+img              ~~ src="http       && <img       || src="ftp       && <img     || src="//       && <img    ~~ (<(img) (?:\s[^>]+)? \s+ src="(&URL)" [^>]*>)
+input            ~~ src="http       && <input     || src="ftp       && <input   || src="//       && <input  ~~ (<(input) (?:\s[^>]+)? \s+ src="(&URL)" [^>]*>)
+link             ~~ <link           && href="http || <link          && href="ftp|| <link         && href="//~~ (<(link) (?:\s[^>]+)? \s+ href="(&URL)" [^>]*>)
+object codebase= ~~ codebase="http  && <object    || codebase="ftp  && <object  || codebase="//  && <object ~~ (<(object) (?:\s[^>]+)? \s+ codebase="(&URL)" [^>]*>)
+object data=     ~~ data="http      && <object    || data="ftp      && <object  || data="//      && <object ~~ (<(object) (?:\s[^>]+)? \s+ data="(&URL)" [^>]*>)
+script           ~~ src="http       && <script    || src="ftp       && <script  || src="//       && <script ~~ (<(script) (?:\s[^>]+)? \s+ src="(&URL)" [^>]*>)
+source           ~~ src="http       && <source    || src="ftp       && <source  || src="//       && <source ~~ (<(source) (?:\s[^>]+)? \s+ src="(&URL)" [^>]*>)
+track            ~~ src="http       && <track     || src="ftp       && <track   || src="//       && <track  ~~ (<(track) (?:\s[^>]+)? \s+ src="(&URL)" [^>]*>)
+video src=       ~~ src="http       && <video     || src="ftp       && <video   || src="//       && <video  ~~ (<(video) (?:\s[^>]+)? \s+ src="(&URL)" [^>]*>)
+video poster=    ~~ poster="http    && <video     || poster="ftp    && <video   || poster="//    && <video  ~~ (<(video) (?:\s[^>]+)? \s+ poster="(&URL)" [^>]*>)
+audio            ~~ src="http       && <audio     || src="ftp       && <audio   || src="//       && <audio  ~~ (<(audio) (?:\s[^>]+)? \s+ src="(&URL)" [^>]*>)

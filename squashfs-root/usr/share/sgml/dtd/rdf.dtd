@@ -1,0 +1,179 @@
+ 
+<!-- ===================================================================== -->
+<!--
+        RDF.DTD  
+                XML/SGML element type set for Resource Description Framework
+
+                Created from the document:
+                        "Resource Description Framework (RDF) Model and 
+                        Syntax Specification "
+                        W3C Recommendation 22 February 1999
+                        http://www.w3.org/TR/REC-rdf-syntax/
+                        
+                Created by: 
+                        Rick Jelliffe, Academia Sinica Computing Centre
+                        ricko@gate.sinica.edu.tw
+                        http://xml.ascc.net/
+                        1999-05-01
+                        Copyright (C) 1999 Academia Sinica Computing Centre
+                        Free use granted under the MPL or GPL.
+
+        RDF is a simple set of architectural elements which you can use
+        as the basis for a DTD to describe resources. 
+         
+        You can use this DTD as is, or you can tailor it for stronger
+        type-checking:
+                * the elements with ANY declared content types can
+                have a more specific content model;
+                * you may add or delete the rdf:_n attributes;
+                * add the xml:lang and xml:space attribtes willy nilly
+        Note that the RDF definitions of rdf:li appears to allow
+        bad mixed content, which is incorrect XML.
+        
+        Note: RDF is  an "architecture" rather than a complete
+        element type set.
+-->
+<!--
+     Corrections from version 1999-02-26
+     1) BagID changed to NMTOKEN
+         
+     in response to comments from user:        
+        Bug: bagID is not an IDREF.  It's really a second ID attribute,
+        but it's invalid to have more than one ID attribute so it's 
+        just NMTOKEN now.
+
+        You need to point out that any DTD for RDF needs to be extended
+        with property-specific elements if validity checking is to be done.
+        ANY doesn't really allow any element, only any *declared* element.
+
+     2) 1999-05-01
+	rdf:subject, rdf:object, rdf:predicate, rdf:type and rdf:value
+	added, and comments updated.
+-->
+        
+<!-- =================== PARAMETER ENTITY DECLARATIONS ==================== -->
+
+ 
+                                                                         
+<!-- [6.9][6.12][6.16] --> 
+        <!ENTITY % propEltAttr                        
+               "id              ID #IMPLIED
+                parseType       ( Resource | Literal ) #IMPLIED 
+                resource        CDATA #IMPLIED 
+                bagID           NMTOKEN #IMPLIED
+	        rdf:value       CDATA #IMPLIED"  >  
+
+<!-- =================== ELEMENT TYPE DECLARATIONS =========================== --> 
+ 
+<!--  [6.1][6.2][6.4] -->
+        <!ELEMENT rdf:RDF        ANY >
+                <!-- The allowed element types here are "typed nodes" and 
+                "containers": 
+                        rdf:Description (or an element with the same content
+                        model and attributes but different name, called a
+                        "typed node"), 
+                        rdf:Bag, 
+                        rdf:Seq, or 
+                        rdf:Alt
+                -->  
+        <!ATTLIST rdf:RDF
+                xmlns:rdf CDATA #FIXED
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >                              
+                        
+<!--  [6.3][6.5][6.6][6.7][6.8][6.10][6.11][6.13] -->
+        <!ELEMENT rdf:Description  ANY > 
+                <!-- Child elements are called "property elements".
+                They must have %propEltAttr; attributes.
+                The property elements can themselves be rdf:Seq, rdf:Alt
+                or rdf:Bag elements, rdf:subject, rdf:object, 
+		rdf:type, or rdf:predicate, or anything you name yourself, 
+		and they can contain other property elements, nested 
+		descriptions or other elements. If the property element
+		has parse-type="resource", then it can contain an
+		element rdf:value; this value can alternatively be
+		specified using an rdf:value attribute on the property
+		element.
+		-->
+        <!ATTLIST rdf:Description 
+                id                    ID #IMPLIED
+                type                  CDATA #IMPLIED
+                about                 CDATA #IMPLIED 
+                aboutEach             CDATA #IMPLIED
+                aboutEachPrefix       CDATA #IMPLIED    
+                bagID                 NMTOKEN #IMPLIED >
+                <!-- other XML attributes may be specified -->     
+                                
+<!-- [6.25][6.31] -->
+        <!ELEMENT rdf:Seq       ( rdf:li )* >
+        <!ATTLIST rdf:Seq
+                id                    ID #IMPLIED
+                rdf:_1 CDATA #IMPLIED
+                rdf:_2 CDATA #IMPLIED
+                rdf:_3 CDATA #IMPLIED
+                rdf:_4 CDATA #IMPLIED
+                rdf:_5 CDATA #IMPLIED
+                rdf:_6 CDATA #IMPLIED
+                rdf:_7 CDATA #IMPLIED
+                rdf:_8 CDATA #IMPLIED >
+                <!-- the member attributes are a short alternative to rdf:li -->
+
+<!-- [6.26][6.31] -->
+        <!ELEMENT rdf:Bag  (  rdf:li )* >
+        <!ATTLIST rdf:Bag
+                id                    ID #IMPLIED
+                rdf:_1 CDATA #IMPLIED
+                rdf:_2 CDATA #IMPLIED
+                rdf:_3 CDATA #IMPLIED
+                rdf:_4 CDATA #IMPLIED
+                rdf:_5 CDATA #IMPLIED
+                rdf:_6 CDATA #IMPLIED
+                rdf:_7 CDATA #IMPLIED
+                rdf:_8 CDATA #IMPLIED  >
+                <!-- the member attributes are a short alternative to rdf:li -->
+
+<!-- [6.27][6.17][6.31] -->
+        <!ELEMENT rdf:Alt  (  rdf:li )* > 
+        <!ATTLIST rdf:Alt
+                id                    ID #IMPLIED
+                rdf:_1 CDATA #IMPLIED
+                rdf:_2 CDATA #IMPLIED
+                rdf:_3 CDATA #IMPLIED
+                rdf:_4 CDATA #IMPLIED
+                rdf:_5 CDATA #IMPLIED
+                rdf:_6 CDATA #IMPLIED
+                rdf:_7 CDATA #IMPLIED
+                rdf:_8 CDATA #IMPLIED  >
+                <!-- the member attributes are a short alternative to rdf:li -->                                         
+ 
+<!-- [6.18][6.29][6.30][6.32] [6.33][6.34] -->       
+        <!ELEMENT rdf:li  ANY > 
+        <!ATTLIST rdf:li
+                resource                CDATA #IMPLIED 
+                parseType               ( Resource | Literal ) #IMPLIED  >         
+
+ <!-- [6.14][6.15][6.19][6.20][6.21][6.22][6.23][6.24] -->
+        <!-- these productions restate XML rules --> 
+        
+ 
+<!-- Added 1999-05-01, these are important but have been omitted from
+      the formal syntax for some reason. -->
+        <!ELEMENT rdf:subject  ANY>
+        <!ATTLIST rdf:subject
+                %propEltAttr; >
+                
+        <!ELEMENT rdf:predicate ANY>
+        <!ATTLIST rdf:predicate
+                %propEltAttr; >
+                
+        <!ELEMENT rdf:object    ANY>
+        <!ATTLIST rdf:object
+                %propEltAttr; >
+                
+        <!ELEMENT rdf:type      ANY>
+        <!ATTLIST rdf:type
+                %propEltAttr; >
+                
+        <!ELEMENT rdf:value ANY>
+                
+
+

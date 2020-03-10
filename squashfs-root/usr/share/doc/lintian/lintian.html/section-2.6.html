@@ -1,0 +1,409 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><meta charset="UTF-8"><TITLE
+>Vendor specific data files</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="Lintian User's Manual"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Getting started"
+HREF="chapter-2.html"><LINK
+REL="PREVIOUS"
+TITLE="Vendor Profiles"
+HREF="section-2.5.html"><LINK
+REL="NEXT"
+TITLE="Advanced usage"
+HREF="chapter-3.html"></HEAD
+><BODY
+CLASS="sect1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Lintian User's Manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="section-2.5.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 2. Getting started</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="chapter-3.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="sect1"
+><H1
+CLASS="sect1"
+><A
+NAME="section-2.6"
+>2.6. Vendor specific data files</A
+></H1
+><P
+>&#13;        Lintian uses a number of data files for various checks,
+        ranging from common spelling mistakes to lists of
+        architectures.  While some of these data files are generally
+        applicable for all vendors (or Debian derivatives), others
+        are not.
+      </P
+><P
+>&#13;        Starting with version 2.5.7, Lintian supports vendor
+        specific data files.  This allows vendors to deploy their
+        own data files tailored for their kind of system.  Lintian
+        supports both extending an existing data file and completely
+        overriding it.
+      </P
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="section-2.6.1"
+>2.6.1. Load paths and order</A
+></H2
+><P
+>&#13;          Lintian will search the following directories in order for
+          vendor specific data files:
+        </P
+><P
+></P
+><UL
+><LI
+><P
+>&#13;              <TT
+CLASS="filename"
+>$XDG_DATA_HOME/lintian/vendors/<TT
+CLASS="replaceable"
+><I
+>PROFILENAME</I
+></TT
+>/data</TT
+>
+            </P
+></LI
+><LI
+><P
+>&#13;              <TT
+CLASS="filename"
+>$HOME/.lintian/vendors/<TT
+CLASS="replaceable"
+><I
+>PROFILENAME</I
+></TT
+>/data</TT
+>
+            </P
+></LI
+><LI
+><P
+>&#13;              <TT
+CLASS="filename"
+>/etc/lintian/vendors/<TT
+CLASS="replaceable"
+><I
+>PROFILENAME</I
+></TT
+>/data</TT
+>
+            </P
+></LI
+><LI
+><P
+>&#13;              <TT
+CLASS="filename"
+>$LINTIAN_ROOT/vendors/<TT
+CLASS="replaceable"
+><I
+>PROFILENAME</I
+></TT
+>/data</TT
+>
+            </P
+></LI
+></UL
+><P
+>&#13;          If none of the directories exists or none of them provide
+          the data file in question, Lintian will (recursively)
+          retry with the parent of the vendor (if any).  If the
+          vendor and none of its parents provide the data file,
+          Lintian will terminate with an error.
+        </P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="section-2.6.2"
+>2.6.2. Basic syntax of data files</A
+></H2
+><P
+>&#13;          Generally, data files are read line by line.  Leading
+          whitespace of every line is removed and (now) empty lines
+          are ignored.  Lines starting with a <TT
+CLASS="literal"
+>#</TT
+>
+          are comments and are also ignored by the parser.  Lines
+          are processed in the order they are read.
+        </P
+><P
+>&#13;          If the first character of the line is
+          a <TT
+CLASS="literal"
+>@</TT
+>, the first word is parsed as a
+          special processing instruction.  The rest of the line
+          is a parameter to that processing instruction.  Please
+          refer to <A
+HREF="section-2.6.html#section-2.6.2.1"
+><I
+>List of processing instructions</I
+></A
+>.
+        </P
+><P
+>&#13;          All other lines are read as actual data.  If the data file
+          is a table (or map), the lines will parsed as key-value
+          pairs.  If the data file is a list (or set), the full line
+          will be considered a single value of the list.
+        </P
+><P
+>&#13;          It is permissible to define the same key twice with a
+          different value.  In this case, the value associated with
+          the key is generally redefined.  There are very rare
+          exceptions to this rule, where the data file is a table of
+          tables (of values).  In this case, a recurring key is used to
+          generate the inner table.
+        </P
+><DIV
+CLASS="sect3"
+><H3
+CLASS="sect3"
+><A
+NAME="section-2.6.2.1"
+>2.6.2.1. List of processing instructions</A
+></H3
+><P
+>&#13;            The following processing instructions are recognised:
+          </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>@delete <TT
+CLASS="replaceable"
+><I
+>ENTRY</I
+></TT
+></I
+></SPAN
+></DT
+><DD
+><P
+>&#13;                  Removes a single entry denoted by <TT
+CLASS="replaceable"
+><I
+>ENTRY</I
+></TT
+> that
+                  has already been parsed.
+                </P
+><P
+>&#13;                  It is permissible to list a non-existent entry, in which case the
+                  instruction has no effect. This instruction does
+                  <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>not</I
+></SPAN
+> prevent the entry from being (re-)defined later,
+                  it only affects the current definition of the entry.
+                </P
+><P
+>&#13;                  For key-pair based data files, <TT
+CLASS="replaceable"
+><I
+>ENTRY</I
+></TT
+> must
+                  match the key.  For single value data files,
+                  <TT
+CLASS="replaceable"
+><I
+>ENTRY</I
+></TT
+> must match the line to remove.
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>@include-parent</I
+></SPAN
+></DT
+><DD
+><P
+>&#13;                  Processes parent data file of the current data file.
+                </P
+><P
+>&#13;                  The informal semantics of this instruction is that it reads the "next"
+                  data file in the vendor "chain".  The parsing of the parent is comparable
+                  to a C-style include or sourcing a shell script.
+                </P
+><P
+>&#13;                  More formally, let <TT
+CLASS="replaceable"
+><I
+>CP</I
+></TT
+> be the name of the vendor
+                  profile that defines the data file containing the instruction.  Let
+                  the parent of <TT
+CLASS="replaceable"
+><I
+>CP</I
+></TT
+> be referred to as
+                  <TT
+CLASS="replaceable"
+><I
+>PCP</I
+></TT
+>.
+                </P
+><P
+>&#13;                  Lintian will search for the data file provided by
+                  <TT
+CLASS="replaceable"
+><I
+>PCP</I
+></TT
+> using the rules as specified in
+                  <A
+HREF="section-2.6.html#section-2.6.1"
+><I
+>Load paths and order</I
+></A
+>.  If no
+                  data file is found, Lintian will terminate the parsing with an error.
+                  Thus, this instruction can only be used by profiles that extends other
+                  profiles.
+                </P
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="section-2.5.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="chapter-3.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Vendor Profiles</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="chapter-2.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Advanced usage</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

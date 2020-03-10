@@ -1,0 +1,587 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><meta charset="UTF-8"><TITLE
+>Writing your own Lintian checks</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="Lintian User's Manual"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Advanced usage"
+HREF="chapter-3.html"><LINK
+REL="PREVIOUS"
+TITLE="The laboratory"
+HREF="section-3.2.html"></HEAD
+><BODY
+CLASS="sect1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Lintian User's Manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="section-3.2.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 3. Advanced usage</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+>&nbsp;</TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="sect1"
+><H1
+CLASS="sect1"
+><A
+NAME="section-3.3"
+>3.3. Writing your own Lintian checks</A
+></H1
+><P
+>&#13;        This section describes how to write and deploy your own
+        Lintian checks.  Lintian will load checks from the following
+        directories (in order):
+      </P
+><P
+></P
+><UL
+><LI
+><P
+>&#13;            <TT
+CLASS="filename"
+>$LINTIAN_ROOT/checks</TT
+>
+          </P
+></LI
+></UL
+><P
+>&#13;        Existing checks can be shadowed by placing a check with the
+        same name in a directory appearing earlier in the list.  This
+        also holds for the checks provided by Lintian itself.
+      </P
+><P
+>&#13;        Checks in Lintian consist of a description file (.desc) and a
+        Perl module implementing the actual check (.pm).  The
+        names of these checks must consist entirely of the lower case
+        characters ([a-z]), digits ([0-9]), underscore (_), dash (-),
+        period (.) and forward slashes (/).
+      </P
+><P
+>&#13;        The check name must be a valid Perl unique module name after
+        the following transformations.  All periods and dashes are
+        replaced with underscores.  All forward slashes are replaced
+        with two colons (::).
+      </P
+><P
+>&#13;        Check names without a forward slash (e.g. "fields") and names
+        starting with either "lintian/" or "coll/" are reserved for
+        the Lintian core.  Vendors are recommended to use their vendor
+        name before the first slash (e.g. "ubuntu/fields").
+      </P
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="section-3.3.1"
+>3.3.1. Check description file</A
+></H2
+><P
+>&#13;          The check description file is written in the same syntax as
+          Debian control files as described in the
+          <A
+HREF="https://www.debian.org/doc/debian-policy/#s-controlsyntax"
+TARGET="_top"
+>&#13;          Debian Policy Manual §5.1</A
+>.  Check description files
+          allow comments as described in the Policy Manual.
+        </P
+><P
+>&#13;          The check description file has two paragraph types.  The
+          first is the check description itself and must be the first
+          paragraph.  The rest of the descriptions describe tags, one
+          tag per paragraph.
+        </P
+><DIV
+CLASS="sect3"
+><H3
+CLASS="sect3"
+><A
+NAME="section-3.3.1.1"
+>3.3.1.1. Check description paragraph</A
+></H3
+><P
+>&#13;            The fields in the check description paragraph are:
+          </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Check-Script</I
+></SPAN
+> (simple, mandatory)</DT
+><DD
+><P
+>&#13;                  Name of the check.  This is used to determine the
+                  package name of the Perl module implementing the
+                  check.
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Type</I
+></SPAN
+> (simple, mandatory)</DT
+><DD
+><P
+>&#13;                  Comma separated list of package types for which this
+                  check should be run.  Allowed values in the list are
+                  "binary" (.deb files), "changes" (.changes files),
+                  "source" (.dsc files) and "udeb" (.udeb files).
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Needs-Info</I
+></SPAN
+> (simple, optional)</DT
+><DD
+><P
+>&#13;                  Comma separated list of collections required for the
+                  check to be run.  Common values here include "unpacked",
+                  "index" and "file-info".
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Info</I
+></SPAN
+> (multiline, optional)</DT
+><DD
+><P
+>&#13;                  A short description of what the check is for.
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Author</I
+></SPAN
+> (simple, optional)</DT
+><DD
+><P
+>&#13;                  Name and email of the person, who created (or
+                  implemented etc.) the check.
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Abbrev</I
+></SPAN
+> (simple, optional)</DT
+><DD
+><P
+>&#13;                  Alternative or abbreviated name of the check.  These
+                  can be used with certain command line options as an
+                  alternative name for the check.
+                </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="sect3"
+><H3
+CLASS="sect3"
+><A
+NAME="section-3.3.1.2"
+>3.3.1.2. Tag description paragraph</A
+></H3
+><P
+>&#13;            The fields in the tag description paragraph are:
+          </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Tag</I
+></SPAN
+> (simple, mandatory)</DT
+><DD
+><P
+>&#13;                  Name of the tag.  It must consist entirely of the
+                  lower or/and upper case characters ([a-zA-Z]),
+                  digits ([0-9]), underscore (_), dash (-) and period (.).
+                  The tag name should be at most 68 characters long.
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Severity</I
+></SPAN
+> (simple, mandatory)</DT
+><DD
+><P
+>&#13;                  Determines the default value for how "severe" the
+                  tag is.  The value must be one of "serious",
+                  "important", "normal", "minor", "wishlist" and
+                  "pedantic".  The effective severity and the value of
+                  the Certainty field of a tag determine the
+                  "one-letter" code (of non-experimental tags).
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Certainty</I
+></SPAN
+> (simple, mandatory)</DT
+><DD
+><P
+>&#13;                  How accurate the tag is (believed to be).  The value
+                  must be one of "certain", "possible", "wild-guess".
+                  The effective severity and the value of the
+                  Certainty field of a tag determine the "one-letter"
+                  code (of non-experimental tags).
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Info</I
+></SPAN
+> (multiline, mandatory)</DT
+><DD
+><P
+>&#13;                  The description of the tag, which can be seen by
+                  using lintian-info (etc.).  The HTML tags
+                  "&#60;tt&#62;" and "&#60;i&#62;" may be used in the
+                  description.
+                </P
+><P
+>&#13;                  The symbols &#38;, &#60; and &#62; must be escaped as
+                  &#38;amp;, &#38;lt; and &#38;gt; (respectively).
+                </P
+><P
+>&#13;                  Indented lines are considered "pre-formatted" and
+                  will not be line wrapped.  These lines are still
+                  subject to the allowed HTML tags and above mentioned
+                  escape sequences.
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Ref</I
+></SPAN
+> (simple, optional)</DT
+><DD
+><P
+>&#13;                  A comma separated list of references.  It can be used
+                  to refer to extra documentation.  It is primarily
+                  used for manual references, HTTP links or Debian bug
+                  references.
+                </P
+><P
+>&#13;                  If a reference contains a space, it is taken as a
+                  manual reference (e.g. "policy 4.14").  These
+                  references are recorded in the
+                  "output/manual-references" data file.
+                </P
+><P
+>&#13;                  Other references include manpages ("lintian(1)"),
+                  ftp or http(s) links ("https://lintian.debian.org"),
+                  file references ("/usr/share/doc/lintian/changelog.gz")
+                  or Debian bug numbers prefixed with a hash ("#651816").
+                </P
+><P
+>&#13;                  Unknown references are (silently) ignored.
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Experimental</I
+></SPAN
+> (simple, optional)</DT
+><DD
+><P
+>&#13;                  Whether or not the tag is considered "experimental".
+                  Recognised values are "no" (default) and "yes".
+                  Experimental tags always use "X" as their
+                  "one-letter" code.
+                </P
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="section-3.3.2"
+>3.3.2. Check Perl module file</A
+></H2
+><P
+>&#13;          This section describes the requirements for the Perl module
+          implementing a given check.
+        </P
+><P
+>&#13;          The Perl package name of the check must be identical to
+          the check name (as defined by the "Check-Script" field in
+          the description file) with the following transformations:
+        </P
+><P
+></P
+><UL
+><LI
+><P
+>All periods and dashes are replaced with underscores.</P
+></LI
+><LI
+><P
+>All forward slashes are replaced by two colons (::).</P
+></LI
+><LI
+><P
+>The resulting value is prefixed with "Lintian::".</P
+></LI
+></UL
+><P
+>&#13;          As an example, the check name <TT
+CLASS="literal"
+>contrib/hallo-world</TT
+>
+          will result in the Perl package name
+          <TT
+CLASS="literal"
+>Lintian::contrib::hallo_world</TT
+>.
+        </P
+><DIV
+CLASS="sect3"
+><H3
+CLASS="sect3"
+><A
+NAME="section-3.3.2.1"
+>3.3.2.1. API of the "run" sub</A
+></H3
+><P
+>&#13;            The Perl module must implement the sub called <TT
+CLASS="literal"
+>run</TT
+> in
+            that Perl package.  This sub will be run once for each package to be
+            checked with 5 arguments.  These are (in order):
+          </P
+><P
+></P
+><UL
+><LI
+><P
+>The package name.</P
+></LI
+><LI
+><P
+>&#13;                The package type being checked in this run.  This string
+                is one of "binary" (.deb), "changes" (.changes), "source"
+                (.dsc) or "udeb" (.udeb).
+              </P
+></LI
+><LI
+><P
+>&#13;                An instance of API Lintian::Collect.  Its exact type depends
+                on the type being processed and is one of
+                Lintian::Collect::Binary (.deb or .udeb),
+                Lintian::Collect::Changes (.changes) or
+                Lintian::Collect::Source (.dsc).
+              </P
+></LI
+><LI
+><P
+>&#13;                An instance of Lintian::Processable that represents the
+                package being processed.
+              </P
+></LI
+><LI
+><P
+>&#13;                An instance of Lintian::ProcessableGroup that represents
+                the other processables in the given group.  An instance
+                of the Lintian::Collect::Group is available via its
+                "info" method.
+              </P
+></LI
+></UL
+><P
+>&#13;            Further arguments may be added in the future after the above
+            mentioned ones.  Implementations should therefore ignore
+            extra arguments beyond the ones they know of.
+          </P
+><P
+>&#13;            If the run sub returns "normally", the check was run
+            successfully.  Implementations should ensure the return
+            value is undefined.
+          </P
+><P
+>&#13;            If the run sub invokes a trappable error (e.g. "die"), no
+            further checks are done on the package and Lintian will
+            (eventually) exit with 2 to its caller.  The check may
+            still be run on other packages.
+          </P
+><P
+>&#13;            The run sub may emit tags by invoking the sub "tag" from
+            Lintian::Tags (it can be imported).  The first argument is
+            the name of the tag to emit.  Any extra arguments will be
+            used as the "tag extra" (or diagnostics).  Example:
+          </P
+><PRE
+CLASS="programlisting"
+>&#13;use Lintian::Tags qw(tag);
+sub run {
+    tag 'my-tag', 'hallo world';
+    return;
+}
+</PRE
+><P
+>&#13;            would emit the tag "my-tag" with the extra note "hallo
+            world" like this:
+          </P
+><PRE
+CLASS="screen"
+>&#13;I: package: my-tag hallo world
+</PRE
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="section-3.2.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>The laboratory</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="chapter-3.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

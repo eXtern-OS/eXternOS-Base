@@ -1,0 +1,116 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      type="topic" style="task"
+      id="desktop-favorite-applications">
+
+  <info>
+    <link type="guide" xref="appearance"/>
+    <revision pkgversion="3.8" date="2013-04-28" status="draft"/>
+
+    <credit type="author">
+      <name>Aruna Sankaranarayanan</name>
+      <email>aruna.evam@gmail.com</email>
+    </credit>
+
+    <include href="legal.xml" xmlns="http://www.w3.org/2001/XInclude"/>
+
+    <desc>Customize the default favourites in the Activities overview.</desc>
+
+  </info>
+
+  <title>Default favorite applications</title>
+
+  <p>Favorite applications are those visible on the
+  <link href="help:gnome-help/shell-terminology">dash</link>. You can use
+  <sys its:translate="no">dconf</sys> to set favorite applications
+  for one user, or to set the same favorite applications
+  for all users. For both cases, you must first edit the
+  <sys its:translate="no">dconf</sys> profile found in
+  <file its:translate="no">/etc/dconf/profile</file>.</p>
+
+<section id="per-user">
+  <title>Set different favorite applications for different users</title>
+
+  <p>You can set the default favorite applications for each user by modifying
+  their user database file found in
+  <file its:translate="no">~/.config/dconf/user</file>. The following example
+  snippet uses <sys its:translate="no">dconf</sys> to set <app>gedit</app>,
+  <app>Terminal</app> and <app>Nautilus</app> as default favorites for a user.
+  The example code allows users to modify the list later, if they wish to do
+  so.</p>
+
+  <!--The code itself need not be translated but the comments withing the
+  code have to be translated.-Aruna-->
+
+  <listing>
+    <title>Contents of <file its:translate="no">/etc/dconf/profile</file>:</title>
+      <code>
+      #This line allows the user to change the default favorites later.
+      user-db:user
+      </code>
+  </listing>
+
+  <listing>
+    <title>Contents of <file its:translate="no">~/.config/dconf/user</file>:</title>
+      <code>
+      #Set gedit, terminal and nautilus as default favorites
+      [org/gnome/shell]
+      favorite-apps = [<input>'gedit.desktop'</input>, <input>'gnome-terminal.desktop'</input>, <input>'nautilus.desktop'</input>]
+      </code>
+  </listing>
+
+  <note style="tip">
+    <p>You can also <link xref="dconf-lockdown">lock down</link> the above
+    settings to prevent users from changing them.</p>
+  </note>
+
+</section>
+
+<section id="all-users">
+  <title>Set the same favorite applications for all users</title>
+
+  <p>In order to have the same favorites for all users, you must modify system
+  database files using <link xref="dconf-keyfiles">dconf keyfiles</link>. The
+  following code snippets edit the <sys its:translate="no">dconf</sys> profile
+  and then create a keyfile to set default favorite applications for all
+  employees in the first floor of an organization.</p>
+
+  <!--The code itself need not be translated but the comments within the
+  code have to be translated.-Aruna-->
+
+  <listing>
+    <title>Contents of <file its:translate="no">/etc/dconf/profile</file>:</title>
+      <code>
+      user-db:user
+
+      #This line defines a system database file called first_floor
+      system-db:first_floor
+      </code>
+  </listing>
+
+  <note style="info">
+    <p>Settings from the <code>user</code> database file
+    will take precedence over the settings in the
+    <code>first_floor</code> database file, but
+    <link xref="dconf-lockdown">locks</link> introduced in the
+    <code>first_floor</code> database file will take priority over
+    those present in <code>user</code>.</p>
+  </note>
+
+  <listing>
+    <title>Contents of <file its:translate="no">/etc/dconf/db/first_floor.d/00_floor1_settings</file>:</title>
+      <code>
+      # Snippet sets gedit, terminal and nautilus as default favorites
+      # for all users in the first floor
+
+      [org/gnome/shell]
+      favorite-apps = [<input>'gedit.desktop'</input>, <input>'gnome-terminal.desktop'</input>, <input>'nautilus.desktop'</input>]
+      </code>
+  </listing>
+
+    <p>Incorporate your changes into the system databases by running
+    <cmd>dconf update</cmd>.</p>
+
+</section>
+
+</page>

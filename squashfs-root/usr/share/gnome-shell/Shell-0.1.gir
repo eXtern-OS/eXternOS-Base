@@ -1,0 +1,4223 @@
+<?xml version="1.0"?>
+<!-- This file was automatically generated from C sources - DO NOT EDIT!
+To affect the contents of this file, edit the original C definitions,
+and/or use gtk-doc annotations.  -->
+<repository version="1.2"
+            xmlns="http://www.gtk.org/introspection/core/1.0"
+            xmlns:c="http://www.gtk.org/introspection/c/1.0"
+            xmlns:glib="http://www.gtk.org/introspection/glib/1.0">
+  <include name="Clutter" version="2"/>
+  <include name="ClutterX11" version="2"/>
+  <include name="Gvc" version="1.0"/>
+  <include name="Meta" version="2"/>
+  <include name="NM" version="1.0"/>
+  <include name="ShellMenu" version="0.1"/>
+  <include name="Soup" version="2.4"/>
+  <include name="St" version="1.0"/>
+  <namespace name="Shell"
+             version="0.1"
+             shared-library="libgnome-shell.so"
+             c:identifier-prefixes="Shell"
+             c:symbol-prefixes="shell">
+    <bitfield name="ActionMode"
+              glib:type-name="ShellActionMode"
+              glib:get-type="shell_action_mode_get_type"
+              c:type="ShellActionMode">
+      <doc xml:space="preserve">Controls in which GNOME Shell states an action (like keybindings and gestures)
+should be handled.</doc>
+      <member name="none"
+              value="0"
+              c:identifier="SHELL_ACTION_MODE_NONE"
+              glib:nick="none">
+        <doc xml:space="preserve">block action</doc>
+      </member>
+      <member name="normal"
+              value="1"
+              c:identifier="SHELL_ACTION_MODE_NORMAL"
+              glib:nick="normal">
+        <doc xml:space="preserve">allow action when in window mode,
+    e.g. when the focus is in an application window</doc>
+      </member>
+      <member name="overview"
+              value="2"
+              c:identifier="SHELL_ACTION_MODE_OVERVIEW"
+              glib:nick="overview">
+        <doc xml:space="preserve">allow action while the overview
+    is active</doc>
+      </member>
+      <member name="lock_screen"
+              value="4"
+              c:identifier="SHELL_ACTION_MODE_LOCK_SCREEN"
+              glib:nick="lock-screen">
+        <doc xml:space="preserve">allow action when the screen
+    is locked, e.g. when the screen shield is shown</doc>
+      </member>
+      <member name="unlock_screen"
+              value="8"
+              c:identifier="SHELL_ACTION_MODE_UNLOCK_SCREEN"
+              glib:nick="unlock-screen">
+        <doc xml:space="preserve">allow action in the unlock
+    dialog</doc>
+      </member>
+      <member name="login_screen"
+              value="16"
+              c:identifier="SHELL_ACTION_MODE_LOGIN_SCREEN"
+              glib:nick="login-screen">
+        <doc xml:space="preserve">allow action in the login screen</doc>
+      </member>
+      <member name="system_modal"
+              value="32"
+              c:identifier="SHELL_ACTION_MODE_SYSTEM_MODAL"
+              glib:nick="system-modal">
+        <doc xml:space="preserve">allow action when a system modal
+    dialog (e.g. authentification or session dialogs) is open</doc>
+      </member>
+      <member name="looking_glass"
+              value="64"
+              c:identifier="SHELL_ACTION_MODE_LOOKING_GLASS"
+              glib:nick="looking-glass">
+        <doc xml:space="preserve">allow action in looking glass</doc>
+      </member>
+      <member name="popup"
+              value="128"
+              c:identifier="SHELL_ACTION_MODE_POPUP"
+              glib:nick="popup">
+        <doc xml:space="preserve">allow action while a shell menu is open</doc>
+      </member>
+      <member name="all"
+              value="-1"
+              c:identifier="SHELL_ACTION_MODE_ALL"
+              glib:nick="all">
+        <doc xml:space="preserve">always allow action</doc>
+      </member>
+    </bitfield>
+    <class name="App"
+           c:symbol-prefix="app"
+           c:type="ShellApp"
+           parent="GObject.Object"
+           glib:type-name="ShellApp"
+           glib:get-type="shell_app_get_type"
+           glib:type-struct="AppClass">
+      <method name="activate" c:identifier="shell_app_activate">
+        <doc xml:space="preserve">Like shell_app_activate_full(), but using the default workspace and
+event timestamp.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellApp</doc>
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="activate_full" c:identifier="shell_app_activate_full">
+        <doc xml:space="preserve">Perform an appropriate default action for operating on this application,
+dependent on its current state.  For example, if the application is not
+currently running, launch it.  If it is running, activate the most
+recently used NORMAL window (or if that window has a transient, the most
+recently used transient for that window).</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellApp</doc>
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+          <parameter name="workspace" transfer-ownership="none">
+            <doc xml:space="preserve">launch on this workspace, or -1 for default. Ignored if
+  activating an existing window</doc>
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="timestamp" transfer-ownership="none">
+            <doc xml:space="preserve">Event timestamp</doc>
+            <type name="guint32" c:type="guint32"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="activate_window" c:identifier="shell_app_activate_window">
+        <doc xml:space="preserve">Bring all windows for the given app to the foreground,
+but ensure that @window is on top.  If @window is %NULL,
+the window with the most recent user time for the app
+will be used.
+
+This function has no effect if @app is not currently running.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellApp</doc>
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+          <parameter name="window"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve">Window to be focused</doc>
+            <type name="Meta.Window" c:type="MetaWindow*"/>
+          </parameter>
+          <parameter name="timestamp" transfer-ownership="none">
+            <doc xml:space="preserve">Event timestamp</doc>
+            <type name="guint32" c:type="guint32"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="can_open_new_window"
+              c:identifier="shell_app_can_open_new_window">
+        <doc xml:space="preserve">Returns %TRUE if the app supports opening a new window through
+shell_app_open_new_window() (ie, if calling that function will
+result in actually opening a new window and not something else,
+like presenting the most recently active one)</doc>
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellApp</doc>
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="compare" c:identifier="shell_app_compare">
+        <doc xml:space="preserve">Compare one #ShellApp instance to another, in the following way:
+  - Running applications sort before not-running applications.
+  - If one of them has non-minimized windows and the other does not,
+    the one with visible windows is first.
+  - Finally, the application which the user interacted with most recently
+    compares earlier.</doc>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+          <parameter name="other" transfer-ownership="none">
+            <doc xml:space="preserve">A #ShellApp</doc>
+            <type name="App" c:type="ShellApp*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="compare_by_name" c:identifier="shell_app_compare_by_name">
+        <doc xml:space="preserve">Order two applications by name.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">-1, 0, or 1; suitable for use as a comparison function
+for e.g. g_slist_sort()</doc>
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <doc xml:space="preserve">One app</doc>
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+          <parameter name="other" transfer-ownership="none">
+            <doc xml:space="preserve">The other app</doc>
+            <type name="App" c:type="ShellApp*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="create_icon_texture"
+              c:identifier="shell_app_create_icon_texture">
+        <doc xml:space="preserve">Look up the icon for this application, and create a #ClutterTexture
+for it at the given size.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">A floating #ClutterActor</doc>
+          <type name="Clutter.Actor" c:type="ClutterActor*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+          <parameter name="size" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="get_app_info" c:identifier="shell_app_get_app_info">
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">The #GDesktopAppInfo for this app, or %NULL if backed by a window</doc>
+          <type name="Gio.DesktopAppInfo" c:type="GDesktopAppInfo*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellApp</doc>
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_busy" c:identifier="shell_app_get_busy">
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_description" c:identifier="shell_app_get_description">
+        <return-value transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_id" c:identifier="shell_app_get_id">
+        <return-value transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_n_windows" c:identifier="shell_app_get_n_windows">
+        <return-value transfer-ownership="none">
+          <type name="guint" c:type="guint"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_name" c:identifier="shell_app_get_name">
+        <return-value transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_pids" c:identifier="shell_app_get_pids">
+        <return-value transfer-ownership="container">
+          <doc xml:space="preserve">An unordered list of process identifers associated with this application.</doc>
+          <type name="GLib.SList" c:type="GSList*">
+            <type name="gint"/>
+          </type>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellApp</doc>
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_state" c:identifier="shell_app_get_state">
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">State of the application</doc>
+          <type name="AppState" c:type="ShellAppState"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellApp</doc>
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_windows" c:identifier="shell_app_get_windows">
+        <doc xml:space="preserve">Get the windows which are associated with this application. The
+returned list will be sorted first by whether they're on the
+active workspace, then by whether they're visible, and finally
+by the time the user last interacted with them.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">List of windows</doc>
+          <type name="GLib.SList" c:type="GSList*">
+            <type name="Meta.Window"/>
+          </type>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="is_on_workspace" c:identifier="shell_app_is_on_workspace">
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+          <parameter name="workspace" transfer-ownership="none">
+            <type name="Meta.Workspace" c:type="MetaWorkspace*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="is_window_backed"
+              c:identifier="shell_app_is_window_backed">
+        <doc xml:space="preserve">A window backed application is one which represents just an open
+window, i.e. there's no .desktop file assocation, so we don't know
+how to launch it again.</doc>
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="launch" c:identifier="shell_app_launch" throws="1">
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+          <parameter name="timestamp" transfer-ownership="none">
+            <doc xml:space="preserve">Event timestamp, or 0 for current event timestamp</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+          <parameter name="workspace" transfer-ownership="none">
+            <doc xml:space="preserve">Start on this workspace, or -1 for default</doc>
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="discrete_gpu" transfer-ownership="none">
+            <doc xml:space="preserve">Whether to start on the discrete GPU</doc>
+            <type name="gboolean" c:type="gboolean"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="launch_action" c:identifier="shell_app_launch_action">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellApp</doc>
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+          <parameter name="action_name" transfer-ownership="none">
+            <doc xml:space="preserve">the name of the action to launch (as obtained by
+              g_desktop_app_info_list_actions())</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="timestamp" transfer-ownership="none">
+            <doc xml:space="preserve">Event timestamp, or 0 for current event timestamp</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+          <parameter name="workspace" transfer-ownership="none">
+            <doc xml:space="preserve">Start on this workspace, or -1 for default</doc>
+            <type name="gint" c:type="int"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="open_new_window" c:identifier="shell_app_open_new_window">
+        <doc xml:space="preserve">Request that the application create a new window.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellApp</doc>
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+          <parameter name="workspace" transfer-ownership="none">
+            <doc xml:space="preserve">open on this workspace, or -1 for default</doc>
+            <type name="gint" c:type="int"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="request_quit" c:identifier="shell_app_request_quit">
+        <doc xml:space="preserve">Initiate an asynchronous request to quit this application.
+The application may interact with the user, and the user
+might cancel the quit request from the application UI.
+
+This operation may not be supported for all applications.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">%TRUE if a quit request is supported for this application</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <doc xml:space="preserve">A #ShellApp</doc>
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="update_app_menu" c:identifier="shell_app_update_app_menu">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+          <parameter name="window" transfer-ownership="none">
+            <type name="Meta.Window" c:type="MetaWindow*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="update_window_actions"
+              c:identifier="shell_app_update_window_actions">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="app" transfer-ownership="none">
+            <type name="App" c:type="ShellApp*"/>
+          </instance-parameter>
+          <parameter name="window" transfer-ownership="none">
+            <type name="Meta.Window" c:type="MetaWindow*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <property name="action-group" transfer-ownership="none">
+        <doc xml:space="preserve">The #GDBusActionGroup associated with this ShellApp, if any. See the
+documentation of #GApplication and #GActionGroup for details.</doc>
+        <type name="Gio.ActionGroup"/>
+      </property>
+      <property name="app-info"
+                writable="1"
+                construct-only="1"
+                transfer-ownership="none">
+        <doc xml:space="preserve">The #GDesktopAppInfo associated with this ShellApp, if any.</doc>
+        <type name="Gio.DesktopAppInfo"/>
+      </property>
+      <property name="busy" transfer-ownership="none">
+        <doc xml:space="preserve">Whether the application has marked itself as busy.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </property>
+      <property name="id" transfer-ownership="none">
+        <doc xml:space="preserve">The id of this application (a desktop filename, or a special string
+like window:0xabcd1234)</doc>
+        <type name="utf8" c:type="gchar*"/>
+      </property>
+      <property name="menu" transfer-ownership="none">
+        <doc xml:space="preserve">The #GMenuProxy associated with this ShellApp, if any. See the
+documentation of #GMenuModel for details.</doc>
+        <type name="Gio.MenuModel"/>
+      </property>
+      <property name="state" transfer-ownership="none">
+        <doc xml:space="preserve">The high-level state of the application, effectively whether it's
+running or not, or transitioning between those states.</doc>
+        <type name="AppState"/>
+      </property>
+      <glib:signal name="windows-changed" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+      </glib:signal>
+    </class>
+    <record name="AppClass"
+            c:type="ShellAppClass"
+            glib:is-gtype-struct-for="App">
+      <field name="parent_class">
+        <type name="GObject.ObjectClass" c:type="GObjectClass"/>
+      </field>
+    </record>
+    <enumeration name="AppState"
+                 glib:type-name="ShellAppState"
+                 glib:get-type="shell_app_state_get_type"
+                 c:type="ShellAppState">
+      <member name="stopped"
+              value="0"
+              c:identifier="SHELL_APP_STATE_STOPPED"
+              glib:nick="stopped">
+      </member>
+      <member name="starting"
+              value="1"
+              c:identifier="SHELL_APP_STATE_STARTING"
+              glib:nick="starting">
+      </member>
+      <member name="running"
+              value="2"
+              c:identifier="SHELL_APP_STATE_RUNNING"
+              glib:nick="running">
+      </member>
+    </enumeration>
+    <class name="AppSystem"
+           c:symbol-prefix="app_system"
+           c:type="ShellAppSystem"
+           parent="GObject.Object"
+           glib:type-name="ShellAppSystem"
+           glib:get-type="shell_app_system_get_type"
+           glib:type-struct="AppSystemClass">
+      <function name="get_default" c:identifier="shell_app_system_get_default">
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">The global #ShellAppSystem singleton</doc>
+          <type name="AppSystem" c:type="ShellAppSystem*"/>
+        </return-value>
+      </function>
+      <function name="search" c:identifier="shell_app_system_search">
+        <doc xml:space="preserve">Wrapper around g_desktop_app_info_search() that replaces results that
+don't validate as UTF-8 with the empty string.</doc>
+        <return-value transfer-ownership="full">
+          <doc xml:space="preserve">a
+  list of strvs.  Free each item with g_strfreev() and free the outer
+  list with g_free().</doc>
+          <array c:type="char***">
+            <array>
+              <type name="utf8"/>
+            </array>
+          </array>
+        </return-value>
+        <parameters>
+          <parameter name="search_string" transfer-ownership="none">
+            <doc xml:space="preserve">the search string to use</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </function>
+      <method name="get_running" c:identifier="shell_app_system_get_running">
+        <doc xml:space="preserve">Returns the set of applications which currently have at least one
+open window in the given context.  The returned list will be sorted
+by shell_app_compare().</doc>
+        <return-value transfer-ownership="container">
+          <doc xml:space="preserve">Active applications</doc>
+          <type name="GLib.SList" c:type="GSList*">
+            <type name="App"/>
+          </type>
+        </return-value>
+        <parameters>
+          <instance-parameter name="self" transfer-ownership="none">
+            <doc xml:space="preserve">A #ShellAppSystem</doc>
+            <type name="AppSystem" c:type="ShellAppSystem*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="lookup_app" c:identifier="shell_app_system_lookup_app">
+        <doc xml:space="preserve">Find a #ShellApp corresponding to an id.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">The #ShellApp for id, or %NULL if none</doc>
+          <type name="App" c:type="ShellApp*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="system" transfer-ownership="none">
+            <type name="AppSystem" c:type="ShellAppSystem*"/>
+          </instance-parameter>
+          <parameter name="id" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="lookup_desktop_wmclass"
+              c:identifier="shell_app_system_lookup_desktop_wmclass">
+        <doc xml:space="preserve">Find a valid application whose .desktop file, without the extension
+and properly canonicalized, matches @wmclass.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">A #ShellApp for @wmclass</doc>
+          <type name="App" c:type="ShellApp*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="system" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellAppSystem</doc>
+            <type name="AppSystem" c:type="ShellAppSystem*"/>
+          </instance-parameter>
+          <parameter name="wmclass"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve">A WM_CLASS value</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="lookup_heuristic_basename"
+              c:identifier="shell_app_system_lookup_heuristic_basename">
+        <doc xml:space="preserve">Find a valid application corresponding to a given
+heuristically determined application identifier
+string, or %NULL if none.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">A #ShellApp for @name</doc>
+          <type name="App" c:type="ShellApp*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="system" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellAppSystem</doc>
+            <type name="AppSystem" c:type="ShellAppSystem*"/>
+          </instance-parameter>
+          <parameter name="id" transfer-ownership="none">
+            <doc xml:space="preserve">Probable application identifier</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="lookup_startup_wmclass"
+              c:identifier="shell_app_system_lookup_startup_wmclass">
+        <doc xml:space="preserve">Find a valid application whose .desktop file contains a
+StartupWMClass entry matching @wmclass.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">A #ShellApp for @wmclass</doc>
+          <type name="App" c:type="ShellApp*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="system" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellAppSystem</doc>
+            <type name="AppSystem" c:type="ShellAppSystem*"/>
+          </instance-parameter>
+          <parameter name="wmclass"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve">A WM_CLASS value</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <glib:signal name="app-state-changed" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="App"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="installed-changed" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+      </glib:signal>
+    </class>
+    <record name="AppSystemClass"
+            c:type="ShellAppSystemClass"
+            glib:is-gtype-struct-for="AppSystem">
+      <field name="parent_class">
+        <type name="GObject.ObjectClass" c:type="GObjectClass"/>
+      </field>
+    </record>
+    <class name="AppUsage"
+           c:symbol-prefix="app_usage"
+           c:type="ShellAppUsage"
+           parent="GObject.Object"
+           glib:type-name="ShellAppUsage"
+           glib:get-type="shell_app_usage_get_type"
+           glib:type-struct="AppUsageClass">
+      <function name="get_default" c:identifier="shell_app_usage_get_default">
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">The global #ShellAppUsage instance</doc>
+          <type name="AppUsage" c:type="ShellAppUsage*"/>
+        </return-value>
+      </function>
+      <method name="compare" c:identifier="shell_app_usage_compare">
+        <doc xml:space="preserve">Compare @id_a and @id_b based on frequency of use.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">-1 if @id_a ranks higher than @id_b, 1 if @id_b ranks higher
+         than @id_a, and 0 if both rank equally.</doc>
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="self" transfer-ownership="none">
+            <doc xml:space="preserve">the usage instance to request</doc>
+            <type name="AppUsage" c:type="ShellAppUsage*"/>
+          </instance-parameter>
+          <parameter name="context" transfer-ownership="none">
+            <doc xml:space="preserve">Activity identifier</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="id_a" transfer-ownership="none">
+            <doc xml:space="preserve">ID of first app</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="id_b" transfer-ownership="none">
+            <doc xml:space="preserve">ID of second app</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="get_most_used"
+              c:identifier="shell_app_usage_get_most_used">
+        <doc xml:space="preserve">Get a list of most popular applications for a given context.</doc>
+        <return-value transfer-ownership="full">
+          <doc xml:space="preserve">List of applications</doc>
+          <type name="GLib.SList" c:type="GSList*">
+            <type name="App"/>
+          </type>
+        </return-value>
+        <parameters>
+          <instance-parameter name="usage" transfer-ownership="none">
+            <doc xml:space="preserve">the usage instance to request</doc>
+            <type name="AppUsage" c:type="ShellAppUsage*"/>
+          </instance-parameter>
+          <parameter name="context" transfer-ownership="none">
+            <doc xml:space="preserve">Activity identifier</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+    </class>
+    <record name="AppUsageClass"
+            c:type="ShellAppUsageClass"
+            glib:is-gtype-struct-for="AppUsage">
+      <field name="parent_class">
+        <type name="GObject.ObjectClass" c:type="GObjectClass"/>
+      </field>
+    </record>
+    <class name="EmbeddedWindow"
+           c:symbol-prefix="embedded_window"
+           c:type="ShellEmbeddedWindow"
+           parent="Gtk.Window"
+           glib:type-name="ShellEmbeddedWindow"
+           glib:get-type="shell_embedded_window_get_type"
+           glib:type-struct="EmbeddedWindowClass">
+      <implements name="Atk.ImplementorIface"/>
+      <implements name="Gtk.Buildable"/>
+      <constructor name="new" c:identifier="shell_embedded_window_new">
+        <return-value transfer-ownership="none">
+          <type name="Gtk.Widget" c:type="GtkWidget*"/>
+        </return-value>
+      </constructor>
+      <field name="parent_instance">
+        <type name="Gtk.Window" c:type="GtkWindow"/>
+      </field>
+    </class>
+    <record name="EmbeddedWindowClass"
+            c:type="ShellEmbeddedWindowClass"
+            glib:is-gtype-struct-for="EmbeddedWindow">
+      <field name="parent_class">
+        <type name="Gtk.WindowClass" c:type="GtkWindowClass"/>
+      </field>
+    </record>
+    <class name="GLSLQuad"
+           c:symbol-prefix="glsl_quad"
+           c:type="ShellGLSLQuad"
+           parent="Clutter.Actor"
+           glib:type-name="ShellGLSLQuad"
+           glib:get-type="shell_glsl_quad_get_type"
+           glib:type-struct="GLSLQuadClass">
+      <implements name="Atk.ImplementorIface"/>
+      <implements name="Clutter.Animatable"/>
+      <implements name="Clutter.Container"/>
+      <implements name="Clutter.Scriptable"/>
+      <virtual-method name="build_pipeline">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="effect" transfer-ownership="none">
+            <type name="GLSLQuad" c:type="ShellGLSLQuad*"/>
+          </instance-parameter>
+        </parameters>
+      </virtual-method>
+      <method name="add_glsl_snippet"
+              c:identifier="shell_glsl_quad_add_glsl_snippet">
+        <doc xml:space="preserve">Adds a GLSL snippet to the pipeline used for drawing the actor texture.
+See #CoglSnippet for details.
+
+This is only valid inside the a call to the build_pipeline() virtual
+function.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="quad" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellGLSLQuad</doc>
+            <type name="GLSLQuad" c:type="ShellGLSLQuad*"/>
+          </instance-parameter>
+          <parameter name="hook" transfer-ownership="none">
+            <doc xml:space="preserve">where to insert the code</doc>
+            <type name="SnippetHook" c:type="ShellSnippetHook"/>
+          </parameter>
+          <parameter name="declarations" transfer-ownership="none">
+            <doc xml:space="preserve">GLSL declarations</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="code" transfer-ownership="none">
+            <doc xml:space="preserve">GLSL code</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="is_replace" transfer-ownership="none">
+            <doc xml:space="preserve">wheter Cogl code should be replaced by the custom shader</doc>
+            <type name="gboolean" c:type="gboolean"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="get_uniform_location"
+              c:identifier="shell_glsl_quad_get_uniform_location">
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">the location of the uniform named @name, that can be
+         passed to shell_glsl_quad_set_uniform_float().</doc>
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="quad" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellGLSLQuad</doc>
+            <type name="GLSLQuad" c:type="ShellGLSLQuad*"/>
+          </instance-parameter>
+          <parameter name="name" transfer-ownership="none">
+            <doc xml:space="preserve">the uniform name</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="set_uniform_float"
+              c:identifier="shell_glsl_quad_set_uniform_float">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="quad" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellGLSLQuad</doc>
+            <type name="GLSLQuad" c:type="ShellGLSLQuad*"/>
+          </instance-parameter>
+          <parameter name="uniform" transfer-ownership="none">
+            <doc xml:space="preserve">the uniform location (as returned by shell_glsl_quad_get_uniform_location())</doc>
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="n_components" transfer-ownership="none">
+            <doc xml:space="preserve">the number of components in the uniform (eg. 3 for a vec3)</doc>
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="total_count" transfer-ownership="none">
+            <doc xml:space="preserve">the total number of floats in @value</doc>
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="value" transfer-ownership="none">
+            <doc xml:space="preserve">the array of floats to set @uniform</doc>
+            <array length="2" zero-terminated="0" c:type="float*">
+              <type name="gfloat" c:type="float"/>
+            </array>
+          </parameter>
+        </parameters>
+      </method>
+      <field name="parent_instance">
+        <type name="Clutter.Actor" c:type="ClutterActor"/>
+      </field>
+    </class>
+    <record name="GLSLQuadClass"
+            c:type="ShellGLSLQuadClass"
+            glib:is-gtype-struct-for="GLSLQuad">
+      <field name="parent_class">
+        <type name="Clutter.ActorClass" c:type="ClutterActorClass"/>
+      </field>
+      <field name="base_pipeline" introspectable="0">
+        <type c:type="CoglPipeline*"/>
+      </field>
+      <field name="build_pipeline">
+        <callback name="build_pipeline">
+          <return-value transfer-ownership="none">
+            <type name="none" c:type="void"/>
+          </return-value>
+          <parameters>
+            <parameter name="effect" transfer-ownership="none">
+              <type name="GLSLQuad" c:type="ShellGLSLQuad*"/>
+            </parameter>
+          </parameters>
+        </callback>
+      </field>
+    </record>
+    <class name="GenericContainer"
+           c:symbol-prefix="generic_container"
+           c:type="ShellGenericContainer"
+           parent="St.Widget"
+           glib:type-name="ShellGenericContainer"
+           glib:get-type="shell_generic_container_get_type"
+           glib:type-struct="GenericContainerClass">
+      <implements name="Atk.ImplementorIface"/>
+      <implements name="Clutter.Animatable"/>
+      <implements name="Clutter.Container"/>
+      <implements name="Clutter.Scriptable"/>
+      <method name="get_n_skip_paint"
+              c:identifier="shell_generic_container_get_n_skip_paint">
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">Number of children which will not be painted.</doc>
+          <type name="guint" c:type="guint"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="self" transfer-ownership="none">
+            <doc xml:space="preserve">A #ShellGenericContainer</doc>
+            <type name="GenericContainer" c:type="ShellGenericContainer*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_skip_paint"
+              c:identifier="shell_generic_container_get_skip_paint">
+        <doc xml:space="preserve">Gets whether or not @actor is skipped when painting.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">%TRUE or %FALSE</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="self" transfer-ownership="none">
+            <doc xml:space="preserve">A #ShellGenericContainer</doc>
+            <type name="GenericContainer" c:type="ShellGenericContainer*"/>
+          </instance-parameter>
+          <parameter name="child" transfer-ownership="none">
+            <doc xml:space="preserve">Child #ClutterActor</doc>
+            <type name="Clutter.Actor" c:type="ClutterActor*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="set_skip_paint"
+              c:identifier="shell_generic_container_set_skip_paint">
+        <doc xml:space="preserve">Set whether or not we should skip painting @actor.  Workaround for
+lack of gjs ability to override _paint vfunc.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="self" transfer-ownership="none">
+            <doc xml:space="preserve">A #ShellGenericContainer</doc>
+            <type name="GenericContainer" c:type="ShellGenericContainer*"/>
+          </instance-parameter>
+          <parameter name="child" transfer-ownership="none">
+            <doc xml:space="preserve">Child #ClutterActor</doc>
+            <type name="Clutter.Actor" c:type="ClutterActor*"/>
+          </parameter>
+          <parameter name="skip" transfer-ownership="none">
+            <doc xml:space="preserve">%TRUE if we should skip painting</doc>
+            <type name="gboolean" c:type="gboolean"/>
+          </parameter>
+        </parameters>
+      </method>
+      <glib:signal name="allocate" when="last">
+        <doc xml:space="preserve">Emitted when @self is allocated, after chaining up to the parent
+allocate method.
+
+Note that @box is @self's content box (qv
+st_theme_node_get_content_box()), NOT its allocation.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="box" transfer-ownership="none">
+            <doc xml:space="preserve">@self's content box</doc>
+            <type name="Clutter.ActorBox"/>
+          </parameter>
+          <parameter name="flags" transfer-ownership="none">
+            <doc xml:space="preserve">the allocation flags.</doc>
+            <type name="Clutter.AllocationFlags"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="get-preferred-height" when="last">
+        <doc xml:space="preserve">Emitted when clutter_actor_get_preferred_height() is called
+on @self. You should fill in the fields of @alloc with the
+your minimum and natural heights. #ShellGenericContainer
+will deal with taking its borders and padding into account
+for you.
+
+@alloc's fields are initialized to 0, so unless you have a fixed
+height specified (via #ClutterActor:height or CSS), you must
+connect to this signal and fill in the values.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="for_width" transfer-ownership="none">
+            <doc xml:space="preserve">as in clutter_actor_get_preferred_height()</doc>
+            <type name="gfloat" c:type="gfloat"/>
+          </parameter>
+          <parameter name="alloc" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellGenericContainerAllocation to be filled in</doc>
+            <type name="GenericContainerAllocation"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="get-preferred-width" when="last">
+        <doc xml:space="preserve">Emitted when clutter_actor_get_preferred_width() is called
+on @self. You should fill in the fields of @alloc with the
+your minimum and natural widths. #ShellGenericContainer
+will deal with taking its borders and padding into account
+for you.
+
+@alloc's fields are initialized to 0, so unless you have a fixed
+width specified (via #ClutterActor:width or CSS), you must
+connect to this signal and fill in the values.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="for_height" transfer-ownership="none">
+            <doc xml:space="preserve">as in clutter_actor_get_preferred_width()</doc>
+            <type name="gfloat" c:type="gfloat"/>
+          </parameter>
+          <parameter name="alloc" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellGenericContainerAllocation to be filled in</doc>
+            <type name="GenericContainerAllocation"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+    </class>
+    <record name="GenericContainerAllocation"
+            c:type="ShellGenericContainerAllocation"
+            glib:type-name="ShellGenericContainerAllocation"
+            glib:get-type="shell_generic_container_allocation_get_type"
+            c:symbol-prefix="generic_container_allocation">
+      <field name="min_size" writable="1">
+        <type name="gfloat" c:type="float"/>
+      </field>
+      <field name="natural_size" writable="1">
+        <type name="gfloat" c:type="float"/>
+      </field>
+      <field name="_refcount" readable="0" private="1">
+        <type name="guint" c:type="guint"/>
+      </field>
+    </record>
+    <record name="GenericContainerClass"
+            c:type="ShellGenericContainerClass"
+            glib:is-gtype-struct-for="GenericContainer">
+      <field name="parent_class">
+        <type name="St.WidgetClass" c:type="StWidgetClass"/>
+      </field>
+    </record>
+    <class name="Global"
+           c:symbol-prefix="global"
+           c:type="ShellGlobal"
+           parent="GObject.Object"
+           glib:type-name="ShellGlobal"
+           glib:get-type="shell_global_get_type"
+           glib:type-struct="GlobalClass">
+      <function name="get" c:identifier="shell_global_get">
+        <doc xml:space="preserve">Gets the singleton global object that represents the desktop.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">the singleton global object</doc>
+          <type name="Global" c:type="ShellGlobal*"/>
+        </return-value>
+      </function>
+      <function name="log_structured"
+                c:identifier="shell_global_log_structured">
+        <doc xml:space="preserve">Log structured data in an operating-system specific fashion.  The
+parameter @opts should be an array of UTF-8 KEY=VALUE strings.
+This function does not support binary data.  See
+http://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html
+or more information about fields that can be used on a systemd
+system.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="message" transfer-ownership="none">
+            <doc xml:space="preserve">A message to print</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="keys"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve">Optional structured data</doc>
+            <array c:type="char**">
+              <type name="utf8"/>
+            </array>
+          </parameter>
+        </parameters>
+      </function>
+      <method name="begin_modal" c:identifier="shell_global_begin_modal">
+        <doc xml:space="preserve">Grabs the keyboard and mouse to the stage window. The stage will
+receive all keyboard and mouse events until shell_global_end_modal()
+is called. This is used to implement "modes" for the shell, such as the
+overview mode or the "looking glass" debug overlay, that block
+application and normal key shortcuts.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">%TRUE if we succesfully entered the mode. %FALSE if we couldn't
+ enter the mode. Failure may occur because an application has the pointer
+ or keyboard grabbed, because Mutter is in a mode itself like moving a
+ window or alt-Tab window selection, or because shell_global_begin_modal()
+ was previouly called.</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+          <parameter name="timestamp" transfer-ownership="none">
+            <type name="guint32" c:type="guint32"/>
+          </parameter>
+          <parameter name="options" transfer-ownership="none">
+            <type name="Meta.ModalOptions" c:type="MetaModalOptions"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="begin_work" c:identifier="shell_global_begin_work">
+        <doc xml:space="preserve">Marks that we are currently doing work. This is used to to track
+whether we are busy for the purposes of shell_global_run_at_leisure().
+A count is kept and shell_global_end_work() must be called exactly
+as many times as shell_global_begin_work().</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="cancel_theme_sound"
+              c:identifier="shell_global_cancel_theme_sound">
+        <doc xml:space="preserve">Cancels a sound notification.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+          <parameter name="id" transfer-ownership="none">
+            <doc xml:space="preserve">the id previously passed to shell_global_play_theme_sound()</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="create_app_launch_context"
+              c:identifier="shell_global_create_app_launch_context">
+        <doc xml:space="preserve">Create a #GAppLaunchContext set up with the correct timestamp, and
+targeted to activate on the current workspace.</doc>
+        <return-value transfer-ownership="full">
+          <doc xml:space="preserve">A new #GAppLaunchContext</doc>
+          <type name="Gio.AppLaunchContext" c:type="GAppLaunchContext*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">A #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+          <parameter name="timestamp" transfer-ownership="none">
+            <doc xml:space="preserve">the timestamp for the launch (or 0 for current time)</doc>
+            <type name="guint32" c:type="guint32"/>
+          </parameter>
+          <parameter name="workspace" transfer-ownership="none">
+            <doc xml:space="preserve">a workspace index, or -1 to indicate the current one</doc>
+            <type name="gint" c:type="int"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="end_modal" c:identifier="shell_global_end_modal">
+        <doc xml:space="preserve">Undoes the effect of shell_global_begin_modal().</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+          <parameter name="timestamp" transfer-ownership="none">
+            <type name="guint32" c:type="guint32"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="end_work" c:identifier="shell_global_end_work">
+        <doc xml:space="preserve">Marks the end of work that we started with shell_global_begin_work().
+If no other work is ongoing and functions have been added with
+shell_global_run_at_leisure(), they will be run at the next
+opportunity.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_current_time"
+              c:identifier="shell_global_get_current_time">
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">the current X server time from the current Clutter, Gdk, or X
+event. If called from outside an event handler, this may return
+%Clutter.CURRENT_TIME (aka 0), or it may return a slightly
+out-of-date timestamp.</doc>
+          <type name="guint32" c:type="guint32"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">A #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_display" c:identifier="shell_global_get_display">
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">The default #MetaDisplay</doc>
+          <type name="Meta.Display" c:type="MetaDisplay*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_overrides_settings"
+              c:identifier="shell_global_get_overrides_settings">
+        <doc xml:space="preserve">Get the session overrides GSettings instance.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">The GSettings object</doc>
+          <type name="Gio.Settings" c:type="GSettings*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">A #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_persistent_state"
+              c:identifier="shell_global_get_persistent_state">
+        <doc xml:space="preserve">The shell maintains "persistent" state which will persist after
+logout or reboot.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">The value of a serialized property, or %NULL if none stored</doc>
+          <type name="GLib.Variant" c:type="GVariant*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+          <parameter name="property_type" transfer-ownership="none">
+            <doc xml:space="preserve">Expected data type</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="property_name" transfer-ownership="none">
+            <doc xml:space="preserve">Name of the property</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="get_pointer" c:identifier="shell_global_get_pointer">
+        <doc xml:space="preserve">Gets the pointer coordinates and current modifier key state.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+          <parameter name="x"
+                     direction="out"
+                     caller-allocates="0"
+                     transfer-ownership="full">
+            <doc xml:space="preserve">the X coordinate of the pointer, in global coordinates</doc>
+            <type name="gint" c:type="int*"/>
+          </parameter>
+          <parameter name="y"
+                     direction="out"
+                     caller-allocates="0"
+                     transfer-ownership="full">
+            <doc xml:space="preserve">the Y coordinate of the pointer, in global coordinates</doc>
+            <type name="gint" c:type="int*"/>
+          </parameter>
+          <parameter name="mods"
+                     direction="out"
+                     caller-allocates="0"
+                     transfer-ownership="full">
+            <doc xml:space="preserve">the current set of modifier keys that are pressed down</doc>
+            <type name="Clutter.ModifierType" c:type="ClutterModifierType*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="get_runtime_state"
+              c:identifier="shell_global_get_runtime_state">
+        <doc xml:space="preserve">The shell maintains "runtime" state which does not persist across
+logout or reboot.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">The value of a serialized property, or %NULL if none stored</doc>
+          <type name="GLib.Variant" c:type="GVariant*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+          <parameter name="property_type" transfer-ownership="none">
+            <doc xml:space="preserve">Expected data type</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="property_name" transfer-ownership="none">
+            <doc xml:space="preserve">Name of the property</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="get_screen" c:identifier="shell_global_get_screen">
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">The default #MetaScreen</doc>
+          <type name="Meta.Screen" c:type="MetaScreen*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_session_mode"
+              c:identifier="shell_global_get_session_mode">
+        <return-value transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_settings" c:identifier="shell_global_get_settings">
+        <doc xml:space="preserve">Get the global GSettings instance.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">The GSettings object</doc>
+          <type name="Gio.Settings" c:type="GSettings*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">A #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_stage" c:identifier="shell_global_get_stage">
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">The default #ClutterStage</doc>
+          <type name="Clutter.Stage" c:type="ClutterStage*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_window_actors"
+              c:identifier="shell_global_get_window_actors">
+        <doc xml:space="preserve">Gets the list of #MetaWindowActor for the plugin's screen</doc>
+        <return-value transfer-ownership="container">
+          <doc xml:space="preserve">the list of windows</doc>
+          <type name="GLib.List" c:type="GList*">
+            <type name="Meta.WindowActor"/>
+          </type>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="init_xdnd" c:identifier="shell_global_init_xdnd">
+        <doc xml:space="preserve">Enables tracking of Xdnd events</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="notify_error" c:identifier="shell_global_notify_error">
+        <doc xml:space="preserve">Show a system error notification.  Use this function
+when a user-initiated action results in a non-fatal problem
+from causes that may not be under system control.  For
+example, an application crash.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+          <parameter name="msg" transfer-ownership="none">
+            <doc xml:space="preserve">Error message</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="details" transfer-ownership="none">
+            <doc xml:space="preserve">Error details</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="play_sound_file"
+              c:identifier="shell_global_play_sound_file">
+        <doc xml:space="preserve">Like shell_global_play_theme_sound(), but with an explicit path
+instead of a themed sound.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+          <parameter name="id" transfer-ownership="none">
+            <doc xml:space="preserve">an id, used to cancel later (0 if not needed)</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+          <parameter name="file_name" transfer-ownership="none">
+            <doc xml:space="preserve">the file name to play</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="description" transfer-ownership="none">
+            <doc xml:space="preserve">the localized description of the event that triggered this alert</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="for_event"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve">a #ClutterEvent in response to which the sound is played</doc>
+            <type name="Clutter.Event" c:type="ClutterEvent*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="play_sound_file_full"
+              c:identifier="shell_global_play_sound_file_full">
+        <doc xml:space="preserve">Like shell_global_play_theme_sound_full(), but with an explicit path
+instead of a themed sound.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+          <parameter name="id" transfer-ownership="none">
+            <doc xml:space="preserve">an id, used to cancel later (0 if not needed)</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+          <parameter name="file_name" transfer-ownership="none">
+            <doc xml:space="preserve">the file name to play</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="description" transfer-ownership="none">
+            <doc xml:space="preserve">the localized description of the event that triggered this alert</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="for_event"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve">a #ClutterEvent in response to which the sound is played</doc>
+            <type name="Clutter.Event" c:type="ClutterEvent*"/>
+          </parameter>
+          <parameter name="application_id" transfer-ownership="none">
+            <doc xml:space="preserve">application on behalf of which the sound is played</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="application_name" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="play_theme_sound"
+              c:identifier="shell_global_play_theme_sound">
+        <doc xml:space="preserve">Plays a simple sound picked according to Freedesktop sound theme.
+Really just a workaround for libcanberra not being introspected.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+          <parameter name="id" transfer-ownership="none">
+            <doc xml:space="preserve">an id, used to cancel later (0 if not needed)</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+          <parameter name="name" transfer-ownership="none">
+            <doc xml:space="preserve">the sound name</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="description" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="for_event"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve">a #ClutterEvent in response to which the sound is played</doc>
+            <type name="Clutter.Event" c:type="ClutterEvent*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="play_theme_sound_full"
+              c:identifier="shell_global_play_theme_sound_full">
+        <doc xml:space="preserve">Plays a simple sound picked according to Freedesktop sound theme.
+Really just a workaround for libcanberra not being introspected.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+          <parameter name="id" transfer-ownership="none">
+            <doc xml:space="preserve">an id, used to cancel later (0 if not needed)</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+          <parameter name="name" transfer-ownership="none">
+            <doc xml:space="preserve">the sound name</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="description" transfer-ownership="none">
+            <doc xml:space="preserve">the localized description of the event that triggered this alert</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="for_event"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve">a #ClutterEvent in response to which the sound is played</doc>
+            <type name="Clutter.Event" c:type="ClutterEvent*"/>
+          </parameter>
+          <parameter name="application_id" transfer-ownership="none">
+            <doc xml:space="preserve">application on behalf of which the sound is played</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="application_name" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="reexec_self" c:identifier="shell_global_reexec_self">
+        <doc xml:space="preserve">Restart the current process.  Only intended for development purposes.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">A #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="run_at_leisure" c:identifier="shell_global_run_at_leisure">
+        <doc xml:space="preserve">Schedules a function to be called the next time the shell is idle.
+Idle means here no animations, no redrawing, and no ongoing background
+work. Since there is currently no way to hook into the Clutter master
+clock and know when is running, the implementation here is somewhat
+approximation. Animations done through the shell's Tweener module will
+be handled properly, but other animations may be detected as terminating
+early if they can be drawn fast enough so that the event loop goes idle
+between frames.
+
+The intent of this function is for performance measurement runs
+where a number of actions should be run serially and each action is
+timed individually. Using this function for other purposes will
+interfere with the ability to use it for performance measurement so
+should be avoided.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+          <parameter name="func"
+                     transfer-ownership="none"
+                     scope="notified"
+                     closure="1"
+                     destroy="2">
+            <doc xml:space="preserve">function to call at leisure</doc>
+            <type name="LeisureFunction" c:type="ShellLeisureFunction"/>
+          </parameter>
+          <parameter name="user_data"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve">data to pass to @func</doc>
+            <type name="gpointer" c:type="gpointer"/>
+          </parameter>
+          <parameter name="notify" transfer-ownership="none" scope="async">
+            <doc xml:space="preserve">function to call to free @user_data</doc>
+            <type name="GLib.DestroyNotify" c:type="GDestroyNotify"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="set_persistent_state"
+              c:identifier="shell_global_set_persistent_state">
+        <doc xml:space="preserve">Change the value of serialized persistent state.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+          <parameter name="property_name" transfer-ownership="none">
+            <doc xml:space="preserve">Name of the property</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="variant"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve">A #GVariant, or %NULL to unset</doc>
+            <type name="GLib.Variant" c:type="GVariant*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="set_runtime_state"
+              c:identifier="shell_global_set_runtime_state">
+        <doc xml:space="preserve">Change the value of serialized runtime state.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+          <parameter name="property_name" transfer-ownership="none">
+            <doc xml:space="preserve">Name of the property</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="variant"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve">A #GVariant, or %NULL to unset</doc>
+            <type name="GLib.Variant" c:type="GVariant*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="set_stage_input_region"
+              c:identifier="shell_global_set_stage_input_region">
+        <doc xml:space="preserve">Sets the area of the stage that is responsive to mouse clicks when
+we don't have a modal or grab.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+          <parameter name="rectangles" transfer-ownership="none">
+            <doc xml:space="preserve">a list of #MetaRectangle
+describing the input region.</doc>
+            <type name="GLib.SList" c:type="GSList*">
+              <type name="Meta.Rectangle"/>
+            </type>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="sync_pointer" c:identifier="shell_global_sync_pointer">
+        <doc xml:space="preserve">Ensures that clutter is aware of the current pointer position,
+causing enter and leave events to be emitted if the pointer moved
+behind our back (ie, during a pointer grab).</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="global" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellGlobal</doc>
+            <type name="Global" c:type="ShellGlobal*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <property name="datadir" transfer-ownership="none">
+        <type name="utf8" c:type="gchar*"/>
+      </property>
+      <property name="display" transfer-ownership="none">
+        <type name="Meta.Display"/>
+      </property>
+      <property name="focus-manager" transfer-ownership="none">
+        <type name="St.FocusManager"/>
+      </property>
+      <property name="frame-finish-timestamp"
+                writable="1"
+                transfer-ownership="none">
+        <type name="gboolean" c:type="gboolean"/>
+      </property>
+      <property name="frame-timestamps" writable="1" transfer-ownership="none">
+        <type name="gboolean" c:type="gboolean"/>
+      </property>
+      <property name="imagedir" transfer-ownership="none">
+        <type name="utf8" c:type="gchar*"/>
+      </property>
+      <property name="screen" transfer-ownership="none">
+        <type name="Meta.Screen"/>
+      </property>
+      <property name="screen-height" transfer-ownership="none">
+        <type name="gint" c:type="gint"/>
+      </property>
+      <property name="screen-width" transfer-ownership="none">
+        <type name="gint" c:type="gint"/>
+      </property>
+      <property name="session-mode"
+                writable="1"
+                construct-only="1"
+                transfer-ownership="none">
+        <type name="utf8" c:type="gchar*"/>
+      </property>
+      <property name="settings" transfer-ownership="none">
+        <type name="Gio.Settings"/>
+      </property>
+      <property name="stage" transfer-ownership="none">
+        <type name="Clutter.Actor"/>
+      </property>
+      <property name="top-window-group" transfer-ownership="none">
+        <type name="Clutter.Actor"/>
+      </property>
+      <property name="userdatadir" transfer-ownership="none">
+        <type name="utf8" c:type="gchar*"/>
+      </property>
+      <property name="window-group" transfer-ownership="none">
+        <type name="Clutter.Actor"/>
+      </property>
+      <property name="window-manager" transfer-ownership="none">
+        <type name="WM"/>
+      </property>
+      <glib:signal name="notify-error" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+          <parameter name="p0" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+    </class>
+    <record name="GlobalClass"
+            c:type="ShellGlobalClass"
+            glib:is-gtype-struct-for="Global">
+      <field name="parent_class">
+        <type name="GObject.ObjectClass" c:type="GObjectClass"/>
+      </field>
+    </record>
+    <class name="GtkEmbed"
+           c:symbol-prefix="gtk_embed"
+           c:type="ShellGtkEmbed"
+           parent="Clutter.Clone"
+           glib:type-name="ShellGtkEmbed"
+           glib:get-type="shell_gtk_embed_get_type"
+           glib:type-struct="GtkEmbedClass">
+      <implements name="Atk.ImplementorIface"/>
+      <implements name="Clutter.Animatable"/>
+      <implements name="Clutter.Container"/>
+      <implements name="Clutter.Scriptable"/>
+      <constructor name="new" c:identifier="shell_gtk_embed_new">
+        <return-value transfer-ownership="none">
+          <type name="Clutter.Actor" c:type="ClutterActor*"/>
+        </return-value>
+        <parameters>
+          <parameter name="window" transfer-ownership="none">
+            <type name="EmbeddedWindow" c:type="ShellEmbeddedWindow*"/>
+          </parameter>
+        </parameters>
+      </constructor>
+      <property name="window"
+                writable="1"
+                construct-only="1"
+                transfer-ownership="none">
+        <type name="EmbeddedWindow"/>
+      </property>
+      <field name="parent_instance">
+        <type name="Clutter.Clone" c:type="ClutterClone"/>
+      </field>
+    </class>
+    <record name="GtkEmbedClass"
+            c:type="ShellGtkEmbedClass"
+            glib:is-gtype-struct-for="GtkEmbed">
+      <field name="parent_class">
+        <type name="Clutter.CloneClass" c:type="ClutterCloneClass"/>
+      </field>
+    </record>
+    <class name="InvertLightnessEffect"
+           c:symbol-prefix="invert_lightness_effect"
+           c:type="ShellInvertLightnessEffect"
+           parent="Clutter.OffscreenEffect"
+           glib:type-name="ShellInvertLightnessEffect"
+           glib:get-type="shell_invert_lightness_effect_get_type"
+           glib:type-struct="InvertLightnessEffectClass">
+      <constructor name="new" c:identifier="shell_invert_lightness_effect_new">
+        <doc xml:space="preserve">Creates a new #ShellInvertLightnessEffect to be used with
+clutter_actor_add_effect()</doc>
+        <return-value transfer-ownership="full">
+          <doc xml:space="preserve">the newly created
+#ShellInvertLightnessEffect or %NULL.  Use g_object_unref() when done.</doc>
+          <type name="Clutter.Effect" c:type="ClutterEffect*"/>
+        </return-value>
+      </constructor>
+    </class>
+    <record name="InvertLightnessEffectClass"
+            c:type="ShellInvertLightnessEffectClass"
+            disguised="1"
+            glib:is-gtype-struct-for="InvertLightnessEffect">
+    </record>
+    <constant name="KEYRING_SK_TAG"
+              value="setting-key"
+              c:type="SHELL_KEYRING_SK_TAG">
+      <type name="utf8" c:type="gchar*"/>
+    </constant>
+    <constant name="KEYRING_SN_TAG"
+              value="setting-name"
+              c:type="SHELL_KEYRING_SN_TAG">
+      <type name="utf8" c:type="gchar*"/>
+    </constant>
+    <constant name="KEYRING_UUID_TAG"
+              value="connection-uuid"
+              c:type="SHELL_KEYRING_UUID_TAG">
+      <type name="utf8" c:type="gchar*"/>
+    </constant>
+    <class name="KeyringPrompt"
+           c:symbol-prefix="keyring_prompt"
+           c:type="ShellKeyringPrompt"
+           parent="GObject.Object"
+           glib:type-name="ShellKeyringPrompt"
+           glib:get-type="shell_keyring_prompt_get_type"
+           glib:type-struct="KeyringPromptClass">
+      <constructor name="new" c:identifier="shell_keyring_prompt_new">
+        <doc xml:space="preserve">Create new internal prompt base</doc>
+        <return-value transfer-ownership="full">
+          <doc xml:space="preserve">new internal prompt</doc>
+          <type name="KeyringPrompt" c:type="ShellKeyringPrompt*"/>
+        </return-value>
+      </constructor>
+      <method name="cancel" c:identifier="shell_keyring_prompt_cancel">
+        <doc xml:space="preserve">Called by implementation when the prompt is cancelled.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="self" transfer-ownership="none">
+            <doc xml:space="preserve">the internal prompt</doc>
+            <type name="KeyringPrompt" c:type="ShellKeyringPrompt*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="complete" c:identifier="shell_keyring_prompt_complete">
+        <doc xml:space="preserve">Called by the implementation when the prompt completes. There are various
+checks done. %TRUE is returned if the prompt actually should complete.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">whether the prompt completed</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="self" transfer-ownership="none">
+            <doc xml:space="preserve">the internal prompt</doc>
+            <type name="KeyringPrompt" c:type="ShellKeyringPrompt*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_confirm_actor"
+              c:identifier="shell_keyring_prompt_get_confirm_actor">
+        <doc xml:space="preserve">Get the prompt password text actor</doc>
+        <return-value transfer-ownership="none" nullable="1">
+          <doc xml:space="preserve">the password actor</doc>
+          <type name="Clutter.Text" c:type="ClutterText*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="self" transfer-ownership="none">
+            <doc xml:space="preserve">the internal prompt</doc>
+            <type name="KeyringPrompt" c:type="ShellKeyringPrompt*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_password_actor"
+              c:identifier="shell_keyring_prompt_get_password_actor">
+        <doc xml:space="preserve">Get the prompt password text actor</doc>
+        <return-value transfer-ownership="none" nullable="1">
+          <doc xml:space="preserve">the password actor</doc>
+          <type name="Clutter.Text" c:type="ClutterText*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="self" transfer-ownership="none">
+            <doc xml:space="preserve">the internal prompt</doc>
+            <type name="KeyringPrompt" c:type="ShellKeyringPrompt*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="set_confirm_actor"
+              c:identifier="shell_keyring_prompt_set_confirm_actor">
+        <doc xml:space="preserve">Set the prompt password confirmation text actor</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="self" transfer-ownership="none">
+            <doc xml:space="preserve">the internal prompt</doc>
+            <type name="KeyringPrompt" c:type="ShellKeyringPrompt*"/>
+          </instance-parameter>
+          <parameter name="confirm_actor"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve">the confirm password actor</doc>
+            <type name="Clutter.Text" c:type="ClutterText*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="set_password_actor"
+              c:identifier="shell_keyring_prompt_set_password_actor">
+        <doc xml:space="preserve">Set the prompt password text actor</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="self" transfer-ownership="none">
+            <doc xml:space="preserve">the internal prompt</doc>
+            <type name="KeyringPrompt" c:type="ShellKeyringPrompt*"/>
+          </instance-parameter>
+          <parameter name="password_actor"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve">the password actor</doc>
+            <type name="Clutter.Text" c:type="ClutterText*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <property name="choice-visible" transfer-ownership="none">
+        <doc xml:space="preserve">Whether the choice check box is visible or not.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </property>
+      <property name="confirm-actor" writable="1" transfer-ownership="none">
+        <doc xml:space="preserve">Text field for confirmation password</doc>
+        <type name="Clutter.Text"/>
+      </property>
+      <property name="confirm-visible" transfer-ownership="none">
+        <doc xml:space="preserve">Whether the password confirm entry is visible or not.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </property>
+      <property name="password-actor" writable="1" transfer-ownership="none">
+        <doc xml:space="preserve">Text field for password</doc>
+        <type name="Clutter.Text"/>
+      </property>
+      <property name="password-visible" transfer-ownership="none">
+        <doc xml:space="preserve">Whether the password entry is visible or not.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </property>
+      <property name="warning-visible" transfer-ownership="none">
+        <doc xml:space="preserve">Whether the warning label is visible or not.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </property>
+      <glib:signal name="show-confirm">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+      </glib:signal>
+      <glib:signal name="show-password">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+      </glib:signal>
+    </class>
+    <record name="KeyringPromptClass"
+            c:type="ShellKeyringPromptClass"
+            glib:is-gtype-struct-for="KeyringPrompt">
+      <field name="parent_class">
+        <type name="GObject.ObjectClass" c:type="GObjectClass"/>
+      </field>
+    </record>
+    <callback name="LeisureFunction" c:type="ShellLeisureFunction">
+      <return-value transfer-ownership="none">
+        <type name="none" c:type="void"/>
+      </return-value>
+      <parameters>
+        <parameter name="data"
+                   transfer-ownership="none"
+                   nullable="1"
+                   allow-none="1">
+          <type name="gpointer" c:type="gpointer"/>
+        </parameter>
+      </parameters>
+    </callback>
+    <record name="MemoryInfo" c:type="ShellMemoryInfo">
+      <field name="glibc_uordblks" writable="1">
+        <type name="guint" c:type="guint"/>
+      </field>
+      <field name="js_bytes" writable="1">
+        <type name="guint" c:type="guint"/>
+      </field>
+      <field name="gjs_boxed" writable="1">
+        <type name="guint" c:type="guint"/>
+      </field>
+      <field name="gjs_gobject" writable="1">
+        <type name="guint" c:type="guint"/>
+      </field>
+      <field name="gjs_function" writable="1">
+        <type name="guint" c:type="guint"/>
+      </field>
+      <field name="gjs_closure" writable="1">
+        <type name="guint" c:type="guint"/>
+      </field>
+      <field name="last_gc_seconds_ago" writable="1">
+        <type name="guint" c:type="guint"/>
+      </field>
+    </record>
+    <record name="MenuTracker"
+            c:type="ShellMenuTracker"
+            glib:type-name="ShellMenuTracker"
+            glib:get-type="shell_menu_tracker_get_type"
+            c:symbol-prefix="menu_tracker">
+      <constructor name="new" c:identifier="shell_menu_tracker_new">
+        <return-value transfer-ownership="full">
+          <type name="MenuTracker" c:type="ShellMenuTracker*"/>
+        </return-value>
+        <parameters>
+          <parameter name="observable" transfer-ownership="none">
+            <type name="ShellMenu.ActionObservable"
+                  c:type="GtkActionObservable*"/>
+          </parameter>
+          <parameter name="model" transfer-ownership="none">
+            <type name="Gio.MenuModel" c:type="GMenuModel*"/>
+          </parameter>
+          <parameter name="action_namespace"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <type name="utf8" c:type="const gchar*"/>
+          </parameter>
+          <parameter name="insert_func"
+                     transfer-ownership="none"
+                     scope="notified"
+                     closure="4"
+                     destroy="5">
+            <type name="MenuTrackerInsertFunc"
+                  c:type="ShellMenuTrackerInsertFunc"/>
+          </parameter>
+          <parameter name="insert_user_data"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <type name="gpointer" c:type="gpointer"/>
+          </parameter>
+          <parameter name="insert_notify"
+                     transfer-ownership="none"
+                     scope="async">
+            <type name="GLib.DestroyNotify" c:type="GDestroyNotify"/>
+          </parameter>
+          <parameter name="remove_func"
+                     transfer-ownership="none"
+                     scope="notified"
+                     closure="7"
+                     destroy="8">
+            <type name="MenuTrackerRemoveFunc"
+                  c:type="ShellMenuTrackerRemoveFunc"/>
+          </parameter>
+          <parameter name="remove_user_data"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <type name="gpointer" c:type="gpointer"/>
+          </parameter>
+          <parameter name="remove_notify"
+                     transfer-ownership="none"
+                     scope="async">
+            <type name="GLib.DestroyNotify" c:type="GDestroyNotify"/>
+          </parameter>
+        </parameters>
+      </constructor>
+      <constructor name="new_for_item_submenu"
+                   c:identifier="shell_menu_tracker_new_for_item_submenu">
+        <return-value transfer-ownership="full">
+          <type name="MenuTracker" c:type="ShellMenuTracker*"/>
+        </return-value>
+        <parameters>
+          <parameter name="item" transfer-ownership="none">
+            <type name="ShellMenu.MenuTrackerItem"
+                  c:type="GtkMenuTrackerItem*"/>
+          </parameter>
+          <parameter name="insert_func"
+                     transfer-ownership="none"
+                     scope="notified"
+                     closure="2"
+                     destroy="3">
+            <type name="MenuTrackerInsertFunc"
+                  c:type="ShellMenuTrackerInsertFunc"/>
+          </parameter>
+          <parameter name="insert_user_data"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <type name="gpointer" c:type="gpointer"/>
+          </parameter>
+          <parameter name="insert_notify"
+                     transfer-ownership="none"
+                     scope="async">
+            <type name="GLib.DestroyNotify" c:type="GDestroyNotify"/>
+          </parameter>
+          <parameter name="remove_func"
+                     transfer-ownership="none"
+                     scope="notified"
+                     closure="5"
+                     destroy="6">
+            <type name="MenuTrackerRemoveFunc"
+                  c:type="ShellMenuTrackerRemoveFunc"/>
+          </parameter>
+          <parameter name="remove_user_data"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <type name="gpointer" c:type="gpointer"/>
+          </parameter>
+          <parameter name="remove_notify"
+                     transfer-ownership="none"
+                     scope="async">
+            <type name="GLib.DestroyNotify" c:type="GDestroyNotify"/>
+          </parameter>
+        </parameters>
+      </constructor>
+      <method name="destroy" c:identifier="shell_menu_tracker_destroy">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="tracker" transfer-ownership="none">
+            <type name="MenuTracker" c:type="ShellMenuTracker*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="ref" c:identifier="shell_menu_tracker_ref">
+        <return-value transfer-ownership="full">
+          <type name="MenuTracker" c:type="ShellMenuTracker*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="tracker" transfer-ownership="none">
+            <type name="MenuTracker" c:type="ShellMenuTracker*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="unref" c:identifier="shell_menu_tracker_unref">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="tracker" transfer-ownership="none">
+            <type name="MenuTracker" c:type="ShellMenuTracker*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+    </record>
+    <callback name="MenuTrackerInsertFunc" c:type="ShellMenuTrackerInsertFunc">
+      <return-value transfer-ownership="none">
+        <type name="none" c:type="void"/>
+      </return-value>
+      <parameters>
+        <parameter name="item" transfer-ownership="none">
+          <type name="ShellMenu.MenuTrackerItem" c:type="GtkMenuTrackerItem*"/>
+        </parameter>
+        <parameter name="position" transfer-ownership="none">
+          <type name="gint" c:type="gint"/>
+        </parameter>
+        <parameter name="user_data"
+                   transfer-ownership="none"
+                   nullable="1"
+                   allow-none="1"
+                   closure="2">
+          <type name="gpointer" c:type="gpointer"/>
+        </parameter>
+      </parameters>
+    </callback>
+    <callback name="MenuTrackerRemoveFunc" c:type="ShellMenuTrackerRemoveFunc">
+      <return-value transfer-ownership="none">
+        <type name="none" c:type="void"/>
+      </return-value>
+      <parameters>
+        <parameter name="position" transfer-ownership="none">
+          <type name="gint" c:type="gint"/>
+        </parameter>
+        <parameter name="user_data"
+                   transfer-ownership="none"
+                   nullable="1"
+                   allow-none="1"
+                   closure="1">
+          <type name="gpointer" c:type="gpointer"/>
+        </parameter>
+      </parameters>
+    </callback>
+    <class name="MountOperation"
+           c:symbol-prefix="mount_operation"
+           c:type="ShellMountOperation"
+           parent="Gio.MountOperation"
+           glib:type-name="ShellMountOperation"
+           glib:get-type="shell_mount_operation_get_type"
+           glib:type-struct="MountOperationClass">
+      <constructor name="new" c:identifier="shell_mount_operation_new">
+        <return-value transfer-ownership="full">
+          <type name="Gio.MountOperation" c:type="GMountOperation*"/>
+        </return-value>
+      </constructor>
+      <method name="get_show_processes_choices"
+              c:identifier="shell_mount_operation_get_show_processes_choices">
+        <return-value transfer-ownership="full">
+          <array c:type="gchar**">
+            <type name="utf8"/>
+          </array>
+        </return-value>
+        <parameters>
+          <instance-parameter name="self" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellMountOperation</doc>
+            <type name="MountOperation" c:type="ShellMountOperation*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_show_processes_message"
+              c:identifier="shell_mount_operation_get_show_processes_message">
+        <return-value transfer-ownership="full">
+          <type name="utf8" c:type="gchar*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="self" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellMountOperation</doc>
+            <type name="MountOperation" c:type="ShellMountOperation*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_show_processes_pids"
+              c:identifier="shell_mount_operation_get_show_processes_pids">
+        <return-value transfer-ownership="full">
+          <doc xml:space="preserve">a #GArray</doc>
+          <array name="GLib.Array" c:type="GArray*">
+            <type name="GLib.Pid"/>
+          </array>
+        </return-value>
+        <parameters>
+          <instance-parameter name="self" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellMountOperation</doc>
+            <type name="MountOperation" c:type="ShellMountOperation*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <glib:signal name="show-processes-2" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+      </glib:signal>
+    </class>
+    <record name="MountOperationClass"
+            c:type="ShellMountOperationClass"
+            glib:is-gtype-struct-for="MountOperation">
+      <field name="parent_class">
+        <type name="Gio.MountOperationClass" c:type="GMountOperationClass"/>
+      </field>
+    </record>
+    <class name="NetworkAgent"
+           c:symbol-prefix="network_agent"
+           c:type="ShellNetworkAgent"
+           parent="NM.SecretAgentOld"
+           glib:type-name="ShellNetworkAgent"
+           glib:get-type="shell_network_agent_get_type"
+           glib:type-struct="NetworkAgentClass">
+      <implements name="Gio.AsyncInitable"/>
+      <implements name="Gio.Initable"/>
+      <method name="respond" c:identifier="shell_network_agent_respond">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="self" transfer-ownership="none">
+            <type name="NetworkAgent" c:type="ShellNetworkAgent*"/>
+          </instance-parameter>
+          <parameter name="request_id" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+          <parameter name="response" transfer-ownership="none">
+            <type name="NetworkAgentResponse"
+                  c:type="ShellNetworkAgentResponse"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="set_password"
+              c:identifier="shell_network_agent_set_password">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="self" transfer-ownership="none">
+            <type name="NetworkAgent" c:type="ShellNetworkAgent*"/>
+          </instance-parameter>
+          <parameter name="request_id" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+          <parameter name="setting_key" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+          <parameter name="setting_value" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <field name="parent_instance" readable="0" private="1">
+        <type name="NM.SecretAgentOld" c:type="NMSecretAgentOld"/>
+      </field>
+      <field name="priv" readable="0" private="1">
+        <type name="NetworkAgentPrivate" c:type="ShellNetworkAgentPrivate*"/>
+      </field>
+      <glib:signal name="cancel-request">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="new-request">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+          <parameter name="p0" transfer-ownership="none">
+            <type name="NM.Connection"/>
+          </parameter>
+          <parameter name="p1" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+          <parameter name="p2" transfer-ownership="none">
+            <array>
+              <type name="utf8"/>
+            </array>
+          </parameter>
+          <parameter name="p3" transfer-ownership="none">
+            <type name="gint" c:type="gint"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+    </class>
+    <record name="NetworkAgentClass"
+            c:type="ShellNetworkAgentClass"
+            glib:is-gtype-struct-for="NetworkAgent">
+      <field name="parent_class" readable="0" private="1">
+        <type name="NM.SecretAgentOldClass" c:type="NMSecretAgentOldClass"/>
+      </field>
+    </record>
+    <record name="NetworkAgentPrivate"
+            c:type="ShellNetworkAgentPrivate"
+            disguised="1">
+    </record>
+    <enumeration name="NetworkAgentResponse"
+                 glib:type-name="ShellNetworkAgentResponse"
+                 glib:get-type="shell_network_agent_response_get_type"
+                 c:type="ShellNetworkAgentResponse">
+      <member name="confirmed"
+              value="0"
+              c:identifier="SHELL_NETWORK_AGENT_CONFIRMED"
+              glib:nick="confirmed">
+      </member>
+      <member name="user_canceled"
+              value="1"
+              c:identifier="SHELL_NETWORK_AGENT_USER_CANCELED"
+              glib:nick="user-canceled">
+      </member>
+      <member name="internal_error"
+              value="2"
+              c:identifier="SHELL_NETWORK_AGENT_INTERNAL_ERROR"
+              glib:nick="internal-error">
+      </member>
+    </enumeration>
+    <class name="PerfLog"
+           c:symbol-prefix="perf_log"
+           c:type="ShellPerfLog"
+           parent="GObject.Object"
+           glib:type-name="ShellPerfLog"
+           glib:get-type="shell_perf_log_get_type"
+           glib:type-struct="PerfLogClass">
+      <function name="get_default" c:identifier="shell_perf_log_get_default">
+        <doc xml:space="preserve">Gets the global singleton performance log. This is initially disabled
+and must be explicitly enabled with shell_perf_log_set_enabled().</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">the global singleton performance log</doc>
+          <type name="PerfLog" c:type="ShellPerfLog*"/>
+        </return-value>
+      </function>
+      <method name="add_statistics_callback"
+              c:identifier="shell_perf_log_add_statistics_callback">
+        <doc xml:space="preserve">Adds a function that will be called before statistics are recorded.
+The function would typically compute one or more statistics values
+and call a function such as shell_perf_log_update_statistic_i()
+to update the value that will be recorded.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="perf_log" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellPerfLog</doc>
+            <type name="PerfLog" c:type="ShellPerfLog*"/>
+          </instance-parameter>
+          <parameter name="callback"
+                     transfer-ownership="none"
+                     scope="notified"
+                     closure="1"
+                     destroy="2">
+            <doc xml:space="preserve">function to call before recording statistics</doc>
+            <type name="PerfStatisticsCallback"
+                  c:type="ShellPerfStatisticsCallback"/>
+          </parameter>
+          <parameter name="user_data"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve">data to pass to @callback</doc>
+            <type name="gpointer" c:type="gpointer"/>
+          </parameter>
+          <parameter name="notify" transfer-ownership="none" scope="async">
+            <doc xml:space="preserve">function to call when @user_data is no longer needed</doc>
+            <type name="GLib.DestroyNotify" c:type="GDestroyNotify"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="collect_statistics"
+              c:identifier="shell_perf_log_collect_statistics">
+        <doc xml:space="preserve">Calls all the update functions added with
+shell_perf_log_add_statistics_callback() and then records events
+for all statistics, followed by a perf.statisticsCollected event.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="perf_log" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellPerfLog</doc>
+            <type name="PerfLog" c:type="ShellPerfLog*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="define_event" c:identifier="shell_perf_log_define_event">
+        <doc xml:space="preserve">Defines a performance event for later recording.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="perf_log" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellPerfLog</doc>
+            <type name="PerfLog" c:type="ShellPerfLog*"/>
+          </instance-parameter>
+          <parameter name="name" transfer-ownership="none">
+            <doc xml:space="preserve">name of the event. This should of the form
+  '&lt;namespace&gt;.&lt;specific eventf'&gt;, for example
+  'clutter.stagePaintDone'.</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="description" transfer-ownership="none">
+            <doc xml:space="preserve">human readable description of the event.</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="signature" transfer-ownership="none">
+            <doc xml:space="preserve">signature defining the arguments that event takes.
+  This is a string of type characters, using the same characters
+  as D-Bus or GVariant. Only a very limited number of signatures
+  are supported: , '', 's', 'i', and 'x'. This mean respectively:
+  no arguments, one string, one 32-bit integer, and one 64-bit
+  integer.</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="define_statistic"
+              c:identifier="shell_perf_log_define_statistic">
+        <doc xml:space="preserve">Defines a statistic. A statistic is a numeric value that is stored
+by the performance log and recorded periodically or when
+shell_perf_log_collect_statistics() is called explicitly.
+
+Code that defines a statistic should update it by calling
+the update function for the particular data type of the statistic,
+such as shell_perf_log_update_statistic_i(). This can be done
+at any time, but would normally done inside a function registered
+with shell_perf_log_add_statistics_callback(). These functions
+are called immediately before statistics are recorded.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="perf_log" transfer-ownership="none">
+            <type name="PerfLog" c:type="ShellPerfLog*"/>
+          </instance-parameter>
+          <parameter name="name" transfer-ownership="none">
+            <doc xml:space="preserve">name of the statistic and of the corresponding event.
+ This should follow the same guidelines as for shell_perf_log_define_event()</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="description" transfer-ownership="none">
+            <doc xml:space="preserve">human readable description of the statistic.</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="signature" transfer-ownership="none">
+            <doc xml:space="preserve">The type of the data stored for statistic. Must
+ currently be 'i' or 'x'.</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="dump_events"
+              c:identifier="shell_perf_log_dump_events"
+              throws="1">
+        <doc xml:space="preserve">Dump the definition of currently defined events and statistics, formatted
+as JSON, to the specified output stream. The JSON output is an array,
+with each element being a dictionary of the form:
+
+{ name: &lt;name of event&gt;,
+  description: &lt;descrition of string,
+  statistic: true } (only for statistics)</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">%TRUE if the dump succeeded. %FALSE if an IO error occurred</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="perf_log" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellPerfLog</doc>
+            <type name="PerfLog" c:type="ShellPerfLog*"/>
+          </instance-parameter>
+          <parameter name="out" transfer-ownership="none">
+            <doc xml:space="preserve">output stream into which to write the event definitions</doc>
+            <type name="Gio.OutputStream" c:type="GOutputStream*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="dump_log"
+              c:identifier="shell_perf_log_dump_log"
+              throws="1">
+        <doc xml:space="preserve">Writes the performance event log, formatted as JSON, to the specified
+output stream. For performance reasons, the output stream passed
+in should generally be a buffered (or memory) output stream, since
+it will be written to in small pieces. The JSON output is an array
+with the elements of the array also being arrays, of the form
+'[' &lt;time&gt;, &lt;event name&gt; [, &lt;event_arg&gt;... ] ']'.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">%TRUE if the dump succeeded. %FALSE if an IO error occurred</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="perf_log" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellPerfLog</doc>
+            <type name="PerfLog" c:type="ShellPerfLog*"/>
+          </instance-parameter>
+          <parameter name="out" transfer-ownership="none">
+            <doc xml:space="preserve">output stream into which to write the event log</doc>
+            <type name="Gio.OutputStream" c:type="GOutputStream*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="event" c:identifier="shell_perf_log_event">
+        <doc xml:space="preserve">Records a performance event with no arguments.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="perf_log" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellPerfLog</doc>
+            <type name="PerfLog" c:type="ShellPerfLog*"/>
+          </instance-parameter>
+          <parameter name="name" transfer-ownership="none">
+            <doc xml:space="preserve">name of the event</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="event_i" c:identifier="shell_perf_log_event_i">
+        <doc xml:space="preserve">Records a performance event with one 32-bit integer argument.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="perf_log" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellPerfLog</doc>
+            <type name="PerfLog" c:type="ShellPerfLog*"/>
+          </instance-parameter>
+          <parameter name="name" transfer-ownership="none">
+            <doc xml:space="preserve">name of the event</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="arg" transfer-ownership="none">
+            <doc xml:space="preserve">the argument</doc>
+            <type name="gint32" c:type="gint32"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="event_s" c:identifier="shell_perf_log_event_s">
+        <doc xml:space="preserve">Records a performance event with one string argument.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="perf_log" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellPerfLog</doc>
+            <type name="PerfLog" c:type="ShellPerfLog*"/>
+          </instance-parameter>
+          <parameter name="name" transfer-ownership="none">
+            <doc xml:space="preserve">name of the event</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="arg" transfer-ownership="none">
+            <doc xml:space="preserve">the argument</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="event_x" c:identifier="shell_perf_log_event_x">
+        <doc xml:space="preserve">Records a performance event with one 64-bit integer argument.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="perf_log" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellPerfLog</doc>
+            <type name="PerfLog" c:type="ShellPerfLog*"/>
+          </instance-parameter>
+          <parameter name="name" transfer-ownership="none">
+            <doc xml:space="preserve">name of the event</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="arg" transfer-ownership="none">
+            <doc xml:space="preserve">the argument</doc>
+            <type name="gint64" c:type="gint64"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="replay" c:identifier="shell_perf_log_replay">
+        <doc xml:space="preserve">Replays the log by calling the given function for each event
+in the log.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="perf_log" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellPerfLog</doc>
+            <type name="PerfLog" c:type="ShellPerfLog*"/>
+          </instance-parameter>
+          <parameter name="replay_function"
+                     transfer-ownership="none"
+                     scope="call"
+                     closure="1">
+            <doc xml:space="preserve">function to call for each event in the log</doc>
+            <type name="PerfReplayFunction" c:type="ShellPerfReplayFunction"/>
+          </parameter>
+          <parameter name="user_data"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve">data to pass to @replay_function</doc>
+            <type name="gpointer" c:type="gpointer"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="set_enabled" c:identifier="shell_perf_log_set_enabled">
+        <doc xml:space="preserve">Sets whether events are currently being recorded.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="perf_log" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellPerfLog</doc>
+            <type name="PerfLog" c:type="ShellPerfLog*"/>
+          </instance-parameter>
+          <parameter name="enabled" transfer-ownership="none">
+            <doc xml:space="preserve">whether to record events</doc>
+            <type name="gboolean" c:type="gboolean"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="update_statistic_i"
+              c:identifier="shell_perf_log_update_statistic_i">
+        <doc xml:space="preserve">Updates the current value of an 32-bit integer statistic.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="perf_log" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellPerfLog</doc>
+            <type name="PerfLog" c:type="ShellPerfLog*"/>
+          </instance-parameter>
+          <parameter name="name" transfer-ownership="none">
+            <doc xml:space="preserve">name of the statistic</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="value" transfer-ownership="none">
+            <doc xml:space="preserve">new value for the statistic</doc>
+            <type name="gint" c:type="int"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="update_statistic_x"
+              c:identifier="shell_perf_log_update_statistic_x">
+        <doc xml:space="preserve">Updates the current value of an 64-bit integer statistic.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="perf_log" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellPerfLog</doc>
+            <type name="PerfLog" c:type="ShellPerfLog*"/>
+          </instance-parameter>
+          <parameter name="name" transfer-ownership="none">
+            <doc xml:space="preserve">name of the statistic</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="value" transfer-ownership="none">
+            <doc xml:space="preserve">new value for the statistic</doc>
+            <type name="gint64" c:type="gint64"/>
+          </parameter>
+        </parameters>
+      </method>
+    </class>
+    <record name="PerfLogClass"
+            c:type="ShellPerfLogClass"
+            glib:is-gtype-struct-for="PerfLog">
+      <field name="parent_class">
+        <type name="GObject.ObjectClass" c:type="GObjectClass"/>
+      </field>
+    </record>
+    <callback name="PerfReplayFunction" c:type="ShellPerfReplayFunction">
+      <return-value transfer-ownership="none">
+        <type name="none" c:type="void"/>
+      </return-value>
+      <parameters>
+        <parameter name="time" transfer-ownership="none">
+          <type name="gint64" c:type="gint64"/>
+        </parameter>
+        <parameter name="name" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="signature" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="arg" transfer-ownership="none">
+          <type name="GObject.Value" c:type="GValue*"/>
+        </parameter>
+        <parameter name="user_data"
+                   transfer-ownership="none"
+                   nullable="1"
+                   allow-none="1"
+                   closure="4">
+          <type name="gpointer" c:type="gpointer"/>
+        </parameter>
+      </parameters>
+    </callback>
+    <callback name="PerfStatisticsCallback"
+              c:type="ShellPerfStatisticsCallback">
+      <return-value transfer-ownership="none">
+        <type name="none" c:type="void"/>
+      </return-value>
+      <parameters>
+        <parameter name="perf_log" transfer-ownership="none">
+          <type name="PerfLog" c:type="ShellPerfLog*"/>
+        </parameter>
+        <parameter name="data"
+                   transfer-ownership="none"
+                   nullable="1"
+                   allow-none="1">
+          <type name="gpointer" c:type="gpointer"/>
+        </parameter>
+      </parameters>
+    </callback>
+    <class name="PolkitAuthenticationAgent"
+           c:symbol-prefix="polkit_authentication_agent"
+           c:type="ShellPolkitAuthenticationAgent"
+           parent="GObject.Object"
+           glib:type-name="ShellPolkitAuthenticationAgent"
+           glib:get-type="shell_polkit_authentication_agent_get_type"
+           glib:type-struct="PolkitAuthenticationAgentClass">
+      <constructor name="new"
+                   c:identifier="shell_polkit_authentication_agent_new">
+        <return-value transfer-ownership="full">
+          <type name="PolkitAuthenticationAgent"
+                c:type="ShellPolkitAuthenticationAgent*"/>
+        </return-value>
+      </constructor>
+      <method name="complete"
+              c:identifier="shell_polkit_authentication_agent_complete">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="agent" transfer-ownership="none">
+            <type name="PolkitAuthenticationAgent"
+                  c:type="ShellPolkitAuthenticationAgent*"/>
+          </instance-parameter>
+          <parameter name="dismissed" transfer-ownership="none">
+            <type name="gboolean" c:type="gboolean"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="register"
+              c:identifier="shell_polkit_authentication_agent_register"
+              throws="1">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="agent" transfer-ownership="none">
+            <type name="PolkitAuthenticationAgent"
+                  c:type="ShellPolkitAuthenticationAgent*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="unregister"
+              c:identifier="shell_polkit_authentication_agent_unregister">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="agent" transfer-ownership="none">
+            <type name="PolkitAuthenticationAgent"
+                  c:type="ShellPolkitAuthenticationAgent*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <glib:signal name="cancel" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+      </glib:signal>
+      <glib:signal name="initiate" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+          <parameter name="p0" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+          <parameter name="p1" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+          <parameter name="p2" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+          <parameter name="p3" transfer-ownership="none">
+            <array>
+              <type name="utf8"/>
+            </array>
+          </parameter>
+        </parameters>
+      </glib:signal>
+    </class>
+    <record name="PolkitAuthenticationAgentClass"
+            c:type="ShellPolkitAuthenticationAgentClass"
+            disguised="1"
+            glib:is-gtype-struct-for="PolkitAuthenticationAgent">
+    </record>
+    <class name="Recorder"
+           c:symbol-prefix="recorder"
+           c:type="ShellRecorder"
+           parent="GObject.Object"
+           glib:type-name="ShellRecorder"
+           glib:get-type="shell_recorder_get_type"
+           glib:type-struct="RecorderClass">
+      <constructor name="new" c:identifier="shell_recorder_new">
+        <doc xml:space="preserve">Create a new #ShellRecorder to record movies of a #ClutterStage</doc>
+        <return-value transfer-ownership="full">
+          <doc xml:space="preserve">The newly created #ShellRecorder object</doc>
+          <type name="Recorder" c:type="ShellRecorder*"/>
+        </return-value>
+        <parameters>
+          <parameter name="stage" transfer-ownership="none">
+            <doc xml:space="preserve">The #ClutterStage</doc>
+            <type name="Clutter.Stage" c:type="ClutterStage*"/>
+          </parameter>
+        </parameters>
+      </constructor>
+      <method name="close" c:identifier="shell_recorder_close">
+        <doc xml:space="preserve">Stops recording. It's possible to call shell_recorder_record()
+again to reopen a new recording stream, but unless change the
+recording filename, this may result in the old recording being
+overwritten.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="recorder" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellRecorder</doc>
+            <type name="Recorder" c:type="ShellRecorder*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="is_recording" c:identifier="shell_recorder_is_recording">
+        <doc xml:space="preserve">Determine if recording is currently in progress. (The recorder
+is not paused or closed.)</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">%TRUE if the recorder is currently recording.</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="recorder" transfer-ownership="none">
+            <type name="Recorder" c:type="ShellRecorder*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="pause" c:identifier="shell_recorder_pause">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="recorder" transfer-ownership="none">
+            <type name="Recorder" c:type="ShellRecorder*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="record" c:identifier="shell_recorder_record">
+        <doc xml:space="preserve">Starts recording, Starting the recording may fail if the output file
+cannot be opened, or if the output stream cannot be created
+for other reasons. In that case a warning is printed to
+stderr. There is no way currently to get details on how
+recording failed to start.
+
+An extra reference count is added to the recorder if recording
+is succesfully started; the recording object will not be freed
+until recording is stopped even if the creator no longer holds
+a reference. Recording is automatically stopped if the stage
+is destroyed.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">%TRUE if recording was succesfully started</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="recorder" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellRecorder</doc>
+            <type name="Recorder" c:type="ShellRecorder*"/>
+          </instance-parameter>
+          <parameter name="filename_used"
+                     direction="out"
+                     caller-allocates="0"
+                     transfer-ownership="full"
+                     optional="1"
+                     allow-none="1">
+            <doc xml:space="preserve">actual filename used for recording</doc>
+            <type name="utf8" c:type="char**"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="set_area" c:identifier="shell_recorder_set_area">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="recorder" transfer-ownership="none">
+            <type name="Recorder" c:type="ShellRecorder*"/>
+          </instance-parameter>
+          <parameter name="x" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="y" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="width" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="height" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="set_draw_cursor"
+              c:identifier="shell_recorder_set_draw_cursor">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="recorder" transfer-ownership="none">
+            <type name="Recorder" c:type="ShellRecorder*"/>
+          </instance-parameter>
+          <parameter name="draw_cursor" transfer-ownership="none">
+            <type name="gboolean" c:type="gboolean"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="set_file_template"
+              c:identifier="shell_recorder_set_file_template">
+        <doc xml:space="preserve">Sets the filename that will be used when creating output
+files. This is only used if the configured pipeline has an
+unconnected source pad (as the default pipeline does). If
+the pipeline is complete, then the filename is unused. The
+provided string is used as a template.It can contain
+the following escapes:
+
+%d: The current date as YYYYYMMDD
+%%: A literal percent
+
+The default value is 'shell-%d%u-%c.ogg'.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="recorder" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellRecorder</doc>
+            <type name="Recorder" c:type="ShellRecorder*"/>
+          </instance-parameter>
+          <parameter name="file_template" transfer-ownership="none">
+            <doc xml:space="preserve">the filename template to use for output files,
+                or %NULL for the defalt value.</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="set_framerate" c:identifier="shell_recorder_set_framerate">
+        <doc xml:space="preserve">Sets the number of frames per second we try to record. Less frames
+will be recorded when the screen doesn't need to be redrawn this
+quickly. (This value will also be set as the framerate for the
+GStreamer pipeline; whether that has an effect on the resulting
+video will depend on the details of the pipeline and the codec. The
+default encoding to webm format doesn't pay attention to the pipeline
+framerate.)
+
+The default value is 30.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="recorder" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellRecorder</doc>
+            <type name="Recorder" c:type="ShellRecorder*"/>
+          </instance-parameter>
+          <parameter name="framerate" transfer-ownership="none">
+            <doc xml:space="preserve">Framerate used for resulting video in frames-per-second.</doc>
+            <type name="gint" c:type="int"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="set_pipeline" c:identifier="shell_recorder_set_pipeline">
+        <doc xml:space="preserve">Sets the GStreamer pipeline used to encode recordings.
+It follows the syntax used for gst-launch. The pipeline
+should have an unconnected sink pad where the recorded
+video is recorded. It will normally have a unconnected
+source pad; output from that pad will be written into the
+output file. (See shell_recorder_set_file_template().) However
+the pipeline can also take care of its own output - this
+might be used to send the output to an icecast server
+via shout2send or similar.
+
+The default value is 'vp9enc min_quantizer=13 max_quantizer=13 cpu-used=5 deadline=1000000 threads=%T ! queue ! webmmux'</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="recorder" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellRecorder</doc>
+            <type name="Recorder" c:type="ShellRecorder*"/>
+          </instance-parameter>
+          <parameter name="pipeline"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve">the GStreamer pipeline used to encode recordings
+           or %NULL for the default value.</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <property name="draw-cursor" writable="1" transfer-ownership="none">
+        <type name="gboolean" c:type="gboolean"/>
+      </property>
+      <property name="file-template" writable="1" transfer-ownership="none">
+        <type name="utf8" c:type="gchar*"/>
+      </property>
+      <property name="framerate" writable="1" transfer-ownership="none">
+        <type name="gint" c:type="gint"/>
+      </property>
+      <property name="pipeline" writable="1" transfer-ownership="none">
+        <type name="utf8" c:type="gchar*"/>
+      </property>
+      <property name="screen"
+                readable="0"
+                writable="1"
+                transfer-ownership="none">
+        <type name="Meta.Screen"/>
+      </property>
+      <property name="stage" writable="1" transfer-ownership="none">
+        <type name="Clutter.Stage"/>
+      </property>
+    </class>
+    <record name="RecorderClass"
+            c:type="ShellRecorderClass"
+            glib:is-gtype-struct-for="Recorder">
+      <field name="parent_class">
+        <type name="GObject.ObjectClass" c:type="GObjectClass"/>
+      </field>
+    </record>
+    <class name="Screenshot"
+           c:symbol-prefix="screenshot"
+           c:type="ShellScreenshot"
+           parent="GObject.Object"
+           glib:type-name="ShellScreenshot"
+           glib:get-type="shell_screenshot_get_type"
+           glib:type-struct="ScreenshotClass">
+      <constructor name="new" c:identifier="shell_screenshot_new">
+        <return-value transfer-ownership="full">
+          <type name="Screenshot" c:type="ShellScreenshot*"/>
+        </return-value>
+      </constructor>
+      <method name="screenshot" c:identifier="shell_screenshot_screenshot">
+        <doc xml:space="preserve">Takes a screenshot of the whole screen
+in @filename as png image.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="screenshot" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellScreenshot</doc>
+            <type name="Screenshot" c:type="ShellScreenshot*"/>
+          </instance-parameter>
+          <parameter name="include_cursor" transfer-ownership="none">
+            <doc xml:space="preserve">Whether to include the cursor or not</doc>
+            <type name="gboolean" c:type="gboolean"/>
+          </parameter>
+          <parameter name="filename" transfer-ownership="none">
+            <doc xml:space="preserve">The filename for the screenshot</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="callback" transfer-ownership="none" scope="async">
+            <doc xml:space="preserve">function to call returning success or failure
+of the async grabbing</doc>
+            <type name="ScreenshotCallback" c:type="ShellScreenshotCallback"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="screenshot_area"
+              c:identifier="shell_screenshot_screenshot_area">
+        <doc xml:space="preserve">Takes a screenshot of the passed in area and saves it
+in @filename as png image.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="screenshot" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellScreenshot</doc>
+            <type name="Screenshot" c:type="ShellScreenshot*"/>
+          </instance-parameter>
+          <parameter name="x" transfer-ownership="none">
+            <doc xml:space="preserve">The X coordinate of the area</doc>
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="y" transfer-ownership="none">
+            <doc xml:space="preserve">The Y coordinate of the area</doc>
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="width" transfer-ownership="none">
+            <doc xml:space="preserve">The width of the area</doc>
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="height" transfer-ownership="none">
+            <doc xml:space="preserve">The height of the area</doc>
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="filename" transfer-ownership="none">
+            <doc xml:space="preserve">The filename for the screenshot</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="callback" transfer-ownership="none" scope="async">
+            <doc xml:space="preserve">function to call returning success or failure
+of the async grabbing</doc>
+            <type name="ScreenshotCallback" c:type="ShellScreenshotCallback"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="screenshot_window"
+              c:identifier="shell_screenshot_screenshot_window">
+        <doc xml:space="preserve">Takes a screenshot of the focused window (optionally omitting the frame)
+in @filename as png image.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="screenshot" transfer-ownership="none">
+            <doc xml:space="preserve">the #ShellScreenshot</doc>
+            <type name="Screenshot" c:type="ShellScreenshot*"/>
+          </instance-parameter>
+          <parameter name="include_frame" transfer-ownership="none">
+            <doc xml:space="preserve">Whether to include the frame or not</doc>
+            <type name="gboolean" c:type="gboolean"/>
+          </parameter>
+          <parameter name="include_cursor" transfer-ownership="none">
+            <doc xml:space="preserve">Whether to include the cursor or not</doc>
+            <type name="gboolean" c:type="gboolean"/>
+          </parameter>
+          <parameter name="filename" transfer-ownership="none">
+            <doc xml:space="preserve">The filename for the screenshot</doc>
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="callback" transfer-ownership="none" scope="async">
+            <doc xml:space="preserve">function to call returning success or failure
+of the async grabbing</doc>
+            <type name="ScreenshotCallback" c:type="ShellScreenshotCallback"/>
+          </parameter>
+        </parameters>
+      </method>
+    </class>
+    <callback name="ScreenshotCallback" c:type="ShellScreenshotCallback">
+      <return-value transfer-ownership="none">
+        <type name="none" c:type="void"/>
+      </return-value>
+      <parameters>
+        <parameter name="screenshot" transfer-ownership="none">
+          <type name="Screenshot" c:type="ShellScreenshot*"/>
+        </parameter>
+        <parameter name="success" transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </parameter>
+        <parameter name="screenshot_area" transfer-ownership="none">
+          <type name="cairo.RectangleInt" c:type="cairo_rectangle_int_t*"/>
+        </parameter>
+        <parameter name="filename_used" transfer-ownership="none">
+          <type name="utf8" c:type="const gchar*"/>
+        </parameter>
+      </parameters>
+    </callback>
+    <record name="ScreenshotClass"
+            c:type="ShellScreenshotClass"
+            glib:is-gtype-struct-for="Screenshot">
+      <field name="parent_class">
+        <type name="GObject.ObjectClass" c:type="GObjectClass"/>
+      </field>
+    </record>
+    <class name="SecureTextBuffer"
+           c:symbol-prefix="secure_text_buffer"
+           c:type="ShellSecureTextBuffer"
+           parent="Clutter.TextBuffer"
+           glib:type-name="ShellSecureTextBuffer"
+           glib:get-type="shell_secure_text_buffer_get_type"
+           glib:type-struct="SecureTextBufferClass">
+      <constructor name="new" c:identifier="shell_secure_text_buffer_new">
+        <return-value transfer-ownership="full">
+          <type name="Clutter.TextBuffer" c:type="ClutterTextBuffer*"/>
+        </return-value>
+      </constructor>
+    </class>
+    <record name="SecureTextBufferClass"
+            c:type="ShellSecureTextBufferClass"
+            glib:is-gtype-struct-for="SecureTextBuffer">
+      <field name="parent_class">
+        <type name="Clutter.TextBufferClass" c:type="ClutterTextBufferClass"/>
+      </field>
+    </record>
+    <enumeration name="SnippetHook"
+                 glib:type-name="ShellSnippetHook"
+                 glib:get-type="shell_snippet_hook_get_type"
+                 c:type="ShellSnippetHook">
+      <doc xml:space="preserve">Temporary hack to work around Cogl not exporting CoglSnippetHook in
+the 1.0 API. Don't use.</doc>
+      <member name="vertex"
+              value="0"
+              c:identifier="SHELL_SNIPPET_HOOK_VERTEX"
+              glib:nick="vertex">
+      </member>
+      <member name="vertex_transform"
+              value="1"
+              c:identifier="SHELL_SNIPPET_HOOK_VERTEX_TRANSFORM"
+              glib:nick="vertex-transform">
+      </member>
+      <member name="fragment"
+              value="2048"
+              c:identifier="SHELL_SNIPPET_HOOK_FRAGMENT"
+              glib:nick="fragment">
+      </member>
+      <member name="texture_coord_transform"
+              value="4096"
+              c:identifier="SHELL_SNIPPET_HOOK_TEXTURE_COORD_TRANSFORM"
+              glib:nick="texture-coord-transform">
+      </member>
+      <member name="layer_fragment"
+              value="6144"
+              c:identifier="SHELL_SNIPPET_HOOK_LAYER_FRAGMENT"
+              glib:nick="layer-fragment">
+      </member>
+      <member name="texture_lookup"
+              value="6145"
+              c:identifier="SHELL_SNIPPET_HOOK_TEXTURE_LOOKUP"
+              glib:nick="texture-lookup">
+      </member>
+    </enumeration>
+    <class name="Stack"
+           c:symbol-prefix="stack"
+           c:type="ShellStack"
+           parent="St.Widget"
+           glib:type-name="ShellStack"
+           glib:get-type="shell_stack_get_type"
+           glib:type-struct="StackClass">
+      <implements name="Atk.ImplementorIface"/>
+      <implements name="Clutter.Animatable"/>
+      <implements name="Clutter.Container"/>
+      <implements name="Clutter.Scriptable"/>
+    </class>
+    <record name="StackClass"
+            c:type="ShellStackClass"
+            glib:is-gtype-struct-for="Stack">
+      <field name="parent_class">
+        <type name="St.WidgetClass" c:type="StWidgetClass"/>
+      </field>
+    </record>
+    <record name="StartupSequence"
+            c:type="ShellStartupSequence"
+            glib:type-name="ShellStartupSequence"
+            glib:get-type="shell_startup_sequence_get_type"
+            c:symbol-prefix="startup_sequence">
+      <method name="create_icon"
+              c:identifier="shell_startup_sequence_create_icon">
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">A new #ClutterTexture containing an icon for the sequence</doc>
+          <type name="Clutter.Actor" c:type="ClutterActor*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="sequence" transfer-ownership="none">
+            <type name="StartupSequence" c:type="ShellStartupSequence*"/>
+          </instance-parameter>
+          <parameter name="size" transfer-ownership="none">
+            <doc xml:space="preserve">Size in pixels of icon</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="get_app" c:identifier="shell_startup_sequence_get_app">
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">The application being launched, or %NULL if unknown.</doc>
+          <type name="App" c:type="ShellApp*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="sequence" transfer-ownership="none">
+            <doc xml:space="preserve">A #ShellStartupSequence</doc>
+            <type name="StartupSequence" c:type="ShellStartupSequence*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_completed"
+              c:identifier="shell_startup_sequence_get_completed">
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="sequence" transfer-ownership="none">
+            <type name="StartupSequence" c:type="ShellStartupSequence*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_id" c:identifier="shell_startup_sequence_get_id">
+        <return-value transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="sequence" transfer-ownership="none">
+            <type name="StartupSequence" c:type="ShellStartupSequence*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_name" c:identifier="shell_startup_sequence_get_name">
+        <return-value transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="sequence" transfer-ownership="none">
+            <type name="StartupSequence" c:type="ShellStartupSequence*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_workspace"
+              c:identifier="shell_startup_sequence_get_workspace">
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="sequence" transfer-ownership="none">
+            <type name="StartupSequence" c:type="ShellStartupSequence*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+    </record>
+    <class name="TrayIcon"
+           c:symbol-prefix="tray_icon"
+           c:type="ShellTrayIcon"
+           parent="GtkEmbed"
+           glib:type-name="ShellTrayIcon"
+           glib:get-type="shell_tray_icon_get_type"
+           glib:type-struct="TrayIconClass">
+      <implements name="Atk.ImplementorIface"/>
+      <implements name="Clutter.Animatable"/>
+      <implements name="Clutter.Container"/>
+      <implements name="Clutter.Scriptable"/>
+      <constructor name="new" c:identifier="shell_tray_icon_new">
+        <return-value transfer-ownership="none">
+          <type name="Clutter.Actor" c:type="ClutterActor*"/>
+        </return-value>
+        <parameters>
+          <parameter name="window" transfer-ownership="none">
+            <type name="EmbeddedWindow" c:type="ShellEmbeddedWindow*"/>
+          </parameter>
+        </parameters>
+      </constructor>
+      <method name="click" c:identifier="shell_tray_icon_click">
+        <doc xml:space="preserve">Fakes a press and release on @icon. @event must be a
+%CLUTTER_BUTTON_RELEASE, %CLUTTER_KEY_PRESS or %CLUTTER_KEY_RELEASE event.
+Its relevant details will be passed on to the icon, but its
+coordinates will be ignored; the click is
+always made on the center of @icon.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="icon" transfer-ownership="none">
+            <doc xml:space="preserve">a #ShellTrayIcon</doc>
+            <type name="TrayIcon" c:type="ShellTrayIcon*"/>
+          </instance-parameter>
+          <parameter name="event" transfer-ownership="none">
+            <doc xml:space="preserve">the #ClutterEvent triggering the fake click</doc>
+            <type name="Clutter.Event" c:type="ClutterEvent*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <property name="pid" transfer-ownership="none">
+        <type name="guint" c:type="guint"/>
+      </property>
+      <property name="title" transfer-ownership="none">
+        <type name="utf8" c:type="gchar*"/>
+      </property>
+      <property name="wm-class" transfer-ownership="none">
+        <type name="utf8" c:type="gchar*"/>
+      </property>
+    </class>
+    <record name="TrayIconClass"
+            c:type="ShellTrayIconClass"
+            glib:is-gtype-struct-for="TrayIcon">
+      <field name="parent_class">
+        <type name="GtkEmbedClass" c:type="ShellGtkEmbedClass"/>
+      </field>
+    </record>
+    <class name="TrayManager"
+           c:symbol-prefix="tray_manager"
+           c:type="ShellTrayManager"
+           parent="GObject.Object"
+           glib:type-name="ShellTrayManager"
+           glib:get-type="shell_tray_manager_get_type"
+           glib:type-struct="TrayManagerClass">
+      <constructor name="new" c:identifier="shell_tray_manager_new">
+        <return-value transfer-ownership="full">
+          <type name="TrayManager" c:type="ShellTrayManager*"/>
+        </return-value>
+      </constructor>
+      <method name="manage_screen"
+              c:identifier="shell_tray_manager_manage_screen">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="manager" transfer-ownership="none">
+            <type name="TrayManager" c:type="ShellTrayManager*"/>
+          </instance-parameter>
+          <parameter name="screen" transfer-ownership="none">
+            <type name="Meta.Screen" c:type="MetaScreen*"/>
+          </parameter>
+          <parameter name="theme_widget" transfer-ownership="none">
+            <type name="St.Widget" c:type="StWidget*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <property name="bg-color"
+                writable="1"
+                construct-only="1"
+                transfer-ownership="none">
+        <type name="Clutter.Color"/>
+      </property>
+      <glib:signal name="tray-icon-added" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="Clutter.Actor"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="tray-icon-removed" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="Clutter.Actor"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+    </class>
+    <record name="TrayManagerClass"
+            c:type="ShellTrayManagerClass"
+            glib:is-gtype-struct-for="TrayManager">
+      <field name="parent_class">
+        <type name="GObject.ObjectClass" c:type="GObjectClass"/>
+      </field>
+    </record>
+    <class name="WM"
+           c:symbol-prefix="wm"
+           c:type="ShellWM"
+           parent="GObject.Object"
+           glib:type-name="ShellWM"
+           glib:get-type="shell_wm_get_type"
+           glib:type-struct="WMClass">
+      <constructor name="new" c:identifier="shell_wm_new">
+        <doc xml:space="preserve">Creates a new window management interface by hooking into @plugin.</doc>
+        <return-value transfer-ownership="full">
+          <doc xml:space="preserve">the new window-management interface</doc>
+          <type name="WM" c:type="ShellWM*"/>
+        </return-value>
+        <parameters>
+          <parameter name="plugin" transfer-ownership="none">
+            <doc xml:space="preserve">the #MetaPlugin</doc>
+            <type name="Meta.Plugin" c:type="MetaPlugin*"/>
+          </parameter>
+        </parameters>
+      </constructor>
+      <method name="complete_display_change"
+              c:identifier="shell_wm_complete_display_change">
+        <doc xml:space="preserve">The plugin must call this after the user responded to the confirmation dialog.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="wm" transfer-ownership="none">
+            <doc xml:space="preserve">the ShellWM</doc>
+            <type name="WM" c:type="ShellWM*"/>
+          </instance-parameter>
+          <parameter name="ok" transfer-ownership="none">
+            <doc xml:space="preserve">if the new configuration was OK</doc>
+            <type name="gboolean" c:type="gboolean"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="completed_destroy"
+              c:identifier="shell_wm_completed_destroy">
+        <doc xml:space="preserve">The plugin must call this when it has completed a window destroy effect.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="wm" transfer-ownership="none">
+            <doc xml:space="preserve">the ShellWM</doc>
+            <type name="WM" c:type="ShellWM*"/>
+          </instance-parameter>
+          <parameter name="actor" transfer-ownership="none">
+            <doc xml:space="preserve">the MetaWindowActor actor</doc>
+            <type name="Meta.WindowActor" c:type="MetaWindowActor*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="completed_map" c:identifier="shell_wm_completed_map">
+        <doc xml:space="preserve">The plugin must call this when it has completed a window map effect.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="wm" transfer-ownership="none">
+            <doc xml:space="preserve">the ShellWM</doc>
+            <type name="WM" c:type="ShellWM*"/>
+          </instance-parameter>
+          <parameter name="actor" transfer-ownership="none">
+            <doc xml:space="preserve">the MetaWindowActor actor</doc>
+            <type name="Meta.WindowActor" c:type="MetaWindowActor*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="completed_minimize"
+              c:identifier="shell_wm_completed_minimize">
+        <doc xml:space="preserve">The plugin must call this when it has completed a window minimize effect.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="wm" transfer-ownership="none">
+            <doc xml:space="preserve">the ShellWM</doc>
+            <type name="WM" c:type="ShellWM*"/>
+          </instance-parameter>
+          <parameter name="actor" transfer-ownership="none">
+            <doc xml:space="preserve">the MetaWindowActor actor</doc>
+            <type name="Meta.WindowActor" c:type="MetaWindowActor*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="completed_size_change"
+              c:identifier="shell_wm_completed_size_change">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="wm" transfer-ownership="none">
+            <type name="WM" c:type="ShellWM*"/>
+          </instance-parameter>
+          <parameter name="actor" transfer-ownership="none">
+            <type name="Meta.WindowActor" c:type="MetaWindowActor*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="completed_switch_workspace"
+              c:identifier="shell_wm_completed_switch_workspace">
+        <doc xml:space="preserve">The plugin must call this when it has finished switching the
+workspace.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="wm" transfer-ownership="none">
+            <doc xml:space="preserve">the ShellWM</doc>
+            <type name="WM" c:type="ShellWM*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="completed_unminimize"
+              c:identifier="shell_wm_completed_unminimize">
+        <doc xml:space="preserve">The plugin must call this when it has completed a window unminimize effect.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="wm" transfer-ownership="none">
+            <doc xml:space="preserve">the ShellWM</doc>
+            <type name="WM" c:type="ShellWM*"/>
+          </instance-parameter>
+          <parameter name="actor" transfer-ownership="none">
+            <doc xml:space="preserve">the MetaWindowActor actor</doc>
+            <type name="Meta.WindowActor" c:type="MetaWindowActor*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <glib:signal name="confirm-display-change" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+      </glib:signal>
+      <glib:signal name="create-close-dialog" when="last">
+        <doc xml:space="preserve">Creates a close dialog for the given window.</doc>
+        <return-value transfer-ownership="full">
+          <doc xml:space="preserve">The close dialog instance.</doc>
+          <type name="Meta.CloseDialog"/>
+        </return-value>
+        <parameters>
+          <parameter name="window" transfer-ownership="none">
+            <doc xml:space="preserve">The window to create the dialog for</doc>
+            <type name="Meta.Window"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="create-inhibit-shortcuts-dialog" when="last">
+        <doc xml:space="preserve">Creates an inhibit shortcuts dialog for the given window.</doc>
+        <return-value transfer-ownership="full">
+          <doc xml:space="preserve">The inhibit shortcuts dialog instance.</doc>
+          <type name="Meta.InhibitShortcutsDialog"/>
+        </return-value>
+        <parameters>
+          <parameter name="window" transfer-ownership="none">
+            <doc xml:space="preserve">The window to create the dialog for</doc>
+            <type name="Meta.Window"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="destroy" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="Meta.WindowActor"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="filter-keybinding" when="last">
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="Meta.KeyBinding"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="hide-tile-preview" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+      </glib:signal>
+      <glib:signal name="kill-switch-workspace" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+      </glib:signal>
+      <glib:signal name="kill-window-effects" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="Meta.WindowActor"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="map" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="Meta.WindowActor"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="minimize" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="Meta.WindowActor"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="show-tile-preview" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="Meta.Window"/>
+          </parameter>
+          <parameter name="p0" transfer-ownership="none">
+            <type name="Meta.Rectangle"/>
+          </parameter>
+          <parameter name="p1" transfer-ownership="none">
+            <type name="gint" c:type="gint"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="show-window-menu" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="Meta.Window"/>
+          </parameter>
+          <parameter name="p0" transfer-ownership="none">
+            <type name="gint" c:type="gint"/>
+          </parameter>
+          <parameter name="p1" transfer-ownership="none">
+            <type name="Meta.Rectangle"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="size-change" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="Meta.WindowActor"/>
+          </parameter>
+          <parameter name="p0" transfer-ownership="none">
+            <type name="Meta.SizeChange"/>
+          </parameter>
+          <parameter name="p1" transfer-ownership="none">
+            <type name="Meta.Rectangle"/>
+          </parameter>
+          <parameter name="p2" transfer-ownership="none">
+            <type name="Meta.Rectangle"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="size-changed" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="Meta.WindowActor"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="switch-workspace" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="gint" c:type="gint"/>
+          </parameter>
+          <parameter name="p0" transfer-ownership="none">
+            <type name="gint" c:type="gint"/>
+          </parameter>
+          <parameter name="p1" transfer-ownership="none">
+            <type name="gint" c:type="gint"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="unminimize" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="Meta.WindowActor"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+    </class>
+    <record name="WMClass" c:type="ShellWMClass" glib:is-gtype-struct-for="WM">
+      <field name="parent_class">
+        <type name="GObject.ObjectClass" c:type="GObjectClass"/>
+      </field>
+    </record>
+    <class name="WindowTracker"
+           c:symbol-prefix="window_tracker"
+           c:type="ShellWindowTracker"
+           parent="GObject.Object"
+           glib:type-name="ShellWindowTracker"
+           glib:get-type="shell_window_tracker_get_type"
+           glib:type-struct="WindowTrackerClass">
+      <function name="get_default"
+                c:identifier="shell_window_tracker_get_default">
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">The global #ShellWindowTracker instance</doc>
+          <type name="WindowTracker" c:type="ShellWindowTracker*"/>
+        </return-value>
+      </function>
+      <method name="get_app_from_pid"
+              c:identifier="shell_window_tracker_get_app_from_pid">
+        <doc xml:space="preserve">Look up the application corresponding to a process.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">A #ShellApp, or %NULL if none</doc>
+          <type name="App" c:type="ShellApp*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="tracker" transfer-ownership="none">
+            <doc xml:space="preserve">A #ShellAppSystem</doc>
+            <type name="WindowTracker" c:type="ShellWindowTracker*"/>
+          </instance-parameter>
+          <parameter name="pid" transfer-ownership="none">
+            <doc xml:space="preserve">A Unix process identifier</doc>
+            <type name="gint" c:type="int"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="get_startup_sequences"
+              c:identifier="shell_window_tracker_get_startup_sequences">
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve">Currently active startup sequences</doc>
+          <type name="GLib.SList" c:type="GSList*">
+            <type name="StartupSequence"/>
+          </type>
+        </return-value>
+        <parameters>
+          <instance-parameter name="tracker" transfer-ownership="none">
+            <type name="WindowTracker" c:type="ShellWindowTracker*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_window_app"
+              c:identifier="shell_window_tracker_get_window_app">
+        <return-value transfer-ownership="full">
+          <doc xml:space="preserve">Application associated with window</doc>
+          <type name="App" c:type="ShellApp*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="tracker" transfer-ownership="none">
+            <doc xml:space="preserve">An app monitor instance</doc>
+            <type name="WindowTracker" c:type="ShellWindowTracker*"/>
+          </instance-parameter>
+          <parameter name="metawin" transfer-ownership="none">
+            <doc xml:space="preserve">A #MetaWindow</doc>
+            <type name="Meta.Window" c:type="MetaWindow*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <property name="focus-app" transfer-ownership="none">
+        <type name="App"/>
+      </property>
+      <glib:signal name="startup-sequence-changed" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="object" transfer-ownership="none">
+            <type name="StartupSequence"/>
+          </parameter>
+        </parameters>
+      </glib:signal>
+      <glib:signal name="tracked-windows-changed" when="last">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+      </glib:signal>
+    </class>
+    <record name="WindowTrackerClass"
+            c:type="ShellWindowTrackerClass"
+            glib:is-gtype-struct-for="WindowTracker">
+      <field name="parent_class">
+        <type name="GObject.ObjectClass" c:type="GObjectClass"/>
+      </field>
+    </record>
+    <function name="get_file_contents_utf8_sync"
+              c:identifier="shell_get_file_contents_utf8_sync"
+              throws="1">
+      <doc xml:space="preserve">Synchronously load the contents of a file as a NUL terminated
+string, validating it as UTF-8.  Embedded NUL characters count as
+invalid content.</doc>
+      <return-value transfer-ownership="full">
+        <doc xml:space="preserve">File contents</doc>
+        <type name="utf8" c:type="char*"/>
+      </return-value>
+      <parameters>
+        <parameter name="path" transfer-ownership="none">
+          <doc xml:space="preserve">UTF-8 encoded filename path</doc>
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="util_composite_capture_images"
+              c:identifier="shell_util_composite_capture_images">
+      <return-value transfer-ownership="full">
+        <type name="cairo.Surface" c:type="cairo_surface_t*"/>
+      </return-value>
+      <parameters>
+        <parameter name="captures" transfer-ownership="none">
+          <type name="Clutter.Capture" c:type="ClutterCapture*"/>
+        </parameter>
+        <parameter name="n_captures" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+        <parameter name="x" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+        <parameter name="y" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+        <parameter name="width" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+        <parameter name="height" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="util_create_pixbuf_from_data"
+              c:identifier="shell_util_create_pixbuf_from_data">
+      <doc xml:space="preserve">Workaround for non-introspectability of gdk_pixbuf_from_data().</doc>
+      <return-value transfer-ownership="full">
+        <type name="GdkPixbuf.Pixbuf" c:type="GdkPixbuf*"/>
+      </return-value>
+      <parameters>
+        <parameter name="data" transfer-ownership="full">
+          <array length="1" zero-terminated="0" c:type="guchar*">
+            <type name="guint8"/>
+          </array>
+        </parameter>
+        <parameter name="len" transfer-ownership="none">
+          <type name="gsize" c:type="gsize"/>
+        </parameter>
+        <parameter name="colorspace" transfer-ownership="none">
+          <type name="GdkPixbuf.Colorspace" c:type="GdkColorspace"/>
+        </parameter>
+        <parameter name="has_alpha" transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </parameter>
+        <parameter name="bits_per_sample" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+        <parameter name="width" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+        <parameter name="height" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+        <parameter name="rowstride" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="util_cursor_tracker_to_clutter"
+              c:identifier="shell_util_cursor_tracker_to_clutter">
+      <return-value transfer-ownership="none">
+        <type name="none" c:type="void"/>
+      </return-value>
+      <parameters>
+        <parameter name="tracker" transfer-ownership="none">
+          <type name="Meta.CursorTracker" c:type="MetaCursorTracker*"/>
+        </parameter>
+        <parameter name="texture" transfer-ownership="none">
+          <type name="Clutter.Texture" c:type="ClutterTexture*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="util_format_date" c:identifier="shell_util_format_date">
+      <doc xml:space="preserve">Formats a date for the current locale. This should be
+used instead of the Spidermonkey Date.toLocaleFormat()
+extension because Date.toLocaleFormat() is buggy for
+Unicode format strings:
+https://bugzilla.mozilla.org/show_bug.cgi?id=508783</doc>
+      <return-value transfer-ownership="full">
+        <doc xml:space="preserve">the formatted date. If the date is
+ outside of the range of a GDateTime (which contains
+ any plausible dates we actually care about), will
+ return an empty string.</doc>
+        <type name="utf8" c:type="char*"/>
+      </return-value>
+      <parameters>
+        <parameter name="format" transfer-ownership="none">
+          <doc xml:space="preserve">a strftime-style string format, as parsed by
+  g_date_time_format()</doc>
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="time_ms" transfer-ownership="none">
+          <doc xml:space="preserve">milliseconds since 1970-01-01 00:00:00 UTC; the
+  value returned by Date.getTime()</doc>
+          <type name="gint64" c:type="gint64"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="util_get_content_for_window_actor"
+              c:identifier="shell_util_get_content_for_window_actor">
+      <return-value transfer-ownership="full">
+        <doc xml:space="preserve">a new #ClutterContent</doc>
+        <type name="Clutter.Content" c:type="ClutterContent*"/>
+      </return-value>
+      <parameters>
+        <parameter name="window_actor" transfer-ownership="none">
+          <doc xml:space="preserve">a #MetaWindowActor</doc>
+          <type name="Meta.WindowActor" c:type="MetaWindowActor*"/>
+        </parameter>
+        <parameter name="window_rect" transfer-ownership="none">
+          <doc xml:space="preserve">a #MetaRectangle</doc>
+          <type name="Meta.Rectangle" c:type="MetaRectangle*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="util_get_transformed_allocation"
+              c:identifier="shell_util_get_transformed_allocation">
+      <doc xml:space="preserve">This function is similar to a combination of clutter_actor_get_transformed_position(),
+and clutter_actor_get_transformed_size(), but unlike
+clutter_actor_get_transformed_size(), it always returns a transform
+of the current allocation, while clutter_actor_get_transformed_size() returns
+bad values (the transform of the requested size) if a relayout has been
+queued.
+
+This function is more convenient to use than
+clutter_actor_get_abs_allocation_vertices() if no transformation is in effect
+and also works around limitations in the GJS binding of arrays.</doc>
+      <return-value transfer-ownership="none">
+        <type name="none" c:type="void"/>
+      </return-value>
+      <parameters>
+        <parameter name="actor" transfer-ownership="none">
+          <doc xml:space="preserve">a #ClutterActor</doc>
+          <type name="Clutter.Actor" c:type="ClutterActor*"/>
+        </parameter>
+        <parameter name="box"
+                   direction="out"
+                   caller-allocates="1"
+                   transfer-ownership="none">
+          <doc xml:space="preserve">location to store returned box in stage coordinates</doc>
+          <type name="Clutter.ActorBox" c:type="ClutterActorBox*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="util_get_week_start"
+              c:identifier="shell_util_get_week_start">
+      <doc xml:space="preserve">Gets the first week day for the current locale, expressed as a
+number in the range 0..6, representing week days from Sunday to
+Saturday.</doc>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve">A number representing the first week day for the current
+         locale</doc>
+        <type name="gint" c:type="int"/>
+      </return-value>
+    </function>
+    <function name="util_need_background_refresh"
+              c:identifier="shell_util_need_background_refresh">
+      <return-value transfer-ownership="none">
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+    </function>
+    <function name="util_regex_escape" c:identifier="shell_util_regex_escape">
+      <doc xml:space="preserve">A wrapper around g_regex_escape_string() that takes its argument as
+\0-terminated string rather than a byte-array that confuses gjs.</doc>
+      <return-value transfer-ownership="full">
+        <doc xml:space="preserve">@str with all regex-special characters escaped</doc>
+        <type name="utf8" c:type="char*"/>
+      </return-value>
+      <parameters>
+        <parameter name="str" transfer-ownership="none">
+          <doc xml:space="preserve">a UTF-8 string to escape</doc>
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="util_set_hidden_from_pick"
+              c:identifier="shell_util_set_hidden_from_pick">
+      <doc xml:space="preserve">If @hidden is %TRUE, hide @actor from pick even with a mode of
+%CLUTTER_PICK_ALL; if @hidden is %FALSE, unhide @actor.</doc>
+      <return-value transfer-ownership="none">
+        <type name="none" c:type="void"/>
+      </return-value>
+      <parameters>
+        <parameter name="actor" transfer-ownership="none">
+          <doc xml:space="preserve">A #ClutterActor</doc>
+          <type name="Clutter.Actor" c:type="ClutterActor*"/>
+        </parameter>
+        <parameter name="hidden" transfer-ownership="none">
+          <doc xml:space="preserve">Whether @actor should be hidden from pick</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="util_translate_time_string"
+              c:identifier="shell_util_translate_time_string">
+      <doc xml:space="preserve">Translate @str according to the locale defined by LC_TIME; unlike
+dcgettext(), the translations is still taken from the LC_MESSAGES
+catalogue and not the LC_TIME one.</doc>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve">the translated string</doc>
+        <type name="utf8" c:type="const char*"/>
+      </return-value>
+      <parameters>
+        <parameter name="str" transfer-ownership="none">
+          <doc xml:space="preserve">String to translate</doc>
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="util_wifexited" c:identifier="shell_util_wifexited">
+      <doc xml:space="preserve">Implements libc standard WIFEXITED, that cannot be used JS
+code.</doc>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve">TRUE if the process exited normally, FALSE otherwise</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+      <parameters>
+        <parameter name="status" transfer-ownership="none">
+          <doc xml:space="preserve">the status returned by wait() or waitpid()</doc>
+          <type name="gint" c:type="int"/>
+        </parameter>
+        <parameter name="exit"
+                   direction="out"
+                   caller-allocates="0"
+                   transfer-ownership="full">
+          <doc xml:space="preserve">the actual exit status of the process</doc>
+          <type name="gint" c:type="int*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="write_string_to_stream"
+              c:identifier="shell_write_string_to_stream"
+              throws="1">
+      <doc xml:space="preserve">Write a string to a GOutputStream as UTF-8. This is a workaround
+for not having binary buffers in GJS.</doc>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve">%TRUE if write succeeded</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+      <parameters>
+        <parameter name="stream" transfer-ownership="none">
+          <doc xml:space="preserve">a #GOutputStream</doc>
+          <type name="Gio.OutputStream" c:type="GOutputStream*"/>
+        </parameter>
+        <parameter name="str" transfer-ownership="none">
+          <doc xml:space="preserve">a UTF-8 string to write to @stream</doc>
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+      </parameters>
+    </function>
+  </namespace>
+</repository>

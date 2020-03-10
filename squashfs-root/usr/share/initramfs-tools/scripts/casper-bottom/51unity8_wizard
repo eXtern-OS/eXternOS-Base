@@ -1,0 +1,28 @@
+#!/bin/sh
+
+PREREQ=""
+DESCRIPTION="Disabling unity8's first run wizard..."
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+
+log_begin_msg "$DESCRIPTION"
+
+# Users want to try unity8, not to configure their system
+mkdir -p /root/home/$USERNAME/.config/ubuntu-system-settings
+touch /root/home/$USERNAME/.config/ubuntu-system-settings/wizard-has-run
+chroot /root chown -R $USERNAME.$USERNAME /home/$USERNAME/.config
+
+log_end_msg

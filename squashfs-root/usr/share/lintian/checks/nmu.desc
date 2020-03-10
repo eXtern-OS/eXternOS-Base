@@ -1,0 +1,114 @@
+Check-Script: nmu
+Author: Jeroen van Wolffelaar <jeroen@wolffelaar.nl>
+Abbrev: nmu
+Type: source
+Needs-Info: unpacked
+Info: This script checks if a source package is consistent about its NMU-ness.
+
+Tag: orphaned-package-should-not-have-uploaders
+Severity: important
+Certainty: certain
+Info: Packages with their maintainer set to packages@qa.debian.org, i.e.
+ orphaned packages, should not have uploaders. Adopt the package properly if
+ you want to resume its maintenance.
+
+Tag: qa-upload-has-incorrect-version-number
+Severity: normal
+Certainty: certain
+Info: A QA upload (uploading an orphaned package without adopting it) is
+ always a maintainer upload: it should not get a NMU revision number.
+
+Tag: team-upload-has-incorrect-version-number
+Severity: normal
+Certainty: certain
+Info: A team upload (uploading a package from the same team without adding
+ oneself as maintainer or uploader) is a maintainer upload: it should not
+ get a NMU revision number.  Team uploads are recognized by the string
+ "team upload" on the first line of the changelog file.
+
+Tag: unnecessary-team-upload
+Severity: normal
+Certainty: certain
+Info: The <tt>debian/changelog</tt> file refers to a "Team upload" but the
+ uploader is listed amongst the Maintainer/Uploaders.
+
+Tag: source-nmu-has-incorrect-version-number
+Severity: normal
+Certainty: certain
+Info: A source NMU should have a Debian revision of "-x.x" (or "+nmuX" for a
+ native package). This is to prevent stealing version numbers from the
+ maintainer.
+ .
+ Maybe you didn't intend this upload to be a NMU, in that case, please
+ double-check that the most recent entry in the changelog is byte-for-byte
+ identical to the maintainer or one of the uploaders.  If this is a local
+ package (not intended for Debian), you can suppress this warning by
+ putting "local" in the version number or "local package" on the first
+ line of the changelog entry.
+Ref: devref 5.11.2
+
+Tag: maintainer-upload-has-incorrect-version-number
+Severity: normal
+Certainty: certain
+Info: A maintainer upload should have a Debian revision without dots.
+ Revisions with dots are reserved for Non-Maintainer Uploads (NMU's), if you
+ do a maintainer-upload with dots, a potential NMU'er has problems choosing a
+ correct version number.
+
+Tag: changelog-should-mention-qa
+Severity: normal
+Certainty: certain
+Info: If this upload is to orphan this package, please mention this fact on
+ the first line of the changelog. If this is a QA upload, please mention "QA
+ (group) upload" there.
+
+Tag: changelog-should-mention-nmu
+Severity: normal
+Certainty: certain
+Info: When you NMU a package, that fact should be mentioned on the first line
+ in the changelog entry.  Use the words "NMU" or "Non-maintainer upload"
+ (case insensitive).
+ .
+ Maybe you didn't intend this upload to be a NMU, in that case, please
+ double-check that the most recent entry in the changelog is byte-for-byte
+ identical to the maintainer or one of the uploaders.  If this is a local
+ package (not intended for Debian), you can suppress this warning by
+ putting "local" in the version number or "local package" on the first
+ line of the changelog entry.
+Ref: devref 5.11.3
+
+Tag: changelog-should-not-mention-nmu
+Severity: normal
+Certainty: possible
+Info: The first line of the changelog entry for this package appears to
+ indicate it is a non-maintainer upload (by including either that string
+ or the string "NMU" and not saying that it's an acknowledgement), but the
+ changelog indicates the person making this release is one of the
+ maintainers.
+ .
+ If this was intended to be an NMU, do not add yourself as a maintainer or
+ uploader.  Otherwise, please rephrase your changelog entry to not cause
+ confusion.
+
+Tag: changelog-is-symlink
+Severity: normal
+Certainty: certain
+Info: The file <tt>debian/changelog</tt> is a symlink instead of a regular
+ file. This is unnecessary and makes package checking and manipulation
+ more difficult. If the changelog should be available in the source
+ package under multiple names, make <tt>debian/changelog</tt> the real
+ file and the other names symlinks to it.
+ .
+ This problem may have prevented Lintian from performing other checks,
+ leading to undetected changelog errors.
+
+Tag: extra-whitespace-around-name-in-changelog-trailer
+Severity: normal
+Certainty: certain
+Info: There is too much whitespace around the name in debian/changelog.
+ .
+ The format is:
+   -- NAME &lt;EMAIL&gt;  DATE
+ .
+ Note that there must be exactly 1 space after the "--" and exactly
+ 2 spaces before the "DATE".

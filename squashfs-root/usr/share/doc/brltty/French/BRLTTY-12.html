@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools">
+ <TITLE>Manuel de référence de BRLTTY: Syntaxe des opérateurs</TITLE>
+ <LINK HREF="BRLTTY-13.html" REL=next>
+ <LINK HREF="BRLTTY-11.html" REL=previous>
+ <LINK HREF="BRLTTY.html#toc12" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="BRLTTY-13.html">Page suivante</A>
+<A HREF="BRLTTY-11.html">Page précédente</A>
+<A HREF="BRLTTY.html#toc12">Table des matières</A>
+<HR>
+<H2><A NAME="s12">12.</A> <A HREF="BRLTTY.html#toc12">Syntaxe des opérateurs</A></H2>
+
+
+
+<H2><A NAME="operand-driver"></A> <A NAME="ss12.1">12.1</A> <A HREF="BRLTTY.html#toc12.1">Spécification de pilote</A>
+</H2>
+
+<P>Vous devez spécifier un pilote pour un afficheur braille ou une synthèse vocale
+via les deux lettres de son
+<A HREF="BRLTTY-10.html#drivers">Code d'identification de pilote</A>.</P>
+<P>Vous pouvez spécifier une liste de pilotes délimités par des virgules. Dans
+ce cas, une détection automatique s'effectue en utilisant chaque pilote listé dans la
+séquence.
+Il se peut que vous soyez obligé de faire des essais afin de déterminer l'ordre le plus
+fiable, étant donné que certains pilotes se détectent mieux automatiquement que d'autres.</P>
+<P>Si vous ne spécifiez que le mot <CODE>auto</CODE>, la détection automatique s'effectue
+en n'utilisant que les pilotes connus pour leur fiabilité dans le but
+recherché.</P>
+
+<H2><A NAME="operand-braille-device"></A> <A NAME="ss12.2">12.2</A> <A HREF="BRLTTY.html#toc12.2">Spécification du périphérique braille</A>
+</H2>
+
+<P>La forme générale de la spécification d'un périphérique braille (voir l'option
+<A HREF="BRLTTY-4.html#options-braille-device">-d</A> en ligne de commande, la ligne
+<A HREF="BRLTTY-4.html#configure-braille-device">braille-device</A> du fichier de
+configuration, et l'option de compilation
+<A HREF="BRLTTY-3.html#build-braille-device">--with-braille-device</A>) est
+<CODE>qualificateur:</CODE><EM>donnée</EM>.
+Par compatibilité entre d'anciennes versions et les plus récentes, si vous ommettez
+le qualificateur c'est <CODE>serial:</CODE> qui est utilisé.</P>
+<P>Les types de périphérique suivants sont supportés:
+<DL>
+<DT><B>Bluetooth</B><DD>
+<P>Pour un périphérique bluetooth, spécifiez <CODE>bluetooth:</CODE><EM>addresse</EM>.
+L'adresse doit se composer de six nombres hexadécimaux à deux chiffres
+séparés par des "deux-points", par exemple <CODE>01:23:45:67:89:AB</CODE>.</P>
+<DT><B>Série</B><DD>
+<P>Pour un périphérique en port série, spécifiez
+<CODE>serial:</CODE><EM>/chemin/vers/peripherique</EM>. Le qualificateur <CODE>serial:</CODE>
+est facultatif (pour compatibilité). Si vous donnez un chemin
+relatif, il est déterminé par rapport à <CODE>/dev</CODE> (l'emplacement habituel
+où les périphériques sont définis sur un système de type Unix).
+Les spécifications de périphérique suivantes se réfèrent toutes au port
+série 1 sur Linux:
+<UL>
+<LI><CODE>serial:/dev/ttyS0</CODE></LI>
+<LI><CODE>serial:ttyS0</CODE></LI>
+<LI><CODE>/dev/ttyS0</CODE></LI>
+<LI><CODE>ttyS0</CODE></LI>
+</UL>
+</P>
+<DT><B>USB</B><DD>
+<P>Pour un périphérique USB, spécifiez <CODE>usb:</CODE>. BRLTTY cherchera le premier
+périphérique USB qui entraîne l'utilisation du pilote d'afficheur braille.
+Par exemple, si vous avez plus d'un afficheur braille USB nécessitant le
+même pilote, vous pouvez affiner la spécification de pilote en y affectant
+le numéro de série de l'afficheur, comme par exemple <CODE>usb:12345</CODE>.
+N.B.: La possibilité "identification par le numéro de série" ne
+fonctionne pas avec certains modèles car certains fabricants, soit
+n'indiquent pas la description du numéro de série, soit l'indiquent
+mais pas en une valeur unique.</P>
+</DL>
+</P>
+<P>Vous pouvez spécifier une liste de pilotes délimités par des virgules. Dans
+ce cas, une détection automatique s'effectue en utilisant chaque pilote listé dans la
+séquence. Cette possibilité est particulièrement utile si vous avez un
+afficheur braille à plusieurs interfaces, par exemple un port série et un USB.
+Dans ce cas, il est en général préférable de lister d'abord le port USB, comme
+par exemple <CODE>usb:,serial:/dev/ttyS0</CODE>, étant donné que l'ancien a
+tendance à être mieux détecté que le plus récent.</P>
+
+<H2><A NAME="operand-pcm-device"></A> <A NAME="ss12.3">12.3</A> <A HREF="BRLTTY.html#toc12.3">Spécification d'un périphérique PCM</A>
+</H2>
+
+<P>Dans la plupart des cas, le périphériqve PCM est le chemin complet vers un
+périphérique du système approprié. Les exceptions sont:
+<DL>
+<DT><B>ALSA</B><DD>
+<P>Le nom et ses arguments pour le périphérique logique ou physique, comme
+<EM>nom</EM>[<CODE>:</CODE><EM>argument</EM><CODE>,</CODE>...].</P>
+</DL>
+</P>
+<P>Le périphérique PCM par défaut est:
+<BR><CENTER>
+<TABLE BORDER><TR><TD>
+Plateforme</TD><TD>Périphérique</TD></TR><TR><TD>
+FreeBSD</TD><TD>/dev/dsp</TD></TR><TR><TD>
+Linux/ALSA</TD><TD>hw:0,0</TD></TR><TR><TD>
+Linux/OSS</TD><TD>/dev/dsp</TD></TR><TR><TD>
+NetBSD</TD><TD>/dev/audio</TD></TR><TR><TD>
+OpenBSD</TD><TD>/dev/audio</TD></TR><TR><TD>
+Qnx</TD><TD>le périphérique de sortie PCM préféré</TD></TR><TR><TD>
+Solaris</TD><TD>/dev/audio</TD></TR><TR><TD>
+</TD></TR></TABLE>
+</CENTER><BR>
+</P>
+
+<H2><A NAME="operand-midi-device"></A> <A NAME="ss12.4">12.4</A> <A HREF="BRLTTY.html#toc12.4">Spécification de périphérique MIDI</A>
+</H2>
+
+<P>Dans la plupart des cas, le périphérique MIDI est le chemin complet vers un
+périphérique du système approprié. Les exceptions sont:
+<DL>
+<DT><B>ALSA</B><DD>
+<P>Le client et le port séparés par "deux-points" tel que
+<EM>client</EM><CODE>:</CODE><EM>port</EM>.
+Vous pouvez spécifier chacun soit comme un nombre soit comme une
+sous-chaîne sensible à la casse de son nom.</P>
+</DL>
+</P>
+<P>Le périphérique MIDI par défaut est:
+<BR><CENTER>
+<TABLE BORDER><TR><TD>
+Plateforme</TD><TD>Périphérique</TD></TR><TR><TD>
+Linux/ALSA</TD><TD>le premier port de sortie MIDI disponible</TD></TR><TR><TD>
+Linux/OSS</TD><TD>/dev/sequencer</TD></TR><TR><TD>
+</TD></TR></TABLE>
+</CENTER><BR>
+</P>
+<HR>
+<A HREF="BRLTTY-13.html">Page suivante</A>
+<A HREF="BRLTTY-11.html">Page précédente</A>
+<A HREF="BRLTTY.html#toc12">Table des matières</A>
+</BODY>
+</HTML>

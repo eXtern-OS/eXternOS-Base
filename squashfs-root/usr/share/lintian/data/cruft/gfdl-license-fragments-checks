@@ -1,0 +1,34 @@
+# this data file check gfdl
+# first field is known good gfdl section (regex)
+# if second field is present it is good only for these files (regexp). By default ok for all file
+# if third field is present tag with the parameters if the two previous field match
+
+# verbatim text used in the license
+\A with [ ] the [ ] Invariant [ ] Sections [ ] being [ ] LIST (?:[ ] THEIR [ ] TITLES)? [ ]? [,\.;]? [ ]? with [ ] the [ ] Front(?:[ ]?-?[ ]?|[ ])Cover [ ] Texts [ ] being [ ] LIST (?:[ ] THEIR [ ] TITLES)? [ ]? [,\.;]? [ ]? (?:and[ ])? with [ ] the [ ] Back(?:[ ]?-?[ ]?|[ ])Cover [ ] Texts [ ] being [ ] LIST (?:[ ] THEIR [ ] TITLES)? \Z ~~
+
+# variant are tagged not official
+# official text variations
+\A (?:with[ ])? (?:the[ ])? no [ ]? Invariant [ ]+ Sections? [ ]? [,\.;]? [ ]? (?:with[ ])? (?:the[ ])? no [ ] Front[ ]?-?[ ]?Cover (?:[ ] Texts?)? [ ]? [,\.;]? [ ]? (?:and[ ])? (?:with[ ])? (?:the[ ])? no [ ] Back[ ]?-?[ ]?Covers? (?:[ ] Texts?)?\Z ~~ ~~ license-problem-gfdl-non-official-text
+# (dict fold)
+\A (?:with[ ])? no [ ] Invariant [ ] Sections? [ ]? [,\.;]? [ ]? (?:no[ ])? Front[ ]?-?[ ]? (?:cover[ ])? (?:Texts?[ ])? or [ ] (?:no[ ])? Back(?:[ ]?-?[ ]?|[ ])Cover [ ] Texts?\Z ~~ ~~ license-problem-gfdl-non-official-text
+# (libnss-pgsql)
+\A There [ ] are [ ] no [ ] invariants? [ ] sections? \Z ~~ ~~ license-problem-gfdl-non-official-text
+# (parsewiki)
+\A without [ ] any [ ] Invariant [ ] Sections? \Z ~~ ~~ license-problem-gfdl-non-official-text
+# (lilypond)
+\A with [ ] no [ ] invariants? [ ] sections? (?:[ ]?[,\.;][ ]? and [ ] no [ ] covers? [ ] texts?)?\Z ~~ ~~ license-problem-gfdl-non-official-text
+# jedit
+\A with [ ] no [ ] invariant [ ] sections?[ ]?,?[ ]? front[ ]?-?[ ]?cover [ ] texts? [ ] or [ ] back[ ]?-?[ ]?cover [ ] texts?[ ]?,?[ ]?each [ ] as [ ] defined [ ] in [ ] the [ ] license \Z ~~ ~~ license-problem-gfdl-non-official-text
+# oidentd
+with [ ] (?:the[ ])? invariants? [ ] sections? [ ] being [ ] no [ ] invariants? [ ] sections?[ ]?[,\.;]?[ ]? with [ ] the [ ] front[ ]?-?[ ]?cover [ ] texts? [ ] being [ ] no  [ ] front[ ]?-?[ ]?cover [ ] texts? ?[ ]?[,\.;]?[ ]?  (?:and[ ])? with [ ] the [ ] back[ ]?-?[ ]?cover [ ] texts? [ ] being [ ] no  [ ] back[ ]?-?[ ]?cover [ ] texts? \Z~~ ~~ license-problem-gfdl-non-official-text
+#sdlbasic
+\A with [ ] no [ ] invariants? [ ] (?:sections?[ ])? texts? \Z  ~~ ~~ license-problem-gfdl-non-official-text
+# smbc
+\A (:?with [ ])?  no [ ] front[ ]?-?[ ]?cover [ ] texts? [ ]?[,;\.]?[ ]? and [ ] with [ ] no [ ] back[ ]?-?[ ]?cover [ ] texts? \Z ~~ ~~ license-problem-gfdl-non-official-text
+# tla
+\A with [ ] the [ ] front[ ]?-?[ ]?cover [ ] texts? [ ] being [ ] \(none\) [ ] and [ ] with [ ] the [ ] back[ ]?-?[ ]?cover [ ] texts [ ] being [ ] \(none\) \Z ~~ ~~ license-problem-gfdl-non-official-text
+#
+# Conditionally ok
+#
+with [ ] \&FDLInvariantSections; [ ]? [,\.;]? [ ]? with [ ]+\&FDLFrontCoverText; [ ]? [,\.;]? [ ]? and [ ] with [ ] \&FDLBackCoverText; ~~ /customization/[^/]+/entities/[^/]+\.docbook\Z
+\A with [ ] the [ ]? <_: [ ]? link-\d+ [ ]? /> [ ]? being [ ] list [ ] their [ ] titles [ ]?[,\.;]?[ ]? with [ ] the [ ]? <_: [ ]* link-\d+ [ ]? /> [ ]? being [ ] list [ ]?[,\.;]?[ ]? (?:and[ ])? with [ ] the [ ]? <_:[ ]? link-\d+ [ ]? /> [ ]? being [ ] list \Z ~~ .po\Z

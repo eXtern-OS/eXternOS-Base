@@ -1,0 +1,216 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ecm(7) &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ecm-developer(7)" href="ecm-developer.7.html" />
+    <link rel="prev" title="Reference Manuals" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ecm-developer.7.html" title="ecm-developer(7)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Reference Manuals"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="target" id="manual:ecm(7)"></span><div class="section" id="ecm-7">
+<h1><a class="toc-backref" href="#id1">ecm(7)</a><a class="headerlink" href="#ecm-7" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#ecm-7" id="id1">ecm(7)</a><ul>
+<li><a class="reference internal" href="#introduction" id="id2">Introduction</a></li>
+<li><a class="reference internal" href="#usage" id="id3">Usage</a><ul>
+<li><a class="reference internal" href="#organization" id="id4">Organization</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#development" id="id5">Development</a></li>
+<li><a class="reference internal" href="#license" id="id6">License</a></li>
+<li><a class="reference internal" href="#links" id="id7">Links</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="introduction">
+<h2><a class="toc-backref" href="#id2">Introduction</a><a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The Extra CMake Modules package, or ECM, adds to the modules provided by CMake,
+including ones used by <code class="docutils literal"><span class="pre">find_package()</span></code> to find common software, ones that
+can be used directly in <code class="docutils literal"><span class="pre">CMakeLists.txt</span></code> files to perform common tasks and
+toolchain files that must be specified on the commandline by the user.</p>
+<p>In addition, it provides common build settings used in software produced by the
+KDE community.</p>
+<p>While the driving force of this module is to reduce duplication in CMake scripts
+across KDE software, it is intended to be useful for any software that uses the
+CMake build system.</p>
+</div>
+<div class="section" id="usage">
+<h2><a class="toc-backref" href="#id3">Usage</a><a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>To use ECM, add the following to your <code class="docutils literal"><span class="pre">CMakeLists.txt</span></code>:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">find_package</span><span class="p">(</span><span class="s">ECM</span> <span class="s">REQUIRED</span> <span class="s">NO_MODULE</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_MODULE_PATH</span> <span class="o">${</span><span class="nv">ECM_MODULE_PATH</span><span class="o">}</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(note that you may want to append <code class="docutils literal"><span class="pre">${ECM_MODULE_PATH}</span></code> to
+<code class="docutils literal"><span class="pre">CMAKE_MODULE_PATH</span></code> rather than discarding the existing value).  You can then
+just include the modules you require, or use <code class="docutils literal"><span class="pre">find_package()</span></code> as needed.  For
+example:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">include</span><span class="p">(</span><span class="s">ECMInstallIcons</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Developers of KDE software will often want to use the KDE standard settings
+provided by ECM; they can do the following:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">find_package</span><span class="p">(</span><span class="s">ECM</span> <span class="s">REQUIRED</span> <span class="s">NO_MODULE</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_MODULE_PATH</span> <span class="o">${</span><span class="nv">ECM_MODULE_PATH</span><span class="o">}</span><span class="p">)</span>
+<span class="nb">include</span><span class="p">(</span><span class="s">KDEInstallDirs</span><span class="p">)</span>
+<span class="nb">include</span><span class="p">(</span><span class="s">KDECompilerSettings</span><span class="p">)</span>
+<span class="nb">include</span><span class="p">(</span><span class="s">KDECMakeSettings</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that any combination of the above includes can be used if you only want
+some of the settings.  Some of the functionality of
+<a class="reference internal" href="../kde-module/KDECMakeSettings.html#kde-module:KDECMakeSettings" title="KDECMakeSettings"><code class="xref ecm ecm-kde-module docutils literal"><span class="pre">KDECMakeSettings</span></code></a> can also be selectively disabled.</p>
+<div class="section" id="organization">
+<h3><a class="toc-backref" href="#id4">Organization</a><a class="headerlink" href="#organization" title="Permalink to this headline">¶</a></h3>
+<p>ECM provides four different types of modules.</p>
+<ul class="simple">
+<li>Core modules provide helpful macros for use in project CMake scripts.
+See <a class="reference internal" href="ecm-modules.7.html#manual:ecm-modules(7)" title="ecm-modules(7)"><code class="xref ecm ecm-manual docutils literal"><span class="pre">ecm-modules(7)</span></code></a> for more information.</li>
+<li>Find modules extend the functionality of CMake’s <code class="docutils literal"><span class="pre">find_package()</span></code> command.
+See <a class="reference internal" href="ecm-find-modules.7.html#manual:ecm-find-modules(7)" title="ecm-find-modules(7)"><code class="xref ecm ecm-manual docutils literal"><span class="pre">ecm-find-modules(7)</span></code></a> for more information.</li>
+<li>KDE modules provide common settings for software produced by KDE; much of this
+may also be useful to other projects.  See <a class="reference internal" href="ecm-kde-modules.7.html#manual:ecm-kde-modules(7)" title="ecm-kde-modules(7)"><code class="xref ecm ecm-manual docutils literal"><span class="pre">ecm-kde-modules(7)</span></code></a> for
+more information.</li>
+<li>Toolchain files change the build tools and targets used by CMake. See
+<a class="reference internal" href="ecm-toolchains.7.html#manual:ecm-toolchains(7)" title="ecm-toolchains(7)"><code class="xref ecm ecm-manual docutils literal"><span class="pre">ecm-toolchains(7)</span></code></a> for more information.</li>
+</ul>
+<p>The <code class="docutils literal"><span class="pre">${ECM_MODULE_DIR}</span></code>, <code class="docutils literal"><span class="pre">${ECM_FIND_MODULE_DIR}</span></code> and
+<code class="docutils literal"><span class="pre">${ECM_KDE_MODULE_DIR}</span></code> variables may be used instead of
+<code class="docutils literal"><span class="pre">${ECM_MODULE_PATH}</span></code> if you only need some of this functionality.</p>
+</div>
+</div>
+<div class="section" id="development">
+<h2><a class="toc-backref" href="#id5">Development</a><a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="ecm-developer.7.html#manual:ecm-developer(7)" title="ecm-developer(7)"><code class="xref ecm ecm-manual docutils literal"><span class="pre">ecm-developer(7)</span></code></a> manual contains more information about
+developing for Extra CMake Modules.</p>
+</div>
+<div class="section" id="license">
+<h2><a class="toc-backref" href="#id6">License</a><a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>All code is licensed under the <a class="reference external" href="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause license</a>.</p>
+</div>
+<div class="section" id="links">
+<h2><a class="toc-backref" href="#id7">Links</a><a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Home page: <a class="reference external" href="https://commits.kde.org/extra-cmake-modules">https://commits.kde.org/extra-cmake-modules</a></li>
+<li>Documentation: <a class="reference external" href="https://api.kde.org/ecm/">https://api.kde.org/ecm/</a></li>
+<li>Mailing list: <a class="reference external" href="https://mail.kde.org/mailman/listinfo/kde-buildsystem">https://mail.kde.org/mailman/listinfo/kde-buildsystem</a></li>
+<li>IRC channel: #kde-devel on Freenode</li>
+<li>Git repository: <a class="reference external" href="https://commits.kde.org/extra-cmake-modules">https://commits.kde.org/extra-cmake-modules</a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ecm(7)</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#usage">Usage</a><ul>
+<li><a class="reference internal" href="#organization">Organization</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#development">Development</a></li>
+<li><a class="reference internal" href="#license">License</a></li>
+<li><a class="reference internal" href="#links">Links</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../index.html"
+                        title="previous chapter">Reference Manuals</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ecm-developer.7.html"
+                        title="next chapter">ecm-developer(7)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/manual/ecm.7.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ecm-developer.7.html" title="ecm-developer(7)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Reference Manuals"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

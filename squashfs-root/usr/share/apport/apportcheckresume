@@ -1,0 +1,91 @@
+#!/usr/bin/python3
+
+# Copyright (C) 2009 Canonical Ltd.
+# Author: Andy Whitcroft <apw@ubuntu.com>
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.  See http://www.gnu.org/copyleft/gpl.html for
+# the full text of the license.
+
+import os
+import sys
+import datetime
+
+from apport import unicode_gettext as _
+from apport.hookutils import attach_file_if_exists
+
+
+def main(argv=None):
+
+    if argv is None:
+        argv = sys.argv
+
+    try:
+        from apport.packaging_impl import impl as packaging
+        if not packaging.enabled():
+            return -1
+
+        import apport.report
+        pr = apport.report.Report(type='KernelOops')
+
+        libdir = '/var/lib/pm-utils'
+        flagfile = libdir + '/status'
+        stresslog = libdir + '/stress.log'
+        hanglog = libdir + '/resume-hang.log'
+
+        pr.add_os_info()
+        pr.add_proc_info()
+        pr.add_user_info()
+        pr.add_package(apport.packaging.get_kernel_package())
+
+        # grab the contents of the suspend/resume flag file
+        attach_file_if_exists(pr, flagfile, 'Failure')
+
+        # grab the contents of the suspend/hibernate log file
+        attach_file_if_exists(pr, '/var/log/pm-suspend.log', 'SleepLog')
+
+        # grab the contents of the suspend/resume stress test log if present.
+        attach_file_if_exists(pr, stresslog, 'StressLog')
+
+        # Ensure we are appropriately tagged.
+        if 'Failure' in pr:
+            pr['Tags'] = 'resume ' + pr['Failure']
+
+            # Record the failure mode.
+            pr['Failure'] += '/resume'
+
+        # If we had a late hang pull in the resume-hang logfile.  Also
+        # add an additional tag so we can pick these out.
+        if os.path.exists(hanglog):
+            attach_file_if_exists(pr, hanglog, 'ResumeHangLog')
+            pr['Tags'] += ' resume-late-hang'
+
+        # Generate a sensible report message.
+        if pr.get('Failure') == 'suspend/resume':
+            pr['Annotation'] = _('This occurred during a previous suspend, and prevented the system from resuming properly.')
+        else:
+            pr['Annotation'] = _('This occurred during a previous hibernation, and prevented the system from resuming properly.')
+
+        # If we had a late hang make sure the dialog is clear that they may
+        # not have noticed.  Also update the bug title so we notice.
+        if os.path.exists(hanglog):
+            pr['Annotation'] += '  ' + _('The resume processing hung very near the end and will have appeared to have completed normally.')
+            pr['Failure'] = 'late resume'
+
+        if pr.check_ignored():
+            return 0
+
+        nowtime = datetime.datetime.now()
+        pr_filename = '/var/crash/susres.%s.crash' % (str(nowtime).replace(' ', '_'))
+        with os.fdopen(os.open(pr_filename, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o640), 'wb') as report_file:
+            pr.write(report_file)
+        return 0
+    except Exception:
+        print('apportcheckresume failed')
+        raise
+
+
+if __name__ == '__main__':
+    sys.exit(main())

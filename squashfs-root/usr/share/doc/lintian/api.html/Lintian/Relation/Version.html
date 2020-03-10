@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Relation::Version</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#FUNCTIONS'>FUNCTIONS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Relation::Version - Comparison operators on Debian versions</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre>    print &#34;yes\n&#34; if versions_equal(&#39;1.0&#39;, &#39;1.00&#39;);
+    print &#34;yes\n&#34; if versions_gte(&#39;1.1&#39;, &#39;1.0&#39;);
+    print &#34;no\n&#34; if versions_lte(&#39;1.1&#39;, &#39;1.0&#39;);
+    print &#34;yes\n&#34; if versions_gt(&#39;1.1&#39;, &#39;1.0&#39;);
+    print &#34;no\n&#34; if versions_lt(&#39;1.1&#39;, &#39;1.1&#39;);
+    print &#34;yes\n&#34; if versions_compare(&#39;1.1&#39;, &#39;&#60;=&#39;, &#39;1.1&#39;);</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>This module provides five functions for comparing version numbers. The underlying implementation uses <code>libapt-pkg-perl</code> to ensure that the results match what dpkg will expect.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="FUNCTIONS"
+>FUNCTIONS</a></h1>
+
+<dl>
+<dt><a name="versions_equal(A,_B)"
+>versions_equal(A, B)</a></dt>
+
+<dd>
+<p>Returns true if A is equal to B (<code>=</code>) and false otherwise.</p>
+
+<dt><a name="versions_lte(A,_B)"
+>versions_lte(A, B)</a></dt>
+
+<dd>
+<p>Returns true if A is less than or equal (<code>&#60;=</code>) to B and false otherwise.</p>
+
+<dt><a name="versions_gte(A,_B)"
+>versions_gte(A, B)</a></dt>
+
+<dd>
+<p>Returns true if A is greater than or equal (<code>&#62;=</code>) to B and false otherwise.</p>
+
+<dt><a name="versions_lt(A,_B)"
+>versions_lt(A, B)</a></dt>
+
+<dd>
+<p>Returns true if A is less than (<code>&#60;&#60;</code>) B and false otherwise.</p>
+
+<dt><a name="versions_gt(A,_B)"
+>versions_gt(A, B)</a></dt>
+
+<dd>
+<p>Returns true if A is greater than (<code>&#62;&#62;</code>) B and false otherwise.</p>
+
+<dt><a name="versions_compare(A,_OP,_B)"
+>versions_compare(A, OP, B)</a></dt>
+
+<dd>
+<p>Returns true if A OP B, where OP is one of <code>=</code>, <code>&#60;=</code>, <code>&#62;=</code>, <code>&#60;&#60;</code>, or <code>&#62;&#62;</code>, and false otherwise.</p>
+
+<dt><a name="versions_comparator_(A,_B)"
+>versions_comparator (A, B)</a></dt>
+
+<dd>
+<p>Returns -1, 0 or 1 if the version A is (respectively) less than, equal to or greater than B. This is useful for (e.g.) sorting a list of versions:</p>
+
+<pre> foreach my $version (sort versions_comparator @versions) {
+    ...
+ }</pre>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Russ Allbery &#60;rra@debian.org&#62; for Lintian and adapted to use libapt-pkg-perl by Adam D. Barratt &#60;adam@adam-barratt-org.uk&#62;.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1)</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

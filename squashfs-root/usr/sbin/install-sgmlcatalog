@@ -1,0 +1,157 @@
+#!/usr/bin/perl
+## ----------------------------------------------------------------------
+## install-sgmlcatalog : Debian SGML catalog management tool
+## ----------------------------------------------------------------------
+## Copyright (c) 1997 Christian Schwarz
+## Copyright (c) 2001-2004 Ardo van Rangelrooij
+##
+## This is free software; see the GNU General Public Licence version 2
+## or later for copying conditions.  There is NO warranty.
+## ----------------------------------------------------------------------
+
+## ----------------------------------------------------------------------
+use strict;
+use warnings;
+
+## ----------------------------------------------------------------------
+use Getopt::Long qw( &GetOptions );
+
+## ----------------------------------------------------------------------
+$0 =~ m|[^/]+$|;
+
+## ----------------------------------------------------------------------
+my $name = $&;
+
+## ----------------------------------------------------------------------
+use vars qw( $package );
+use vars qw( $quiet );
+
+## ----------------------------------------------------------------------
+Getopt::Long::Configure( 'no_ignore_case' );
+if ( ! GetOptions(
+		  'quiet' => \$quiet,
+		  'remove=s' => \$package,
+		  )
+     )
+{
+    &usage();
+    exit 1;
+}
+
+## ----------------------------------------------------------------------
+if ( ! defined( $package ) )
+{
+    &usage();
+    exit -1;
+}
+
+## ----------------------------------------------------------------------
+&remove( $package );
+
+## ----------------------------------------------------------------------
+exit 0;
+
+## ----------------------------------------------------------------------
+sub remove
+{
+
+    ## ------------------------------------------------------------------
+    my $package = $_[0];
+
+    ## ----------------------------------------------------------------------
+    my $catalog = '/etc/sgml/transitional.cat';
+    my $backup  = '/etc/sgml/transitional.cat.old';
+
+    ## ------------------------------------------------------------------
+    return if ( ! -f $catalog );
+
+    ## ----------------------------------------------------------------------
+    my $top_marker    = '-- START SGML CATALOG ENTRY FOR PACKAGE';
+    my $bottom_marker = '-- END SGML CATALOG ENTRY FOR PACKAGE';
+    my $eol_marker    = '--';
+
+    ## ------------------------------------------------------------------
+    my @data;
+
+   ## -------------------------------------------------------------------
+    open( CATALOG, '<', $catalog )
+	or &error( "cannot open SGML catalog $catalog for reading: $!" );
+
+   ## -------------------------------------------------------------------
+    while ( <CATALOG> )
+    {
+	chop;
+	if ( /$top_marker $package $eol_marker/o )
+	{
+	    if ( $data[ $#data ] =~ /^\s*/o )
+	    {
+		pop( @data );
+	    }
+	    while ( !/$bottom_marker $package $eol_marker/o )
+	    {
+		if ( not ($_ = <CATALOG>) )
+		{
+		    &error( "cannot find bottom marker for package $package:\n    $bottom_marker $package $eol_marker\nplease remove the entry for $package manually" );
+		}
+	    }
+	}
+	else
+	{
+	    push( @data, $_ );
+	}
+    }
+
+    ## ------------------------------------------------------------------
+    close( CATALOG )
+	or &error( "cannot close SGML catalog $catalog: $!" );
+
+    ## ------------------------------------------------------------------
+    if ( -f $catalog )
+    {
+	if ( -f $backup )
+	{
+	    unlink( $backup )
+		or &error( "cannot remove backup of catalog $backup: $!" );
+	}
+	rename( $catalog, $backup )
+	    or &error( "cannot rename $catalog to $backup: $!" );
+    }
+
+    ## ------------------------------------------------------------------
+    open( CATALOG, '>', $catalog )
+	or &error( "cannot open SGML catalog $catalog for writing: $!" );
+
+    ## ------------------------------------------------------------------
+    for ( @data )
+    {
+	print CATALOG "$_\n";
+    }
+
+    ## ------------------------------------------------------------------
+    close( CATALOG )
+	or &error( "cannot close SGML catalog $catalog: $!" );
+
+} ## remove
+
+## ----------------------------------------------------------------------
+sub usage
+{
+
+    ## ------------------------------------------------------------------
+    print STDERR <<END;
+Usage:
+    $name --remove package
+END
+
+} ## usage
+
+## ----------------------------------------------------------------------
+sub error
+{
+
+    ## ------------------------------------------------------------------
+    die "$name: error: $_[0]\n";
+
+} ## error
+
+## ----------------------------------------------------------------------

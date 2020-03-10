@@ -1,0 +1,126 @@
+Check-Script: dbus
+Author: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Type: binary
+Info: Checks for deprecated or harmful D-Bus configuration
+Needs-Info: unpacked
+
+Tag: dbus-policy-at-console
+Severity: normal
+Certainty: certain
+Info: The package contains D-Bus policy configuration that uses the
+ deprecated <tt>at_console</tt> condition to impose a different policy
+ for users who are "logged in at the console" according to
+ systemd-logind, ConsoleKit or similar APIs, such as:
+ .
+   &lt;policy context="default"&gt;
+     &lt;deny send_destination="com.example.PowerManagementDaemon"/&gt;
+   &lt;/policy&gt;
+   &lt;policy at_console="true"&gt;
+     &lt;allow send_destination="com.example.PowerManagementDaemon"/&gt;
+   &lt;/policy&gt;
+ .
+ The maintainers of D-Bus recommend that services should allow or deny
+ method calls according to broad categories that are not typically altered
+ by the system administrator (usually either "all users", or only root
+ and/or a specified system user). If finer-grained authorization
+ is required, the service should accept the method call message, then call
+ out to PolicyKit to decide whether to honor the request. PolicyKit can
+ use system-administrator-configurable policies to make that decision,
+ including distinguishing between users who are "at the console" and
+ those who are not.
+Ref: https://bugs.freedesktop.org/show_bug.cgi?id=39611
+
+Tag: dbus-policy-without-send-destination
+Severity: normal
+Certainty: certain
+Info: The package contains D-Bus policy configuration that uses
+ one of the <tt>send_*</tt> conditions, but does not specify a
+ <tt>send_destination</tt>, and is not specific to root.
+ .
+ Rules of the form
+ .
+   &lt;allow send_interface="com.example.MyInterface"/&gt;
+ .
+ allow messages with the given interface to be sent to <i>any</i>
+ service, not just the one installing the rule, which is rarely
+ what was intended.
+ .
+ Similarly, on the system bus, rules of the form
+ .
+   &lt;deny send_interface="com.example.MyInterface"/&gt;
+ .
+ are redundant with the system bus's default-deny policy, and have
+ unintended effects on other services.
+ .
+ This check ignores rules of the form
+ .
+   &lt;policy user="root"&gt;
+     &lt;allow ... /&gt;
+   &lt;/policy&gt;
+ .
+ which are commonly used for the "agent" pattern seen in services like
+ BlueZ and NetworkManager: a root-privileged daemon calls out to
+ one or more per-user user interface agent processes with no specific
+ name, so <tt>send_destination</tt> is not easily applicable.
+ However, such rules should still be made as specific as possible to
+ avoid undesired side-effects.
+Ref: https://bugs.freedesktop.org/show_bug.cgi?id=18961,http://lists.freedesktop.org/archives/dbus/2008-February/009401.html
+
+Tag: dbus-policy-excessively-broad
+Severity: serious
+Certainty: possible
+Info: The package contains D-Bus policy configuration that
+ matches broad classes of messages. This will cause strange side-effects,
+ is almost certainly unintended, and is a probable security flaw.
+ .
+ For instance,
+ .
+   &lt;policy user="daemon"&gt;
+     &lt;allow send_type="method_call"/&gt;
+     &lt;allow send_destination="com.example.Bees"/&gt;
+   &lt;/policy&gt;
+ .
+ in any system bus policy file would allow the <tt>daemon</tt> user to send
+ any method call to any service, including method calls which are meant to
+ be restricted to root-only for security, such as
+ <tt>org.freedesktop.systemd1.Manager.StartTransientUnit</tt>. (In addition,
+ it allows that user to send any message to the <tt>com.example.Bees</tt>
+ service.)
+ .
+ The intended policy for that particular example was probably more like
+ .
+   &lt;policy user="daemon"&gt;
+     &lt;allow send_type="method_call" send_destination="com.example.Bees"/&gt;
+   &lt;/policy&gt;
+ .
+ which correctly allows method calls to that particular service only.
+Ref: http://www.openwall.com/lists/oss-security/2015/01/27/25
+
+Tag: dbus-session-service-wrong-name
+Severity: wishlist
+Certainty: certain
+Info: The package contains a D-Bus session service whose filename
+ does not match the <tt>Name</tt> field found in the file.
+ This makes it possible that two non-conflicting packages could
+ provide the same service name with the same search-path priority
+ (i.e. in the same directory). dbus-daemon will arbitrarily choose
+ one of them, which is unlikely to be the desired result.
+ .
+ Best-practice is that if you implement a session service whose well-known
+ name is <tt>com.example.MyService1</tt>, and it should be
+ service-activatable, you should achieve that by packaging
+ <tt>/usr/share/dbus-1/services/com.example.MyService1.service</tt>.
+
+Tag: dbus-system-service-wrong-name
+Severity: serious
+Certainty: certain
+Info: The package contains a D-Bus system service whose filename
+ does not match the <tt>Name</tt> field found in the file.
+ This will not work, because dbus-daemon-launch-helper specifically
+ looks for that filename, in order to keep system-level activation
+ secure and predictable.
+ .
+ If you implement a session service whose well-known name is
+ <tt>com.example.MyService1</tt>, and it should be service-activatable,
+ you must provide
+ <tt>/usr/share/dbus-1/system-services/com.example.MyService1.service</tt>.

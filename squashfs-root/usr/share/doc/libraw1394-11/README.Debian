@@ -1,0 +1,46 @@
+libraw1394 for Debian
+---------------------
+
+This library supports both the old Firewire stack and the new "juju" stack.
+The new stack is recommended if you are using Linux kernel versions >= 2.6.33.
+
+Before all, you must verify if your actual linux kernel is built with
+ieee1394 and raw1394 support. Generaly, if you use a debian linux kernel
+package, it is the case, but you can know that with this command:
+
+	grep FIREWIRE /boot/config-`uname -r`
+        grep IEEE1394 /boot/config-`uname -r`
+
+If these features are available in you kernel, you may see these lines:
+
+	CONFIG_FIREWIRE=y/m (new stack)
+
+	CONFIG_IEEE1394=y/m (old stack)
+        CONFIG_IEEE1394_RAWIO=y/m (old stack)
+
+If these features are compiled as modules, you might need to load the modules.
+You can do that with this command:
+
+	sudo modprobe firewire (new stack)
+	sudo modprobe raw1394 (old stack)
+
+With the old stack, the device file /dev/raw1394 will be created for
+libraw1394. This library is used by applications to access FireWire devices.
+The default access permissions allows only users in the "disk" group.  This
+restrictive setting was chosen since raw1394 allows almost full access to the
+FireWire bus and all connected devices are accessible, which may include hard
+disks.
+
+You can add your user in the "disk" group with this command:
+
+	sudo adduser <user> disk
+
+If you don't intend to connect sensitive devices and e.g. only want to get
+video streams out of a camera, you can relax the permissions.  If you don't
+have malicious users on your system, you can allow access for all users with
+this command:
+
+	sudo chmod 666 /dev/raw1394
+
+With the new stack, the FireWire devices are accessed through the /dev/fw*
+files.

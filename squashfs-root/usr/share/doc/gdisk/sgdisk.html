@@ -1,0 +1,735 @@
+Content-type: text/html; charset=UTF-8
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Man page of SGDISK</TITLE>
+</HEAD><BODY>
+<H1>SGDISK</H1>
+Section: GPT fdisk Manual (8)<BR>Updated: 1.0.3<BR><A HREF="#index">Index</A>
+<A HREF="/cgi-bin/man/man2html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+sgdisk - Command-line GUID partition table (GPT) manipulator for Linux and Unix
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>sgdisk </B>
+
+[ options ]
+<I>device</I>
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+GPT fdisk is a text-mode menu-driven package for creation and manipulation of
+partition tables. It consists of two programs: the text-mode interactive
+<B>gdisk</B> and the command-line <B>sgdisk</B>. Either program will
+automatically convert an old-style Master Boot Record (MBR) partition table
+or BSD disklabel stored without an MBR carrier partition to the newer Globally
+Unique Identifier (GUID) Partition Table (GPT) format, or will load a GUID
+partition table. This man page documents the command-line <B>sgdisk</B>
+program.
+<P>
+Some advanced data manipulation and
+recovery options require you to understand the distinctions between the
+main and backup data, as well as between the GPT headers and the partition
+tables. For information on MBR vs. GPT, as well as GPT terminology and
+structure, see the extended <B>gdisk</B> documentation at
+<I><A HREF="http://www.rodsbooks.com/gdisk/">http://www.rodsbooks.com/gdisk/</A></I> or consult Wikipedia.
+<P>
+The <B>sgdisk</B> program employs a user interface that's based entirely on
+the command line, making it suitable for use in scripts or by experts who
+want to make one or two quick changes to a disk. (The program may query the
+user when certain errors are encountered, though.) The program's name is
+based on <B>sfdisk</B>, but the user options of the two programs are
+entirely different from one another.
+<P>
+Ordinarily, <B>sgdisk</B> operates on disk device files, such as
+<I>/dev/sda</I> or <I>/dev/hda</I> under Linux, <I>/dev/disk0</I> under
+Mac OS X, or <I>/dev/ad0</I> or <I>/dev/da0</I> under FreeBSD. The program
+can also operate on disk image files, which can be either copies of whole
+disks (made with <B>dd</B>, for instance) or raw disk images used by
+emulators such as QEMU or VMWare. Note that only <I>raw</I> disk images
+are supported; <B>sgdisk</B> cannot work on compressed or other advanced
+disk image formats.
+<P>
+The MBR partitioning system uses a combination of cylinder/head/sector
+(CHS) addressing and logical block addressing (LBA). The former is klunky
+and limiting. GPT drops CHS addressing and uses 64-bit LBA mode
+exclusively. Thus, GPT data structures, and therefore
+<B>sgdisk</B>, do not need to deal with CHS geometries and all the problems
+they create.
+<P>
+For best results, you should use an OS-specific partition table
+program whenever possible. For example, you should make Mac OS X
+partitions with the Mac OS X Disk Utility program and Linux partitions
+with the Linux <B>gdisk</B>, <B>sgdisk</B>, or GNU Parted programs.
+<P>
+Upon start, <B>sgdisk</B> attempts to identify the partition type in use on
+the disk. If it finds valid GPT data, <B>sgdisk</B> will use it. If
+<B>sgdisk</B> finds a valid MBR or BSD disklabel but no GPT data, it will
+attempt to convert the MBR or disklabel into GPT form. (BSD disklabels are
+likely to have unusable first and/or final partitions because they overlap
+with the GPT data structures, though.) GPT fdisk can identify, but not use
+data in, Apple Partition Map (APM) disks, which are used on 680x0- and
+PowerPC-based Macintoshes. If you specify any option that results in
+changes to an MBR or BSD disklabel, <B>sgdisk</B> ignores those changes
+unless the <I>-g</I> (<I>--mbrtogpt</I>), <I>-z</I> (<I>--zap</I>), or
+<I>-Z</I> (<I>--zap-all</I>) option is used. If you use the <I>-g</I>
+option, <B>sgdisk</B> replaces the MBR or disklabel with a GPT. <I>This
+action is potentially dangerous!</I> Your system may become unbootable, and
+partition type codes may become corrupted if the disk uses unrecognized
+type codes. Boot problems are particularly likely if you're multi-booting
+with any GPT-unaware OS.
+<P>
+The MBR-to-GPT conversion will leave at least one gap in the partition
+numbering if the original MBR used logical partitions. These gaps are
+harmless, but you can eliminate them by using the <I>-s</I> (<I>--sort</I>)
+option, if you like. (Doing this may require you to update your
+<I>/etc/fstab</I> file.)
+<P>
+When creating a fresh partition table, certain considerations may be in
+order:
+<P>
+<DL COMPACT>
+<DT><B>*</B>
+
+<DD>
+For data (non-boot) disks, and for boot disks used on BIOS-based computers
+with GRUB as the boot loader, partitions may be created in whatever order
+and in whatever sizes are desired.
+<P>
+<DT><B>*</B>
+
+<DD>
+Boot disks for EFI-based systems require an <I>EFI System Partition</I>
+(<B>gdisk</B> internal code 0xEF00) formatted as FAT-32. I recommended
+making this partition 550 MiB. (Smaller ESPs are common, but some EFIs have
+flaky FAT drivers that necessitate a larger partition for reliable
+operation.) Boot-related files are stored here. (Note that GNU Parted
+identifies such partitions as having the &quot;boot flag&quot; set.)
+<P>
+<DT><B>*</B>
+
+<DD>
+Some boot loaders for BIOS-based systems make use of a <I>BIOS Boot
+Partition</I> (<B>gdisk</B> internal code 0xEF02), in which the secondary
+boot loader is stored, possibly without the benefit of a filesystem. (GRUB2
+may optionally use such a partition.) This partition can typically be quite
+small (roughly 32 to 200 KiB, although 1 MiB is more common in practice),
+but you should consult your boot loader documentation for details.
+<P>
+<DT><B>*</B>
+
+<DD>
+If Windows is to boot from a GPT disk, a partition of type <I>Microsoft
+Reserved</I> (<B>sgdisk</B>
+internal code 0x0C01) is recommended. This partition should be about 128 MiB
+in size. It ordinarily follows the EFI System Partition and immediately
+precedes the Windows data partitions. (Note that GNU Parted creates all
+FAT partitions as this type, which actually makes the partition unusable
+for normal file storage in both Windows and Mac OS X.)
+<P>
+<DT><B>*</B>
+
+<DD>
+Some OSes' GPT utilities create some blank space (typically 128 MiB) after
+each partition. The intent is to enable future disk utilities to use this
+space. Such free space is not required of GPT disks, but creating it may
+help in future disk maintenance.
+<P>
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+Some options take no arguments, others take one argument (typically a partition
+number), and others take compound arguments with colon delimitation. For
+instance, <I>-n</I> (<I>--new</I>) takes a partition number, a starting
+sector number, and an ending sector number, as in <B>sgdisk -n 2:2000:50000
+/dev/sdc</B>, which creates a new partition, numbered 2, starting at sector
+2000 an ending at sector 50,000, on <I>/dev/sdc</I>.
+<P>
+Unrelated options may be combined; however, some such combinations will be
+nonsense (such as deleting a partition and then changing its GUID type code).
+<B>sgdisk</B> interprets options in the order in which they're entered, so
+effects can vary depending on order. For instance, <B>sgdisk -s -d 2</B>
+sorts the partition table entries and then deletes partition 2 from the
+newly-sorted list; but <B>sgdisk -d 2 -s</B> deletes the original partition
+2 and then sorts the modified partition table.
+<P>
+Error checking and opportunities to correct mistakes in <B>sgdisk</B> are
+minimal. Although the program endeavors to keep the GPT data structures legal,
+it does not prompt for verification before performing its actions. Unless you
+require a command-line-driven program, you should use the interactive
+<B>gdisk</B> instead of <B>sgdisk</B>, since <B>gdisk</B> allows you to
+quit without saving your changes, should you make a mistake.
+<P>
+Although <B>sgdisk</B> is based on the same partition-manipulation code as
+<B>gdisk</B>, <B>sgdisk</B> implements fewer features than its interactive
+sibling. Options available in <B>sgdisk</B> are:
+<P>
+<DL COMPACT>
+<DT><B>-a, --set-alignment=value</B>
+
+<DD>
+Set the sector alignment multiple. GPT fdisk aligns the start of partitions
+to sectors that are multiples of this value, which defaults to 1MiB (2048
+on disks with 512-byte sectors) on freshly formatted disks. This alignment
+value is necessary to obtain optimum performance with Western Digital
+Advanced Format and similar drives with larger physical than logical sector
+sizes, with some types of RAID arrays, and with SSD devices.
+<P>
+<DT><B>-A, --attributes=list|[partnum:show|or|nand|xor|=|set|clear|toggle|get[:bitnum|hexbitmask]]</B>
+
+<DD>
+View or set partition attributes. Use <I>list</I> to see defined (known)
+attribute values. Omit the partition number (and even the device filename)
+when using this option. The others require a partition number. The
+<I>show</I> and <I>get</I> options show the current attribute settings
+(all attributes or for a particular bit, respectively). The <I>or</I>,
+<I>nand</I>, <I>xor</I>, <I>=</I>, <I>set</I>, <I>clear</I>, and
+<I>toggle</I> options enable you to change the attribute bit value. The
+<I>set</I>, <I>clear</I>, <I>toggle</I>, and <I>get</I> options work on a
+bit number; the others work on a hexadecimal bit mask. For example, type 
+<B>sgdisk -A 4:set:2 /dev/sdc</B> to set the bit 2 attribute (legacy BIOS
+bootable) on partition 4 on <I>/dev/sdc</I>.
+<P>
+<DT><B>-b, --backup=file</B>
+
+<DD>
+Save partition data to a backup file. You can back up your current
+in-memory partition table to a disk file using this option. The resulting
+file is a binary file consisting of the protective MBR, the main GPT
+header, the backup GPT header, and one copy of the partition table, in that
+order. Note that the backup is of the current in-memory data structures, so
+if you launch the program, make changes, and then use this option, the
+backup will reflect your changes. If the GPT data structures are damaged,
+the backup may not accurately reflect the damaged state; instead, they
+will reflect GPT fdisk's first-pass interpretation of the GPT.
+<P>
+<DT><B>-c, --change-name=partnum:name</B>
+
+<DD>
+Change the GPT name of a partition. This name is encoded as a UTF-16
+string, but proper entry and display of anything beyond basic ASCII values
+requires suitable locale and font support. For the most part, Linux ignores
+the partition name, but it may be important in some OSes. If you want to
+set a name that includes a space, enclose it in quotation marks, as in
+<I>sgdisk -c 1:&quot;Sample Name&quot; /dev/sdb</I>. Note that the GPT name of a
+partition is distinct from the filesystem name, which is encoded in the
+filesystem's data structures.
+<P>
+<DT><B>-C, --recompute-chs</B>
+
+<DD>
+Recompute CHS values in protective or hybrid MBR. This option can sometimes
+help if a disk utility, OS, or BIOS doesn't like the CHS values used by the
+partitions in the protective or hybrid MBR. In particular, the GPT
+specification requires a CHS value of 0xFFFFFF for over-8GiB partitions,
+but this value is technically illegal by the usual standards. Some BIOSes
+hang if they encounter this value. This option will recompute a more normal
+CHS value -- 0xFEFFFF for over-8GiB partitions, enabling these BIOSes to
+boot.
+<P>
+<DT><B>-d, --delete=partnum</B>
+
+<DD>
+Delete a partition. This action deletes the entry from the partition table
+but does not disturb the data within the sectors originally allocated to
+the partition on the disk. If a corresponding hybrid MBR partition exists,
+<B>gdisk</B> deletes it, as well, and expands any adjacent 0xEE (EFI GPT)
+MBR protective partition to fill the new free space.
+<P>
+<DT><B>-D, --display-alignment</B>
+
+<DD>
+Display current sector alignment value. Partitions will be created on multiples
+of the sector value reported by this option. You can change the alignment value
+with the -a option.
+<P>
+<DT><B>e, --move-second-header</B>
+
+<DD>
+Move backup GPT data structures to the end of the disk. Use this option if
+you've added disks to a RAID array, thus creating a virtual disk with space
+that follows the backup GPT data structures. This command moves the backup
+GPT data structures to the end of the disk, where they belong.
+<P>
+<DT><B>-E, --end-of-largest</B>
+
+<DD>
+Displays the sector number of the end of the largest available block of
+sectors on the disk. A script may store this value and pass it back as
+part of <I>-n</I>'s option to create a partition. If no unallocated
+sectors are available, this function returns the value 0.
+<P>
+<DT><B>-f, --first-in-largest</B>
+
+<DD>
+Displays the sector number of the start of the largest available block of
+sectors on the disk. A script may store this value and pass it back as
+part of <I>-n</I>'s option to create a partition. If no unallocated
+sectors are available, this function returns the value 0. Note that this
+parameter is blind to partition alignment; when you actually create a
+partition, its start point might be changed from this value.
+<P>
+<DT><B>-F, --first-aligned-in-largest</B>
+
+<DD>
+Similar to <I>-f</I> (<I>--first-in-largest</I>), except returns the
+sector number with the current alignment correction applied. Use this
+function if you need to compute the actual partition start point rather
+than a theoretical start point or the actual start point if you set the
+alignment value to 1.
+<P>
+<DT><B>-g, --mbrtogpt</B>
+
+<DD>
+Convert an MBR or BSD disklabel disk to a GPT disk. As a safety measure, use of
+this option is required on MBR or BSD disklabel disks if you intend to save your
+changes, in order to prevent accidentally damaging such disks.
+<P>
+<DT><B>-G, --randomize-guids</B>
+
+<DD>
+Randomize the disk's GUID and all partitions' unique GUIDs (but not their
+partition type code GUIDs). This function may be used after cloning a disk
+in order to render all GUIDs once again unique.
+<P>
+<DT><B>-h, --hybrid</B>
+
+<DD>
+Create a hybrid MBR. This option takes from one to three partition numbers,
+separated by colons, as arguments. The created hybrid MBR places an EFI GPT
+(type 0xEE) partition first in the table, followed by the partition(s) you
+specify. Their type codes are based on the GPT fdisk type codes divided by
+0x0100, which is usually correct for Windows partitions. If the
+active/bootable flag should be set, you must do so in another program, such
+as <B>fdisk</B>. The <B>gdisk</B> program offers additional hybrid MBR
+creation options.
+<P>
+<DT><B>-i, --info=partnum</B>
+
+<DD>
+Show detailed partition information. The summary information produced by
+the <I>-p</I> command necessarily omits many details, such as the partition's
+unique GUID and the translation of <B>sgdisk</B>'s
+internal partition type code to a plain type name. The <I>-i</I> option
+displays this information for a single partition.
+<P>
+<DT><B>-j, --adjust-main-table=sector</B>
+
+<DD>
+Adjust the location of the main partition table. This value is normally 2,
+but it may need to be increased in some cases, such as when a
+system-on-chip (SoC) is hard-coded to read boot code from sector 2. I
+recommend against adjusting this value unless doing so is absolutely
+necessary.
+<P>
+<DT><B>-l, --load-backup=file</B>
+
+<DD>
+Load partition data from a backup file. This option is the reverse of the
+<I>-b</I> option. Note that restoring partition data from anything
+but the original disk is not recommended. This option will work even if the
+disk's original partition table is bad; however, most other options on the
+same command line will be ignored.
+<P>
+<DT><B>-L, --list-types</B>
+
+<DD>
+Display a summary of partition types. GPT uses a GUID to identify partition
+types for particular OSes and purposes. For ease of data entry,
+<B>sgdisk</B> compresses these into two-byte (four-digit hexadecimal)
+values that are related to their equivalent MBR codes. Specifically, the
+MBR code is multiplied by hexadecimal 0x0100. For instance, the code for
+Linux swap space in MBR is 0x82, and it's 0x8200 in <B>gdisk</B>. A
+one-to-one correspondence is impossible, though. Most notably, the codes
+for all varieties of FAT and NTFS partition correspond to a single GPT code
+(entered as 0x0700 in <B>sgdisk</B>). Some OSes use a single MBR code but
+employ many more codes in GPT. For these, <B>sgdisk</B> adds code numbers
+sequentially, such as 0xa500 for a FreeBSD disklabel, 0xa501 for FreeBSD
+boot, 0xa502 for FreeBSD swap, and so on. Note that these two-byte codes
+are unique to <B>gdisk</B> and <B>sgdisk</B>. This option does not require
+you to specify a valid disk device filename.
+<P>
+<DT><B>-m, --gpttombr</B>
+
+<DD>
+Convert disk from GPT to MBR form. This option takes from one to four
+partition numbers, separated by colons, as arguments. Their type codes are
+based on the GPT fdisk type codes divided by 0x0100. If the active/bootable
+flag should be set, you must do so in another program, such as <B>fdisk</B>.
+The <B>gdisk</B> program offers additional MBR conversion options. It is not
+possible to convert more than four partitions from GPT to MBR form or to
+convert partitions that start above the 2TiB mark or that are larger than
+2TiB.
+<P>
+<DT><B>-n, --new=partnum:start:end</B>
+
+<DD>
+Create a new partition. You enter a partition number, starting sector, and
+an ending sector. Both start and end sectors can be specified in absolute
+terms as sector numbers or as positions measured in kibibytes (K),
+mebibytes (M), gibibytes (G), tebibytes (T), or pebibytes (P); for
+instance, <I></I><B>40M</B> specifies a position 40MiB from the start of the
+disk. You can specify locations relative to the start or end of the
+specified default range by preceding the number by a '+' or '-' symbol, as
+in <I></I><B>+2G</B> to specify a point 2GiB after the default start sector,
+or <I></I><B>-200M</B> to specify a point 200MiB before the last available
+sector. A start or end value of 0 specifies the default value, which is the
+start of the largest available block for the start sector and the end of
+the same block for the end sector. A partnum value of 0 causes the program
+to use the first available partition number. Subsequent uses of the
+<I>-A</I>, <I>-c</I>, <I>-t</I>, and <I>-u</I> options may also use
+<I>0</I> to refer to the same partition.
+<P>
+<DT><B>-N, --largest-new=num</B>
+
+<DD>
+Create a new partition that fills the largest available block of space on
+the disk. You can use the <I>-a</I> (<I>--set-alignment</I>) option to
+adjust the alignment, if desired. A num value of 0 causes the program to
+use the first available partition number.
+<P>
+<DT><B>-o, --clear</B>
+
+<DD>
+Clear out all partition data. This includes GPT header data, all partition
+definitions, and the protective MBR. Note that this operation will, like
+most other operations, fail on a damaged disk. If you want to prepare a
+disk you know to be damaged for GPT use, you should first wipe it with -Z
+and then partition it normally. This option will work even if the
+disk's original partition table is bad; however, most other options on the
+same command line will be ignored.
+<P>
+<DT><B>-O, --print-mbr</B>
+
+<DD>
+Display basic <I>MBR</I> partition summary data. This includes partition
+numbers, starting and ending sector numbers, partition sizes, MBR partition
+types codes, and partition names. This option is useful mainly for
+diagnosing partition table problems, particularly on disks with hybrid
+MBRs.
+<P>
+<DT><B>-p, --print</B>
+
+<DD>
+Display basic GPT partition summary data. This includes partition numbers,
+starting and ending sector numbers, partition sizes, <B>sgdisk</B>'s
+partition types codes, and partition names. For additional information, use
+the <I>-i</I> (<I>--info</I>) option.
+<P>
+<DT><B>-P, --pretend</B>
+
+<DD>
+Pretend to make specified changes. In-memory GPT data structures are
+altered according to other parameters, but changes are not written
+to disk.
+<P>
+<DT><B>-r, --transpose</B>
+
+<DD>
+Swap two partitions' entries in the partition table. One or both partitions
+may be empty, although swapping two empty partitions is pointless. For
+instance, if partitions 1-4 are defined, transposing 1 and 5 results in a
+table with partitions numbered from 2-5. Transposing partitions in this
+way has no effect on their disk space allocation; it only alters their
+order in the partition table.
+<P>
+<DT><B>-R, --replicate=second_device_filename</B>
+
+<DD>
+Replicate the main device's partition table on the specified second device.
+Note that the replicated partition table is an exact copy, including all
+GUIDs; if the device should have its own unique GUIDs, you should use the
+-G option on the new disk.
+<P>
+<DT><B>-s, --sort</B>
+
+<DD>
+Sort partition entries. GPT partition numbers need not match the order of
+partitions on the disk. If you want them to match, you can use this option.
+Note that some partitioning utilities sort partitions whenever they make
+changes. Such changes will be reflected in your device filenames, so you
+may need to edit <I>/etc/fstab</I> if you use this option.
+<P>
+<DT><B>-t, --typecode=partnum:{hexcode|GUID}</B>
+
+<DD>
+Change a single partition's type code. You enter the type code using either
+a two-byte hexadecimal number, as described earlier, or a fully-specified
+GUID value, such as EBD0A0A2-B9E5-4433-87C0-68B6B72699C7.
+<P>
+<DT><B>-T, --transform-bsd=partnum</B>
+
+<DD>
+Transform BSD partitions into GPT partitions. This option works on BSD
+disklabels held within GPT (or converted MBR) partitions. Converted
+partitions' type codes are likely to need manual adjustment. <B>sgdisk</B>
+will attempt to convert BSD disklabels stored on the main disk when
+launched, but this conversion is likely to produce first and/or last
+partitions that are unusable. The many BSD variants means that the
+probability of <B>sgdisk</B> being unable to convert a BSD disklabel is
+high compared to the likelihood of problems with an MBR conversion.
+<P>
+<DT><B>-u, --partition-guid=partnum:guid</B>
+
+<DD>
+Set the partition unique GUID for an individual partition. The GUID may be
+a complete GUID or 'R' to set a random GUID.
+<P>
+<DT><B>-U, --disk-guid=guid</B>
+
+<DD>
+Set the GUID for the disk. The GUID may be a complete GUID or 'R' to set a
+random GUID.
+<P>
+<DT><B>--usage</B>
+
+<DD>
+Print a brief summary of available options.
+<P>
+<DT><B>-v, --verify</B>
+
+<DD>
+Verify disk. This option checks for a variety of problems, such as
+incorrect CRCs and mismatched main and backup data. This option does not
+automatically correct most problems, though; for that, you must use options
+on the recovery &amp; transformation menu. If no problems are found, this
+command displays a summary of unallocated disk space. This option will work
+even if the disk's original partition table is bad; however, most other
+options on the same command line will be ignored.
+<P>
+<DT><B>-V, --version</B>
+
+<DD>
+Display program version information. This option may be used without
+specifying a device filename.
+<P>
+<DT><B>-z, --zap</B>
+
+<DD>
+Zap (destroy) the GPT data structures and then exit. Use this option if you
+want to repartition a GPT disk using <B>fdisk</B> or some other GPT-unaware
+program. This option destroys only the GPT data structures; it leaves the
+MBR intact. This makes it useful for wiping out GPT data structures after a
+disk has been repartitioned for MBR using a GPT-unaware utility; however,
+there's a risk that it will damage boot loaders or even the start of the
+first or end of the last MBR partition. If you use it on a valid GPT disk,
+the MBR will be left with an inappropriate EFI GPT (0xEE) partition
+definition, which you can delete using another utility.
+<P>
+<DT><B>-Z, --zap-all</B>
+
+<DD>
+Zap (destroy) the GPT and MBR data structures and then exit. This option
+works much like <I>-z</I>, but as it wipes the MBR as well as the GPT, it's
+more suitable if you want to repartition a disk after using this option,
+and completely unsuitable if you've already repartitioned the disk.
+<P>
+<DT><B>-?, --help</B>
+
+<DD>
+Print a summary of options.
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>RETURN VALUES</H2>
+
+<B>sgdisk</B> returns various values depending on its success or failure:
+<P>
+<DL COMPACT>
+<DT><B>0</B>
+
+<DD>
+Normal program execution
+<P>
+<DT><B>1</B>
+
+<DD>
+Too few arguments
+<P>
+<DT><B>2</B>
+
+<DD>
+An error occurred while reading the partition table
+<P>
+<DT><B>3</B>
+
+<DD>
+Non-GPT disk detected and no <I>-g</I> option, but operation requires a
+write action
+<P>
+<DT><B>4</B>
+
+<DD>
+An error prevented saving changes
+<P>
+<DT><B>5</B>
+
+<DD>
+An error occurred while reading standard input (should never occur with
+sgdisk, but may with gdisk)
+<P>
+<DT><B>8</B>
+
+<DD>
+Disk replication operation (-R) failed
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>BUGS</H2>
+
+Known bugs and limitations include:
+<P>
+<DL COMPACT>
+<DT><B>*</B>
+
+<DD>
+The program compiles correctly only on Linux, FreeBSD, and Mac OS X. Linux
+versions for x86-64 (64-bit), x86 (32-bit), and PowerPC (32-bit) have been
+tested, with the x86-64 version having seen the most testing.
+<P>
+<DT><B>*</B>
+
+<DD>
+The FreeBSD version of the program can't write changes to the partition
+table to a disk when existing partitions on that disk are mounted. (The
+same problem exists with many other FreeBSD utilities, such as
+<B>gpt</B>, <B>fdisk</B>, and <B>dd</B>.) This limitation can be overcome
+by typing <B>sysctl kern.geom.debugflags=16</B> at a shell prompt.
+<P>
+<DT><B>*</B>
+
+<DD>
+The fields used to display the start and end sector numbers for partitions
+in the <I>-p</I> option are 14 characters wide. This translates to a limitation
+of about 45 PiB. On larger disks, the displayed columns will go out of
+alignment.
+<P>
+<DT><B>*</B>
+
+<DD>
+The program can load only up to 128 partitions (4 primary partitions and
+124 logical partitions) when converting from MBR format. This limit can
+be raised by changing the <I>#define MAX_MBR_PARTS</I> line in the
+<I>basicmbr.h</I> source code file and recompiling; however, such a change
+will require using a larger-than-normal partition table. (The limit
+of 128 partitions was chosen because that number equals the 128 partitions
+supported by the most common partition table size.)
+<P>
+<DT><B>*</B>
+
+<DD>
+Converting from MBR format sometimes fails because of insufficient space at
+the start or (more commonly) the end of the disk. Resizing the partition
+table (using the 's' option in the experts' menu) can sometimes overcome
+this problem; however, in extreme cases it may be necessary to resize a
+partition using GNU Parted or a similar tool prior to conversion with
+<B>gdisk</B>.
+<P>
+<DT><B>*</B>
+
+<DD>
+MBR conversions work only if the disk has correct LBA partition
+descriptors. These descriptors should be present on any disk over 8 GiB in
+size or on smaller disks partitioned with any but very ancient software.
+<P>
+<DT><B>*</B>
+
+<DD>
+BSD disklabel support can create first and/or last partitions that overlap
+with the GPT data structures. This can sometimes be compensated by
+adjusting the partition table size, but in extreme cases the affected
+partition(s) may need to be deleted.
+<P>
+<DT><B>*</B>
+
+<DD>
+Because of the highly variable nature of BSD disklabel structures,
+conversions from this form may be unreliable -- partitions may be dropped,
+converted in a way that creates overlaps with other partitions, or
+converted with incorrect start or end values. Use this feature with
+caution!
+<P>
+<DT><B>*</B>
+
+<DD>
+Booting after converting an MBR or BSD disklabel disk is likely to be
+disrupted. Sometimes re-installing a boot loader will fix the problem, but
+other times you may need to switch boot loaders. Except on EFI-based
+platforms, Windows through at least Windows 7 RC doesn't support booting
+from GPT disks. Creating a hybrid MBR (using the 'h' option on the recovery &amp;
+transformation menu) or abandoning GPT in favor of MBR may be your only
+options in this case.
+<P>
+</DL>
+<P>
+
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+Primary author: Roderick W. Smith (<A HREF="mailto:rodsmith@rodsbooks.com">rodsmith@rodsbooks.com</A>)
+<P>
+Contributors:
+<P>
+* Yves Blusseau (<A HREF="mailto:1otnwmz02@sneakemail.com">1otnwmz02@sneakemail.com</A>)
+<P>
+* David Hubbard (<A HREF="mailto:david.c.hubbard@gmail.com">david.c.hubbard@gmail.com</A>)
+<P>
+* Justin Maggard (<A HREF="mailto:justin.maggard@netgear.com">justin.maggard@netgear.com</A>)
+<P>
+* Dwight Schauer (<A HREF="mailto:dschauer@gmail.com">dschauer@gmail.com</A>)
+<P>
+* Florian Zumbiehl (<A HREF="mailto:florz@florz.de">florz@florz.de</A>)
+<P>
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B>cfdisk (8)</B>,
+<B>cgdisk (8)</B>,
+<B>fdisk (8)</B>,
+<B>gdisk (8)</B>,
+<B>mkfs (8)</B>,
+<B>parted (8)</B>,
+<B>sfdisk (8)</B>
+<B>fixparts (8)</B>
+<P>
+<I><A HREF="http://en.wikipedia.org/wiki/GUID_Partition_Table">http://en.wikipedia.org/wiki/GUID_Partition_Table</A></I>
+<P>
+<I><A HREF="http://developer.apple.com/technotes/tn2006/tn2166.html">http://developer.apple.com/technotes/tn2006/tn2166.html</A></I>
+<P>
+<I><A HREF="http://www.rodsbooks.com/gdisk/">http://www.rodsbooks.com/gdisk/</A></I>
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AVAILABILITY</H2>
+
+The <B>sgdisk</B> command is part of the <I>GPT fdisk</I> package and is
+available from Rod Smith.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">RETURN VALUES</A><DD>
+<DT><A HREF="#lbAG">BUGS</A><DD>
+<DT><A HREF="#lbAH">AUTHORS</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">AVAILABILITY</A><DD>
+</DL>
+<HR>
+This document was created by
+<A HREF="/cgi-bin/man/man2html">man2html</A>,
+using the manual pages.<BR>
+Time: 01:41:20 GMT, July 28, 2017
+</BODY>
+</HTML>

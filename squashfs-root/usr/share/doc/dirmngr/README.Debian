@@ -1,0 +1,47 @@
+dirmngr system integration
+==========================
+
+Since 2.1.x, gpg and most related processes will auto-launch dirmngr
+if needed.  These auto-launched processes will inherit whatever
+environment they started from, and they will not terminate
+automatically.
+
+systemd
+=======
+
+Since 2.1.17, users on machines with systemd will have a dirmngr
+process launched automatically by systemd's user session, upon first
+access of the standard socket.  systemd will also cleanly tear this
+process down at session logout.
+
+Users who don't want systemd to manage their dirmngr in this way for
+all future sessions should do:
+
+    systemctl --user mask --now dirmngr.socket
+
+Doing this means that dirmngr will fall back to its manual mode of
+operation.  (This decision can be reversed by the user with "unmask"
+instead of "mask")
+
+See systemctl(1) for more details about managing the dirmngr.socket
+unit.
+
+Manual dirmngr startup and teardown
+===================================
+
+Any user who wants to launch dirmngr manually (e.g., to talk to it
+with a tool from outside the GnuPG suite) and is *not* using systemd
+should first ensure that it is launched with:
+
+   gpgconf --launch dirmngr
+
+If dirmngr is launched manually or automatically (but not supervised
+by systemd), you also probably want to ensure that it terminates when
+your session ends with:
+
+   gpgconf --kill dirmngr
+
+If you're not using systemd, you may wish to add this command to your
+session logout scripts.
+
+ -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>, Mon, 23 Jan 2017 22:49:45 -0500

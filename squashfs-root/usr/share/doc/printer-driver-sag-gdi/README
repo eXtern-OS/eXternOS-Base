@@ -1,0 +1,49 @@
+
+rastertosag-gdi
+---------------
+
+A printer driver for the Ricoh Aficio SP 1000S and SP 1100S
+
+Created by palz <paalzza@gmail.com> in Feb 2011, Moscow, Russia
+
+License: GPL
+
+CUPS raster filter for Ricoh Aficio SP 1000S and SP 1100S. These
+printers use the SAG-GDI raster format by Sagem Communication and do
+not understand PCL or PostScript like most other Ricoh laser
+printers. If you find any other Ricoh printer working with this driver
+please tell.
+
+The SAG-GDI protocol is described here:
+http://www.undocprint.org/formats/page_description_languages/sagem-gdi
+
+Initial presentation of this driver:
+http://forums.linux-foundation.org/read.php?30,13489,13557
+
+
+Installation:
+
+CUPS and Python are needed on your system. Linux distributions have
+this usually included.
+
+If you have CUPS 1.4.x or newer run the following commands as root:
+
+cp rastertosag-gdi /usr/lib/cups/filter/
+chmod 755 /usr/lib/cups/filter/rastertosag-gdi
+cp rastertosag-gdi.drv /usr/share/cups/drv/
+chmod 644 /usr/share/cups/drv/rastertosag-gdi.drv
+
+If you have CUPS 1.3.x or older run the following commands as root:
+
+cp rastertosag-gdi /usr/lib/cups/filter/
+chmod 755 /usr/lib/cups/filter/rastertosag-gdi
+cp ppd/*.ppd /usr/share/cups/model/
+chmod 644 /usr/share/cups/model/rsp1?00s.ppd
+killall -HUP cupsd
+
+After that, set up your printer with the usual tools. Often it is
+enough to simply plug in the printer on USB and turn it on. Then a
+print queue with the newly installed driver will get set up
+automatically. If not, or if the printer is connected via the network,
+use the distribution's printer setup tool or the web interface of CUPS
+(http://localhost:631/).

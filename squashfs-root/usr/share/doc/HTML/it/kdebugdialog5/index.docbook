@@ -1,0 +1,262 @@
+<?xml version="1.0" ?>
+<!DOCTYPE article PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+"dtd/kdedbx45.dtd" [
+  <!ENTITY kdebugdialog5 "<application
+>KDebugDialog</application
+>">
+  <!ENTITY kappname "&kdebugdialog;">
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Italian "INCLUDE"
+> <!-- change language only here -->
+  
+  
+]>
+
+<article id="kdebugdialog5" lang="&language;">
+<title
+>KDebugDialog</title>
+<articleinfo>
+<authorgroup>
+<author
+>&David.Faure; &David.Faure.mail;</author>
+<othercredit role="translator"
+><firstname
+>Andrea</firstname
+><surname
+>Celli</surname
+><affiliation
+><address
+><email
+>andrea.celli@libero.it</email
+></address
+></affiliation
+><contrib
+>Aggiornamento della traduzione (2010)</contrib
+></othercredit
+><othercredit role="translator"
+><firstname
+>Dario</firstname
+><surname
+>Panico</surname
+><affiliation
+><address
+><email
+>dareus.persarumrex@gmail.com</email
+></address
+></affiliation
+><contrib
+>Traduzione del documento</contrib
+></othercredit
+><othercredit role="translator"
+><firstname
+>Samuele</firstname
+><surname
+>Kaplun</surname
+><affiliation
+><address
+><email
+>kaplun@aliceposta.it</email
+></address
+></affiliation
+><contrib
+>Traduzione del documento</contrib
+></othercredit
+> 
+</authorgroup>
+
+<date
+>2016-04-02</date>
+<releaseinfo
+>Frameworks 5.21</releaseinfo>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>KDebugdialog</keyword>
+<keyword
+>Individuazione degli errori</keyword>
+</keywordset>
+</articleinfo>
+
+
+<para
+>&kdebugdialog; è una finestra di dialogo per gestire i messaggi di diagnostica durante l'esecuzione. Ha due modalità: una semplice ed una più completa.</para>
+<para
+>Per poter effettuare delle modifiche l'opzione <guilabel
+>Disabilita tutto l'output di debug</guilabel
+> non deve essere attiva.</para>
+
+<note>
+<para
+>So per applicazioni che usano la libreria kdelibs4support di Frameworks.</para>
+<para
+>kDebug() è stata deprecata in &kde; Frameworks 5 a favore del sistema di log per categorie integrato in &Qt;, vedi <ulink url="http://doc.qt.io/qt-5/qloggingcategory.html"
+>QLoggingCategory</ulink
+>. Usa il programma <ulink url="https://commits.kde.org/kdebugsettings"
+>kdebugsettings</ulink
+> per abilitare/disabilitare qCDebug. </para>
+</note>
+
+<variablelist>
+<varlistentry>
+<term
+>Modo semplice</term>
+<listitem>
+<para
+>Se lanci semplicemente <command
+>kdebugdialog5</command
+>, vedrai una lista di <quote
+>aree</quote
+>, che possono essere abilitate o disabilitate. Una chiamata a <function
+>kDebug(area)</function
+> nel codice visualizzerà qualcosa nell'output di debug solo se l'area indicata è abilitata.</para>
+
+<note
+><para
+>Nota che kWarning, kError e kFatal appaiono sempre. <emphasis
+>NON sono</emphasis
+> controllate da questa impostazione. </para
+></note>
+
+<para
+>Inserisci una stringa nel riquadro <guilabel
+>Cerca</guilabel
+> posto in cima all'elenco. Questo ti permetterà di filtrare le aree mostrate. Usa i pulsanti posti sotto l'elenco per selezionare o deselezionare tutti gli elementi della vista (le altre aree non vengono influenzate) o cambia l'output di debug per un singolo elemento tramite la casella di controllo che lo precede. </para>
+
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+>Modalità completa</term>
+<listitem>
+<para
+>Se lanci <command
+>kdebugdialog5</command
+> <option
+>--fullmode</option
+>, per ogni livello di severità puoi definire separatamente che cosa debba essere fatto con i messaggi di diagnostica di quel livello, questo per ogni area di debug.</para>
+
+<para
+>In modalità completa, puoi per prima cosa selezionare le aree di debug che ti interessano dalla lista alla sinistra della finestra di dialogo usando la casella di ricerca sopra la lista.</para>
+
+<para
+>Puoi impostare indipendentemente l'output per i diversi tipi di messaggi:</para>
+
+<itemizedlist>
+<listitem
+><para
+><guilabel
+>Informazioni</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Avvertimento</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Errore</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Errore fatale</guilabel
+></para
+></listitem>
+</itemizedlist>
+
+<para
+>Per ognuno di questi tipi, puoi impostare le seguenti opzioni:</para>
+
+<variablelist>
+<varlistentry>
+<term
+><guilabel
+>Output su:</guilabel
+></term>
+<listitem>
+<para
+>In questa casella combinata puoi scegliere dove devono essere prodotti i messaggi. Le scelte sono: <quote
+>File</quote
+>, <quote
+>Riquadro Informativo</quote
+>, <quote
+>Shell</quote
+> (nel senso di stderr) e <quote
+>Syslog</quote
+>. Non dovresti dirigere i messaggi fatali al syslog a meno che tu stesso non sia l'amministratore di sistema. L'impostazione predefinita è <quote
+>Shell</quote
+>.</para
+> 
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Nome file:</guilabel
+></term>
+<listitem
+><para
+>Questa è abilitata solamente quando scegli <quote
+>File</quote
+> come output e fornisce il nome di quel file (che viene interpretato relativamente alla cartella corrente). L'impostazione predefinita è <quote
+>kdebug.dbg</quote
+>.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Inoltre, puoi spuntare la casella <guilabel
+>Termina in caso di errori fatali</guilabel
+>. In questo caso, se viene prodotto un messaggio di diagnostica con livello di severità impostato a <computeroutput
+>KDEBUG_FATAL</computeroutput
+>, l'applicazione viene abortita con un segnale SIGABRT dopo l'output del messaggio.</para>
+
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Quando chiudi la finestra di dialogo premendo <guibutton
+>OK</guibutton
+>, le tue scelte verranno applicate immediatamente e salvate nel file <filename
+>$<envar
+>XDG_CONFIG_HOME</envar
+>/kdebugrc</filename
+>  (il valore predefinito è ~/.config/kdebugrc). Quando premi <guibutton
+>Annulla</guibutton
+>, le tue scelte vengono scartate e vengono ripristinate quelle vecchie.</para>
+
+<para
+>Si ringrazia Kalle Dalheimer per la versione originale di &kdebugdialog;</para>
+
+<para
+>Dario Panico <email
+>dareus.persarumrex@gmail.com</email
+> (Traduzione della documentazione)</para
+><para
+>Samuele Kaplun<email
+>kaplun@aliceposta.it</email
+> (Traduzione del documento)</para
+> 
+
+&underFDL;
+
+</article>
+<!--
+Local Variables:
+mode: sgml
+sgml-omittag: nil
+sgml-general-insert-case: lower
+sgml-shorttag: t
+End:
+-->
+

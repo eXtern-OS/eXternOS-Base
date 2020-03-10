@@ -1,0 +1,98 @@
+D-Bus AT-SPI
+------------
+
+This version of at-spi is a major break from version 1.x.
+It has been completely rewritten to use D-Bus rather than
+ORBIT / CORBA for its transport protocol.
+
+A page including instructions for testing, project status and
+TODO items is kept up to date at:
+
+        http://www.linuxfoundation.org/en/AT-SPI_on_D-Bus
+
+The mailing list used for general questions is:
+
+        accessibility-atspi@lists.linux-foundation.org
+
+For bug reports, feature requests, patches or enhancements please use
+the AT-SPI project on bugzilla.gnome.org. Use the at-spi2-atk component for
+bugs specific to this module.
+
+        http://bugzilla.gnome.org
+
+A git repository with the latest development code is available at:
+
+	git://git.gnome.org/at-spi2-atk
+
+Code in this repository depends on at-spi2-core resources. The
+at-spi2-core repository can be found at:
+
+	git://git.gnome.org/at-spi2-core
+
+More information
+----------------
+
+The project was started with a D-Bus performance review
+the results of which are available on the GNOME wiki. Keep in
+mind that the D-Bus AT-SPI design documents on this page
+have not been kept up to date.
+
+        http://live.gnome.org/GAP/AtSpiDbusInvestigation/
+
+Other sources of relevant information about AT-SPI and Accessibility
+include:
+
+        http://live.gnome.org/Accessibility
+        http://www.sun.com/software/star/gnome/accessibility/architecture.xml
+        http://accessibility.kde.org/developer/atk.php
+        http://www.gnome.org/~billh/at-spi-idl/html/
+
+
+
+Contents of this package
+------------------------
+
+This package includes libatk-bridge, a library that bridges ATK to the new
+D-Bus based AT-SPI, as well as a corresponding module for gtk+ 2.x. Gtk+ 3.x
+now links against libatk-bridge directly rather than requiring it to be loaded
+as a module.
+
+These libraries depend on the at-spi2-core code that contains the daemon for
+registering applications, D-Bus helper libraries and the AT-SPI D-Bus specifications.
+
+Tests
+-----
+
+To run tests execute autogen.sh with '--with-tests=yes' parameter then
+after 'make', type 'make check'.
+Test result is available in tests/atk-test.log
+
+Directory structure
+-------------------
+
+The directories within this package are arranged as follows:
+
+    droute
+
+        Contains a framework for registering objects
+        with a D-Bus connection and for routing messages to
+        the implementing object.
+
+        Used by the ATK adaptor.
+
+    atk-adaptor
+
+        This directory contains code that bridges 
+        the at-spi to the GTK+ toolkit, and which is
+        loaded at runtime by GTK+-based Gnome applications.
+        The 'bridge' automatically registers GTK+-2.0
+        applications with the accessibility registry, 
+        and relays UI events from application to registry.
+        It is also responsible for servicing requests from
+        the registry to register handlers for specific event
+        types.
+
+    tests
+
+        Contains tests for atspi.
+        More details in tests/README

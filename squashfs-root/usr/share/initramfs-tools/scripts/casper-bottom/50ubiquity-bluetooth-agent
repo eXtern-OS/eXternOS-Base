@@ -1,0 +1,23 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+if [ -f /root/usr/bin/ubiquity-bluetooth-agent ] &&
+   [ -f /root/usr/bin/bluetooth-applet ] &&
+   [ ! -L /root/usr/bin/bluetooth-applet ]; then
+    chroot /root dpkg-divert --package casper --divert /usr/bin/bluetooth-applet.orig --rename /usr/bin/bluetooth-applet
+    ln -s ubiquity-bluetooth-agent /root/usr/bin/bluetooth-applet
+fi

@@ -1,0 +1,73 @@
+<?xml version="1.0" ?>
+<!DOCTYPE article PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+"dtd/kdedbx45.dtd" [
+<!ENTITY % addindex "IGNORE">
+<!ENTITY % English "INCLUDE" > <!-- change language only here -->
+]>
+	
+<article lang="&language;" id="fish">
+<title>fish</title>
+<articleinfo>
+<authorgroup>
+<author>&Joerg.Walter; &Joerg.Walter.mail;</author>
+<author>&Brad.Hards; &Brad.Hards.mail;</author>
+<!-- TRANS:ROLES_OF_TRANSLATORS -->
+</authorgroup>
+
+<date>2010-10-27</date>
+<releaseinfo>&kde; 4.5</releaseinfo>
+
+</articleinfo>
+
+<para>Allows you to access another computer's files using the <emphasis>S</emphasis>ecure <emphasis>SH</emphasis>ell (<acronym>SSH</acronym>) protocol.  The remote computer needs to be running the <acronym>SSH</acronym> daemon, but the remainder of the protocol uses standard commandline tools as discussed below.</para>
+
+<para>You can use the fish kioslave like this:
+<userinput>fish://<replaceable>hostname</replaceable></userinput> or <userinput>fish://<replaceable>username</replaceable>@<replaceable>hostname</replaceable></userinput>.</para>
+
+<note><para>You need to use double forward slashes.</para></note>
+
+<para>You can omit the <replaceable>username</replaceable> (and the trailing
+@ symbol) if you have the same username on both computers.</para>
+
+<para>You can add a password in the format:
+<userinput>fish://<replaceable>username</replaceable>:<replaceable>password</replaceable>@<replaceable>hostname</replaceable></userinput>
+but it is not necessary as you will be prompted for one if it is not
+supplied.</para>
+
+<para>If you are running the <acronym>SSH</acronym> daemon on a non-standard
+port, you can specify that port using the normal &URL; syntax as shown
+below:
+<userinput>fish://<replaceable>hostname</replaceable>:<replaceable>portnumber</replaceable></userinput>.</para>
+
+<para>Fish should work with any roughly <acronym>POSIX</acronym> compatible
+&UNIX; based remote computer. It uses the shell commands
+<command>cat</command>, <command>chgrp</command>,
+<command>chmod</command>, <command>chown</command>,
+<command>cp</command>, <command>dd</command>,
+<command>env</command>, <command>expr</command>,
+<command>grep</command>, <command>ls</command>,
+<command>mkdir</command>, <command>mv</command>,
+<command>rm</command>, <command>rmdir</command>,
+<command>sed</command>,
+and <command>wc</command>. Fish starts
+<command>/bin/sh</command> as its shell and expects it to be a
+Bourne shell (or compatible, like <command>bash</command>).
+If the <command>sed</command> and
+<command>file</command> commands are available, as well as a
+<filename>/etc/apache/magic</filename> file with &MIME; type
+signatures, these will be used to guess &MIME; types.
+</para>
+
+<para>If <application>Perl</application> is available on the remote
+machine, it will be used instead. Then only <command>env</command> and
+<command>/bin/sh</command> are needed. Using
+<application>Perl</application> has the additional benefit of being
+faster.</para>
+
+<para>Fish may even work on &Windows; machines, if tools like
+<application>Cygwin</application> are installed.  All the above
+utilities must be in the system <envar>PATH</envar>, and the initial
+shell must be able to process the command <command>echo
+FISH:;/bin/sh</command> correctly.</para>
+
+</article>

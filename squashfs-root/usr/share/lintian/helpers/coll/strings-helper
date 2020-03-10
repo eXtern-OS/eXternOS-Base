@@ -1,0 +1,114 @@
+#!/usr/bin/perl -w
+# strings -- lintian collection script
+
+# Copyright (C) 2012 Niels Thykier <niels@thykier.net>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, you can find it on the World Wide
+# Web at http://www.gnu.org/copyleft/gpl.html, or write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+
+no lib '.';
+
+use strict;
+use warnings;
+use autodie;
+
+use File::Basename qw(dirname);
+use IO::Handle;
+use POSIX qw(WNOHANG);
+
+my ($strdir) = @ARGV;
+my $curfname = '';
+my $curdir = '';
+
+my (%seen, $out);
+my @active_processes;
+
+while (my $line = <STDIN>) {
+    my ($fname, $string);
+    chomp $line;
+    ($fname, $string) = ($line =~ m/^([^:]++): (.++)$/o);
+    if ($curfname ne $fname) {
+        my $pid;
+        # new file, prepare for it.
+        if ($out) {
+            close($out);
+            undef(%seen);
+            reap_pids(WNOHANG);
+        }
+        my $dir = $strdir . '/' . dirname($fname);
+        if ($dir ne $curdir) {
+            system('mkdir', '-p', $dir) == 0
+              or die "mkdir -p $dir failed: " . (($? >> 8) & 256), "\n";
+            $curdir = $dir;
+        }
+        ($out, $pid) = fork_gzip("$strdir/${fname}.gz");
+        $out->blocking(1);
+        push(@active_processes, $pid);
+        $curfname = $fname;
+    }
+    next if $seen{$string}++;
+    print {$out} "$string\n";
+}
+
+if ($out) {
+    close($out);
+}
+
+reap_pids(0);
+
+sub reap_pids {
+    my ($waitpid_flags) = @_;
+    my $i = 0;
+    for my $pid (@active_processes) {
+        my $res = waitpid($pid, $waitpid_flags);
+        if ($res != $pid) {
+            # If we were given WNOHANG, then it we try to reap as much
+            # as possible and stop at the first failure (to keep it
+            # simple).
+            die("waitpid($pid, 0) failed: $!\n") if not $waitpid_flags;
+            last;
+        }
+        $i++;
+        if ($?) {
+            my $res = ($? >> 8) & 0xff;
+            my $sig = $? & 0xff;
+            if ($res) {
+                die("gzip failed exit code $res\n");
+            } elsif ($sig) {
+                die("gzip killed by signal $sig\n");
+            }
+        }
+    }
+    splice(@active_processes, 0, $i) if $i;
+    return;
+}
+
+sub fork_gzip {
+    my ($out) = @_;
+    my ($gzip_stdin, $to_gzip);
+    pipe($gzip_stdin, $to_gzip);
+    my $pid = fork;
+    if (not $pid) {
+        # child
+        close($to_gzip);
+        open(STDIN, '<&', $gzip_stdin);
+        open(STDOUT, '>', $out);
+        exec('gzip', '-9nc');
+    }
+    close($gzip_stdin);
+    return ($to_gzip, $pid);
+}
+exit 0;

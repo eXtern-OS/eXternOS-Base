@@ -1,0 +1,29 @@
+Rate Converter Plugin Using Speex Resampler
+===========================================
+
+The plugin in rate subdirectory is an external rate converter using
+the Speex resampler (aka Public Parrot Hack) by Jean-Marc Valin.  You can 
+use this rate converter plugin by defining a rate PCM with "converter" 
+parameter, such as:
+
+	pcm.my_rate {
+		type rate
+		slave.pcm "hw"
+		converter "speexrate"
+	}
+
+The plug plugin has also a similar field, "rate_converter".
+
+Or, more easily, define a global variable "defaults.pcm.rate_converter",
+which is used as the default converter type by plug and rate plugins:
+
+	defaults.pcm.rate_converter "speexrate"
+
+Write the above in your ~/.asoundrc or /etc/asound.conf.
+
+The following converter types are available:
+
+  - speexrate_best	Use quality 10 (equivalent to SRC_SINC_BEST_QUALITY)
+  - speexrate_medium	Use quality 5 (equivalent to SRC_SINC_MEDIUM_QUALITY)
+  - speexrate		Use quality 3 (equivalent to SRC_SINC_FASTEST)
+

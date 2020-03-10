@@ -1,0 +1,27 @@
+sndio for Debian
+----------------
+
+While sndio is not usable as an output option for most Debian packages at this
+time, it is useful for interoperability with OpenBSD systems over the network;
+OpenBSD machines can use sndiod on Debian as an output, and aucat/midicat on
+Debian can play audio on a remote sndiod as well. As an example, this is useful
+with the mpd package's "pipe" output driver:
+
+# in mpd.conf
+audio_output {
+                type            "pipe"
+                name            "remote sndiod"
+                command         "aucat -f snd@remote-host,0/0 -i -"
+                format          "48000:16:2"
+}
+
+sndio on Debian may also be useful for developers who wish to test OpenBSD audio
+support in their software, and of course administrators can build custom
+binaries that use sndio.
+
+Users of non-Linux architectures should be aware that libsndio does not
+currently support local audio devices on their kernels. sndio clients (including
+sndiod) are, however, still capable of using remote instances of sndiod for
+audio I/O.
+
+ -- Peter Piwowarski <peterjpiwowarski@gmail.com>  Mon, 07 Sep 2015 19:27:30 -0400

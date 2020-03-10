@@ -1,0 +1,208 @@
+Check-Script: changes-file
+Abbrev: chng
+Type: changes
+Info: This script checks for various problems with .changes files
+
+Tag: malformed-changes-file
+Severity: serious
+Certainty: certain
+Info: There is no "Format" field in your .changes file.  This probably
+ indicates some serious problem with the file.  Perhaps it's not actually
+ a changes file, or it's not in the proper format, or it's PGP-signed
+ twice.
+ .
+ Since Lintian was unable to parse this .changes file, any further checks
+ on it were skipped.
+Ref: policy 5.5
+
+Tag: no-description-in-changes-file
+Severity: serious
+Certainty: certain
+Info: There is no "Description" field in your .changes file.  A
+ description is mandatory and is usually constructed from the descriptions
+ in the control file of the package by the package build tools.
+Ref: policy 5.5
+
+Tag: bad-distribution-in-changes-file
+Severity: important
+Certainty: certain
+Info: You've specified an unknown target distribution for your upload in
+ the <tt>debian/changelog</tt> file.  It is possible that you are uploading
+ for a different distribution than the one Lintian is checking for.  In
+ that case, passing --profile $VENDOR may fix this warning.
+ .
+ Note that the distributions <tt>non-free</tt> and <tt>contrib</tt> are no
+ longer valid. You'll have to use distribution <tt>unstable</tt> and
+ <tt>Section: non-free/xxx</tt> or <tt>Section: contrib/xxx</tt> instead.
+Ref: policy 5.6.14
+
+Tag: multiple-distributions-in-changes-file
+Severity: important
+Certainty: possible
+Info: You've specified more than one target distribution for your upload
+ in the <tt>*.changes</tt> file, probably via the most recent entry in the
+ <tt>debian/changelog</tt> file.
+ .
+ Although this syntax is valid, it is not accepted by the Debian archive
+ management software.  This may not be a problem if this upload is
+ targeted at an archive other than Debian's.
+Ref: policy 5.6.14
+
+Tag: no-urgency-in-changes-file
+Severity: normal
+Certainty: certain
+Info: There is no "Urgency" field in the .changes file.  This field is
+ recommended by policy and is usually derived from the first line of the
+ most recent changelog entry by the package build tools.
+Ref: policy 5.5
+
+Tag: bad-urgency-in-changes-file
+Severity: important
+Certainty: certain
+Info: The keyword value of the "Urgency" field in the .changes file is not
+ one of the allowed values of low, medium, high, critical, and emergency
+ (case-insensitive).  This value normally taken from the first line of the
+ most recent entry in <tt>debian/changelog</tt>, which is probably where
+ the error is.
+Ref: policy 5.6.17
+
+Tag: file-size-mismatch-in-changes-file
+Severity: serious
+Certainty: certain
+Info: The actual file size does not match what's listed in the
+ <tt>.changes</tt> file.
+Ref: policy 5.6.21, policy 5.6.24
+
+Tag: checksum-mismatch-in-changes-file
+Severity: serious
+Certainty: certain
+Info: The actual checksum does not match what's listed in the
+ <tt>.changes</tt> file.
+Ref: policy 5.6.21, policy 5.6.24
+
+Tag: checksum-count-mismatch-in-changes-file
+Severity: serious
+Certainty: certain
+Info: The number of checksums <tt>.changes</tt> file for the
+ specified algorithm does not match the number of files.
+Ref: policy 5.6.21, policy 5.6.24
+
+Tag: bad-section-in-changes-file
+Severity: important
+Certainty: certain
+Info: The sections <tt>non-free</tt> and <tt>contrib</tt> are no longer
+ valid. Please use section <tt>non-free/xxx</tt> or
+ <tt>contrib/xxx</tt> instead.
+Ref: policy 2.4
+
+Tag: changed-by-name-missing
+Severity: serious
+Certainty: certain
+Info: The Changed-By field seems to contain just an email address. It must
+ contain the package maintainer's name and email address.
+Ref: policy 5.6.4
+
+Tag: changed-by-address-missing
+Severity: serious
+Certainty: certain
+Info: The Changed-By field should contain the package builder's name and
+ email address, with the name followed by the address inside angle
+ brackets (&lt; and &gt;).  The address seems to be missing.
+Ref: policy 5.6.4
+
+Tag: changed-by-address-malformed
+Severity: important
+Certainty: certain
+Info: The Changed-By field could not be parsed according to the rules in
+ the Policy Manual.
+Ref: policy 5.6.4
+
+Tag: changed-by-address-looks-weird
+Severity: normal
+Certainty: possible
+Info: The Changed-By field does not have whitespace between the name
+ and the email address.
+
+Tag: changed-by-address-is-on-localhost
+Severity: important
+Certainty: certain
+Info: The Changed-By address includes localhost(.localdomain), which is
+ an invalid e-mail address.
+Ref: policy 5.6.2
+
+Tag: changed-by-address-is-root-user
+Severity: important
+Certainty: certain
+Info: The Changed-By address includes root user, which is
+ invalid. This might indicate that the package
+ was not built in a sane environment.
+
+Tag: backports-changes-missing
+Severity: wishlist
+Certainty: possible
+Info: The changes file only has changelog entries from a single version.  It
+ is recommended for backports to include all changes since (old)stable or
+ the previous backport.  This can be done by adding the '-v' option to the
+ build with the appropriate version.
+Ref: http://backports.debian.org/Contribute/, #785084
+
+Tag: backports-upload-has-incorrect-version-number
+Severity: serious
+Certainty: certain
+Info: The version number doesn't comply with the standard backport version
+ rules. It should end in ~bpoX+N, where X is the release version number of
+ the target distribution.
+Ref: http://backports.debian.org/Contribute/
+
+Tag: distribution-and-changes-mismatch
+Severity: normal
+Certainty: possible
+Info: The <tt>Distribution</tt> in the <tt>.changes</tt> file indicates
+ that packages should be installed into one distribution (suite), but the
+ distribution in the <tt>Changes</tt> field copied from
+ <tt>debian/changelog</tt> indicates that a different distribution
+ was intended.
+ .
+ This is an easy mistake to make when invoking "sbuild ... foo.dsc".
+ Double-check the <tt>-d</tt> option if using sbuild in this way.
+Ref: #542747, #529281
+
+Tag: distribution-and-experimental-mismatch
+Severity: serious
+Certainty: certain
+Info: The <tt>Distribution</tt> in the <tt>.changes</tt> file indicates
+ that packages should be installed into a non-experimental distribution
+ (suite), but the distribution in the <tt>Changes</tt> field copied from
+ <tt>debian/changelog</tt> indicates that experimental was intended.
+ .
+ This is an easy mistake to make when invoking "sbuild ... foo.dsc".
+ Double-check the <tt>-d</tt> option if using sbuild in this way.
+Ref: #542747, #529281
+
+Tag: unreleased-changes
+Severity: important
+Certainty: certain
+Info: The distribution in the <tt>Changes</tt> field copied from
+ <tt>debian/changelog</tt> indicates that this package was not intended
+ to be released yet.
+Ref: #542747
+
+Tag: orig-tarball-missing-upstream-signature
+Severity: normal
+Certainty: certain
+Info: The packaging includes an upstream signing key but the corresponding
+ <tt>.asc</tt> signature for one or more source tarballs are not included
+ in your .changes file.
+ .
+ Please ensure a
+ <tt>&lt;package&gt;_&lt;version&gt;.orig.tar.&lt;ext&gt;.asc</tt> file
+ exists in the same directory as your
+ <tt>&lt;package&gt;_&lt;version&gt;.orig.tar.&lt;ext&gt;</tt> tarball prior
+ to <tt>dpkg-source --build</tt> being called.
+ .
+ If you are repackaging your source tarballs for Debian Free Software
+ Guidelines compliance reasons, ensure that your package version includes
+ <tt>dfsg</tt> or similar.
+ .
+ Support for signatures was added to <tt>pristine-tar</tt> in version 1.41
+ and support in <tt>git-buildpackage</tt> is being tracked in #872864.

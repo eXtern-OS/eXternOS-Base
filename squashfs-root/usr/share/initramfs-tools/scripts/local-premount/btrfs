@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -e
+
+PREREQ=""
+
+prereqs()
+{
+	echo "${PREREQ}"
+}
+
+case "${1}" in
+	prereqs)
+		prereqs
+		exit 0
+		;;
+esac
+
+if [ -x /bin/btrfs ]
+then
+	modprobe btrfs
+	# If asked to be quiet, show only errors
+	[ "${quiet}" = "y" ] && exec >/dev/null
+	/bin/btrfs device scan
+fi

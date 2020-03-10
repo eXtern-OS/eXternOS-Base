@@ -1,0 +1,92 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      type="topic" style="task"
+      id="desktop-lockscreen">
+
+  <info>
+    <link type="guide" xref="appearance" />
+    <link type="seealso" xref="dconf-profiles" />
+    <link type="seealso" xref="dconf-lockdown" />
+    <revision pkgversion="3.8" date="2013-08-08" status="review"/>
+    <revision pkgversion="3.14" date="2014-06-18" status="final"/>
+
+    <credit type="author copyright">
+      <name>Jana Svarova</name>
+      <email>jana.svarova@gmail.com</email>
+      <years>2013</years>
+    </credit>
+
+    <credit type="editor">
+      <name>Shaun McCance</name>
+      <email>shaunm@gnome.org</email>
+      <years>2014</years>
+    </credit>
+
+    <desc>Make the screen automatically lock so the user must
+    enter a password after being idle.</desc>
+  </info>
+
+  <title>Lock the screen when user is idle</title>
+
+  <p>You can make the screen lock automatically whenever a user
+  is idle for some amount of time. This is useful if your users
+  may leave their computers unattended in public or unsecure
+  locations.</p>
+
+  <steps>
+    <title>Enable automatic screen lock</title>
+    <include href="dconf-snippets.xml"
+	     xpointer="xpointer(/*/*[@xml:id='dconf-profile-user'])"
+	     xmlns="http://www.w3.org/2001/XInclude"/>
+    <include href="dconf-snippets.xml"
+	     xpointer="xpointer(/*/*[@xml:id='dconf-profile-user-dir'])"
+	     xmlns="http://www.w3.org/2001/XInclude"/>
+    <item>
+      <p>Create the key file
+      <file>/etc/dconf/db/local.d/00-screensaver</file> to provide
+      information for the <sys>local</sys> database.</p>
+      <listing>
+	<title><file>/etc/dconf/db/local.d/00-screensaver</file></title>
+<code>
+# Specify the dconf path
+[org/gnome/desktop/session]
+
+# Number of seconds of inactivity before the screen goes blank
+idle-delay=uint32 180
+
+# Specify the dconf path
+[org/gnome/desktop/screensaver]
+
+# Lock the screen after the screen is blank
+lock-enabled=true
+
+# Number of seconds after the screen is blank before locking the screen
+lock-delay=uint32 0
+</code>
+      </listing>
+      <p>You must include the <code>uint32</code> along with the
+      integer key values as shown.</p>
+    </item>
+    <item>
+      <p>To prevent the user from overriding these settings, create the file
+      <file>/etc/dconf/db/local.d/locks/screensaver</file> with the following
+      content:</p>
+      <listing>
+	<title><file>/etc/dconf/db/local.db/locks/screensaver</file></title>
+<code>
+# Lock desktop screensaver settings
+/org/gnome/desktop/session/idle-delay
+/org/gnome/desktop/screensaver/lock-enabled
+/org/gnome/desktop/screensaver/lock-delay
+</code>
+      </listing>
+    </item>
+    <include href="dconf-snippets.xml"
+	     xpointer="xpointer(/*/*[@xml:id='dconf-update'])"
+	     xmlns="http://www.w3.org/2001/XInclude"/>
+    <include href="dconf-snippets.xml"
+	     xpointer="xpointer(/*/*[@xml:id='dconf-logoutin'])"
+	     xmlns="http://www.w3.org/2001/XInclude"/>
+  </steps>
+
+</page>

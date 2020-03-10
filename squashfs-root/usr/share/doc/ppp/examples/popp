@@ -1,0 +1,33 @@
+#!/usr/bin/perl -w
+#
+# popp         connects to your provider and returns. You are able to
+#              see pppd proceed dialing. Once the connection is
+#              established pppd returns.
+#
+# Exit Status: taken from pppd
+#		
+# Example:     popp && mailsync
+#
+#              This will dial your default provider, you will see pppd
+#              progress and as soon as the connection's established, your
+#              mail will get synchronized
+#
+# Version:     0.1 28-Dec-2001  "Tomas Pospisek" <tpo_deb@sourcepole.ch>
+
+use strict;
+
+my $ret;
+
+my $pid = fork();
+
+unless ($pid) {
+	# child
+	exec "plog -f";
+} else {
+	# parent
+	my $provider = "provider" unless @ARGV;
+	$ret = system "pon $provider @ARGV updetach";
+	kill "SIGTERM", $pid;
+};
+
+exit $ret / 256;	# perlbizzare

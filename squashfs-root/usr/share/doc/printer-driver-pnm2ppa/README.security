@@ -1,0 +1,97 @@
+These notes  are for the guidance of  distributions that include  pnm2ppa:
+---------------------------------------------------------------------
+
+Notes on secure installation of pnm2ppa.
+
+What pnm2ppa does:
+
+1.  It attempts to open and read  a configuration file
+    "/etc/pnm2ppa.conf", and then any additional configuration
+    files with paths specified by the -f command line option.
+
+    These paths are checked to be shorter than MAXPATHLEN before
+    they are used, otherwise pnm2ppa terminates.
+
+    GNU getopt() is used to process options.
+
+2.  It opens an input file  (-i option)  to receive pnm data.  
+    The pnm format and page size is taken from the header.  
+
+    If the header does not correspond to a valid pnm format, the rest 
+    of the data is rejected, and pnm2ppa terminates.
+
+    The input file path is checked to have a length less than
+    MAXPATHLEN, as determined at compilation time.
+
+3.  It opens an output file (-o option) to send ppa data  
+    (for the printer).
+
+    The output file path is checked to have a length less than
+    MAXPATHLEN.
+
+
+4.  (unless the --noGamma option is specified) it tries to read color
+    correction data from "/etc/pnm2ppa.gamma", or an alternate file with
+    a path  specified by the -F command line option.
+
+    Such paths are also checked to be shorter than MAXPATHLEN before 
+    they are used.
+
+    If this data exists, but is not successfully read, pnm2ppa terminates.
+    (See COLOR.txt).
+
+5.  pnm2ppa opens and writes to the syslog with informational messages
+    about its progress, or, if it terminates, with an error message.
+    If it is working in --verbose mode, these messages are also sent
+    to stderr.   
+
+    No strings derived from user input to pnm2ppa are included in syslog
+    messages.  Syslog messages must fit in a  string of length < 128.
+    They can be suppressed with a keyword "silent 1" in the default
+    system configuration file (/etc/pnm2ppa.conf), but not from
+    user-specified config files (from -f option).
+
+    All syslog actions by pnm2ppa are "wrapped":  message strings
+    produces in the rest of the program are  only sent to the syslog by
+    code in syslog.c.  This is also where openlog() and closelog() are 
+    called.
+
+
+----------------------------------------------------------------------
+Recommendations:
+
+--  do *NOT* install pnm2ppa  suid/guid, if is possible that a
+    "malicious user" might run it.   The output file specified
+    with the -o option could overwrite files to which the user
+    has no write permission. 
+
+
+--  since pnm2ppa  works as an output filter for gs, it only needs the
+    same privileges that gs would need.  If lpr is available, pipe
+    the pnm2ppa output though "lpr -l ..." to the appropriate printer
+    rather than directly sending it to e.g. /dev/lp0 (in the latter case, 
+    write privileges on /dev/lp0 would be needed.)
+
+--------------------------------------------------------------
+
+Other (optional) programs in the distribution:
+
+Do NOT install these suid/gid!
+
+calibrate_ppa.c:  
+	      This is used to produce various ppmraw format PixMap images
+              used with pnm2ppa for printer calibration.  Note: these
+              PixMaps are LARGE (100MB!!) and should generally be piped 
+              directly to pnm2ppa.
+
+	     THIS SHOULD USUALLY BE INSTALLED.
+
+parse_vlink.c 
+	      a utility useful in debugging pnm2ppa that can interpret
+              ppa format output instructions to the printer, whether
+              produced by pnm2ppa, or captured from the Windows9x drivers.
+              It is in the ppa_protocol subdirectory, and is not compiled
+              by default.
+
+             THIS IS NOT USUALY INSTALLED.
+

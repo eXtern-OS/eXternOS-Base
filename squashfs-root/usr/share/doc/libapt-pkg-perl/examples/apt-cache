@@ -1,0 +1,157 @@
+#!/usr/bin/perl
+
+#
+# Example: demonstrate accessing the package cache
+#
+# Usage: apt-cache PACKAGE
+#
+
+use AptPkg::Config '$_config';
+use AptPkg::System '$_system';
+use AptPkg::Cache;
+
+(my $self = $0) =~ s#.*/##;
+
+# initialise the global config object with the default values and
+# setup the $_system object
+$_config->init;
+$_system = $_config->system;
+
+# suppress cache building messages
+$_config->{quiet} = 2;
+
+# set up the cache
+my $cache = AptPkg::Cache->new;
+my $policy = $cache->policy;
+
+die "Usage: $self PACKAGE ...\n" unless @ARGV;
+
+for my $pack (@ARGV)
+{
+    my $p = $cache->{$pack};
+    unless ($p)
+    {
+	warn "$self: don't know anything about package `$pack'\n";
+	next;
+    }
+
+    print "Package: $pack\n";
+    for my $field (qw/Section SelectedState InstState CurrentState Flags/)
+    {
+	print "$field: $p->{$field}\n" if $p->{$field};
+    }
+
+    print "CurrentVer: $p->{CurrentVer}{VerStr}\n" if $p->{CurrentVer};
+    if (my $c = $policy->candidate($p))
+    {
+	print "CandidateVer: ", $c->{VerStr}, "\n";
+    }
+
+    my $prio = $policy->priority($p);
+    my $pin_ver;
+    if ($prio and my $v = $policy->match($p))
+    {
+	$pin_ver = $v->{VerStr};
+    }
+
+    if (my $available = $p->{VersionList})
+    {
+	print "VersionList:\n";
+	my $i = 0;
+	for my $v (@$available)
+	{
+	    print "  [$i] $v->{VerStr}";
+	    print " (prio $prio)" if $prio and $pin_ver eq $v->{VerStr};
+	    print "\n";
+	    for my $f (map $_->{File}, @{$v->{FileList}})
+	    {
+		printf "    * %s (prio %d)\n", $f->{FileName},
+		    $policy->priority($f);
+	    }
+
+	    for my $field (qw/MultiArch Arch Priority/)
+	    {
+		print "      $field: $v->{$field}\n" if $v->{$field};
+	    }
+
+	    if (my $deps = $v->{DependsList})
+	    {
+		my $type = '';
+		my $delim = '';
+
+		for my $d (@$deps)
+		{
+		    if ($d->{DepType} ne $type)
+		    {
+			print "\n" if $type;
+			$type = $d->{DepType};
+			print "      $type: ";
+		    }
+		    else
+		    {
+			print $delim;
+		    }
+
+		    $delim = ($d->{CompType} & AptPkg::Dep::Or) ? ' | ' : ', ';
+		    print $d->{TargetPkg}{ShortName};
+		    print " ($d->{CompTypeDeb} $d->{TargetVer})"
+			if $d->{TargetVer};
+		}
+
+		print "\n";
+	    }
+
+	    if (my $p = $v->{ProvidesList})
+	    {
+		print '      Provides: ', (join ', ', map $_->{Name}, @$p),
+		    "\n";
+	    }
+
+	    $i++;
+	}
+    }
+
+    if (my $revdeps = $p->{RevDependsList})
+    {
+	print "RevDependsList:";
+	my $parent = '';
+	my $type = '';
+
+	for my $r (@$revdeps)
+	{
+	    my $new_parent = "$r->{ParentPkg}{ShortName} $r->{ParentVer}{VerStr}";
+	    unless ($new_parent eq $parent)
+	    {
+		$parent = $new_parent;
+		$type = '';
+	    }
+
+	    if ($r->{DepType} ne $type)
+	    {
+		printf "\n  %-30s", $type ? '' : $parent;
+		$type = $r->{DepType};
+		print "  $type: ";
+	    }
+	    else
+	    {
+		print ', ';
+	    }
+
+	    print  $r->{TargetPkg}{ShortName};
+	    print  " ($r->{CompTypeDeb} $r->{TargetVer})" if $r->{TargetVer};
+	}
+
+	print "\n";
+    }
+
+    if (my $provides = $p->{ProvidesList})
+    {
+	print 'ProvidesList: ', (join ', ',
+	    map "$_->{OwnerPkg}{ShortName} $_->{OwnerVer}{VerStr}", @$provides),
+	    "\n";
+    }
+
+    print "\n";
+}
+
+1;

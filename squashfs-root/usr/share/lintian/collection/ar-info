@@ -1,0 +1,81 @@
+#!/usr/bin/perl -w
+# ar-info -- lintian collection script
+#
+# Copyright © 2009 Stéphane Glondu
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, you can find it on the World Wide
+# Web at http://www.gnu.org/copyleft/gpl.html, or write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+
+package Lintian::coll::ar_info;
+
+no lib '.';
+
+use strict;
+use warnings;
+use autodie;
+
+use lib "$ENV{LINTIAN_ROOT}/lib";
+use FileHandle;
+use Lintian::Collect;
+use Lintian::Command qw(spawn);
+
+sub collect {
+    my ($pkg, $type, $dir) = @_;
+    my $info;
+
+    if (-e "$dir/ar-info") {
+        unlink("$dir/ar-info");
+    }
+
+    # If we are asked to only remove the files stop right here
+    if ($type =~ m/^remove-/) {
+        return;
+    }
+
+    $info  = Lintian::Collect->new($pkg, $type, $dir);
+
+    open(my $out_fd, '>', "$dir/ar-info");
+
+    chdir("$dir/unpacked");
+
+    foreach my $file ($info->sorted_index) {
+        next unless $file->is_regular_file && $file =~ m{ \. a \Z }xsm;
+
+        my $opts = { pipe_out => FileHandle->new, err => '/dev/null' };
+        spawn($opts, ['ar', 't', $file]);
+        print {$out_fd} "$file:";
+        while (defined($_ = readline($opts->{pipe_out}))) {
+            chomp;
+            print {$out_fd} " $_";
+        }
+        close($opts->{pipe_out});
+        print {$out_fd} "\n";
+        $opts->{harness}->finish;
+    }
+
+    close($out_fd);
+
+    return;
+}
+
+collect(@ARGV) if $0 =~ m,(?:^|/)ar-info$,;
+1;
+
+# Local Variables:
+# indent-tabs-mode: nil
+# cperl-indent-level: 4
+# End:
+# vim: syntax=perl sw=4 sts=4 sr et

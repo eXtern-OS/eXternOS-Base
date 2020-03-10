@@ -1,0 +1,25 @@
+#!/bin/sh
+## ----------------------------------------------------------------------
+## debian/postrm: postremoval script for foo
+## ----------------------------------------------------------------------
+
+## ----------------------------------------------------------------------
+## Abort if any command returns an error value
+set -e
+
+## --------------------------------------------------------------
+## Remove SGML catalog entries
+PACKAGE=foo
+CENTRALCAT="/etc/sgml/${PACKAGE}.cat"
+if [ "$1" = "purge" ]
+then
+    rm -f ${CENTRALCAT} ${CENTRALCAT}.old
+fi
+
+## ----------------------------------------------------------------------
+## Automatically added sections
+#DEBHELPER#
+
+exit 0
+
+## ----------------------------------------------------------------------

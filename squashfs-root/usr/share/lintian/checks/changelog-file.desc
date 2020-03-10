@@ -1,0 +1,491 @@
+Check-Script: changelog-file
+Author: Christian Schwarz <schwarz@debian.org>
+Abbrev: chg
+Type: binary
+Needs-Info: file-info, changelog-file, unpacked
+Info: This script checks if a binary package conforms to policy
+ with regards to changelog files.
+ .
+ Each binary package with a /usr/share/doc/&lt;foo&gt; directory must have
+ a Debian changelog file in <tt>changelog.Debian.gz</tt> unless the Debian
+ changelog and the upstream one is the same file; in this case, it
+ must be in <tt>changelog.gz</tt>.
+ .
+ If there is an upstream changelog file, it must be named
+ "changelog.gz".
+ .
+ Both changelog files should be compressed using "gzip -9".
+ Even if they start out small, they will become large with time.
+
+Tag: html-changelog-without-text-version
+Severity: important
+Certainty: certain
+Info: If the upstream changelog file is HTML formatted, a text version
+ should also be accessible as "changelog.gz".  (This can be created by
+ "lynx -dump -nolist")
+Ref: policy 12.7
+
+Tag: changelog-file-not-compressed
+Severity: important
+Certainty: certain
+Info: Changelog files should be compressed using "gzip -9".  Even if they
+ start out small, they will become large with time.
+Ref: policy 12.7
+
+Tag: changelog-empty-entry
+Severity: serious
+Certainty: certain
+Info: Changelog entry is empty
+Ref: policy 4.4
+
+Tag: debian-news-file-not-compressed
+Severity: normal
+Certainty: certain
+Info: NEWS.Debian files should be compressed using "gzip -9".  The file
+ must always have the same name.
+Ref: devref 6.3.4
+
+Tag: changelog-is-dh_make-template
+Severity: important
+Certainty: certain
+Info: The changelog file has an instruction left by dh_make, which has
+ not been removed.  Example:
+ .
+   * Initial release (Closes: #nnnn)  &lt;nnnn is the bug number of your ITP&gt;
+ .
+ The "&lt;... is the bug number ...&gt;" part has not been removed from the
+ changelog.
+
+Tag: changelog-not-compressed-with-max-compression
+Severity: normal
+Certainty: certain
+Info: Changelog files should be compressed using "gzip -9"; i.e., using
+ the maximum compression level via the -9 option to gzip.
+Ref: policy 12.7
+
+Tag: wrong-name-for-changelog-of-native-package
+Severity: normal
+Certainty: certain
+Info: The changelog file of a native Debian package (i.e., if there is
+ no upstream source) should usually be installed as
+ /usr/share/doc/<i>pkg</i>/changelog.gz
+Ref: policy 12.7
+
+Tag: changelog-file-missing-in-native-package
+Severity: important
+Certainty: certain
+Info: Each Debian package (which provides a /usr/share/doc/<i>pkg</i>
+ directory) has to install a changelog file.  Since this package seems
+ to be a native Debian package (i.e., there is no upstream source),
+ the file should usually be installed as
+ /usr/share/doc/<i>pkg</i>/changelog.gz
+ .
+ Note that Lintian may emit this tag if the changelog exists, but it
+ does not look like a Debian changelog.
+Ref: policy 12.7
+
+Tag: wrong-name-for-upstream-changelog
+Severity: normal
+Certainty: possible
+Info: If there is an upstream changelog file, it should usually be
+ installed as /usr/share/doc/<i>pkg</i>/changelog.gz
+Ref: policy 12.7
+
+Tag: no-upstream-changelog
+Severity: pedantic
+Certainty: wild-guess
+Info: The package does not install an upstream changelog file.  If upstream
+ provides a changelog, it should be accessible as
+ <tt>/usr/share/doc/<i>pkg</i>/changelog.gz</tt>.
+ .
+ It's currently unclear how best to handle multiple binary packages from
+ the same source.  Some maintainers put a copy of the upstream changelog
+ in each package, but it can be quite long.  Some include it in one
+ package and add symlinks to the other packages, but this requires there
+ be dependencies between the packages.  Some only include it in a "central"
+ binary package and omit it from more ancillary packages.
+Ref: policy 12.7
+
+Tag: wrong-name-for-debian-changelog-file
+Severity: important
+Certainty: certain
+Info: The Debian changelog file should usually be installed as
+ /usr/share/doc/<i>pkg</i>/changelog.Debian.gz
+Ref: policy 12.7
+
+Tag: wrong-name-for-debian-news-file
+Severity: normal
+Certainty: possible
+Info: The Debian news file must be installed as
+ /usr/share/doc/<i>pkg</i>/NEWS.Debian.gz with exactly that capitalization
+ or automated tools may not find it correctly.
+Ref: devref 6.3.4
+
+Tag: debian-changelog-file-missing
+Severity: serious
+Certainty: certain
+Info: Each Debian package (which provides a /usr/share/doc/<i>pkg</i>
+ directory) has to install a Debian changelog file
+ /usr/share/doc/<i>pkg</i>/changelog.Debian.gz
+Ref: policy 12.7
+
+Tag: debian-changelog-file-is-a-symlink
+Severity: normal
+Certainty: certain
+Info: The Debian changelog file is a symlink to a file in a different
+ directory or not found in this package. Please don't do this. It makes
+ package checking and manipulation unnecessarily difficult. Because it was
+ a symlink, the Debian changelog file was not checked for other
+ problems. (Symlinks to another file in /usr/share/doc/<i>pkg</i> or a
+ subdirectory thereof are fine and should not trigger this warning.)
+ .
+ To refer to the changelog, copyright, and other documentation files of
+ another package that this one depends on, please symlink the entire
+ /usr/share/doc/<i>pkg</i> directory rather than individual files.
+
+Tag: debian-changelog-file-missing-or-wrong-name
+Severity: serious
+Certainty: certain
+Info: Each Debian package (which provides a /usr/share/doc/<i>pkg</i>
+ directory) must install a Debian changelog file in
+ /usr/share/doc/<i>pkg</i>/changelog.Debian.gz
+ .
+ A common error is to name the Debian changelog like an upstream changelog
+ (/usr/share/doc/<i>pkg</i>/changelog.gz); therefore, Lintian will apply
+ further checks to such a file if it exists even after issuing this error.
+Ref: policy 12.7
+
+Tag: debian-changelog-file-contains-obsolete-user-emacs-settings
+Severity: normal
+Certainty: certain
+Info: The add-log-mailing-address variable is no longer honored in
+ debian-changelog-mode, and should not appear in packages' changelog
+ files.  Instead, put something like this in your ~/.emacs:
+ .
+ (setq debian-changelog-mailing-address "userid@debian.org")
+
+Tag: debian-changelog-file-contains-invalid-email-address
+Severity: important
+Certainty: certain
+Info: The changelog file contains an invalid email address: the domain
+ needs at least one dot. This looks like a mistake.
+
+Tag: debian-changelog-file-uses-obsolete-national-encoding
+Severity: serious
+Certainty: certain
+Ref: policy 4.4
+Info: The Debian changelog file must be valid UTF-8, an encoding of
+ the Unicode character set.
+ .
+ There are many ways to convert a changelog from an obsoleted encoding
+ like ISO-8859-1; you may for example use "iconv" like:
+ .
+  $ iconv -f ISO-8859-1 -t UTF-8 changelog &gt; changelog.new
+  $ mv changelog.new changelog
+
+Tag: debian-news-file-uses-obsolete-national-encoding
+Severity: important
+Certainty: certain
+Info: The NEWS.Debian file must be valid UTF-8, an encoding of the Unicode
+ character set.
+ .
+ There are many ways to convert a changelog from an obsoleted encoding
+ like ISO-8859-1; you may for example use "iconv" like:
+ .
+  $ iconv -f ISO-8859-1 -t UTF-8 NEWS.Debian &gt; NEWS.Debian.new
+  $ mv NEWS.Debian.new NEWS.Debian
+
+Tag: latest-changelog-entry-without-new-date
+Severity: important
+Certainty: certain
+Info: The latest Debian changelog entry has either the same or even an
+ older date as the entry before.
+ .
+ This can result in subtle bugs due to the <tt>SOURCE_DATE_EPOCH</tt>
+ environment variable being the same between the older and newer
+ versions.
+
+Tag: latest-debian-changelog-entry-without-new-version
+Severity: normal
+Certainty: certain
+Info: The latest Debian changelog entry has a version number that's either
+ the same or smaller than the version number of the entry before.
+ .
+ All versions for a source package must be unique, even with a leading
+ epoch stripped off.
+
+Tag: latest-debian-changelog-entry-changed-to-native
+Severity: normal
+Certainty: possible
+Info: The latest package has a Debian native version number, while the
+ previous version number was not native. This is usually a mistake made by
+ the maintainer by forgetting to append -1 when uploading a new upstream
+ version.
+
+Tag: possible-new-upstream-release-without-new-version
+Severity: normal
+Certainty: possible
+Info: The most recent changelog entry contains an entry that appears to
+ say this is a new upstream release (a comment similar to "new upstream
+ release," possibly with a word between "upstream" and "release"), but the
+ upstream portion of the package version number didn't change.  This may
+ indicate that the package version was not updated properly in
+ <tt>debian/changelog</tt>.
+
+Tag: experimental-to-unstable-without-comment
+Severity: pedantic
+Certainty: possible
+Info: The previous version of this package had a distribution of
+ "experimental", this version has a distribution of "unstable", and there's
+ apparently no comment about the change of distributions.
+ .
+ Lintian looks in this version's changelog entry for the phrase "to
+ unstable" or "to sid", with or without quotation marks around the
+ distribution name.
+ .
+ This may indicate a mistake in setting the distribution and an accidental
+ upload to unstable of a package intended for experimental.
+
+Tag: syntax-error-in-debian-changelog
+Severity: normal
+Certainty: possible
+Info: While parsing the Debian changelog, a syntax error was found.  If
+ you have old changelog entries that don't follow the current syntax but
+ that you want to keep as-is for the historical record, add the line:
+ .
+   Old Changelog:
+ .
+ with no leading whitespace before the legacy entries.  This line and
+ everything after it will be ignored.
+Ref: policy 4.4
+
+Tag: syntax-error-in-debian-news-file
+Severity: normal
+Certainty: possible
+Info: While parsing the NEWS.Debian file, a syntax error was found.
+Ref: devref 6.3.4
+
+Tag: improbable-bug-number-in-closes
+Severity: normal
+Certainty: possible
+Info: The most recent changelog closes a low-numbered bug number.
+ While this is distantly possible, it's more likely a typo or a
+ placeholder value that mistakenly wasn't filled in.
+
+Tag: wrong-bug-number-in-closes
+Severity: normal
+Certainty: certain
+Info: Bug numbers can only contain digits.
+Ref: policy 4.4
+
+Tag: possible-missing-colon-in-closes
+Severity: important
+Certainty: possible
+Info: To close a bug in the Debian changelog, the word "closes" must be
+ followed by a colon.  This entry looked like it was intended to close a
+ bug, but there's no colon after "closes".
+Ref: policy 4.4
+
+Tag: debian-news-entry-has-strange-distribution
+Severity: normal
+Certainty: certain
+Info: The latest entry in NEWS.Debian has an unusual distribution name.
+ This field is ignored by the archive software, so its value doesn't truly
+ matter, but it may be confusing to users reading the entry if the
+ distribution doesn't match the distribution for the same entry in the
+ Debian changelog file.
+
+Tag: debian-news-entry-uses-asterisk
+Severity: wishlist
+Certainty: possible
+Info: The latest entry in NEWS.Debian appears to use asterisks to present
+ changes in a bulleted list, similar to the normal changelog syntax.  The
+ Debian Developer's Reference recommends using regular paragraphs in
+ NEWS.Debian rather than a bulleted list.
+Ref: devref 6.3.4
+
+Tag: debian-news-entry-has-unknown-version
+Severity: normal
+Certainty: possible
+Info: The version number of the most recent <tt>NEWS.Debian</tt> entry
+ does not match any of the version numbers in the changelog file for this
+ package.  This usually means the version in <tt>NEWS.Debian</tt> needs to
+ be updated to match a change to package version that happened after the
+ <tt>NEWS.Debian</tt> entry was written.
+
+Tag: spelling-error-in-changelog
+Severity: minor
+Certainty: certain
+Info: Lintian found a spelling error in the latest entry of the Debian
+ changelog.  Lintian has a list of common misspellings that it looks for.
+ It does not have a dictionary like a spelling checker does.
+ .
+ When writing a changelog entry for a spelling fix that includes the
+ misspelling, ensure the word "spelling" is on the same line as the
+ misspelled word to avoid triggering this warning.
+
+Tag: spelling-error-in-news-debian
+Severity: minor
+Certainty: certain
+Info: Lintian found a spelling error in the latest entry of the
+ NEWS.Debian file.  Lintian has a list of common misspellings that it
+ looks for.  It does not have a dictionary like a spelling checker does.
+
+Tag: new-package-should-close-itp-bug
+Severity: normal
+Certainty: certain
+Info: This package appears to be the first packaging of a new upstream
+ software package (there is only one changelog entry and the Debian
+ revision is 1), but it does not close any bugs.  The initial upload of a
+ new package should close the corresponding ITP bug for that package.
+ .
+ This warning can be ignored if the package is not intended for Debian or
+ if it is a split of an existing Debian package.
+Ref: devref 5.1
+
+Tag: debian-changelog-line-too-long
+Severity: normal
+Certainty: certain
+Info: The given line of the latest changelog entry is over 80 columns.
+ Such changelog entries may look poor in terminal windows and mail
+ messages and be annoying to read.  Please wrap changelog entries at 80
+ columns or less where possible.
+
+Tag: debian-changelog-line-too-short
+Severity: pedantic
+Certainty: possible
+Info: The given line of the latest changelog entry appears to contain a
+ very terse entry.
+ .
+ This can make it hard for others to understand the changelog entry.
+ Please keep in mind that:
+ .
+  * It is not uncommon that people read changelog entries that are more
+    than a decade old to understand why a change was made or why a
+    package works in a specific way.
+  * Many users will read the changelog via
+    <tt>apt-listchanges(1)</tt>
+  * The information in <tt>debian/changelog</tt> is permanent.
+ .
+ Examples for too short entries include "dh 11" or simply "R³" - these
+ could be expanded to, for example:
+ .
+  * Switch to debhelper compat 11.
+  * Rules-Requires-Root: no
+
+Tag: changelog-news-debian-mismatch
+Severity: normal
+Certainty: possible
+Info: The latest entries in the Debian changelog file and NEWS.Debian file
+ are for the same version but the given field doesn't match.  The
+ changelog information is canonical and the NEWS.Debian information is
+ ignored, but it may be confusing to users to have them be different.
+
+Tag: bad-intended-distribution
+Severity: normal
+Certainty: wild-guess
+Experimental: yes
+Info: The last changelog entry implies this version is not for release.
+    Instead it should specify the distribution it is to be uploaded to.
+
+Tag: non-consecutive-debian-revision
+Severity: pedantic
+Certainty: possible
+Experimental: yes
+Info: The last changelog entry refer to a Debian revision that is not
+ consecutive to previous changelog entry. Please use consecutive Debian
+ revision or use UNRELEASED version.
+
+Tag: misspelled-closes-bug
+Severity: normal
+Certainty: certain
+Ref: policy 5.6.22
+Info: The last changelog entry uses Close: #123456 instead of correct
+ Closes: #123456
+
+Tag: version-refers-to-distribution
+Severity: minor
+Certainty: certain
+Info: The Debian portion of the package version contains a reference to a
+ particular Debian release or distribution.  This should only be done for
+ uploads targeted at a particular release, not at unstable or
+ experimental, and should refer to the release by version number or code
+ name.
+ .
+ Using "testing" or "stable" in a package version targeted at the current
+ testing or stable release is less informative than using the code name or
+ version number and may cause annoying version sequencing issues if the
+ package doesn't change before the next release cycle starts.
+Ref: devref 5.13.3
+
+Tag: debian-changelog-has-wrong-day-of-week
+Severity: normal
+Certainty: certain
+Info: The date in the changelog entry is not consistent with the actual
+ day of that week.  Either the date is wrong or the day of week is wrong.
+ .
+ To avoid problems like this, consider using a tool like dch(1) or
+ date(1) to generate the date.  Example:
+ .
+   $ date -R -ud '2013-11-05 23:59:59'
+   Tue, 05 Nov 2013 23:59:59 +0000
+
+Tag: changelog-references-temp-security-identifier
+Severity: normal
+Certainty: certain
+Info: The changelog entry references a temporary security identifier,
+ like "TEMP-0000000-2FC21E".
+ .
+ The TEMP identifier will disappear in the future once a proper CVE
+ identifier has been assigned.  Therefore it is useless as an
+ external reference.  Even worse, the identifier is not stable and
+ may change even before a CVE is allocated.
+ .
+ If a CVE has been allocated, please use that instead.  Otherwise,
+ please replace the TEMP identifier with a short description of the
+ issue.
+Ref: #787929, #807892
+
+Tag: epoch-change-without-comment
+Severity: normal
+Certainty: possible
+Info: The previous version of this package had a different version epoch
+ (eg. 2:1.0-1) to the current version and there's no reference to this in
+ the changelog entry.
+ .
+ Epochs exist to cope with changes to the upstream version numbering
+ scheme. Whilst they are a powerful tool, increasing or adding an epoch
+ has many downsides including causing issues with versioned dependencies,
+ being misleading to users and being aesthetically unappealing. Whilst
+ they should be avoided, valid reasons to add or increment the epoch
+ include:
+ .
+  - Upstream changed their versioning scheme in a way that makes the
+    latest version lower than the previous one.
+  - You need to permanently revert to a lower upstream version.
+ .
+ Temporary revertions (eg. after an NMU) should use not modify or
+ introduce an epoch - please use the <tt>CURRENT+reallyFORMER</tt> until
+ you can upload the latest version again.
+ .
+ If you are unsure whether you need to increase the epoch for a package,
+ please consult the debian-devel mailing list.
+ .
+ Lintian looks in this version's changelog entry for the phrase "epoch".
+
+Tag: invalid-date-in-debian-changelog
+Severity: important
+Certainty: certain
+Info: The date format in the latest changelog entry file appears to be invalid.
+ .
+ Dates should use the following format (compatible and with the same semantics
+ of RFC 2822 and RFC 5322):
+ .
+   day-of-week, dd month yyyy hh:mm:ss +zzzz
+ .
+ To avoid problems like this, consider using a tool like dch(1) or
+ date(1) to generate the date.  Example:
+ .
+   $ date -R -ud '2013-11-05 23:59:59'
+   Tue, 05 Nov 2013 23:59:59 +0000
+Ref: policy 4.4

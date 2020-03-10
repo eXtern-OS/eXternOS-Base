@@ -1,0 +1,73 @@
+
+Client API
+----------
+Basically the Authen::SASL module gathers some info. When ->client_new
+is called the plugin is called to create a $conn object. At that point
+it should query the Authen::SASL object for mechanisms and callbacks
+
+Properties are then set on the $conn object by calling $conn->property
+
+Then client_start is called
+
+Then we call client_step with a challenge string to get a response
+string. need_step can be called to check that this step is actually
+necessary for the selected mechanism.
+
+
+Quite simple really I think.
+
+
+So the plugin just needs to support
+
+  client_new
+  client_start
+  client_step
+  need_step    # returns true if client_step needs to be called
+  property     # set/get for properties
+  mechanism    # returns the name of the chosen mechanism
+  service      # the service name passed to client_new
+  host         # the hostname passed to client_new
+  is_success   # returns true if authentication suceeded
+
+Server API
+----------
+The server API is symetric to the client's one. server_new is called to
+create a connection object. Then server_start is called, and if relevant
+the first data from the client is passed to it as argument.
+
+Then we call server_step with all the response from the clients, which
+returns challenges. need_step also determines if the current mechanism
+requires another step.
+
+So the plugin just needs to support
+
+  server_new
+  server_start
+  server_step
+  need_step    # returns true if client_step needs to be called
+  property     # set/get for properties
+  mechanism    # returns the name of the chosen mechanism
+  service      # the service name passed to client_new
+  host         # the hostname passed to client_new
+  is_success   # returns true if authentication suceeded
+
+Callbacks
+---------
+properties and callbacks are passed by name, so you will need to convert
+them to numbers.
+
+There are three types of call back
+
+  user => 'fred'
+
+When the user callback is called, it will just return the string 'fred'
+
+  user => \&subname
+
+When the user callback is called, &subname will be called and it will
+be passed the $conn object as the first argument.
+
+  user => [ \&subname, 1, 2, 3]
+
+When the user callback is called, &subname will be called. It will be passed
+the $conn object, followed by all other values in the array

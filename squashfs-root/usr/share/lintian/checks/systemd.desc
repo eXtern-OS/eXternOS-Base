@@ -1,0 +1,184 @@
+Check-Script: systemd
+Author: Michael Stapelberg <stapelberg@debian.org>
+Type: binary
+Info: Checks various systemd policy things
+Needs-Info: scripts, unpacked, file-info, bin-pkg-control
+
+Tag: systemd-service-file-outside-lib
+Severity: serious
+Certainty: certain
+Info: The package ships a systemd service file outside
+ <tt>/lib/systemd/system/</tt>
+ .
+ Systemd in Debian searches for unit files in <tt>/lib/systemd/system/</tt>
+ and <tt>/etc/systemd/system</tt>.  Notably, it does <i>not</i> look
+ in <tt>/usr/lib/systemd/system/</tt> for service files.
+ .
+ System administrators should have the possibility to overwrite a
+ service file (or parts of it, in newer systemd versions) by placing a
+ file in <tt>/etc/systemd/system</tt>, so the canonical location used
+ for service files is <tt>/lib/systemd/system/</tt>.
+
+Tag: systemd-tmpfiles.d-outside-usr-lib
+Severity: serious
+Certainty: certain
+Info: The package ships a systemd tmpfiles.d(5) conf file outside
+ <tt>/usr/lib/tmpfiles.d/</tt>
+
+Tag: systemd-service-file-refers-to-obsolete-target
+Severity: normal
+Certainty: certain
+Info: The systemd service file refers to an obsolete target.
+ .
+ Some targets are obsolete by now, e.g. syslog.target or dbus.target. For
+ example, declaring <tt>After=syslog.target</tt> is unnecessary by now because
+ syslog is socket-activated and will therefore be started when needed.
+
+Tag: systemd-service-file-refers-to-obsolete-bindto
+Severity: normal
+Certainty: certain
+Info: The systemd service file refers to the obsolete BindTo= option.
+ .
+ The <tt>BindTo=</tt> option has been deprecated in favour of
+ <tt>BindsTo=</tt> which should be used instead.
+Ref: https://github.com/systemd/systemd/commit/7f2cddae09fd2579ae24434df577bb5e5a157d86
+
+Tag: omitted-systemd-service-for-init.d-script
+Severity: serious
+Certainty: certain
+Info: The specified init.d script has no systemd equivalent and the
+ package ships other units.
+ .
+ This typically occurs when a maintainer missed script when adding
+ systemd integration, or a new init script was added in a new upstream
+ version.
+ .
+ Systemd has a SysV init.d script compatibility mode. It provides access to
+ each SysV init.d script as long as there is no native service file with the
+ same name (e.g. <tt>/lib/systemd/system/rsyslog.service</tt> corresponds to
+ <tt>/etc/init.d/rsyslog</tt>).
+
+Tag: missing-systemd-service-for-init.d-script
+Severity: pedantic
+Certainty: certain
+Info: The specified init.d script has no equivalent systemd service.
+ .
+ Whilst systemd has a SysV init.d script compatibility mode, providing
+ native systemd support has many advantages such as being able to specify
+ security hardening features.
+ .
+ Please provide a suitable .service file for this script.
+
+Tag: missing-systemd-service-for-init.d-rcS-script
+Severity: serious
+Certainty: certain
+Ref: https://wiki.debian.org/Teams/pkg-systemd/rcSMigration
+Info: The rcS init.d script has no systemd equivalent.
+ .
+ Systemd has a SysV init.d script compatibility mode. It provides access to
+ each SysV init.d script as long as there is no native service file with the
+ same name (e.g. <tt>/lib/systemd/system/rsyslog.service</tt> corresponds to
+ <tt>/etc/init.d/rsyslog</tt>).
+ .
+ Services in rcS.d are particularly problematic, because they often cause
+ dependency loops, as they are ordered very early in the boot sequence.
+
+Tag: init.d-script-does-not-source-init-functions
+Severity: normal
+Certainty: certain
+Info: The <tt>/etc/init.d</tt> script does not source
+ <tt>/lib/lsb/init-functions</tt>. The <tt>systemd</tt> package provides
+ <tt>/lib/lsb/init-functions.d/40-systemd</tt> to redirect
+ <tt>/etc/init.d/$script</tt> calls to systemctl.
+ .
+ Please add a line like this to your <tt>/etc/init.d</tt> script:
+ .
+  . /lib/lsb/init-functions
+
+Tag: maintainer-script-calls-systemctl
+Severity: normal
+Certainty: certain
+Ref: https://wiki.debian.org/Teams/pkg-systemd/Packaging
+Info: The maintainer script calls systemctl directly. Actions such as enabling
+ a unit file should be done using <tt>deb-systemd-helper</tt> so that they work
+ on machines with or without systemd. Starting a service should be done via
+ <tt>invoke-rc.d</tt>, if the service has a corresponding sysvinit script, or
+ <tt>deb-systemd-invoke</tt> if it does not.
+ .
+ If you are using debhelper, please use the <tt>systemd</tt> debhelper
+ addon, which is provided by <tt>debhelper (&gt;= 9.20160709~) | dh-systemd</tt>.
+
+Tag: init-script-is-not-a-file
+Severity: serious
+Certainty: certain
+Info: The package contains an init script that is not a regular file or
+ resolvable symlink.
+
+Tag: service-file-is-not-a-file
+Severity: serious
+Certainty: certain
+Info: The package contains a service file that is not a regular file or
+ resolvable symlink.
+
+Tag: service-key-has-whitespace
+Severity: important
+Certainty: certain
+Info: The systemd service file contains space in the key definitions
+ .
+ Service files should not have spaces surrounding the <tt>=</tt> key.
+ They are not explicitly supported by systemd, and third party tools
+ have been known to break.
+ .
+ Please remove the spaces surrounding the key definition.
+
+Tag: systemd-service-alias-without-extension
+Severity: normal
+Certainty: certain
+Ref: http://www.freedesktop.org/software/systemd/man/systemd.unit.html#Alias=
+Info: The service file lists an alias without a file extension.
+ .
+ The spec mandates that the extension of the listed alias matches
+ the extension of the unit itself.
+
+Tag: systemd-service-file-missing-documentation-key
+Severity: wishlist
+Certainty: certain
+Info: The systemd service file does not contain a <tt>Documentation</tt> key.
+ .
+ Documentation for systemd service files can be automatically viewed using
+ <tt>systemctl help servicename</tt> if this field is present.
+Ref: systemd.unit(5)
+
+Tag: systemd-service-file-missing-install-key
+Severity: normal
+Certainty: wild-guess
+Info: The systemd service file does not contain a <tt>WantedBy=</tt> or
+ <tt>RequiredBy=</tt> key in its <tt>[Install]</tt> section.
+ .
+ Forgetting to add such a line (e.g. <tt>WantedBy=multi-user.target</tt>)
+ results in the service file not being started by default.
+Ref: systemd.unit(5)
+
+Tag: systemd-service-file-wraps-init-script
+Severity: normal
+Certainty: certain
+Info: The listed service file simply uses ths existing SysV init script
+ via ExecStart, ExecStop, etc.
+ .
+ The main logic of more complex init scripts should be moved into helper
+ scripts which can be used directly from both the .service file and the
+ init script. This will also make the init scripts more readable and easier
+ to support other alternatives. Note that as /etc/init.d/* files are
+ conffiles, such updates are not guaranteed to reach users.
+
+Tag: systemd-service-file-refers-to-unusual-wantedby-target
+Severity: normal
+Certainty: certain
+Info: The specified systemd service file declares an unusual
+ <tt>WantedBy=</tt> relationship.
+ .
+ Most services that want to be started automatically at boot should use
+ <tt>WantedBy=multi-user.target</tt> or <tt>WantedBy=graphical.target</tt>.
+ Services that want to be started in rescue or single-user mode should
+ instead use <tt>WantedBy=sysinit.target</tt>
+Ref: https://wiki.debian.org/Teams/pkg-systemd/rcSMigration

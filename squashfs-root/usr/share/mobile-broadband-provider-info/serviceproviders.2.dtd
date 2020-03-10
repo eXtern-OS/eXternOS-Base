@@ -1,0 +1,124 @@
+<!ELEMENT serviceproviders (country*)>
+<!ATTLIST serviceproviders format CDATA #REQUIRED>
+
+<!ELEMENT country (provider*)>
+<!ATTLIST country code CDATA #REQUIRED>
+
+<!ELEMENT provider (name+, gsm?, cdma?)>
+
+<!-- Indicates this provider is the primary/wholesale network provider -->
+<!-- for a given MCC/MNC; other providers with the same MCC/MNC are MVNOs -->
+<!-- that piggy-back on the primary provider. -->
+<!ATTLIST provider primary (true|false) #IMPLIED>
+
+<!ELEMENT gsm (network-id*, msisdn-query*, voicemail*, balance-check*, balance-top-up*, apn*)>
+<!ELEMENT apn (plan*,
+               usage?,
+               name*,
+               gateway?,
+               username?,
+               password?,
+               authentication?,
+               dns*,
+               mmsc?,
+               mmsproxy?)>
+<!ATTLIST apn value CDATA #REQUIRED>
+
+<!ELEMENT msisdn-query (ussd*, sms*)>
+<!-- query the network for the telephone number assigned to the SIM card -->
+
+<!ELEMENT voicemail (#PCDATA)>
+<!-- contains dial string used to access voicemail services for this provider -->
+<!-- for historical/legacy reasons network providers may support various alternative -->
+<!-- dial strings that can be used to access voicemail services -->
+
+<!ELEMENT balance-check (ussd*,
+                         dtmf*,
+                         sms*,
+                         ussd-response*)>
+<!-- for handset branding and historical/legacy reasons, network providers often -->
+<!-- support a number of alternative methods to check balance/allowance. -->
+<!-- the first element will typically be the default method -->
+
+<!ELEMENT ussd (#PCDATA)>
+<!ATTLIST ussd replacement CDATA #IMPLIED>
+<!-- contains * prefixed string which when sent to the network should result in
+     a response text string from network. The attribute "replacement" is a
+     string that, if found in the #PCDATA, can be replaced by user input, e.g.
+     to provide a pin code for balance top up.
+  -->
+
+<!ELEMENT dtmf (#PCDATA)>
+<!-- contains dial string used to access balance check service via voice call -->
+
+<!ELEMENT sms (#PCDATA)>
+<!ATTLIST sms text CDATA #REQUIRED>
+<!-- contains dial string and text string used to access balance check service via sms -->
+
+<!ELEMENT ussd-response (#PCDATA)>
+<!-- similar to standard ussd method but requires user to select options from initial network response -->
+<!-- typically, option 1 followed by option 3 will display remaining credit -->
+<!-- this method does not have widespread use -->
+
+<!ELEMENT balance-top-up (ussd*,
+                          sms*)>
+<!-- Howto top up the balance of prepaid cards -->
+
+<!ELEMENT network-id EMPTY>
+<!ATTLIST network-id mcc CDATA #REQUIRED>
+<!ATTLIST network-id mnc CDATA #REQUIRED>
+<!-- network-id should contain all the providers's known MCC/MNC codes.
+     The MCC should be a three-digit ITU E.212 Mobile Country Code (like
+     '310' or '409') and the MNC should be a two- or three-digit GSM
+     Mobile Network Code.  Even if the provider is an MVNO, it's upstream
+     network infrastructure provider's MCC/MNC codes should be included
+     so that the MCC+MNC from the IMSI of the MVNO's SIM can be roughly
+     matched to the provider.
+-->
+
+<!ELEMENT username (#PCDATA)>
+<!-- username required for authentication when starting a packet data session -->
+
+<!ELEMENT password (#PCDATA)>
+<!-- password required for authentication when starting a packet data session -->
+
+<!ELEMENT authentication EMPTY>
+<!ATTLIST authentication method (chap|pap) #REQUIRED>
+<!-- method to use for authentication when starting a packet data session -->
+
+<!ELEMENT dns (#PCDATA)>
+<!-- Any static IPv4 DNS servers required for the provider; usually these are
+     sent to the client automatically via PPP or PDP context negotiation and
+     this value is not used.
+-->
+
+<!ELEMENT gateway (#PCDATA)>
+<!-- Static IPv4 gateway to which IP traffic for the data session should be
+     directed to.  Usually the gateway is provided automatically via PPP or
+     PDP context negotiation and this value is not used.
+-->
+
+<!ELEMENT plan EMPTY>
+<!ATTLIST plan type (prepaid|postpaid) #REQUIRED>
+
+<!ELEMENT usage EMPTY>
+<!ATTLIST usage type (internet|mms|wap|ia) #REQUIRED>
+
+<!ELEMENT cdma (name*,
+                username?,
+                password?,
+                dns*,
+                sid*)>
+
+<!ELEMENT sid EMPTY>
+<!ATTLIST sid value CDATA #REQUIRED>
+<!-- AMPS/CDMA System IDs known to be used by this provider -->
+
+<!ELEMENT name (#PCDATA)>
+<!ATTLIST name xml:lang CDATA #IMPLIED>
+
+<!-- MMS proxy in HOST:PORT format -->
+<!ELEMENT mmsproxy (#PCDATA)>
+
+<!-- MMS Center URL -->
+<!ELEMENT mmsc (#PCDATA)>

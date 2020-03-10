@@ -1,0 +1,807 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN" "dtd/kdedbx45.dtd" [
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Swedish "INCLUDE">
+]>
+
+<book id="kwallet5" lang="&language;">
+<bookinfo>
+<title
+>Handbok Plånbok</title>
+
+<authorgroup>
+<author
+>&George.Staikos; &George.Staikos.mail; </author>
+<author
+>&Lauri.Watts; &Lauri.Watts.mail; </author>
+<othercredit role="developer"
+><firstname
+>George</firstname
+><surname
+>Staikos</surname
+> <affiliation
+><address
+>&George.Staikos.mail;</address
+></affiliation>
+<contrib
+>Utvecklare</contrib>
+</othercredit>
+<othercredit role="translator"
+><firstname
+>Stefan</firstname
+><surname
+>Asserhäll</surname
+><affiliation
+><address
+><email
+>stefan.asserhall@bredband.net</email
+></address
+></affiliation
+><contrib
+>Översättare</contrib
+></othercredit
+> 
+</authorgroup>
+
+<legalnotice
+>&FDLNotice;</legalnotice>
+
+<date
+>2016-07-05</date>
+<releaseinfo
+>Program 16.04</releaseinfo>
+
+<abstract>
+<para
+>Plånboksystemet tillhandahåller ett bekvämt och säkert sätt att hantera alla dina lösenord.</para>
+
+</abstract>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>Plånbok</keyword>
+<keyword
+>lösenord</keyword>
+<keyword
+>formulär</keyword>
+</keywordset>
+
+</bookinfo>
+
+<chapter id="introduction">
+<title
+>Inledning</title>
+
+<para
+>Datoranvändare har en stor mängd information att hantera, delvis av känslig natur. Typiskt finns det många lösenord att hantera. Att komma ihåg dem är svårt, och att skriva ner dem på papper eller i en textfil är inte säkert.</para>
+
+<para
+>Plånboken tillhandahåller ett säkert sätt att lagra lösenord och annan hemlig information, vilket gör det möjligt för användaren att bara komma ihåg ett enda lösenord istället för en mängd olika lösenord och inloggningsinformation. </para>
+
+<sect1 id="kwallet-create">
+
+<title
+>Skapa en plånbok</title>
+
+<para
+>Plånboken används för lösenordslagring. Det är oftast tillräckligt att bara ha en plånbok säkrad av ett huvudlösenord, men det går att organisera en stor samling lösenord med flera plånböcker genom att använda Plånbokshanteraren (kwalletmanager5).</para>
+
+<para
+>Normalt används en plånbok benämnd <guilabel
+>kdewallet</guilabel
+> för att lagra dina lösenord. Plånboken är säkrad av ditt inloggningslösenord och öppnas automatiskt vid inloggning, om kwallet_pam är installerat och riktigt inställt. För vissa distributioner (t.ex. Archlinux) är inte kwallet_pam normalt installerat.</para>
+
+
+<para
+>Andra plånböcker måste öppnas manuellt.</para>
+
+<para
+>Det finns två sätt att skapa en ny plånbok:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Använd menyalternativet <menuchoice
+><guimenu
+>Arkiv</guimenu
+> <guimenuitem
+>Ny plånbok</guimenuitem
+></menuchoice
+> i plånbokshanteraren.</para
+></listitem>
+
+<listitem
+><para
+>Använd knappen <guibutton
+>Ny</guibutton
+> i systeminställningsmodulen <guilabel
+>KDE-plånbok</guilabel
+>.</para
+></listitem>
+</itemizedlist>
+
+<para
+>Om du inte har skapat en plånbok ännu, se avsnittet <link linkend="kwallet-using"
+>Använda plånboken</link
+>. </para>
+
+<para
+>Plånboken erbjuder två olika sätt att lagra information:</para>
+
+<screenshot>
+<screeninfo
+>Välj kryptering</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="wallet-encryption-selection.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Välj kryptering</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<variablelist>
+
+<varlistentry>
+<term
+>Kryptering med Blowfish</term>
+<listitem>
+<para
+>Plånboken sparar den här känsliga informationen åt dig i en fil med stark kryptering, tillgänglig för alla program, och skyddad med ett huvudlösenord som du anger.</para>
+
+<screenshot>
+<screeninfo
+>Skapa en plånbok krypterad med Blowfish</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="first-open-request.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Skapa en plånbok krypterad med Blowfish</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Data krypteras med <ulink url="http://www.schneier.com/blowfish.html"
+>Blowfish symmetriska blockchiffer-algoritm</ulink
+>, algoritmens nyckel härleds från lösenordets <ulink url="http://www.ietf.org/rfc/rfc3174.txt"
+>SHA-1 checksumma</ulink
+>, med nyckellängden 156 bitar (20 byte). Data i plånboksfilen checksummeras också med SHA-1 och kontrolleras innan det avkodas och görs tillgänglig för program. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+>Kryptering med GPG</term>
+<listitem>
+<para
+>GnuPG erbjuder ett antal mycket starka krypteringsalgoritmer och använder långa nycklar skyddade med lösenordsfraser.</para>
+
+<screenshot>
+<screeninfo
+>Ingen GPG-nyckel hittades</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="error-nokey.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Ingen GPG-nyckel hittades</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+<para
+>Skärmbilderna ovan visar fallet när en GPG-nyckel som kan hantera kryptering inte hittades på systemet. Använd program som &kgpg; eller &kleopatra; för att skapa en nyckel och försök igen.</para>
+
+<para
+>Om en GPG-nyckel hittades, visas nästa dialogruta där det går att välja en nyckel för den nya plånboken. </para>
+<screenshot>
+<screeninfo
+>Välj en krypteringsnyckel</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="key-selection.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Välj en krypteringsnyckel</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Plånboken använder nu GPG när plånböcker lagras och när de öppnas. Lösenordsdialogrutan visas bara en gång. Även om plånboken stängs efter att ha öppnats första gången, öppnas den tyst efterföljande gånger under samma session. </para>
+
+<para
+>Samma session kan hantera båda filformaten samtidigt. Plånboken detekterar transparent filformatet och laddar korrekt gränssnitt för att hantera den.</para>
+
+<para
+>För att använda känslig information från den klassiska plånboken med det nya gränssnittet, följ dessa steg:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Skapa en ny GPG-baserad plånbok</para
+></listitem>
+<listitem
+><para
+>Starta Plånbokshanteraren (kwalletmanager5) med Kör program (<keycombo
+>&Alt;<keycap
+>F2</keycap
+></keycombo
+>) eller ett annat startprogram (meny) och markera den gamla plånboken. Välj därefter <menuchoice
+><guimenu
+>Arkiv</guimenu
+> <guimenuitem
+>Exportera som krypterad</guimenuitem
+></menuchoice
+> för att skapa en arkivfil med den känsliga informationen. </para
+></listitem>
+<listitem
+><para
+>Markera den nya GPG-baserade plånboken och välj därefter <menuchoice
+><guimenu
+>Arkiv</guimenu
+><guimenuitem
+>Importera krypterad</guimenuitem
+></menuchoice
+> och välj filen som du just sparade.</para>
+</listitem>
+
+<listitem
+><para
+>Gå till systeminställningarna, <menuchoice
+><guimenu
+>Kontoinformation</guimenu
+><guimenuitem
+>KDE-plånbok</guimenuitem
+></menuchoice
+> och välj den nyskapade GPG-baserade plånboken i kombinationsrutan <guilabel
+>Välj plånbok som ska användas som standard</guilabel
+>. </para
+></listitem>
+</itemizedlist>
+
+<para
+>Som alternativ kan <guimenuitem
+>Importera plånbok</guimenuitem
+> användas, men i detta fall måste du välja <filename class="extension"
+>.kwl</filename
+>-filen som motsvarar den gamla plånboken, placerad i katalogen <filename class="directory"
+>kwalletd</filename
+> i <userinput
+>qtpaths --paths GenericDataLocation</userinput
+>. </para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+<tip>
+<para
+>Plånboken stöder flera plånböcker, så för säkrast möjliga användning bör du använda en plånbok för lokala lösenord och en annan för nätverkslösenord och formulärdata. Du kan ställa in detta beteende med plånbokens modul i systeminställningarna. Dock är standardinställningen att lagra allt i en plånbok benämnd <guilabel
+>kdewallet</guilabel
+>.</para>
+</tip>
+
+<para
+>En plånbok är normalt stängd, vilket betyder att du måste tillhandahålla ett lösenord för att öppna det. När plånboken väl är öppen, kan innehållet kommas åt av vilken användarprocess som helst, vilket kan vara ett säkerhetsproblem.</para>
+</sect1>
+
+<sect1 id="kwallet-using">
+<title
+>Använda plånboken</title>
+
+<para
+>Om du till exempel besöker &kde;:s felrapporteringssystem och skriver in inloggningsdata för första gången, dyker en dialogruta upp som erbjuder sig att lagra lösenordet i en krypterad plånbok:</para>
+
+<screenshot>
+<screeninfo
+>Begäran att spara inloggningsinformation</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="save-login-information.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Begäran att spara inloggningsinformation</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Om du vill lagra informationen, välj <guibutton
+>Lagra</guibutton
+> för att fortsätta. Om du hittills inte skapat en plånbok, frågar nästa dialogruta efter krypteringsgränssnittet och skapar en plånbok som heter kdewallet. </para>
+
+<para
+>Nästa gång du besöker samma webbplats igen, hämtar programmet inloggningsinformation från en öppen plånbok och fyller i formuläret med de hemliga värdena.</para>
+
+<screenshot>
+<screeninfo
+>Ifylld inloggningsinformation</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="prefilled-forms.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Ifylld inloggningsinformation</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Om plånboken är stängd, begär programmet att den ska öppnas. Skriv in plånbokens lösenord och klicka på knappen <guibutton
+>Öppna</guibutton
+>.</para>
+
+<screenshot>
+<screeninfo
+>Begäran att öppna en plånbok</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="openwallet-request.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Begäran att öppna en plånbok</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Det ansluter programmet till plånboken, aktiverar den för att läsa inloggningsdata från plånboken, och återställer inloggningsinformationen för webbplatsen. När ett program väl är anslutet till plånboken kan det automatiskt återställa all inloggningsinformation lagrad i plånboken.</para>
+
+</sect1>
+
+</chapter>
+
+<chapter id="kwalletmanager5">
+<title
+>Plånbokshanteraren</title>
+
+<para
+>Plånbokshanteraren utför två funktioner. I första hand låter den dig se om några plånböcker är öppna, vilka de är, och vilka program som använder varje plånbok. Du kan koppla bort ett programs åtkomst till en plånbok inne i Plånbokshanteraren.</para>
+
+<para
+>Du kan också hantera plånböcker installerade på systemet, skapa och ta bort plånböcker, och hantera deras innehåll (ändra nycklar, ...).</para>
+
+<para
+>Programmet Plånbokshanteraren startas med <menuchoice
+><guimenu
+>Program</guimenu
+><guisubmenu
+>System</guisubmenu
+> <guimenuitem
+>Hanteringsverktyg för plånbok</guimenuitem
+></menuchoice
+> från programstarten. Starta alternativt Kör program med snabbtangenten <keycombo action="simul"
+>&Alt;<keycap
+>F2</keycap
+></keycombo
+> och skriv in <command
+>kwalletmanager5</command
+>.</para>
+
+<para
+>Klicka en gång på systembrickans plånboksikon för att visa Plånbokshanterarens fönster.</para>
+<para>
+<screenshot>
+<screeninfo
+>Huvudfönster med en plånbok</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwalletmanager.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Huvudfönster med en plånbok</phrase>
+</textobject>
+<caption
+><para
+>Huvudfönster med en plånbok</para
+></caption>
+</mediaobject>
+</screenshot>
+</para>
+
+<!--FIXME
+How to get assistant "First Use"? kwalletwizardpageintro.ui
+Last code change with http://websvn.kde.org/?view=revision&revision=882694
+see also https://bugs.kde.org/show_bug.cgi?id=290309
+-->
+<sect1 id="kwalletmanager-wallet-window">
+<title
+>Plånboksfönstret</title>
+
+<para
+>Om du har mer än en plånbok, visas alla tillgängliga plånböcker till vänster.</para>
+
+<para
+>Att klicka på en plånbok i plånbokshanterarens fönster visar den plånbokens tillstånd och innehållet i en öppen plånbok. En plånbok kan innehålla hur många kataloger som helst, vilka gör det möjligt att lagra lösenordsinformation. Normalt innehåller en plånbok kataloger som heter Form Data och Passwords. </para>
+
+<screenshot>
+<screeninfo
+>Huvudfönster med två plånböcker</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-edit.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Huvudfönster med två plånböcker</phrase>
+</textobject>
+<caption
+><para
+>Huvudfönster med två plånböcker</para
+></caption>
+</mediaobject>
+</screenshot>
+<para
+>Använd <guibutton
+>Öppna</guibutton
+> för att visa innehållet i en stängd plånbok. Du blir tillfrågad om att mata in huvudlösenordet.</para>
+
+<sect2>
+<title
+>Innehållsfliken</title>
+
+<para
+>Fliken <guilabel
+>Innehåll</guilabel
+> har tre delar:</para>
+
+<itemizedlist>
+<listitem
+><para
+>En sökrad för att filtrera objekten i nuvarande plånbok</para
+></listitem>
+<listitem
+><para
+>Trädvyn av katalogerna som finns i plånboken. Klicka på ikonerna  <guiicon
+>&gt;</guiicon
+> och <guiicon
+>v</guiicon
+> för att expandera eller dra ihop trädvyn.</para
+></listitem>
+<listitem
+><para
+>Innehållet i den markerade katalogposten på höger sida. Normal är lösenord och värde dolda. För att visa och redigera dem, aktivera <guilabel
+>Visa värden</guilabel
+> eller klicka på knappen <guilabel
+>Visa innehåll</guilabel
+>. </para
+></listitem>
+</itemizedlist>
+
+<para
+>Kataloger kan läggas till eller tas bort via den sammanhangsberoende menyn, och markeras en katalog uppdateras listan med poster i katalogen och översiktsrutan. Markeras en post i en katalog, uppdateras postens innehållsruta, och det blir möjligt att redigera posten.</para>
+
+<para
+>Poster kan också skapas, bytas namn på eller tas bort via den sammanhangsberoende menyn för katalogens innehåll.</para>
+
+<para
+>Alla kataloger och poster kan dras och släppas i andra plånböcker eller kataloger. Det gör det möjligt för en användare att enkelt paketera en ny plånbok för att överföra den till en annan miljö. En ny plånbok kan till exempel skapas och kopieras till en portabel minnesenhet. Viktiga lösenord kan överföras dit, så att de är tillgängliga på andra platser.</para>
+
+<sect3 id="kwallet-import-export">
+<title
+>Import och export</title>
+<para
+>Om du vill överföra det hemliga innehållet till en annan enhet eller dator, använd alternativen i menyn <guimenu
+>Arkiv</guimenu
+>. Med <guimenuitem
+>Exportera som krypterad</guimenuitem
+> kan plånböcker exporteras till en krypterad arkivfil. Vid import av arkivfilen med <guimenuitem
+>Importera krypterad</guimenuitem
+>måste du ange plånbokens huvudlösenord. </para>
+<para
+>Som alternativ kan en <filename class="extension"
+>.xml</filename
+>-fil användas för att överföra en plånbok. Var medveten om att hela innehållet lagras som vanlig text i den här filen. </para>
+</sect3>
+
+<sect3 id="kwallet-adding-entries">
+<title
+>Lägga till poster för hand</title>
+<para
+>Öppna den sammanhangsberoende menyn med ett högerklick på <guilabel
+>Mappningar</guilabel
+> eller <guilabel
+>Lösenord</guilabel
+> i trädvyn <guilabel
+>Kataloger</guilabel
+>. Välj <guimenuitem
+>Ny</guimenuitem
+> eller <guimenuitem
+>Ny katalog</guimenuitem
+> och ange ett namn på den nya posten.</para>
+<para
+>I katalogens innehållsruta välj <guilabel
+>Ny katalog</guilabel
+> i den sammanhangsberoende menyn för <quote
+>Form Data</quote
+> eller <quote
+>Passwords</quote
+>. För lösenord, klicka på knappen <guilabel
+>Visa innehåll</guilabel
+>, och ange det nya lösenordet. För Mappningar måste du lägga till en <guilabel
+>Nyckel</guilabel
+> och ett <guilabel
+>Värde</guilabel
+>. Klicka på knappen <guilabel
+>Spara</guilabel
+> för att lagra de nya posterna i den krypterade plånboksfilen. </para>
+</sect3>
+</sect2>
+
+<sect2>
+<title
+>Programfliken</title>
+<para>
+<screenshot>
+<screeninfo
+>Programfliken</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-applications.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Programfliken</phrase>
+</textobject>
+<caption
+><para
+>Programfliken</para
+></caption>
+</mediaobject>
+</screenshot>
+</para>
+<para
+>Den första listan visar alla program som för närvarande är anslutna till den markerade plånboken. Använd knappen på höger sida om varje post för att koppla bort programmet.</para>
+
+<para
+>I den andra listan visas alla program som har behörighet att komma åt plånboken. Använd knappen till höger om varje post i listan för att återkalla behörigheten. </para>
+<!-- FIXME difference to remove the policy in kwallermanager settings dialog?-->
+</sect2>
+</sect1>
+
+</chapter>
+
+<chapter id="kwallet-kcontrol-module">
+<title
+>Anpassa Plånboken</title>
+
+<sect1 id="wallet-preferences">
+<title
+>Inställning av plånbok</title>
+
+<para
+>Plånboken innehåller en liten inställningsruta med flera alternativ som låter dig finjustera plånboken enligt dina individuella önskemål. Standardinställningarna i plånboken är tillräckliga för de flesta användare.</para>
+
+<para
+>Markera rutan för att aktivera eller inaktivera hela &kde;:s plånbokssystem. Om rutan inte är markerad, är plånboken fullständigt avstängt och ingen av de övriga alternativen har någon effekt, inte heller lagrar plånboken någon information, eller erbjuder att fylla i formulär åt dig.</para>
+
+<variablelist>
+<title
+><guilabel
+>Stäng plånbok</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Stäng om oanvänd i:</guilabel
+></term>
+<listitem>
+<para
+>Stäng aktuell plånbok efter en viss tidsperiod utan aktivitet. Om du markerar det här alternativet, ange tidsperioden i rutan. Normalvärdet är 10 minuter. När en plånbok stängs, behövs lösenordet för att komma åt den igen.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Stäng när skärmsläckaren startar</guilabel
+></term>
+<listitem>
+<para
+>Stäng plånboken så fort skärmsläckaren startas. När en plånbok stängs, behövs lösenordet för att komma åt den igen.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Stäng när det sista programmet slutar använda den</guilabel
+></term>
+<listitem>
+<para
+>Stäng plånboken så fort program som använder den har stoppats. Observera att plånböcker bara stängs när alla program som använder dem har stoppats. När en plånbok stängs, behövs lösenordet för att komma åt den igen.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title
+><guilabel
+>Automatiskt val av plånbok</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Välj plånbok som ska användas som standard:</guilabel
+></term>
+<listitem>
+<para
+>Välj vilken plånbok du vill använda som standardplånbok. Kom ihåg att bara plånboken benämnd <guilabel
+>kdewallet</guilabel
+> öppnas automatiskt vid inloggning, om plånbokens lösenord och inloggningslösenordet är identiska. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Alternativ plånbok för lokala lösenord:</guilabel
+></term>
+<listitem>
+<para
+>Om markerad, välj en annan plånbok för lokala lösenord.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title
+><guilabel
+>Plånbokshanteraren</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Visa hanterare i aktivitetsfält</guilabel
+></term>
+<listitem>
+<para
+>Låt plånbokshanteraren ha sin ikon i systembrickan.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Dölj ikonen i systembrickan när den sista plånboken stängs</guilabel
+></term>
+<listitem>
+<para
+>Ta bort plånboksikonen från systembrickan när ingen plånbok längre används.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Till sist finns en knapp som heter <guibutton
+>Starta plånbokshantering</guibutton
+>, som gör just det.</para>
+<para
+>Knappen är bara synlig om plånbokshanteraren inte kör</para>
+</sect1>
+
+<sect1 id="wallet-access-control">
+<title
+>Åtkomstkontroll</title>
+
+<para
+>Det finns bara ett alternativ på den här sidan:</para>
+
+<variablelist>
+<varlistentry>
+<term
+><guilabel
+>Fråga när ett program använder en plånbok</guilabel
+></term>
+<listitem>
+<para
+>Signalerar dig när ett program får tillgång till en plånbok.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Därefter finns en trädliknande vy av åtkomstkontroll för plånböcker.</para>
+
+<screenshot>
+<screeninfo
+>Åtkomstkontroll</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-access-control.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Åtkomstkontroll</phrase>
+</textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Vänsterklicka på symbolen <guiicon
+>&gt;</guiicon
+> intill namnet på en plånbok för att expandera trädet. Du ser namnet på varje program som har begärt att få komma åt plånboken, och policyn du angivit för det. Du kan inte redigera en policy här, eller lägga till någon, men det är möjligt att ta bort en post genom att högerklicka på den och välja <guimenuitem
+>Ta bort</guimenuitem
+> i den sammanhangsberoende meny som visas, eller genom att helt enkelt markera den och trycka på tangenten <keysym
+>Delete</keysym
+>.</para>
+
+<para
+>Ett program som har tillåtelse att komma åt en plånbok har fått tillgång till alla lösenord lagrade i den.</para>
+
+<para
+>Om du av misstag har ställt in ett program att inte använda plånboken, ta bort policyn för programmet här.</para>
+<!-- FIXME difference to Revoke Authorization in kwallermanager?-->
+<para
+>Vid nästa start av programmet kan du definiera en ny policy för åtkomst till plånboken. </para>
+<screenshot>
+<screeninfo
+>Åtkomstbegäran för att öppna en plånbok</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="application-request-to-open-wallet.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Åtkomstbegäran för att öppna en plånbok</phrase>
+</textobject>
+<caption
+><para
+>Ett program som begär åtkomst till en plånbok</para
+></caption>
+</mediaobject>
+</screenshot>
+
+</sect1>
+
+</chapter>
+
+<chapter id="advanced-features">
+<title
+>Avancerade funktioner</title>
+
+<para
+>Plånböcker kan dras från plånbokshanterarens fönster. Det låter dig dra plånboken till ett filbläddrarfönster, där du kan välja att kopiera, flytta eller länka plånboken, enligt vad du önskar.</para>
+
+<para
+>Du kan använda det för att spara en plånbok på portabla media, som en USB-nyckelring, så att du kan ta med dina lösenord till arbetet eller på semestern, och fortfarande enkelt kunna komma åt viktiga platser.</para>
+
+</chapter>
+
+<chapter id="credits-and-license">
+<title
+>Tack till och licens</title>
+
+<para
+>&kwallet5; &copy; 2003 &George.Staikos;</para>
+<para
+>Dokumentation &copy; &Lauri.Watts; och &George.Staikos;</para>
+
+<para
+>Stefan Asserhäll<email
+>stefan.asserhall@bredband.net</email
+></para
+> 
+&underFDL; &underGPL; </chapter>
+
+&documentation.index;
+
+</book>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+
+// vim:ts=2:sw=2:tw=78:noet
+-->

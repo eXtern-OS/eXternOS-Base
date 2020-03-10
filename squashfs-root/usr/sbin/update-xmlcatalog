@@ -1,0 +1,644 @@
+#!/usr/bin/perl
+## ----------------------------------------------------------------------
+## Debian update-xmlcatalog
+## ----------------------------------------------------------------------
+## Copyright (c) 2003-2004 Ardo van Rangelrooij
+##
+## This is free software; see the GNU General Public Licence version 2
+## or later for copying conditions.  There is NO warranty.
+## ----------------------------------------------------------------------
+
+=head1 NAME
+
+update-xmlcatalog - maintain XML catalog files
+
+=head1 SYNOPSIS
+
+B<update-xmlcatalog> B<--add> B<--root> S<B<--package> I<package>>
+S<B<--type> I<type>> S<B<--id> I<id>>
+
+B<update-xmlcatalog> B<--del> B<--root> S<B<--package> I<package>>
+S<B<--type> I<type>> S<B<--id> I<id>>
+
+B<update-xmlcatalog> B<--add> S<B<--package> I<package>> S<B<--local>
+I<local>> S<B<--type> I<type>> S<B<--id> I<id>>
+
+B<update-xmlcatalog> B<--del> S<B<--package> I<package>> S<B<--local>
+I<local>> S<B<--type> I<type>> S<B<--id> I<id>>
+
+B<update-xmlcatalog> B<--add> S<B<--local> I<local>> S<B<--file>
+I<file>> S<B<--type> I<type>> S<B<--id> I<id>>
+
+B<update-xmlcatalog> B<--del> S<B<--local> I<local>> S<B<--file>
+I<file>> S<B<--type> I<type>> S<B<--id> I<id>>
+
+B<update-xmlcatalog> B<--help>
+
+=head1 DESCRIPTION
+
+B<update-xmlcatalog> add entries to and removes entries from the root
+XML catalog file, a package XML catalog file or a local XML catalog
+file.
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<--add>
+
+Adds the entry to the root XML catalog file, a package XML catalog
+file or a local XML catalog file.  If the XML catalog file does not
+exist yet, it is automatically created.
+
+=item B<--del>
+
+Deletes the entry from the root XML catalog file, the package XML
+catalog file or the local XML catalog file.  A resulting empty XML
+catalog is not automatically deleted from the filesystem.
+
+=item B<--file> I<file>
+
+Indicates a local filename.
+
+=item B<--id> I<id>
+
+Indicates the XML catalog file entry identifier.
+
+=item B<--local> I<local>
+
+Indicates a local XML catalog file.
+
+=item B<--package> I<package>
+
+Indicates a package XML catalog file.
+
+=item B<--root>
+
+Indicates the root XML catalog file.
+
+=item B<--type> I<type>
+
+Indicates the XML catalog file entry type (public, system, uri).
+
+=item B<--help>
+
+Displays the usage information.
+
+=item B<--verbose>
+
+Optional switch to make a verbose output.
+
+=item B<--sort>
+
+Optional switch to sort the manipulated catalog content.
+
+Tip: To sort a catalog without adding or removing an item,
+just add an already existing item to the catalog.
+
+=back
+
+=head1 NOTES
+
+B<update-xmlcatalog> is the de-facto standard tool to be used to
+maintain XML catalog files on a Debian system, similar to that
+L<update-catalog(8)> is the standard tool to be used to main SGML
+catalog files on a Debian system.  A Debian XML Policy document to
+this effect is currently under development.
+
+B<update-xmlcatalog> and L<xmlcatalog(1)> are incompatible.  The
+former has an internal database of all the entries in all the XML
+catalog files it maintains and regenerates the indicated XML catalog
+file completely from scratch upon an update.  The latter updates the
+indicated XML catalog file directly.  This means that any change made
+to an XML catalog file using L<xmlcatalog(1)> is overwritten the next
+time that XML catalog file is updated using B<update-xmlcatalog>.
+
+=head1 SEE ALSO
+
+F</usr/share/doc/xml-core/README.Debian>
+
+=head1 AUTHOR
+
+B<Ardo van Rangelrooij> E<lt>ardo@debian.orgE<gt>
+
+=cut
+
+## ----------------------------------------------------------------------
+use strict;
+
+## ----------------------------------------------------------------------
+use File::Spec;
+use Getopt::Long;
+
+## ----------------------------------------------------------------------
+$0  =~ m|[^/]+$|;
+
+## ----------------------------------------------------------------------
+my $name = $&;
+
+## ----------------------------------------------------------------------
+use vars qw( $catalog_data $catalog_data_dir );
+use vars qw( $catalog $catalog_dir );
+use vars qw( %catalog $key $entry );
+
+## ----------------------------------------------------------------------
+$catalog_data_dir = '/var/lib/xml-core';
+$catalog_dir      = '/etc/xml';
+
+## ----------------------------------------------------------------------
+use vars qw( $add );
+use vars qw( $del );
+use vars qw( $file );
+use vars qw( $help );
+use vars qw( $local );
+use vars qw( $package );
+use vars qw( $root );
+use vars qw( $type $id );
+use vars qw( $verbose );
+use vars qw( $sort );
+
+## ----------------------------------------------------------------------
+if ( ! GetOptions(
+		  'add'       => \$add,
+		  'del'       => \$del,
+		  'file=s'    => \$file,
+		  'help'      => \$help,
+		  'id=s'      => \$id,
+		  'local=s'   => \$local,
+		  'package=s' => \$package,
+		  'root'      => \$root,
+		  'type=s'    => \$type,
+		  'verbose'   => \$verbose,
+		  'sort'      => \$sort,
+		  )
+     )
+{
+    &help;
+    exit 1;
+}
+
+
+## ----------------------------------------------------------------------
+if ( defined( $help ) )
+{
+    &help;
+    exit -1;
+}
+
+## ----------------------------------------------------------------------
+if  ( ! ( defined( $add ) || defined( $del ) ) )
+{
+    print STDERR "$name: error: either 'add' or 'del' must be given\n";
+    exit 1;
+}
+elsif  ( ( defined( $add ) && defined( $del ) ) )
+{
+    print STDERR "$name: error: only one of 'add' and 'del' can be given\n";
+    exit 1;
+}
+
+## ----------------------------------------------------------------------
+if ( defined( $add ) )
+{
+    if ( defined( $root ) )
+    {
+	if ( defined( $package ) )
+	{
+	    my $catalog = File::Spec->catfile( $catalog_dir, "$package.xml" );
+	    if ( ! -f $catalog )
+	    {
+		print STDERR "$name: error: package catalog $catalog not found\n";
+		exit 1;
+	    }
+	}
+	else
+	{
+	    print STDERR "$name: error: package catalog not given\n";
+	    exit 1;
+	}
+	if ( defined( $local) || defined( $file ) )
+	{
+	    print STDERR "$name: error: local catalog and file not for adding to root catalog file\n";
+	    exit 1;
+	}
+    }
+    elsif ( defined( $package ) )
+    {
+	if ( defined( $local ) )
+	{
+	    if ( ! -f $local )
+	    {
+		print STDERR "$name: error: local catalog $local not found\n";
+		exit 1;
+	    }
+	}
+	else
+	{
+	    print STDERR "$name: error: local catalog not given\n";
+	    exit 1;
+	}
+	if ( defined( $file ) )
+	{
+	    print STDERR "$name: error: file not for adding to package catalog file\n";
+	    exit 1;
+	}
+    }
+    elsif ( defined( $local ) )
+    {
+	if ( defined( $file ) )
+	{
+	    if ( ! -f $file )
+	    {
+		print STDERR "$name: error: file $file not found\n";
+		exit 1;
+	    }
+	}
+	else
+	{
+	    print STDERR "$name: error: file not given\n";
+	    exit 1;
+	}
+    }
+    else
+    {
+	print STDERR "$name: error: catalog not given\n";
+	exit 1;
+    }
+}
+elsif ( defined( $del ) )
+{
+    if ( defined( $root ) )
+    {
+	my $catalog = File::Spec->catfile( $catalog_dir, 'catalog' );
+	if ( ! -f $catalog )
+	{
+	    print STDERR "$name: error: root catalog $catalog not found\n";
+	    exit 1;
+	}
+	if ( defined( $package) || defined( $local ) || defined( $file ) )
+	{
+	    print STDERR "$name: error: package catalog, local catalog or file not for deleting from root catalog file\n";
+	    exit 1;
+	}
+    }
+    elsif ( defined( $package ) )
+    {
+	my $catalog = File::Spec->catfile( $catalog_dir, "$package.xml" );
+	if ( ! -f $catalog )
+	{
+	    print STDERR "$name: error: package catalog $catalog not found\n";
+	    exit 1;
+	}
+	if ( defined( $local ) || defined( $file ) )
+	{
+	    print STDERR "$name: error: local catalog or file not for deleting from package catalog file\n";
+	    exit 1;
+	}
+    }
+    elsif ( defined( $local ) )
+    {
+	if ( ! -f $local )
+	{
+	    print STDERR "$name: error: local catalog $local not found\n";
+	    exit 1;
+	}
+	if ( defined( $file ) )
+	{
+	    print STDERR "$name: error: file not for deleting from local catalog file\n";
+	    exit 1;
+	}
+    }
+    else
+    {
+	print STDERR "$name: error: catalog not given\n";
+	exit 1;
+    }
+}
+
+## ----------------------------------------------------------------------
+if ( defined( $type ) )
+{
+    if ( $type !~ /^(public|system|uri)$/ )
+    {
+        print STDERR "$name: error: wrong type\n";
+        exit 1;
+    }
+}
+else
+{
+    print STDERR "$name: error: type not given\n";
+    exit 1;
+}
+
+## ----------------------------------------------------------------------
+if ( ! defined( $id ) )
+{
+    print STDERR "$name: error: id not given\n";
+    exit 1;
+}
+
+## ----------------------------------------------------------------------
+if ( defined( $root ) )
+{
+    $catalog = 'catalog';
+    $catalog_data = File::Spec->catfile( $catalog_data_dir, $catalog );
+    $catalog = File::Spec->catfile( $catalog_dir, $catalog );
+    my $start = $type;
+    $start .= 'Id' unless $type eq 'uri';
+    $start .= 'StartString';
+    $id = "$start=\"$id\"";
+    $type = ( $type eq 'uri' ) ? "\U$type" : "\u$type";
+    $type = "delegate$type";
+    $package = "catalog=\"file:///etc/xml/$package.xml\"";
+    $key = "$type $id";
+    $entry = "$package";
+}
+elsif ( defined( $package ) )
+{
+    $catalog_data = File::Spec->catfile( $catalog_data_dir, $package );
+    $catalog = File::Spec->catfile( $catalog_dir, "$package.xml" );
+    my $start = $type;
+    $start .= 'Id' unless $type eq 'uri';
+    $start .= 'StartString';
+    $id = "$start=\"$id\"";
+    $type = ( $type eq 'uri' ) ? "\U$type" : "\u$type";
+    $type = "delegate$type";
+    $local = "catalog=\"file://$local\"";
+    $key = "$type $id";
+    $entry = "$local";
+}
+elsif ( defined( $local ) )
+{
+    $catalog = $local;
+    $catalog_data = $local;
+    $catalog_data =~ tr|/|_|;
+    $catalog_data = File::Spec->catfile( $catalog_data_dir, $catalog_data );
+    my $start = ( $type eq 'uri' ) ? 'name' : $type;
+    $start .= 'Id' unless $type eq 'uri';
+    $id = "$start=\"$id\"";
+    $file = "uri=\"$file\"";
+    $key = "$type $id";
+    $entry = "$file";
+}
+
+## ----------------------------------------------------------------------
+if ( defined( $add ) )
+{
+    &read_catalog_data if -f $catalog_data;
+    if ( &add_entry )
+    {
+	&create_backup if -f $catalog;
+	&write_catalog_data;
+	&write_catalog;
+    }
+    else
+    {
+	exit 1;
+    }
+}
+elsif ( defined( $del ) )
+{
+    &read_catalog_data;
+    if ( &del_entry )
+    {
+	&create_backup;
+	&write_catalog_data;
+	&write_catalog;
+    }
+    else
+    {
+	exit 1;
+    }
+}
+
+## ----------------------------------------------------------------------
+exit 0;
+
+## ----------------------------------------------------------------------
+sub add_entry
+{
+
+    ## ------------------------------------------------------------------
+    if ( exists( $catalog{ $key } ) )
+    {
+	if ( $catalog{ $key } ne $entry )
+	{
+	    print STDERR "$name: error: entity already registered with a different value\n";
+	    print STDERR " Entity   : [$key]\n";
+	    print STDERR " Old value: [$catalog{$key}]\n";
+	    print STDERR " New value: [$entry]\n";
+	    return;
+	}
+	else
+	{
+	    print STDERR "$name: notice: entity already registered\n"
+		if $verbose;
+	    return 1;
+	}
+    }
+    else
+    {
+	print "$name: adding entity to catalog data $catalog_data with the same value\n"
+	    if $verbose;
+	$catalog{ $key } = $entry;
+	return 1;
+    }
+
+} ## add_entry
+
+## ----------------------------------------------------------------------
+sub del_entry
+{
+
+    ## ------------------------------------------------------------------
+    if ( exists( $catalog{ $key } ) )
+    {
+	print "$name: removing entity from catalog data $catalog_data\n"
+	    if $verbose;
+	delete( $catalog{ $key } );
+	return 1;
+    }
+    else
+    {
+	print STDERR "$name: error: entity not registered\n";
+	return;
+    }
+
+} ## del_entry
+
+## ----------------------------------------------------------------------
+sub read_catalog_data
+{
+
+    ## ------------------------------------------------------------------
+    print "$name: reading catalog data $catalog_data\n" if $verbose;
+    open( CATALOG_DATA, '<', $catalog_data )
+	or die "$name: cannot open catalog data $catalog_data for reading: $!";
+    while ( <CATALOG_DATA> )
+    {
+	chop;
+	my ( $key, $entry ) = split( />/ );
+	$key =~ s/^<//;
+	$entry =~ s/^<//;
+	$catalog{ $key } = $entry;
+    }
+    close( CATALOG_DATA )
+	or die "$name: cannot close catalog data $catalog_data: $!";
+
+} ## read_catalog_data
+
+## ----------------------------------------------------------------------
+sub write_catalog_data
+{
+
+    ## ------------------------------------------------------------------
+    print "$name: writing catalog data $catalog_data\n" if $verbose;
+    open( CATALOG_DATA, '>', $catalog_data )
+	or die "$name: cannot open catalog data $catalog_data for writing: $!";
+    my $counter = 0;
+    # Adding the optional sort of the catalog. See #626036.
+    my @catalog_keys = ( $sort ? sort keys %catalog : keys %catalog );
+    for my $key ( @catalog_keys )
+    {
+	print( CATALOG_DATA "<$key><$catalog{ $key }>\n" );
+	$counter++;
+    }
+    close( CATALOG_DATA )
+	or die "$name: cannot close catalog data $catalog_data: $!";
+
+    ## ------------------------------------------------------------------
+    if ( $counter == 0 )
+    {
+	print "$name: removing catalog data $catalog_data\n" if $verbose;
+	unlink( $catalog_data );
+    }
+
+} ## write_catalog_data
+
+## ----------------------------------------------------------------------
+sub create_backup
+{
+
+    ## ------------------------------------------------------------------
+    my $backup = $catalog . '.old';
+
+    ## ------------------------------------------------------------------
+    if ( -f $backup )
+    {
+	print "$name: removing backup $backup\n" if $verbose;
+	unlink( $backup )
+	    or die "$name: cannot remove backup $backup: $!";
+    }
+
+    ## ------------------------------------------------------------------
+    print "$name: moving catalog $catalog to backup $backup\n" if $verbose;
+    rename( $catalog, $backup )
+	or die "$name: cannot move catalog $catalog to backup $backup: $!";
+
+} ## create_backup
+
+## ----------------------------------------------------------------------
+sub write_catalog
+{
+
+    ## ------------------------------------------------------------------
+    my @catalog = ();
+
+    ## ------------------------------------------------------------------
+    my $header = '/usr/share/xml-core/catalog.header';
+    open( HEADER, '<', $header )
+	or die "$name: cannot open catalog header $header for reading: $!";
+    while ( <HEADER> )
+    {
+	chop;
+	push( @catalog, $_ );
+    }
+    close( HEADER )
+	or die "$name: cannot close catalog header $header: $!";
+
+    ## ------------------------------------------------------------------
+    my $counter = 0;
+    # Adding the optional sort of the catalog. See #626036.
+    my @catalog_keys = ( $sort ? sort keys %catalog : keys %catalog );
+    for my $key ( @catalog_keys )
+    {
+	push( @catalog, "<$key $catalog{ $key }/>" );
+	$counter++;
+    }
+
+    ## ------------------------------------------------------------------
+    my $footer = '/usr/share/xml-core/catalog.footer';
+    open( FOOTER, '<', $footer )
+	or die "$name: cannot open catalog footer $footer for reading: $!";
+    while ( <FOOTER> )
+    {
+	chop;
+	push( @catalog, $_ );
+    }
+    close( FOOTER )
+	or die "$name: cannot close catalog footer $footer: $!";
+
+    ## ------------------------------------------------------------------
+    print "$name: writing catalog $catalog\n" if $verbose;
+    open( CATALOG, '>', $catalog )
+	or die "$name: cannot open catalog $catalog for writing: $!";
+    for ( @catalog )
+    {
+	print( CATALOG $_, "\n" );
+    }
+    close( CATALOG )
+	or die "$name: cannot close catalog $catalog: $!";
+
+    ## ------------------------------------------------------------------
+    if ( $counter == 0 )
+    {
+	print "$name: removing catalog $catalog\n" if $verbose;
+	unlink( $catalog );
+    }
+
+} ## write_catalog
+
+## ----------------------------------------------------------------------
+sub help
+{
+
+    ## ------------------------------------------------------------------
+    print <<END;
+Usage:
+    $name <options> --add --root --type <type> \\
+                                                --id <id> --package <package>
+    $name <options> --del --root --type <type> \\
+                                                --id <id>
+
+    $name <options> --add --package <package> --type <type> \\
+                                                --id <id> --local <local>
+    $name <options> --del --package <package> --type <type> \\
+                                                --id <id>
+
+    $name <options> --add --local <local> --type <type> \\
+                                                --id <id> --file <file>
+    $name <options> --del --local <local> --type <type> \\
+                                                --id <id>
+
+    $name --help
+
+With:
+    --file <file>       = a local filename
+    --id <id>           = catalog entry idenitifier
+    --local <local>     = a local XML catalog
+    --package <package> = a package XML catalog
+    --root              = the root XML catalog (= /etc/xml/catalog)
+    --type <type>       = catalog entry type (= public, system, uri)
+
+Options:
+    --verbose = be verbose
+    --sort = sorts the manipulated catalog content
+
+END
+
+} ## help
+
+## ----------------------------------------------------------------------
+__END__
+
+## ----------------------------------------------------------------------

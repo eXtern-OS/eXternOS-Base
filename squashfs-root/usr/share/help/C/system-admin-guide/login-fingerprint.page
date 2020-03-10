@@ -1,0 +1,81 @@
+<page  xmlns="http://projectmallard.org/1.0/"
+       xmlns:its="http://www.w3.org/2005/11/its"
+       type="topic" style="task"
+       id="login-fingerprint">
+
+  <info>
+    <link type="guide" xref="login#management" />
+    <link type="seealso" xref="dconf" />
+    <revision pkgversion="3.12" date="2014-06-17" status="candidate" />
+
+    <credit type="author copyright">
+      <name>Ekaterina Gerasimova</name>
+      <email>kittykat3756@gmail.com</email>
+      <years>2014</years>
+    </credit>
+    <credit type="editor">
+      <name>David King</name>
+      <email>davidk@gnome.org</email>
+      <years>2014</years>
+    </credit>
+
+    <include href="legal.xml" xmlns="http://www.w3.org/2001/XInclude"/>
+
+    <desc>Prevent the user from being able to log in using a fingerprint
+    scanner.</desc>
+  </info>
+
+  <title>Disallow login using a fingerprint</title>
+
+  <p>Users with a fingerprint scanner can use their fingerprints
+  instead of a password to log in. Fingerprint login
+  <link href="help:gnome-help#session-fingerprint">needs to be set up by the
+  user</link> before it can be used.</p>
+
+  <p>Fingerprint readers are not always reliable, so you may wish to disable
+  login using the reader for security reasons.</p>
+
+  <steps>
+    <title>Disable login using a fingerprint reader:</title>
+    <include href="dconf-snippets.xml"
+             xpointer="xpointer(/*/*[@xml:id='dconf-profile-user'])"
+             xmlns="http://www.w3.org/2001/XInclude"/>
+    <include href="dconf-snippets.xml"
+             xpointer="xpointer(/*/*[@xml:id='dconf-profile-user-dir'])"
+             xmlns="http://www.w3.org/2001/XInclude"/>
+    <item>
+      <p>Create the key file
+      <file>/etc/dconf/db/local.d/00-login</file> to provide
+      information for the <sys>local</sys> database.</p>
+      <listing>
+        <title><file>/etc/dconf/db/local.d/00-login</file></title>
+<code>
+# Specify the dconf path
+[org/gnome/login-screen]
+
+# Disable fingerprint reader
+enable-fingerprint-authentication=false
+</code>
+      </listing>
+    </item>
+    <item>
+      <p>To prevent the user from overriding these settings, create the file
+      <file>/etc/dconf/db/local.d/locks/login</file> with the following
+      content:</p>
+      <listing>
+        <title><file>/etc/dconf/db/local.d/locks/fingerprintreader</file></title>
+<code>
+# List the keys used to configure login
+/org/gnome/login-screen/enable-fingerprint-authentication
+</code>
+      </listing>
+    </item>
+    <include href="dconf-snippets.xml"
+             xpointer="xpointer(/*/*[@xml:id='dconf-update'])"
+             xmlns="http://www.w3.org/2001/XInclude"/>
+    <include href="dconf-snippets.xml"
+             xpointer="xpointer(/*/*[@xml:id='dconf-logoutin'])"
+             xmlns="http://www.w3.org/2001/XInclude"/>
+  </steps>
+
+</page>

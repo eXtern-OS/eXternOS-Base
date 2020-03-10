@@ -1,0 +1,38 @@
+lsb-release for Debian
+----------------------
+
+NB: These notes are intended for anyone building a derived
+distribution using this package.  They are not likely to be helpful to
+end-users.
+
+This is a reimplementation of the classic lsb_release command; its
+main new feature is support for the new output for the -v option in
+LSB 2.x/3.x.  This version of lsb_release is also designed to only report
+that a system is LSB compliant if the correct LSB metapackages are available,
+and to properly support situations where only certain LSB metapackages
+(i.e. lsb-core only) are installed.
+
+Distribution-specific information should be *separately provided* in
+/etc/lsb-release; it is no longer provided in this package.  It is my
+hope that in Debian, this will be managed by the base-files
+maintainer (who already maintains the debian_version file).
+
+The file should be formatted as a series of shell variable
+assignments.  Multiword strings should be quoted in double quotes.
+You should not assume this file is actually parsed by a Bourne shell
+(i.e., no fancy stuff).  Example:
+
+DISTRIB_ID=(Distributor ID)
+DISTRIB_DESCRIPTION=(A human-readable description of the release)
+DISTRIB_RELEASE=(The release number)
+DISTRIB_CODENAME=(The codename for the release)
+
+Any other variable assignments will be silently ignored.  For Debian
+9.0 (stretch), it might have read:
+
+DISTRIB_ID=Debian
+DISTRIB_DESCRIPTION="Debian GNU/Linux 9.0 (stretch)"
+DISTRIB_RELEASE=9.0
+DISTRIB_CODENAME=stretch
+
+ -- Chris Lawrence <lawrencc@debian.org>, Wed Sep 21 20:40:25 2005

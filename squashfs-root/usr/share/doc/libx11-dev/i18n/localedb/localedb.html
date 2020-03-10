@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>X Locale Database Specification</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1" /><style xmlns="" type="text/css">/*
+ * Copyright (c) 2011 Gaetan Nadon
+ * Copyright (c) 2010, Oracle and/or its affiliates. All rights reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice (including the next
+ * paragraph) shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ */
+
+/*
+ * Shared stylesheet for X.Org documentation translated to HTML format
+ * http://www.sagehill.net/docbookxsl/UsingCSS.html
+ * http://www.w3schools.com/css/default.asp
+ * https://addons.mozilla.org/en-US/firefox/addon/web-developer/developers
+ * https://addons.mozilla.org/en-US/firefox/addon/font-finder/
+ */
+
+/*
+ * The sans-serif fonts are considered more legible on a computer screen
+ * http://dry.sailingissues.com/linux-equivalents-verdana-arial.html
+ *
+ */
+body {
+  font-family: "Bitstream Vera Sans", "DejaVu Sans", Tahoma, Geneva, Arial, Sans-serif;
+  /* In support of using "em" font size unit, the w3c recommended method */
+  font-size: 100%;
+}
+
+/*
+ * Selection: all elements requiring mono spaced fonts.
+ *
+ * The family names attempt to match the proportionally spaced font
+ * family names such that the same font name is used for both.
+ * We'd like to use Bitstream, for example, in both proportionally and
+ * mono spaced font text.
+ */
+.command,
+.errorcode,
+.errorname,
+.errortype,
+.filename,
+.funcsynopsis,
+.function,
+.parameter,
+.programlisting,
+.property,
+.screen,
+.structname,
+.symbol,
+.synopsis,
+.type
+{
+  font-family:  "Bitstream Vera Sans Mono", "DejaVu Sans Mono", Courier, "Liberation Mono", Monospace;
+}
+
+/*
+ * Books have a title page, a preface, some chapters and appendices,
+ * a glossary, an index and a bibliography, in that order.
+ *
+ * An Article has no preface and no chapters. It has sections, appendices,
+ * a glossary, an index and a bibliography.
+ */
+
+/*
+ * Selection: book main title and subtitle
+ */
+div.book>div.titlepage h1.title,
+div.book>div.titlepage h2.subtitle {
+  text-align: center;
+}
+
+/*
+ * Selection: article main title and subtitle
+ */
+div.article>div.titlepage h2.title,
+div.article>div.titlepage h3.subtitle,
+div.article>div.sect1>div.titlepage h2.title,
+div.article>div.section>div.titlepage h2.title {
+  text-align: center;
+}
+
+/*
+ * Selection: various types of authors and collaborators, individuals or corporate
+ *
+ * These authors are not always contained inside an authorgroup.
+ * They can be contained inside a lot of different parent types where they might
+ * not be centered.
+ * Reducing the margin at the bottom makes a visual separation between authors
+ * We specify here the ones on the title page, others may be added based on merit.
+ */
+div.titlepage .authorgroup,
+div.titlepage .author,
+div.titlepage .collab,
+div.titlepage .corpauthor,
+div.titlepage .corpcredit,
+div.titlepage .editor,
+div.titlepage .othercredit {
+  text-align: center;
+  margin-bottom: 0.25em;
+}
+
+/*
+ * Selection: the affiliation of various types of authors and collaborators,
+ * individuals or corporate.
+ */
+div.titlepage .affiliation {
+  text-align: center;
+}
+
+/*
+ * Selection: product release information (X Version 11, Release 7)
+ *
+ * The releaseinfo element can be contained inside a lot of different parent
+ * types where it might not be centered.
+ * We specify here the one on the title page, others may be added based on merit.
+ */
+div.titlepage p.releaseinfo {
+  font-weight: bold;
+  text-align: center;
+}
+
+/*
+ * Selection: publishing date
+ */
+div.titlepage .pubdate {
+  text-align: center;
+}
+
+/*
+ * The legal notices are displayed in smaller sized fonts
+ * Justification is only supported in IE and therefore not requested.
+ *
+ */
+.legalnotice {
+  font-size: small;
+  font-style: italic;
+}
+
+/*
+ * For documentation having multiple licenses, the copyright and legalnotice
+ * elements sequence cannot instantiated multiple times.
+ * The copyright notice and license text are therefore coded inside a legalnotice
+ * element. The role attribute on the paragraph is used to allow styling of the
+ * copyright notice text which should not be italicized.
+ */
+p.multiLicensing {
+  font-style: normal;
+  font-size: medium;
+}
+
+/*
+ * Selection: book or article main ToC title
+ * A paragraph is generated for the title rather than a level 2 heading.
+ * We do not want to select chapters sub table of contents, only the main one
+ */
+div.book>div.toc>p,
+div.article>div.toc>p {
+  font-size: 1.5em;
+  text-align: center;
+}
+
+/*
+ * Selection: major sections of a book or an article
+ *
+ * Unlike books, articles do not have a titlepage element for appendix.
+ * Using the selector "div.titlepage h2.title" would be too general.
+ */
+div.book>div.preface>div.titlepage h2.title,
+div.book>div.chapter>div.titlepage h2.title,
+div.article>div.sect1>div.titlepage h2.title,
+div.article>div.section>div.titlepage h2.title,
+div.book>div.appendix>div.titlepage h2.title,
+div.article>div.appendix h2.title,
+div.glossary>div.titlepage h2.title,
+div.index>div.titlepage h2.title,
+div.bibliography>div.titlepage h2.title {
+   /* Add a border top over the major parts, just like printed books */
+   /* The Gray color is already used for the ruler over the main ToC. */
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: Gray;
+  /* Put some space between the border and the title */
+  padding-top: 0.2em;
+  text-align: center;
+}
+
+/*
+ * A Screen is a verbatim environment for displaying text that the user might
+ * see on a computer terminal. It is often used to display the results of a command.
+ *
+ * http://www.css3.info/preview/rounded-border/
+ */
+.screen {
+  background: #e0ffff;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #B0C4DE;
+  border-radius: 1.0em;
+  /* Browser's vendor properties prior to CSS 3 */
+  -moz-border-radius: 1.0em;
+  -webkit-border-radius: 1.0em;
+  -khtml-border-radius: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 1.0em;
+  padding: 0.5em;
+}
+
+/*
+ * Emphasis program listings with a light shade of gray similar to what
+ * DocBook XSL guide does: http://www.sagehill.net/docbookxsl/ProgramListings.html
+ * Found many C API docs on the web using like shades of gray.
+ */
+.programlisting {
+  background: #F4F4F4;
+  border-width: 1px;
+  border-style: solid;
+  border-color: Gray;
+  padding: 0.5em;
+}
+
+/*
+ * Emphasis functions synopsis using a darker shade of gray.
+ * Add a border such that it stands out more.
+ * Set the padding so the text does not touch the border.
+ */
+.funcsynopsis, .synopsis {
+  background: #e6e6fa;
+  border-width: 1px;
+  border-style: solid;
+  border-color: Gray;
+  clear: both;
+  margin: 0.5em;
+  padding: 0.25em;
+}
+
+/*
+ * Selection: paragraphs inside synopsis
+ *
+ * Removes the default browser margin, let the container set the padding.
+ * Paragraphs are not always used in synopsis
+ */
+.funcsynopsis p,
+.synopsis p {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Selection: variable lists, informal tables and tables
+ *
+ * Note the parameter name "variablelist.as.table" in xorg-xhtml.xsl
+ * A table with rows and columns is constructed inside div.variablelist
+ *
+ * Set the left margin so it is indented to the right
+ * Display informal tables with single line borders
+ */
+table {
+  margin-left: 0.5em;
+  border-collapse: collapse;
+}
+
+/*
+ * Selection: paragraphs inside tables
+ *
+ * Removes the default browser margin, let the container set the padding.
+ * Paragraphs are not always used in tables
+ */
+td p {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Add some space between the left and right column.
+ * The vertical alignment helps the reader associate a term
+ * with a multi-line definition.
+ */
+td, th {
+  padding-left: 1.0em;
+  padding-right: 1.0em;
+  vertical-align: top;
+}
+
+.warning {
+  border: 1px solid red;
+  background: #FFFF66;
+  padding-left: 0.5em;
+}
+</style></head><body><div class="book"><div class="titlepage"><div><div><h1 class="title"><a id="localedb"></a>X Locale Database Specification</h1></div><div><div class="authorgroup"><div class="author"><h3 class="author"><span class="firstname">Yoshio</span> <span class="surname">Horiuchi</span></h3><div class="affiliation"><span class="orgname">IBM Japan<br /></span></div></div></div></div><div><p class="releaseinfo">X Version 11, Release 7.7</p></div><div><p class="copyright">Copyright © 1994 IBM Corporation</p></div><div><div class="legalnotice"><a id="idm14"></a><p>
+License to use, copy, modify, and distribute this software and its documentation for
+any purpose and without fee is hereby granted, provided that the above copyright notice
+appear in all copies and that both that copyright notice and this permission notice
+appear in supporting documentation, and that the name of IBM not be used in advertising
+or publicity pertaining to distribution of the software without specific, written
+prior permission.
+</p><p>
+IBM DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED
+WARRANTIES OF MERCHANTABILITY, FITNESS, AND NONINFRINGEMENT OF THIRD PARTY RIGHTS,
+IN NO EVENT SHALL IBM BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES
+OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
+AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION
+WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+</p></div></div><div><div class="legalnotice"><a id="idm17"></a><p class="multiLicensing">Copyright © 1994 X Consortium</p><p>
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files
+(the “Software”), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to permit
+persons to whom the Software is furnished to do so, subject to the following
+conditions:
+</p><p>
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+</p><p>
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN
+NO EVENT SHALL THE X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+</p><p>
+Except as contained in this notice, the name of the X Consortium shall not be
+used in advertising or otherwise to promote the sale, use or other dealings in
+this Software without prior written authorization from the X Consortium.
+</p><p>X Window System is a trademark of The Open Group.</p></div></div></div><hr /></div><div class="toc"><p><strong>Table of Contents</strong></p><dl class="toc"><dt><span class="chapter"><a href="#LocaleDB">1. LocaleDB</a></span></dt><dd><dl><dt><span class="sect1"><a href="#General">General</a></span></dt><dt><span class="sect1"><a href="#Database_Format_Definition">Database Format Definition</a></span></dt><dt><span class="sect1"><a href="#Contents_of_Database">Contents of Database</a></span></dt><dt><span class="sect1"><a href="#XLC_FONTSET_Category">XLC_FONTSET Category</a></span></dt><dt><span class="sect1"><a href="#XLC_XLOCALE_Category">XLC_XLOCALE Category</a></span></dt><dt><span class="sect1"><a href="#Sample_of_X_Locale_Database">Sample of X Locale Database</a></span></dt><dt><span class="sect1"><a href="#Reference">Reference</a></span></dt></dl></dd></dl></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="LocaleDB"></a>Chapter 1. LocaleDB</h1></div></div></div><div class="toc"><p><strong>Table of Contents</strong></p><dl class="toc"><dt><span class="sect1"><a href="#General">General</a></span></dt><dt><span class="sect1"><a href="#Database_Format_Definition">Database Format Definition</a></span></dt><dt><span class="sect1"><a href="#Contents_of_Database">Contents of Database</a></span></dt><dt><span class="sect1"><a href="#XLC_FONTSET_Category">XLC_FONTSET Category</a></span></dt><dt><span class="sect1"><a href="#XLC_XLOCALE_Category">XLC_XLOCALE Category</a></span></dt><dt><span class="sect1"><a href="#Sample_of_X_Locale_Database">Sample of X Locale Database</a></span></dt><dt><span class="sect1"><a href="#Reference">Reference</a></span></dt></dl></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="General"></a>General</h2></div></div></div><p>
+An X Locale Database contains the subset of a user's environment that
+depends on language, in X Window System.  It is made up from one or more
+categories.  Each category consists of some classes and sub-classes.
+</p><p>
+It is provided as a plain ASCII text file, so a user can change its
+contents easily.  It allows a user to customize the behavior of
+internationalized portion of Xlib without changing Xlib itself.
+</p><p>
+This document describes;
+</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>
+Database Format Definition
+    </p></li><li class="listitem"><p>
+Contents of Database in sample implementation
+
+    </p></li></ul></div><p>
+Since it is hard to define the set of required information for all
+platforms, only the flexible database format is defined.
+The available entries in database are implementation dependent.
+</p></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Database_Format_Definition"></a>Database Format Definition</h2></div></div></div><p>
+The X Locale Database contains one or more category definitions.
+This section describes the format of each category definition.
+</p><p>
+The category definition consists of one or more class definitions.
+Each class definition has a pair of class name and class value, or
+has several subclasses which are enclosed by the left brace ({) and
+the right brace (}).
+</p><p>
+Comments can be placed by using the number sign character (#).
+Putting the number sign character on the top of the line indicates
+that the entire line is comment.  Also, putting any whitespace character
+followed by the number sign character indicates that a part of the line
+(from the number sign to the end of the line) is comment.
+A line can be continued by placing backslash (\) character as the
+last character on the line;  this continuation character will be
+discarded from the input.  Comment lines cannot be continued on
+a subsequent line using an escaped new line character.
+</p><p>
+X Locale Database only accepts XPCS, the X Portable Character Set.
+The reserved symbols are;  the quotation mark("), the number sign (#),
+the semicolon(;), the backslash(\), the left brace({) and
+the right brace(}).
+</p><p>
+The format of category definition is;
+</p><div class="informaltable"><table class="informaltable" border="0"><colgroup><col align="left" class="c1" /><col align="left" class="c2" /><col align="left" class="c3" /></colgroup><tbody><tr><td align="left">CategoryDefinition</td><td align="left">::=</td><td align="left">CategoryHeader CategorySpec CategoryTrailer</td></tr><tr><td align="left">CategoryHeader</td><td align="left">::=</td><td align="left">CategoryName NL</td></tr><tr><td align="left">CategorySpec</td><td align="left">::=</td><td align="left">{ ClassSpec }</td></tr><tr><td align="left">CategoryTrailer</td><td align="left">::=</td><td align="left">"END" Delimiter CategoryName NL</td></tr><tr><td align="left">CategoryName</td><td align="left">::=</td><td align="left">String</td></tr><tr><td align="left">ClassSpec</td><td align="left">::=</td><td align="left">ClassName Delimiter ClassValue NL</td></tr><tr><td align="left">ClassName</td><td align="left">::=</td><td align="left">String</td></tr><tr><td align="left">ClassValue</td><td align="left">::=</td><td align="left">ValueList | "{" NL { ClassSpec } "}"</td></tr><tr><td align="left">ValueList</td><td align="left">::=</td><td align="left">Value | Value ";" ValueList</td></tr><tr><td align="left">Value</td><td align="left">::=</td><td align="left">ValuePiece | ValuePiece Value</td></tr><tr><td align="left">ValuePiece</td><td align="left">::=</td><td align="left">String | QuotedString | NumericString</td></tr><tr><td align="left">String</td><td align="left">::=</td><td align="left">Char { Char }</td></tr><tr><td align="left">QuotedString</td><td align="left">::=</td><td align="left">""" QuotedChar { QuotedChar } """</td></tr><tr><td align="left">NumericString</td><td align="left">::=</td><td align="left">"\\o" OctDigit { OctDigit }</td></tr><tr><td align="left"> </td><td align="left">|</td><td align="left">"\\d" DecDigit { DecDigit }</td></tr><tr><td align="left"> </td><td align="left">|</td><td align="left">"\\x" HexDigit { HexDigit }</td></tr><tr><td align="left">Char</td><td align="left">::=</td><td align="left">&lt;XPCS except NL, Space or unescaped reserved symbols&gt;</td></tr><tr><td align="left">QuotedChar</td><td align="left">::=</td><td align="left">&lt;XPCS except unescaped """&gt;</td></tr><tr><td align="left">OctDigit</td><td align="left">::=</td><td align="left">&lt;character in the range of "0" - "7"&gt;</td></tr><tr><td align="left">DecDigit</td><td align="left">::=</td><td align="left">&lt;character in the range of "0" - "9"&gt;</td></tr><tr><td align="left">HexDigit</td><td align="left">::=</td><td align="left">&lt;character in the range of "0" - "9", "a" - "f", "A" - "F"&gt;</td></tr><tr><td align="left">Delimiter</td><td align="left">::=</td><td align="left">Space { Space }</td></tr><tr><td align="left">Space</td><td align="left">::=</td><td align="left">&lt;space&gt; | &lt;horizontal tab&gt;</td></tr><tr><td align="left">NL</td><td align="left">::=</td><td align="left">&lt;newline&gt;</td></tr></tbody></table></div><p>
+Elements separated by vertical bar (|) are alternatives.  Curly
+braces ({...}) indicate zero or more repetitions of the enclosed
+elements.  Square brackets ([...]) indicate that the enclosed element
+is optional. Quotes ("...") are used around literal characters.
+</p><p>
+The backslash, which is not the top character of the NumericString, is
+recognized as an escape character, so that the next one character is
+treated as a literal character.  For example, the two-character
+sequence, ""\"""(the backslash followed by the quotation mark) is
+recognized and replaced with a quotation mark character.
+Any whitespace character, that is not the Delimiter, unquoted and
+unescaped, is ignored.
+</p></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Contents_of_Database"></a>Contents of Database</h2></div></div></div><p>
+The available categories and classes depend on implementation, because
+different platform will require different information set.
+For example, some platform have system locale but some platform don't.
+Furthermore, there might be a difference in functionality even if the
+platform has system locale.
+</p><p>
+In current sample implementation, categories listed below are available.
+</p><div class="informaltable"><table class="informaltable" border="0"><colgroup><col align="left" class="c1" /></colgroup><tbody><tr><td align="left">XLC_FONTSET:XFontSet relative information</td></tr><tr><td align="left">XLC_XLOCALE:Character classification and conversion information</td></tr></tbody></table></div></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="XLC_FONTSET_Category"></a>XLC_FONTSET Category</h2></div></div></div><p>
+The XLC_FONTSET category defines the XFontSet relative information.
+It contains the CHARSET_REGISTRY-CHARSET_ENCODING name and character
+mapping side (GL, GR, etc), and is used in Output Method (OM).
+</p><div class="informaltable"><table class="informaltable" border="1"><colgroup><col /><col /><col /></colgroup><thead><tr><th align="left">class</th><th align="left">super class</th><th align="left">description</th></tr></thead><tbody><tr><td align="left">fsN</td><td align="left"> </td><td align="left">Nth fontset (N=0,1,2, ...)</td></tr><tr><td align="left">charset</td><td align="left">fsN</td><td align="left">list of encoding name</td></tr><tr><td align="left">font</td><td align="left">fsN</td><td align="left">list of font encoding name</td></tr></tbody></table></div><div class="variablelist"><table border="0" class="variablelist"><colgroup><col align="left" valign="top" /><col /></colgroup><tbody><tr><td><p><span class="term">fsN</span></p></td><td><p>
+Includes an encoding information for Nth charset, where N is
+the index number (0,1,2,...).  If there are 4 charsets available
+in current locale, 4 fontsets, fs0, fs1, fs2 and fs3, should be
+defined.
+This class has two subclasses, 'charset' and 'font'.
+      </p></td></tr><tr><td><p><span class="term">charset</span></p></td><td><p>
+Specifies an encoding information to be used internally in Xlib
+for this fontset.  The format of value is;
+      </p><div class="informaltable"><table class="informaltable" border="0"><colgroup><col align="left" class="c1" /><col align="left" class="c2" /><col align="left" class="c3" /></colgroup><tbody><tr><td align="left">EncodingInfo</td><td align="left">::=</td><td align="left">EncodingName [ ":" EncodingSide ]</td></tr><tr><td align="left">EncodingName</td><td align="left">::=</td><td align="left">CHARSET_REGISTRY-CHARSET_ENCODING</td></tr><tr><td align="left">EncodingSide</td><td align="left">::=</td><td align="left">"GL" | "GR"</td></tr></tbody></table></div><p>
+For detail definition of CHARSET_REGISTRY-CHARSET_ENCODING, refer
+to the <span class="olink"><em class="citetitle">X Logical Font Description Conventions</em></span> document.
+</p><div class="literallayout"><p><br />
+example:<br />
+     ISO8859-1:GL<br />
+</p></div></td></tr><tr><td><p><span class="term">font</span></p></td><td><p>
+Specifies a list of encoding information which is used for searching
+appropriate font for this fontset.  The left most entry has highest
+priority.
+      </p></td></tr></tbody></table></div></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="XLC_XLOCALE_Category"></a>XLC_XLOCALE Category</h2></div></div></div><p>
+The XLC_XLOCALE category defines character classification, conversion
+and other character attributes.
+</p><div class="informaltable"><table class="informaltable" border="1"><colgroup><col align="left" class="c1" /><col align="left" class="c2" /><col align="left" class="c3" /></colgroup><thead><tr><th align="left">class</th><th align="left">super class</th><th align="left">description</th></tr></thead><tbody><tr><td align="left">encoding_name</td><td align="left"> </td><td align="left">codeset name</td></tr><tr><td align="left">mb_cur_max</td><td align="left"> </td><td align="left">MB_CUR_MAX</td></tr><tr><td align="left">state_depend_encoding</td><td align="left"> </td><td align="left">state dependent or not</td></tr><tr><td align="left">wc_encoding_mask</td><td align="left"> </td><td align="left">for parsing wc string</td></tr><tr><td align="left">wc_shift_bits</td><td align="left"> </td><td align="left">for conversion between wc and mb</td></tr><tr><td align="left">csN</td><td align="left"> </td><td align="left">Nth charset (N=0,1,2,...)</td></tr><tr><td align="left">side</td><td align="left">csN</td><td align="left">mapping side (GL, etc)</td></tr><tr><td align="left">length</td><td align="left">csN</td><td align="left">length of a character</td></tr><tr><td align="left">mb_encoding</td><td align="left">csN</td><td align="left">for parsing mb string</td></tr><tr><td align="left">wc_encoding</td><td align="left">csN</td><td align="left">for parsing wc string</td></tr><tr><td align="left">ct_encoding</td><td align="left">csN</td><td align="left">list of encoding name for ct</td></tr></tbody></table></div><div class="variablelist"><table border="0" class="variablelist"><colgroup><col align="left" valign="top" /><col /></colgroup><tbody><tr><td><p><span class="term">encoding_name</span></p></td><td><p>
+Specifies a codeset name of current locale.
+      </p></td></tr><tr><td><p><span class="term">mb_cur_max</span></p></td><td><p>
+Specifies a maximum allowable number of bytes in a multi-byte character.
+It is corresponding to MB_CUR_MAX of "ISO/IEC 9899:1990 C Language Standard".
+      </p></td></tr><tr><td><p><span class="term">state_depend_encoding</span></p></td><td><p>
+Indicates a current locale is state dependent. The value should be
+specified "True" or "False".
+      </p></td></tr><tr><td><p><span class="term">wc_encoding_mask</span></p></td><td><p>
+Specifies a bit-mask for parsing wide-char string.  Each wide character is
+applied bit-and operation with this bit-mask, then is classified into
+the unique charset, by using 'wc_encoding'.
+      </p></td></tr><tr><td><p><span class="term">wc_shift_bits</span></p></td><td><p>
+Specifies a number of bit to be shifted for converting from a multi-byte
+character to a wide character, and vice-versa.
+      </p></td></tr><tr><td><p><span class="term">csN</span></p></td><td><p>
+
+Includes a character set information for Nth charset, where N is the
+index number (0,1,2,...).  If there are 4 charsets available in current
+locale, cs0, cs1, cs2 and cs3 should be defined. This class has five
+subclasses, 'side', 'length', 'mb_encoding' 'wc_encoding' and 'ct_encoding'.
+      </p></td></tr><tr><td><p><span class="term">side</span></p></td><td><p>
+Specifies a mapping side of this charset. The format of this value is;
+      </p><div class="literallayout"><p><br />
+   Side    ::=  EncodingSide[":Default"]<br />
+      </p></div><p>
+The suffix ":Default" can be specified.  It indicates that a character
+belongs to the specified side is mapped to this charset in initial state.
+      </p></td></tr><tr><td><p><span class="term">length</span></p></td><td><p>
+
+Specifies a number of bytes of a multi-byte character of this charset.
+It should not contain the length of any single-shift sequence.
+      </p></td></tr><tr><td><p><span class="term">mb_encoding</span></p></td><td><p>
+Specifies a list of shift sequence for parsing multi-byte string.
+The format of this value is;
+      </p><div class="informaltable"><table class="informaltable" border="0"><colgroup><col align="left" class="c1" /><col align="left" class="c2" /><col align="left" class="c3" /></colgroup><tbody><tr><td align="left">MBEncoding</td><td align="left">::=</td><td align="left">ShiftType ShiftSequence</td></tr><tr><td align="left"> </td><td align="left">|</td><td align="left">ShiftType ShiftSequence ";" MBEncoding</td></tr><tr><td align="left">ShiftType</td><td align="left">::=</td><td align="left">"&lt;SS&gt;"|"&lt;LSL&gt;"|"&lt;LSR&gt;"</td></tr><tr><td align="left">ShiftSequence</td><td align="left">::=</td><td align="left">SequenceValue|SequenceValue ShiftSequence</td></tr><tr><td align="left">SequenceValue</td><td align="left">::=</td><td align="left">NumericString</td></tr></tbody></table></div><div class="literallayout"><p><br />
+example:<br />
+     &lt;LSL&gt; \x1b \x28 \x4a; &lt;LSL&gt; \x1b \x28 \x42<br />
+      </p></div></td></tr><tr><td><p><span class="term">wc_encoding</span></p></td><td><p>
+Specifies an integer value for parsing wide-char string.
+It is used to determine the charset for each wide character, after
+applying bit-and operation using 'wc_encoding_mask'.
+This value should be unique in all csN classes.
+      </p></td></tr><tr><td><p><span class="term">ct_encoding</span></p></td><td><p>
+Specifies a list of encoding information that can be used for Compound
+Text.
+      </p></td></tr></tbody></table></div></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Sample_of_X_Locale_Database"></a>Sample of X Locale Database</h2></div></div></div><p>
+The following is sample X Locale Database file.
+</p><pre class="literallayout">
+#  XLocale Database Sample for ja_JP.euc
+#
+
+#
+#      XLC_FONTSET category
+#
+XLC_FONTSET
+#      fs0 class (7 bit ASCII)
+fs0     {
+        charset              ISO8859-1:GL
+        font                 ISO8859-1:GL; JISX0201.1976-0:GL
+}
+#      fs1 class (Kanji)
+fs1     {
+        charset              JISX0208.1983-0:GL
+        font                 JISX0208.1983-0:GL
+}
+#      fs2 class (Half Kana)
+fs2     {
+        charset              JISX0201.1976-0:GR
+        font                 JISX0201.1976-0:GR
+}
+#      fs3 class (User Defined Character)
+# fs3     {
+#        charset             JISX0212.1990-0:GL
+#        font                JISX0212.1990-0:GL
+# }
+END XLC_FONTSET
+
+#
+#      XLC_XLOCALE category
+#
+XLC_XLOCALE
+
+encoding_name             ja.euc
+mb_cur_max                3
+state_depend_encoding     False
+
+wc_encoding_mask          \x00008080
+wc_shift_bits             8
+
+#      cs0 class
+cs0     {
+        side                 GL:Default
+        length               1
+        wc_encoding          \x00000000
+        ct_encoding          ISO8859-1:GL; JISX0201.1976-0:GL
+}
+#      cs1 class
+cs1     {
+        side                 GR:Default
+        length               2
+
+        wc_encoding          \x00008080
+
+        ct_encoding          JISX0208.1983-0:GL; JISX0208.1983-0:GR;\
+                             JISX0208.1983-1:GL; JISX0208.1983-1:GR
+}
+
+#      cs2 class
+cs2     {
+        side                 GR
+        length               1
+        mb_encoding          &lt;SS&gt; \x8e
+
+        wc_encoding          \x00000080
+
+        ct_encoding          JISX0201.1976-0:GR
+}
+
+#      cs3 class
+# cs3     {
+#         side               GL
+#         length             2
+#         mb_encoding        &lt;SS&gt; \x8f
+# #if HasWChar32
+#         wc_encoding        \x20000000
+# #else
+#         wc_encoding        \x00008000
+# #endif
+#         ct_encoding        JISX0212.1990-0:GL; JISX0212.1990-0:GR
+# }
+
+END XLC_XLOCALE
+</pre></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Reference"></a>Reference</h2></div></div></div><p>
+[1] <span class="emphasis"><em>ISO/IEC 9899:1990 C Language Standard</em></span>
+</p><p>
+[2] <span class="olink"><em class="citetitle">X Logical Font Description Conventions</em></span>
+</p></div></div></div></body></html>

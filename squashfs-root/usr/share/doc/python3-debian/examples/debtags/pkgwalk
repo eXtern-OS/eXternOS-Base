@@ -1,0 +1,134 @@
+#!/usr/bin/python
+#
+# Copyright (C) 2007  Enrico Zini <enrico@debian.org>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Navigate among related Debian packages
+
+from __future__ import print_function
+
+import sys
+
+# Requires python-extractor, python-magic and python-debtags
+from debian import debtags
+import re
+from optparse import OptionParser
+import apt
+
+
+VERSION="0.1"
+
+class Parser(OptionParser):
+	def __init__(self, *args, **kwargs):
+		OptionParser.__init__(self, *args, **kwargs)
+
+	def error(self, msg):
+		sys.stderr.write("%s: error: %s\n\n" % (self.get_prog_name(), msg))
+		self.print_help(sys.stderr)
+		sys.exit(2)
+
+if __name__ == '__main__':
+	parser = Parser(usage="usage: %prog [options] pkgname",
+			version="%prog "+ VERSION,
+			description="walk through Debian packages")
+	parser.add_option("--tagdb", default="/var/lib/debtags/package-tags", help="Tag database to use (default: %default)")
+
+	(options, args) = parser.parse_args()
+
+	if len(args) == 0:
+		parser.error("Please provide the name of an initial package")
+
+	# Read full database 
+	db = debtags.DB()
+	tag_filter = re.compile(r"^special::.+$|^.+::TODO$")
+	db.read(open(options.tagdb, "r"), lambda x: not tag_filter.match(x))
+
+	apt_cache = apt.Cache()
+
+	# Maximum number of previous packages to remember 
+	maxlen = 5
+	# Initial package selection
+	trail = [ args[0] ]
+
+	# Loop until the user chooses to quit
+	done = False
+	while not done:
+		# Compute a package weight according to how old it is in the
+		# trail
+		pkgweight = {}
+		for idx, pkg in enumerate(trail):
+			pkgweight[pkg] = 1.-(idx/maxlen)
+
+		# For every tag, find the number of packages in trail that have the tag
+		tagscores = {}
+		for pkg in trail:
+			for tag in db.tags_of_package(pkg):
+				if tag in tagscores:
+					tagscores[tag] += pkgweight[pkg]
+				else:
+					tagscores[tag] = pkgweight[pkg]
+
+		# Divide every tag score by the number of packages in the trail,
+		# obtaining a 'tag weight'.  A package can be later scored by summing
+		# the weight of all its tags.
+		for tag in tagscores:
+			tagscores[tag] = float(tagscores[tag]) / float(len(trail))
+
+		# Find the merged tagset of the packages in trail
+		trailtags = set(tagscores.keys())
+
+		# Get the list of packages whose tagsets intersect the trail tagset
+		nextpkgs = set()
+		for pkg, tags in db.iter_packages_tags():
+			if trailtags & tags:
+				nextpkgs.add(pkg)
+
+		# Score every package by the sum of the weight of its tags
+		def pkgscore(pkg):
+			score = 0.0
+			for tag in db.tags_of_package(pkg):
+				if tag in tagscores:
+					score += tagscores[tag]
+			return score
+		
+		# Show the first 20 packages in reverse score order
+		#display = sorted(nextpkgs - set(trail), key=pkgscore, reverse=True)[:20]
+		display = sorted(nextpkgs, key=pkgscore, reverse=True)[:20]
+		for num, pkg in enumerate(display):
+			aptpkg = apt_cache[pkg]
+			desc = aptpkg.raw_description.split("\n")[0]
+			print("%2d) %s - %s" % (num + 1, pkg, desc))
+
+		# Ask the user to choose a new package
+		while True:
+			if sys.version >= '3':
+				ans = input("> ").strip()
+			else:
+				ans = raw_input("> ").strip()
+			if ans[0] == 'q':
+				done = True
+				break
+			elif ans.isdigit():
+				num = int(ans) - 1
+				if num < len(display):
+					# TODO: on a different kind of interface, display the full
+					# description of pkg
+					trail = [display[num]] + trail[:maxlen]
+					break
+				else:
+					print("The number is too high")
+
+
+# vim:set ts=4 sw=4:

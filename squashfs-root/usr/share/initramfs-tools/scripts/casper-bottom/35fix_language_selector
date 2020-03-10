@@ -1,0 +1,34 @@
+#! /bin/sh
+
+PREREQ=""
+DESCRIPTION="Fixing language selector..."
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+
+log_begin_msg "$DESCRIPTION"
+
+if [ -e /rofs/usr/share/applications/language-selector.desktop ]; then
+    sed '/^Exec/ s|/usr/bin/gnome-language-selector|& -n|' \
+        /rofs/usr/share/applications/language-selector.desktop \
+        > /root/usr/share/applications/language-selector.desktop
+
+fi
+
+if [ -x /root/usr/bin/fontconfig-voodoo ]; then
+    chroot /root fontconfig-voodoo --auto --quiet || true
+fi
+
+log_end_msg

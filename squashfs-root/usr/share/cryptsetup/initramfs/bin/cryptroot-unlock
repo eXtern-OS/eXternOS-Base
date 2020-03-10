@@ -1,0 +1,192 @@
+#!/bin/busybox ash
+
+# Remotely unlock encrypted volumes.
+#
+# Copyright © 2015-2017 Guilhem Moulin <guilhem@debian.org>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+set -ue
+PATH=/sbin:/bin
+
+TIMEOUT=10
+PASSFIFO=/lib/cryptsetup/passfifo
+ASKPASS=/lib/cryptsetup/askpass
+UNLOCK_ALL=n
+
+# The list of configured devices to unlock.
+# TODO refactor: this code should be shared with the cryptroot boot script
+if grep -qE '^(.*\s)?cryptopts=' /proc/cmdline; then
+	CRYPTDEVS=$(tr ' ' '\n' </proc/cmdline | sed -nr 's/^cryptopts=(.*,)?target=([^[:blank:],]+)(,.*)?$/\2/p')
+else
+	CRYPTDEVS=$(sed -nr 's/^(.*,)?target=([^[:blank:],]+)(,.*)?$/\2/p' /conf/conf.d/cryptroot)
+fi
+
+# Print the list of PIDs the executed command of which is $exe.
+pgrep_exe() {
+	local exe="$1" pid
+	ps | awk '{print $1, $5}' | while read LINE; do
+		set $LINE
+		local pid=$1
+		local cmd=$2
+		if [ "$cmd" == "$exe" ]; then
+			echo $pid
+			break
+		fi
+	done
+}
+
+# Return 0 if $pid has a file descriptor pointing to $name, and 1
+# otherwise.
+in_fds() {
+	local pid="$1" name="$2" fd
+	for fd in $(find "/proc/$pid/fd" -type l); do
+		[ "$(readlink -f "$fd")" != "$name" ] || return 0
+	done
+	return 1
+}
+
+# Print the PID of the askpass process with a file descriptor opened to
+# /lib/cryptsetup/passfifo.
+get_askpass_pid() {
+	local pid
+	for pid in $(pgrep_exe "$ASKPASS"); do
+		if in_fds "$pid" "$PASSFIFO"; then
+			echo "$pid"
+			return 0
+		fi
+	done
+	return 1
+}
+
+# Print the number of configured crypt devices that have not been unlocked yet.
+count_locked_devices() {
+	local dev n=0
+	for dev in $CRYPTDEVS; do
+		[ -b "/dev/mapper/$dev" ] || n=$(( $n + 1 ))
+	done
+	echo $n
+}
+
+# Return 0 if the $target is in $CRYPTDEVS, and 1 otherwise.
+is_device_known() {
+	local dev target="$1"
+	for dev in $CRYPTDEVS; do
+		[ "$dev" != "$target" ] || return 0
+	done
+	return 1
+}
+
+# Wait for askpass, then set $PID (resp. $BIRTH) to the PID (resp.
+# birth date) of the cryptsetup process with same $CRYPTTAB_NAME.
+wait_for_prompt() {
+	local pid timer num_locked_devices=-1 n
+
+	# wait for the fifo
+	while :; do
+		n=$(count_locked_devices)
+		if [ $n -eq 0 ]; then
+			# all configured devices have been unlocked, we're done
+			exit 0
+		elif [ $num_locked_devices -lt 0 ] || [ $n -lt $num_locked_devices ]; then
+			# reset $timer if a device was unlocked (for instance using
+			# a keyscript) while we were waiting
+			timer=$(( 10 * $TIMEOUT ))
+		fi
+		num_locked_devices=$n
+
+		if pid=$(get_askpass_pid) && [ -p "$PASSFIFO" ]; then
+			break
+		fi
+
+		sleep 0.1
+		timer=$(( $timer - 1 ))
+		if [ $timer -le 0 ]; then
+			echo "Error: Timeout reached while waiting for askpass." >&2
+			exit 1
+		fi
+	done
+
+	# find the cryptsetup process with same $CRYPTTAB_NAME
+	eval $(tr '\0' '\n' < "/proc/$pid/environ" | grep -E '^CRYPTTAB_(NAME|TRIED|SOURCE)=')
+	if ! is_device_known "$CRYPTTAB_NAME"; then
+		echo "Error: Refusing to process unknown device $CRYPTTAB_NAME" >&2
+		exit 1
+	fi
+
+	for pid in $(pgrep_exe '/sbin/cryptsetup'); do
+		if tr '\0' '\n' < "/proc/$pid/environ" | grep -Fxq "CRYPTTAB_NAME=$CRYPTTAB_NAME"; then
+			PID=$pid
+			BIRTH=$(stat -c'%Z' "/proc/$PID")
+			return 0;
+		fi
+	done
+
+	PID=
+	BIRTH=
+}
+
+# Wait until $PID no longer exists or has a birth date greater that
+# $BIRTH (ie was reallocated).  Then return with exit value 0 if
+# /dev/mapper/$CRYPTTAB_NAME exists, and with exit value 1 if the
+# maximum number of tries exceeded.  Otherwise (if the unlocking
+# failed), return with value 1.
+wait_for_answer() {
+	local timer=$(( 10 * $TIMEOUT )) dev
+	until [ ! -d "/proc/$PID" ] || [ $(stat -c'%Z' "/proc/$PID") -gt $BIRTH ]; do
+		sleep 0.1
+		timer=$(( $timer - 1 ))
+		if [ $timer -le 0 ]; then
+			echo "Error: Timeout reached while waiting for PID $PID." >&2
+			exit 1
+		fi
+	done
+
+	if [ -b "/dev/mapper/$CRYPTTAB_NAME" ]; then
+		echo "cryptsetup: $CRYPTTAB_NAME set up successfully" >&2
+		[ "$UNLOCK_ALL" = y ] && return 0 || exit 0
+	elif [ $CRYPTTAB_TRIED -ge 2 ]; then
+		echo "cryptsetup: maximum number of tries exceeded for $CRYPTTAB_NAME" >&2
+		exit 1
+	else
+		echo "cryptsetup: cryptsetup failed, bad password or options?" >&2
+		return 1
+	fi
+}
+
+
+if [ -t 0 ] && [ -x "$ASKPASS" ]; then
+	# interactive mode on a TTY: keep trying until all configured devices have
+	# been unlocked or the maximum number of tries exceeded
+	UNLOCK_ALL=y
+	while :; do
+		# note: if the script is not killed before pivot_root it should
+		# exit on its own once $TIMEOUT is reached
+		wait_for_prompt
+		diskname="$CRYPTTAB_NAME"
+		[ "${CRYPTTAB_SOURCE#/dev/disk/by-uuid/}" != "$CRYPTTAB_SOURCE" ] || diskname="$diskname ($CRYPTTAB_SOURCE)"
+		read -rs -p "Please unlock disk $diskname: "; echo
+		printf '%s' "$REPLY" >"$PASSFIFO"
+		wait_for_answer || true
+	done
+else
+	# non-interactive mode: slurp the passphrase from stdin and exit
+	wait_for_prompt
+	diskname="$CRYPTTAB_NAME"
+	# TODO: refactor $CRYPTTAB_NAME/$CRYPTTAB_SOURCE to prompt mapping
+	[ "${CRYPTTAB_SOURCE#/dev/disk/by-uuid/}" != "$CRYPTTAB_SOURCE" ] || diskname="$diskname ($CRYPTTAB_SOURCE)"
+	echo "Please unlock disk $diskname"
+	cat >"$PASSFIFO"
+	wait_for_answer || exit 1
+fi

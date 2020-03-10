@@ -1,0 +1,269 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Relation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#CLASS_METHODS'>CLASS METHODS</a>
+  <li class='indexItem indexItem1'><a href='#INSTANCE_METHODS'>INSTANCE METHODS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Relation - Lintian operations on dependencies and relationships</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre>    my $depends = Lintian::Relation-&#62;new(&#39;foo | bar, baz&#39;);
+    print &#34;yes\n&#34; if $depends-&#62;implies(&#39;baz&#39;);
+    print &#34;no\n&#34; if $depends-&#62;implies(&#39;foo&#39;);</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>This module provides functions for parsing and evaluating package relationship fields such as Depends and Recommends for binary packages and Build-Depends for source packages. It parses a relationship into an internal format and can then answer questions such as &#34;does this dependency require that a given package be installed&#34; or &#34;is this relationship a superset of another relationship.&#34;</p>
+
+<p>A dependency line is viewed as a predicate formula. The comma separator means &#34;and&#34;, and the alternatives separator means &#34;or&#34;. A bare package name is the predicate &#34;a package of this name is available&#34;. A package name with a version clause is the predicate &#34;a package of this name that satisfies this version clause is available.&#34; Architecture restrictions, as specified in Policy for build dependencies, are supported and also checked in the implication logic unless the new_noarch() constructor is used. With that constructor, architecture restrictions are ignored.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS_METHODS"
+>CLASS METHODS</a></h1>
+
+<dl>
+<dt><a name="new(RELATION)"
+>new(RELATION)</a></dt>
+
+<dd>
+<p>Creates a new Lintian::Relation object corresponding to the parsed relationship RELATION. This object can then be used to ask questions about that relationship. RELATION may be <code>undef</code> or the empty string, in which case the returned Lintian::Relation object is empty (always satisfied).</p>
+
+<dt><a name="new_norestriction(RELATION)"
+>new_norestriction(RELATION)</a></dt>
+
+<dd>
+<p>Creates a new Lintian::Relation object corresponding to the parsed relationship RELATION, ignoring architecture restrictions and restriction lists. This should be used in cases where we only care if a dependency is present in some cases and we don&#39;t want to require that the architectures match (such as when checking for proper build dependencies, since if there are architecture constraints the maintainer is doing something beyond Lintian&#39;s ability to analyze) or that the restrictions list match (Lintian can&#39;t handle dependency implications with build profiles yet). RELATION may be <code>undef</code> or the empty string, in which case the returned Lintian::Relation object is empty (always satisfied).</p>
+
+<dt><a name="new_noarch(RELATION)"
+>new_noarch(RELATION)</a></dt>
+
+<dd>
+<p>An alias for new_norestriction.</p>
+
+<dt><a name="and(RELATION,_...)"
+>and(RELATION, ...)</a></dt>
+
+<dd>
+<p>Creates a new Lintian::Relation object produced by AND&#39;ing all the relations together. Semantically it is the similar to:</p>
+
+<pre> Lintian::Relation-&#62;new (join (&#39;, &#39;, @relations))</pre>
+
+<p>Except it can avoid some overhead and it works if some of the elements are Lintian::Relation objects already.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="INSTANCE_METHODS"
+>INSTANCE METHODS</a></h1>
+
+<dl>
+<dt><a name="duplicates()"
+>duplicates()</a></dt>
+
+<dd>
+<p>Returns a list of duplicated elements within the relation object. Each element of the returned list will be a reference to an anonymous array holding a set of relations considered duplicates of each other. Two relations are considered duplicates if one implies the other, meaning that if one relationship is satisfied, the other is necessarily satisfied. This relationship does not have to be commutative: the opposite implication may not hold.</p>
+
+<dt><a name="restriction_less()"
+>restriction_less()</a></dt>
+
+<dd>
+<p>Returns a restriction-less variant of this relation (or this relation object if it has no restrictions).</p>
+
+<dt><a name="implies(RELATION)"
+>implies(RELATION)</a></dt>
+
+<dd>
+<p>Returns true if the relationship implies RELATION, meaning that if the Lintian::Relation object is satisfied, RELATION will always be satisfied. RELATION may be either a string or another Lintian::Relation object.</p>
+
+<p>By default, architecture restrictions are honored in RELATION if it is a string. If architecture restrictions should be ignored in RELATION, create a Lintian::Relation object with new_noarch() and pass that in as RELATION instead of the string.</p>
+
+<dt><a name="implies_inverse(RELATION)"
+>implies_inverse(RELATION)</a></dt>
+
+<dd>
+<p>Returns true if the relationship implies that RELATION is certainly false, meaning that if the Lintian::Relation object is satisfied, RELATION cannot be satisfied. RELATION may be either a string or another Lintian::Relation object.</p>
+
+<p>As with implies(), by default, architecture restrictions are honored in RELATION if it is a string. If architecture restrictions should be ignored in RELATION, create a Lintian::Relation object with new_noarch() and pass that in as RELATION instead of the string.</p>
+
+<dt><a name="unparse()"
+>unparse()</a></dt>
+
+<dd>
+<p>Returns the textual form of a relationship. This converts the internal form back into the textual representation and returns that, not the original argument, so the spacing is standardized. Returns undef on internal failures (such as an object in an unexpected format).</p>
+
+<dt><a name="matches_(REGEX[,_WHAT])"
+>matches (REGEX[, WHAT])</a></dt>
+
+<dd>
+<p>Check if one of the predicates in this relation matches REGEX. WHAT determines what is tested against REGEX and if not given, defaults to VISIT_PRED_NAME.</p>
+
+<p>This method will return a truth value if REGEX matches at least one predicate or clause (as defined by the WHAT parameter - see below).</p>
+
+<p>NOTE: Often <a href="#implies" class="podlinkpod"
+>&#34;implies&#34;</a> (or <a href="#implies_inverse" class="podlinkpod"
+>&#34;implies_inverse&#34;</a>) is a better choice than this method. This method should generally only be used when checking for a &#34;pattern&#34; package (e.g. phpapi-[\d\w+]+).</p>
+
+<p>WHAT can be one of:</p>
+
+<dl>
+<dt><a name="VISIT_PRED_NAME"
+>VISIT_PRED_NAME</a></dt>
+
+<dd>
+<p>Match REGEX against the package name in each predicate (i.e. version and architecture constrains are ignored). Each predicate is tested in isolation. As an example:</p>
+
+<pre> my $rel = Lintian::Relation-&#62;new (&#39;somepkg | pkg-0 (&#62;= 1)&#39;);
+ # Will match (version is ignored)
+ $rel-&#62;matches (qr/^pkg-\d$/, VISIT_PRED_NAME);</pre>
+
+<dt><a name="VISIT_PRED_FULL"
+>VISIT_PRED_FULL</a></dt>
+
+<dd>
+<p>Match REGEX against the full (normalized) predicate (i.e. including version and architecture). Each predicate is tested in isolation. As an example:</p>
+
+<pre> my $vrel = Lintian::Relation-&#62;new (&#39;somepkg | pkg-0 (&#62;= 1)&#39;);
+ my $uvrel = Lintian::Relation-&#62;new (&#39;somepkg | pkg-0&#39;);
+
+ # Will NOT match (does not match with version)
+ $vrel-&#62;matches (qr/^pkg-\d$/, VISIT_PRED_FULL);
+ # Will match (this relation does not have a version)
+ $uvrel-&#62;matches (qr/^pkg-\d$/, VISIT_PRED_FULL);
+
+ # Will match (but only because there is a version)
+ $vrel-&#62;matches (qr/^pkg-\d \(.*\)$/, VISIT_PRED_FULL);
+ # Will NOT match (there is no version in the relation)
+ $uvrel-&#62;matches (qr/^pkg-\d  \(.*\)$/, VISIT_PRED_FULL);</pre>
+
+<dt><a name="VISIT_OR_CLAUSE_FULL"
+>VISIT_OR_CLAUSE_FULL</a></dt>
+
+<dd>
+<p>Match REGEX against the full (normalized) OR clause. Each predicate will have both version and architecture constrains present. As an example:</p>
+
+<pre> my $vpred = Lintian::Relation-&#62;new (&#39;pkg-0 (&#62;= 1)&#39;);
+ my $orrel = Lintian::Relation-&#62;new (&#39;somepkg | pkg-0 (&#62;= 1)&#39;);
+ my $rorrel = Lintian::Relation-&#62;new (&#39;pkg-0 (&#62;= 1) | somepkg&#39;);
+
+ # Will match
+ $vrel-&#62;matches (qr/^pkg-\d(?: \([^\)]\))?$/, VISIT_OR_CLAUSE_FULL);
+ # These Will NOT match (does not match the &#34;|&#34; and the &#34;somepkg&#34; part)
+ $orrel-&#62;matches (qr/^pkg-\d(?: \([^\)]\))?$/, VISIT_OR_CLAUSE_FULL);
+ $rorrel-&#62;matches (qr/^pkg-\d(?: \([^\)]\))?$/, VISIT_OR_CLAUSE_FULL);</pre>
+</dd>
+</dl>
+
+<dt><a name="visit_(CODE[,_FLAGS])"
+>visit (CODE[, FLAGS])</a></dt>
+
+<dd>
+<p>Visit clauses or predicates of this relation. Each clause or predicate is passed to CODE as first argument and will be available as <code>$_</code>.</p>
+
+<p>The optional bitmask parameter, FLAGS, can be used to control what is visited and such. If FLAGS is not given, it defaults to VISIT_PRED_NAME. The possible values of FLAGS are:</p>
+
+<dl>
+<dt><a name="VISIT_PRED_NAME"
+>VISIT_PRED_NAME</a></dt>
+
+<dd>
+<p>The package name in each predicate is visited, but the version and architecture part(s) are left out (if any).</p>
+
+<dt><a name="VISIT_PRED_FULL"
+>VISIT_PRED_FULL</a></dt>
+
+<dd>
+<p>The full predicates are visited in turn. The predicate will be normalized (by <a href="#unparse" class="podlinkpod"
+>&#34;unparse&#34;</a>).</p>
+
+<dt><a name="VISIT_OR_CLAUSE_FULL"
+>VISIT_OR_CLAUSE_FULL</a></dt>
+
+<dd>
+<p>CODE will be passed the full OR clauses of this relation. The clauses will be normalized (by <a href="#unparse" class="podlinkpod"
+>&#34;unparse&#34;</a>)</p>
+
+<p>Note: It will not visit the underlying predicates in the clause.</p>
+
+<dt><a name="VISIT_STOP_FIRST_MATCH"
+>VISIT_STOP_FIRST_MATCH</a></dt>
+
+<dd>
+<p>Stop the visits the first time CODE returns a truth value. This is similar to <a href="../List/Util.html#first" class="podlinkpod"
+>first</a>, except visit will return the value returned by CODE.</p>
+</dd>
+</dl>
+
+<p>Except where a given flag specifies otherwise, the return value of visit is last value returned by CODE (or <code>undef</code> for the empty relation).</p>
+
+<dt><a name="empty"
+>empty</a></dt>
+
+<dd>
+<p>Returns a truth value if this relation is empty (i.e. it contains no predicates).</p>
+
+<dt><a name="unparsable_predicates"
+>unparsable_predicates</a></dt>
+
+<dd>
+<p>Returns a list of predicates that were unparsable.</p>
+
+<p>They are returned in the original textual representation and are also sorted by said representation.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Russ Allbery &#60;rra@debian.org&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1)</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

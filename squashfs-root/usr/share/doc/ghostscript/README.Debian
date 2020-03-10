@@ -1,0 +1,65 @@
+GPL Ghostscript for Debian
+==========================
+
+Links against shared JPEG library
+---------------------------------
+
+On Debian systems, ghostscript is linked against the shared IJG JPEG
+library, instead of using the patched local copy bundled with the
+ghostscript source.  The two versions of the library behave identically
+except in two respects, both concerning invalid JPEG streams:
+
+  - The bundled libjpeg fakes a valid component id when JPEG streams
+    include an SOF or SOS marker whose component identifiers are not all
+    distinct (see the description of C_i in B.2.2 of the JPEG spec).
+    The shared IJG JPEG library produces artifacts (e.g., stripes) when
+    presented with such component ids.
+
+    http://bugs.ghostscript.com/show_bug.cgi?id=686980
+
+  - The bundled libjpeg is configured to accept up to 64 blocks per MCU,
+    instead of the limit of 10 blocks per MCU described in the
+    Postscript reference manual and JPEG standard. According to lore and
+    Adobe's tech note 5116, in 1991 Adobe came across some files in the
+    wild exceeding the standard for blocks per MCU, and Adobe's
+    implementation would sometimes accept such streams.
+
+    That said, the PRLM3 states quite straightforwardly that the number
+    of blocks in the MCU must not exceed 10. The PRLM2 contains the same
+    condition, but attributes it to "the JPEG-proposed standard". Thus,
+    we believe that any PostScript file containing this kind of JPEG
+    stream can safely be considered invalid.
+
+If you come across a file triggering either of these conditions, please
+let us know by reporting a bug against the ghostscript package.
+
+See Bug #582522 and Bug #582521 for more detail, particularly
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=582522#46
+
+
+Links against shared OpenJPEG library
+-------------------------------------
+
+The GPL Ghostscript project maintains a fork of OpenJPEG with a set of
+patches applied related to color calibration of JPEG2000 data:
+
+    http://git.ghostscript.com/?p=ghostpdl.git;a=commitdiff;h=ef8503
+
+On Debian systems, ghostscript is linked against mainline OpenJPEG which
+do not (at least for versions 1.3+dfsg-4.7 and 1.5.1-1) include those
+patches.
+
+
+DroidSansFallback is default fallback for CJK documents
+-------------------------------------------------------
+
+GPL Ghostscript uses the DroidSansFallback font from the fonts-droid
+package to substitute for CID-keyed fonts that are not available (used
+for East Asian character sets in PDFs).  If disk space is scarce, remove
+the fonts-droid package and the glyphs from missing fonts will be
+rendered as bullets.
+
+See Use.htm#CIDFontSubstitution from the ghostscript-doc package for
+details.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Thu, 04 Jul 2013 03:46:38 +0200

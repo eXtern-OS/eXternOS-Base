@@ -1,0 +1,69 @@
+Check-Script: version-substvars
+Author: Adeodato Simó <dato@net.com.org.es>
+Abbrev: v-s
+Type: source
+Needs-Info: unpacked
+Info: This script checks for correct use of the various
+ <tt>*Version</tt> substvars, e.g. deprecated substvars,
+ or usage that can cause un-binNMUability
+
+Tag: not-binnmuable-any-depends-any
+Severity: important
+Certainty: certain
+Info: The package is not safely binNMUable because an arch:any package
+ depends on another arch:any package with a (= ${source:Version})
+ relationship. Please use (= ${binary:Version}) instead.
+
+Tag: not-binnmuable-any-depends-all
+Severity: important
+Certainty: certain
+Info: The package is not safely binNMUable because an arch:any package
+ depends on an arch:all package with a (= ${source:Version}) or
+ (= ${binary:Version}) relationship. Please use (= ${source:Version})
+ instead.
+ .
+ Note this is also triggered if the dependency uses (&gt;= ${var}),
+ since that has the same issue.
+
+Tag: not-binnmuable-all-depends-any
+Severity: important
+Certainty: certain
+Info: The package is not safely binNMUable because an arch:all package
+ depends on an arch:any package with a strict (= ${source:Version}), or
+ similar, relationship.
+ .
+ It is not possible for arch:all packages to depend so strictly on
+ arch:any packages while having the package binNMUable, so please use
+ one of these, whichever is more appropriate:
+ .
+   Depends: arch_any (&gt;= ${source:Version})
+   Depends: arch_any (&gt;= ${source:Version}),
+    arch_any (&lt;&lt; ${source:Version}.1~)
+
+Tag: version-substvar-for-external-package
+Severity: important
+Certainty: certain
+Info: The first package has a relation on the second package using a
+ dpkg-control substitution variable to generate the versioned part of
+ the relation.  However the second package is not built from this
+ source package.  Usually this means there is a mistake in the package
+ name in this dependency.
+ .
+ Note that this warning can occur if the package name used in the
+ relation contains a typo.  In this case, correcting the typo should
+ remove the warning.
+
+Tag: substvar-source-version-is-deprecated
+Severity: normal
+Certainty: certain
+Info: The package uses the now deprecated ${Source-Version} substvar,
+ which has misleading semantics.  Please switch to ${binary:Version} or
+ ${source:Version} as appropriate (introduced in dpkg 1.13.19, released
+ with etch).  Support for ${Source-Version} may be removed from dpkg-dev
+ in the future.
+
+Tag: maybe-not-arch-all-binnmuable
+Severity: classification
+Certainty: possible
+Info: Tag to attempt to measure the number of packages that might
+ have an issue with arch:all binNMUs.

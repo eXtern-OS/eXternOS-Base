@@ -1,0 +1,230 @@
+<?xml version="1.0" ?>
+<!DOCTYPE article PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+"dtd/kdedbx45.dtd" [
+  <!ENTITY kdebugdialog5 "<application
+>KDebugDialog</application
+>">
+  <!ENTITY kappname "&kdebugdialog;">
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Swedish "INCLUDE"
+> <!-- change language only here -->
+  
+  
+]>
+
+<article id="kdebugdialog5" lang="&language;">
+<title
+>Kdebugdialog</title>
+<articleinfo>
+<authorgroup>
+<author
+>&David.Faure; &David.Faure.mail;</author>
+<othercredit role="translator"
+> <firstname
+>Stefan</firstname
+> <surname
+>Asserhäll</surname
+> <affiliation
+><address
+><email
+>stefan.asserhall@bredband.net</email
+></address
+></affiliation
+> <contrib
+>Översättare</contrib
+></othercredit
+> 
+</authorgroup>
+
+<date
+>2016-04-02</date>
+<releaseinfo
+>Ramverk 5.21</releaseinfo>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>KDebugdialog</keyword>
+<keyword
+>Avlusning</keyword>
+</keywordset>
+</articleinfo>
+
+
+<para
+>&kdebugdialog; är en dialogruta för att hantera diagnostikmeddelanden vid körning. Den tillhandahåller ett enkelt och ett fullständigt läge.</para>
+<para
+>För att kunna göra ändringar måste <guilabel
+>Inaktivera all felsökningsutmatning</guilabel
+> vara avmarkerat.</para>
+
+<note>
+<para
+>Bara för program som använder ramverkets biblioteket kdelibs4support.</para>
+<para
+>Användning av kDebug() avråds från i &kde; Ramverk 5, som ersätts av &Qt;s inbyggda kategoriserade loggning, se <ulink url="http://doc.qt.io/qt-5/qloggingcategory.html"
+>QLoggingCategory</ulink
+>. Använd programmet <ulink url="https://commits.kde.org/kdebugsettings"
+>kdebugsettings</ulink
+> för att aktivera eller inaktivera qCDebug. </para>
+</note>
+
+<variablelist>
+<varlistentry>
+<term
+>Enkelt läge</term>
+<listitem>
+<para
+>Om du startar <command
+>kdebugdialog5</command
+>, ser du en lista på <quote
+>ytor</quote
+>, som du kan aktivera eller stänga av. Ett anrop till <function
+>kDebug(yta)</function
+> i koden visar bara någonting i avlusningsutmatningen om ytan är aktiverat.</para>
+
+<note
+><para
+>Observera att kWarning, kError och kFatal alltid visas, de kontrolleras <emphasis
+>INTE</emphasis
+> av den här inställningen. </para
+></note>
+
+<para
+>Skriv in en matchande sträng i rutan <guilabel
+>Sök</guilabel
+> längst upp i listan. Det låter dig filtrera de ytor som visas i listvyn. Använd knapparna under listan för att markera eller avmarkera alla objekt i vyn (övriga ytor påverkas inte) eller ändra avlusningsutmatning för ett enskilt objekt genom att använda kryssrutan framför det. </para>
+
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+>Fullständigt läge</term>
+<listitem>
+<para
+>Om du startar med <command
+>kdebugdialog5</command
+> <option
+>--fullmode</option
+>, kan du för varje utskriftsnivå definiera separat vad som ska göras med diagnostikmeddelanden för den nivån, för varje avlusningsyta.</para>
+
+<para
+>I fullständigt läge ska du första välja avlusningsytan du är intresserad av från listan till vänster i dialogrutan med användning av sökrutan längst upp i listan.</para>
+
+<para
+>Du kan ange utmatning för olika typer av meddelande oberoende av varandra:</para>
+
+<itemizedlist>
+<listitem
+><para
+><guilabel
+>Information</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Varning</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Fel</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Allvarligt fel</guilabel
+></para
+></listitem>
+</itemizedlist>
+
+<para
+>För var och en av de här typerna, kan du ange följande:</para>
+
+<variablelist>
+<varlistentry>
+<term
+><guilabel
+>Utmatning till:</guilabel
+></term>
+<listitem>
+<para
+>Utdata till: I den här kombinationsrutan kan du välja var meddelanden ska skrivas ut. Du kan välja <quote
+>Arkiv</quote
+>, <quote
+>Meddelanderuta</quote
+>, <quote
+>Skal</quote
+> (vilket betyder standard felutmatning) och <quote
+>Systemlogg</quote
+>. Skicka inte allvarliga fel till systemloggen om du inte är systemadministratör själv. Förvalt värde är <quote
+>Meddelanderuta</quote
+>.</para
+> 
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Filnamn:</guilabel
+></term>
+<listitem
+><para
+>Det här är bara relevant när du har valt <quote
+>Arkiv</quote
+> som utmatning och anger namnet på filen (som tolkas relativt till den nuvarande katalogen). Förvalt värde är <filename
+>kdebug.dbg</filename
+>.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Bortsett från det här kan du också markera rutan <guilabel
+>Avbryt vid allvarliga fel</guilabel
+>. I detta fall, om ett diagnostikmeddelande med nivån <computeroutput
+>KDEBUG_FATAL</computeroutput
+> skrivs ut, så avbryts programmet med en SIGABRT efter meddelandet har skrivits ut.</para>
+
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Om du stänger dialogrutan med <guibutton
+>Ok</guibutton
+>, börjar ändringarna gälla omedelbart, och sparas i <filename
+>$<envar
+>XDG_CONFIG_HOME</envar
+>/kdebugrc</filename
+> (normalt ~/.config/kdebugrc). Om du trycker på <guibutton
+>Avbryt</guibutton
+>, så slängs dina ändringar och de tidigare återställs.</para>
+
+<para
+>Tack till Kalle Dalheimer för originalversionen av avlusningsinställningar</para>
+
+<para
+>Översättning Stefan Asserhäll <email
+>stefan.asserhall@bredband.net</email
+></para
+> 
+
+&underFDL;
+
+</article>
+<!--
+Local Variables:
+mode: sgml
+sgml-omittag: nil
+sgml-general-insert-case: lower
+sgml-shorttag: t
+End:
+-->
+

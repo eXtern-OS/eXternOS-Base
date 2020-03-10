@@ -1,0 +1,114 @@
+#!/usr/bin/perl -w
+# scripts -- lintian collection script
+
+# Copyright (C) 1998 Richard Braakman
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, you can find it on the World Wide
+# Web at http://www.gnu.org/copyleft/gpl.html, or write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+
+package Lintian::coll::scripts;
+
+no lib '.';
+
+use strict;
+use warnings;
+use autodie;
+
+use lib "$ENV{'LINTIAN_ROOT'}/lib/";
+use Lintian::Collect;
+use Lintian::Util qw(strip);
+
+sub collect {
+    my ($pkg, $type, $dir) = @_;
+    my $info = Lintian::Collect->new($pkg, $type, $dir);
+    my $scripts_fd; # We lazily open this FD.
+
+    foreach my $file ($info->sorted_index) {
+        next unless $file->is_regular_file and $file->is_open_ok;
+        my $scriptpath = shebang_line($file);
+
+        next unless defined($scriptpath); # no shebang line => not a script
+
+        # skip lincity data files
+        # magic: #!#!#!
+        next if ($scriptpath =~ m/^\#!/);
+        my $copy_path = $scriptpath;
+        $scriptpath =~ s/^\#.*//; # remove comments
+
+        if (!defined($scripts_fd)) {
+            open($scripts_fd, '>', "$dir/scripts");
+        }
+
+        if ($scriptpath eq '') {
+            print {$scripts_fd} "$copy_path $file\n";
+        } else {
+            my $env = '';
+            if ($scriptpath =~ s,^/usr/bin/env\s+,,) {
+                $env = 'env ';
+            }
+            # Remove everything after the first space (i.e. any options)
+            $scriptpath =~ s/\s++ .++ \Z//xsm;
+            print {$scripts_fd} $env . "$scriptpath $file\n";
+        }
+    }
+    close($scripts_fd) if defined($scripts_fd);
+
+    open(my $ctrl_fd, '>', "$dir/control-scripts");
+    for my $path ($info->control_index('')->children) {
+        next unless $path->is_open_ok;
+        # Only collect maintainer scripts
+        next unless $path =~ m/^(?:(?:pre|post)(?:inst|rm)|config)$/;
+
+        # Allow ELF binaries
+        my $fd = $path->open;
+        my ($magic, $scriptpath);
+        if (read($fd, $magic, 4)) {
+            $scriptpath = 'ELF' if $magic eq "\x7FELF";
+        }
+        close($fd);
+        # If they aren't ELF, look for a shebang
+        $scriptpath = $scriptpath // shebang_line($path) // '';
+
+        # Remove everything after the first space (i.e. any options)
+        $scriptpath =~ s/\s++ .++ \Z//xsm;
+        print {$ctrl_fd} "$scriptpath $path\n";
+    }
+    close($ctrl_fd);
+
+    return;
+}
+
+sub shebang_line {
+    my ($path) = @_;
+    my ($scriptpath, $magic);
+    my $fd = $path->open;
+    if (read($fd, $magic, 2) and $magic eq '#!' and not eof($fd)) {
+        $scriptpath = <$fd>;
+        strip($scriptpath);
+    }
+    close($fd);
+    return $scriptpath;
+}
+
+collect(@ARGV) if $0 =~ m,(?:^|/)scripts$,;
+
+1;
+
+# Local Variables:
+# indent-tabs-mode: nil
+# cperl-indent-level: 4
+# End:
+# vim: syntax=perl sw=4 sts=4 sr et

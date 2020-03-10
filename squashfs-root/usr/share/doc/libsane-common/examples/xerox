@@ -1,0 +1,60 @@
+#!/bin/sh
+#
+# This is a xerox script for Laserjet Printer.
+# To get use of Postscript change the Printercommand and enable the
+# command at the end of this File.
+#
+DEV=mustek:/dev/scanner
+RES=300
+PAPERTYPE=letter
+#PAPERTYPE=a4
+PRINTERTYPE=ps
+#PRINTERTYPE=lj
+#
+# Non-printable area (left, right, top, and bottom margins):
+#
+LMARGIN=0.0
+RMARGIN=0.0
+TMARGIN=0.25
+BMARGIN=0.0
+#
+# Scanner-specific options:
+#
+DEVOPTS="--mode Gray"
+#DEVOPTS="$DEVOPTS --custom-gamma=yes --gamma-table [0]0-[64]128-[255]255"
+#DEVOPTS="$DEVOPTS --backtrack=yes"	 # needed for Mustek 12000SP
+#
+# Printer Command/Resolution
+PRES=$RES # change this if other Res. is desired
+#
+# Papersize in inch
+if [ "$PAPERTYPE" = "letter" ]; then
+  WIDTH=8; HEIGHT=10
+else
+  # assume a4 paper
+  WIDTH=8.27; HEIGHT=11.69
+fi
+
+SCANWIDTH=`bc <<_EOF_ 
+scale=3
+$WIDTH-$LMARGIN-$RMARGIN
+_EOF_`
+SCANHEIGHT=`bc <<_EOF_ 
+scale=3
+$HEIGHT-$TMARGIN-$BMARGIN
+_EOF_`
+#
+SCALE=`bc << _EOF_
+scale=3
+75/$RES
+_EOF_`
+
+if [ "$PRINTERTYPE" = "ps" ]; then
+  POST="pnmtops -rle -scale $SCALE -dpi $PRES | lpr"
+else
+  POST="pgmtopbm | pbmtolj -resolution $PRES | lpr -Praw"
+fi
+
+scanimage -d $DEV \
+	-x $SCANWIDTH\" -y $SCANHEIGHT\" -l $LMARGIN\" -t $TMARGIN\" \
+        --resolution $RES $DEVOPTS | eval $POST

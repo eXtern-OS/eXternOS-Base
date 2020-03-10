@@ -1,0 +1,67 @@
+    * What is this?
+
+PXLJR (http://sourceforge.net/projects/hp-pxl-jetready/) is an IJS-based
+driver for the HP JetReady 4.x protocol printer family (Color Laserjet
+3500 and 3550) under linux and other unix-like systems. This effort is
+not endorsed by nor affiliated with HP.
+
+It is licensed under the terms of GNU General Public License.
+
+    * Compiling and Run-time requirements?
+
+About the same as HPIJS. PXLJR needs a C compiler rather than a C++
+compiler,  and also need  automake/autoconf (this may be improved in
+later release).
+
+    * HPIJS/HPLIP also supports these two printers. Why are you
+      "reinventing the wheel"?
+
+HPIJS (http://hpinkjet.sourceforge.net) provides 2 printing modes: one
+color and one gray, corresponding to the max-compression/worst-quality
+setting of the HP driver under Windows. There are two more settings for
+better quality in the Windows driver. PXLJR provides these two
+additional settings, so there are a total of 6 printing modes. Also, the
+max-compression gray mode of PXLJR is 1.5 to 3 times faster.
+
+One the other hand, PXLJR doesn't provide a full set of facilities like
+printer status report, etc. For other bells and whistles, please use
+HPLIP's toolbox instead. There is no conflict installing both HPIJS and
+PXLJR simultaneously.
+
+    * Why did you not improve HPIJS instead?
+
+There are professional reasons that I need to maintain autonomy; on the
+other hand, the two addtional quality settings are already in the
+Windows driver. The HPIJS people can consult their Windows driver people
+and there is no need for me to contribute; the other improvement - the
+speed for the gray modes - would require substantial modification, and
+affects and changes code paths that I cannot test due to not have the
+other printers.
+
+    * Any other improvement I can do to my prints?
+
+There is a file 'gs-gamma.ps' which changes the gamma curve and boasts
+the shadow details if one prepends it to a print-job.
+
+    * Known problems, Limitations?
+
+The right-hand border for PXLJR is about 0.5mm wider than HPIJS. I haven
+not been able to track it down, but the difference is only noticeable if
+one prints all the way to the edge of the printerable area, and compare
+side-by-side.
+
+Standard page size (A4, letter, envelope, etc) works, but custom
+arbitrary size only works on 32-bit small endian. (i.e. x86). HPIJS has
+a similiar and worse problem - and both will be resolved in the
+corresponding next releases.
+"make install" installs too many unnecessary things, and does not
+install the ppd. Only really only need
+to copy the ijs_pxljr into /usr/bin and the ppd into a CUPS specific place.
+
+    * Upcoming improvements?
+
+Making dependence on libjpeg optional.
+Make Multiple-copies option work. Currently if one wants X identical
+copies, one needs to send job X times.
+Make the gamme curve change a more user-friendly option.
+See if a 1-bit B/W version can go even faster.

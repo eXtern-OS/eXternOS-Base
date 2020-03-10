@@ -1,0 +1,54 @@
+speech-dispatcher (0.8-2) experimental; urgency=low
+
+ * Since speech-dispatcher 0.8 the user configuration is not searched
+   and stored in ~/.speech-dispatcher/ but in ~/.config/speech-dispatcher.
+   Unfortunately, upstream speech-dispatcher did not implement backward
+   compatibility, and due to the complexity of doing that, neither did we.
+   If you already have a working user configuration, we suggest to manually
+   fix this by either moving the configuration files, making appropriate
+   symlinks or running spd-conf to generate a fresh configuration.
+
+ * During installation, you probably have speech-dispatcher already running.
+   As I am unsure if it is wise to kill all running speech-dispatcher
+   instancance during installation, I leave that up to the user for now.
+   So you should restart your speech-dispatcher instance to make sure it
+   uses the latest installed version. E.g. by running:
+   $ killall speech-dispatcher
+   and letting it automatically be restarted if you have the default of
+   autospawning on. I can come up with scenarios where reverse dependencies
+   of speech-dispatcher might not work until you do.
+
+ -- Paul Gevers <elbrus@debian.org>, Fri, 17 Jan 2014 08:40:28 +0100
+
+* Using Speech Dispatcher with Festival
+
+It is recommended to run Speech Dispatcher with Festival, since Festival is the
+speech synthesizer providing most functionality together with Speech
+Dispatcher.  If you want to use Speech Dispatcher with Festival, please install
+the speech-dispatcher-festival package and read its README.Debian.
+
+* Using Speech Dispatcher with ALSA or OSS
+
+When Speech Dispatcher is used with direct sound output to ALSA or OSS (on the
+contrary to using a sound server, e.g. PulseAudio) and your audio device is not
+set up to allow concurrent access, Speech Dispatcher may block all your audio
+output.  For this reason the default Speech Dispatcher configuration comes with
+PulseAudio as the only audio output.  If you don't want to use PulseAudio for
+Speech Dispatcher audio output, change AudioOutputMethod option in your Speech
+Dispatcher configuration (either /etc/speech-dispatcher/speechd.conf or
+~/.config/speech-dispatcher/speechd.conf) accordingly and restart your Speech
+Dispatcher processes.
+
+* System wide startup (not recommended anymore)
+
+If you want to run Speech Dispatcher as a system wide process, set RUN option
+in /etc/default/speech-dispatcher to `yes', and set the SPEECHD_SOCKET environment
+variable to /var/run/speech-dispatcher/speechd.sock before starting clients.
+
+* Log file permissions
+
+Please note all Speech Dispatcher log files can reveal your user interactions
+and texts you read through Speech Dispatcher, among others.  For this reason,
+the /var/log/speech-dispatcher/ directory is world-unreadable by default.
+
+ -- Milan Zamazal <pdm@debian.org>, Fri, 02 Jul 2010

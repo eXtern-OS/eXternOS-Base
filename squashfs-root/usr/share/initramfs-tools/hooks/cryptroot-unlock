@@ -1,0 +1,25 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case "$1" in
+prereqs)
+	 prereqs
+	 exit 0
+	;;
+esac
+
+cp -p /usr/share/cryptsetup/initramfs/bin/cryptroot-unlock "$DESTDIR/bin/cryptroot-unlock"
+
+if [ -f /etc/initramfs-tools/etc/motd ]; then
+	cp /etc/initramfs-tools/etc/motd "$DESTDIR/etc/motd"
+else
+	cat >>"$DESTDIR/etc/motd" <<- EOF
+		To unlock root partition, and maybe others like swap, run \`cryptroot-unlock\`
+	EOF
+fi

@@ -1,0 +1,98 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      type="topic" style="question"
+      id="color-whatisspace">
+
+  <info>
+    <link type="guide" xref="color#profiles"/>
+    <link type="seealso" xref="color-whatisprofile"/>
+    <desc>A color space is a defined range of colors.</desc>
+
+    <credit type="author">
+      <name>Richard Hughes</name>
+      <email>richard@hughsie.com</email>
+    </credit>
+    <include href="legal.xml" xmlns="http://www.w3.org/2001/XInclude"/>
+  </info>
+
+  <title>What is a color space?</title>
+
+  <p>
+    A color space is a defined range of colors.
+    Well known color spaces include sRGB, AdobeRGB and ProPhotoRGB.
+  </p>
+
+  <p>
+    The human visual system is not a simple RGB sensor, but we can
+    approximate how the eye responds with a CIE 1931 chromaticity diagram
+    that shows the human visual response as a horse-shoe shape.
+    You can see that in human vision there are many more shades of green
+    detected than blue or red.
+    With a trichromatic color space like RGB we represent the colors
+    on the computer using three values, which restricts up to encoding
+    a <em>triangle</em> of colors.
+  </p>
+
+  <note>
+    <p>
+      Using models such as a CIE 1931 chromaticity diagram is a huge
+      simplification of the human visual system, and real gamuts are
+      expressed as 3D hulls, rather than 2D projections.
+      A 2D projection of a 3D shape can sometimes be misleading, so if
+      you want to see the 3D hull, use the <code>gcm-viewer</code>
+      application.
+    </p>
+  </note>
+
+  <figure>
+    <desc>sRGB, AdobeRGB and ProPhotoRGB represented by white triangles</desc>
+    <media its:translate="no" type="image" mime="image/png" src="figures/color-space.png"/>
+  </figure>
+
+  <p>
+    First, looking at sRGB, which is the smallest space and can encode
+    the least number of colors.
+    It is an approximation of a 10 year old CRT display, and so most
+    modern monitors can easily display more colors than this.
+    sRGB is a <em>least-common-denominator</em> standard and is used
+    in a large number of applications (including the Internet).
+  </p>
+  <p>
+    AdobeRGB is frequently used as an <em>editing space</em>.
+    It can encode more colors than sRGB, which means you can change
+    colors in a photograph without worrying too much that the most vivid
+    colors are being clipped or the blacks crushed.
+  </p>
+  <p>
+    ProPhoto is the largest space available and is frequently used for
+    document archival.
+    It can encode nearly the whole range of colors detected by the human
+    eye, and even encode colors that the eye cannot detect!
+  </p>
+
+  <p>
+    Now, if ProPhoto is clearly better, why don’t we use it for everything?
+    The answer is to do with <em>quantization</em>.
+    If you only have 8 bits (256 levels) to encode each channel, then a
+    larger range is going to have bigger steps between each value.
+  </p>
+  <p>
+    Bigger steps mean a larger error between the captured color and the
+    stored color, and for some colors this is a big problem.
+    It turns out that key colors, like skin colors are very important,
+    and even small errors will make untrained viewers notice that something
+    in a photograph looks wrong.
+  </p>
+  <p>
+    Of course, using a 16 bit image is going to leave many more steps and
+    a much smaller quantization error, but this doubles the size of each
+    image file.
+    Most content in existence today is 8bpp, i.e. 8 bits-per-pixel.
+  </p>
+  <p>
+    Color management is a process for converting from one color space to
+    another, where a color space can be a well known defined space like
+    sRGB, or a custom space such as your monitor or printer profile.
+  </p>
+
+</page>

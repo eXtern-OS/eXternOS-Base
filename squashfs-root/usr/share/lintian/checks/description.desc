@@ -1,0 +1,262 @@
+Check-Script: description
+Author: Christian Schwarz <schwarz@debian.org>
+Abbrev: des
+Type: binary, udeb
+Needs-Info: unpacked
+Info: Check if the Description control field of a binary package conforms
+ to the rules in the Policy Manual (section 3.4).
+
+Tag: package-has-no-description
+Severity: serious
+Certainty: certain
+Info: The binary package does not have a "Description:" control field.
+Ref: policy 3.4
+
+Tag: description-synopsis-is-empty
+Severity: serious
+Certainty: certain
+Info: The first line in the "Description:" is empty.
+Ref: policy 3.4
+
+Tag: extended-description-contains-empty-paragraph
+Severity: normal
+Certainty: certain
+Info: The extended description (the lines after the first line of the
+ "Description:" field) contains an empty paragraph.
+
+Tag: extended-description-is-empty
+Severity: serious
+Certainty: certain
+Info: The extended description (the lines after the first line of the
+ "Description:" field) is empty.
+Ref: policy 3.4
+
+Tag: description-too-short
+Severity: serious
+Certainty: certain
+Ref: devref 6.2.2
+Info: The description contains only a single word. It is likely that the
+ description won't be very clear for the user.
+
+Tag: description-is-pkg-name
+Severity: serious
+Certainty: certain
+Ref: devref 6.2.2
+Info: The description is the same as the package name.
+ A better description should be provided for the user.
+
+Tag: extended-description-is-probably-too-short
+Severity: minor
+Certainty: possible
+Ref: devref 6.2.1, devref 6.2.3
+Info: The extended description (the lines after the first line of the
+ "Description:" field) is only one or two lines long.  The extended
+ description should provide a user with enough information to decide
+ whether they want to install this package, what it contains, and how it
+ compares to similar packages.  One or two lines is normally not enough to
+ do this.
+
+Tag: description-contains-invalid-control-statement
+Severity: serious
+Certainty: certain
+Info: The description contains an invalid control statement.
+ .
+ A control statement is a line starting with a dot (.).  The only
+ control statement is defined by the policy is a single dot denoting
+ an empty line.
+ .
+ The "empty-line" control statement does not permit any characters
+ following it on the same line.  Therefore, the line must consist
+ entirely of a space followed by a dot.
+Ref: policy 5.6.13
+
+Tag: description-too-long
+Severity: minor
+Certainty: certain
+Info: The first line of the "Description:" must not exceed 80 characters.
+Ref: policy 3.4.1
+
+Tag: description-starts-with-package-name
+Severity: important
+Certainty: certain
+Info: The first line of the "Description:" should not start with the
+ package name. For example, the package <tt>foo</tt> should not
+ have a description like this: "foo is a program that...".
+Ref: policy 3.4.1
+
+Tag: description-synopsis-starts-with-article
+Severity: minor
+Certainty: certain
+Info: The first line of the "Description:" should omit any initial indefinite
+ or definite article: "a", "an", or "the". A good heuristic is that it should
+ be possible to substitute the package <tt>name</tt> and <tt>synopsis</tt>
+ into this formula:
+ .
+ The package <tt>name</tt> provides {a,an,the,some} <tt>synopsis</tt>.
+Ref: devref 6.2.2
+
+Tag: description-contains-tabs
+Severity: important
+Certainty: certain
+Info: The package "Description:" must not contain tab characters.
+Ref: policy 5.6.13
+
+Tag: description-starts-with-leading-spaces
+Severity: normal
+Certainty: possible
+Info: The package's extended "Description:" paragraph starts with more than
+ one leading space. Usually, leading spaces are used to switch "verbatim
+ display" on (i.e., lines are not wrapped) so this might be a bug in the
+ package.
+
+Tag: possible-unindented-list-in-extended-description
+Severity: normal
+Certainty: possible
+Info: The package "Description:" contains an unindented line which
+ starts with a dash (-) or asterisk (*). If this was meant to be a
+ list of items these lines need to be indented (dselect would
+ word-wrap these lines otherwise).
+Ref: policy 5.6.13
+
+Tag: description-is-debmake-template
+Severity: important
+Certainty: certain
+Info: The synopsis or the extended description just says "Missing",
+ which is a template provided by debmake.
+
+Tag: description-is-dh_make-template
+Severity: serious
+Certainty: certain
+Info: The synopsis or the extended description has not been changed
+ from the template provided by dh_make.
+
+Tag: description-contains-dh-make-perl-template
+Severity: normal
+Certainty: certain
+Info: The extended description contains the statement that it was
+ automagically extracted by dh-make-perl.  Please check the description
+ for correctness and usefulness and remove the dh-make-perl statement
+ to signal that you have done so. 
+
+Tag: description-synopsis-might-not-be-phrased-properly
+Severity: minor
+Certainty: possible
+Info: The package synopsis (also known as the "short" description, ie. the
+ first line in the package's "Description:" field) either ends with a full
+ stop "." character or starts another sentence.
+ .
+ This is not necessary as the synopsis does not need to be a full
+ sentence.  It is recommended that a single descriptive phrase is used
+ instead.
+ .
+ Note also that the synopsis is not part of the rest of the "long"
+ Description: field.
+Ref: devref 6.2.2
+
+Tag: description-synopsis-is-duplicated
+Severity: important
+Certainty: certain
+Info: The first line of the extended Description: should not repeat the
+ synopsis exactly. This indicates that either the synopsis is badly formed
+ or that the extended description has been wrongly copied and pasted.
+Ref: policy 3.4.2
+
+Tag: spelling-error-in-description-synopsis
+Severity: minor
+Certainty: certain
+Info: Lintian found a spelling error in the package synopsis.  Lintian
+ has a list of common misspellings that it looks for.  It does not have a
+ dictionary like a spelling checker does.  It is particularly picky about
+ spelling and capitalization in package descriptions since they're very
+ visible to end users.
+
+Tag: capitalization-error-in-description-synopsis
+Severity: minor
+Certainty: wild-guess
+Info: Lintian found a possible capitalization error in the package
+ synopsis.  Lintian has a list of common capitalization errors,
+ primarily of upstream projects, that it looks for.  It does not have a
+ dictionary like a spelling checker does.
+
+Tag: extended-description-line-too-long
+Severity: normal
+Certainty: certain
+Info: One or more lines in the extended part of the "Description:" field
+ have been found to contain more than 80 characters. For the benefit of
+ users of 80x25 terminals, it is recommended that the lines do not exceed
+ 80 characters.
+Ref: policy 3.4.1
+
+Tag: description-contains-homepage
+Severity: normal
+Certainty: certain
+Info: The extended description contains a "Homepage" pseudo-field
+ following the old Developer's Reference recommendation. As of 1.14.6,
+ dpkg now supports Homepage as a regular field in
+ <tt>debian/control</tt>. This pseudo-field should be moved from the
+ extended description to the fields for the relevant source or binary
+ packages.
+
+Tag: spelling-error-in-description
+Severity: minor
+Certainty: certain
+Info: Lintian found a spelling error in the package description.  Lintian
+ has a list of common misspellings that it looks for.  It does not have a
+ dictionary like a spelling checker does.  It is particularly picky about
+ spelling and capitalization in package descriptions since they're very
+ visible to end users.
+
+Tag: capitalization-error-in-description
+Severity: minor
+Certainty: wild-guess
+Info: Lintian found a possible capitalization error in the package
+ description.  Lintian has a list of common capitalization errors,
+ primarily of upstream projects, that it looks for.  It does not have a
+ dictionary like a spelling checker does.
+ .
+ This is a particularly picky check of capitalization in package
+ descriptions, since they're very visible to end users, but it will have
+ false positives for project names used in a context where they should be
+ lowercase, such as package names or executable names.
+
+Tag: using-first-person-in-description
+Severity: minor
+Certainty: possible
+Info: You should avoid the use of first person ("I will do this..." or
+ "We recommend...").  The computer is not a person and the description
+ does not speak for the maintainer or maintainers.  Instead, use a more
+ neutral construction and try to rephrase into factual statements about
+ the package.
+ .
+ For example, rather than saying "I don't recommend this package if you
+ are short on memory," say something like "this package is not suitable
+ for low-memory systems."
+
+Tag: description-possibly-contains-homepage
+Severity: wishlist
+Certainty: wild-guess
+Info: This package has no Homepage field but has a URL in the description
+ and wording that might indicate this is the package Homepage.  If it is,
+ add a Homepage control field containing it rather than mentioning it in
+ the package description.
+
+# Imported from pkg-perl-tools (named no-module-name-in-description there)
+Tag: perl-module-name-not-mentioned-in-description
+Severity: minor
+Certainty: certain
+Experimental: yes
+Info: Debian users are likely to look for perl modules by their name, e.g.
+ Foo::Bar, not by package name (libfoo-bar-perl). To make this easier, the main
+ module name should be present in the long package description.
+
+Tag: description-mentions-planned-features
+Severity: wishlist
+Certainty: wild-guess
+Info: This package appears to mention planned or upcoming features of
+ the software.
+ .
+ Package descriptions should not mention features that are not yet implemented
+ as they waste the time of people searching for particular keywords. They are
+ also liable to become outdated quickly.
+ .
+ Please remove such statements from the package description.

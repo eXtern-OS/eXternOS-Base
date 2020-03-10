@@ -1,0 +1,45 @@
+Packages automagically modifies /etc/nsswitch.conf
+--------------------------------------------------
+
+Previously the base-files package shipped /etc/nsswitch.conf and specified:
+
+    hosts:          files dns mdns
+
+However, due to bug#351990, this is no longer the case. /etc/nsswitch.conf
+is now generated post-installation. Upon installation of nss-mdns, if the
+strings 'mdns', 'mdns_minimal', 'mdns4', 'mdns4_minimal', 'mdns6' or
+'mdns6_minimal' appear on the hosts line, your /etc/nsswitch.conf file
+will not be updated, otherwise it will updated to match the upstream
+recommended configuration which usually looks like:
+
+    hosts:          files mdns4_minimal [NOTFOUND=return] dns
+
+
+Other possible configurations
+-----------------------------
+
+In versions older than 0.10-4 we used this configuration:
+
+    hosts:          files mdns4_minimal [NOTFOUND=return] dns mdns4
+
+This looks in mDNS whenever a non-link-local address does not have a PTR
+(reverse DNS) record in DNS. If the host with that address is local
+and available in mDNS, this means it becomes reverse-resolvable, but if
+the host with that address is not local, it causes a 5 second delay,
+so this is no longer enabled by default. If a local administrator wishes
+to reinstate mdns4, they can do so.
+
+
+Sites with a .local DNS zone
+----------------------------
+
+Making nss-mdns authoritative for .local breaks resolution on networks
+where .local is a real domain name.  To workaround this, avahi-daemon
+should be restarted when the DNS settings change (for example via
+resolvconf and dhclient hooks) and disable itself when a SOA for the
+.local zone is found.  This is not currently implemented at the time of
+writing, but should soon be.
+
+See also this excellent summary on the upstream website:
+    <http://avahi.org/wiki/AvahiAndUnicastDotLocal>
+

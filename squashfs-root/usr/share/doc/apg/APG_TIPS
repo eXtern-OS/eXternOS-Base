@@ -1,0 +1,119 @@
+============================================================
+=                     TIPS FOR APG                         =
+============================================================
+= This file contains some tips for APG.                    =
+=                                                          =
+= 1. If You wish to submit a tip please send an email to   =
+=    <a-del@iname.com> and if i find it useful i'll put    =
+=    Your tip in the APG_TIPS file of the next release.    =
+=    I will also put Your tip on the APG website as soon   =
+=    as it posible.                                        =
+= 2. If you wish to remove or update Your tip please send  =
+=    en email to <a-del@iname.com>. I will remove/update   =
+=    Your tip in the APG_TIPS file of the next release.    =
+=    I'll remove/update Your tip on the APG website as     =
+=    soon as it posible.                                   =
+=                                                          =
+= Adel I Mirzazhanov                                       =
+= a-del@iname.com                                          =
+============================================================
+
+######################################################
+# 1. Elimination of certain characters from the output
+#    by Barton Hodges <barton@gcmcomputers.com>
+######################################################
+I don't like to use "o"'s or "l"'s in my passwords
+because they looke like zeros and ones instead of O's
+and L's.
+
+I hacked together a little shell script to accomplish
+the elimination of certain characters from the output.
+ 
+----------[cut here]
+#!/bin/sh
+ 
+genpw () {
+   PW=$(/usr/local/bin/apg -L -m 10 -x 10 -n 1 | egrep -v [owl])
+   if [ "$PW" != "" ]; then
+      echo $PW
+      return 0;
+   else
+      return 1;
+   fi
+}
+ 
+until genpw; do : ; done
+----------[cut here]
+
+Note:
+ Since apg-2.1.0b0 you can use [-e char_string] option
+ to do the same thing.
+
+#######################################################
+# 2. APG and xinetd
+# by Tomaz Zupan <tomaz.zupan@orpo.si>
+#######################################################
+
+I use xinetd instead of inetd as per your documentation,
+so I hope you (or anyone using apgd) might find usefull
+this xinetd.conf entry. Arguments are tailored according
+to my needs, but that shouldn't be a problem for anyone
+that read man pages ... 
+
+--------> [cut here]
+# default: on
+# description: APGD is a deamon that returns randomly generated password
+service pwdgen
+{
+    port = 129
+    socket_type = stream
+    wait = no
+    only_from = localhost
+    user = pismonosa
+    server = /usr/local/sbin/apgd
+    server_args = -M ln -n 1 -m 6 -x 8 -a 1
+    instances = 1
+    log_on_failure += USERID
+    disable = no
+}
+--------> [cut here]
+
+######################################################
+# 3. APG and PHP script
+# from http://www.forth.com/rick/
+######################################################
+
+After building and installing APG, you must make it
+easily available. The simplest is as a web-page
+reference. The simplest way to do this is by a php
+script located in the root of the web server's data
+tree: 
+     
+--------> [cut here]
+<html>
+  <body>
+    <pre>
+      <?
+        $foo = `/usr/local/bin/apg -n 20`;
+        echo $foo
+      ?>
+    </pre>
+  </body>
+</html>
+--------> [cut here]
+
+######################################################
+# 4. APG v2.1.0b0 and [R,r] letters in mode string
+# by Adel I. Mirzazhanov <a-del@iname.com>
+######################################################
+Since version 2.1.0b0 You can not use symbols R,r to ask
+APG not to generate symbols (' ` | \ ? $ ") when You
+plan to use special symbol set for password generation.
+
+But You stil can get the same resault with new option
+[-e char_string] (see apg(1)). Just run APG like this:
+
+ apg -a1 -M s -e \'\`\|\?\$\"\\
+ 
+This method will work for random password generation
+only.

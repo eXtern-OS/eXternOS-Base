@@ -1,0 +1,1916 @@
+Check-Script: files
+Author: Christian Schwarz <schwarz@debian.org>
+Abbrev: fil
+Type: binary, udeb
+Needs-Info: unpacked, objdump-info, scripts, file-info
+Info: This script checks if a binary package conforms to policy
+ WRT to files and directories.
+
+Tag: package-contains-ancient-file
+Severity: serious
+Certainty: certain
+Info: Your package contains a file that claims to have been generated
+ more than 20 years ago. This is most probably an error. Your package
+ will be rejected by the Debian archive scripts if it contains a file
+ with such a timestamp.
+
+Tag: package-installs-file-to-usr-x11r6
+Severity: important
+Certainty: certain
+Info: Packages using the X Window System should not be configured to install
+ files under the /usr/X11R6/ directory. Debian has switched to the modular
+ X tree which now uses regular FHS paths and all packages should follow.
+ .
+ Programs that use GNU autoconf and automake are usually easily configured
+ at compile time to use /usr/ instead of /usr/X11R6/.  Packages that use
+ imake must build-depend on xutils-dev (&gt;= 1:1.0.2-2) for the correct
+ paths.
+Ref: policy 11.8.7
+
+Tag: config-file-reserved
+Severity: important
+Certainty: certain
+Info: This file is reserved by a specific package.  Please email the
+ maintainer of the package in question if you have questions.
+
+Tag: FSSTND-dir-in-usr
+Severity: serious
+Certainty: certain
+Info: As of policy version 3.0.0.0, Debian no longer follows the FSSTND.
+ .
+ Instead, the Filesystem Hierarchy Standard (FHS), version 2.3, is
+ used. You can find it in /usr/share/doc/debian-policy/fhs/ .
+Ref: policy 9.1.1
+
+Tag: FSSTND-dir-in-var
+Severity: serious
+Certainty: certain
+Info: As of policy version 3.0.0.0, Debian no longer follows the FSSTND.
+ .
+ Instead, the Filesystem Hierarchy Standard (FHS), version 2.3, is
+ used. You can find it in /usr/share/doc/debian-policy/fhs/ .
+Ref: policy 9.1.1
+
+Tag: package-installs-into-etc-gconf-schemas
+Severity: normal
+Certainty: certain
+Info: The package installs files into the <tt>/etc/gconf/schemas</tt>
+ directory.  No package should do this; this directory is reserved for
+ local overrides.  Instead, schemas should be installed into
+ <tt>/usr/share/gconf/schemas</tt>.
+
+Tag: package-installs-into-etc-rc.d
+Severity: serious
+Certainty: certain
+Info: The package installs files into the <tt>/etc/rc.d</tt> or
+ <tt>/etc/rc?.d</tt> which is not allowed.
+Ref: policy 9.3.3
+
+Tag: package-installs-ieee-data
+Severity: important
+Certainty: possible
+Ref: #785662
+Info: Debian package should not install ieee oui.txt or iab.txt file
+ These files are shipped in the package ieee-data and package should
+ depends on the ieee-data instead of shipping these files.
+ .
+ Package should symlinks to /usr/share/ieee-data/iab.txt or
+ /usr/share/ieee-data/oui.txt. Moreover, you should also
+ depends on ieee-data package.
+
+Tag: package-installs-apt-preferences
+Severity: serious
+Certainty: possible
+Ref: apt_preferences(5)
+Info: Debian packages should not install files under <tt>/etc/apt/preferences.d/</tt> or install an /etc/apt/preferences file.
+ This directory is under the control of the local administrator.
+ .
+ Package should not override local administrator choices.
+
+Tag: package-installs-apt-sources
+Severity: serious
+Certainty: possible
+Ref: sources.list(5)
+Info: Debian packages should not install files under <tt>/etc/apt/sources.list.d/</tt>
+ or install an /etc/apt/sources.list file.
+ This directory is under the control of the local administrator.
+ .
+ Package should not override local administrator choices.
+
+Tag: package-installs-into-etc-rc.boot
+Severity: serious
+Certainty: certain
+Info: The package installs files in the <tt>/etc/rc.boot</tt> directory,
+ which is obsolete.
+Ref: policy 9.3.4
+
+Tag: package-installs-into-obsolete-dir
+Severity: normal
+Certainty: certain
+Info: The package installs files to an obsolete directory.
+ Please use a newer path.
+
+Tag: non-standard-file-permissions-for-etc-init.d-script
+Severity: important
+Certainty: certain
+Info: Usually, scripts in the <tt>/etc/init.d</tt> directory should have
+ mode 0755.
+
+Tag: file-directly-in-usr-share
+Severity: serious
+Certainty: certain
+Info: Packages should not install files directly in <tt>/usr/share</tt>,
+ i.e., without a subdirectory.
+ .
+ You should either create a subdirectory <tt>/usr/share/...</tt> for your
+ package or place the file in <tt>/usr/share/misc</tt>.
+
+Tag: file-in-usr-local
+Severity: serious
+Certainty: certain
+Info: The package installs a file in <tt>/usr/local/...</tt> which is
+ not allowed.
+Ref: policy 9.1.2
+
+Tag: stray-directory-in-manpage-directory
+Severity: important
+Certainty: certain
+Info: This package installs a directory under <tt>/usr/share/man</tt>
+ that is not a manual section directory or locale directory.
+Ref: fhs usrsharemanmanualpages
+
+Tag: executable-manpage
+Severity: important
+Certainty: certain
+Info: Manual pages are not meant to be executed.
+
+Tag: dir-in-usr-local
+Severity: serious
+Certainty: certain
+Info: The package installs a directory in <tt>/usr/local/...</tt> which is
+ not allowed.
+ .
+ If you want to provide an empty directory in <tt>/usr/local</tt> for
+ convenience of the local system administrator, please follow the rules
+ in the policy manual (section 9.1.2), i.e., create the directories in
+ the postinst script but don't fail if this isn't possible (e.g., if
+ <tt>/usr/local</tt> is mounted read-only).
+Ref: policy 9.1.2
+
+Tag: non-standard-dir-perm
+Severity: normal
+Certainty: possible
+Info: The directory has a mode different from 0755, and it's not one of the
+ known exceptions.
+Ref: policy 10.9
+
+Tag: executable-is-not-world-readable
+Severity: normal
+Certainty: certain
+Info: All executables should be readable by any user.  Since anyone can
+ download the Debian package and obtain a copy of the executable, no
+ security is gained by making the executable unreadable even for setuid
+ binaries.  If only members of a certain group may execute this file,
+ remove execute permission for world, but leave read permission.
+Ref: policy 10.9
+
+Tag: non-standard-executable-perm
+Severity: normal
+Certainty: certain
+Info: Executables that are not setuid or setgid should always have a mode
+ of 0755.  Since anyone can obtain the executable by downloading the
+ Debian package and extracting it, restricting access serves little
+ purpose.
+Ref: policy 10.9
+
+Tag: non-standard-game-executable-perm
+Severity: normal
+Certainty: certain
+Info: The file is owned by the games group but is not mode 2755.  If a
+ game does not have to be setgid games, it should be owned by the root
+ group like any other executable.  This executable is either owned by the
+ wrong group or is not setgid when it should be.
+Ref: policy 11.11
+
+Tag: non-standard-setuid-executable-perm
+Severity: normal
+Certainty: certain
+Info: The file is setuid or setgid and has a mode different from any of
+ 2755, 4755, 4754, or 6755.  Any other permissions on setuid executables
+ is probably a bug.  In particular, removing root write privileges serves
+ no purpose, group-writable setuid or setgid executables are probably bad
+ ideas, and setgid executables that are not world-executable serve little
+ purpose.
+Ref: policy 10.9
+
+Tag: setuid-binary
+Severity: normal
+Certainty: possible
+Info: The file is tagged SETUID. In some cases this is intentional, but in
+ other cases this is a bug. If this is intentional, please add a Lintian
+ override to document this fact.
+
+Tag: setgid-binary
+Severity: normal
+Certainty: possible
+Info: The file is tagged SETGID. In some cases this is intentional, but in
+ other cases this is a bug. If this is intentional, please add a Lintian
+ override to document this fact.
+
+Tag: setuid-gid-binary
+Severity: normal
+Certainty: possible
+Info: The file is tagged SETUID and SETGID. In some cases this is
+ intentional, but in other cases this is a bug. If this is intentional,
+ please add a Lintian override to document this fact.
+
+Tag: non-standard-file-perm
+Severity: normal
+Certainty: certain
+Info: The file has a mode different from 0644. In some cases this is
+ intentional, but in other cases this is a bug.
+Ref: policy 10.9
+
+Tag: bad-perm-for-file-in-etc-sudoers.d
+Severity: serious
+Certainty: certain
+Info: Files in /etc/sudoers.d/ must be 0440 or sudo will refuse to
+ parse them.
+Ref: #588831, #576527
+
+Tag: special-file
+Severity: serious
+Certainty: certain
+Info: The package contains a <i>special</i> file (e.g., a device file).
+ This is forbidden by current policy. If your program needs this device,
+ you should create it by calling <tt>makedev</tt> from the postinst
+ script.
+Ref: policy 10.6
+
+Tag: compressed-symlink-with-wrong-ext
+Severity: important
+Certainty: certain
+Info: The package installs a symbolic link pointing to a compressed file,
+ but the symbolic link does not use the same file extension than the
+ referenced file. In most cases, this can produce troubles when the
+ user or a program tries to access the file through the link.
+Ref: policy 10.5
+
+Tag: symlink-has-double-slash
+Severity: minor
+Certainty: certain
+Info: This symlink contains two successive slashes (//). This is in violation
+ of policy, where it is stated that symlinks should be as short as possible
+ .
+ If you use debhelper, running dh_link after creating the package structure
+ will fix this problem for you.
+Ref: policy 10.5
+
+Tag: symlink-ends-with-slash
+Severity: minor
+Certainty: certain
+Info: This symlink ends with a slash (/). This is in violation
+ of policy, where it is stated that symlinks should be as short as possible
+ .
+ If you use debhelper, running dh_link after creating the package structure
+ will fix this problem for you.
+Ref: policy 10.5
+
+Tag: symlink-should-be-relative
+Severity: normal
+Certainty: certain
+Info: Symlinks to files which are in the same top-level directory should be
+ relative according to policy.  (In other words, a link in /usr to another
+ file in /usr should be relative, while a link in /usr to a file in /etc
+ should be absolute.)
+ .
+ If you use debhelper, running dh_link after creating the package structure
+ will fix this problem for you.
+Ref: policy 10.5
+
+Tag: symlink-should-be-absolute
+Severity: important
+Certainty: certain
+Info: Symbolic links between different top-level directories should be
+ absolute.
+ .
+ If you use debhelper, running dh_link after creating the package structure
+ will fix this problem for you.
+Ref: policy 10.5
+
+Tag: udeb-contains-documentation-file
+Severity: important
+Certainty: certain
+Info: udeb packages should not contain any documentation.
+
+Tag: executable-in-usr-share-doc
+Severity: important
+Certainty: certain
+Info: Usually, documentation files in <tt>/usr/share/doc</tt> should have mode
+ 0644.  If the executable is an example, it should go in
+ <tt>/usr/share/doc/<i>pkg</i>/examples</tt>.
+
+Tag: script-in-usr-share-doc
+Severity: wishlist
+Certainty: certain
+Info: Scripts are usually not documentation files, unless they are
+ examples, in which case they should be in the
+ <tt>/usr/share/doc/<i>pkg</i>/examples</tt> directory.
+
+Tag: symlink-has-too-many-up-segments
+Severity: serious
+Certainty: certain
+Ref: policy 10.5
+Info: The symlink references a directory beyond the root directory "/".
+
+Tag: lengthy-symlink
+Severity: important
+Certainty: certain
+Info: This link goes up, and then back down into the same subdirectory.
+ Making it shorter will improve its chances of finding the right file
+ if the user's system has lots of symlinked directories.
+ .
+ If you use debhelper, running dh_link after creating the package structure
+ will fix this problem for you.
+Ref: policy 10.5
+
+Tag: symlink-is-self-recursive
+Severity: normal
+Certainty: possible
+Info: The symbolic link is recursive to a higher directory of the symlink
+ itself. This means, that you can infinitely chdir with this symlink. This is
+ usually not okay, but sometimes wanted behaviour.
+
+Tag: symlink-contains-spurious-segments
+Severity: important
+Certainty: certain
+Info: The symbolic link has needless segments like ".." and "." in the
+ middle.  These are unneeded and make the link longer than it could be,
+ which is in violation of policy.  They can also cause problems in the
+ presence of symlinked directories.
+ .
+ If you use debhelper, running dh_link after creating the package structure
+ will fix this problem for you.
+Ref: policy 10.5
+
+Tag: run-parts-cron-filename-contains-illegal-chars
+Severity: normal
+Certainty: certain
+Info: The script in /etc/cron.&lt;time-interval&gt; will not be executed by
+ run-parts(8) because the filename contains a "." (full stop) or "+" (plus).
+ .
+ It is recommended to use "_" (underscores) instead of these symbols.
+Ref: run-parts(8), policy 9.5.1
+
+Tag: bad-permissions-for-etc-cron.d-script
+Severity: important
+Certainty: certain
+Info: Files in <tt>/etc/cron.d</tt> are configuration files for cron and not
+ scripts. Thus, they should not be marked executable.
+
+Tag: bad-permissions-for-etc-emacs-script
+Severity: important
+Certainty: certain
+Info: Files in the <tt>/etc/emacs*</tt> directories should not be marked
+ executable.
+
+Tag: image-file-in-usr-lib
+Severity: pedantic
+Certainty: certain
+Info: This package installs a pixmap or a bitmap within <tt>/usr/lib</tt>.
+ According to the Filesystem Hierarchy Standard, architecture-independent
+ files should be placed within <tt>/usr/share</tt> instead.
+
+Tag: file-directly-in-usr-share-doc
+Severity: serious
+Certainty: certain
+Info: Documentation files have to be installed in
+ <tt>/usr/share/doc/<i>pkg</i></tt>.
+Ref: policy 12.3
+
+Tag: bad-owner-for-doc-file
+Severity: important
+Certainty: certain
+Info: Documentation files should be owned by <tt>root/root</tt>.
+
+Tag: dir-or-file-in-var-lock
+Severity: serious
+Certainty: possible
+Info: <tt>/var/lock</tt> may be a temporary filesystem, so any directories
+ or files needed there must be created dynamically at boot time.
+Ref: policy 9.3.2
+
+Tag: dir-or-file-in-var-run
+Severity: serious
+Certainty: possible
+Info: <tt>/var/run</tt> may be a temporary filesystem, so any directories
+ or files needed there must be created dynamically at boot time.
+Ref: policy 9.3.2
+
+Tag: dir-or-file-in-run
+Severity: serious
+Certainty: possible
+Info: <tt>/run</tt> may be a temporary filesystem, so any directories
+ or files needed there must be created dynamically at boot time.
+Ref: policy 9.3.2
+
+Tag: dir-or-file-in-var-www
+Severity: serious
+Certainty: possible
+Ref: fhs thevarhierarchy
+Info: Debian packages should not install files under <tt>/var/www</tt>.
+ This is not one of the <tt>/var</tt> directories in the File Hierarchy
+ Standard and is under the control of the local administrator.  Packages
+ should not assume that it is the document root for a web server; it is
+ very common for users to change the default document root and packages
+ should not assume that users will keep any particular setting.
+ .
+ Packages that want to make files available via an installed web server
+ should instead put instructions for the local administrator in a
+ README.Debian file and ideally include configuration fragments for common
+ web servers such as Apache.
+ .
+ As an exception, packages are permitted to create the <tt>/var/www</tt>
+ directory due to its past history as the default document root, but
+ should at most copy over a default file in postinst for a new install.
+ In this case, please add a Lintian override.
+
+Tag: dir-or-file-in-tmp
+Severity: serious
+Certainty: certain
+Info: Packages must not install files into <tt>/tmp</tt> or
+ <tt>/var/tmp</tt>.  The File Hierarchy Standard specifies that such files
+ may be removed by the administrator and that programs may not depend on
+ any files in <tt>/tmp</tt> being preserved across invocations, which
+ combined mean that it makes no sense to ship files in these directories.
+Ref: fhs tmptemporaryfiles, fhs vartmptemporaryfilespreservedbetwee
+
+Tag: dir-or-file-in-mnt
+Severity: serious
+Certainty: certain
+Info: Packages should not install into <tt>/mnt</tt>.  The FHS states that
+ this directory is reserved for the local system administrator for
+ temporary mounts and that it must not be used by installation programs.
+Ref: fhs mntmountpointforatemporarilymount
+
+Tag: dir-or-file-in-opt
+Severity: serious
+Certainty: certain
+Info: Debian packages should not install into <tt>/opt</tt>, because it
+ is reserved for add-on software.
+Ref: fhs optaddonapplicationsoftwarepackages
+
+Tag: dir-or-file-in-etc-opt
+Severity: serious
+Certainty: certain
+Info: Debian packages should not install into <tt>/etc/opt</tt>, because it
+ is reserved for add-on software.
+Ref: fhs optaddonapplicationsoftwarepackages
+
+Tag: dir-or-file-in-srv
+Severity: serious
+Certainty: certain
+Info: Debian packages should not install into <tt>/srv</tt>.  The
+ specification of <tt>/srv</tt> states that its structure is at the
+ discretion of the local administrator and no package should rely on any
+ particular structure.  Debian packages that install files directly into
+ <tt>/srv</tt> can't adjust for local policy about its structure and in
+ essence force a particular structure.
+ .
+ If a package wishes to put its data in <tt>/srv</tt>, it must do this in
+ a way that allows the local administrator to specify and preserve their
+ chosen directory structure (such as through post-install configuration,
+ setup scripts, debconf prompting, etc.).
+Ref: fhs srvdataforservicesprovidedbysystem
+
+Tag: third-party-package-in-python-dir
+Severity: normal
+Certainty: certain
+Info: Third-party Python packages should install their files in
+ <tt>/usr/lib/python<i>VERSION</i>/site-packages</tt> for Python versions
+ before 2.6 and <tt>/usr/lib/python<i>VERSION</i>/dist-packages</tt>
+ for Python 2.6 and later.  All other directories in
+ <tt>/usr/lib/python<i>VERSION</i></tt> are for use by the core python
+ packages.
+Ref: python-policy 2.5
+
+Tag: perl-module-in-core-directory
+Severity: important
+Certainty: certain
+Info: Packaged modules must not be installed into the core perl
+ directories as those directories change with each upstream perl
+ revision.  The vendor directories are provided for this purpose.
+Ref: perl-policy 3.1
+
+Tag: backup-file-in-package
+Severity: normal
+Certainty: certain
+Info: There is a file in the package whose name matches the format emacs
+ or vim uses for backup and autosave files.  It may have been installed by
+ accident.
+
+Tag: nfs-temporary-file-in-package
+Severity: normal
+Certainty: certain
+Info: There is a file in the package whose name matches the format NFS
+ uses to temporarily save files that were deleted while another process
+ had them open.  It may have been included in the package by accident
+ while building the package in an NFS filesystem.
+
+Tag: windows-thumbnail-database-in-package
+Severity: normal
+Certainty: certain
+Info: There is a file in the package named <tt>Thumbs.db</tt> or
+ <tt>Thumbs.db.gz</tt>, which is normally a Windows image thumbnail
+ database.  Such databases are generally useless in Debian packages and
+ were usually accidentally included by copying complete directories from
+ the source tarball.
+
+Tag: macos-ds-store-file-in-package
+Severity: normal
+Certainty: certain
+Info: There is a file in the package named <tt>.DS_Store</tt> or
+ <tt>.DS_Store.gz</tt>, the file name used by Mac OS X to store folder
+ attributes.  Such files are generally useless in Debian packages and were
+ usually accidentally included by copying complete directories from the
+ source tarball.
+
+Tag: macos-resource-fork-file-in-package
+Severity: normal
+Certainty: certain
+Info: There is a file in the package with a name starting with
+ <tt>._</tt>, the file name pattern used by Mac OS X to store resource
+ forks in non-native file systems.  Such files are generally useless in
+ Debian packages and were usually accidentally included by copying
+ complete directories from the source tarball.
+
+Tag: package-installs-perllocal-pod
+Severity: normal
+Certainty: certain
+Info: This package installs a file <tt>perllocal.pod</tt>.  Since that
+ file is intended for local documentation, it is not likely that it is
+ a good place for documentation supplied by a Debian package.  In fact,
+ installing this package will wipe out whatever local documentation
+ existed there.
+
+Tag: extra-license-file
+Severity: wishlist
+Certainty: possible
+Ref: policy 12.5
+Info: All license information should be collected in the
+ <tt>debian/copyright</tt> file.  This usually makes it unnecessary
+ for the package to install this information in other places as well.
+
+Tag: non-standard-toplevel-dir
+Severity: important
+Certainty: certain
+Info: The Filesystem Hierarchy Standard forbids the installation of new
+ files or directories in the root directory.
+Ref: fhs therootfilesystem
+
+Tag: non-multi-arch-lib-dir
+Severity: normal
+Certainty: certain
+Info: The following library use an old path (like /lib64 or /lib32)
+ instead of using multi-arch path (like for instance
+ /lib/x86_64-linux-gnu/ or /lib/i386-linux-gnu/).
+Ref: https://wiki.debian.org/Multiarch
+
+Tag: subdir-in-bin
+Severity: serious
+Certainty: certain
+Info: The Filesystem Hierarchy Standard forbids the installation of new
+ directories in <tt>/bin</tt>.
+Ref: fhs binessentialusercommandbinaries
+
+Tag: subdir-in-usr-bin
+Severity: serious
+Certainty: certain
+Info: The Filesystem Hierarchy Standard forbids the installation of new
+ directories in <tt>/usr/bin</tt> other than <tt>/usr/bin/mh</tt>.
+Ref: fhs usrbinmostusercommands
+
+Tag: non-standard-dir-in-usr
+Severity: normal
+Certainty: certain
+Info: The FHS says "No large software packages should use a direct
+ subdirectory under the <tt>/usr</tt> hierarchy".  This package contains
+ a directory in <tt>/usr</tt> that is not mentioned in the Filesystem
+ Hierarchy Standard.
+Ref: fhs theusrhierarchy
+
+Tag: non-standard-dir-in-var
+Severity: important
+Certainty: certain
+Info: The FHS says "Applications should generally not add directories to
+ the top level of <tt>/var</tt>.  Such directories should only be added
+ if they have some system-wide implication, and in consultation with the
+ FHS mailing list."
+Ref: fhs thevarhierarchy
+
+Tag: use-of-compat-symlink
+Severity: important
+Certainty: certain
+Info: This package uses a directory that, according to the Filesystem
+ Hierarchy Standard, should exist only as a compatibility symlink.
+ Packages should not traverse such symlinks when installing files, they
+ should use the standard directories instead.
+
+Tag: file-in-unusual-dir
+Severity: normal
+Certainty: certain
+Info: This file or symbolic link is in a directory where files are not
+ normally installed by Debian packages.
+
+Tag: package-installs-packlist
+Severity: important
+Certainty: certain
+Info: Packages built using the perl MakeMaker package will have a file
+ named .packlist in them.  Those files are useless, and (in some cases)
+ have the additional problem of creating an architecture-specific
+ directory name in an architecture-independent package.
+ .
+ They can be suppressed by adding the following to <tt>debian/rules</tt>:
+ .
+   find debian/<i>pkg</i> -type f -name .packlist -delete
+ .
+ or by telling MakeMaker to use vendor install dirs; consult a recent
+ version of Perl policy. Perl 5.6.0-12 or higher supports this.
+Ref: perl-policy 4.1
+
+Tag: zero-byte-file-in-doc-directory
+Severity: normal
+Certainty: possible
+Info: The documentation directory for this package contains an empty
+ file.  This is often due to installing an upstream NEWS or README file
+ without realizing it's empty and hence not useful.
+ .
+ Files in the examples subdirectory are excluded from this check, but
+ there are some cases where empty files are legitimate parts of the
+ documentation without being examples.  In those cases, please add an
+ override.
+
+Tag: override-file-in-wrong-location
+Severity: important
+Certainty: certain
+Info: Lintian overrides should be put in a regular file named
+ /usr/share/lintian/overrides/<tt>package</tt>, not in a subdirectory
+ named for the package or in the obsolete location under /usr/share/doc.
+ See the Lintian documentation for more information on proper naming and
+ format.
+Ref: lintian 2.4
+
+Tag: old-style-config-script
+Severity: pedantic
+Certainty: possible
+Info: The following file is an old style config file,
+ used to retrieve information about installed libraries in the system.
+ It is typically used to compile and link against one or more libraries.
+ .
+ Using this kind of system to pass compile file is obsolete and
+ will likely introduce bugs in a multi-arch system. Particularly,
+ this kind of script could only belong to a package that is not
+ Multi-Arch.
+ .
+ You should consider to move to pkg-config file and
+ warn your user to not use this script, and open a bug upstream.
+ .
+ You should also consider to implement this file as a compatibility
+ wrapper over pkg-config.
+ .
+ After fixing every reverse depends of your package and use
+ pkg-config reverse depends makefile, you should
+ consider to put this script, as a temporary convenience of your users,
+ under /usr/lib/$DEB_HOST_MULTIARCH/$PACKAGE/bin where
+ $DEB_HOST_MULTIARCH is the multi-arch triplet and $PACKAGE is the
+ package name. You should also consider to add a NEWS.Debian entry.
+Ref: pkg-config(1),
+     http://sources.debian.net/src/imagemagick/8:6.8.9.9-6/debian/NEWS/
+
+Tag: old-style-config-script-multiarch-path
+Severity: serious
+Certainty: possible
+Info: The following file is an old style config file, used
+ to retrieve information about installed libraries in the system.
+ It is typically used to compile and link against one or more libraries.
+ .
+ This old style config file contains a multi-arch path and the package
+ is declared Multi-arch.
+
+Tag: old-style-config-script-multiarch-path-arch-all
+Severity: serious
+Certainty: possible
+Info: The following file is an old style config file,
+ used to retrieve information about installed libraries in the system.
+ It is typically used to compile and link against one or more libraries.
+ .
+ This old style config file contains a multi-arch path and the package
+ is arch: all.
+ .
+ You should change the package to arch: any.
+
+Tag: package-contains-upstream-install-documentation
+Severity: normal
+Certainty: possible
+Ref: policy 12.3
+Info: Binary packages do not need to contain the instructions for building
+ and installing the package as this info is not needed by package users.
+ If the info contained is important for configuration perhaps it could be
+ summarized in README.Debian, otherwise an override may be added.
+
+Tag: package-contains-hardlink
+Severity: normal
+Certainty: certain
+Info: The package contains a hardlink in <tt>/etc</tt> or across different
+ directories. This might not work at all if directories are on different
+ filesystems (which can happen anytime as the system administrator sees fit),
+ certain filesystems such as AFS don't even support cross-directory hardlinks
+ at all.
+ .
+ For configuration files, certain editors might break hardlinks, and so
+ does dpkg in certain cases.
+ .
+ A better solution might be using symlinks here.
+Ref: policy 10.7.3
+
+Tag: package-contains-bts-control-dir
+Severity: normal
+Certainty: certain
+Info: The package contains a control directory for a bug tracking system.
+ It was most likely installed by accident, since bug tracking directories
+ usually don't belong in packages.
+
+Tag: package-contains-vcs-control-dir
+Severity: normal
+Certainty: certain
+Info: The package contains a control directory for a version control system.
+ It was most likely installed by accident, since version control directories
+ usually don't belong in packages.
+
+Tag: package-contains-xvpics-dir
+Severity: important
+Certainty: certain
+Info: Package contains a .xvpics directory. It was most likely installed by
+ accident, since thumbnails usually don't belong in packages.
+
+Tag: package-contains-thumbnails-dir
+Severity: important
+Certainty: certain
+Info: Package contains a .thumbnails directory. It was most likely installed by
+ accident, since thumbnails usually don't belong in packages.
+Ref: https://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-0.8.0.html
+
+Tag: package-contains-vcs-control-file
+Severity: normal
+Certainty: certain
+Info: The package contains a VCS control file such as .(cvs|git|hg)ignore.
+ Files such as these are used by revision control systems to, for example,
+ specify untracked files it should ignore or inventory files.  This file
+ is generally useless in an installed package and was probably installed
+ by accident.
+
+Tag: svn-commit-file-in-package
+Severity: normal
+Certainty: certain
+Info: The package contains an svn-commit(.NNN).tmp file.  This file is
+ almost certainly a left-over from a failed Subversion commit, and does
+ not belong in a Debian package.
+
+Tag: svk-commit-file-in-package
+Severity: normal
+Certainty: certain
+Info: The package contains an svk-commitNNN.tmp file.  This file is almost
+ certainly a left-over from a failed Subversion commit, and does not
+ belong in a Debian package.
+
+Tag: nested-examples-directory
+Severity: important
+Certainty: certain
+Info: Package contains a <tt>usr/share/doc/something/examples/examples</tt>
+ directory. It was most likely installed by accident, since one examples/
+ directory should be enough for everybody(tm).
+
+Tag: package-installs-nonbinary-perl-in-usr-lib-perl5
+Severity: normal
+Certainty: certain
+Info: Architecture-independent Perl code should be placed in
+ <tt>/usr/share/perl5</tt>, not <tt>/usr/lib/.../perl5</tt>
+ unless there is at least one architecture-dependent file
+ in the module.
+Ref: perl-policy 2.3
+
+Tag: file-in-usr-lib-site-python
+Severity: important
+Certainty: certain
+Ref: python-policy 2.5
+Info: The directory /usr/lib/site-python has been deprecated as a
+ location for installing Python modules and may be dropped from Python's
+ module search path in a future version.  Most likely this module is a
+ private module and should be packaged in a directory outside of Python's
+ default search path.
+
+Tag: python-module-in-wrong-location
+Severity: normal
+Certainty: possible
+Ref: python-policy 2.5, #576012
+Info: The package installs a Python module or debug information for a Python
+ module in the wrong location for the given version of Python.
+ .
+ dh_python3 can be used to fix this for Python 3 modules.
+
+Tag: python-debug-in-wrong-location
+Severity: normal
+Certainty: possible
+Ref: #576014
+Info: The package appears to be installing debug modules in
+ /usr/lib/debug/usr/lib/pyshared/pythonX.Y/.  However, gdb(1)
+ will not look for it there, making it less useful.  The file
+ should be installed in /usr/lib/debug/usr/lib/pymodules/pythonX.Y/
+ instead.
+
+Tag: package-installs-python-bytecode
+Severity: serious
+Certainty: certain
+Ref: python-policy 3.7
+Info: Compiled Python source files must not be included in the package.
+ These files should be removed from the package and created at package
+ installation time in the postinst.
+
+Tag: package-installs-python-egg
+Severity: serious
+Certainty: possible
+Ref: python-policy 3.7
+Info: Python eggs should not be installed, since the Debian package is
+ supposed to do the required steps for installing the Python code.
+ .
+ The egg may contain pre-compiled Python bytecode or shared libraries.
+
+Tag: package-contains-python-coverage-file
+Severity: normal
+Certainty: certain
+Info: The package contains a file that looks like output from the Python
+ coverage.py tool.  These are generated by python{,3}-coverage during a test
+ run, noting which parts of the code have been executed.  They can then be
+ subsequently analyzed to identify code that could have been executed but was
+ not.
+ .
+ As they are unlikely to be of utility to end-users, these files should not
+ be shipped in the final binary package.
+
+Tag: package-installs-python-pycache-dir
+Severity: serious
+Certainty: certain
+Ref: python-policy 3.7
+Info: The package installs a __pycache__ directory, which is normally
+ only used to store compiled Python source files. Compiled Python
+ source files must not be included in the package, instead they
+ should be generated at installation time in the postinst.
+ .
+ Note this tag is issues even if the directory is empty.
+
+Tag: bad-permissions-for-ali-file
+Severity: normal
+Certainty: certain
+Ref: policy 8.4
+Info: Ada Library Information (*.ali) files are required to be read-only
+ (mode 0444) by GNAT.
+ .
+ If at least one user can write the *.ali file, GNAT considers whether
+ or not to recompile the corresponding source file.  Such recompilation
+ would fail because normal users don't have write permission on the
+ files.  Moreover, such recompilation would defeat the purpose of
+ library packages, which provide *.a and *.so libraries to link against).
+
+Tag: package-contains-readme-for-other-platform-or-distro
+Severity: normal
+Certainty: certain
+Info: package contains a README.(platform) file that contains instructions
+ specific to a platform or distribution other than Debian and thus can
+ most likely be removed.  If it contains information that pertains to
+ Debian, please consider renaming it, or including it in an already
+ existing README file.
+
+Tag: desktop-file-in-wrong-dir
+Severity: normal
+Certainty: certain
+Info: The package contains a .desktop file in an obsolete directory.
+ According to the menu-spec draft on freedesktop.org, those .desktop files
+ that are intended to create a menu should be placed in
+ <tt>/usr/share/applications</tt>, not <tt>/usr/share/gnome/apps</tt>.
+
+Tag: script-with-language-extension
+Severity: normal
+Certainty: certain
+Info: When scripts are installed into a directory in the system PATH, the
+ script name should not include an extension such as <tt>.sh</tt> or
+ <tt>.pl</tt> that denotes the scripting language currently used to
+ implement it.  The implementation language may change; if it does,
+ leaving the name the same would be confusing and changing it would be
+ disruptive.
+Ref: policy 10.4
+
+Tag: file-in-usr-lib-sgml
+Severity: normal
+Certainty: certain
+Ref: fhs theusrhierarchy
+Info: This package installs a file in <tt>/usr/lib/sgml</tt>.  This was
+ the old location for SGML catalogs and similar flies.  All those files
+ should now go into <tt>/usr/share/sgml</tt>.
+
+Tag: file-name-ends-in-whitespace
+Severity: normal
+Certainty: possible
+Info: This package installs a file or directory whose name ends in
+ whitespace.  This might be intentional but it's normally a mistake.  If
+ it is intentional, add a Lintian override.
+ .
+ One possible cause is using debhelper 5.0.57 or earlier to install a
+ doc-base file with a Document field that ends in whitespace.
+
+Tag: package-contains-empty-directory
+Severity: wishlist
+Certainty: possible
+Info: This package installs an empty directory.  This might be intentional
+ but it's normally a mistake.  If it is intentional, add a Lintian override.
+ .
+ If a package ships with or installs empty directories, you can remove them
+ in debian/rules by calling:
+ .
+  $ find path/to/base/dir -type d -empty -delete
+
+Tag: package-section-games-but-contains-no-game
+Severity: important
+Certainty: certain
+Ref: policy 11.11
+Info: This package is marked as part of the section games, but doesn't
+ contain files in <tt>/usr/games</tt>.  Binaries of games must be installed
+ in <tt>/usr/games</tt>.
+
+Tag: package-section-games-but-has-usr-bin
+Severity: normal
+Certainty: possible
+Ref: policy 11.11
+Info: This package is marked as part of the section games, but contains
+ executables in <tt>/bin</tt> or <tt>/usr/bin/</tt>.  This can be intentional,
+ but is usually a mistake.
+
+Tag: games-package-should-be-section-games
+Severity: normal
+Certainty: possible
+Info: All the executables in this package are in <tt>/usr/games</tt>, but
+ the package is not in section games.  This can be intentional but is
+ usually a mistake.
+
+Tag: package-contains-devhelp-file-without-symlink
+Severity: normal
+Certainty: certain
+Info: This package contains a *.devhelp or *.devhelp2 file which is not in
+ the devhelp search path (<tt>/usr/share/devhelp/books</tt> and
+ <tt>/usr/share/gtk-doc/html</tt>) and is apparently not in a directory
+ linked into the devhelp search path.  This will prevent devhelp from
+ finding the documentation.
+ .
+ If the devhelp documentation is installed in a path outside the devhelp
+ search path (such as <tt>/usr/share/doc</tt>), create a symlink in
+ <tt>/usr/share/gtk-doc/html</tt> pointing to the documentation directory.
+
+Tag: debug-package-should-be-named-dbg
+Severity: normal
+Certainty: certain
+Info: This package provides at least one file in <tt>/usr/lib/debug</tt>,
+ which is intended for detached debugging symbols, but the package name
+ does not end in "-dbg".  Detached debugging symbols should be put into a
+ separate package, Priority: extra, with a package name ending in "-dbg".
+Ref: devref 6.7.9
+
+Tag: package-contains-linda-override
+Severity: normal
+Certainty: certain
+Info: This package contains a linda override file in
+ <tt>/usr/share/linda/overrides</tt>.  Linda is obsolete and has been
+ removed from the archive as of 2008-03-04.  Linda overrides should
+ probably be dropped from packages.
+
+Tag: wrong-file-owner-uid-or-gid
+Severity: serious
+Certainty: certain
+Info: The user or group ID of the owner of the file is invalid. The
+ owner user and group IDs must be in the set of globally allocated
+ IDs, because other IDs are dynamically allocated and might be used
+ for varying purposes on different systems, or are reserved. The set
+ of the allowed, globally allocated IDs consists of the ranges 0-99,
+ 64000-64999 and 65534.
+ .
+ It's possible for a Policy-compliant package to trigger this tag if the
+ user is created in the preinst maintainer script, but this is a very rare
+ case and doesn't appear to be necessary.  If you found yourself needing
+ to create a package that works this way, please file a bug against
+ Lintian to let the maintainers know.
+Ref: policy 9.2
+
+Tag: embedded-javascript-library
+Severity: normal
+Certainty: possible
+Info: This package contains an embedded copy of JavaScript libraries
+ that are now available in their own packages (for example, JQuery,
+ Prototype, Mochikit or "Cropper"). Please depend on the appropriate
+ package and symlink the library into the appropriate location.
+Ref: policy 4.13
+
+Tag: privacy-breach-generic
+Severity: important
+Certainty: wild-guess
+Info: This package creates a potential privacy breach by fetching data
+ from an external website at runtime. Please remove these scripts or
+ external HTML resources.
+ .
+ Please replace any scripts, images, or other remote resources with
+ non-remote resources. It is preferable to replace them with text and
+ links but local copies of the remote resources are also acceptable as
+ long as they don't also make calls to remote services. Please ensure
+ that the remote resources are suitable for Debian main before making
+ local copies of them.
+
+Tag: privacy-breach-uses-embedded-file
+Severity: important
+Certainty: possible
+Info: This package creates a potential privacy breach by fetching data
+ from an external website at runtime. Please remove these scripts or
+ external HTML resources.
+ .
+ Instead you can use the Debian package indicated in the hint, if it is
+ compatible.
+
+Tag: privacy-breach-google-adsense
+Severity: serious
+Certainty: possible
+Info: This package creates a privacy breach by using Google AdSense.
+ Google AdSense is a service run by Google that allows publishers
+ of websites to automatically serve advertisements. Unfortunately, it
+ requires tracking and breaching the privacy of web users.
+ .
+ This tag can also indicate the use of the related obsolete privacy
+ breaching software, Urchin WebAnalytics.
+ .
+ Note that using Google AdSense in a local copy of a page is a violation of
+ the Google AdSense terms of use. This violation renders this package not
+ distributable in Debian, and is thus a serious bug.
+ .
+ Please replace any scripts, images or other remote resources with
+ non-remote resources. It is preferable to replace them with text and
+ links but local copies of the remote resources are also acceptable as
+ long as they don't also make calls to remote services. Please ensure
+ that the remote resources are suitable for Debian main before making
+ local copies of them.
+
+Tag: privacy-breach-donation
+Severity: serious
+Certainty: possible
+Ref: https://wiki.debian.org/UpstreamMetadata
+Info: This package create a potential privacy breach by fetching data
+ from a donation website at runtime.
+ .
+ Please remove this privacy problem and add a note to the
+ debian/upstream/metadata file using the donation field.
+ .
+ Please replace any scripts, images, or other remote resources with
+ non-remote resources. It is preferable to replace them with text and
+ links but local copies of the remote resources are also acceptable as
+ long as they don't also make calls to remote services. Please ensure
+ that the remote resources are suitable for Debian main before making
+ local copies of them.
+
+Tag: privacy-breach-logo
+Severity: serious
+Certainty: possible
+Info: This package creates a potential privacy breach by fetching a
+ logo at runtime.
+ .
+ Before using a local copy you should check that the logo is suitable
+ for main. You can get help with determining this by posting a link to
+ the logo and a copy of, or a link to, the logo copyright and license
+ information to the debian-legal mailing list.
+ .
+ Please replace any scripts, images, or other remote resources with
+ non-remote resources. It is preferable to replace them with text and
+ links but local copies of the remote resources are also acceptable as
+ long as they don't also make calls to remote services. Please ensure
+ that the remote resources are suitable for Debian main before making
+ local copies of them.
+
+Tag: privacy-breach-facebook
+Severity: serious
+Certainty: possible
+Info:  This package creates a privacy breach by exchanging data with
+ Facebook at runtime via plugins such as "Share" or "Like" buttons.
+ .
+ Please replace any scripts, images, or other remote resources with
+ non-remote resources. It is preferable to replace them with text and
+ links but local copies of the remote resources are also acceptable as
+ long as they don't also make calls to remote services. Please ensure
+ that the remote resources are suitable for Debian main before making
+ local copies of them.
+
+Tag: privacy-breach-google-plus
+Severity: serious
+Certainty: possible
+Info: This package creates a potential privacy breach by
+ exchanging data with Google+ at runtime via plugins such
+ as "+1" buttons.
+ .
+ Please replace any scripts, images, or other remote resources with
+ non-remote resources. It is preferable to replace them with text and
+ links but local copies of the remote resources are also acceptable as
+ long as they don't also make calls to remote services. Please ensure
+ that the remote resources are suitable for Debian main before making
+ local copies of them.
+
+Tag: privacy-breach-google-cse
+Severity: serious
+Certainty: possible
+Info: This package creates a potential privacy breach by fetching
+ data from Google at runtime, and may feed private data to Google via
+ Custom Search Engine queries.
+ .
+ Please replace any scripts, images, or other remote resources with
+ non-remote resources. It is preferable to replace them with text and
+ links but local copies of the remote resources are also acceptable as
+ long as they don't also make calls to remote services. Please ensure
+ that the remote resources are suitable for Debian main before making
+ local copies of them.
+
+Tag: privacy-breach-twitter
+Severity: serious
+Certainty: possible
+Info: This package creates a potential privacy breach by
+ exchanging data with Twitter at runtime via plugins.
+ .
+ Please replace any scripts, images, or other remote resources with
+ non-remote resources. It is preferable to replace them with text and
+ links but local copies of the remote resources are also acceptable as
+ long as they don't also make calls to remote services. Please ensure
+ that the remote resources are suitable for Debian main before making
+ local copies of them.
+
+Tag: privacy-breach-piwik
+Severity: serious
+Certainty: possible
+Info: This package creates a privacy breach by using an online
+ Piwik module.
+ .
+ Piwik is a free and open source web analytics application, designed to
+ allow publishers of websites to track visitors.
+ .
+ Even though Piwik is free and respects the "Do Not Track" browser
+ option, it is nevertheless breaches the privacy of local users
+ by fetching data from internet.
+ .
+ Please replace any scripts, images, or other remote resources with
+ non-remote resources. It is preferable to replace them with text and
+ links but local copies of the remote resources are also acceptable as
+ long as they don't also make calls to remote services. Please ensure
+ that the remote resources are suitable for Debian main before making
+ local copies of them.
+
+Tag: privacy-breach-statistics-website
+Severity: serious
+Certainty: possible
+Info: This package creates a privacy breach by fetching data from
+ an external website in order to compile visitor statistics.
+ .
+ Please ask upstream to use the free software web analytics engine
+ Piwik, which respects the "Do Not Track" browser option.
+ .
+ This tag covers the following websites:
+ * cruel-carlota.pagodabox.com
+ * linkexchange.com (defunct)
+ * nedstatbasic.net
+ * onestat.com
+ * statcounter.com
+ * sitemeter.com
+ * webstats.motigo.com
+ .
+ Please replace any scripts, images, or other remote resources with
+ non-remote resources. It is preferable to replace them with text and
+ links but local copies of the remote resources are also acceptable as
+ long as they don't also make calls to remote services. Please ensure
+ that the remote resources are suitable for Debian main before making
+ local copies of them.
+
+Tag: privacy-breach-w3c-valid-html
+Severity: serious
+Certainty: possible
+Ref: http://validator.w3.org/docs/help.html#icon,
+     http://www.w3.org/Consortium/Legal/logo-usage-20000308
+Info: This package creates a potential privacy breach by fetching W3C
+ validation icons.
+ .
+ These badges may be displayed to tell readers that care has been
+ taken to make a page compliant with W3C standards.  Unfortunately,
+ downloading the image from www.w3.org might expose the reader's IP
+ address to potential tracking.
+ .
+ Note that these icons are non-free and must not be copied into the
+ package. You could safely delete this W3C validation badge.
+
+Tag: node-package-install-in-nodejs-rootdir
+Severity: important
+Certainty: certain
+Info: This package contains a file under /usr/lib/nodejs
+ instead of /usr/lib/nodejs/${package}.
+
+Tag: embedded-feedparser-library
+Severity: normal
+Certainty: certain
+Info: This package contains an embedded copy of Mark Pilgrim's Universal
+ Feed Parser.  Please depend on the "python-feedparser" package and use
+ the normal Python import mechanism to load it.
+Ref: policy 4.13
+
+Tag: embedded-pear-module
+Severity: normal
+Certainty: possible
+Experimental: yes
+Info: This package appears to contain an embedded copy of a PEAR module.
+ Please depend on the respective PEAR package providing the module and
+ make sure the library can be found by the scripts via the include_path.
+Ref: policy 4.13
+
+Tag: embedded-php-library
+Severity: normal
+Certainty: possible
+Info: This package appears to contain an embedded copy of a PHP library.
+ Please depend on the respective package providing the library and
+ make sure it can be found by the scripts via the include_path.
+Ref: policy 4.13
+
+Tag: windows-devel-file-in-package
+Severity: normal
+Certainty: possible
+Info: This package appears to contain development files only meaningful to
+ Windows environments.  Such files are generally useless in Debian packages and
+ were usually accidentally included by copying complete directories from the
+ source tarball.
+
+Tag: font-in-non-font-package
+Severity: wishlist
+Certainty: possible
+Info: This package contains a *.ttf, *.otf, or *.pfb file, file
+ extensions used by TrueType, OpenType, or Type 1 fonts, but the package
+ does not appear to be a dedicated font package.  Dedicated font package
+ names should begin with <tt>fonts-</tt>.  (Type 1 fonts are also allowed
+ in packages starting with <tt>xfonts-</tt>.)  If the font is already
+ packaged, you should depend on that package instead.  Otherwise, normally
+ the font should be packaged separately, since fonts are usually useful
+ outside of the package that embeds them.
+
+Tag: license-problem-font-adobe-copyrighted-fragment
+Severity: serious
+Certainty: possible
+Info: This type 1 font file includes some postscript fragment with a
+ non-free license of Adobe.  In order to check if this tag is genuine
+ please follow the procedure described in the reference.
+ .
+ Should this be a false-positive, please override the tag.
+Ref: https://wiki.debian.org/qa.debian.org/type1nondfsg
+
+Tag: license-problem-font-adobe-copyrighted-fragment-no-credit
+Severity: serious
+Certainty: possible
+Info: This type 1 font file includes some postscript fragment with a
+ non-free license of Adobe.  In order to check if this tag is genuine
+ please follow the procedure described in the reference.
+ .
+ Moreover the fragment was likely verbatim copied from black
+ book without any credit to Adobe.
+ .
+ Should this be a false-positive, please override the tag.
+Ref: https://wiki.debian.org/qa.debian.org/type1nondfsg
+
+Tag: duplicate-font-file
+Severity: normal
+Certainty: possible
+Info: This package appears to include a font file that is already provided
+ by another package in Debian.  Ideally it should instead depend on the
+ relevant font package.  If the application in this package loads the font
+ file by name, you may need to include a symlink pointing to the file name
+ of the font in its Debian package.
+ .
+ Sometimes the font package containing the font is huge and you only need
+ one font.  In that case, you have a few options: modify the package (in
+ conjunction with upstream) to use libfontconfig to find the font that you
+ prefer but fall back on whatever installed font is available, ask that
+ the font package be split apart into packages of a more reasonable size,
+ or add an override and be aware of the duplication when new versions of
+ the font are released.
+
+Tag: icon-size-and-directory-name-mismatch
+Severity: normal
+Certainty: certain
+Info: The icon has a size that differs from the size specified by the name
+ of the directory under which it was installed.  The icon was probably
+ mistakenly installed into the wrong directory.
+
+Tag: raster-image-in-scalable-directory
+Severity: normal
+Certainty: certain
+Info: The given raster image was installed into a "scalable" icon directory.
+ Only vector graphics (e.g. SVG) should be installed into those directories.
+
+Tag: gz-file-not-gzip
+Severity: normal
+Certainty: possible
+Info: The given file ends with <tt>.gz</tt>, which normally indicates it
+ is compressed with gzip.  However, it doesn't seem to be a
+ gzip-compressed file.  gzip will fail with an error on such files.
+ Normally this indicates a mistake in the installation process of the
+ package.
+
+Tag: non-free-flash
+Severity: serious
+Certainty: possible
+Info: The given Flash file has a filename which suggests that it may be
+ one of a number of known Flash files with non-free content.
+
+Tag: non-conf-file-in-modprobe.d
+Severity: important
+Certainty: certain
+Ref: https://lists.debian.org/debian-devel/2009/03/msg00119.html
+Info: Files in <tt>/etc/modprobe.d</tt> should use filenames ending in
+ <tt>.conf</tt>.  modprobe silently ignores all files which do not match
+ this convention.
+ .
+ If the file is an example containing only comments, consider installing
+ it in another location as files in <tt>/etc/modprobe.d</tt> are
+ read each time modprobe is run (which is often at boot time).
+
+Tag: file-in-discouraged-x11-font-directory
+Severity: minor
+Certainty: certain
+Ref: policy 11.8.5
+Info: For historical reasons, use of <tt>PEX</tt>, <tt>CID</tt>,
+ <tt>Speedo</tt>, and <tt>cyrillic</tt> subdirectories of
+ <tt>/usr/share/fonts/X11</tt> are permitted, but installation of files
+ into these directories is discouraged.  Support for the first three font
+ types is deprecated or no longer available, and Cyrillic fonts should use
+ the normal font directories where possible.
+
+Tag: file-in-unknown-x11-font-directory
+Severity: serious
+Certainty: certain
+Ref: policy 11.8.5
+Info: Subdirectories of <tt>/usr/share/fonts/X11</tt> other than
+ <tt>100dpi</tt>, <tt>75dpi</tt>, <tt>misc</tt>, <tt>Type1</tt>, and some
+ historic exceptions must be neither created nor used.  (The directories
+ <tt>encodings</tt> and <tt>util</tt>, used by some X Window System
+ packages, are also permitted by Lintian.)
+
+Tag: package-contains-multiple-dpi-fonts
+Severity: normal
+Certainty: certain
+Ref: policy 11.8.5
+Info: This package contains both 100dpi and 75dpi bitmapped fonts.  Both
+ versions should not be included in a single package.  If both resolutions
+ are available, they should be provided in separate binary packages with
+ <tt>-75dpi</tt> or <tt>-100dpi</tt> appended to the package name for the
+ corresponding fonts.
+
+Tag: package-mixes-misc-and-dpi-fonts
+Severity: normal
+Certainty: certain
+Ref: policy 11.8.5
+Info: This package contains both bitmapped fonts for a specific DPI
+ (100dpi or 75dpi) and misc bitmapped fonts.  These should not be combined
+ in the same package.  Instead, the misc bitmapped fonts should be
+ provided in a separate package with <tt>-misc</tt> appended to its name.
+
+Tag: package-contains-info-dir-file
+Severity: serious
+Certainty: certain
+Info: This package contains a file named <tt>dir</tt> or <tt>dir.old</tt>,
+ possibly compressed, in <tt>/usr/share/info</tt>.  This is the directory
+ (or backup) of info pages and is generated automatically by install-info
+ when a package containing info documentation is installed.  Some upstream
+ build systems create it automatically, but it must not be included in a
+ package since it needs to be generated dynamically based on the installed
+ info files on the system.
+
+Tag: package-contains-mime-cache-file
+Severity: serious
+Certainty: certain
+Info: This package contains a cache file generated automatically by
+ update-mime-database when a package containing MIME-Info Database
+ files is installed.  Some upstream build systems create them
+ automatically, but they must not be included in a package since they need
+ to be generated dynamically based on the installed MIME-Info Database
+ files on the system.
+
+Tag: package-contains-mimeinfo.cache-file
+Severity: serious
+Certainty: certain
+Info: This package contains a file named <tt>mimeinfo.cache</tt>,
+ possibly compressed, in <tt>/usr/share/applications</tt>.  This file is
+ generated automatically by update-desktop-database when a package
+ containing <tt>.desktop</tt> files associated to MIME types is installed.
+ Some upstream build systems create it automatically, but it must not be
+ included in a package since it needs to be generated dynamically based on
+ the installed .desktop files on the system.
+
+Tag: package-contains-mime-file-outside-package-dir
+Severity: important
+Certainty: certain
+Ref: #761649,  /usr/share/doc/shared-mime-info/
+Info: This package contains a file in a path reserved solely for
+ mime cache file.
+ .
+ /usr/share/mime/ files are cache generated from
+ /usr/share/mime/packages/. Thus file under /usr/share/mime/
+ should not be installed
+
+Tag: package-contains-cmake-private-file
+Severity: important
+Certainty: certain
+Ref: https://wiki.debian.org/CMake, https://cmake.org/cmake/help/v3.10/manual/cmake-packages.7.html#config-file-packages
+Info: This package contains a file in a path reserved solely for
+ <tt>CMake</tt>. This normally means you are shipping a <tt>Find</tt>
+ module. Libraries should not ship Find modules at all but Config files
+ instead.
+ .
+ The Config files should be installed in the unversioned path
+ usr/(lib/&lt;arch&gt;|lib|share)/cmake/&lt;name&gt;*/
+ .
+ By using CMake Config files in the unversioned path, the package will
+ continue to work as expected when a new version of CMake is uploaded.
+
+Tag: package-modifies-ld.so-search-path
+Severity: important
+Certainty: possible
+Ref: policy 10.2
+Info: This package installs a file in <tt>/etc/ld.so.conf.d</tt>,
+ presumably to modify the search path of the run-time linker, and does not
+ appear to be part of libc.
+ .
+ Packages containing shared libraries should either install them into
+ <tt>/usr/lib</tt> or should require binaries built against them to set
+ RPATH to find the library at run-time.  Installing libraries in a
+ different directory and modifying the run-time linker path is equivalent
+ to installing them into <tt>/usr/lib</tt> except now conflicting library
+ packages may cause random segfaults and difficult-to-debug problems
+ instead of conflicts in the package manager.
+
+Tag: global-data-in-games-directory
+Severity: important
+Certainty: certain
+Info: This package contains files under <tt>/usr/share/games</tt>, such as
+ desktop files, icons, pixmaps, or MIME type entries, that are global
+ system data.  The user's desktop environment will only check in the
+ directories directly under <tt>/usr/share</tt> and this information
+ should be put in the global directory even if it is for games.
+ .
+ The most common cause of this problem is using a
+ <tt>--datadir=/usr/share/games</tt> argument to configure or an
+ equivalent and using the upstream installation rules.  These files need
+ to be moved into the corresponding directories directly under
+ <tt>/usr/share</tt>.
+
+Tag: duplicated-compressed-file
+Severity: minor
+Certainty: possible
+Info: The given, apparently compressed, file is shipped in the package
+ in addition to another file with the same name without the
+ compression-method extension.  Normally this indicates a mistake in the
+ installation process of the package.
+
+Tag: udev-rule-in-etc
+Severity: important
+Certainty: certain
+Ref: #559208
+Info: This package ships a udev rule and installs it under
+ <tt>/etc/udev/rules.d</tt>, which is reserved for user-installed files.
+ The correct directory for system rules is <tt>/lib/udev/rules.d</tt>.
+
+Tag: obsolete-comments-style-in-php-ini
+Severity: normal
+Certainty: certain
+Info: This package ships a <tt>.ini</tt> file used to configure php but
+ it has comments using the old-style comment separator <tt>#</tt>.
+ Instead, the <tt>;</tt> separator should be used.
+ .
+ Since version 5.3, the PHP interpreter warns about the use of the
+ old style of comment separator.
+
+Tag: triplet-dir-and-architecture-mismatch
+Severity: serious
+Certainty: possible
+Ref: policy 9.1.1
+Info: This package contains a directory under <tt>/lib</tt> or
+ <tt>/usr/lib</tt> which doesn't match the proper triplet for the
+ binary package's architecture.  This is very likely to be a mistake
+ when indicating the underlying build system where the files should be
+ installed.
+
+Tag: empty-binary-package
+Severity: important
+Certainty: wild-guess
+Info: This binary package appears to be empty, and its description does
+ not say that it's a metapackage or a transitional package.  This is
+ often due to problems with updating debhelper *.install files during
+ package renames or similar problems where installation rules don't put
+ files in the correct place.
+ .
+ If the package is deliberately empty, please mention in the package long
+ description one of the phrases "metapackage", "dummy", "dependency
+ package", or "empty package".
+ .
+ Previously, Lintian also accepted the use of "virtual package".  This
+ was removed to avoid overloading the term.  If you have been relying on
+ the phrase "virtual package" to avoid this warning, please replace it
+ with one of the others.
+
+Tag: empty-udeb-package
+Severity: minor
+Certainty: wild-guess
+Experimental: yes
+Info: This udeb package appears to be empty, and its description does
+ not say that it's a metapackage or a package.  This is often due to
+ problems with updating debhelper *.install files during package
+ renames or similar problems where installation rules don't put files
+ in the correct place.
+ .
+ If the package is deliberately empty, you can avoid this tag by
+ using one of the following phrases "metapackage", "dummy", "dependency
+ package", or "empty package" in the long description of the udeb.
+
+Tag: star-file
+Severity: important
+Certainty: possible
+Info: The given file is literally installed as <tt>*</tt> (star
+ symbol).  Normally this indicates a mistake in the installation
+ process of the package either when creating symlinks or renaming files.
+
+Tag: hyphen-file
+Severity: important
+Certainty: possible
+Info: The given file is literally installed as <tt>-</tt> (hyphen
+ symbol).  Normally this indicates a mistake in the package when
+ attempting to write to standard output.
+Ref: #882638
+
+Tag: incorrect-locale-code
+Severity: normal
+Certainty: possible
+Info: The package appears to ship locales for a language but uses an
+ incorrect locale code as a subdirectory of <tt>/usr/share/locale</tt>.
+ This usually results in users of the intended target language not
+ finding the locale.  The language codes used in the locale directories
+ are those from the ISO 639-1 and ISO 639-2 standards, not those
+ usually used as TLDs (which are from the ISO 3166 standard).
+ .
+ When both standards define a language code for a given language, the
+ ISO 639-1 code should be used (i.e. the two lettered code).
+ .
+ Lintian only knows about some commonly-mistaken set of incorrect
+ locale codes.
+
+Tag: unknown-locale-code
+Severity: normal
+Certainty: certain
+Ref: http://www.loc.gov/standards/iso639-2/php/code_list.php
+Info: The package appears to ship locales for a language but uses an
+ unknown locale code as a subdirectory of <tt>/usr/share/locale</tt>.
+ This usually results in users of the intended target language not
+ finding the locale.  The language codes used in the locale directories
+ are those from the ISO 639-1 and ISO 639-2 standards, not those
+ usually used as TLDs (which are from the ISO 3166 standard).
+ .
+ It is possible that the language code was mistyped or incorrectly
+ guessed from the language's or country's name.
+
+Tag: file-should-not-be-compressed
+Severity: normal
+Certainty: possible
+Info: The following file should not be compressed.
+ .
+ This file should be excluded from compression during build time.
+ If using debhelper (&lt;&lt; 9.20140227), you may need to use the -X
+ option to dh_compress. Newer versions of debhelper handle this
+ correctly by default.
+
+Tag: useless-autogenerated-doxygen-file
+Severity: minor
+Certainty: possible
+Info: The package appears to ship files
+ from doxygen generated documentation used only
+ for internal purpose of doxygen.
+ .
+ These files are only needed to speed up the
+ regeneration of the output when this is done
+ in an incremental fashion (i.e. without first deleting
+ all output files), and are not needed for
+ reading the documentation.
+
+Tag: package-contains-no-arch-dependent-files
+Severity: minor
+Certainty: possible
+Experimental: yes
+Info: The package is not marked architecture all, but all the files it
+ ships are installed in /usr/share.
+ .
+ Most likely this package should be marked architecture all, but there
+ is a chance that the package is missing files.
+Ref: policy 5.6.8
+
+Tag: vim-addon-within-vim-runtime-path
+Severity: normal
+Certainty: certain
+Info: Vim addons should not be installed directly under a directory contained
+ in the Vim runtime path.  Users shall be given the freedom to choose which
+ addons they want to have enabled and which they don't.
+Ref: vim-policy 3.1
+
+Tag: perl-module-uses-perl4-libs-without-dep
+Severity: normal
+Certainty: possible
+Info: This package includes perl modules using obsoleted perl 4-era
+ libraries.  These libraries have been deprecated in perl in 5.14, and
+ are likely to be removed from the core in perl 5.16.  Please either
+ remove references to these libraries, or add a dependency on
+ <tt>libperl4-corelibs-perl | perl (&lt;&lt; 5.12.3-7)</tt> to this package.
+
+Tag: gzip-file-is-not-multi-arch-same-safe
+Severity: important
+Certainty: certain
+Info: The gzip file contains a timestamp that will differ between
+ architectures.  Multi-Arch: same implies all shared files must be
+ byte-for-byte identical.
+ .
+ This can usually be fixed by passing -n to gzip.
+
+Tag: pkg-config-multi-arch-wrong-dir
+Severity: important
+Certainty: possible
+Info: The arch all pkg-config file contains a reference to a multi-arch path.
+ .
+ This can be usually be fixed by moving this file to a multi-arch path.
+ .
+ Another likely cause is using debhelper 9 or newer (thus enabling
+ multi-arch paths by default) on a package without multi-arch support.
+ The usual cure in this case is to update it for multi-arch.
+ .
+ Last but not least, this file could contain a reference to a cross
+ architecture (like for instance an x86_64-linux-gnu pkg-config file
+ referencing an i386-linux-gnu file). In this case the usual cure is to
+ fix this path.
+
+Tag: pkg-config-bad-directive
+Severity: serious
+Certainty: possible
+Info: The pkg-config file contains a wrong directive.
+ .
+ The following file includes a wrong directive. This could lead to
+ FTBFS or leak private compile flags to another package.
+
+Tag: dir-or-file-in-home
+Severity: serious
+Certainty: certain
+Info: Debian packages should not install into <tt>/home</tt>, because it
+ is reserved for users.
+
+Tag: dir-or-file-in-build-tree
+Severity: serious
+Certainty: possible
+Info: The package installs a file in common build paths.
+ .
+ This often occurs if the package uses regular expressions to
+ strip the build path without properly regex quoting the build
+ path.
+
+Tag: file-name-is-not-valid-UTF-8
+Severity: serious
+Certainty: certain
+Ref: policy 10.10
+Info: The file name does not appear to be valid UTF-8.
+ .
+ Note that Lintian may be unable to display the filename accurately.
+ Unprintable characters may have been replaced.
+
+Tag: file-name-in-PATH-is-not-ASCII
+Severity: serious
+Certainty: certain
+Ref: policy 10.10
+Info: The given file is in PATH but consists of non-ASCII characters.
+ .
+ Note that Lintian may be unable to display the filename accurately.
+ Unprintable characters may have been replaced.
+
+Tag: file-name-contains-wildcard-character
+Severity: normal
+Certainty: possible
+Info: The file name contains shell wildcard characters.
+ .
+ These are most likely unexpanded wildcard characters from (for example)
+ <tt>debian/*.install</tt> files, or it may have been installed by accident.
+
+Tag: incorrect-naming-of-pkcs11-module
+Severity: important
+Certainty: certain
+Info: This package ships a PKCS#11 module configuration file under
+ <tt>/usr/share/p11-kit/modules</tt>, but its naming doesn't conform
+ to what <tt>p11-kit</tt> expects.  Files in that directory should
+ respect the following convention, case insensitive:
+  [a-z0-9][a-z0-9_.-]*.module
+ .
+ p11-kit currently warns on every file that does not follow the
+ convention and may ignore them in the future.
+
+Tag: package-contains-timestamped-gzip
+Severity: normal
+Certainty: certain
+Info: The package contains a gzip-compressed file that has timestamps.
+ Such files make the packages unreproducible, because their
+ contents depend on the time when the package was built.
+ .
+ Please consider passing the "-n" flag to gzip to avoid this.
+Ref: https://wiki.debian.org/ReproducibleBuilds
+
+Tag: missing-intermediate-directory
+Severity: normal
+Certainty: certain
+Info: The package contains files in the listed directory, but does
+ not contain the actual directory itself.  Some tools do not cope
+ very well with this case. Notably Lintian prior to 2.5.32 would
+ crash on such packages.
+
+Tag: multiarch-foreign-shared-library
+Severity: important
+Certainty: possible
+Info: The package is architecture-dependent, ships a shared library in
+ a public library search path and is marked <tt>Multi-Arch:
+ foreign</tt>. Typically, shared libraries are marked <tt>Multi-Arch:
+ same</tt> when possible. Sometimes, private shared libraries are put
+ into the public library search path to accommodate programs in the
+ same package, but this package does not contain any programs.
+ .
+ Please remove the <tt>Multi-Arch: foreign</tt> stanza.
+
+Tag: package-installs-deprecated-upstart-configuration
+Severity: normal
+Certainty: certain
+Info: The package installs files into the <tt>/etc/init</tt>
+ directory which is used by Upstart, a replacement for the <tt>/sbin/init</tt>
+ daemon which handles starting of tasks and services during boot, etc.
+ .
+ However, Upstart was removed in Debian "stretch" and these files are thus no
+ longer useful and should be removed.
+
+Tag: override-file-in-wrong-package
+Severity: important
+Certainty: certain
+Info: This package includes Lintian overrides intended for another package.
+ Lintian overrides should be put in a regular file named
+ /usr/share/lintian/overrides/<tt>package</tt>
+Ref: lintian 2.4
+
+Tag: package-installs-java-bytecode
+Severity: normal
+Certainty: certain
+Ref: java-policy 2
+Info: Compiled Java source files must not be included in the package. These
+ files should be removed from the package or included in <tt>.jar</tt> archives.
+
+Tag: python-module-has-overly-generic-name
+Severity: important
+Certainty: certain
+Info: This package installs a Python module with an overly generic name to
+ a global namespace.
+
+Tag: multiarch-foreign-cmake-file
+Severity: important
+Certainty: certain
+Info: The package is architecture-dependent, ships a cmake file in a public,
+ architecture-dependent cmake search path and is marked <tt>Multi-Arch:
+ foreign</tt>. CMake will be unable to find this file, unless it is installed
+ for a matching architecture, but the <tt>foreign</tt> marking says that the
+ architecture should not matter.
+ .
+ Please remove the <tt>Multi-Arch: foreign</tt> stanza.
+
+Tag: multiarch-foreign-pkgconfig
+Severity: important
+Certainty: certain
+Info: The package is architecture-dependent, ships a pkg-config file in a
+ public, architecture-dependent pkg-config search path and is marked
+ <tt>Multi-Arch: foreign</tt>. pkg-config will be unable to find this file,
+ unless it is installed for a matching architecture, but the <tt>foreign</tt>
+ marking says that the architecture should not matter.
+ .
+ Please remove the <tt>Multi-Arch: foreign</tt> stanza.
+
+Tag: multiarch-foreign-static-library
+Severity: important
+Certainty: possible
+Info: The package is architecture-dependent, ships a static library in a
+ public, architecture-dependent library search path and is marked
+ <tt>Multi-Arch: foreign</tt>. A compiler will be unable to find this file,
+ unless it is installed for a matching architecture, but the <tt>foreign</tt>
+ marking says that the architecture should not matter.
+ .
+ Please remove the <tt>Multi-Arch: foreign</tt> stanza.
+
+Tag: package-contains-compiled-glib-schema
+Severity: serious
+Certainty: certain
+Info: This package contains a file named <tt>gschemas.compiled</tt>. This
+ file is generated automatically by triggers and it must not be shipped in
+ any package.
+Refs: #883801
+
+Tag: package-contains-compiled-font-file
+Severity: serious
+Certainty: certain
+Info: This package appears to contain a compiled font file. These files
+ should be generated automatically by triggers and it must not be shipped
+ in any package.
+
+Tag: pkg-config-unavailable-for-cross-compilation
+Severity: normal
+Certainty: certain
+Info: The specified pkg-config(1) file is installed to
+ <tt>/usr/lib/pkgconfig</tt>. As the cross-compilation wrapper of pkg-config
+ does not search this directory the file is unavailable under
+ cross-compilation.
+ .
+ Please install the file to <tt>/usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig</tt>
+ instead.
+ .
+ For projects that use GNU Autotools, a simple method is moving to a debhelper
+ compat level of 9 or higher. In the rare case that this file is architecture
+ independent it can be installed to <tt>/usr/share/pkgconfig</tt> instead.
+
+Tag: package-contains-python-doctree-file
+Severity: normal
+Certainty: certain
+Info: This package appears to contain a pickled cache of reStructuredText
+ (*.rst) documentation in a <tt>.doctree</tt> file.
+ .
+ These are not needed to display the documentation correctly and as they can
+ contain absolute build paths can affect the reproducibility of the package.
+ .
+ Either prevent the installation of the <tt>.doctree</tt> file (or parent
+ <tt>doctrees</tt> directory if there is one) or pass the <tt>-d</tt>
+ option to <tt>sphinx-build(1)</tt> to create the caches elsewhere.
+ .
+ For example:
+ .
+   override_dh_auto_build:
+           dh_auto_build
+           PYTHONPATH=. sphinx-build -bman docs/ -d debian/doctrees docs/build/html
+           PYTHONPATH=. sphinx-build -bhtml docs/ -d debian/doctrees docs/build/html
+ .
+   override_dh_auto_clean:
+           dh_auto_clean
+           rm -rf debian/doctrees
+Ref: http://sphinx-doc.org/invocation.html#cmdoption-sphinx-build-d
+
+Tag: package-contains-python-hypothesis-example
+Severity: normal
+Certainty: certain
+Info: This package appears to contain the output of running a Python
+ "Hypothesis" testsuite.
+ .
+ These are not useful in the binary package or to end-users. In addition,
+ as they contain random/non-determinstic contents, they can affect the
+ reproducibility of the package.
+ .
+ You can disable generation of these files by, for example:
+ .
+   export HYPOTHESIS_DATABASE_FILE = $(CURDIR)/debian/hypothesis
+ .
+   override_dh_auto_clean:
+           dh_auto_clean
+           rm -rf $(CURDIR)/debian/hypothesis
+
+Tag: package-contains-python-tests-in-global-namespace
+Severity: normal
+Certainty: certain
+Info: This package appears to contain Python test files such as
+ <tt>test_foo.py</tt> in the global module namespace.
+ .
+ Whilst the tests may be useful in the binary package, it is probably a
+ mistake to pollute the "top-level" namespace in this way.
+ .
+ Please install them to a subdirectory instead.
+
+Tag: package-contains-file-in-etc-skel
+Severity: serious
+Certainty: certain
+Info: This package ships the specified file under <tt>/etc/skel</tt>. Files
+ in this directory are copied into new user accounts by <tt>adduser(8)</tt>.
+ .
+ However, <tt>/etc/skel</tt> should be empty as possible as there is no
+ mechanism for ensuring files are copied into the accounts of existing
+ users when the package is installed.
+ .
+ Please remove the installation of this file, ensuring this package
+ can automatically create them or can otherwise function without them.
+Ref: policy 10.7.5

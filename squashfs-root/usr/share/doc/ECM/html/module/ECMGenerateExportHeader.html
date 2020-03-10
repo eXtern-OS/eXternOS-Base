@@ -1,0 +1,395 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ECMGenerateExportHeader &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ECMGenerateHeaders" href="ECMGenerateHeaders.html" />
+    <link rel="prev" title="ECMFindModuleHelpers" href="ECMFindModuleHelpers.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ECMGenerateHeaders.html" title="ECMGenerateHeaders"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ECMFindModuleHelpers.html" title="ECMFindModuleHelpers"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" accesskey="U">ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ecmgenerateexportheader">
+<span id="module:ECMGenerateExportHeader"></span><h1>ECMGenerateExportHeader<a class="headerlink" href="#ecmgenerateexportheader" title="Permalink to this headline">¶</a></h1>
+<p>This module provides the <code class="docutils literal"><span class="pre">ecm_generate_export_header</span></code> function for
+generating export macros for libraries with version-based control over
+visibility of and compiler warnings for deprecated API for the library user,
+as well as over excluding deprecated API and their implementation when
+building the library itself.</p>
+<p>For preparing some values useful in the context it also provides a function
+<code class="docutils literal"><span class="pre">ecm_export_header_format_version</span></code>.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_generate_export_header</span><span class="p">(</span><span class="o">&lt;</span><span class="n">library_target_name</span><span class="o">&gt;</span>
+    <span class="n">VERSION</span> <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span>
+    <span class="p">[</span><span class="n">BASE_NAME</span> <span class="o">&lt;</span><span class="n">base_name</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">GROUP_BASE_NAME</span> <span class="o">&lt;</span><span class="n">group_base_name</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">EXPORT_MACRO_NAME</span> <span class="o">&lt;</span><span class="n">export_macro_name</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">EXPORT_FILE_NAME</span> <span class="o">&lt;</span><span class="n">export_file_name</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">DEPRECATED_MACRO_NAME</span> <span class="o">&lt;</span><span class="n">deprecated_macro_name</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">NO_EXPORT_MACRO_NAME</span> <span class="o">&lt;</span><span class="n">no_export_macro_name</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">INCLUDE_GUARD_NAME</span> <span class="o">&lt;</span><span class="n">include_guard_name</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">STATIC_DEFINE</span> <span class="o">&lt;</span><span class="n">static_define</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">PREFIX_NAME</span> <span class="o">&lt;</span><span class="n">prefix_name</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">DEPRECATED_BASE_VERSION</span> <span class="o">&lt;</span><span class="n">deprecated_base_version</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">DEPRECATION_VERSIONS</span> <span class="o">&lt;</span><span class="n">deprecation_version</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">deprecation_version2</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]]</span>
+    <span class="p">[</span><span class="n">EXCLUDE_DEPRECATED_BEFORE_AND_AT</span> <span class="o">&lt;</span><span class="n">exclude_deprecated_before_and_at_version</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">NO_DEFINITION_EXPORT_TO_BUILD_INTERFACE</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">CUSTOM_CONTENT_FROM_VARIABLE</span> <span class="o">&lt;</span><span class="n">variable</span><span class="o">&gt;</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">VERSION</span></code> specifies the version of the library, given in the format
+“&lt;major&gt;.&lt;minor&gt;.&lt;patchlevel&gt;”.</p>
+<p><code class="docutils literal"><span class="pre">GROUP_BASE_NAME</span></code> specifies the name to use for the macros defining
+library group default values. If set, this will generate code supporting
+<code class="docutils literal"><span class="pre">&lt;group_base_name&gt;_NO_DEPRECATED_WARNINGS</span></code>,
+<code class="docutils literal"><span class="pre">&lt;group_base_name&gt;_DISABLE_DEPRECATED_BEFORE_AND_AT</span></code>,
+<code class="docutils literal"><span class="pre">&lt;group_base_name&gt;_DEPRECATED_WARNINGS_SINCE</span></code>  and
+<code class="docutils literal"><span class="pre">&lt;group_base_name&gt;_NO_DEPRECATED</span></code> (see below).
+If not set, the generated code will ignore any such macros.</p>
+<p><code class="docutils literal"><span class="pre">DEPRECATED_BASE_VERSION</span></code> specifies the default version before and at which
+deprecated API is disabled. The default is the value of
+“&lt;exclude_deprecated_before_and_at_version&gt;” if set, or “&lt;major&gt;.0.0”, with
+&lt;major&gt; taken from &lt;version&gt;.</p>
+<p><code class="docutils literal"><span class="pre">DEPRECATION_VERSIONS</span></code> specifies versions in “&lt;major&gt;.&lt;minor&gt;” format in
+which API was declared deprecated. Any version used with the generated
+macro <code class="docutils literal"><span class="pre">&lt;prefix_name&gt;&lt;base_name&gt;_DEPRECATED_VERSION(major,</span> <span class="pre">minor,</span> <span class="pre">text)</span></code>
+needs to be listed here, otherwise the macro will fail to work.</p>
+<p><code class="docutils literal"><span class="pre">EXCLUDE_DEPRECATED_BEFORE_AND_AT</span></code> specifies the version for which all API
+deprecated before and at should be excluded from the build completely.
+Possible values are “0” (default), “CURRENT” (which resolves to &lt;version&gt;)
+and a version string in the format “&lt;major&gt;.&lt;minor&gt;.&lt;patchlevel&gt;”.</p>
+<p><code class="docutils literal"><span class="pre">NO_DEFINITION_EXPORT_TO_BUILD_INTERFACE</span></code> specifies that the definition
+<code class="docutils literal"><span class="pre">&lt;prefix_name&gt;&lt;uppercase_base_name&gt;_DISABLE_DEPRECATED_BEFORE_AND_AT</span></code> will
+not be set in the public interface of the library inside its own build.
+The default is that it is set, to the version specified by
+<code class="docutils literal"><span class="pre">EXCLUDE_DEPRECATED_BEFORE_AND_AT</span></code>, so e.g. test and examples part of the
+project automatically build against the full API included in the build.</p>
+<p>The function <code class="docutils literal"><span class="pre">ecm_generate_export_header</span></code> defines C++ preprocessor macros
+in the generated export header, some for use in the sources of the library
+the header is generated for, other for use by projects linking agsinst the
+library.</p>
+<p>The macros for use in the library C++ sources are these, next to those also
+defined by <a class="reference external" href="https://cmake.org/cmake/help/latest/module/GenerateExportHeader.html">GenerateExportHeader</a>:</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">&lt;prefix_name&gt;&lt;uppercase_base_name&gt;_DEPRECATED_VERSION(major,</span> <span class="pre">minor,</span> <span class="pre">text)</span></code></dt>
+<dd>to use to conditionally set a
+<code class="docutils literal"><span class="pre">&lt;prefix_name&gt;&lt;uppercase_base_name&gt;_DEPRECATED</span></code> macro for a class, struct
+or function (other elements to be supported in future versions), depending
+on the visibility macro flags set (see below)</dd>
+<dt><code class="docutils literal"><span class="pre">&lt;prefix_name&gt;&lt;uppercase_base_name&gt;_ENABLE_DEPRECATED_SINCE(major,</span> <span class="pre">minor)</span></code></dt>
+<dd>evaluates to <code class="docutils literal"><span class="pre">TRUE</span></code> or <code class="docutils literal"><span class="pre">FALSE</span></code> depending on the visibility macro flags
+set (see below). To be used mainly with <code class="docutils literal"><span class="pre">#if</span></code>/<code class="docutils literal"><span class="pre">#endif</span></code> to mark sections
+of code which should be included depending on the visibility requested.</dd>
+<dt><code class="docutils literal"><span class="pre">&lt;prefix_name&gt;&lt;uppercase_base_name&gt;_BUILD_DEPRECATED_SINCE(major,</span> <span class="pre">minor)</span></code></dt>
+<dd>evaluates to <code class="docutils literal"><span class="pre">TRUE</span></code> or <code class="docutils literal"><span class="pre">FALSE</span></code> depending on the value of
+<code class="docutils literal"><span class="pre">EXCLUDE_DEPRECATED_BEFORE_AND_AT</span></code>. To be used mainly with
+<code class="docutils literal"><span class="pre">#if</span></code>/<code class="docutils literal"><span class="pre">#endif</span></code> to mark sections of two types of code: implementation
+code for deprecated API and declaration code of deprecated API which only
+may be disabled at build time of the library for BC reasons (e.g. virtual
+methods, see notes below).</dd>
+<dt><code class="docutils literal"><span class="pre">&lt;prefix_name&gt;&lt;uppercase_base_name&gt;_EXCLUDE_DEPRECATED_BEFORE_AND_AT</span></code></dt>
+<dd>holds the version used to exclude deprecated API at build time of the
+library.</dd>
+</dl>
+<p>The macros used to control visibility when building against the library are:</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">&lt;prefix_name&gt;&lt;uppercase_base_name&gt;_DISABLE_DEPRECATED_BEFORE_AND_AT</span></code></dt>
+<dd>definition to set to a value in single hex number version notation
+(<code class="docutils literal"><span class="pre">0x&lt;major&gt;&lt;minor&gt;&lt;patchlevel&gt;</span></code>).</dd>
+<dt><code class="docutils literal"><span class="pre">&lt;prefix_name&gt;&lt;uppercase_base_name&gt;_NO_DEPRECATED</span></code></dt>
+<dd>flag to define to disable all deprecated API, being a shortcut for
+settings <code class="docutils literal"><span class="pre">&lt;prefix_name&gt;&lt;uppercase_base_name&gt;_DISABLE_DEPRECATED_BEFORE_AND_AT</span></code>
+to the current version. If both are set, this flag overrules.</dd>
+<dt><code class="docutils literal"><span class="pre">&lt;prefix_name&gt;&lt;uppercase_base_name&gt;_DEPRECATED_WARNINGS_SINCE</span></code></dt>
+<dd>definition to set to a value in single hex number version notation
+(<code class="docutils literal"><span class="pre">0x&lt;major&gt;&lt;minor&gt;&lt;patchlevel&gt;</span></code>). Warnings will be only activated for
+API deprecated up to and including the version. If
+<code class="docutils literal"><span class="pre">&lt;prefix_name&gt;&lt;uppercase_base_name&gt;_DISABLE_DEPRECATED_BEFORE_AND_AT</span></code>
+is set (directly or via the group default), it will default to that
+version, resulting in no warnings. Otherwise the default is the current
+version, resulting in warnings for all deprecated API.</dd>
+<dt><code class="docutils literal"><span class="pre">&lt;prefix_name&gt;&lt;uppercase_base_name&gt;_NO_DEPRECATED_WARNINGS</span></code></dt>
+<dd>flag to define to disable all deprecation warnings, being a shortcut for
+setting <code class="docutils literal"><span class="pre">&lt;prefix_name&gt;&lt;uppercase_base_name&gt;_DEPRECATED_WARNINGS_SINCE</span></code>
+to “0”. If both are set, this flag overrules.</dd>
+</dl>
+<p>When the <code class="docutils literal"><span class="pre">GROUP_BASE_NAME</span></code> has been used, the same macros but with the
+given <code class="docutils literal"><span class="pre">&lt;group_base_name&gt;</span></code> prefix are available to define the defaults of
+these macros, if not explicitely set.</p>
+<p>Note: The tricks applied here for hiding deprecated API to the compiler
+when building against a library do not work for all deprecated API:</p>
+<ul class="simple">
+<li>virtual methods need to stay visible to the compiler to build proper
+virtual method tables for subclasses</li>
+<li>enumerators from enums cannot be simply removed, as this changes
+auto values of following enumerators, also can poke holes in enumerator
+series used as index into tables</li>
+</ul>
+<p>In such cases the API can be only “hidden” at build time of the library,
+itself, by generated hard coded macro settings, using
+<code class="docutils literal"><span class="pre">&lt;prefix_name&gt;&lt;uppercase_base_name&gt;_BUILD_DEPRECATED_SINCE(major,</span> <span class="pre">minor)</span></code>.</p>
+<p>Examples:</p>
+<p>Preparing a library “Foo” created by target “foo”, which is part of a group
+of libraries “Bar”, where some API of “Foo” got deprecated at versions
+5.0 &amp; 5.12:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">ecm_generate_export_header</span><span class="p">(</span><span class="s">foo</span>
+    <span class="s">GROUP_BASE_NAME</span> <span class="s">BAR</span>
+    <span class="s">VERSION</span> <span class="o">${</span><span class="nv">FOO_VERSION</span><span class="o">}</span>
+    <span class="s">DEPRECATION_VERSIONS</span> <span class="s">5.0</span> <span class="s">5.12</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>In the library “Foo” sources in the headers the API would be prepared like
+this, using the generated macros <code class="docutils literal"><span class="pre">FOO_ENABLE_DEPRECATED_SINCE</span></code> and
+<code class="docutils literal"><span class="pre">FOO_DEPRECATED_VERSION</span></code>:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;foo_export.h&gt;</span><span class="cp"></span>
+
+<span class="cp">#if FOO_ENABLE_DEPRECATED_SINCE(5, 0)</span>
+<span class="cm">/**</span>
+<span class="cm">  * @deprecated Since 5.0</span>
+<span class="cm">  */</span>
+<span class="n">FOO_DEPRECATED_VERSION</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;Use doFoo2()&quot;</span><span class="p">)</span>
+<span class="n">FOO_EXPORT</span> <span class="kt">void</span> <span class="n">doFoo</span><span class="p">();</span>
+<span class="cp">#endif</span>
+
+<span class="cp">#if FOO_ENABLE_DEPRECATED_SINCE(5, 12)</span>
+<span class="cm">/**</span>
+<span class="cm">  * @deprecated Since 5.12</span>
+<span class="cm">  */</span>
+<span class="n">FOO_DEPRECATED_VERSION</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="s">&quot;Use doBar2()&quot;</span><span class="p">)</span>
+<span class="n">FOO_EXPORT</span> <span class="kt">void</span> <span class="n">doBar</span><span class="p">();</span>
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+<p>Projects linking against the “Foo” library can control which part of its
+deprecated API should be hidden to the compiler by adding a definition
+using the <code class="docutils literal"><span class="pre">FOO_DISABLE_DEPRECATED_BEFORE_AND_AT</span></code> macro variable set to the
+desired value (in version hex number notation):</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">add_definitions</span><span class="p">(</span><span class="s">-DFOO_DISABLE_DEPRECATED_BEFORE_AND_AT=0x050000</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or using the macro variable of the group:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">add_definitions</span><span class="p">(</span><span class="s">-DBAR_DISABLE_DEPRECATED_BEFORE_AND_AT=0x050000</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If both are specified, <code class="docutils literal"><span class="pre">FOO_DISABLE_DEPRECATED_BEFORE_AND_AT</span></code> will take
+precedence.</p>
+<p>To build a variant of a library with some deprecated API completely left
+out from the build, not only optionally invisible to consumers, one uses the
+<code class="docutils literal"><span class="pre">EXCLUDE_DEPRECATED_BEFORE_AND_AT</span></code> parameter. This is best combined with a
+cached CMake variable.</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="p">(</span><span class="s">EXCLUDE_DEPRECATED_BEFORE_AND_AT</span> <span class="s">0</span> <span class="s">CACHE</span> <span class="s">STRING</span> <span class="s2">&quot;Control the range of deprecated API excluded from the build [default=0].&quot;</span><span class="p">)</span>
+
+<span class="nb">ecm_generate_export_header</span><span class="p">(</span><span class="s">foo</span>
+    <span class="s">VERSION</span> <span class="o">${</span><span class="nv">FOO_VERSION</span><span class="o">}</span>
+    <span class="s">EXCLUDE_DEPRECATED_BEFORE_AND_AT</span> <span class="o">${</span><span class="nv">EXCLUDE_DEPRECATED_BEFORE_AND_AT</span><span class="o">}</span>
+    <span class="s">DEPRECATION_VERSIONS</span> <span class="s">5.0</span> <span class="s">5.12</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The macros used in the headers for library consumers are reused for
+disabling the API excluded in the build of the library. For disabling the
+implementation of that API as well as for disabling deprecated API which
+only can be disabled at build time of the library for BC reasons, one
+uses the generated macro <code class="docutils literal"><span class="pre">FOO_BUILD_DEPRECATED_SINCE</span></code>, like this:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;foo_export.h&gt;</span><span class="cp"></span>
+
+<span class="k">enum</span> <span class="n">Bars</span> <span class="p">{</span>
+    <span class="n">One</span><span class="p">,</span>
+<span class="cp">#if FOO_BUILD_DEPRECATED_SINCE(5, 0)</span>
+    <span class="n">Two</span><span class="p">,</span>
+<span class="cp">#endif</span>
+    <span class="n">Three</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="cp">#if FOO_ENABLE_DEPRECATED_SINCE(5, 0)</span>
+<span class="cm">/**</span>
+<span class="cm">  * @deprecated Since 5.0</span>
+<span class="cm">  */</span>
+<span class="n">FOO_DEPRECATED_VERSION</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;Use doFoo2()&quot;</span><span class="p">)</span>
+<span class="n">FOO_EXPORT</span> <span class="kt">void</span> <span class="n">doFoo</span><span class="p">();</span>
+<span class="cp">#endif</span>
+
+<span class="cp">#if FOO_ENABLE_DEPRECATED_SINCE(5, 12)</span>
+<span class="cm">/**</span>
+<span class="cm">  * @deprecated Since 5.12</span>
+<span class="cm">  */</span>
+<span class="n">FOO_DEPRECATED_VERSION</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="s">&quot;Use doBar2()&quot;</span><span class="p">)</span>
+<span class="n">FOO_EXPORT</span> <span class="kt">void</span> <span class="n">doBar</span><span class="p">();</span>
+<span class="cp">#endif</span>
+
+<span class="k">class</span> <span class="nc">FOO_EXPORT</span> <span class="n">Foo</span> <span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="cp">#if FOO_BUILD_DEPRECATED_SINCE(5, 0)</span>
+    <span class="cm">/**</span>
+<span class="cm">      * @deprecated Since 5.0</span>
+<span class="cm">      */</span>
+    <span class="n">FOO_DEPRECATED_VERSION</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;Feature removed&quot;</span><span class="p">)</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">doWhat</span><span class="p">();</span>
+<span class="cp">#endif</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="cp">#if FOO_BUILD_DEPRECATED_SINCE(5, 0)</span>
+<span class="kt">void</span> <span class="nf">doFoo</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// [...]</span>
+<span class="p">}</span>
+<span class="cp">#endif</span>
+
+<span class="cp">#if FOO_BUILD_DEPRECATED_SINCE(5, 12)</span>
+<span class="kt">void</span> <span class="nf">doBar</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// [...]</span>
+<span class="p">}</span>
+<span class="cp">#endif</span>
+
+<span class="cp">#if FOO_BUILD_DEPRECATED_SINCE(5, 0)</span>
+<span class="kt">void</span> <span class="n">Foo</span><span class="o">::</span><span class="n">doWhat</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// [...]</span>
+<span class="p">}</span>
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+<p>So e.g. if <code class="docutils literal"><span class="pre">EXCLUDE_DEPRECATED_BEFORE_AND_AT</span></code> is set to “5.0.0”, the
+enumerator <code class="docutils literal"><span class="pre">Two</span></code> as well as the methods <code class="docutils literal"><span class="pre">::doFoo()</span></code> and <code class="docutils literal"><span class="pre">Foo::doWhat()</span></code>
+will be not available to library consumers. The methods will not have been
+compiled into the library binary, and the declarations will be hidden to the
+compiler, <code class="docutils literal"><span class="pre">FOO_DISABLE_DEPRECATED_BEFORE_AND_AT</span></code> also cannot be used to
+reactivate them.</p>
+<p>When using the <code class="docutils literal"><span class="pre">NO_DEFINITION_EXPORT_TO_BUILD_INTERFACE</span></code> and the project
+for the “Foo” library includes also tests and examples linking against the
+library and using deprecated API (like tests covering it), one better
+explicitely sets <code class="docutils literal"><span class="pre">FOO_DISABLE_DEPRECATED_BEFORE_AND_AT</span></code> for those targets
+to the version before and at which all deprecated API has been excluded from
+the build.
+Even more when building against other libraries from the same group “Bar” and
+disabling some deprecated API of those libraries using the group macro
+<code class="docutils literal"><span class="pre">BAR_DISABLE_DEPRECATED_BEFORE_AND_AT</span></code>, which also works as default for
+<code class="docutils literal"><span class="pre">FOO_DISABLE_DEPRECATED_BEFORE_AND_AT</span></code>.</p>
+<p>To get the hex number style value the helper macro
+<code class="docutils literal"><span class="pre">ecm_export_header_format_version()</span></code> will be used:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="p">(</span><span class="s">EXCLUDE_DEPRECATED_BEFORE_AND_AT</span> <span class="s">0</span> <span class="s">CACHE</span> <span class="s">STRING</span> <span class="s2">&quot;Control what part of deprecated API is excluded from build [default=0].&quot;</span><span class="p">)</span>
+
+<span class="nb">ecm_generate_export_header</span><span class="p">(</span><span class="s">foo</span>
+    <span class="s">VERSION</span> <span class="o">${</span><span class="nv">FOO_VERSION</span><span class="o">}</span>
+    <span class="s">GROUP_BASE_NAME</span> <span class="s">BAR</span>
+    <span class="s">EXCLUDE_DEPRECATED_BEFORE_AND_AT</span> <span class="o">${</span><span class="nv">EXCLUDE_DEPRECATED_BEFORE_AND_AT</span><span class="o">}</span>
+    <span class="s">NO_DEFINITION_EXPORT_TO_BUILD_INTERFACE</span>
+    <span class="s">DEPRECATION_VERSIONS</span> <span class="s">5.0</span> <span class="s">5.12</span>
+<span class="p">)</span>
+
+<span class="nb">ecm_export_header_format_version</span><span class="p">(</span><span class="o">${</span><span class="nv">EXCLUDE_DEPRECATED_BEFORE_AND_AT</span><span class="o">}</span>
+    <span class="s">CURRENT_VERSION</span> <span class="o">${</span><span class="nv">FOO_VERSION</span><span class="o">}</span>
+    <span class="s">HEXNUMBER_VAR</span> <span class="s">foo_no_deprecated_before_and_at</span>
+<span class="p">)</span>
+
+<span class="c"># disable all deprecated API up to 5.9.0 from all other libs of group &quot;BAR&quot; that we use ourselves</span>
+<span class="nb">add_definitions</span><span class="p">(</span><span class="s">-DBAR_DISABLE_DEPRECATED_BEFORE_AND_AT=0x050900</span><span class="p">)</span>
+
+<span class="nb">add_executable</span><span class="p">(</span><span class="s">app</span> <span class="s">app.cpp</span><span class="p">)</span>
+<span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">app</span> <span class="s">foo</span><span class="p">)</span>
+<span class="nb">target_compile_definitions</span><span class="p">(</span><span class="s">app</span>
+     <span class="s">PRIVATE</span> <span class="s2">&quot;FOO_DISABLE_DEPRECATED_BEFORE_AND_AT=${foo_no_deprecated_before_and_at}&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Since 5.64.0.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ECMFindModuleHelpers.html"
+                        title="previous chapter">ECMFindModuleHelpers</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ECMGenerateHeaders.html"
+                        title="next chapter">ECMGenerateHeaders</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/module/ECMGenerateExportHeader.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ECMGenerateHeaders.html" title="ECMGenerateHeaders"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ECMFindModuleHelpers.html" title="ECMFindModuleHelpers"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" >ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+After certain upgrades (most notably upgrades between Ubuntu
+releases), there are follow-up actions which should be taken by the
+user. These are not logically part of the upgrade, but should be dealt
+with at some point after the upgrade is complete.
+
+A prime example is the UTF8MigrationTool. During an upgrade from
+WartyWarthog to HoaryHedgehog, the system will be configured such that
+UTF-8 encoding is available, and will be expected by applications per
+default. The user should switch to a UTF-8 locale, and possibly rename
+or re-encode files in order to achieve the best user experience. These
+things cannot be done in automated fashion during the upgrade, but
+must instead be dealt with interactively by the user.
+
+Another example is the reboot notification. Packages like the kernel,
+glibc, dbus and hal require a reboot. To simplify things
+update-notifier installs a helper script in
+
+/usr/share/update-notifier/notify-reboot-required
+
+that can be called in the packages postinst script (make sure to check
+for it first). It is i18n-able via langpacks and it will only be shown
+once.  
+
+Design:
+ * Maintainer scripts create/copy a notification to
+   /var/lib/update-notifier/user.d
+ * update-notifier checks for those after each apt invocation (when
+   /var/lib/update-notifier/dpkg-was-run changed) and notifies the user
+   that they are pending
+ * When the user selects to process pending actions, they are executed
+   in sequence within the context of the user and the desktop (and so
+   can display a GUI, interact with the user, etc.)
+
+Details:
+ * the directory /var/lib/update-notifier/user.d/ is used to store hooks
+ * a hook file looks follows rfc822 rules:
+   - a fieldname may have a "-$locale" in it. This is for i18n.
+   - if "GettextDomain" is found, dgettext() will also be tried to get a
+     i18n string (for langpacks)
+   - each hook must have a unique "Name" key and a "Description" key
+   - a optional "Priority" with {crititcal, high, medium, low} that
+     gives the user a idea how important the hook is (currently not used) 
+   - a optional "Command" field may be registered with a shell-command
+     that the user can run (e.g. a script like /usr/share/package/do-something)
+   - a optional "Terminal: True" field if the command should be
+     execute in a terminal
+   - update-notifier uses inotify to monitor
+     /var/lib/update-notifier/dpkg-was-run and
+     /var/lib/update-notifier/user.d/ and show a small information icon for
+     hooks it has not seen yet
+   - when the user clicks on the icon the name and description is
+     given. If a shell script is registered a button is displayed that will
+     run the script. the description in the hook should explain what the
+     script will do
+   - the encoding of the i18n fields is UTF-8
+   - the optional key "DontShowAfterReboot" will make sure that the 
+     notification is not shown when the system rebooted since it was 
+     created/refreshed 
+   - the optional key "DisplayIf" will run a shell command (system())
+     to figure out if the note should be displayed or not. If the command
+     returns 0 the note will be displayed, otherwise it will be ignored
+   - the optional key "OnlyAdminUsers" controls if the note is shown to all
+     users or only to the admin users (users in the admin group). the
+     default is "OnlyAdminsUsers=true".
+
+Example
+
+Name: The great UTF-8 Migration
+Name-de_DE: Die grosse UTF-8 Migration
+Priority: Medium
+Command: utf8-migration-assistant
+Terminal: True
+GettextDomain: utf8-migration-assistant
+DisplayIf: shell-command
+OnlyAdminUsers: False
+Description: This command will convert your stuff into UTF-8.
+ Use this command if you want a working gnome desktop and you
+ feel the world should be a better place.
+

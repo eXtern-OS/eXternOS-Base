@@ -1,0 +1,23 @@
+# Debian GNU/Linux pon/poff(1) completion
+# Copyright 2002 Baruch Even <baruch@debian.org>
+# License: GNU GPL v2 or later
+
+_pon()
+{
+	local cur conns
+
+	[ -r /etc/ppp/peers/ ] || return 0
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	conns=$(\ls --color=none /etc/ppp/peers | egrep -v '(\.bak|~)$')
+
+	if [ $COMP_CWORD -eq 1 ]; then
+		COMPREPLY=( $(compgen -o filenames -W "$conns" $cur) )
+	fi
+
+	return 0
+}
+complete -F _pon pon
+
+# vim:ft=sh:

@@ -1,0 +1,39 @@
+#!/bin/sh
+## ----------------------------------------------------------------------
+## debian/postinst: post-installation script for foo
+## ----------------------------------------------------------------------
+
+## ----------------------------------------------------------------------
+## Abort if any command returns an error value
+set -e
+
+## --------------------------------------------------------------
+## Install XML catalog entries
+if [ "$1" = "configure" ]
+then
+
+    update-xmlcatalog --verbose --add --package foo --type public \
+        --id "-//FOO//DTD FOO//EN" \
+        --local /usr/share/xml/schema/foo/catalog.xml
+
+    update-xmlcatalog --verbose --add --package foo --type system \
+        --id "http://www.foo.org/foo/foo.dtd" \
+        --local /usr/share/xml/schema/foo/catalog.xml
+
+    update-xmlcatalog --verbose --add --root --type public \
+        --id "-//FOO//DTD FOO//EN" \
+        --package foo
+
+    update-xmlcatalog --verbose --add --root --type system \
+        --id "http://www.foo.org/foo/foo.dtd" \
+        --package foo
+
+fi
+
+## ----------------------------------------------------------------------
+## Automatically added sections
+#DEBHELPER#
+
+exit 0
+
+## ----------------------------------------------------------------------

@@ -1,0 +1,80 @@
+#!/usr/bin/perl -w
+# copyright-file -- lintian collector script
+
+# Copyright (C) 1998 Richard Braakman
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, you can find it on the World Wide
+# Web at http://www.gnu.org/copyleft/gpl.html, or write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+
+package Lintian::coll::copyright_file;
+
+no lib '.';
+
+use strict;
+use warnings;
+use autodie;
+
+use lib "$ENV{'LINTIAN_ROOT'}/lib";
+use Lintian::Util qw(internal_error gunzip_file is_ancestor_of touch_file);
+
+use File::Copy qw(copy);
+
+sub collect {
+    my ($pkg, $type, $dir) = @_;
+
+    if (-e "$dir/copyright") {
+        unlink("$dir/copyright");
+    }
+
+    if (-d "$dir/unpacked/usr/share/doc/$pkg"
+        && !is_ancestor_of("$dir/unpacked", "$dir/unpacked/usr/share/doc/$pkg")
+      ) {
+        # if the parent dir is outside the package, just stop here before we
+        # do something we will regret.
+        return;
+    }
+
+    my $file = "$dir/unpacked/usr/share/doc/$pkg/copyright";
+
+    # If copyright was a symlink, we need to make a copy of it.  Just
+    # hardlinking to the symlink may leave a relative symlink into a
+    # directory we can't unpack.  Be careful about what symlinks we
+    # allow, though.
+    if (-l $file) {
+        my $link = readlink($file);
+        unless ($link =~ /\.\./
+            || ($link =~ m%/% && $link !~ m%^[^/]+(?:/+[^/]+)*\z%)) {
+            copy($file, "$dir/copyright")
+              or internal_error("cannot copy $file: $!");
+        }
+    } elsif (-f $file) {
+        link($file, "$dir/copyright");
+    } elsif (-f "$file.gz") {
+        gunzip_file("$file.gz", "$dir/copyright");
+    }
+
+    return;
+}
+
+collect(@ARGV) if $0 =~ m,(?:^|/)copyright-file$,;
+
+1;
+
+# Local Variables:
+# indent-tabs-mode: nil
+# cperl-indent-level: 4
+# End:
+# vim: syntax=perl sw=4 sts=4 sr et

@@ -1,0 +1,42 @@
+#!/usr/bin/python
+
+# ar.py: ar emulation using ArFile 
+# Copyright (C) 2007    Filippo Giunchedi   <filippo@debian.org>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from __future__ import print_function
+
+import os
+import sys
+
+from debian import arfile
+
+if __name__ == '__main__':
+    if len(sys.argv) < 3:
+        print("usage: arfile.py [tp] <arfile>")
+        sys.exit(1)
+    
+    if not os.path.exists(sys.argv[2]):
+        print("please provide a file to operate on")
+        sys.exit(1)
+        
+    a = arfile.ArFile(sys.argv[2])
+
+    if sys.argv[1] == 't':
+        print("\n".join(a.getnames()))
+    elif sys.argv[1] == 'p':
+        for m in a.getmembers():
+            #print("".join(m.readlines()))
+            sys.stdout.write("".join(m.readlines()))

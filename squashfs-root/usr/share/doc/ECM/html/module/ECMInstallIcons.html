@@ -1,0 +1,160 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ECMInstallIcons &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ECMMarkAsTest" href="ECMMarkAsTest.html" />
+    <link rel="prev" title="ECMGenerateQmlTypes" href="ECMGenerateQmlTypes.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ECMMarkAsTest.html" title="ECMMarkAsTest"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ECMGenerateQmlTypes.html" title="ECMGenerateQmlTypes"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" accesskey="U">ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ecminstallicons">
+<span id="module:ECMInstallIcons"></span><h1>ECMInstallIcons<a class="headerlink" href="#ecminstallicons" title="Permalink to this headline">¶</a></h1>
+<p>Installs icons, sorting them into the correct directories according to the
+FreeDesktop.org icon naming specification.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_install_icons</span><span class="p">(</span><span class="n">ICONS</span> <span class="o">&lt;</span><span class="n">icon</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">icon</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]</span>
+                  <span class="n">DESTINATION</span> <span class="o">&lt;</span><span class="n">icon_install_dir</span><span class="o">&gt;</span>
+                  <span class="p">[</span><span class="n">LANG</span> <span class="o">&lt;</span><span class="n">l10n_code</span><span class="o">&gt;</span><span class="p">]</span>
+                  <span class="p">[</span><span class="n">THEME</span> <span class="o">&lt;</span><span class="n">theme</span><span class="o">&gt;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The given icons, whose names must match the pattern:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">size</span><span class="o">&gt;-&lt;</span><span class="n">group</span><span class="o">&gt;-&lt;</span><span class="n">name</span><span class="o">&gt;.&lt;</span><span class="n">ext</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>will be installed to the appropriate subdirectory of DESTINATION according to
+the FreeDesktop.org icon naming scheme. By default, they are installed to the
+“hicolor” theme, but this can be changed using the THEME argument.  If the
+icons are localized, the LANG argument can be used to install them in a
+locale-specific directory.</p>
+<p><code class="docutils literal"><span class="pre">&lt;size&gt;</span></code> is a numeric pixel size (typically 16, 22, 32, 48, 64, 128 or 256)
+or <code class="docutils literal"><span class="pre">sc</span></code> for scalable (SVG) files, <code class="docutils literal"><span class="pre">&lt;group&gt;</span></code> is one of the standard
+FreeDesktop.org icon groups (actions, animations, apps, categories, devices,
+emblems, emotes, intl, mimetypes, places, status) and <code class="docutils literal"><span class="pre">&lt;ext&gt;</span></code> is one of
+<code class="docutils literal"><span class="pre">.png</span></code>, <code class="docutils literal"><span class="pre">.mng</span></code> or <code class="docutils literal"><span class="pre">.svgz</span></code>.</p>
+<p>The typical installation directory is <code class="docutils literal"><span class="pre">share/icons</span></code>.</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">ecm_install_icons</span><span class="p">(</span><span class="s">ICONS</span> <span class="s">22-actions-menu_new.png</span>
+                  <span class="s">DESTINATION</span> <span class="s">share/icons</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The above code will install the file <code class="docutils literal"><span class="pre">22-actions-menu_new.png</span></code> as
+<code class="docutils literal"><span class="pre">${CMAKE_INSTALL_PREFIX}/share/icons/&lt;theme&gt;/22x22/actions/menu_new.png</span></code></p>
+<p>Users of the <a class="reference internal" href="../kde-module/KDEInstallDirs.html#kde-module:KDEInstallDirs" title="KDEInstallDirs"><code class="xref ecm ecm-kde-module docutils literal"><span class="pre">KDEInstallDirs</span></code></a> module would normally use
+<code class="docutils literal"><span class="pre">${KDE_INSTALL_ICONDIR}</span></code> as the DESTINATION, while users of the GNUInstallDirs
+module should use <code class="docutils literal"><span class="pre">${CMAKE_INSTALL_DATAROOTDIR}/icons</span></code>.</p>
+<p>An old form of arguments will also be accepted:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_install_icons</span><span class="p">(</span><span class="o">&lt;</span><span class="n">icon_install_dir</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">l10n_code</span><span class="o">&gt;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>This matches files named like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">theme</span><span class="o">&gt;&lt;</span><span class="n">size</span><span class="o">&gt;-&lt;</span><span class="n">group</span><span class="o">&gt;-&lt;</span><span class="n">name</span><span class="o">&gt;.&lt;</span><span class="n">ext</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal"><span class="pre">&lt;theme&gt;</span></code> is one of
+* <code class="docutils literal"><span class="pre">hi</span></code> for hicolor
+* <code class="docutils literal"><span class="pre">lo</span></code> for locolor
+* <code class="docutils literal"><span class="pre">cr</span></code> for the Crystal icon theme
+* <code class="docutils literal"><span class="pre">ox</span></code> for the Oxygen icon theme
+* <code class="docutils literal"><span class="pre">br</span></code> for the Breeze icon theme</p>
+<p>With this syntax, the file <code class="docutils literal"><span class="pre">hi22-actions-menu_new.png</span></code> would be installed
+into <code class="docutils literal"><span class="pre">&lt;icon_install_dir&gt;/hicolor/22x22/actions/menu_new.png</span></code></p>
+<p>Since pre-1.0.0.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ECMGenerateQmlTypes.html"
+                        title="previous chapter">ECMGenerateQmlTypes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ECMMarkAsTest.html"
+                        title="next chapter">ECMMarkAsTest</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/module/ECMInstallIcons.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ECMMarkAsTest.html" title="ECMMarkAsTest"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ECMGenerateQmlTypes.html" title="ECMGenerateQmlTypes"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" >ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+#!/bin/sh -e
+
+PREREQS=""
+
+prereqs() { echo "$PREREQS"; }
+
+case "$1" in
+    prereqs)
+    prereqs
+    exit 0
+    ;;
+esac
+
+# we cannot properly synthesize LVM LV change events with udevadm trigger, so
+# if we use LVM, we need to let it finish; otherwise we get missing LV symlinks
+# (LP #1185394)
+if [ -x /sbin/vgchange ]; then
+    udevadm settle --timeout=121 || true
+fi
+

@@ -1,0 +1,1023 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" 
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" [
+<!ENTITY legal SYSTEM "legal.xml">
+<!ENTITY GFDL SYSTEM "fdl-appendix.xml">
+]>
+<!--<?yelp:chunk-depth 4?>-->
+<!--
+      (Do not remove this comment block.)
+  Version: 0.0.3
+  Last modified: March 24, 2006
+  Maintainers:
+               Sean Wheller  <sean@inwords.co.za>
+               Jeff Schering <jeffschering@gmail.com>
+               Jerome S. Gotangco <jgotangco@ubuntu.com
+  Translators:
+               (translators put your name and email here)
+-->
+<!-- =============Document Header ============================= -->
+<article id="index" lang="en">
+  <!-- please do not change the id; for translations, change lang to -->
+  <!-- appropriate code -->
+  <articleinfo>
+    <title>Software Updater Manual</title>
+    <copyright>
+      <year>2006</year>
+      <holder>In Words</holder>
+    </copyright>
+    <!-- translators: uncomment this:
+
+  <copyright>
+   <year>2000</year>
+   <holder>ME-THE-TRANSLATOR (Latin translation)</holder>
+  </copyright>
+
+  -->
+    <!-- An address can be added to the publisher information.  If a role is
+     not specified, the publisher/author is the same for all versions of the
+     document.  -->
+    <publisher>
+      <!--<publishername> GNOME Documentation Project </publishername>-->
+      <publishername>
+        <ulink url="http://www.inwords.co.za">In Words Techdoc Solutions</ulink>
+      </publishername>
+    </publisher> &legal;
+    <!-- This file  contains link to license for the documentation (GNU FDL), and
+        other legal stuff such as "NO WARRANTY" statement. Please do not change
+        any of this. -->
+    <authorgroup>
+      <author>
+        <firstname>Sean</firstname>
+        <surname>Wheller</surname>
+        <affiliation>
+          <orgname>In Words</orgname>
+          <address>
+            <email>sean@inwords.co.za</email>
+          </address>
+        </affiliation>
+      </author>
+      <othercredit role="editor">
+        <firstname>Jeff</firstname>
+        <surname>Schering</surname>
+        <contrib>Editor</contrib>
+      </othercredit>
+      <othercredit role="maintainer">
+        <firstname>Jerome</firstname>
+        <surname>Gotangco</surname>
+        <contrib>Maintainer</contrib>
+      </othercredit>
+      <!-- This is appropriate place for other contributors: translators,
+      maintainers,  etc. Commented out by default.
+       <othercredit role="translator">
+        <firstname>Latin</firstname>
+        <surname>Translator 1</surname>
+        <affiliation>
+          <orgname>Latin Translation Team</orgname>
+          <address> <email>translator@gnome.org</email> </address>
+        </affiliation>
+        <contrib>Latin translation</contrib>
+      </othercredit>
+-->
+    </authorgroup>
+    <!-- According to GNU FDL, revision history is mandatory if you are -->
+    <!-- modifying/reusing someone else's document.  If not, you can omit it. -->
+    <!-- Remember to remove the &manrevision; entity from the revision entries other
+-->
+    <!-- than the current revision. -->
+    <!-- The revision numbering system for GNOME manuals is as follows: -->
+    <!-- * the revision number consists of two components -->
+    <!-- * the first component of the revision number reflects the release version of the GNOME desktop. -->
+    <!-- * the second component of the revision number is a decimal unit that is incremented with each revision of the manual. -->
+    <!-- For example, if the GNOME desktop release is V2.x, the first version of the manual that -->
+    <!-- is written in that desktop timeframe is V2.0, the second version of the manual is V2.1, etc. -->
+    <!-- When the desktop release version changes to V3.x, the revision number of the manual changes -->
+    <!-- to V3.0, and so on. -->
+    <revhistory>
+      <revision>
+        <revnumber>V0.0.1</revnumber>
+        <date>06/03/2005</date>
+        <revdescription>
+          <para role="author">First version of the manual created in accordance
+            with Software Updater V0.37.1+svn20050301. Documentation Writer
+              <email>sean@inwords.co.za</email>
+          </para>
+          <para role="publisher">
+            <ulink url="http://www.inwords.co.za">InWords Techdoc
+            Solutions</ulink>
+          </para>
+        </revdescription>
+      </revision>
+      <revision>
+        <revnumber>V0.0.2</revnumber>
+        <date>26/03/2005</date>
+        <revdescription>
+          <para role="author">Edit of V0.0.1 to make some nodes shorter.
+            Editor <email>jeffschering@gmail.com</email>
+          </para>
+          <para role="publisher">
+            <ulink url="http://www.inwords.co.za">InWords Techdoc
+              Solutions</ulink>
+          </para>
+        </revdescription>
+      </revision>
+      <revision>
+        <revnumber>V0.0.3</revnumber>
+        <date>26/03/2005</date>
+        <revdescription>
+          <para role="author">Added Help, Add CD, Settings options.
+            <email>sean@inwords.co.za</email>
+          </para>
+          <para role="publisher">
+            <ulink url="http://www.inwords.co.za">InWords Techdoc
+              Solutions</ulink>
+          </para>
+        </revdescription>
+      </revision>
+    </revhistory>
+    <releaseinfo>This manual explains how to use Software Updater, an apt update
+      management application for the GNOME desktop created by the Ubuntu
+      project.</releaseinfo>
+    <legalnotice>
+      <title>Feedback</title>
+      <!--<para>To report a bug or make a suggestion regarding this package or this
+        manual, follow the directions in the <ulink url="ghelp:gnome-feedback"
+          type="help">GNOME Feedback Page</ulink>. </para>-->
+      <para>To report a bug or make a suggestion regarding this package or this
+        manual, send mail to <email>ubuntu-users@lists.ubuntu.com</email>.</para>
+      <!-- Translators may also add here feedback address for translations -->
+    </legalnotice>
+  </articleinfo>
+  <!-- ============= Document Body ============================= -->
+  <!-- ============= Introduction ============================== -->
+  <sect1 id="intro">
+    <title>Introduction</title>
+    <para>
+      <application>Software Updater</application> is a graphical interface to the
+      software update features of <application>Advanced Packaging
+      Tool</application> (<acronym>APT</acronym>). <acronym>APT</acronym> is a
+      command line tool for installing, updating, and removing software.</para>
+    <para>
+      <application>Software Updater</application> makes the task of checking for
+      and installing software updates as effortless as possible.
+        <application>Software Updater</application> keeps your system up to date
+      by checking Ubuntu's software repositories for new versions of installed
+      software. The new versions usually contain bug fixes and new features, but
+      may also contain security updates. Use Software Updater on a regular basis
+      to ensure that your system is as up to date and secure as possible.</para>
+    <para>
+      <application>Software Updater</application> decides which software needs to
+      be updated by comparing the version numbers of individual software files
+      on your computer with the software in one or more software repositories.
+      The software repositories are usually on remote network servers, but may
+      also be on a CD-ROM. Whenever <application>Software Updater</application>
+      notifies you that an update is available, you may choose to install the
+      update immediately, or to ignore the update.</para>
+    <para>
+      <application>Software Updater</application> has settings and preferences
+      which allow you to: set how often it checks for updates, add and remove
+      software repositories, and manage repository authentication keys. </para>
+  </sect1>
+  <sect1 id="getting-started">
+    <title>Getting Started</title>
+    <sect2 id="installation">
+      <title>Installation</title>
+      <para>
+        <application>Software Updater</application> is installed as part of the
+        Ubuntu standard installation, and should already be on your system. The
+        application is known as <application>Ubuntu Update
+        Manager</application>. If you need to install <application>Update
+          Manager</application>, you can use <application>Synaptic Package
+          Manager</application>. Choose <menuchoice>
+          <guimenu>System</guimenu>
+          <guisubmenu>Administration</guisubmenu>
+          <guimenuitem>Synaptic Package Manager</guimenuitem>
+        </menuchoice> to start <application>Synaptic</application>. The package
+        you need to install is <command>update-manager</command>.</para>
+      <para>You may also install Software Updater from the command line using
+          <command>apt-get</command>. To install <application>Update
+        Manager</application> from the command line:</para>
+<programlisting>
+sudo apt-get install update-manager
+</programlisting>
+      <para>
+        <application>Software Updater</application> is dependent on the following
+        packages: &apos;python,&apos; &apos;python-gnome2,&apos;
+        &apos;python-apt,&apos; &apos;synaptic,&apos; and
+        &apos;lsb-release.&apos;</para>
+    </sect2>
+    <sect2 id="starting-update-manager">
+      <title>Starting Software Updater</title>
+      <para>Choose <menuchoice>
+          <guimenu>System</guimenu>
+          <guisubmenu>Administration</guisubmenu>
+          <guimenuitem>Ubuntu Software Updater</guimenuitem>
+        </menuchoice> to start the application. Enter your password when
+        prompted.</para>
+      <para>You may also start <application>Software Updater</application> from
+        the command line:</para>
+<programlisting>
+update-manager
+</programlisting>
+    </sect2>
+    <sect2 id="main-window">
+      <title>Main Window</title>
+      <para>The <application>Software Updater</application> main window is used for
+        managing the update process and setting preferences.</para>
+      <para>When you open <application>Software Updater</application>, the main
+        window displays the list of packages that need to be installed to update
+        your computer. If the software on your computer is up to date, the main window contains
+        only the message &quot;The software on this computer is up to date.&quot; </para>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/main-system-updates-available.png"
+              format="PNG"/>
+          </imageobject>
+          <caption>
+            <para>Available Updates</para>
+          </caption>
+        </mediaobject>
+      </screenshot>
+    </sect2>
+  </sect1>
+  <sect1 id="performing-updates">
+    <title>Performing Updates</title>
+    <sect2 id="updating">
+      <title>Updating Your Computer</title>
+      <para>When you open <application>Software Updater</application>, the main
+        window displays the list of packages that need to be installed to update
+        your computer. If the software on your computer is up to date, the main window contains
+        only the message &quot;The software on this computer is up to date.&quot; </para>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/main-system-updates-available.png"
+              format="PNG"/>
+          </imageobject>
+          <caption>
+            <para>Available Updates</para>
+          </caption>
+        </mediaobject>
+      </screenshot>
+      <para>By default, all packages are marked for installation. In most
+        cases you will install all of the packages right away. However, if there 
+        are a large number of updates you may want to do only a few at a time.</para>
+      <para>To un-mark a package for installation, <action>clear</action> the check box 
+        for the package.</para>
+      <para>To see additional information about a package, <action>click</action> on 
+          <guibutton>Details</guibutton>. 
+          (see <xref linkend="expanding-update-info"/>)</para> 
+      <para>When you are ready to install the selected packages, 
+          <action>click</action> on <guibutton>Install</guibutton>.</para>
+      <para>If <application>Software Updater</application> detects one or more
+        packages without a digital signature, the
+          <guilabel>Summary</guilabel> dialog is displayed.</para>
+      <para>The <guilabel>Summary</guilabel> dialog lists three groups of update 
+      categories:</para>
+      <variablelist>
+        <varlistentry>
+          <term>
+            <emphasis role="bold">NOT AUTHENTICATED</emphasis>
+          </term>
+          <listitem>
+            <para>Packages without a digital signature.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <emphasis role="bold">To be upgraded</emphasis>
+          </term>
+          <listitem>
+            <para>Packages that will be upgraded.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <emphasis role="bold">Unchanged</emphasis>
+          </term>
+          <listitem>
+            <para>Packages that will not be upgraded due to dependency issues.
+              The packages will be upgraded in a future <application>Update 
+              Manager</application> session, once the developers have
+              resolved the package dependencies.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+      <para>If you do not want to install non-authenticated packages, click
+      <guibutton>Cancel</guibutton>. The <guilabel>Summary</guilabel>
+       dialog will close, and you can 
+      deselect the packages in the <application>Software Updater</application> 
+      main window.</para>
+      <note>
+        <para>If a deselected package is required as a dependency for a selected
+          package, <application>Software Updater</application> will install the
+          deselected package to satisfy the dependency.</para>
+      </note>
+      <para>
+        <application>Software Updater</application> downloads all of the
+        selected packages before installing them. The entire process might take a
+        long time depending on the amount of data that needs to be downloaded, the
+        speed of your network connection, and the number of packages that need to 
+        be installed. While downloading packages, 
+        <application>Software Updater</application> displays a dialog box that 
+        monitors the download progress. (See <xref
+          linkend="monitoring-download"/>).</para>
+    </sect2>
+    <sect2 id="expanding-update-info">
+      <title>Expanded Update Information</title>
+      <para>To see additional information about a package:</para>
+      <orderedlist>
+        <listitem>
+            <para>Click on the package in the main window.</para>
+        </listitem>
+        <listitem>
+            <para>Click on <guibutton>Details</guibutton>.A tabbed section 
+            opens within the main window.</para>
+        </listitem>
+      </orderedlist>
+       <para>The tabs are as follows:</para>
+      <variablelist>
+        <varlistentry>
+          <term>
+            <emphasis role="bold">Changes</emphasis>
+          </term>
+          <listitem>
+            <para>A list of the changes incorporated in the package. The list
+            is the contents of the <filename>ChangeLog</filename> file for the
+            package.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <emphasis role="bold">Description</emphasis>
+          </term>
+          <listitem>
+            <para>A short description of each program in the package.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </sect2>
+    <sect2 id="monitoring-download">
+      <title>Monitoring Download Progress</title>
+      <para><application>Software Updater</application> displays the 
+      <guilabel>Installing updates</guilabel> window while the 
+      packages are downloading. The progress bar in the 
+      <guilabel>Installing updates</guilabel> window shows the progress
+      of the entire update.</para>
+      <para>To display the download progress of each package, click on 
+      <guibutton>Show progress of individual files</guibutton>.</para>
+      <para>To cancel the download, click <guibutton>Cancel</guibutton>.
+      </para>
+      <para>All files must be downloaded before <application>
+      Software Updater</application> can proceed to the installation stage. If
+      the network connections fails or if you cancel the download, the update
+      will not be installed.</para>
+     <note>
+        <para>To resume a canceled or failed download, click on Install in the
+         main window. <application>Software Updater</application> will resume the
+         download from the last successfully downloaded file.</para>
+      </note>
+    </sect2>
+    <sect2 id="monitoring-installation">
+      <title>Monitoring Installation Progress</title>
+	  <para><application>Software Updater</application> displays the
+	  <guilabel>Installation updates</guilabel> window while the updates are
+	  being installed. The progress bar inside the <guilabel>Installation
+	  updates</guilabel> window shows the progress of the entire installation.
+	  </para>
+      <para>To display the installation progress of each package, click on
+	  <guibutton>Terminal</guibutton>. The terminal view opens within the
+	  window. The terminal view displays the unfiltered output of the Advanced
+	  Packaging Tool (APT). APT is the tool that Software Updater uses to
+	  perform the update.</para>
+      <caution>
+        <para>Do not terminate the installation process. This may lead to
+          corruption of installed programs and general system
+		  instability.</para>
+      </caution>
+    </sect2>
+  </sect1>
+  <sect1 id="setting-preferences">
+    <title>Setting Preferences</title>
+    <para>The <application>Software Updater</application>
+      <guibutton>Preferences</guibutton> button displays the <guilabel>Software
+        Preferences</guilabel> dialog. From this dialog you can perform the
+      following tasks:</para>
+    <itemizedlist>
+      <listitem>
+        <para>Manage software sources (see <xref linkend="managing-sources"
+        />).</para>
+      </listitem>
+      <listitem>
+        <para>Manage authentication keys (see <xref
+            linkend="managing-authentication"/>).</para>
+      </listitem>
+      <listitem>
+        <para>Manage settings (see <xref linkend="managing-settings"/>).</para>
+      </listitem>
+    </itemizedlist>
+    <sect2 id="managing-sources">
+      <title>Managing Software Sources</title>
+      <para>During installation of a distro, software repositories are
+        automatically added to the list of &apos;software sources.&apos;
+        Typical sources added by the distro installation include the
+        installation source, update, and security repositories. Sources can be
+        added to and removed from the list and existing sources can be edited.</para>
+      <note>
+        <para>The operations described here modify <filename class="devicefile"
+            >/etc/apt/sources.list</filename> using the <application>Update
+            Manager</application> graphical user interface. Software sources can
+          also be managed by making direct modifications in <filename
+            class="devicefile">/etc/apt/sources.list</filename>. This is only
+          advised for advanced users.</para>
+      </note>
+      <sect3 id="adding-sources">
+        <title>Adding Software Sources</title>
+        <para>Software may be installed using various access methods:</para>
+        <itemizedlist>
+          <listitem>
+            <para>
+              <emphasis>CD-ROM</emphasis> - Compact Disk Read Only Memory,
+              normally directly connected to the computer system and mounted
+              locally by the operating system.</para>
+          </listitem>
+          <!-- Currently unsupported see http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=60910 -->
+          <!-- mvo: is handled with cdrom URIs -->
+          <!--<listitem>
+            <para>
+              <emphasis>DVD</emphasis> - Digital Video Disk, normally directly
+              connected to the computer system and mounted locally by the
+              operating system.</para>
+          </listitem>-->
+          <listitem>
+            <para>
+              <emphasis>FTP</emphasis> - File Transfer Protocol, a secure and
+              reliable protocol designed specifically for the purpose of
+              transferring large files across the Internet.</para>
+          </listitem>
+          <listitem>
+            <para>
+              <emphasis>HTTP</emphasis> - HyperText Transfer Protocol, commonly
+              used to request and receive Web pages, but can also be used for
+              file transfer.</para>
+          </listitem>
+          <listitem>
+            <para>
+              <emphasis>SMB</emphasis> - Server Management Block is used to
+              access shared resources on computers running Microsoft
+                <trademark>Windows</trademark> or <application>Samba
+              Server</application>.</para>
+          </listitem>
+          <listitem>
+            <para>
+              <emphasis>NFS</emphasis> - Network File System is used to access
+              shared resources on Linux/UNIX computers.</para>
+          </listitem>
+        </itemizedlist>
+        <note>
+          <para>Before software sources residing on SMB or NFS shares can be
+            defined, the share must be mounted by the local system. Access can
+            then be made via the local filesystem. For more information see
+              <xref linkend="editing-sources"/>.</para>
+        </note>
+        <para>A new software source can be defined by <action>clicking</action>
+          the <guibutton>Add</guibutton> button located on the
+            <guilabel>Software Preferences</guilabel> dialog. This will
+          display the <guilabel>Edit Repository</guilabel> dialog.</para>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/preferences-add.png" format="PNG"/>
+            </imageobject>
+            <caption>
+              <para>Adding Software Sources</para>
+            </caption>
+          </mediaobject>
+        </screenshot>
+        <para>Complete the <guilabel>Edit Repository</guilabel> dialog to add
+          a new Software source.</para>
+        <variablelist>
+          <varlistentry>
+            <term>
+              <emphasis role="bold">Repository</emphasis>
+            </term>
+            <listitem>
+              <para>A drop-list containing known software sources.</para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>
+              <emphasis role="bold">Components</emphasis>
+            </term>
+            <listitem>
+              <para>The Ubuntu software repository contains thousands of
+                software packages organized into four
+                &apos;components,&apos; on the basis of the level of
+                support we can offer them, and whether or not they comply with
+                Free Software Philosophy. The components are called
+                &apos;main,&apos; &apos;restricted,&apos;
+                &apos;universe,&apos; and
+                &apos;multiverse.&apos;</para>
+              <para>Check the components you wish to include in the update list.</para>
+              <itemizedlist>
+                <listitem>
+                  <para>
+                    <emphasis role="bold">Officially supported (main)</emphasis>
+                    - The main distribution component contains applications that
+                    are free software, can freely be redistributed and are fully
+                    supported by the Ubuntu team. This includes the most popular
+                    and most reliable open source applications available, much
+                    of which is installed by default when you install Ubuntu.
+                    Software in main includes a hand-selected list of
+                    applications that the Ubuntu developers, community, and
+                    users feel are important and that the Ubuntu security and
+                    distribution team are willing to support. When you install
+                    software from the main component you are assured that the
+                    software will come with security updates and technical
+                    support. We believe that the software in main includes
+                    everything most people will need for a fully functional
+                    desktop or Internet server running only open source
+                    software. The licenses for software applications in main
+                    must be free, but main may also may contain binary firmware
+                    and selected fonts that cannot be modified without
+                    permission from their authors. In all cases redistribution
+                    is unencumbered.</para>
+                </listitem>
+                <listitem>
+                  <para>
+                    <emphasis role="bold">Restricted Copyright</emphasis> - The
+                    restricted component is reserved for software that is very
+                    commonly used, and which is supported by the Ubuntu team
+                    even though it is not available under a completely free
+                    license. Please note that it may not be possible to provide
+                    complete support for this software since we are unable to
+                    fix the software ourselves, but can only forward problem
+                    reports to the actual authors. Some software from restricted
+                    will be installed on Ubuntu CDs but is clearly separated to
+                    ensure that it is easy to remove. We include this software
+                    because it is essential in order for Ubuntu to run on
+                    certain machines - typical examples are the binary drivers
+                    that some video card vendors publish, which are the only way
+                    for Ubuntu to run on those machines. By default, we will
+                    only use open source software unless there is simply no
+                    other way to install Ubuntu. The Ubuntu team works with such
+                    vendors to accelerate the open-sourcing of their software to
+                    ensure that as much software as possible is available under
+                    a Free license.</para>
+                </listitem>
+                <listitem>
+                  <para>
+                    <emphasis role="bold">Community maintained
+                    (Universe)</emphasis> - The universe component is a snapshot
+                    of the free, open source, and Linux world. In universe you
+                    can find almost every piece of open source software, and
+                    software available under a variety of less open licenses,
+                    all built automatically from a variety of public sources.
+                    All of this software is compiled against the libraries and
+                    using the tools that form part of main, so it should install
+                    and work well with the software in main, but it comes with
+                    no guarantee of security fixes and support. The universe
+                    component includes thousands of pieces of software. Through
+                    universe, users are able to have the diversity and
+                    flexibility offered by the vast open source world on top of
+                    a stable Ubuntu core.</para>
+                </listitem>
+                <listitem>
+                  <para>
+                    <emphasis role="bold">Non Free (Multiverse)</emphasis> - The
+                    &apos;multiverse&apos; component contains software
+                    that is <emphasis>not free</emphasis>, which means the
+                    licensing requirements of this software do not meet the
+                    Ubuntu &apos;main&apos; Component license Policy.
+                    The onus is on you to verify your rights to use this
+                    software and comply with the licensing terms of the
+                    copyright holder. This software is not supported and usually
+                    cannot be fixed or updated. Use it at your own risk.</para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </sect3>
+      <sect3 id="create-custom-sources">
+        <title>Creating Custom Software Sources</title>
+        <para>It is also possible to define custom software sources.</para>
+        <para>To define a custom software source <action>click</action> the
+            <guibutton>Custom</guibutton> button located on the <guilabel>Edit
+            Repository</guilabel> dialog. This will display a dialog in which
+          the custom repository can be defined using
+          <application>apt</application> command syntax.
+          <application>Apt</application> is an Advanced Packaging Tool and
+          front-end to <application>dpkg</application> the Debian Package
+          Management System. Once the <guilabel>apt line</guilabel> is entered
+            <action>click</action> the <guibutton>Add repository</guibutton>
+          button.</para>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/preferences-add-custom.png"
+                format="PNG"/>
+            </imageobject>
+            <caption>
+              <para>Creating Custom Software Sources</para>
+            </caption>
+          </mediaobject>
+        </screenshot>
+        <para>The <application>apt</application> command syntax defines the
+          &apos;type,&apos; &apos;location,&apos; and
+          &apos;content&apos; of the repository. Example of the command
+          syntax could look like this.</para>
+        <programlisting>
+<command>deb ftp://archive.ubuntu.com/ubuntu/ hoary main restricted universe multiverse</command>
+        </programlisting>
+        <para>This example would define the software sources as a Debian source
+          at ubuntu.com containing the hoary release and using all components.
+          For definition of the components, see <xref linkend="managing-sources"
+          />.</para>
+      </sect3>
+      <sect3 id="remove-sources">
+        <title>Removing Software Sources</title>
+        <para>Software sources can be removed from the sources list by selecting
+          the software source then <action>clicking</action> the
+            <guibutton>Remove</guibutton> button located on the
+            <guilabel>Software Preferences</guilabel> dialog.</para>
+        <para>Removal of a software source requires that the
+          <application>apt</application> file (<filename class="devicefile"
+            >/etc/apt/sources.list</filename>) that contains the a list of
+          software sources is updated. Before modifying this file
+            <application>Software Updater</application> prompts to confirm the
+          operation. If the operation is confirmed a backup copy is create in
+            <filename class="devicefile"
+        >/etc/apt/sources.list.save</filename>.</para>
+      </sect3>
+      <sect3 id="editing-sources">
+        <title>Editing Software Sources</title>
+        <para>To change the values defining a software source, select the source
+          record then <action>click</action> the edit button. This will display
+          the <guilabel>Edit Repository</guilabel> dialog.</para>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/preferences-edit.png" format="PNG"/>
+            </imageobject>
+            <caption>
+              <para>Editing Software Sources</para>
+            </caption>
+          </mediaobject>
+        </screenshot>
+        <variablelist>
+          <varlistentry>
+            <term>
+              <emphasis role="bold">Type</emphasis>
+            </term>
+            <listitem>
+              <para>Software sources may contain software in
+                &apos;Binary&apos; or &apos;Source Code&apos;
+                format. Select the option correlating to the repository
+              format.</para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>
+              <emphasis role="bold">URI</emphasis>
+            </term>
+            <listitem>
+              <para>Enter a valid Uniform Resource Indicator
+                (<acronym>URI</acronym>). Following is a list of examples for
+                each of the possible access methods:</para>
+              <itemizedlist>
+                <listitem>
+                  <para>
+                    <!-- mvo: we don't want users to add the cd manually
+                              new CDs with ubuntu will be detected 
+                              automatically when inserted and it will prompt 
+                              for action (start package manager, 
+                              upgrade from it)
+                    *mvo* either the sources edit window needs a "add-cdrom" butotn or the user needs to run synaptic
+                    *froud* I would say add a "Add CDROM"
+                    *mvo* yeah
+                    *mvo* I'll file a wishlist bug to myself
+                    *mvo* update-manger should have "add-cdrom" is bug #7315
+                    -->
+                    <emphasis>CD-ROM</emphasis> -
+                      <command>cdrom:[description_of_cd]/</command>
+                  </para>
+                </listitem>
+                <!-- Currently unsupported see http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=60910 -->
+                <!-- mvo: is handled with cdrom URIs -->
+                <!--<listitem>
+                  <para>
+                    <emphasis>DVD</emphasis> -
+                      <command>dvd:[description_of_dvd]/</command>
+                  </para>
+                </listitem>-->
+                <listitem>
+                  <para>
+                    <emphasis>FTP</emphasis> -
+                      <command>ftp://ftp.domain.ext/path/to/repository</command>
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    <emphasis>HTTP</emphasis> -
+                      <command>http://www.domain.ext/path/to/repository</command>
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    <emphasis>SMB</emphasis> - Works only when the computer is
+                    already connected to an SMB share. To connect to SMB share
+                    use the following command syntax from the shell
+                      <command>smbclient //hostname/sharename -U
+                    username</command>. </para>
+                  <para>The SMB share is accessed from the local file system
+                    once the local system is connected.
+                      <command>file://path/to/sharefile</command>
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    <emphasis>NFS</emphasis> - Works only when the computer is
+                    already connected to a NFS share. To connect the NFS share
+                    must be mounted. NFS shares are mounted on the client side
+                    using the mount command. The format of the command is as
+                    follows: <command>mount -o [options] [host]:[/remote/export]
+                      [/local/directory]</command>
+                  </para>
+                  <para>Once mounted <application>Software Updater</application>
+                    can access the share using the following command
+                      <command>file://path/to/local/directory</command>
+                  </para>
+                </listitem>
+              </itemizedlist>
+              <note>
+                <para>If accessing a SMB or NFS shares by manually issuing the
+                    <command>mount</command> commands, the file system must be
+                  remounted manually after the system is rebooted. Failing to
+                  remount will result in <application>Update
+                  Manager</application> not being able to access the
+                resource.</para>
+              </note>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>
+              <emphasis role="bold">Distribution</emphasis>
+            </term>
+            <listitem>
+              <para>The name of the distribution or name of the distribution
+                version.</para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>
+              <emphasis role="bold">Sections</emphasis>
+            </term>
+            <listitem>
+              <para>The section of the distribution repository to access.</para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>
+              <emphasis role="bold">Comment</emphasis>
+            </term>
+            <listitem>
+              <para>Add a comment to describe the repository.</para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+        <note>
+          <para>Repositories defined using <application>Synaptic</application>,
+            another package management tool, are automatically displayed in the
+              <application>Software Updater</application> Software Sources
+          list.</para>
+        </note>
+      </sect3>
+    </sect2>
+    <sect2 id="managing-authentication">
+      <title>Managing Authentication Keys</title>
+      <para>Authentication keys make it possible to verify the integrity of
+        update software. From the <guilabel>Authentication Keys</guilabel>
+        dialog it is possible to view and manage the list authentication keys.
+        Each key corresponds to a Software Source defined in the
+          <guilabel>Software Preference</guilabel> dialog (see <xref
+          linkend="managing-sources"/>). Keys can be added and removed. In the
+        event of an error it is also possible to restore the default
+        authentication keys provided by the defined update repositories.</para>
+      <!-- I am not sure how the keys are obtained -->
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/authentication.png" format="PNG"/>
+          </imageobject>
+          <caption>
+            <para>Managing Authentication Keys</para>
+          </caption>
+        </mediaobject>
+      </screenshot>
+      <sect3 id="adding-auth-keys">
+        <title>Adding Authentication Keys</title>
+        <para>Authentication keys are usually obtained from the software vendor
+          running the repository. Often the vendor will place a copy of the
+          authentication key on a key server, for example <ulink
+            url="http://www.keyserver.net">www.keyserver.net</ulink>. The key
+          can then be retrieved using the command <command>gpg
+          -recv-key</command>. When the key resides on a key server the option
+            <option>--keyserver</option> must be used to give the name of this
+          key server.</para>
+        <programlisting>
+gpg -recv-key --keyserver www.keyserver.net
+        </programlisting>
+        <note>
+          <para>If the key is fetched over a untrusted medium, like the
+            Internet, additional steps should be taken to verify the key. For
+            example, getting the fingerprint with a secure method such as by
+            phone, letter, or business card. Alternately you can check if the
+            key is signed with a known-good key.</para>
+        </note>
+        <para>Once the key is downloaded, select it using the <guilabel>Choose
+            a key-file</guilabel> dialog that is displayed when the
+            <guibutton>Add</guibutton> button.</para>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/authentication-add.png" format="PNG"/>
+            </imageobject>
+            <caption>
+              <para>Adding Authentication Keys</para>
+            </caption>
+          </mediaobject>
+        </screenshot>
+      </sect3>
+      <sect3 id="remove-auth-keys">
+        <title>Removing Authentication Keys</title>
+        <para>Authentication keys can be removed by selecting a record item then
+            <action>clicking</action> the <guibutton>Remove</guibutton>
+        button.</para>
+      </sect3>
+      <sect3 id="restore-auth-keys">
+        <title>Restoring Default Keys</title>
+        <para>During installation the default Ubuntu Authentication keys are
+          added to the <application>Ubuntu GPG Keyring</application> package. In
+          the even of a key being accidentally deleted it can be restored by
+          clicking the <guibutton>Restore default keys</guibutton>
+        button.</para>
+      </sect3>
+    </sect2>
+    <sect2 id="managing-settings">
+      <title>Managing Settings</title>
+      <para>The <guibutton>Settings</guibutton> button, located on the
+          <guilabel>Software Preferences</guilabel> dialog, displays the
+          <guilabel>Settings</guilabel> dialog. From this interface you can
+        manage the behavior of the application and pre-update process.</para>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/settings.png" format="PNG"/>
+          </imageobject>
+          <caption>
+            <para>Managing Settings</para>
+          </caption>
+        </mediaobject>
+      </screenshot>
+      <para>The following options are available:</para>
+      <itemizedlist>
+        <title>User Interface</title>
+        <listitem>
+          <para>
+            <emphasis>Show disabled software sources:</emphasis> - When checked
+            software sources that are not checked in the <guilabel>Software
+              Preferences</guilabel> dialog are displayed. When unchecked,
+            these items are not displayed in the list.</para>
+        </listitem>
+      </itemizedlist>
+      <itemizedlist>
+        <title>Updates</title>
+        <listitem>
+          <para>
+            <itemizedlist>
+              <listitem>
+                <para>
+                  <emphasis>Automatically check for software updates:</emphasis>
+                  - When checked the <guilabel>Update interval in
+                  days</guilabel> option is enabled. <application>Update
+                  Manager</application> will poll all enabled software sources
+                  for updates according to the value specified in the
+                  scroll-box.</para>
+              </listitem>
+              <listitem>
+                <para>
+                  <emphasis>Download upgradable packages:</emphasis> - When
+                  checked <application>Software Updater</application> will
+                  automatically download any available software update packages.
+                  It will not install them until the user has defined the
+                  installation list (see <xref linkend="performing-updates"
+                />).</para>
+              </listitem>
+            </itemizedlist>
+          </para>
+        </listitem>
+      </itemizedlist>
+      <itemizedlist>
+        <title>Temporary files</title>
+        <listitem>
+          <para>
+            <emphasis>Automatically clean temporary packages files:</emphasis> -
+            When checked the <guilabel>Clean interval in days</guilabel> option
+            is enabled. <application>Software Updater</application> automatically
+            removes any temporary files created by the upgrade process according
+            to the value specified in the scroll-box.</para>
+        </listitem>
+        <listitem>
+          <para><emphasis>Set maximum size of the package cache:</emphasis> When checked the size of
+          the package cache is limited to the value specified in the <guibutton>Maximum size in
+            MB</guibutton> spin-box.</para>
+        </listitem>
+        <listitem>
+          <para><emphasis>Delete old packages in the package cache:</emphasis> When checked cached
+            packaged with a date older than the value specified in the <guibutton>Maximum age in
+              days</guibutton> spin-box will be automatically purged from the cache.</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+    <sect2 id="configure-terminal-only-view">
+      <title>Install Progress for Terminal View Only</title>
+      <para>It is also possible to configure the installation progress to use
+        only a terminal view. That is to say, no progress bar is displayed, only
+        a terminal view.</para>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/main-view-monitor-update.png"
+              format="PNG"/>
+          </imageobject>
+          <caption>
+            <para>Monitoring Installation Progress</para>
+          </caption>
+        </mediaobject>
+      </screenshot>
+      <caution>
+        <para>Do not terminate the installation process. This may lead to
+          corruption of installed programs and general system
+        instability.</para>
+      </caution>
+      <para>Changing between &apos;Progress Bar&apos; and
+        &apos;Terminal View,&apos; modes is managed via
+          <application>Synaptic</application>. To change modes proceed as
+        follows:</para>
+      <procedure>
+        <step>
+          <para>Start <application>Synaptic</application> by selecting <menuchoice>
+              <guimenu>System</guimenu>
+              <guisubmenu>Administration</guisubmenu>
+              <guimenuitem>Synaptic Package Manager</guimenuitem>
+            </menuchoice> from the Desktop menu system. </para>
+        </step>
+        <step>
+          <para>When prompted, enter your password.</para>
+        </step>
+        <step>
+          <para>From the main menu, select <menuchoice>
+              <guimenu>Settings</guimenu>
+              <guimenuitem>Preferences</guimenuitem>
+            </menuchoice>. The <guilabel>Preferences</guilabel> dialog is
+            displayed.</para>
+        </step>
+        <step>
+          <para>From the <guibutton>General</guibutton> tab, <guilabel>Apply
+              Changes</guilabel> group, <action>check</action> or
+              <action>uncheck</action> the <guibutton>Apply changes in terminal
+              window</guibutton> checkbox.</para>
+          <screenshot>
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="figures/synaptic-toggle-install-view.png"
+                  format="PNG"/>
+              </imageobject>
+              <caption>
+                <para>Synaptic Preferences - General Tab</para>
+              </caption>
+            </mediaobject>
+          </screenshot>
+        </step>
+        <step>
+          <para>
+            <action>Click</action>
+            <guibutton>OK</guibutton> and exit
+            <application>Synaptic</application>.</para>
+        </step>
+      </procedure>
+    </sect2>
+  </sect1>
+  <sect1 id="about">
+    <title>About Software Updater</title>
+    <para>The <application>Software Updater</application> was written by Michiel
+      Sikkes <email>michiel@eyeopened.nl</email> and Michael Vogt
+        <email>michael.vogt@ubuntu.com</email> as an
+      <application>apt</application> Software Updater for the GNOME Desktop of the
+      Ubuntu distribution. The user manual was written by Sean Wheller
+        <email>sean@inwords.co.za</email>.</para>
+    <para>To report a bug or make a suggestion regarding this package or this
+      manual, send mail to <email>ubuntu-users@lists.ubuntu.com</email>.</para>
+  </sect1> &GFDL; </article>

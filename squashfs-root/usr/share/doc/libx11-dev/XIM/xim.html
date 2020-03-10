@@ -1,0 +1,2273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>The Input Method Protocol</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1" /><meta name="description" content="This specifies a protocol between IM library and IM (Input Method) Server for internationalized text input, which is indepedent from any specific language, any specific input method and the transport layer used in communication between the IM library and the IM Server, and uses a client-server model. This protocol allows user to use his/her favorite method for all applications within the stand-along distrubuted environment." /><style xmlns="" type="text/css">/*
+ * Copyright (c) 2011 Gaetan Nadon
+ * Copyright (c) 2010, Oracle and/or its affiliates. All rights reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice (including the next
+ * paragraph) shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ */
+
+/*
+ * Shared stylesheet for X.Org documentation translated to HTML format
+ * http://www.sagehill.net/docbookxsl/UsingCSS.html
+ * http://www.w3schools.com/css/default.asp
+ * https://addons.mozilla.org/en-US/firefox/addon/web-developer/developers
+ * https://addons.mozilla.org/en-US/firefox/addon/font-finder/
+ */
+
+/*
+ * The sans-serif fonts are considered more legible on a computer screen
+ * http://dry.sailingissues.com/linux-equivalents-verdana-arial.html
+ *
+ */
+body {
+  font-family: "Bitstream Vera Sans", "DejaVu Sans", Tahoma, Geneva, Arial, Sans-serif;
+  /* In support of using "em" font size unit, the w3c recommended method */
+  font-size: 100%;
+}
+
+/*
+ * Selection: all elements requiring mono spaced fonts.
+ *
+ * The family names attempt to match the proportionally spaced font
+ * family names such that the same font name is used for both.
+ * We'd like to use Bitstream, for example, in both proportionally and
+ * mono spaced font text.
+ */
+.command,
+.errorcode,
+.errorname,
+.errortype,
+.filename,
+.funcsynopsis,
+.function,
+.parameter,
+.programlisting,
+.property,
+.screen,
+.structname,
+.symbol,
+.synopsis,
+.type
+{
+  font-family:  "Bitstream Vera Sans Mono", "DejaVu Sans Mono", Courier, "Liberation Mono", Monospace;
+}
+
+/*
+ * Books have a title page, a preface, some chapters and appendices,
+ * a glossary, an index and a bibliography, in that order.
+ *
+ * An Article has no preface and no chapters. It has sections, appendices,
+ * a glossary, an index and a bibliography.
+ */
+
+/*
+ * Selection: book main title and subtitle
+ */
+div.book>div.titlepage h1.title,
+div.book>div.titlepage h2.subtitle {
+  text-align: center;
+}
+
+/*
+ * Selection: article main title and subtitle
+ */
+div.article>div.titlepage h2.title,
+div.article>div.titlepage h3.subtitle,
+div.article>div.sect1>div.titlepage h2.title,
+div.article>div.section>div.titlepage h2.title {
+  text-align: center;
+}
+
+/*
+ * Selection: various types of authors and collaborators, individuals or corporate
+ *
+ * These authors are not always contained inside an authorgroup.
+ * They can be contained inside a lot of different parent types where they might
+ * not be centered.
+ * Reducing the margin at the bottom makes a visual separation between authors
+ * We specify here the ones on the title page, others may be added based on merit.
+ */
+div.titlepage .authorgroup,
+div.titlepage .author,
+div.titlepage .collab,
+div.titlepage .corpauthor,
+div.titlepage .corpcredit,
+div.titlepage .editor,
+div.titlepage .othercredit {
+  text-align: center;
+  margin-bottom: 0.25em;
+}
+
+/*
+ * Selection: the affiliation of various types of authors and collaborators,
+ * individuals or corporate.
+ */
+div.titlepage .affiliation {
+  text-align: center;
+}
+
+/*
+ * Selection: product release information (X Version 11, Release 7)
+ *
+ * The releaseinfo element can be contained inside a lot of different parent
+ * types where it might not be centered.
+ * We specify here the one on the title page, others may be added based on merit.
+ */
+div.titlepage p.releaseinfo {
+  font-weight: bold;
+  text-align: center;
+}
+
+/*
+ * Selection: publishing date
+ */
+div.titlepage .pubdate {
+  text-align: center;
+}
+
+/*
+ * The legal notices are displayed in smaller sized fonts
+ * Justification is only supported in IE and therefore not requested.
+ *
+ */
+.legalnotice {
+  font-size: small;
+  font-style: italic;
+}
+
+/*
+ * For documentation having multiple licenses, the copyright and legalnotice
+ * elements sequence cannot instantiated multiple times.
+ * The copyright notice and license text are therefore coded inside a legalnotice
+ * element. The role attribute on the paragraph is used to allow styling of the
+ * copyright notice text which should not be italicized.
+ */
+p.multiLicensing {
+  font-style: normal;
+  font-size: medium;
+}
+
+/*
+ * Selection: book or article main ToC title
+ * A paragraph is generated for the title rather than a level 2 heading.
+ * We do not want to select chapters sub table of contents, only the main one
+ */
+div.book>div.toc>p,
+div.article>div.toc>p {
+  font-size: 1.5em;
+  text-align: center;
+}
+
+/*
+ * Selection: major sections of a book or an article
+ *
+ * Unlike books, articles do not have a titlepage element for appendix.
+ * Using the selector "div.titlepage h2.title" would be too general.
+ */
+div.book>div.preface>div.titlepage h2.title,
+div.book>div.chapter>div.titlepage h2.title,
+div.article>div.sect1>div.titlepage h2.title,
+div.article>div.section>div.titlepage h2.title,
+div.book>div.appendix>div.titlepage h2.title,
+div.article>div.appendix h2.title,
+div.glossary>div.titlepage h2.title,
+div.index>div.titlepage h2.title,
+div.bibliography>div.titlepage h2.title {
+   /* Add a border top over the major parts, just like printed books */
+   /* The Gray color is already used for the ruler over the main ToC. */
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: Gray;
+  /* Put some space between the border and the title */
+  padding-top: 0.2em;
+  text-align: center;
+}
+
+/*
+ * A Screen is a verbatim environment for displaying text that the user might
+ * see on a computer terminal. It is often used to display the results of a command.
+ *
+ * http://www.css3.info/preview/rounded-border/
+ */
+.screen {
+  background: #e0ffff;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #B0C4DE;
+  border-radius: 1.0em;
+  /* Browser's vendor properties prior to CSS 3 */
+  -moz-border-radius: 1.0em;
+  -webkit-border-radius: 1.0em;
+  -khtml-border-radius: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 1.0em;
+  padding: 0.5em;
+}
+
+/*
+ * Emphasis program listings with a light shade of gray similar to what
+ * DocBook XSL guide does: http://www.sagehill.net/docbookxsl/ProgramListings.html
+ * Found many C API docs on the web using like shades of gray.
+ */
+.programlisting {
+  background: #F4F4F4;
+  border-width: 1px;
+  border-style: solid;
+  border-color: Gray;
+  padding: 0.5em;
+}
+
+/*
+ * Emphasis functions synopsis using a darker shade of gray.
+ * Add a border such that it stands out more.
+ * Set the padding so the text does not touch the border.
+ */
+.funcsynopsis, .synopsis {
+  background: #e6e6fa;
+  border-width: 1px;
+  border-style: solid;
+  border-color: Gray;
+  clear: both;
+  margin: 0.5em;
+  padding: 0.25em;
+}
+
+/*
+ * Selection: paragraphs inside synopsis
+ *
+ * Removes the default browser margin, let the container set the padding.
+ * Paragraphs are not always used in synopsis
+ */
+.funcsynopsis p,
+.synopsis p {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Selection: variable lists, informal tables and tables
+ *
+ * Note the parameter name "variablelist.as.table" in xorg-xhtml.xsl
+ * A table with rows and columns is constructed inside div.variablelist
+ *
+ * Set the left margin so it is indented to the right
+ * Display informal tables with single line borders
+ */
+table {
+  margin-left: 0.5em;
+  border-collapse: collapse;
+}
+
+/*
+ * Selection: paragraphs inside tables
+ *
+ * Removes the default browser margin, let the container set the padding.
+ * Paragraphs are not always used in tables
+ */
+td p {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Add some space between the left and right column.
+ * The vertical alignment helps the reader associate a term
+ * with a multi-line definition.
+ */
+td, th {
+  padding-left: 1.0em;
+  padding-right: 1.0em;
+  vertical-align: top;
+}
+
+.warning {
+  border: 1px solid red;
+  background: #FFFF66;
+  padding-left: 0.5em;
+}
+</style></head><body><div class="article"><div class="titlepage"><div><div><h2 class="title"><a id="xim"></a>The Input Method Protocol</h2></div><div><h3 class="subtitle"><em>X Consortium Standard</em></h3></div><div><div class="authorgroup"><div class="author"><h3 class="author"><span class="firstname">Masahiko</span> <span class="surname">Narita</span></h3><div class="affiliation"><span class="orgname">FUJITSU Limited.<br /></span></div></div><div class="author"><h3 class="author"><span class="firstname">Hideki</span> <span class="surname">Hiura</span></h3><div class="affiliation"><span class="orgname">SunSoft, Inc.<br /></span></div></div></div></div><div><p class="releaseinfo">X Version 11, Release 7.7</p></div><div><p class="releaseinfo">Version 1.0</p></div><div><p class="copyright">Copyright © 1993, 1994 FUJITSU LIMITED, Oracle and/or its affiliates</p></div><div><div class="legalnotice"><a id="idm25"></a><p>Permission to use,copy and distribute this documetation for any purpose
+and without fee is hereby granted, provided that the above copyright notice
+and this permission notice appear in all copies.  Fujitsu and Sun Microsystems
+make no representation about the suitability for any purpose of the information in this document.
+This documentation is provided as is without express implied warranty.
+</p></div></div><div><div class="legalnotice"><a id="idm27"></a><p class="multiLicensing">Copyright © 1993, 1994 X Consortium</p><p>Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+</p><p>The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.</p><p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE X
+CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</p><p>
+Except as contained in this notice, the name of the X Consortium shall not be
+used in advertising or otherwise to promote the sale, use or other dealings in
+this Software without prior written authorization from the X Consortium.
+</p><p>X Window System is a trademark of The Open Group.</p></div></div><div><div class="abstract"><p>
+This specifies a protocol between IM library and IM (Input Method) Server for internationalized text input, which is indepedent from any specific language, any specific input method and the transport layer used in communication between the IM library and the IM Server, and uses a client-server model.  This protocol allows user to use his/her favorite method for all applications within the stand-along distrubuted environment.
+</p></div></div></div><hr /></div><div class="toc"><p><strong>Table of Contents</strong></p><dl class="toc"><dt><span class="sect1"><a href="#Introduction">Introduction</a></span></dt><dd><dl><dt><span class="sect2"><a href="#Scope">Scope</a></span></dt><dt><span class="sect2"><a href="#Background">Background</a></span></dt><dt><span class="sect2"><a href="#Input_Method_Styles">Input Method Styles</a></span></dt></dl></dd><dt><span class="sect1"><a href="#Architecture">Architecture</a></span></dt><dd><dl><dt><span class="sect2"><a href="#Implementation_Model">Implementation Model</a></span></dt><dt><span class="sect2"><a href="#Structure_of_IM">Structure of IM</a></span></dt><dt><span class="sect2"><a href="#Event_Handling_Model">Event Handling Model</a></span></dt><dt><span class="sect2"><a href="#Event_Flow_Control">Event Flow Control</a></span></dt></dl></dd><dt><span class="sect1"><a href="#Default_Preconnection_Convention">Default Preconnection Convention</a></span></dt><dt><span class="sect1"><a href="#Protocol">Protocol</a></span></dt><dd><dl><dt><span class="sect2"><a href="#Basic_Requests_Packet_Format">Basic Requests Packet Format</a></span></dt><dt><span class="sect2"><a href="#Data_Types">Data Types</a></span></dt><dt><span class="sect2"><a href="#Error_Notification">Error Notification</a></span></dt><dt><span class="sect2"><a href="#Connection_Establishment">Connection Establishment</a></span></dt><dt><span class="sect2"><a href="#Event_Flow_Control_2">Event Flow Control</a></span></dt><dt><span class="sect2"><a href="#Encoding_Negotiation">Encoding Negotiation</a></span></dt><dt><span class="sect2"><a href="#Query_the_supported_extension_protocol_list">Query the supported extension protocol list</a></span></dt><dt><span class="sect2"><a href="#Setting_IM_Values">Setting IM Values</a></span></dt><dt><span class="sect2"><a href="#Getting_IM_Values">Getting IM Values</a></span></dt><dt><span class="sect2"><a href="#Creating_an_IC">Creating an IC</a></span></dt><dt><span class="sect2"><a href="#Destroying_the_IC">Destroying the IC</a></span></dt><dt><span class="sect2"><a href="#Setting_IC_Values">Setting IC Values</a></span></dt><dt><span class="sect2"><a href="#Getting_IC_Values">Getting IC Values</a></span></dt><dt><span class="sect2"><a href="#Setting_IC_Focus">Setting IC Focus</a></span></dt><dt><span class="sect2"><a href="#Unsetting_IC_Focus">Unsetting IC Focus</a></span></dt><dt><span class="sect2"><a href="#Filtering_Events">Filtering Events</a></span></dt><dt><span class="sect2"><a href="#Synchronizing_with_the_IM_Server">Synchronizing with the IM Server</a></span></dt><dt><span class="sect2"><a href="#Sending_a_committed_string">Sending a committed string</a></span></dt><dt><span class="sect2"><a href="#Reset_IC">Reset IC</a></span></dt><dt><span class="sect2"><a href="#Callbacks">Callbacks</a></span></dt></dl></dd><dt><span class="sect1"><a href="#Acknowledgements">Acknowledgements</a></span></dt><dt><span class="bibliography"><a href="#idm819">References</a></span></dt><dt><span class="appendix"><a href="#common_extensions">A. Common Extensions</a></span></dt><dt><span class="appendix"><a href="#transport_list">B. Transport List</a></span></dt><dt><span class="appendix"><a href="#protocol_number">C. Protocol Number</a></span></dt><dt><span class="appendix"><a href="#implementation_tips">D. Implementation Tips</a></span></dt></dl></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Introduction"></a>Introduction</h2></div></div></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Scope"></a>Scope</h3></div></div></div><p>
+
+The internationalization in the
+X Window System
+Version 11, Release 5 (X11R5) provides a common API which application
+developers can use to create portable internationalized programs and to
+adapt them to the requirements of different native languages, local customs,
+and character string encodings (this is called "localization").
+As one of its internationalization mechanisms X11R5 has defined a functional
+interface for internationalized text input, called XIM (X Input Method).
+</p><p>
+
+When a client-server model is used with an IM (Input Method) implementation,
+a protocol must be established between the client and the server.
+However, the protocol used to interface Input Method Servers (IM Servers)
+with the Input Method libraries (IM libraries) to which applications are
+linked was not addressed in X11R5.
+This led application developers to depend on vendor-specific input methods,
+decreased the user's choice of available input methods, and made it more
+difficult for developers to create portable applications. This paper describes
+the Input Method Protocol developed for X11R6 to resolve the above problems
+and to address the requirements of existing and future input methods.
+</p><p>
+
+The Input Method Protocol is independent from the transport layer used in
+communication between the IM library and the IM Server.
+Thus, the input method protocol can be built on any inter-process
+communication mechanism, such as TCP/IP or the X protocol.
+</p><p>
+In addition, the protocol provides for future extensions such as differing
+input model types.
+</p></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Background"></a>Background</h3></div></div></div><p>
+
+Text input is much more simple for some languages than
+others.  English, for instance, uses an alphabet of a manageable size,
+and input consists of pressing the corresponding key on a keyboard,
+perhaps in combination with a shift key for capital letters or special
+characters.
+</p><p>
+
+Some languages have larger alphabets, or modifiers such as accents,
+which require the addition of special key combinations in order to enter
+text.  These input methods may require "dead-keys" or "compose-keys"
+which, when followed by different combinations of key strokes,
+generate different characters.
+</p><p>
+
+Text input for ideographic languages is much less simple.  In these
+languages, characters represent actual objects rather than phonetic
+sounds used in pronouncing a word, and the number of characters
+in these languages may continue to grow.  In Japanese, for instance, most
+text input methods involve entering characters in a phonetic alphabet,
+after which the input method searches a dictionary for possible
+ideographic equivalents (of which there may be many).  The input method then
+presents the candidate characters for the user to choose from.
+</p><p>
+
+In Japanese, either Kana (phonetic symbols) or Roman letters are
+typed and then a region is selected for conversion to Kanji. Several
+Kanji characters may have the same phonetic representation. If that
+is the case with the string entered, a menu of characters is presented
+and the user must choose the appropriate one. If no choice is necessary
+or a preference has been established, the input method does the
+substitution directly.
+</p><p>
+
+These complicated input methods must present state information (Status Area),
+text entry and edit space (Preedit Area), and menu/choice presentations
+(Auxiliary Area).  Much of the protocol between the IM library and the IM
+Server involves managing these IM areas.
+Because of the size and complexity of these input methods, and because
+of how widely they vary from one language or locale to another, they are
+usually implemented as separate processes which can serve many client
+processes on the same computer or network.
+</p><p>
+
+</p></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Input_Method_Styles"></a>Input Method Styles</h3></div></div></div><p>
+
+X11 internationalization support includes the following four types of
+input method:
+
+</p><div class="variablelist"><table border="0" class="variablelist"><colgroup><col align="left" valign="top" /><col /></colgroup><tbody><tr><td><p><span class="term">- on-the-spot:</span></p></td><td><p>
+The client application is directed by the IM Server to display all
+pre-edit data at the site of text insertion.  The client registers
+callbacks invoked by the input method during pre-editing.
+      </p></td></tr><tr><td><p><span class="term">- off-the-spot:</span></p></td><td><p>
+The client application provides display windows for the pre-edit data
+to the input method which displays into them directly.
+      </p></td></tr><tr><td><p><span class="term">- over-the-spot:</span></p></td><td><p>
+The input method displays pre-edit data in a window which it brings up
+directly over the text insertion position.
+      </p></td></tr><tr><td><p><span class="term">- root-window:</span></p></td><td><p>
+The input method displays all pre-edit data in a separate area of the
+screen in a window specific to the input method.
+      </p></td></tr></tbody></table></div><p>
+Client applications must choose from the available input methods
+supported by the IM Server and provide the display areas and callbacks
+required by the input method.
+</p></div></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Architecture"></a>Architecture</h2></div></div></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Implementation_Model"></a>Implementation Model</h3></div></div></div><p>
+
+Within the X Window System environment, the following two typical
+architectural models can be used as an input method's implementation
+model.
+</p><div class="variablelist"><table border="0" class="variablelist"><colgroup><col align="left" valign="top" /><col /></colgroup><tbody><tr><td><p><span class="term">- Client/Server model:</span></p></td><td><p>
+A separate process, the IM Server, processes input and handles preediting,
+converting, and committing.  The IM library within the application, acting
+as client to the IM Server, simply receives the committed string from the
+IM Server.
+      </p></td></tr><tr><td><p><span class="term">- Library model:</span></p></td><td><p>
+All input is handled by the IM library within the application.  The
+event process is closed within the IM library and a separate IM Server
+process may not be required.
+      </p></td></tr></tbody></table></div><p>
+
+Most languages which need complex preediting, such as Asian languages,
+are implemented using the Client/Server IM model.  Other languages
+which need only dead key or compose key processing, such as European
+languages, are implemented using the Library model.
+</p><p>
+
+In this paper, we discuss mainly the Client/Server IM model and the
+protocol used in communication between the IM library (client) and the IM
+Server.
+</p></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Structure_of_IM"></a>Structure of IM</h3></div></div></div><p>
+
+When the client connects or disconnects to the IM Server, an open or close
+operation occurs between the client and the IM Server.
+</p><p>
+
+The IM can be specified at the time of XOpenIM() by setting the locale
+of the client and a locale modifier. Since the IM remembers
+the locale at the time of creation XOpenIM() can be called
+multiple times (with the
+setting for the locale and the locale modifier changed) to support
+multiple languages.
+</p><p>
+
+In addition, the supported IM type can be obtained using XGetIMValues().
+</p><p>
+
+The client usually holds multiple input (text) fields. Xlib provides a
+value type called the "Input Context" (IC) to manage each individual
+input field.  An IC can be created by specifying XIM using XCreateIC(),
+and it can be destroyed using XDestroyIC().
+</p><p>
+
+The IC can specify the type of IM which is supported by XIM for each
+input field, so each input field can handle a different type of IM.
+</p><p>
+
+Most importantly information such as the committed string sent from
+the IM Server to the client, is exchanged based on each IC.
+</p><p>
+
+Since each IC corresponds to an input field, the focused input field
+should be announced to the IM Server using XSetICFocus(). (XUnsetICFocus()
+can also be used to change the focus.)
+</p><p>
+
+</p></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Event_Handling_Model"></a>Event Handling Model</h3></div></div></div><p>
+
+Existing input methods support either the FrontEnd method, the BackEnd method,
+or both.  This protocol specifically supports the BackEnd method as
+the default method, but also supports the FrontEnd method as an optional
+IM Server extension.
+</p><p>
+
+The difference between the FrontEnd and BackEnd methods is in how
+events are delivered to the IM Server.  (Fig. 1) 
+</p><div class="sect3"><div class="titlepage"><div><div><h4 class="title"><a id="BackEnd_Method"></a>BackEnd Method</h4></div></div></div><p>
+
+In the BackEnd method, client window input events are always delivered
+to the IM library, which then passes them to the IM Server.  Events are
+handled serially in the order delivered, and therefore there is no
+synchronization problem between the IM library and the IM Server.
+</p><p>
+
+Using this method, the IM library forwards all KeyPress and KeyRelease
+events to the IM Server (as required by the Event Flow Control model
+described in
+<a class="xref" href="#Event_Flow_Control" title="Event Flow Control">Event Flow Control</a>)
+and synchronizes with the IM Server (as described in
+<a class="xref" href="#Filtering_Events" title="Filtering Events">Filtering Events</a>).
+
+</p></div><div class="sect3"><div class="titlepage"><div><div><h4 class="title"><a id="FrontEnd_Method"></a>FrontEnd Method</h4></div></div></div><p>
+
+In the FrontEnd method, client window input events are delivered by the
+X server directly to both the IM Server and the IM library.  Therefore this
+method provides much better interactive performance while preediting
+(particularly in cases such as when the IM Server is running locally on
+the user's workstation and the client application is running on another
+workstation over a relatively slow network).
+</p><p>
+
+However, the FrontEnd model may have synchronization problems between
+the key events handled in the IM Server and other events handled in the
+client, and these problems could possibly cause the loss or duplication
+of key events.  For this reason, the BackEnd method is the core method
+supported, and the FrontEnd method is made available as an extension for
+performance purposes. (Refer to
+<a class="xref" href="#common_extensions" title="A. Common Extensions"><em>Common Extensions</em></a>
+for more information.)
+</p><div class="mediaobject"><a id="flow_of_events"></a><object type="image/svg+xml" data="eventflow.svg"></object><div class="caption">The flow of events</div></div></div></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Event_Flow_Control"></a>Event Flow Control</h3></div></div></div><p>
+
+This protocol supports two event flow models for communication between the
+IM library and the IM Server (Static and Dynamic).
+</p><p>
+
+Static Event Flow requires that input events always be sent to the IM
+Server from the client.
+</p><p>
+
+Dynamic Event Flow, however, requires only that those input events which
+need to be processed (converted) be sent to the IM Server from the client.
+</p><p>
+
+For instance, in the case of inputing a combination of ASCII characters
+and Chinese characters, ASCII characters do not need to be processed in
+the IM Server, so their key events do not have to be sent to the IM
+Server.  On the other hand, key events necessary for composing Chinese
+characters must be sent to the IM Server.
+</p><p>
+
+Thus, by adopting the Dynamic Event Flow, the number of requests among the
+X Server, the client, and the IM Server is significantly reduced, and the
+number of context switches is also reduced, resulting in improved performance.
+The IM Server can send
+<code class="function">XIM_REGISTER_TRIGGERKEYS </code>
+message in order to switch the event flow in the Dynamic Event Flow.
+</p><p>
+
+The protocol for this process is described in
+<a class="xref" href="#Event_Flow_Control_2" title="Event Flow Control">Event Flow Control</a>.
+</p></div></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Default_Preconnection_Convention"></a>Default Preconnection Convention</h2></div></div></div><p>
+
+IM Servers are strongly encouraged to register their symbolic
+names as the ATOM names into the IM Server directory property,
+<code class="function">XIM_SERVERS,</code>
+on the root window of the screen_number 0.
+This property can contain a list of ATOMs, and the each ATOM represents
+each possible IM Server.
+IM Server names are restricted to POSIX Portable Filename Character Set.
+To discover if the IM Server is active, see if there is an owner for
+the selection with that atom name.  To learn the address of that IM Server,
+convert the selection target
+<code class="function">TRANSPORT,</code>
+which will return a string form of the transport address(es).
+To learn the supported locales of that IM Server, convert the selection target
+<code class="function">LOCALES,</code>
+which will return a set of names of the supported locales in the syntax
+X/Open defines.
+</p><p>
+
+The basic semantics to determine the IM Server if there are
+multiple ATOMs are found in
+<code class="function">XIM_SERVERS</code>
+property, is first fit if the IM Server name is not given as
+a X modifier's category
+<code class="function">im.</code>
+</p><p>
+
+The address information retrievable from the
+<code class="function">TRANSPORT</code>
+target is a transport-specific name.
+The preregistered formats for transport-specific names are listed in
+<a class="xref" href="#transport_list" title="B. Transport List"><em>Transport List</em></a>.
+Additional transport-specific names may be registered with X Consortium.
+</p><p>
+For environments that lack X connections, or for IM Servers which
+do not use the X Window System, the preconnection convention with IM Server
+may be given outside the X Window system (e.g. using a Name Service).
+</p></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Protocol"></a>Protocol</h2></div></div></div><p>
+
+The protocol described below uses the bi-directional
+synchronous/asynchronous request/reply/error model and is specified
+using the same conventions outlined in Section 2 of the core X Window
+System protocol [1]:
+</p><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Basic_Requests_Packet_Format"></a>Basic Requests Packet Format</h3></div></div></div><p>
+
+This section describes the requests that may be exchanged between the client
+and the IM Server.
+</p><p>
+
+The basic request packet header format is as follows.
+</p><pre class="literallayout">
+          major-opcode:               CARD8
+          minor-opcode:               CARD8
+          length:                     CARD16
+</pre><p>
+The MAJOR-OPCODE specifies which core request or extension package this
+packet represents.  If the MAJOR-OPCODE corresponds to a core request,
+the MINOR-OPCODE contains 8 bits of request-specific data.
+(If the MINOR-OPCODE is not used, it is 0.)
+Otherwise, the MAJOR-OPCODE and the MINOR-OPCODE are specified by
+<code class="function">XIM_QUERY_EXTENSION</code>
+message.  (Refer to 4.7. Query the supported extension protocol list.)
+The LENGTH field specifies the number of 4 bytes elements following the
+header.  If no additional data is followed by the header, the LENGTH field
+will be 0.
+</p></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Data_Types"></a>Data Types</h3></div></div></div><p>
+The following data types are used in the core X IM Server protocol:
+</p><pre class="literallayout">
+BITMASK16
+     CARD16
+BITMASK32
+     CARD32
+PADDING FORMAT
+     Where N is some expression, and Pad(N) is the number of bytes needed to round N up to a
+
+          Pad(N) = (4 - (N mod 4)) mod 4
+
+LPCE
+  1          A character from the4 X Portable Character Set in Latin Portable
+             Character Encoding
+
+STRING
+     2     n              length of string in bytes
+     n     LISTofLPCE     string
+     p                    unused, p=Pad(2+n)
+
+STR
+     1     n              length of name in bytes
+     n     STRING8        name
+
+XIMATTR
+     2     CARD16         attribute ID (*1)
+     2     CARD16         type of the value (*2)
+     2     n              length of im-attribute
+     n     STRING8        im-attribute
+     p                    unused, p = Pad(2+n)
+
+The im-attribute argument specifies XIM values such as XNQueryInputStyle.
+
+XICATTR
+     2     CARD16         attribute ID (*1)
+     2     CARD16         type of the value (*2)
+     2     n              length of ic-attribute
+     n     STRING8        ic-attribute
+     p                    unused, p = Pad(2+n)
+
+(*1) XIMATTR and XICATTR are used during the setup stage and XIMATTRIBUTE and
+     XICATTRIBUTE are used after each attribute ID has been recognized by
+     the IM Server and the IM library.
+
+(*2) The value types are defined as follows:
+</pre><div class="informaltable"><a id="valuetypes"></a><table class="informaltable" border="1"><colgroup><col align="left" class="col1" /><col align="left" class="col2" /><col align="left" class="col3" /><col align="left" class="col4" /><col align="left" class="col5" /></colgroup><thead><tr><th align="left">values</th><th align="left">data</th><th align="left">format</th><td class="auto-generated"> </td><td class="auto-generated"> </td></tr></thead><tbody><tr><td align="left">#0</td><td align="left">Separator of NestedList</td><td align="left">-----(*3)</td><td class="auto-generated"> </td><td class="auto-generated"> </td></tr><tr><td align="left">#1</td><td align="left">byte data</td><td align="left">CARD8</td><td class="auto-generated"> </td><td class="auto-generated"> </td></tr><tr><td align="left">#2</td><td align="left">word data</td><td align="left">CARD16</td><td class="auto-generated"> </td><td class="auto-generated"> </td></tr><tr><td align="left">#3</td><td align="left">long data</td><td align="left">CARD32</td><td class="auto-generated"> </td><td class="auto-generated"> </td></tr><tr><td align="left">#4</td><td align="left">char data</td><td align="left">STRING8</td><td class="auto-generated"> </td><td class="auto-generated"> </td></tr><tr><td align="left">#5</td><td align="left">Window</td><td align="left">CARD32</td><td class="auto-generated"> </td><td class="auto-generated"> </td></tr><tr><td align="left">#10</td><td align="left">XIMStyles</td><td align="left">2</td><td align="left">n</td><td align="left">number of XIMStyle list</td></tr><tr><td align="left"> </td><td align="left"> </td><td align="left">2</td><td align="left"> </td><td align="left">unused</td></tr><tr><td align="left"> </td><td align="left"> </td><td align="left">n</td><td align="left">CARD32</td><td align="left">XIMStyle list</td></tr><tr><td align="left">#11</td><td align="left">XRectangle</td><td align="left">2</td><td align="left">INT16</td><td align="left">X</td></tr><tr><td align="left"> </td><td align="left"> </td><td align="left">2</td><td align="left">INT16</td><td align="left">Y</td></tr><tr><td align="left"> </td><td align="left"> </td><td align="left">2</td><td align="left">CARD16</td><td align="left">width</td></tr><tr><td align="left"> </td><td align="left"> </td><td align="left">2</td><td align="left">CARD16</td><td align="left">height</td></tr><tr><td align="left">#12</td><td align="left">XPoint</td><td align="left">2</td><td align="left">INT16</td><td align="left">X</td></tr><tr><td align="left"> </td><td align="left"> </td><td align="left">2</td><td align="left">INT16</td><td align="left">Y</td></tr><tr><td align="left">#13</td><td align="left">XFontSet</td><td align="left">2</td><td align="left">n</td><td align="left">length of Base font name</td></tr><tr><td align="left"> </td><td align="left"> </td><td align="left">n</td><td align="left">STRING8</td><td align="left">Base font name list</td></tr><tr><td align="left"> </td><td align="left"> </td><td align="left">p</td><td align="left"> </td><td align="left">unused, p = Pad(2+n)</td></tr><tr><td align="left">#15</td><td align="left">XIMHotKeyTriggers</td><td align="left">4</td><td align="left">n</td><td align="left">number of XIMTRIGGERKEY list (*4)</td></tr><tr><td align="left"> </td><td align="left"> </td><td align="left">n</td><td align="left">XIMTRIGGERKEY</td><td align="left">XIMHotkeyTrigger list</td></tr><tr><td align="left"> </td><td align="left"> </td><td align="left">n</td><td align="left">XIMHOTKEYSTATE</td><td align="left">HotKey processing state</td></tr><tr><td align="left">#17</td><td align="left">XIMStringConversion</td><td align="left">XIMSTRCONVTEXT</td><td align="left"> </td><td align="left"> </td></tr><tr><td align="left">#18</td><td align="left">XIMPreeditState</td><td align="left">XIMPREEDITSTATE</td><td class="auto-generated"> </td><td class="auto-generated"> </td></tr><tr><td align="left">#19</td><td align="left">XIMResetState</td><td align="left">XIMRESETSTATE</td><td class="auto-generated"> </td><td class="auto-generated"> </td></tr><tr><td align="left">#x7fff</td><td align="left">NestedList</td><td align="left">-----</td><td class="auto-generated"> </td><td class="auto-generated"> </td></tr></tbody></table></div><pre class="literallayout">
+(*3)  The IC value for the separator of NestedList is defined as follows,
+            #define   XNSeparatorofNestedList   "separatorofNestedList"
+      , which is registered in X Consortium and cannot be used for any other purpose.
+
+(*4) LISTofFOO
+            A Type name of the form LISTof FOO means a counted list of elements of type FOO.
+            The size of the length field may vary (it is not necessarily the same
+            size as a FOO), and in some cases, it may be implicit.
+XIMTRIGGERKEY
+     4     CARD32       keysym
+     4     CARD32       modifier
+     4     CARD32       modifier mask
+
+ENCODINGINFO
+     2     n            length of encoding info
+     n     STRING8      encoding info
+     p                  unused, p=Pad(2+n)
+
+
+     1     CARD8        extension major-opcode
+     1     CARD8        extension minor-opcode
+     2     n            length of extension name
+     n     STRING8      extension name
+     p                  unused, p = Pad(n)
+
+XIMATTRIBUTE
+     2     CARD16       attribute ID
+     2     n            value length
+     n                  value
+     p                  unused, p = Pad(n)
+
+XICATTRIBUTE
+     2     CARD16       attribute ID
+     2     n            value length
+     n                  value
+     p                  unused, p = Pad(n)
+
+
+
+XIMSTRCONVTEXT
+     2    CARD16                      XIMStringConversionFeedback
+          #x0000001                   XIMStringConversionLeftEdge
+          #x0000002                   XIMStringConversionRightEdge
+          #x0000004                   XIMStringConversionTopEdge
+          #x0000008                   XIMStringConversionBottomEdge
+          #x0000010                   XIMStringConversionConvealed
+          #x0000020                   XIMStringConversionWrapped
+     2     n                          byte length of the retrieved string
+     n     STRING8                    retrieved string
+     p                                unused, p = Pad(n)
+     2     m                          byte length of feedback array
+     2                                unused
+     m     LISTofXIMSTRCONVFEEDBACK   feedback array(*1)
+
+(*1)   This field is reserved for future use.
+
+XIMFEEDBACK
+     4    CARD32       XIMFeedback
+          #x000001     XIMReverse
+          #x000002     XIMUnderline
+          #x000004     XIMHighlight
+          #x000008     XIMPrimary
+          #x000010     XIMSecondary
+          #x000020     XIMTertiary
+          #x000040     XIMVisibleToForward
+          #x000080     XIMVisibleToBackward
+          #x000100     XIMVisibleCenter
+
+XIMHOTKEYSTATE
+     4    CARD32       XIMHotKeyState
+          #x0000001    XIMHotKeyStateON
+          #x0000002    XIMHotKeyStateOFF
+
+XIMPREEDITSTATE
+     4    CARD32       XIMPreeditState
+          #x0000001    XIMPreeditEnable
+          #x0000002    XIMPreeditDisable
+
+XIMRESETSTATE
+     4    CARD32       XIMResetState
+          #x0000001    XIMInitialState
+          #x0000002    XIMPreserveState
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Error_Notification"></a>Error Notification</h3></div></div></div><p>
+Both the IM Server and the IM library return
+<code class="function">XIM_ERROR</code>
+messages instead of the corresponding reply messages if any errors occur
+during data processing.
+</p><p>
+At most one error is generated per request. If more than one error condition
+is encountered in processing a request, the choice of which error is returned
+is implementation-dependent.
+</p><pre class="literallayout">
+XIM_ERROR (IM Server &lt;--&gt; IM library)
+
+          2     CARD16          input-method-ID
+          2     CARD16          input-context-ID
+          2     BITMASK16       flag (*1)
+                #0000           Both Input-Method-ID and Input-Context-ID are invalid
+                #0001           Input-Method-ID is valid
+                #0002           Input-Context-ID is valid
+          2     CARD16          Error Code
+                #1              BadAlloc
+                #2              BadStyle
+                #3              BadClientWindow
+                #4              BadFocusWindow
+                #5              BadArea
+                #6              BadSpotLocation
+                #7              BadColormap
+                #8              BadAtom
+                #9              BadPixel
+                #10             BadPixmap
+                #11             BadName
+                #12             BadCursor
+                #13             BadProtocol
+                #14             BadForeground
+                #15             BadBackground
+                #16             LocaleNotSupported
+                #999            BadSomething (*2)
+          2     n               byte length of error detail.
+          2     CARD16          type of error detail (*3)
+          n     STRING8         error detail (*4)
+          p                     unused, p = Pad(n)
+
+(*1)  Before an IM is created, both Input-Method-ID and
+      Input-Context-ID are invalid.
+      Before an IC is created, only Input-Method-ID is valid.
+      After that, both of Input-Method-ID and Input-Context-ID are valid.
+
+(*2) Unspecific error, for example "language engine died"
+
+(*3) This field is reserved for future use.
+
+(*4) Vendor defined detail error message
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Connection_Establishment"></a>Connection Establishment</h3></div></div></div><p>
+<code class="function">XIM_CONNECT</code>
+message requests to establish a connection over a mutually-understood virtual
+stream.
+</p><pre class="literallayout">
+XIM_CONNECT (IM library -&gt; IM Server)
+     1                      byte order
+           #x42             MSB first
+           #x6c             LSB first
+     1                      unused
+     2     CARD16           client-major-protocol-version (*1)
+     2     CARD16           client-minor-protocol-version (*1)
+     2     CARD16           number of client-auth-protocol-names
+     n     LISTofSTRING     client-auth-protocol-names
+
+(*1) Specify the version of IM Protocol that the client supports.
+</pre><p>
+A client must send
+<code class="function">XIM_CONNECT</code>
+message as the first message on the connection.
+The list specifies the names of authentication protocols the sending
+IM Server is willing to perform.
+(If the client need not authenticate, the list may be omited.)
+</p><p>
+<code class="function">XIM_AUTH_REQUIRED </code>
+message is used to send the authentication protocol name and protocol-specific
+data.
+</p><pre class="literallayout">
+XIM_AUTH_REQUIRED (IM library &lt;--&gt; IM Server)
+
+     1     CARD8              auth-protocol-index
+     3                        unused
+     2     n                  length of authentication data
+     2                        unused
+     n     &lt;varies&gt;     data
+     p                        unused, p = Pad(n)
+</pre><p>
+The auth-protocol is specified by an index into the list of names
+given in the
+<code class="function">XIM_CONNECT</code>
+or
+<code class="function">XIM_AUTH_SETUP</code>
+message. Any protocol-specific data that might be required is also sent.
+</p><p>
+The IM library sends
+<code class="function">XIM_AUTH_REPLY</code>
+message as the reply to
+<code class="function">XIM_AUTH_REQUIRED</code>
+message, if the IM Server is authenticated.
+</p><pre class="literallayout">
+XIM_AUTH_REPLY (IM library -&gt; IM Server)
+     2     n                 length of authentication data
+     2                       unused
+     2     n                 length of authentication data
+     2                       unused
+     n     &lt;varies&gt;      data
+     p                       unused, p = Pad(n)
+</pre><p>
+The auth data is specific to the authentication protocol in use.
+</p><p>
+
+<code class="function">XIM_AUTH_NEXT </code>
+message requests to send more auth data.
+</p><pre class="literallayout">
+XIM_AUTH_NEXT (IM library &lt;--&gt; IM Server)
+     2     n                 length of authentication data
+     2                       unused
+     n     &lt;varies&gt;      data
+     p                       unused, p = Pad(n)
+</pre><p>
+The auth data is specific to the authentication protocol in use.
+</p><p>
+
+The IM Server sends
+<code class="function">XIM_AUTH_SETUP</code>
+message to authenticate the client.
+</p><pre class="literallayout">
+XIM_AUTH_SETUP (IM Server -&gt; IM library)
+     2     CARD16           number of client-auth-protocol-names
+     2                      unused
+     n     LISTofSTRING     server-auth-protocol-names
+</pre><p>
+The list specifies the names of authentication protocols the
+client is willing to perform.
+</p><p>
+<code class="function">XIM_AUTH_NG</code>
+message requests to give up the connection.
+</p><p>
+XIM_AUTH_NG (IM library &lt;--&gt; IM Server)
+</p><p>
+The IM Server sends
+<code class="function">XIM_CONNECT_REPLY</code>
+message as the reply to
+<code class="function">XIM_CONNECT</code>
+or
+<code class="function">XIM_AUTH_REQUIRED</code>
+message.
+</p><pre class="literallayout">
+XIM_CONNECT_REPLY (IM Server -&gt; IM library)
+     2     CARD16     server-major-protocol-version (*1)
+     2     CARD16     server-minor-protocol-version (*1)
+
+(*1) Specify the version of IM Protocol that the IM Server supports.
+This document specifies major version one, minor version zero.
+</pre><p>
+Here are the state diagrams for the client and the IM Server.
+</p><p>
+State transitions for the client
+</p><div class="variablelist"><table border="0" class="variablelist"><colgroup><col align="left" valign="top" /><col /></colgroup><tbody><tr><td><p><span class="term"><span class="emphasis"><em>init_status</em></span>:</span></p></td><td><p>
+Use authorization function -&gt; <span class="emphasis"><em>client_ask</em></span>
+      </p><p>
+Not use authorization function -&gt; <span class="emphasis"><em>client_no_check</em></span>
+      </p></td></tr><tr><td><p><span class="term"><span class="emphasis"><em>start</em></span>:</span></p></td><td><p>
+Send <code class="function">XIM_CONNECT</code>
+      </p><p>
+If <span class="emphasis"><em>client_ask</em></span> -&gt; <span class="emphasis"><em>client_wait1</em></span>
+      </p><p>
+If <span class="emphasis"><em>client_no_check</em></span>,
+client-auth-protocol-names may be omited -&gt; <span class="emphasis"><em>client_wait2</em></span>
+      </p></td></tr><tr><td><p><span class="term"><span class="emphasis"><em>client_wait1</em></span>:</span></p></td><td><p>
+Receive <code class="function">XIM_AUTH_REQUIRED</code>
+-&gt; <span class="emphasis"><em>client_check</em></span>
+      </p><p>
+Receive &lt;other&gt; -&gt; <span class="emphasis"><em>client_NG</em></span>
+      </p></td></tr><tr><td><p><span class="term"><span class="emphasis"><em>client_check</em></span>:</span></p></td><td><p>
+If no more auth needed, send <code class="function">XIM_AUTH_REPLY</code>
+-&gt; <span class="emphasis"><em>client_wait2</em></span>
+      </p><p>
+If good auth data, send <code class="function">XIM_AUTH_NEXT</code>
+-&gt; <span class="emphasis"><em>client_wait1</em></span>
+      </p><p>
+If bad auth data, send <code class="function">XIM_AUTH_NG</code>
+-&gt; give up on this protocol
+      </p></td></tr><tr><td><p><span class="term"><span class="emphasis"><em>client_wait2</em></span>:</span></p></td><td><p>
+Receive <code class="function">XIM_CONNECT_REPLY</code>
+-&gt; connect Receive
+<code class="function">XIM_AUTH_SETUP </code>
+-&gt; <span class="emphasis"><em>client_more</em></span>
+      </p><p>
+Receive <code class="function">XIM_AUTH_NEXT</code>
+-&gt; <span class="emphasis"><em>client_more</em></span>
+      </p><p>
+Receive <code class="function">XIM_AUTH_NG</code>
+-&gt; give up on this protocol
+      </p><p>
+Receive &lt;other&gt; -&gt; <span class="emphasis"><em>client_NG</em></span>
+      </p></td></tr><tr><td><p><span class="term"><span class="emphasis"><em>client_more</em></span>:</span></p></td><td><p>
+Send <code class="function">XIM_AUTH_REQUIRED</code>
+-&gt; <span class="emphasis"><em>client_wait2</em></span>
+      </p></td></tr><tr><td><p><span class="term"><span class="emphasis"><em>client_NG</em></span>:</span></p></td><td><p>
+Send <code class="function">XIM_AUTH_NG</code>
+-&gt; give up on this protocol
+      </p></td></tr></tbody></table></div><p>
+State transitions for the IM Server
+</p><div class="variablelist"><table border="0" class="variablelist"><colgroup><col align="left" valign="top" /><col /></colgroup><tbody><tr><td><p><span class="term"><span class="emphasis"><em>init_status</em></span>:</span></p></td><td><p>
+Use authorization function -&gt; <span class="emphasis"><em>server_ask</em></span>
+      </p><p>
+Not use authorization function -&gt; <span class="emphasis"><em>server_no_check</em></span>
+      </p></td></tr><tr><td><p><span class="term"><span class="emphasis"><em>start</em></span>:</span></p></td><td><p>
+Receive <code class="function">XIM_CONNECT</code>
+      </p><p>
+-&gt; <span class="emphasis"><em>start2</em></span>
+Receive &lt;other&gt; -&gt; <span class="emphasis"><em>server_NG</em></span>
+      </p></td></tr><tr><td><p><span class="term"><span class="emphasis"><em>start2</em></span>:</span></p></td><td><p>
+If <span class="emphasis"><em>client_ask</em></span>, send
+<code class="function">XIM_AUTH_REQUIRED</code>
+-&gt; <span class="emphasis"><em>server_wait1</em></span>
+      </p><p>
+If <span class="emphasis"><em>client_no_check</em></span> and
+<span class="emphasis"><em>server_ask</em></span>, send
+<code class="function">XIM_AUTH_SETUP</code>
+-&gt; <span class="emphasis"><em>server_wait2</em></span>
+      </p><p>
+If <span class="emphasis"><em>client_no_check</em></span> and
+<span class="emphasis"><em>server_no_check</em></span>, send
+<code class="function">XIM_CONNECT_REPLY</code>
+-&gt; connect
+      </p></td></tr><tr><td><p><span class="term"><span class="emphasis"><em>server_wait1</em></span>:</span></p></td><td><p>
+Receive
+<code class="function">XIM_AUTH_REPLY</code>
+-&gt; <span class="emphasis"><em>server2</em></span>
+      </p><p>
+Receive
+<code class="function">XIM_AUTH_NEXT</code>
+-&gt; <span class="emphasis"><em>server_more</em></span>
+      </p><p>
+Receive &lt;other&gt; -&gt; <span class="emphasis"><em>server_NG</em></span>
+      </p></td></tr><tr><td><p><span class="term"><span class="emphasis"><em>server_more</em></span></span></p></td><td><p>
+Send
+<code class="function">XIM_AUTH_REQUIRED</code>
+-&gt; <span class="emphasis"><em>server_wait1</em></span>
+      </p></td></tr><tr><td><p><span class="term"><span class="emphasis"><em>server2</em></span></span></p></td><td><p>
+If <span class="emphasis"><em>server_ask</em></span>, send
+<code class="function">XIM_AUTH_SETUP</code>
+-&gt; <span class="emphasis"><em>server_wait2</em></span>
+      </p><p>
+If <span class="emphasis"><em>server_no_check</em></span>, send
+<code class="function">XIM_CONNECT_REPLY </code>
+-&gt; connect
+      </p></td></tr><tr><td><p><span class="term"><span class="emphasis"><em>server_wait2</em></span></span></p></td><td><p>
+Receive
+<code class="function">XIM_AUTH_REQUIRED</code>
+-&gt; <span class="emphasis"><em>server_check</em></span>
+      </p><p>
+Receive &lt;other&gt; -&gt; <span class="emphasis"><em>server_NG</em></span>
+      </p></td></tr><tr><td><p><span class="term"><span class="emphasis"><em>server_check</em></span></span></p></td><td><p>
+If no more auth data, send
+<code class="function">XIM_CONNECT_REPLY</code>
+-&gt; connect
+      </p><p>
+If bad auth data, send
+<code class="function">XIM_AUTH_NG</code>
+-&gt; give up on this protocol
+      </p><p>
+If good auth data, send
+<code class="function">XIM_AUTH_NEXT</code>
+-&gt; <span class="emphasis"><em>server_wait2</em></span>
+      </p></td></tr><tr><td><p><span class="term"><span class="emphasis"><em>server_NG</em></span></span></p></td><td><p>
+Send
+<code class="function">XIM_AUTH_NG</code>
+-&gt; give up on this protocol
+      </p></td></tr></tbody></table></div><p>
+<code class="function">XIM_DISCONNECT </code>
+message requests to shutdown the connection over a mutually-understood
+virtual stream.
+</p><p>
+XIM_DISCONNECT (IM library -&gt; IM Server)
+</p><p>
+<code class="function">XIM_DISCONNECT</code>
+is a synchronous request.  The IM library should wait until it receives
+either an
+<code class="function">XIM_DISCONNECT_REPLY</code>
+packet or an <code class="function">XIM_ERROR</code> packet.
+</p><p>
+XIM_DISCONNECT_REPLY (IM Server -&gt; IM library)
+</p><p>
+<code class="function">XIM_OPEN</code>
+requests to establish a logical connection between the IM library and the IM
+Server.
+</p><pre class="literallayout">
+XIM_OPEN (IM library -&gt; IM Server)
+     n     STR     locale name
+     p             unused, p = Pad(n)
+</pre><p>
+<code class="function">XIM_OPEN</code>
+is a synchronous request.  The IM library should wait until receiving
+either an <code class="function">XIM_OPEN_REPLY</code>
+packet or an <code class="function">XIM_ERROR </code> packet.
+</p><pre class="literallayout">
+XIM_OPEN_REPLY (IM Server -&gt; IM library)
+     2     CARD16             input-method-ID
+     2     n                  byte length of IM attributes supported
+     n     LISTofXIMATTR      IM attributes supported
+     2     m                  byte length of IC attributes supported
+     2     CARD16             unused
+     m     LISTofXICATTR      IC attributes supported
+</pre><p>
+<code class="function">XIM_OPEN_REPLY</code>
+message returns all supported IM and IC attributes in LISTofXIMATTR and
+LISTofXICATTR.  These IM and IC attribute IDs are used to reduce the amount
+of data which must be transferred via the network. In addition, this
+indicates to the IM library what kinds of IM/IC attributes can be used
+in this session, and what types of data will be exchanged. This allows
+the IM Server provider and application writer to support IM system
+enhancements with new IM/IC attributes, without modifying Xlib.
+The IC value for the separator of NestedList must be included in the
+LISTofXICATTR.
+</p><p>
+<code class="function">XIM_CLOSE </code>
+message requests to shutdown the logical connection between the IM library
+and the IM Server.
+</p><pre class="literallayout">
+XIM_CLOSE (IM library -&gt; IM Server)
+     2     CARD16     input-method-ID
+     2                unused
+</pre><p>
+<code class="function">XIM_CLOSE</code>
+is a synchronous request.  The IM library should wait until receiving
+either an <code class="function">XIM_CLOSE_REPLY</code>
+packet or an <code class="function">XIM_ERROR</code> packet.
+</p><pre class="literallayout">
+XIM_CLOSE_REPLY (IM Server -&gt; IM library)
+     2     CARD16     input-method-ID
+     2                unused
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Event_Flow_Control_2"></a>Event Flow Control</h3></div></div></div><p>
+
+An IM Server must send
+<code class="function">XIM_SET_EVENT_MASK </code>
+message to the IM library in order for events to be forwarded to the IM
+Server, since the IM library initially doesn't forward any events to the
+IM Server. In the protocol, the IM Server will specify masks of X events
+to be forwarded and which need to be synchronized by the IM library.
+</p><pre class="literallayout">
+XIM_SET_EVENT_MASK (IM Server -&gt; IM library)
+     2     CARD16        input-method-ID
+     2     CARD16        input-context-ID
+     4     EVENTMASK     forward-event-mask (*1)
+     4     EVENTMASK     synchronous-event-mask (*2)
+
+(*1)  Specify all the events to be forwarded to the IM Server by the IM library.
+(*2)  Specify the events to be forwarded with synchronous flag on by the IM library.
+</pre><p>
+<code class="function">XIM_SET_EVENT_MASK </code>
+is an asynchronous request.  The event masks are valid immediately after
+they are set until changed by another
+<code class="function">XIM_SET_EVENT_MASK</code>
+message.  If input-context-ID is set to zero, the default value of the
+input-method-ID will be changed to the event masks specified in the request.
+That value will be used for the IC's which have no individual values.
+</p><p>
+Using the Dynamic Event Flow model, an IM Server sends
+<code class="function">XIM_REGISTER_TRIGGERKEYS </code>
+message to the IM library before sending
+<code class="function">XIM_OPEN_REPLY</code>
+message.
+Or the IM library may suppose that the IM Server uses the Static Event Flow
+model.
+</p><pre class="literallayout">
+XIM_REGISTER_TRIGGERKEYS (IM Server -&gt; IM library)
+
+     2     CARD16                  input-method-ID
+     2                             unused
+     4     n                       byte length of on-keys
+     n     LISTofXIMTRIGGERKEY     on-keys list
+     4     m                       byte length of off-keys
+     m     LISTofXIMTRIGGERKEY     off-keys list
+</pre><p>
+<code class="function">XIM_REGISTER_TRIGGERKEYS</code>
+is an asynchronous request.
+The IM Server notifys the IM library of on-keys and off-keys lists with
+this message.
+</p><p>
+The IM library notifys the IM Server with
+<code class="function">XIM_TRIGGER_NOTIFY </code>
+message that a key event matching either on-keys or off-keys has been occurred.
+</p><pre class="literallayout">
+XIM_TRIGGER_NOTIFY (IM library -&gt; IM Server)
+     2     CARD16           input-method-ID
+     2     CARD16           input-context-ID
+     4     CARD32           flag
+           #0               on-keys list
+           #1               off-keys list
+     4     CARD32           index of keys list
+     4     EVENTMASK        client-select-event-mask (*1)
+
+(*1)  Specify the events currently selected by the IM library with XSelectInput.
+
+</pre><p>
+<code class="function">XIM_TRIGGER_NOTIFY </code>
+is a synchronous request.  The IM library should wait until receiving
+either an <code class="function">XIM_TRIGGER_NOTIFY_REPLY</code>
+packet or an <code class="function">XIM_ERROR</code> packet.
+</p><pre class="literallayout">
+XIM_TRIGGER_NOTIFY_REPLY (IM Server -&gt; IM library)
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Encoding_Negotiation"></a>Encoding Negotiation</h3></div></div></div><p>
+<code class="function">XIM_ENCODING_NEGOTIATION</code>
+message requests to decide which encoding to be sent across the wire.
+When the negotiation fails, the fallback default encoding is Portable
+Character Encoding.
+</p><pre class="literallayout">
+XIM_ENCODING_NEGOTIATION (IM library -&gt; IM Server).sp 6p
+     2     CARD16                 input-method-ID
+     2     n                      byte length of encodings listed by name
+     n     LISTofSTR              list of encodings supported in the IM library.
+     p                            unused, p = Pad(n)
+     2     m                      byte length of encodings listed by detailed data
+     2                            unused
+     m     LISTofENCODINGINFO     list of encordings supported in the IM library
+</pre><p>
+The IM Server must choose one encoding from the list sent by the IM library.
+If index of the encording determined is -1 to indicate that the negotiation
+is failed, the fallback default encoding is used.
+The message must be issued after sending
+<code class="function">XIM_OPEN</code> message via XOpenIM().
+The name of encoding may be registered with X Consortium.
+</p><p>
+<code class="function">XIM_ENCODING_NEGOTIATION</code>
+is a synchronous request.  The IM library should wait until receiving
+either an <code class="function">XIM_ENCODING_NEGOTIATION_REPLY</code>
+packet or an <code class="function">XIM_ERROR</code> packet.
+</p><pre class="literallayout">
+XIM_ENCODING_NEGOTIATION_REPLY (IM Server -&gt; IM library)
+     2     CARD16     input-method-ID
+     2     CARD16     category of the encoding determined.
+           #0         name
+           #1         detailed data
+     2     INT16      index of the encoding determinated.
+     2                unused
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Query_the_supported_extension_protocol_list"></a>Query the supported extension protocol list</h3></div></div></div><p>
+<code class="function">XIM_QUERY_EXTENSION</code>
+message requests to query the IM extensions supported by the IM Server to
+which the client is being connected.
+</p><pre class="literallayout">
+XIM_QUERY_EXTENSION (IM library -&gt; IM Server)
+     2     CARD16        input-method-ID
+     2     n             byte length of extensions supported by the IM library
+     n     LISTofSTR     extensions supported by the IM library
+     p                   unused, p = Pad(n)
+</pre><p>
+An example of a supported extension is FrontEnd.
+The message must be issued after sending
+<code class="function">XIM_OPEN </code> message via XOpenIM().
+</p><p>
+If n is 0, the IM library queries the IM Server for all extensions.
+</p><p>
+If n is not 0, the IM library queries whether the IM Server supports the
+contents specified in the list.
+</p><p>
+If a client uses an extension request without previously having issued a
+<code class="function">XIM_QUERY_EXTENSION</code>
+message for that extension, the IM Server responds with a
+<code class="function">BadProtocol</code>
+error.  If the IM Server encounters a request with an unknown MAJOR-OPCODE
+or MINOR-OPCODE, it responds with a
+<code class="function">BadProtocol</code> error.
+</p><p>
+<code class="function">XIM_QUERY_EXTENSION</code>
+is a synchronous request.  The IM library should wait until receiving
+either an <code class="function">XIM_QUERY_EXTENSION_REPLY</code>
+packet or an <code class="function">XIM_ERROR</code> packet.
+</p><pre class="literallayout">
+XIM_QUERY_EXTENSION_REPLY (IM Server -&gt; IM library)
+     2     CARD16      input-method-ID
+     2     n           byte length of extensions supported by both the IM library and the IM Server
+     n     LISTofEXT   list of extensions supported by both the IM library and the IM Server
+
+</pre><p>
+<code class="function">XIM_QUERY_EXTENSION_REPLY</code>
+message returns the list of extensions supported by both the IM library and
+the IM Server. If the list passed in
+<code class="function">XIM_QUERY_EXTENSION</code>
+message is NULL, the IM Server returns the full list of extensions supported
+by the IM Server.  If the list is not NULL, the IM Server returns the
+extensions in the list that are supported by the IM Server.
+</p><p>
+
+A zero-length string is not a valid extension name.  The IM library should
+disregard any zero-length strings that are returned in the extension list.
+The IM library does not use the requests which are not supported by the IM
+Server.
+</p></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Setting_IM_Values"></a>Setting IM Values</h3></div></div></div><p>
+<code class="function">XIM_SET_IM_VALUES </code>
+requests to set attributes to the IM.
+</p><pre class="literallayout">
+XIM_SET_IM_VALUES (IM library -&gt; IM Server)
+     2     CARD16                 input-method-ID
+     2     n                      byte length of im-attribute
+     n     LISTofXIMATTRIBUTE     im-attributes
+</pre><p>
+The im-attributes in
+<code class="function">XIM_SET_IM_VALUES</code>
+message are specified as a LISTofXIMATTRIBUTE, specifying the attributes
+to be set. Attributes other than the ones returned by
+<code class="function">XIM_OPEN_REPLY</code>
+message should not be specified.
+</p><p>
+<code class="function">XIM_SET_IM_VALUES </code>
+is a synchronous request. The IM library should wait until receiving
+either an
+<code class="function">XIM_SET_IM_VALUES_REPLY</code>
+packet or an
+<code class="function">XIM_ERROR</code>
+packet, because it must receive the error attribute if
+<code class="function">XIM_ERROR</code> message is returned.
+</p><pre class="literallayout">
+XIM_SET_IM_VALUES_REPLY (IM Server -&gt; IM library)
+     2     CARD16     input-method-ID
+     2                unused
+</pre><p>
+<code class="function">XIM_SET_IM_VALUES_REPLY</code>
+message returns the input-method-ID to distinguish replies from multiple IMs.
+</p></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Getting_IM_Values"></a>Getting IM Values</h3></div></div></div><p>
+<code class="function">XIM_GET_IM_VALUES </code>
+requests to query IM values supported by the IM Server currently being
+connected.
+</p><pre class="literallayout">
+XIM_GET_IM_VALUES (IM library -&gt; IM Server)
+     2     CARD16           input-method-ID
+     2     n                byte length of im-attribute-id
+     n     LISTofCARD16     im-attribute-id
+     p                      unused, p=Pad(n)
+</pre><p>
+<code class="function">XIM_GET_IM_VALUES</code>
+is a synchronous request.  The IM library should wait until it receives
+either an
+<code class="function">XIM_GET_IM_VALUES_REPLY</code>
+packet or an <code class="function">XIM_ERROR</code> packet.
+</p><pre class="literallayout">
+XIM_GET_IM_VALUES_REPLY (IM Server -&gt; IM library)
+     2     CARD16                 input-method-ID
+     2     n                      byte length of im-attributes returned
+     n     LISTofXIMATTRIBUTE     im-attributes returned
+</pre><p>
+The IM Server returns IM values with
+<code class="function">XIM_GET_IM_VALUES_REPLY</code>
+message.  The order of the returned im-attribute values corresponds directly
+to that of the list passed with the
+<code class="function">XIM_GET_IM_VALUES</code> message.
+</p></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Creating_an_IC"></a>Creating an IC</h3></div></div></div><p>
+<code class="function">XIM_CREATE_IC</code> message requests to create an IC.
+</p><pre class="literallayout">
+XIM_CREATE_IC (IM library -&gt; IM Server)
+     2     CARD16                 input-method-ID
+     2     n                      byte length of ic-attributes
+     n     LISTofXICATTRIBUTE     ic-attributes
+</pre><p>
+The input-context-id is specified by the IM Server to identify the client
+(IC).  (It is not specified by the client in
+<code class="function">XIM_CREATE_IC</code>
+message.), and it should not be set to zero.
+</p><p>
+<code class="function">XIM_CREATE_IC</code>
+is a synchronous request which returns the input-context-ID.
+The IM library should wait until it receives either an
+<code class="function">XIM_CREATE_IC_REPLY</code>
+packet or an
+<code class="function">XIM_ERROR</code>
+packet.
+</p><pre class="literallayout">
+XIM_CREATE_IC_REPLY (IM Server -&gt; IM library)
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Destroying_the_IC"></a>Destroying the IC</h3></div></div></div><p>
+<code class="function">XIM_DESTROY_IC</code>
+message requests to destroy the IC.
+</p><pre class="literallayout">
+XIM_DESTROY_IC (IM library -&gt; IM Server)
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+</pre><p>
+<code class="function">XIM_DESTROY_IC </code>
+is a synchronous request. The IM library should not free its resources
+until it receives an
+<code class="function">XIM_DESTROY_IC_REPLY</code>
+message because <code class="function">XIM_DESTROY_IC</code>
+message may result in Callback packets such as
+<code class="function">XIM_PREEDIT_DRAW</code>
+and <code class="function">XIM_PREEDIT_DONE.</code>
+</p><pre class="literallayout">
+XIM_DESTROY_IC_REPLY (IM Server -&gt; IM library)
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Setting_IC_Values"></a>Setting IC Values</h3></div></div></div><p>
+<code class="function">XIM_SET_IC_VALUES</code>
+messages requests to set attributes to the IC.
+</p><pre class="literallayout">
+XIM_SET_IC_VALUES (IM library -&gt; IM Server)
+     2     CARD16                 input-method-ID
+     2     CARD16                 input-context-ID
+     2     n                      byte length of ic-attributes
+     2                            unused
+     n     LISTofXICATTRIBUTE     ic-attributes
+</pre><p>
+The ic-attributes in
+<code class="function">XIM_SET_IC_VALUES</code>
+message are specified as a LISTofXICATTRIBUTE, specifying the attributes
+to be set. Attributes other than the ones returned by
+<code class="function">XIM_OPEN_REPLY</code> message should not be specified.
+</p><p>
+<code class="function">XIM_SET_IC_VALUES </code>
+is a synchronous request. The IM library should wait until receiving
+either an <code class="function">XIM_SET_IC_VALUES_REPLY </code>
+packet or an <code class="function">XIM_ERROR</code>
+packet, because it must receive the error attribute if
+<code class="function">XIM_ERROR</code> message is returned.
+</p><pre class="literallayout">
+XIM_SET_IC_VALUES_REPLY (IM Server -&gt; IM library)
+
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Getting_IC_Values"></a>Getting IC Values</h3></div></div></div><p>
+<code class="function">XIM_GET_IC_VALUES</code>
+message requests to query IC values supported by the IM Server currently
+being connected.
+</p><pre class="literallayout">
+XIM_GET_IC_VALUES (IM library -&gt; IM Server)
+
+     2     CARD16           input-method-ID
+     2     CARD16           input-context-ID
+     2     n                byte length of ic-attribute-id
+     n     LISTofCARD16     ic-attribute-id
+     p                      unused, p=Pad(2+n)
+</pre><p>
+In LISTofCARD16, the appearance of the ic-attribute-id for the separator
+of NestedList shows the end of the heading nested list.
+</p><p>
+<code class="function">XIM_GET_IC_VALUES</code>
+is a synchronous request and returns each attribute with its values to
+show the correspondence.  The IM library should wait until receiving
+either an <code class="function">XIM_GET_IC_VALUES_REPLY</code>
+packet or an <code class="function">XIM_ERROR</code> packet.
+</p><pre class="literallayout">
+XIM_GET_IC_VALUES_REPLY (IM Server -&gt; IM library)
+     2     CARD16                 input-method-ID
+     2     CARD16                 input-context-ID
+     2     n                      byte length of ic-attribute
+     2                            unused
+     n     LISTofXICATTRIBUTE     ic-attribute
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Setting_IC_Focus"></a>Setting IC Focus</h3></div></div></div><p>
+<code class="function">XIM_SET_IC_FOCUS</code>
+message requests to set the focus to the IC.
+</p><pre class="literallayout">
+XIM_SET_IC_FOCUS (IM library -&gt; IM Server)
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+</pre><p>
+<code class="function">XIM_SET_IC_FOCUS</code> is an asynchronous request.
+</p></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Unsetting_IC_Focus"></a>Unsetting IC Focus</h3></div></div></div><p>
+<code class="function">XIM_UNSET_IC_FOCUS</code>
+message requests to unset the focus to the focused IC.
+</p><pre class="literallayout">
+XIM_UNSET_IC_FOCUS (IM library -&gt; IM Server)
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+</pre><p>
+<code class="function">XIM_UNSET_IC_FOCUS</code>
+is an asynchronous request.
+</p></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Filtering_Events"></a>Filtering Events</h3></div></div></div><p>
+Event filtering is mainly provided for BackEnd method to allow input method
+to capture X events transparently to clients.
+</p><p>
+X Events are forwarded by
+<code class="function">XIM_FORWARD_EVENT</code> message.
+This message can be operated both synchronously and asynchronously.
+If the requester sets the synchronous flag, the receiver must send
+<code class="function">XIM_SYNC_REPLY</code>
+message back to the requester when all the data processing is done.
+</p><p>
+Protocol flow of BackEnd model
+</p><p>
+With BackEnd method, the protocol flow can be classified into two
+methods in terms of synchronization, depending on the synchronous-eventmask
+of <code class="function">XIM_SET_EVENT_MASK</code>
+message.  One can be called on-demand-synchronous method and another
+can be called as full-synchronous method.
+</p><p>
+In on-demand-synchronous method, the IM library always receives
+<code class="function">XIM_FORWARD_EVENT</code>
+or
+<code class="function">XIM_COMMIT</code>
+message as a synchronous request. Also, the IM Server needs to synchronously
+process the correspondent reply from the IM library and the following
+<code class="function">XIM_FORWARD_EVENT</code>
+message sent from the IM library when any of the event causes the IM Server
+to send
+<code class="function">XIM_FORWARD_EVENT</code>
+or
+<code class="function">XIM_COMMIT</code>
+message to the IM library, so that the input service is consistent.  If the
+IM library gets the control back from the application after receiving the
+synchronous request, the IM library replies for the synchronous request before
+processing any of the events. In this time, the IM Server blocks
+<code class="function">XIM_FORWARD_EVENT</code>
+message which is sent by the IM library, and handles it after receiving the
+reply. However, the IM Server handles the other protocols at any time.
+</p><p>
+In full-synchronous method, the IM library always sends
+<code class="function">XIM_FORWARD_EVENT</code>
+message to the IM Server as a synchronous request. Therefore, the reply to it
+from the IM Server will be put between the
+<code class="function">XIM_FORWARD_EVENT</code> message and its
+<code class="function">XIM_SYNC_REPLY</code> message.  In case of sending
+<code class="function">XIM_FORWARD_EVENT</code> or
+<code class="function">XIM_COMMIT</code>
+message, the IM Server should set the synchronous flag off. Because the
+synchronization can be done by the following
+<code class="function">XIM_SYNC_REPLY</code> message.
+</p><p>
+Following chart shows one of the simplest protocol flow which only
+deals with keyevents for preediting operation.
+</p><div class="mediaobject"><a id="sampleprotocolflow"></a><object type="image/svg+xml" data="sampleprotocolflow1.svg"></object><div class="caption">Sample Protocol Flow</div></div><p>
+Following chart shows one of the complex protocol flow, which deals
+with multiple focus windows and button press event as well as keyevent,
+and the focus is moved by the application triggered by both of keyevent
+and button press event.
+</p><div class="mediaobject"><a id="sampleprotocolflow2"></a><object type="image/svg+xml" data="sampleprotocolflow2.svg"></object><div class="caption">Sample Protocol Flow 2</div></div><pre class="literallayout">
+XIM_FORWARD_EVENT (IM library &lt;--&gt; IM Server)
+     2     CARD16         input-method-ID
+     2     CARD16         input-context-ID
+     2     BITMASK16      flag
+           #0001          synchronous
+           #0002          request filtering (*1)
+           #0004          request lookupstring (*2)
+     2     CARD16         serial number
+           XEVENT         X event
+
+(*1)  Indicate the receiver should filter events and possible preedit may be invoked.
+
+(*2)  Indicate the receiver should only do lookup string. The IM Server is expected
+to just do a conversion of the key event to the best candidate. This bit may
+affect the state of the preedit state (e.g. compose of dead key sequences).
+</pre><p>
+XEVENT format is same as the X Protocol event format(xEvent).
+As the value of xEvent's sequenceNumber is the bottom of 16 bit of XEvent's
+xany.serial, the top of 16 bit is sent by serial number(INT16).
+</p><p>
+<code class="function">XIM_FORWARD_EVENT</code>
+message is used for forwarding the events from the IM library to the IM Server
+in order for IM to be able to filter the event. On the other hand, this
+message is also used for forwarding the events from the IM Server to the IM
+library if the event forwarded from the IM library is not filtered.
+The IM Server, which receives
+<code class="function">XIM_FORWARD_EVENT</code>
+message without synchronous bit, should set synchronous bit.
+If both "request event filtering" and "request lookupstring" flag are
+set, then both filtering and lookup should be done for the same event.
+</p></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Synchronizing_with_the_IM_Server"></a>Synchronizing with the IM Server</h3></div></div></div><p>
+<code class="function">XIM_SYNC</code>
+message requests to synchronize the IM library and the IM Server.
+</p><pre class="literallayout">
+XIM_SYNC (IM library &lt;--&gt; IM Server)
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+</pre><p>
+This synchronization can be started either on the IM library side or on the
+IM Server side.  The side which receives
+<code class="function">XIM_SYNC</code>
+message should process all XIM requests before replying. The input-context-ID
+is necessary to distinguish the IC with which the IM library and the IM
+Server are synchronized.
+</p><pre class="literallayout">
+XIM_SYNC_REPLY (IM Server &lt;--&gt; IM library)
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+</pre><p>
+The side which receives
+<code class="function">XIM_FORWARD_EVENT, </code>
+<code class="function">XIM_COMMIT</code>
+or any other message with synchronous bit, should process all XIM request
+before replying, and send
+<code class="function">XIM_SYNC_REPLY</code>
+message as the reply to the previous message.
+</p></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Sending_a_committed_string"></a>Sending a committed string</h3></div></div></div><p>
+When the IM Server commits a string, the IM Server sends either the committed
+string or list of KeySym, or both, by
+<code class="function">XIM_COMMIT</code>
+message.
+</p><pre class="literallayout">
+XIM_COMMIT (IM Server -&gt; IM library)
+
+     2     CARD16          input-method-ID
+     2     CARD16          input-context-ID
+     2     BITMASK16       flag
+           #0001           synchronous
+           #0002           XLookupChars
+           #0004           XLookupKeySym
+           #0006           XLookupBoth = XLookupChars | XLookupKeySym
+</pre><p>
+If flag is XLookupKeySym, the arguments continue as follows:
+</p><pre class="literallayout">
+     2                unused
+     4     KEYSYM     KeySym
+</pre><p>
+If flag is XLookupChars, the arguments continue as follows
+</p><pre class="literallayout">
+     2     m              byte length of committed string
+     m     LISTofBYTE     committed string
+     p                    unused, p = Pad(m)
+</pre><p>
+If flag is XLookupBoth, the arguments continue as follows
+</p><pre class="literallayout">
+     2                    unused
+     4     KEYSYM         KeySym
+     2     n              byte length of committed string
+     n     LISTofBYTE     committed string
+     p                    unused, p = Pad(2+n)
+</pre><p>
+The IM Server which receives
+<code class="function">XIM_COMMIT</code>
+message without synchronous bit should set synchronous bit.
+</p></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Reset_IC"></a>Reset IC</h3></div></div></div><p>
+<code class="function">XIM_RESET_IC</code>
+message requests to reset the status of IC in the IM Server.
+</p><pre class="literallayout">
+XIM_RESET_IC (IM library -&gt; IM Server)
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+</pre><p>
+<code class="function">XIM_RESET_IC</code>
+is a synchronous request. The IM library should wait until receiving either an
+<code class="function">XIM_RESET_IC_REPLY</code> packet or an
+<code class="function">XIM_ERROR</code> packet.
+</p><pre class="literallayout">
+XIM_RESET_IC_REPLY (IM Server -&gt; IM library)
+
+     2     CARD16         input-method-ID
+     2     CARD16         input-context-ID
+     2     n              byte length of preedit string
+     n     LISTofBYTE     preedit string
+     p                    unused, p = Pad(2+n)
+</pre><p>
+<code class="function">XIM_RESET_IC_REPLY </code>
+message returns the input-context-ID to distinguish replies from multiple ICs.
+</p></div><div class="sect2"><div class="titlepage"><div><div><h3 class="title"><a id="Callbacks"></a>Callbacks</h3></div></div></div><p>
+If XIMStyle has XIMPreeditArea or XIMStatusArea set, XIMGeometryCallback
+may be used, and if XIMPreeditCallback and/or XIMStatusCallback are set,
+corresponding callbacks may be used.
+</p><p>
+Any callback request may be sent from an IM Server to an IM client
+asynchronously in response to any request previously sent by the IM client
+to the IM Server.
+</p><p>
+When an IM Server needs to send a callback request synchronously with
+the request previously sent by an IM client, the IM Server sends it
+before replying to the previous request.
+</p><div class="sect3"><div class="titlepage"><div><div><h4 class="title"><a id="Negotiating_geometry"></a>Negotiating geometry</h4></div></div></div><p>
+The IM Server sends
+<code class="function">XIM_GEOMETRY </code>
+message to start geometry negotiation, if XIMStyle has XIMPreeditArea or
+XIMStatusArea set.
+</p><pre class="literallayout">
+XIM_GEOMETRY (IM Server -&gt; IM library)
+
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+</pre><p>
+There is always a single Focus Window, even if some input fields have only
+one IC.
+</p></div><div class="sect3"><div class="titlepage"><div><div><h4 class="title"><a id="Converting_a_string"></a>Converting a string</h4></div></div></div><pre class="literallayout">
+XIM_STR_CONVERSION (IM Server -&gt; IM library)
+
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+     2     CARD16     XIMStringConversionPosition
+     2                unused
+     4     CARD32     XIMCaretDirection
+           #0         XIMForwardChar
+           #1         XIMBackwardChar
+           #2         XIMForwardWord
+           #3         XIMBackwardWord
+           #4         XIMCaretUp
+           #5         XIMCaretDown
+           #6         XIMNextLine
+           #7         XIMCPreviousLine
+           #8         XIMLineStart
+           #9         XIMLineEnd
+           #10        XIMAbsolutePosition
+           #11        XIMDontChange
+     2     CARD16     factor
+     2     CARD16     XIMStringConversionOperation
+           #0001      XIMStringConversionSubstitution
+           #0002      XIMStringConversionRetrieval
+     2     INT16      byte length to multiply the XIMStringConversionType
+</pre><p>
+<code class="function">XIM_STR_CONVERSION </code>
+message may be used to start the string conversion from the IM Server.
+</p><pre class="literallayout">
+XIM_STR_CONVERSION_REPLY (IM library -&gt; IM Server)
+
+     2     CARD16             input-method-ID
+     2     CARD16             input-context-ID
+     4     CARD32             XIMStringConversionFeedback
+           XIMSTRCONVTEXT     XIMStringConversionText
+</pre><p>
+<code class="function">XIM_STR_CONVERSION_REPLY </code>
+message returns the string to be converted and the feedback information array.
+</p></div><div class="sect3"><div class="titlepage"><div><div><h4 class="title"><a id="Preedit_Callbacks"></a>Preedit Callbacks</h4></div></div></div><p>
+The IM Server sends
+<code class="function">XIM_PREEDIT_START </code>
+message to call the XIMPreeditStartCallback function.
+</p><pre class="literallayout">
+XIM_PREEDIT_START (IM Server -&gt; IM library)
+
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+</pre><p>
+The reply to this message must be sent synchronously. The reply forwards
+the return value from the callback function to the IM Server.
+</p><pre class="literallayout">
+XIM_PREEDIT_START_REPLY (IM library -&gt; IM Server)
+
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+     4     INT32     return value
+</pre><p>
+<code class="function">XIM_PREEDIT_START_REPLY</code>
+message returns the input-context-ID to distinguish replies from multiple
+IC's.  The return value contains the return value of the function
+XIMPreeditStartCallback.
+</p><p>
+The IM Server sends
+<code class="function">XIM_PREEDIT_DRAW </code>
+message to call the XIMPreeditDrawCallback function.
+</p><pre class="literallayout">
+XIM_PREEDIT_DRAW (IM Server -&gt; IM library)
+
+     2     CARD16                input-method-ID
+     2     CARD16                input-context-ID
+     4     INT32                 caret
+     4     INT32                 chg_first
+     4     INT32                 chg_length
+     4     BITMASK32             status
+           #x0000001             no string
+           #x0000002             no feedback
+     2     n                     length of preedit string
+     n     STRING8               preedit string
+     p                           unused, p = Pad(2+n)
+     2     m                     byte length of feedback array
+     2                           unused
+     m     LISTofXIMFEEDBACK     feedback array
+</pre><p>
+The fields "caret", "chg_first" and "chg_length" correspond to the
+fields of XIMPreeditDrawCallbackStruct.
+When the "no string" bit of the status field is set, the text field of
+XIMPreeditDrawCallbackStruct is NULL.
+When the "no feedback" bit of the status field is set, the text feedback
+field of XIMPreeditDrawCallbackStruct is NULL.
+When the above bits are not set, "preedit string" contains the preedit
+string to be displayed, and the feedback array contains feedback information.
+</p><p>
+The IM Server sends
+<code class="function">XIM_PREEDIT_CARET</code>
+message to call the PreeditCaretCallback function.
+</p><pre class="literallayout">
+XIM_PREEDIT_CARET (IM Server -&gt; IM library)
+
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+     4     INT32      position
+     4     CARD32     direction
+           #0         XIMForwardChar
+           #1         XIMBackwardChar
+           #2         XIMForwardWord
+           #3         XIMBackwardWord
+           #4         XIMCaretUp
+           #5         XIMCaretDown
+           #6         XIMNextLine
+           #7         XIMCPreviousLine
+           #8         XIMLineStart
+           #9         XIMLineEnd
+           #10        XIMAbsolutePosition
+           #11        XIMDontChange
+     4     CARD32     style
+           #0         XIMInvisible
+           #1         XIMCPrimary
+           #2         XIMSecondary
+</pre><p>
+Each entry corresponds to a field of XIMPreeditCaretCallbackStruct.
+Since this callback sets the caret position, its reply must be sent
+synchronously.
+</p><pre class="literallayout">
+XIM_PREEDIT_CARET_REPLY (IM library -&gt; IM Server)
+
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+     4     CARD32     position
+</pre><p>
+The position is the value returned by the callback function after it
+has been called.
+</p><p>
+The IM Server sends
+<code class="function">XIM_PREEDIT_DONE </code>
+message to call the XIMPreeditDoneCallback function.
+</p><pre class="literallayout">
+XIM_PREEDIT_DONE (IM Server -&gt; IM library)
+
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+</pre></div><div class="sect3"><div class="titlepage"><div><div><h4 class="title"><a id="Preedit_state_notify"></a>Preedit state notify</h4></div></div></div><pre class="literallayout">
+XIM_PREEDITSTATE (IM Server -&gt; IM Library)
+     2     CARD16        input-method-ID
+     2     CARD16        input-context-ID
+     4     BITMASK32     XIMPreeditState
+           #x0000000     XIMPreeditUnknown
+           #x0000001     XIMPreeditEnable
+           #x0000002     XIMPreeditDisable
+</pre><p>
+<code class="function">XIM_PREEDITSTATE</code>
+message is used to call the XIMPreeditStateNotifyCallback function.
+</p></div><div class="sect3"><div class="titlepage"><div><div><h4 class="title"><a id="Status_Callbacks"></a>Status Callbacks</h4></div></div></div><p>
+The IM Server sends
+<code class="function">XIM_STATUS_START </code>
+message to call the XIMStatusStartCallback function.
+</p><pre class="literallayout">
+XIM_STATUS_START (IM Server -&gt; IM library)
+
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+</pre><p>
+The IM Server sends
+<code class="function">XIM_STATUS_DRAW </code>
+message to call the XIMStatusDrawCallback function.
+</p><pre class="literallayout">
+XIM_STATUS_DRAW (IM Server -&gt; IM library)
+
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+     4     CARD32     type
+           #0         XIMTextType
+           #1         XIMBitmapType
+</pre><p>
+If type is XIMTextType, the arguments continue as follows.
+</p><pre class="literallayout">
+     4     BITMASK32            status
+           #x0000001            no string
+           #x0000002            no feedback
+     2     n                    length of status string
+     n     STRING8              status string
+     p                          unused, p = Pad(2+n)
+     2     m                    byte length of feedback array
+     2                          unused
+     m     LISTofXIMFEEDBACK    feedback array
+</pre><p>
+If type is XIMBitmapType, the arguments continue as follows.
+</p><pre class="literallayout">
+     4     PIXMAP     pixmap data
+</pre><p>
+The field "type" corresponds to the field in XIMStatusDrawCallbackStruct.
+</p><p>
+The IM Server sends
+<code class="function">XIM_STATUS_DONE </code>
+message to call the XIMStatusDoneCallback function.
+</p><pre class="literallayout">
+XIM_STATUS_DONE (IM Server -&gt; IM library)
+
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+</pre></div></div></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Acknowledgements"></a>Acknowledgements</h2></div></div></div><p>
+This document represents the culmination of several years of debate and
+experiments done under the auspices of the MIT X Consortium i18n working
+group.  Although this was a group effort, the author remains responsible
+for any errors or omissions.
+</p><p>
+We would like to thank to all members of this group.
+And we would like to make special thanks to the following people
+(in alphabetical order) for their participation in the IM Protocol
+design,
+Hector Chan, Takashi Fujiwara, Yoshio Horiuchi, Makoto Inada,
+Hiromu Inukai, Mickael Kung, Seiji Kuwari, Franky Ling, Hiroyuki Machida,
+Hiroyuki Miyamoto, Frank Rojas, Bob Scheifler, Makiko Shimamura,
+Shoji Sugiyama, Hidetoshi Tajima, Masaki Takeuchi, Makoto Wakamatsu,
+Masaki Wakao, Nobuyuki Tanaka, Shigeru Yamada, Katsuhisa Yano, Jinsoo Yoon.
+</p></div><div class="bibliography"><div class="titlepage"><div><div><h2 class="title"><a id="idm819"></a>References</h2></div></div></div><div class="biblioentry"><a id="idm821"></a><p><span class="title"><em>X Window System Protocol Version 11</em>. </span><span class="author"><span class="firstname">Robert W.</span> <span class="surname">Scheifler</span>. </span></p></div><div class="biblioentry"><a id="idm826"></a><p><span class="title"><em>Xlib - C Language X Interface"</em>. </span><span class="author"><span class="firstname">Robert W.</span> <span class="surname">Scheifler</span>. </span></p></div></div><div class="appendix"><h2 class="title" style="clear: both"><a id="common_extensions"></a>A. Common Extensions</h2><p>
+Extension opcodes and packet names (e.g.
+<code class="function">XIM_EXT_SET_EVENT_MASK</code>
+) for additional extensions may be registered with X Consortium.
+The following is a commonly well-known extended packet.
+</p><p>
+(1) Extension to manipulate the event handling\fP
+</p><p>
+
+<code class="function">XIM_EXT_SET_EVENT_MASK </code>
+message specifies the set of event masks that the IM library should manipulate.
+</p><pre class="literallayout">
+XIM_EXT_SET_EVENT_MASK (IM Server -&gt; IM library)
+
+     2     CARD16        input-method-ID
+     2     CARD16        input-context-ID
+     4     EVENTMASK     filter-event-mask (*1)
+     4     EVENTMASK     intercept-event-mask (*2)
+     4     EVENTMASK     select-event-mask (*3)
+     4     EVENTMASK     forward-event-mask (*4)
+     4     EVENTMASK     synchronous-event-mask (*5)
+
+     (*1) Specify the events to be neglected by the IM library via XFilterEvent.
+     (*2) Specify the events to be deselected by the IM library with XSelectInput.
+     (*3) Specify the events to be selected by the IM library with XSelectInput.
+     (*4) Specify all the events to be forwarded to the IM Server by the IM library.
+     (*5) Specify the events to be forwarded with synchronous flag on by the IM library.
+</pre><p>
+
+The IM library must reply
+<code class="function">XIM_SYNC_REPLY</code>
+message to the IM Server. This request is valid after the ic is created.
+</p><p>
+(2) Extension for improvement of performance.
+</p><p>
+The following requests may be used for improvement of performance.
+</p><p>
+<code class="function">XIM_EXT_FORWARD_KEYEVENT</code>
+message may be used instead of
+<code class="function">XIM_FORWARD_EVENT</code>
+message.
+</p><pre class="literallayout">
+XIM_EXT_FORWARD_KEYEVENT (IM Server &lt;--&gt; IM library)
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+     2     BITMASK16     flag
+          #0001     synchronous
+     2     CARD16     sequence number
+     1     BYTE     xEvent.u.u.type
+     1     BYTE     keycode
+     2     CARD16     state
+     4     CARD32     time
+     4     CARD32     window
+</pre><p>
+<code class="function">XIM_EXT_MOVE</code>
+message may be used to change the spot location instead of
+<code class="function"></code>
+XIM_SET_IC_VALUES
+message.
+It is effective only if the client specified XIMPreeditPosition.
+</p><pre class="literallayout">
+XIM_EXT_MOVE (IM library -&gt; IM Server)
+
+     2     CARD16     input-method-ID
+     2     CARD16     input-context-ID
+     2     INT16     X
+     2     INT16     Y
+</pre><p>
+<code class="function">XIM_EXT_MOVE</code>
+message is a asynchronous request.
+</p></div><div class="appendix"><h2 class="title" style="clear: both"><a id="transport_list"></a>B. Transport List</h2><p>
+The list of transport specific IM Server address format registered
+</p><p>
+The following format represents the ATOM contained in
+<code class="function">XIM_SERVERS</code>
+property and the string returned from the request converting
+selection target LOCALES and TRANSPORT.
+</p><pre class="literallayout">
+     "{<span class="emphasis"><em>category</em></span>=[<span class="emphasis"><em>value</em></span>,...]}..."
+</pre><p>
+The following categories are currently registered.
+</p><pre class="literallayout">
+<code class="function">server</code>;: IM Server name (used for XIM_SERVERS)
+<code class="function">locale</code>;: XPG4 locale name (LOCALES)
+<code class="function">transport</code>;: transport-specific name (TRANSPORT)
+</pre><p>
+The preregistered formats for transport-specific names are as follows:
+</p><p>
+<code class="function">TCP/IP Names</code>
+</p><p>
+The following syntax should be used for system internal domain names:
+</p><pre class="literallayout">
+&lt;<span class="emphasis"><em>local name</em></span>&gt;  ::= "local/"&lt;<span class="emphasis"><em>hostname</em></span>&gt;":"&lt;<span class="emphasis"><em>pathname</em></span>&gt;
+</pre><p>
+Where &lt;<span class="emphasis"><em>pathname</em></span>&gt; is a path name of socket address.
+</p><p>
+IM Server's name should be set to &lt;<span class="emphasis"><em>pathname</em></span>&gt; to run multiple IM Server
+at the same time
+</p><p>
+The following syntax should be used for Internet domain names:
+</p><pre class="literallayout">
+&lt;<span class="emphasis"><em>TCP name</em></span>&gt;  ::=  "tcp/"&lt;<span class="emphasis"><em>hostname</em></span>&gt;":"&lt;<span class="emphasis"><em>ipportnumber</em></span>&gt;
+</pre><p>
+where &lt;<span class="emphasis"><em>hostname</em></span>&gt; is either symbolic (such as expo.lcs.mit.edu) or
+numeric decimal (such as 18.30.0.212).  The &lt;<span class="emphasis"><em>ipportnumber</em></span>&gt; is the
+port on which the IM Server is listening for connections.
+For example:
+</p><pre class="literallayout">
+tcp/expo.lcs.mit.edu:8012
+tcp/18.30.0.212:7890
+</pre><p>
+<code class="function">DECnet Names</code>
+</p><p>
+The following syntax should be used for DECnet names:
+</p><pre class="literallayout">
+&lt;<span class="emphasis"><em>DECnet name</em></span>&gt;  ::=  "decnet/"&lt;<span class="emphasis"><em>nodename</em></span>&gt;"::IMSERVER$"&lt;<span class="emphasis"><em>objname</em></span>&gt;
+</pre><p>
+where &lt;<span class="emphasis"><em>nodename</em></span>&gt; is either
+symbolic (such as SRVNOD) or the numeric
+decimal form of the DECnet address (such as 44.70).
+The &lt;<span class="emphasis"><em>objname</em></span>&gt;
+is normal, case-insensitive DECnet object name. For example:
+</p><pre class="literallayout">
+DECNET/SRVNOD::IMSERVER$DEFAULT
+decnet/44.70::IMSERVER$other
+</pre><p>
+<code class="function">X Names</code>
+</p><p>
+The following syntax should be used for X names:
+</p><pre class="literallayout">
+&lt;<span class="emphasis"><em>X name</em></span>&gt;  ::=  "X/"
+</pre><p>
+If a given category has multiple values, the value is evaluated in order of
+setting.
+</p></div><div class="appendix"><h2 class="title" style="clear: both"><a id="protocol_number"></a>C. Protocol Number</h2><p>
+<code class="function">Major Protocol number</code>
+</p><pre class="literallayout">
+XIM_CONNECT                                  #001
+XIM_CONNECT_REPLY                            #002
+XIM_DISCONNECT                               #003
+XIM_DISCONNECT_REPLY                         #004
+
+XIM_AUTH_REQUIRED                            #010
+XIM_AUTH_REPLY                               #011
+XIM_AUTH_NEXT                                #012
+XIM_AUTH_SETUP                               #013
+XIM_AUTH_NG                                  #014
+
+XIM_ERROR                                    #020
+
+XIM_OPEN                                     #030
+XIM_OPEN_REPLY                               #031
+XIM_CLOSE                                    #032
+XIM_CLOSE_REPLY                              #033
+XIM_REGISTER_TRIGGERKEYS                     #034
+XIM_TRIGGER_NOTIFY                           #035
+XIM_TRIGGER_NOTIFY_REPLY                     #036
+XIM_SET_EVENT_MASK                           #037
+XIM_ENCODING_NEGOTIATION                     #038
+XIM_ENCODING_NEGOTIATION_REPLY               #039
+XIM_QUERY_EXTENSION                          #040
+XIM_QUERY_EXTENSION_REPLY                    #041
+XIM_SET_IM_VALUES                            #042
+XIM_SET_IM_VALUES_REPLY                      #043
+XIM_GET_IM_VALUES                            #044
+XIM_GET_IM_VALUES_REPLY                      #045
+
+XIM_CREATE_IC                                #050
+XIM_CREATE_IC_REPLY                          #051
+XIM_DESTROY_IC                               #052
+XIM_DESTROY_IC_REPLY                         #053
+XIM_SET_IC_VALUES                            #054
+XIM_SET_IC_VALUES_REPLY                      #055
+XIM_GET_IC_VALUES                            #056
+XIM_GET_IC_VALUES_REPLY                      #057
+XIM_SET_IC_FOCUS                             #058
+XIM_UNSET_IC_FOCUS                           #059
+XIM_FORWARD_EVENT                            #060
+XIM_SYNC                                     #061
+XIM_SYNC_REPLY                               #062
+XIM_COMMIT                                   #063
+XIM_RESET_IC                                 #064
+XIM_RESET_IC_REPLY                           #065
+
+XIM_GEOMETRY                                 #070
+XIM_STR_CONVERSION                           #071
+XIM_STR_CONVERSION_REPLY                     #072
+XIM_PREEDIT_START                            #073
+XIM_PREEDIT_START_REPLY                      #074
+XIM_PREEDIT_DRAW                             #075
+XIM_PREEDIT_CARET                            #076
+XIM_PREEDIT_CARET_REPLY                      #077
+XIM_PREEDIT_DONE                             #078
+XIM_STATUS_START                             #079
+XIM_STATUS_DRAW                              #080
+XIM_STATUS_DONE                              #081
+XIM_PREEDITSTATE                             #082
+
+(*) The IM Server's extension protocol number should be more than #128.
+</pre></div><div class="appendix"><h2 class="title" style="clear: both"><a id="implementation_tips"></a>D. Implementation Tips</h2><p>
+(1) FrontEnd Method
+</p><p>
+FrontEnd method is recognized as a performance acceleration by the
+trade off of the variety of the reliability.
+</p><p>
+In order to use the FrontEnd method, the IM library must query the IM
+Server to see if the FrontEnd extension is available.  The query is
+made by using the
+<code class="function">XIM_QUERY_EXTENSION</code>
+message. The IM Server may send
+<code class="function">XIM_EXT_SET_EVENT_MASK</code>
+message with intercept-event-mask, forward-event-mask, and
+synchronous-event-mask values set after replying
+<code class="function">XIM_QUERY_EXTENSION_REPLY</code>
+message.
+</p><p>
+FrontEnd method can be implemented in a couple of ways depending on
+how the IM Server utilize
+<code class="function">XIM_EXT_SET_EVENT_MASK</code>
+message.
+</p><p>
+One approach is to update both of the input mask and the filter-event-mask
+depending on the preeidting state. The sample protocol sequence using the
+static event flow is as follows:
+</p><div class="mediaobject"><a id="staticflow"></a><object type="image/svg+xml" data="staticflow.svg" width="405"></object><div class="caption">The flow of events</div></div><p>
+To pursuit a maximum performance regardless of the preediting mode,
+the IM Server may use the dynamic event flow with the following
+sample protocol sequence.
+</p><div class="mediaobject"><a id="dynamicflow"></a><object type="image/svg+xml" data="dynamicflow.svg" width="405"></object><div class="caption">The flow of events</div></div><p>
+This method can reduce the XIM protocol traffic dramatically
+by updating intercept-event-mask and select-event-mask accordingly.
+The tradeoff of this performance improvement is that the key
+events may be lost or disordered in some particular situation, such as
+when the user types the keyboard in following sequence really fast:
+</p><p>
+&lt;preediting on key&gt;"some strings"&lt;preediting off
+key&gt;"another string"
+</p><p>
+Since this method requires the input mask updates to the both the IM Server
+and Xlib when turning on and off the preediting, and there is a time lag
+till the requests take effect when two client issues the input mask updates
+simultaneously.
+</p><p>
+Another approach of the FrontEnd method is to update the filter-event-mask
+depending on the preediting state and not to update the input mask.
+The IM Server must register both of the preediting on key list and off key
+list by
+<code class="function">XIM_REGISTER_TRIGGERKEYS</code>
+message.
+In this method, Both the IM Server and the IM client select the same
+events on the same client's window, so that the events are delivered
+to both of the IM Server and the client. The preediting on and off
+states are expressed by whether the key events are filtered or not.
+The sample protocol sequence are as follows:
+</p><p>
+&lt;&lt;Using static event flow&gt;&gt;
+</p><div class="mediaobject"><a id="staticflowsampleseq"></a><object type="image/svg+xml" data="staticflowsampleseq.svg" width="405"></object><div class="caption">The flow of events</div></div><p>
+&lt;&lt;Using the dynamic event flow&gt;&gt;
+</p><div class="mediaobject"><a id="dynamicflowsampleseq"></a><object type="image/svg+xml" data="dynamicflowsampleseq.svg" width="405"></object><div class="caption">The flow of events</div></div><p>
+This method does not have the problem of the time lag when going across
+the preediting on and off mode, however, the amount of the performance
+acceleration is not as good as the method described above.
+</p><p>
+In general, the FrontEnd method requires some synchronization to some
+of the X protocols, such as the ChangeWindowAttribute protocol for the
+event mask change or the GrabKey protocol, since it relies on the X's
+principal event dispatching mechanism. Any X protocol bindings do not
+consider the synchronization might cause some mis-synchronization
+between the IM clients and the IM Server.
+</p><p>
+(2) Transport Layer
+</p><p>
+The Xlib XIM implementation is layered into three functions, a protocol
+layer, an interface layer and a transport layer. The purpose of this
+layering is to make the protocol independent of transport implementation.
+Each function of these layers are:
+</p><div class="variablelist"><table border="0" class="variablelist"><colgroup><col align="left" valign="top" /><col /></colgroup><tbody><tr><td><p><span class="term">The protocol layer</span></p></td><td><p>
+implements overall function of XIM and calls the interface layer
+functions when it needs to communicate to IM Server.
+      </p></td></tr><tr><td><p><span class="term">The interface layer</span></p></td><td><p>
+separates the implementation of the transport layer from the protocol
+layer, in other words, it provides implementation independent hook for
+the transport layer functions.
+      </p></td></tr><tr><td><p><span class="term">The transport layer</span></p></td><td><p>
+handles actual data communication with IM Server. It is done by a set
+of several functions named transporters.
+      </p></td></tr></tbody></table></div><p>
+The interface layer and the transport layer make various communication
+channels usable such as X Protocol, TCP/IP, DECnet or STREAM.
+The following is a sample implementation for the transporter using
+the X connection.
+Refer to "xtrans" for the transporter using Socket Transport. 
+</p><p>
+At the beginning of the X Transport connection for the XIM transport
+mechanism, two different windows must be created either in an Xlib XIM
+or in an IM Server, with which the Xlib and the IM Server exchange the
+XIM transports by using the ClientMessage events and Window Properties.
+In the following, the window created by the Xlib is referred as the
+"client communication window", and on the other hand, the window created
+by the IM Server is referred as the "IMS communication window".
+</p><p>
+Connection
+</p><p>
+In order to establish a connection, a communication window is created.
+A ClientMessage in the following event's format is sent to the owner
+window of XIM_SERVER selection, which the IM Server has created.
+</p><p>
+Refer to "The Input Method Protocol" for the XIM_SERVER atom. 
+</p><div class="table"><a id="clientmessage_sent_to_the_ims_window"></a><p class="title"><strong>Table D.1. The ClientMessage sent to the IMS window.</strong></p><div class="table-contents"><table class="table" summary="The ClientMessage sent to the IMS window." border="1"><colgroup><col align="left" class="col1" /><col align="left" class="col2" /><col align="left" class="col3" /></colgroup><thead><tr><th colspan="2" align="center">Structure Member</th><th align="left">Contents</th></tr></thead><tbody><tr><td align="left">int</td><td align="left">type</td><td align="left">ClientMessage</td></tr><tr><td align="left">u_long</td><td align="left">serial</td><td align="left">Set by the X Window System</td></tr><tr><td align="left">Bool</td><td align="left">send_event</td><td align="left">Set by the X Window System</td></tr><tr><td align="left">Display</td><td align="left">*display</td><td align="left">The display to which connects</td></tr><tr><td align="left">Window</td><td align="left">window</td><td align="left">IMS Window ID</td></tr><tr><td align="left">Atom</td><td align="left">message_type</td><td align="left">XInternAtom(display, "_XIM_XCONNECT", False)</td></tr><tr><td align="left">int</td><td align="left">format</td><td align="left">32</td></tr><tr><td align="left">long</td><td align="left">data.l[0]</td><td align="left">client communication window ID</td></tr><tr><td align="left">long</td><td align="left">data.l[1]</td><td align="left">client-major-transport-version (*1)</td></tr><tr><td align="left">long</td><td align="left">data.l[2]</td><td align="left">client-major-transport-version (*1)</td></tr></tbody></table></div></div><br class="table-break" /><p>
+In order to establish the connection (to notify the IM Server communication
+window), the IM Server sends a ClientMessage in the following event's
+format to the client communication window.
+</p><div class="table"><a id="clientmessage_sent_by_the_im_server"></a><p class="title"><strong>Table D.2. The ClientMessage sent by the IM Server.</strong></p><div class="table-contents"><table class="table" summary="The ClientMessage sent by the IM Server." border="1"><colgroup><col align="left" class="col1" /><col align="left" class="col2" /><col align="left" class="col3" /></colgroup><thead><tr><th colspan="2" align="center">Structure Member</th><th align="left">Contents</th></tr></thead><tbody><tr><td align="left">int</td><td align="left">type</td><td align="left">ClientMessage</td></tr><tr><td align="left">u_long</td><td align="left">serial</td><td align="left">Set by the X Window System</td></tr><tr><td align="left">Bool</td><td align="left">send_event</td><td align="left">Set by the X Window System</td></tr><tr><td align="left">Display</td><td align="left">*display</td><td align="left">The display to which connects</td></tr><tr><td align="left">Window</td><td align="left">window</td><td align="left">client communication window ID</td></tr><tr><td align="left">Atom</td><td align="left">message_type</td><td align="left">XInternAtom(display, "_XIM_XCONNECT", False)</td></tr><tr><td align="left">int</td><td align="left">format</td><td align="left">32</td></tr><tr><td align="left">long</td><td align="left">data.l[0]</td><td align="left">IMS communication window ID</td></tr><tr><td align="left">long</td><td align="left">data.l[1]</td><td align="left">server-major-transport-version (*1)</td></tr><tr><td align="left">long</td><td align="left">data.l[2]</td><td align="left">server-minor-transport-version (*1)</td></tr><tr><td align="left">long</td><td align="left">data.l[3]</td><td align="left">dividing size between ClientMessage and Property (*2)</td></tr></tbody></table></div></div><br class="table-break" /><p>
+(*1) major/minor-transport-version
+</p><p>
+The read/write method is decided by the combination of
+major/minor-transport-version, as follows:
+</p><div class="table"><a id="readwrite_method_and_the_majorminor_transport_version"></a><p class="title"><strong>Table D.3. The read/write method and the major/minor-transport-version</strong></p><div class="table-contents"><table class="table" summary="The read/write method and the major/minor-transport-version" border="1"><colgroup><col align="left" class="col1" /><col align="left" class="col2" /><col align="left" class="col3" /></colgroup><thead><tr><th colspan="2" align="center">Transport-version</th><th align="left">read/write</th></tr><tr><th align="left">major</th><th align="left">minor</th><th align="left"> </th></tr></thead><tbody><tr><td rowspan="3" align="left">0</td><td align="left">0</td><td align="left">only-CM &amp; Property-with-CM</td></tr><tr><td align="left">1</td><td align="left">only-CM &amp; multi-CM</td></tr><tr><td align="left">2</td><td align="left">only-CM &amp; multi-CM &amp; Property-with-CM</td></tr><tr><td align="left">1</td><td align="left">0</td><td align="left">PropertyNotify</td></tr><tr><td rowspan="2" align="left">2</td><td align="left">0</td><td align="left">only-CM &amp; PropertyNotify</td></tr><tr><td align="left">1</td><td align="left">only-CM &amp; multi-CM &amp; PropertyNotify</td></tr></tbody></table></div></div><br class="table-break" /><pre class="literallayout">
+only-CM            :    data is sent via a ClientMessage
+multi-CM           :    data is sent via multiple ClientMessages
+Property-with-CM   :    data is written in Property, and its Atom
+                        is send via ClientMessage
+PropertyNotify     :    data is written in Property, and its Atom
+                        is send via PropertyNotify
+
+</pre><p>
+The method to decide major/minor-transport-version is as follows:
+</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>
+The client sends 0 as major/minor-transport-version to the IM Server.
+The client must support all methods in Table D-3.
+The client may send another number as major/minor-transport-version to
+use other method than the above in the future.
+    </p></li><li class="listitem"><p>
+The IM Server sends its major/minor-transport-version number to
+the client. The client sends data using the method specified by the
+IM Server.
+    </p></li><li class="listitem"><p>
+If major/minor-transport-version number is not available, it is regarded
+as 0.
+
+    </p></li></ul></div><p>
+(*2) dividing size between ClientMessage and Property
+</p><p>
+If data is sent via both of multi-CM and Property, specify the dividing
+size between ClientMessage and Property. The data, which is smaller than
+this size, is sent via multi-CM (or only-CM), and the data, which is
+lager than this size, is sent via Property.
+</p><p>
+<span class="bold"><strong>read/write</strong></span>
+</p><p>
+The data is transferred via either ClientMessage or Window Property in
+the X Window System.
+</p><p>
+Format for the data from the Client to the IM Server
+</p><p>
+ClientMessage
+</p><p>
+If data is sent via ClientMessage event, the format is as follows:
+</p><div class="table"><a id="clientmessage_events_format_first_or_middle"></a><p class="title"><strong>Table D.4. The ClientMessage event's format (first or middle)</strong></p><div class="table-contents"><table class="table" summary="The ClientMessage event's format (first or middle)" border="1"><colgroup><col align="left" class="col1" /><col align="left" class="col2" /><col align="left" class="col3" /></colgroup><thead><tr><th colspan="2" align="center">Structure Member</th><th align="left">Contents</th></tr></thead><tbody><tr><td align="left">int</td><td align="left">type</td><td align="left">ClientMessage</td></tr><tr><td align="left">u_long</td><td align="left">serial</td><td align="left">Set by the X Window System</td></tr><tr><td align="left">Bool</td><td align="left">send_event</td><td align="left">Set by the X Window System</td></tr><tr><td align="left">Display</td><td align="left">*display</td><td align="left">The display to which connects</td></tr><tr><td align="left">Window</td><td align="left">window</td><td align="left">IMS communication window ID</td></tr><tr><td align="left">Atom</td><td align="left">message_type</td><td align="left">XInternAtom(display, "_XIM_MOREDATA", False)</td></tr><tr><td align="left">int</td><td align="left">format</td><td align="left">8</td></tr><tr><td align="left">char</td><td align="left">data.b[20]</td><td align="left">(read/write DATA : 20 byte)</td></tr></tbody></table></div></div><br class="table-break" /><div class="table"><a id="clientmessage_events_format_only_or_last"></a><p class="title"><strong>Table D.5. The ClientMessage event's format (only or last)</strong></p><div class="table-contents"><table class="table" summary="The ClientMessage event's format (only or last)" border="1"><colgroup><col align="left" class="col1" /><col align="left" class="col2" /><col align="left" class="col3" /></colgroup><thead><tr><th colspan="2" align="center">Structure Member</th><th align="left">Contents</th></tr></thead><tbody><tr><td align="left">int</td><td align="left">type</td><td align="left">ClientMessage</td></tr><tr><td align="left">u_long</td><td align="left">serial</td><td align="left">Set by the X Window System</td></tr><tr><td align="left">Bool</td><td align="left">send_event</td><td align="left">Set by the X Window System</td></tr><tr><td align="left">Display</td><td align="left">*display</td><td align="left">The display to which connects</td></tr><tr><td align="left">Window</td><td align="left">window</td><td align="left">IMS communication window ID</td></tr><tr><td align="left">Atom</td><td align="left">message_type</td><td align="left">XInternAtom(display, "_XIM_PROTOCOL", False)</td></tr><tr><td align="left">int</td><td align="left">format</td><td align="left">8</td></tr><tr><td align="left">char</td><td align="left">data.b[20]</td><td align="left">(read/write DATA : MAX 20 byte)  (*1)</td></tr></tbody></table></div></div><br class="table-break" /><p>
+(*1) If the data is smaller than 20 byte, all data other than available data
+must be 0.
+</p><p>
+Property
+</p><p>
+In the case of large data, data will be sent via the Window Property
+for the efficiency.  There are the following two methods to notify
+Property, and transport-version is decided which method is used.
+</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>
+The XChangeProperty function is used to store data in the client
+communication window, and Atom of the stored data is notified to the
+IM Server via ClientMessage event.
+    </p></li><li class="listitem"><p>
+The XChangeProperty function is used to store data in the client
+communication window, and Atom of the stored data is notified to the
+IM Server via PropertyNotify event.
+    </p></li></ul></div><p>
+The arguments of the XChangeProperty are as follows:
+</p><div class="table"><a id="xchangeproperty_events_format"></a><p class="title"><strong>Table D.6. The XChangeProperty event's format</strong></p><div class="table-contents"><table class="table" summary="The XChangeProperty event's format" border="1"><colgroup><col align="left" class="col1" /><col align="left" class="col2" /><col align="left" class="col3" /></colgroup><thead><tr><th colspan="2" align="center">Argument</th><th align="left">Contents</th></tr></thead><tbody><tr><td align="left">Display</td><td align="left">*display</td><td align="left">The display to which connects</td></tr><tr><td align="left">Window</td><td align="left">window</td><td align="left">IMS communication window ID</td></tr><tr><td align="left">Atom</td><td align="left">property</td><td align="left">read/write property Atom (*1)</td></tr><tr><td align="left">Atom</td><td align="left">type</td><td align="left">XA_STRING  </td></tr><tr><td align="left">int</td><td align="left">format</td><td align="left">8</td></tr><tr><td align="left">int</td><td align="left">mode</td><td align="left">PropModeAppend</td></tr><tr><td align="left">u_char</td><td align="left">*data</td><td align="left">read/write DATA</td></tr><tr><td align="left">int</td><td align="left">nelements</td><td align="left">length of DATA</td></tr></tbody></table></div></div><br class="table-break" /><p>
+The read/write property ATOM allocates the following strings by
+<span class="olink"><code class="function">XInternAtom</code></span>.
+</p><p>
+"_clientXXX"
+</p><p>
+The client changes the property with the mode of PropModeAppend and
+the IM Server will read it with the delete mode i.e. (delete = True).
+</p><p>
+If Atom is notified via ClientMessage event, the format of the ClientMessage
+is as follows:
+</p><div class="table"><a id="clientmessage_events_format_to_send_atom_of_property"></a><p class="title"><strong>Table D.7. The ClientMessage event's format to send Atom of property</strong></p><div class="table-contents"><table class="table" summary="The ClientMessage event's format to send Atom of property" border="1"><colgroup><col align="left" class="col1" /><col align="left" class="col2" /><col align="left" class="col3" /></colgroup><thead><tr><th colspan="2" align="center">Structure Members</th><th align="left">Contents</th></tr></thead><tbody><tr><td align="left">int</td><td align="left">type</td><td align="left">ClientMessage</td></tr><tr><td align="left">u_long</td><td align="left">serial</td><td align="left">Set by the X Window System</td></tr><tr><td align="left">Bool</td><td align="left">send_event</td><td align="left">Set by the X Window System</td></tr><tr><td align="left">Display</td><td align="left">*display</td><td align="left">The display to which connects</td></tr><tr><td align="left">Window</td><td align="left">window</td><td align="left">IMS communication window ID</td></tr><tr><td align="left">Atom</td><td align="left">message_type</td><td align="left">XInternAtom(display, "_XIM_PROTOCOL", False)</td></tr><tr><td align="left">int</td><td align="left">format</td><td align="left">32</td></tr><tr><td align="left">long</td><td align="left">data.l[0]</td><td align="left">length of read/write property Atom</td></tr><tr><td align="left">long</td><td align="left">data.l[1]</td><td align="left">read/write property Atom</td></tr></tbody></table></div></div><br class="table-break" /><p>
+Format for the data from the IM Server to the Client
+</p><p>
+
+
+
+ClientMessage
+</p><p>
+
+The format of the ClientMessage is as follows:
+</p><div class="table"><a id="clientmessage_events_format_for_first_or_middle"></a><p class="title"><strong>Table D.8. The ClientMessage event's format (first or middle)</strong></p><div class="table-contents"><table class="table" summary="The ClientMessage event's format (first or middle)" border="1"><colgroup><col align="left" class="col1" /><col align="left" class="col2" /><col align="left" class="col3" /></colgroup><thead><tr><th colspan="2" align="center">Structure Members</th><th align="left">Contents</th></tr></thead><tbody><tr><td align="left">int</td><td align="left">type</td><td align="left">ClientMessage</td></tr><tr><td align="left">u_long</td><td align="left">serial</td><td align="left">Set by the X Window System</td></tr><tr><td align="left">Bool</td><td align="left">send_event </td><td align="left">Set by the X Window System</td></tr><tr><td align="left">Display</td><td align="left">*display</td><td align="left">The display to which connects</td></tr><tr><td align="left">Window</td><td align="left">window</td><td align="left">client communication window ID</td></tr><tr><td align="left">Atom</td><td align="left">message_type</td><td align="left">XInternAtom(display, "_XIM_MOREDATA", False)</td></tr><tr><td align="left">int</td><td align="left">format</td><td align="left">8</td></tr><tr><td align="left">char</td><td align="left">data.b[20]</td><td align="left">(read/write DATA : 20 byte)</td></tr></tbody></table></div></div><br class="table-break" /><div class="table"><a id="clientmessage_events_format_for_only_or_last"></a><p class="title"><strong>Table D.9. The ClientMessage event's format (only or last)</strong></p><div class="table-contents"><table class="table" summary="The ClientMessage event's format (only or last)" border="1"><colgroup><col align="left" class="col1" /><col align="left" class="col2" /><col align="left" class="col3" /></colgroup><thead><tr><th colspan="2" align="center">Structure Members</th><th align="left">Contents</th></tr></thead><tbody><tr><td align="left">int</td><td align="left">type</td><td align="left">ClientMessage</td></tr><tr><td align="left">u_long</td><td align="left">serial</td><td align="left">Set by the X Window System</td></tr><tr><td align="left">Bool</td><td align="left">send_event </td><td align="left">Set by the X Window System</td></tr><tr><td align="left">Display</td><td align="left">*display</td><td align="left">The display to which connects</td></tr><tr><td align="left">Window</td><td align="left">window</td><td align="left">client communication window ID</td></tr><tr><td align="left">Atom</td><td align="left">message_type</td><td align="left">XInternAtom(display, "_XIM_PROTOCOL", False)</td></tr><tr><td align="left">int</td><td align="left">format</td><td align="left">8</td></tr><tr><td align="left">char</td><td align="left">data.b[20]</td><td align="left">(read/write DATA : MAX 20 byte) (*1)</td></tr></tbody></table></div></div><br class="table-break" /><p>
+(*1) If the data size is smaller than 20 bytes, all data other than available
+data must be 0.
+</p><p>
+Property
+</p><p>
+In the case of large data, data will be sent via the Window Property
+for the efficiency. There are the following two methods to notify
+Property, and transport-version is decided which method is used.
+</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>
+The XChangeProperty function is used to store data in the IMS
+communication window, and Atom of the property is sent via the
+ClientMessage event.
+    </p></li><li class="listitem"><p>
+The XChangeProperty function is used to store data in the IMS
+communication window, and Atom of the property is sent via
+PropertyNotify event.
+    </p></li></ul></div><p>
+The arguments of the XChangeProperty are as follows:
+</p><div class="table"><a id="xchangeproperty_events_format_2"></a><p class="title"><strong>Table D.10. The XChangeProperty event's format</strong></p><div class="table-contents"><table class="table" summary="The XChangeProperty event's format" border="1"><colgroup><col align="left" class="col1" /><col align="left" class="col2" /><col align="left" class="col3" /></colgroup><thead><tr><th colspan="2" align="center">Argument</th><th align="left">Contents</th></tr></thead><tbody><tr><td align="left">Display</td><td align="left">*display</td><td align="left">The display which to connects</td></tr><tr><td align="left">Window</td><td align="left">window</td><td align="left">client communication window ID</td></tr><tr><td align="left">Atom</td><td align="left">property</td><td align="left">read/write property Atom (*1)</td></tr><tr><td align="left">Atom</td><td align="left">type</td><td align="left">XA_STRING</td></tr><tr><td align="left">int</td><td align="left">format</td><td align="left">8</td></tr><tr><td align="left">int</td><td align="left">mode</td><td align="left">PropModeAppend</td></tr><tr><td align="left">u_char</td><td align="left">*data</td><td align="left">read/write DATA</td></tr><tr><td align="left">int</td><td align="left">nelements</td><td align="left">length of DATA</td></tr></tbody></table></div></div><br class="table-break" /><p>
+(*1)  The read/write property ATOM allocates some strings, which are not
+allocated by the client, by <span class="olink"><code class="function">XInternAtom</code></span>.
+</p><p>
+The IM Server changes the property with the mode of PropModeAppend and
+the client reads it with the delete mode, i.e. (delete = True).
+</p><p>
+If Atom is notified via ClientMessage event, the format of the ClientMessage
+is as follows:
+</p><div class="table"><a id="clientmessage_events_format_to_send_atom_of_property_2"></a><p class="title"><strong>Table D.11. The ClientMessage event's format to send Atom of property</strong></p><div class="table-contents"><table class="table" summary="The ClientMessage event's format to send Atom of property" border="1"><colgroup><col align="left" class="col1" /><col align="left" class="col2" /><col align="left" class="col3" /></colgroup><thead><tr><th colspan="2" align="center">Structure Member</th><th align="left">Contents</th></tr></thead><tbody><tr><td align="left">int</td><td align="left">type</td><td align="left">ClientMessage  </td></tr><tr><td align="left">u_long</td><td align="left">serial</td><td align="left">Set by the X Window System  </td></tr><tr><td align="left">Bool</td><td align="left">send_event</td><td align="left">Set by the X Window System  </td></tr><tr><td align="left">Display</td><td align="left">*display</td><td align="left">The display to which connects  </td></tr><tr><td align="left">Window</td><td align="left">window</td><td align="left">client communication window ID  </td></tr><tr><td align="left">Atom</td><td align="left">message_type</td><td align="left">XInternAtom(display, "_XIM_PROTOCOL", False)</td></tr><tr><td align="left">int</td><td align="left">format</td><td align="left">32  </td></tr><tr><td align="left">long</td><td align="left">data.l[0]</td><td align="left">length of read/write property ATOM  </td></tr><tr><td align="left">long</td><td align="left">data.l[1]</td><td align="left">read/write property ATOM  </td></tr></tbody></table></div></div><br class="table-break" /><p>
+Closing Connection
+</p><p>
+If the client disconnect with the IM Server, shutdown function should
+free the communication window properties and etc..
+</p></div></div></body></html>

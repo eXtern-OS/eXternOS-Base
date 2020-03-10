@@ -1,0 +1,41 @@
+#!/bin/sh
+set -e
+
+#
+# udevd since 232-20 learned to generate stable interface names for network
+# interfaces in kvm/qemu. However, existing machines upgrading will be using
+# the ethX names instead. The most risk-averse action is to encode
+# "persistent-net-rules" like rules to keep the ethX names on upgrades, since
+# the interface names (ethX) may be in use not only in /etc/network/interfaces
+# but in other configurations too (daemons, firewalls, etc).
+#
+# This is a one time action, and can be removed after the next stable & LTS
+# releases. (~ May 2018)
+#
+
+rulesfile=/etc/udev/rules.d/70-persistent-net.rules
+
+if [ `uname -m` != 's390x' ]
+then
+    exit 0
+fi
+
+if [ `systemd-detect-virt` != 'kvm' ]
+then
+    exit 0
+fi
+
+if [ -f $rulesfile ]
+then
+    exit 0
+fi
+
+for interface in /sys/class/net/eth*
+do
+    [ -d $interface ] || continue
+    name=$(basename $interface)
+    address=$(cat $interface/address)
+    cat <<EOF >>$rulesfile
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="$address", KERNEL=="eth*", NAME="$name"
+EOF
+done

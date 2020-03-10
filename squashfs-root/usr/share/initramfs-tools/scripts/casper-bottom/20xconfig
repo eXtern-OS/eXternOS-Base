@@ -1,0 +1,37 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+
+if grep -q xforcevesa /proc/cmdline 2>&1 >/dev/null; then
+	cat > /root/etc/X11/xorg.conf << EOF
+Section "Device"
+	Identifier	"Configured Video Device"
+	Driver		"vesa"
+EndSection
+
+Section "Monitor"
+	Identifier	"Configured Monitor"
+EndSection
+
+Section "Screen"
+	Identifier	"Default Screen"
+	Monitor		"Configured Monitor"
+	Device		"Configured Video Device"
+EndSection
+EOF
+fi

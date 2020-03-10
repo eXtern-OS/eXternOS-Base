@@ -1,0 +1,20 @@
+secureboot-db for Ubuntu
+------------------------
+
+When Secure Boot is enabled, the bootloader must be signed by an entry in the
+Secure Boot DB. If the signature verifies and the entry does not appear in the
+DBX blacklist, the boot process is allowed to continue. Each stage of the boot
+process may also be verified against DB and DBX. DB and DBX will need to be
+updated for certificate updates and additions to the blacklist, and this
+package provides the mechanism do so. It works by adding signed updates to
+/usr/share/secureboot/updates and then runs sbkeysync on them. Eg:
+
+$ sudo sbkeysync --no-default-keystores \
+                 --keystore /usr/share/secureboot/updates
+
+Note that this package tries to add all keys from the keystore that are not
+found in the key databases in firmware. When secure boot is enabled, updates to
+DB and DBX can only be performed if they are signed by an entry in the KEK
+database.
+
+ -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 04 Dec 2012 13:22:03 -0600

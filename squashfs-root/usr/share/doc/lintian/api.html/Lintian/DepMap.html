@@ -1,0 +1,330 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::DepMap</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::DepMap - Dependencies map/tree creator</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre>    use Lintian::DepMap;
+
+    my $map = Lintian::DepMap-&#62;new;
+
+    # know about A:
+    $map-&#62;add(&#39;A&#39;);
+    # B depends on A:
+    $map-&#62;add(&#39;B&#39;, &#39;A&#39;);
+
+    # prints &#39;A&#39;:
+    print $map-&#62;selectable;
+
+    # indicate we are working on &#39;A&#39; (optional):
+    $map-&#62;select(&#39;A&#39;);
+    # do &#39;A&#39; ... work work work
+
+    # we are done with A:
+    $map-&#62;satisfy(&#39;A&#39;);
+    # prints &#39;B&#39;:
+    print $map-&#62;selectable;</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Lintian::DepMap is a simple dependencies map/tree creator and &#34;resolver&#34;. It works by creating a tree based on the indicated dependencies and destroying it to resolve it.</p>
+
+<p>Note: in the below documentation a <code>node</code> means a node name; no internal reference is ever returned and therefore never accepted as a parameter.</p>
+
+<dl>
+<dt><a name="new()"
+>new()</a></dt>
+
+<dd>
+<p>Creates a new Lintian::DepMap object and returns a reference to it.</p>
+
+<dt><a name="initialise()"
+>initialise()</a></dt>
+
+<dd>
+<p>Ensure, by reconstructing if necessary, the map&#39;s status is the initial. That is, partially or fully resolved maps can be restored to its original state by calling this method.</p>
+
+<p>This can be useful when the same map will be used multiple times.</p>
+
+<p>E.g.</p>
+
+<pre>    $map-&#62;add(&#39;A&#39;);
+    $map-&#62;satisfy(&#39;A&#39;);
+    # prints nothing
+    print $map-&#62;selectable;
+    $map-&#62;initialise;
+    print $map-&#62;selectable;</pre>
+
+<dt><a name="add(node[,_dependency[,_dependency[,_...]]])"
+>add(node[, dependency[, dependency[, ...]]])</a></dt>
+
+<dd>
+<p>Adds the given <code>node</code> to the map marking any second or more parameter as its dependencies. E.g.</p>
+
+<pre>    # A has no dependency:
+    $map-&#62;add(&#39;A&#39;);
+    # B depends on A:
+    $map-&#62;add(&#39;B&#39;, &#39;A&#39;);</pre>
+
+<dt><a name="addp(node[,_prefix,_dependency[,_dependency[,_...]]])"
+>addp(node[, prefix, dependency[, dependency[, ...]]])</a></dt>
+
+<dd>
+<p>Adds the given <code>node</code> to the map marking any third or more parameters, after prefixing them with <code>prefix</code>, as its dependencies. E.g.</p>
+
+<pre>    # pA and pB have no dependency:
+    $map-&#62;add(&#39;pA&#39;);
+    $map-&#62;add(&#39;pA&#39;);
+    # C depends on pA and pB:
+    $map-&#62;addp(&#39;C&#39;, &#39;p&#39;, &#39;A&#39;, &#39;B&#39;);</pre>
+
+<dt><a name="satisfy(node)"
+>satisfy(node)</a></dt>
+
+<dd>
+<p>Indicates that the given <code>node</code> has been satisfied/done.</p>
+
+<p>The given <code>node</code> is no longer marked as being selected, if it was; all of its branches that have no other parent are now selectable() and all the references to <code>node</code> are deleted except the one from the known() list.</p>
+
+<p>E.g.</p>
+
+<pre>    # A has no dependencies:
+    $map-&#62;add(&#39;A&#39;);
+    # B depends on A:
+    $map-&#62;add(&#39;B&#39;, &#39;A&#39;);
+    # we work on A, and we are done:
+    $map-&#62;satisfy(&#39;A&#39;);
+    # B is now available:
+    $map-&#62;selectable(&#39;B&#39;);</pre>
+
+<p><b>Note</b>: shall the requested node not exist this method die()s.</p>
+
+<dt><a name="done(node)"
+>done(node)</a></dt>
+
+<dd>
+<p>Returns whether the given <code>node</code> has been satisfied/done.</p>
+
+<p>E.g.</p>
+
+<pre>    # A has no dependencies:
+    $map-&#62;add(&#39;A&#39;);
+    # we work on A, and we are done:
+    $map-&#62;satisfy(&#39;A&#39;);
+
+    print &#34;A is done!&#34;
+        if ($map-&#62;done(&#39;A&#39;));</pre>
+
+<dt><a name="unlink(node)"
+>unlink(node)</a></dt>
+
+<dd>
+<p>Removes all references to the given <code>node</code> except for the entry in the known() table.</p>
+
+<p><b>IMPORTANT</b>: since all references are deleted it is possible that a node that depended on <code>node</code> may become available even when it was not expected to.</p>
+
+<p><b>IMPORTANT</b>: this operation can <b>not</b> be reversed by the means of initialise().</p>
+
+<p>E.g.</p>
+
+<pre>    $map-&#62;add(&#39;A&#39;);
+    # Prints A
+    print $map-&#62;selectable;
+    # we later notice we don&#39;t want A
+    $map-&#62;unlink(&#39;A&#39;);
+    # Prints nothing
+    print $map-&#62;selectable;</pre>
+
+<p><b>Note</b>: shall the requested node not exist this method die()s.</p>
+
+<dt><a name="select(node)"
+>select(node)</a></dt>
+
+<dd>
+<p>Marks the given <code>node</code> as selected to indicate that whatever it represents is being worked on. Note: this operation is not atomic.</p>
+
+<p>E.g.</p>
+
+<pre>    $map-&#62;add(&#39;A&#39;);
+    $map-&#62;add(&#39;B&#39;, &#39;A&#39;);
+    while($map-&#62;pending) {
+        for my $node ($map-&#62;selectable) {
+            $map-&#62;select($node);
+            # work work work
+            $map-&#62;satisfy($node);
+        }
+    }</pre>
+
+<dt><a name="selectable([node])"
+>selectable([node])</a></dt>
+
+<dd>
+<p>If a <code>node</code> is specified returns TRUE if it can be select()ed.</p>
+
+<p><b>Note</b>: already select()ed nodes cannot be re-selected, i.e. if the given <code>node</code> has already been selected this function will return FALSE; or any selected item will be omitted from the returned array, in case no <code>node</code> is specified.</p>
+
+<dt><a name="selected([node])"
+>selected([node])</a></dt>
+
+<dd>
+<p>If a <code>node</code> is specified returns TRUE if it is has been selected, FALSE otherwise.</p>
+
+<p>If no <code>node</code> is specified it returns an array with the name of all the nodes that have been select()ed but not yet satisfied.</p>
+
+<p>E.g.</p>
+
+<pre>    # We are going to work on A
+    $map-&#62;select(&#39;A&#39;);
+    # Returns true
+    $map-&#62;selected(&#39;A&#39;);
+    # Prints A
+    print $map-&#62;selected;</pre>
+
+<dt><a name="selectAll()"
+>selectAll()</a></dt>
+
+<dd>
+<p>select()s all the selectable() nodes.</p>
+
+<dt><a name="parents(node)"
+>parents(node)</a></dt>
+
+<dd>
+<p>Return an array with the name of the parent nodes for the given <code>node</code>.</p>
+
+<p>E.g.</p>
+
+<pre>    $map-&#62;add(&#39;A&#39;);
+    $map-&#62;add(&#39;B&#39;, &#39;A&#39;);
+    # Prints &#39;A&#39;
+    print $map-&#62;parents(&#39;B&#39;);</pre>
+
+<p><b>Note</b>: shall the requested node not exist this method die()s.</p>
+
+<dt><a name="pending()"
+>pending()</a></dt>
+
+<dd>
+<p>Return the number of nodes that can or have already been selected. E.g.</p>
+
+<pre>    $map-&#62;add(&#39;B&#39;, &#39;A&#39;);
+    # prints 1:
+    print $map-&#62;pending;
+    $map-&#62;select(&#39;A&#39;);
+    # prints 1:
+    print $map-&#62;pending;
+    $map-&#62;satisfy(&#39;A&#39;);
+    # prints 1 (&#39;B&#39; is now available):
+    print $map-&#62;pending;</pre>
+
+<dt><a name="known()"
+>known()</a></dt>
+
+<dd>
+<p>Return an array containing the names of nodes that were added. E.g.</p>
+
+<pre>    $map-&#62;add(&#39;B&#39;, &#39;A&#39;);
+    # prints &#39;B&#39;:
+    print $map-&#62;known;
+    $map-&#62;add(&#39;A&#39;);
+    # prints &#39;A&#39; and &#39;B&#39;:
+    print $map-&#62;known;</pre>
+
+<dt><a name="known(NODE)"
+>known(NODE)</a></dt>
+
+<dd>
+<p>Returns a truth value if NODE is known or <code>undef</code> otherwise.</p>
+
+<dt><a name="missing()"
+>missing()</a></dt>
+
+<dd>
+<p>Return an array containing the names of nodes that were not added but that another node depended on it. E.g.</p>
+
+<pre>    $map-&#62;add(&#39;B&#39;, &#39;A&#39;);
+    # prints &#39;A&#39;:
+    print $map-&#62;missing;
+    $map-&#62;add(&#39;A&#39;);
+    # prints nothing:
+    print $map-&#62;missing;
+    # this also works; A depends on &#39;Z&#39;:
+    $map-&#62;add(&#39;A&#39;, &#39;Z&#39;);
+    # but now this prints &#39;Z&#39;:
+    print $map-&#62;missing;</pre>
+
+<dt><a name="circular([&#39;deep&#39;])"
+>circular([&#39;deep&#39;])</a></dt>
+
+<dd>
+<p>Returns an array of nodes that have a circular dependency.</p>
+
+<p>E.g.</p>
+
+<pre>    $map-&#62;add(&#39;A&#39;, &#39;B&#39;);
+    $map-&#62;add(&#39;B&#39;, &#39;A&#39;);
+    # Prints A and B
+    print $map-&#62;circular;</pre>
+
+<p><b>Note</b>: since recursive/deep circular dependencies detection is a bit more resource expensive it is not the default.</p>
+
+<pre>    $map-&#62;add(&#39;A&#39;, &#39;B&#39;);
+    $map-&#62;add(&#39;B&#39;, &#39;C&#39;);
+    $map-&#62;add(&#39;C&#39;, &#39;A&#39;);
+    # No deep/recursive scanning is performed, prints nothing
+    print $map-&#62;circular;
+    # deep scan, prints &#39;A, B, C&#39;
+    print $map-&#62;circular(&#39;deep&#39;);</pre>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Raphael Geissert &#60;atomo64@gmail.com&#62; for Lintian.</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

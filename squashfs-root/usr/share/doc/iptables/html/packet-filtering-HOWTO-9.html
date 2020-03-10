@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.72">
+ <TITLE>Linux 2.4 Packet Filtering HOWTO: Mixing NAT and Packet Filtering</TITLE>
+ <LINK HREF="packet-filtering-HOWTO-10.html" REL=next>
+ <LINK HREF="packet-filtering-HOWTO-8.html" REL=previous>
+ <LINK HREF="packet-filtering-HOWTO.html#toc9" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="packet-filtering-HOWTO-10.html">Next</A>
+<A HREF="packet-filtering-HOWTO-8.html">Previous</A>
+<A HREF="packet-filtering-HOWTO.html#toc9">Contents</A>
+<HR>
+<H2><A NAME="s9">9.</A> <A HREF="packet-filtering-HOWTO.html#toc9">Mixing NAT and Packet Filtering</A></H2>
+
+<P>It's common to want to do Network Address Translation (see the NAT
+HOWTO) and packet filtering.  The good news is that they mix extremely
+well.</P>
+
+<P>You design your packet filtering completely ignoring any NAT you
+are doing.  The sources and destinations seen by the packet filter
+will be the `real' sources and destinations.  For example, if you are
+doing DNAT to send any connections to 1.2.3.4 port 80 through to
+10.1.1.1 port 8080, the packet filter would see packets going to
+10.1.1.1 port 8080 (the real destination), not 1.2.3.4 port 80.
+Similarly, you can ignore masquerading: packets will seem to come from
+their real internal IP addresses (say 10.1.1.1), and replies will seem
+to go back there.</P>
+
+<P>You can use the `state' match extension without making the packet
+filter do any extra work, since NAT requires connection tracking
+anyway.  To enhance the simple masquerading example in the NAT HOWTO
+to disallow any new connections from coming in the ppp0 interface, you
+would do this:</P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+# Masquerade out ppp0
+iptables -t nat -A POSTROUTING -o ppp0 -j MASQUERADE
+
+# Disallow NEW and INVALID incoming or forwarded packets from ppp0.
+iptables -A INPUT -i ppp0 -m state --state NEW,INVALID -j DROP
+iptables -A FORWARD -i ppp0 -m state --state NEW,INVALID -j DROP
+
+# Turn on IP forwarding
+echo 1 > /proc/sys/net/ipv4/ip_forward
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+
+<HR>
+<A HREF="packet-filtering-HOWTO-10.html">Next</A>
+<A HREF="packet-filtering-HOWTO-8.html">Previous</A>
+<A HREF="packet-filtering-HOWTO.html#toc9">Contents</A>
+</BODY>
+</HTML>

@@ -1,0 +1,137 @@
+Check-Script: apache2
+Author: Arno Töll <debian@toell.net>
+Type: binary
+Info: Checks various build mistakes in Apache2 reverse dependencies
+Needs-Info: bin-pkg-control, scripts, unpacked
+
+Tag: non-standard-apache2-module-package-name
+Severity: normal
+Certainty: certain
+Info: The package appears to be an Apache2 HTTPD server module but it isn't
+ following the module naming scheme. Apache2 HTTPD modules should be called
+ <tt>libapache2-mod-name</tt> with <tt>mod-name</tt> being the actual
+ <tt>mod_name.so</tt> equivalent.
+
+Tag: apache2-module-does-not-depend-on-apache2-api
+Severity: serious
+Certainty: certain
+Info: The package is an Apache2 HTTPD server module but does not declare a
+ strong binary relation against the Apache2 server binary it links against. Modules
+ must depend on the <tt>apache2-api-YYYYMMNN</tt> package provided as a virtual
+ package by <tt>apache2-bin</tt>.
+
+Tag: apache2-module-does-not-ship-load-file
+Severity: serious
+Certainty: certain
+Info: The package is an Apache2 HTTPD server module but does not ship a
+ "<tt>.load</tt>" file or it was installed under an unexpected name. The load
+ files in "<tt>/etc/apache2/mods-available</tt>" are required to interact with
+ the server package to enable and disable the module and must match the module
+ name without "<tt>mod_</tt> prefix, e.g. <tt>mod_foo</tt> must ship a load file
+ named "<tt>foo.load</tt>".
+
+Tag: apache2-reverse-dependency-ships-file-in-not-allowed-directory
+Severity: serious
+Certainty: certain
+Info: The package installs a piece of Apache2 configuration to
+ <tt>/etc/apache2/{sites,mods,conf}-enabled</tt>. This is not allowed. Instead
+ the respective <tt>/etc/apache2/{sites,mods,conf}-available</tt> counterparts
+ must be used.
+
+
+Tag: non-standard-apache2-configuration-name
+Severity: normal
+Certainty: certain
+Info: The package appears to be a web application which is installing a
+ configuration file for the Apache2 HTTPD server. To avoid name clashes, any file
+ installed to <tt>/etc/apache2/{sites,conf}-available</tt> should match the binary package
+ name and must not start with <tt>local-</tt>.
+
+
+Tag: apache2-reverse-dependency-calls-wrapper-script
+Severity: normal
+Certainty: certain
+Info: The package is calling an Apache2 configuration wrapper script (e.g.
+ <tt>a2enmod</tt>, <tt>a2enconf</tt>, <tt>a2enconf</tt>, ...). Maintainer
+ scripts should not be calling these scripts directly. To achieve a uniform and
+ consolidated behavior these scripts should be invoked indirectly by using
+ apache2-maintscript-helper.
+
+
+Tag: web-application-depends-on-apache2-data-package
+Severity: normal
+Certainty: certain
+Info: The package appears to be a web application but declares a package
+ relation with <tt>apache2-bin</tt>, <tt>apache2-data</tt> or any of its
+ transitional packages. However, web applications are rarely bound to a specific
+ web server version. Thus, they should depend on <tt>apache2</tt> only instead.
+ If a web application is actually tied to a particular binary version of the web
+ server a dependency against the virtual <tt>apache2-api-YYYYMMDD</tt> package
+ is more appropriate.
+
+Tag: web-application-should-not-depend-unconditionally-on-apache2
+Severity: normal
+Certainty: certain
+Info: The package appears to be a web application but declares a dependency
+ against <tt>apache2</tt> without any alternative. Most web applications should
+ work with any decent web server, thus such a package should be satisfied if any
+ web server providing the virtual "<tt>httpd</tt>" package is installed. This
+ can be accomplished by declaring a package relation in the form "<tt>apache2 |
+ httpd</tt>".
+
+Tag: apache2-reverse-dependency-calls-invoke-rc.d
+Severity: normal
+Certainty: certain
+Info: The package is invoking apache2's init script in its maintainer script
+ albeit it shouldn't do so. Reverse dependencies installing apache2
+ configuration pieces should not restart the web server unconditionally in
+ maintainer scripts. Instead they should be using apache2-maintscript-helper
+ which correctly obeys local policies.
+
+Tag: apache2-reverse-dependency-uses-obsolete-directory
+Severity: normal
+Certainty: certain
+Info: The package is installing a file into the obsolete
+ <tt>/etc/apache2/conf.d/</tt> directory. This file is not read by the Apache2
+ 2.4 web server anymore. Instead <tt>/etc/apache2/conf-available/</tt> should be
+ used.
+
+Tag: apache2-configuration-files-need-conf-suffix
+Severity: important
+Certainty: certain
+Info: The package is installing an Apache2 configuration but that file does not
+ end with a '<tt>.conf</tt>' suffix. Starting with Apache2 2.4 all configuration
+ files except module '<tt>.load</tt>' files need that suffix or are ignored otherwise.
+
+
+Tag: apache2-unparsable-dependency
+Severity: normal
+Certainty: certain
+Info: The package is declaring a module dependency within an Apache
+ configuration file which does not meet the requirements. Dependencies must be
+ declared without paths, leading "<tt>mod_</tt>" prefix and without file
+ extension.
+
+Tag: apache2-unsupported-dependency
+Severity: normal
+Certainty: certain
+Info: The package is declaring a module dependency within an Apache
+ configuration file which is not supported there. Dependencies are supported in
+ module '<tt>.load</tt>' files, and web application '<tt>.conf</tt>' files,
+ conflicts in '<tt>.load</tt> files only.
+
+Tag: apache2-deprecated-auth-config
+Severity: normal
+Certainty: certain
+Info: The package is using some of the deprecated authentication configuration
+ directives Order, Satisfy, Allow, Deny, &lt;Limit&gt; or &lt;LimitExcept&gt;
+ .
+ These do not integrate well with the new authorization scheme of Apache
+ 2.4 and, in the case of &lt;Limit&gt; and &lt;LimitExcept&gt; have confusing
+ semantics. The configuration directives should be replaced with a suitable
+ combination of &lt;RequireAll&gt;, &lt;RequireAny&gt;, Require all, Require local,
+ Require ip, and Require method.
+ .
+ Alternatively, the offending lines can be wrapped between
+ &lt;IfModule !mod_authz_core.c&gt; ... &lt;/IfModule&gt; or
+ &lt;IfVersion &lt; 2.3&gt; ... &lt;/IfVersion&gt; directives.

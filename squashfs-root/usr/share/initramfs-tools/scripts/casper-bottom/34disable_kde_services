@@ -1,0 +1,44 @@
+#! /bin/sh
+
+PREREQ=""
+DESCRIPTION="Disabling unnecessary KDE services..."
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+
+log_begin_msg "$DESCRIPTION"
+
+rm -f /root/usr/share/autostart/kab2kabc.desktop
+rm -f /root/usr/share/autostart/kaddressbookmigrator.desktop
+rm -f /root/usr/share/autostart/korgac.desktop
+rm -f /root/usr/share/autostart/printer-applet.desktop
+rm -f /root/usr/share/autostart/nepomukserver.desktop
+rm -f /root/usr/share/kde4/services/kded/kpackagekitd.desktop
+if [ -z "${PERSISTENT}" ]; then
+	rm -f /root/usr/share/kde4/services/kded/freespacenotifier.desktop
+fi
+rm -f /root/usr/share/kde4/services/plasma-runner-contacts.desktop  # starts akonadi
+rm -f /root/usr/share/kde4/services/plasma-dataengine-calendar.desktop  # starts akonadi
+
+if [ -d /root/usr/share/kubuntu-default-settings/kf5-settings/ ]; then
+    printf "[Daemon]\nTimeout=0\nAutolock=false\n" >> /root/usr/share/kubuntu-default-settings/kf5-settings/kscreenlockerrc
+    printf "[Basic Settings]\nIndexing-Enabled=false\n" >> /root/usr/share/kubuntu-default-settings/kf5-settings/baloofilerc
+    printf "[Module-notificationhelper]\nautoload=false\n" >> /root/usr/share/kubuntu-default-settings/kf5-settings/kded5rc
+    printf "[Event/Update]\nAction=\n" >> /root/usr/share/kubuntu-default-settings/kf5-settings/muonabstractnotifier.notifyrc
+    printf "[Event/Update]\nAction=\n" >> /root/usr/share/kubuntu-default-settings/kf5-settings/muonapplicationnotifier.notifyrc
+    printf "[Wallet]\nEnabled=false\n" >> /root/usr/share/kubuntu-default-settings/kf5-settings/kwalletrc
+fi
+
+log_end_msg

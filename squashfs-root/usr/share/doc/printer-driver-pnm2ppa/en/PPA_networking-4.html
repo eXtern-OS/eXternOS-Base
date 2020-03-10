@@ -1,0 +1,226 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>Networking HP PPA DeskJet Printers using SAMBA.: Emulating a PostScript printer on a Windows Host.</TITLE>
+ <LINK HREF="PPA_networking-3.html" REL=previous>
+ <LINK HREF="PPA_networking.html#toc4" REL=contents>
+</HEAD>
+<BODY>
+Next
+<A HREF="PPA_networking-3.html">Previous</A>
+<A HREF="PPA_networking.html#toc4">Contents</A>
+<HR>
+<H2><A NAME="s4">4. Emulating a PostScript printer on a Windows Host.</A></H2>
+
+<P>
+<P>If you do not have commercial PostScript emulation software for Windows that
+will work with your HP PPA DeskJet
+(the author is unaware of any such software that supports PPA printers),
+you can use <B>Ghostscript</B> together with HP's native Windows drivers.
+<P>
+<H2><A NAME="ss4.1">4.1 Installing Ghostscript as the emulation software.</A>
+</H2>
+
+<P>From the Ghostscript home page 
+<A HREF="http://www.cs.wisc.edu/~ghost/">http://www.cs.wisc.edu/~ghost/</A>
+download and install (in this order) the Windows packages of
+<UL>
+<LI> <B>Ghostscript</B>   (PostScript Emulation Software).</LI>
+<LI> <B>GSview</B>  (Ghostscript previewer, provides <CODE>gsprint</CODE>).</LI>
+<LI> <B>RedMon</B> (printer port redirection utility).</LI>
+</UL>
+
+(Install these using their <CODE>setup.exe</CODE>
+installation tools, and do not manually
+set up any configuration files for <CODE>gsprint</CODE>
+or <CODE>RedMon</CODE>.)
+You must now follow the detailed instructions below, and 
+use the Windows &quot;Add Printer Wizard&quot; to add a postscript
+printer, and then 
+configure it to use the <CODE>gsprint</CODE> utility that comes with
+GSview, and redirect the output to your HP PPA DeskJet using the <CODE>RedMon</CODE> utility.   
+<P>
+<P>
+<H2><A NAME="ss4.2">4.2 Adding the fictitious  Postscript printer.</A>
+</H2>
+
+<P>In the following, I assume your printer is a HP DeskJet 722C,
+and is installed with its native Windows Drivers as a printer
+called &quot;HP DeskJet 720C Series&quot;.  Change printer
+name entries
+below as appropriate for your printer model.
+<P>The following instructions are tested on Windows 98, and may differ
+on other Windows variants.
+<P>Open the <B>Settings/Printers</B> folder.
+<P>First check that the HP PPA Deskjet is correctly installed,
+using HP's native Windows drivers.  Right-click on its icon,
+and select its <B>Properties</B> dialog.  The <B>General
+Properties</B> screen will open.  This shows the <B>exact name</B>
+that the printer was given when it was installed.   Make a note of
+it, and use the <B>Print Test Page</B> button
+to confirm that the
+printer is working. (The &quot;Printer name:&quot; line on the
+test page will also show the <B>exact name</B> of the HP PPA Deskjet
+that you will need to use when configuring the emulated postscript printer 
+below). When you are done,
+click on <B>OK</B> to close the dialog.
+<P>Now start the <B>Add Printer</B> &quot;Wizard&quot;. 
+Make the choices:
+<UL>
+<LI> install a <B>local printer</B></LI>
+<LI> select a PostScript printer from the
+list of printers;
+(e.g., one of the <B>Apple LaserWriter</B> models:
+the Laserwriter II NT  is known to work;  <B>Digital 
+PrintServer</B> models such as the turboPrintServer 20/Net
+have also been recommended).   This will provide a
+suitable postscript driver.</LI>
+<LI> From the list of Available Ports, choose
+&quot;<B>FILE: Creates a file on disk</B>&quot; 
+(you will change this after
+the printer is installed)</LI>
+<LI> set as default printer?: <B>NO</B></LI>
+<LI> Print test page?: <B>NO</B></LI>
+</UL>
+<P>
+<H2><A NAME="ss4.3">4.3 Redirecting the output to the PPA printer.</A>
+</H2>
+
+<P>After the printer has been installed, 
+right-click on its icon, and rename it to something like,
+e.g., 
+&quot;Ghostscript+HP722C&quot;.
+Then right click again and  open its <B>Properties</B> dialog.
+<P>On the <B>General</B> tab screen,
+enter something informative
+in the <B>Comment</B> box, such as
+&quot; Emulated Postscript printer; output redirected
+to a HP722C DeskJet printer&quot; (optional).
+<P>Next select the <B>Details</B> tab.   
+The box &quot;<B>Print using the following driver:</B>&quot; 
+should show the
+Postscript driver you selected (e.g., Apple LaserWriter II NT).
+<P>
+<UL>
+<LI> Click on <B>Add Port</B>.
+Select <B>other</B>, then <B> Redirected Port</B>, which should be
+available if <CODE>RedMon</CODE> was correctly installed, and  click on
+<B>OK</B> to accept  these
+settings and  close the Add Port dialog.   
+On the <B>Details</B> tab screen,
+The box &quot;<B>Print to the following port:</B>&quot; 
+should now  show a
+redirected port such as 
+&quot;<CODE>RPT1 [Redirected Port]</CODE>&quot;.
+</LI>
+<LI> Click on
+<B>Port Settings</B>.  
+<UL>
+<LI>In the box 
+&quot;<B>Redirect port to the program:</B>&quot;, enter the path to the 
+<CODE>gsprint</CODE> program.   (If you accepted the defaults when installing it,
+this may be <CODE>C:\Ghostgum\gsview\gsprint.exe</CODE>; you may
+search for it by clicking on  <B>Browse</B>).
+</LI>
+<LI>In the box &quot;<B>arguments for this program are:</B>&quot; 
+enter the arguments to be passed to the
+<CODE>gsprint</CODE> program (there is a document <CODE>gsprint.htm</CODE>
+with more details of these in the folder containing <CODE>gsprint.exe</CODE>).
+Suggested arguments are:
+<BLOCKQUOTE><CODE>
+<PRE>
+ -printer "HP DeskJet 720C Series" -color - 
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Replace &quot;HP DeskJet 720C Series&quot; by the (quoted)
+<B>exact name</B> of the HP PPA DeskJet printer that
+you made a note of earlier. <B>(If you do not copy this name exactly,
+including any capitalization or spaces, things may not work!)</B>
+The <CODE>-color</CODE> argument is needed to
+enable color printing; 
+(Whether you actually  get color printing will depend on the local settings
+of the &quot;HP DeskJet 720C Series&quot; printer
+that really prints
+the document.)
+The final
+&quot;<CODE> - </CODE>&quot; is <B>required</B>: without it, 
+the  output of <CODE>gsprint</CODE> will not get redirected to
+the printer.
+
+</LI>
+<LI>The box &quot;<B>Output</B>&quot; should show 
+&quot;<B>Program handles output</B>&quot;.
+</LI>
+<LI>In the box &quot;<B>Run</B>&quot;, select 
+&quot;<B>hidden</B>&quot;.
+</LI>
+<LI>The box &quot;<B>Shutdown delay</B>&quot; will say
+&quot;300 seconds&quot;.  Print jobs for which processing by
+<CODE>gsprint</CODE> takes longer than this will be terminated,
+to avoid blocking the printer spool queue.   Increase this limit
+if necessary.</LI>
+</UL>
+
+
+Now click on <B>OK</B> to close the Port Settings dialog. 
+
+</LI>
+<LI>  Click on <B>Spool Settings</B>, and select 
+&quot;<B>Disable bi-directional support for this printer</B>&quot;, 
+and click <B>OK</B>.</LI>
+</UL>
+<P>Finally, again select the <B>General</B> tab, and test the installation by
+clicking on &quot;<B>Print a test page</B>&quot;.  If it works, you are 
+finished setting up Postscript emulation.  Click <B>OK</B> to
+exit the Printer Properties dialog.
+<P>(If you have problems, first check that you made the correct
+entries in the Printer Properties dialogs, <B>especially check that you
+did not make any typing errors in the
+exact name for the PPA DeskJet printer in the</B>
+<CODE>gsprint</CODE><B> arguments box</B>, which must correspond exactly
+to the &quot;Printer name&quot; given to the HP PPA printer). If the problems
+persist, you might get guidance from the 
+gsprint and RedMon documentation; look
+in the folders where these were installed.) 
+<P>You now have a working emulated 
+&quot;Postscript printer&quot; that can now be shared over
+a network.  (The &quot;sharing&quot; options will now be available
+if you right-click on the emulated printer's icon.)
+<P>
+<H2><A NAME="ss4.4">4.4 Limitations.</A>
+</H2>
+
+<P>This emulated postscript
+printer is most useful for providing printing services
+to non-Windows
+Clients on a <CODE>samba</CODE> network,   
+but can be also be used by Windows
+Clients with the following limitations:
+<UL>
+<LI>Windows Clients will be able to
+select Print Settings only for the
+visible (&quot;front end&quot;) &quot;Postscript printer&quot;, 
+but not for
+the hidden (&quot;back end&quot;) HP PPA DeskJet printer 
+that actually
+does the printing.</LI>
+<LI>Changes in the local Print Settings of the PPA driver for
+the DeskJet printer on the
+Host system (but not on Client systems, if it
+too is shared) will affect network printing by the
+&quot;Postscript printer&quot;.  </LI>
+<LI>Since the
+visible &quot;Postscript printer&quot; falsely
+advertises its identity, some of its Print Settings
+options seen by users on the Clients may not be valid.</LI>
+<LI>The extra processing on the printer Host
+may make printing rather slow compared to native Windows printing.</LI>
+</UL>
+<HR>
+Next
+<A HREF="PPA_networking-3.html">Previous</A>
+<A HREF="PPA_networking.html#toc4">Contents</A>
+</BODY>
+</HTML>

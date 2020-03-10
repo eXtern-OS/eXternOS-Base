@@ -1,0 +1,47 @@
+Check-Script: appstream-metadata
+Author: Petter Reinholdtsen <pere@hungry.com>
+Type: binary
+Needs-Info: unpacked
+Info: This script checks the AppStream metadata files for problems.
+
+Tag: appstream-metadata-in-legacy-location
+Severity: minor
+Certainty: certain
+Ref: https://wiki.debian.org/AppStream/Guidelines
+Info: AppStream metadata file was found in /usr/share/appdata/.  The
+ AppStream XML files should be placed in /usr/share/metainfo/.
+
+Tag: appstream-metadata-legacy-format
+Severity: important
+Certainty: certain
+Ref: https://wiki.debian.org/AppStream/Guidelines,
+ https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html#sect-Metadata-GenericComponent
+Info: AppStream metadata with obsolete &lt;application&gt; root node found.
+ This indicate a legacy format.  The metadata should follow the format
+ the new outlined on the freedesktop.org homepage.
+ .
+ It is possible to validate the format using 'appstreamcli validate'.
+
+Tag: appstream-metadata-missing-modalias-provide
+Severity: normal
+Certainty: certain
+Ref: https://wiki.debian.org/AppStream/Guidelines
+Info: This package contain a udev rule for providing device access to
+ the console user (using the uaccess udev TAG) or to members of the
+ plugdev file group without announcing the hardware support using
+ AppStream.
+
+Tag: appstream-metadata-malformed-modalias-provide
+Severity: normal
+Certainty: certain
+Ref: https://wiki.debian.org/AppStream/Guidelines
+Info: The modalias matching rule in the AppStream metadata file is
+ malformed.  Hexadecimal numbers in vendor and product IDs must be
+ upper case.
+
+Tag: appstream-metadata-invalid
+Severity: serious
+Certainty: certain
+Ref: https://wiki.debian.org/AppStream/Guidelines
+Info: The specified AppStream metadata file does not consist of
+ valid XML.

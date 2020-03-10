@@ -1,0 +1,80 @@
+#!/usr/bin/perl
+
+#
+# Example: apt-config in perl.  See apt-config(8).
+#
+
+use AptPkg::Config '$_config';
+
+(my $self = $0) =~ s#.*/##;
+
+# initialise the global config object with the default values
+$_config->init;
+
+# parse the command line
+@ARGV = $_config->parse_cmdline([
+	    [ 'h', 'help',        'help' ],
+	    [ 'v', 'version',     'version' ],
+	    [ 'c', 'config-file', '', 'ConfigFile' ],
+	    [ 'o', 'option',      '', 'ArbItem' ],
+	], @ARGV);
+
+if (my $v_opt = $_config->get_bool('version') or # --version
+    $_config->get_bool('help') or		 # --help
+    !@ARGV)					 # no args
+{
+   # we don't have the PACKAGE/VERSION &c apt-config has... punt
+   print "$self (using AptPkg $AptPkg::VERSION, built for ",
+	 "$_config->{APT::Architecture})\n";
+
+    print <<EOT unless $v_opt;
+Usage: $self [options] command
+
+$self is a simple tool to read the APT config file
+
+Commands:
+   shell - Shell mode
+   dump - Show the configuration
+
+Options:
+  -h   This help text.
+  -c=? Read this configuration file
+  -o=? Set an arbitrary configuration option, eg -o dir::cache=/tmp
+EOT
+
+    exit;
+}
+
+# dispatch args
+my $op = shift;
+
+if ($op eq 'dump')
+{
+    $_config->dump;
+    exit;
+}
+
+die "$self: invalid operation `$op'\n" unless $op eq 'shell';
+
+while (@ARGV)
+{
+    my $var = shift;
+    my $cname = shift or die "$self: arguments not in pairs\n";
+    local $_;
+
+    # check if the caller has requested a directory path in the old format
+    $cname .= 'd' if $cname =~ m#/$#;
+
+    $_ = $_config->get($cname) if $_config->exists($cname);
+
+    next unless defined;
+    if (m#[^\w@+,./:=-]#)
+    {
+	# quote
+	s/'/'\\''/g;
+	$_ = "'$_" unless s/^'//;
+	$_ = "$_'" unless s/'$//;
+    }
+
+    print "$var=$_\n";
+}

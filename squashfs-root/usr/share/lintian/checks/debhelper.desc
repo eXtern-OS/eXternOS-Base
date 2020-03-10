@@ -1,0 +1,444 @@
+Check-Script: debhelper
+Author: Joey Hess <joeyh@debian.org>
+Abbrev: dh
+Type: source
+Info: This looks for common mistakes in debhelper source packages.
+Needs-Info: unpacked
+
+Tag: maintainer-script-lacks-debhelper-token
+Severity: normal
+Certainty: possible
+Info: This package is built using debhelper commands that may modify
+ maintainer scripts, but the maintainer scripts do not contain
+ the "#DEBHELPER#" token debhelper uses to modify them.
+ .
+ Adding the token to the scripts is recommended.
+
+Tag: package-uses-debhelper-but-lacks-build-depends
+Severity: important
+Certainty: possible
+Info: If a package uses debhelper, it must declare a Build-Depends
+ on debhelper.
+
+Tag: package-lacks-versioned-build-depends-on-debhelper
+Severity: pedantic
+Certainty: certain
+Info: The package either doesn't declare a versioned build dependency on
+ debhelper or does not declare a versioned build dependency on a new
+ enough version of debhelper to satisfy the declared compatibility level.
+ .
+ Recommended practice is to always declare an explicit versioned
+ dependency on debhelper equal to or greater than the compatibility level
+ used by the package, even if the versioned dependency isn't strictly
+ necessary.  Having a versioned dependency also helps with backports to
+ older releases and correct builds on partially updated systems.
+Ref: debhelper(7)
+
+Tag: package-needs-versioned-debhelper-build-depends
+Severity: minor
+Certainty: certain
+Info: The package either doesn't declare a versioned build dependency on
+ debhelper or does not declare a versioned build dependency on a new
+ enough version of debhelper to satisfy the declared compatibility level.
+ .
+ The required version of debhelper is not guaranteed to be satisfied
+ in all supported releases of Debian and therefore this may lead to
+ a build failure.
+ .
+ Recommended practice is to always declare an explicit versioned
+ dependency on debhelper equal to or greater than the compatibility level
+ used by the package, even if the versioned dependency isn't strictly
+ necessary.  Having a versioned dependency also helps with backports to
+ older releases and correct builds on partially updated systems.
+ .
+ Note if you are using a compat level, which is marked as experimental,
+ such as compat 9 in debhelper 8.1.3, then please override this tag.
+Ref: debhelper(7)
+
+Tag: dh-make-template-in-source
+Severity: normal
+Certainty: possible
+Info: This package contains debian/*.ex and/or debian/ex.* files
+ installed by dh_make.  These are intended to be filled in with the
+ package's details and renamed for use by various debhelper commands.
+ If they are not being used, they should be removed.
+
+Tag: dh_installmanpages-is-obsolete
+Severity: normal
+Certainty: certain
+Ref: dh_installmanpages(1)
+Info: This package calls dh_installmanpages in its <tt>debian/rules</tt> file.
+ dh_installmanpages is deprecated in favour of dh_installman.
+
+Tag: dh-clean-k-is-deprecated
+Severity: normal
+Certainty: certain
+Ref: dh_clean(1)
+Info: This package calls dh_clean -k in its <tt>debian/rules</tt> file
+ instead of dh_prep.
+
+Tag: debhelper-compat-file-is-empty
+Severity: important
+Certainty: certain
+Ref: debhelper(7)
+Info: The source package has an empty debian/compat file.  This is an error,
+ the compat level of debhelper should be in there.  Note that only the first
+ line of the file is relevant.
+
+Tag: declares-possibly-conflicting-debhelper-compat-versions
+Severity: important
+Certainty: certain
+Ref: debhelper(7)
+Info: The source package declares the debhelper compatibility version
+ both in the <tt>debian/compat</tt> file and in the <tt>debian/rules</tt>
+ file.  If these ever get out of synchronisation, the package may not build
+ as expected.
+
+Tag: package-uses-deprecated-debhelper-compat-version
+Severity: normal
+Certainty: certain
+Ref: debhelper(7)
+Info: The debhelper compatibility version used by this package is marked
+ as deprecated by the debhelper developer.  You should really consider
+ using a newer compatibility version.
+ .
+ The compatibility version can be set in (preferred)
+ <tt>debian/compat</tt> or by setting and exporting DH_COMPAT in
+ <tt>debian/rules</tt>.  If it is not set in either place, debhelper
+ defaults to the deprecated compatibility version 1.
+
+Tag: package-uses-old-debhelper-compat-version
+Severity: pedantic
+Certainty: certain
+Ref: debhelper(7)
+Info: The debhelper compatibility version used by this package is marked
+ as not recommended by the debhelper developer.  You may consider
+ using a recommended compatibility version.
+ .
+ The compatibility version can be set in (preferred)
+ <tt>debian/compat</tt> or by setting and exporting DH_COMPAT in
+ <tt>debian/rules</tt>.  If it is not set in either place, debhelper
+ defaults to the deprecated compatibility version 1.
+
+Tag: package-uses-experimental-debhelper-compat-version
+Severity: pedantic
+Certainty: certain
+Ref: debhelper(7)
+Info: The debhelper compatibility version used by this package is marked
+ as experimental by the debhelper developer.  You  may consider
+ using a stable compatibility version.
+ .
+ The compatibility version can be set in (preferred)
+ <tt>debian/compat</tt> or by setting and exporting DH_COMPAT in
+ <tt>debian/rules</tt>.  If it is not set in either place, debhelper
+ defaults to the deprecated compatibility version 1.
+
+Tag: debhelper-but-no-misc-depends
+Severity: normal
+Certainty: possible
+Ref: debhelper(7)
+Info: The source package uses debhelper, but it does not include
+ ${misc:Depends} in the given binary package's debian/control entry.  Any
+ debhelper command may add dependencies to ${misc:Depends} that are
+ required for the work that it does, so recommended best practice is to
+ always add ${misc:Depends} to the dependencies of each binary package if
+ debhelper is in use.
+
+Tag: missing-build-dependency-for-dh_-command
+Severity: important
+Certainty: possible
+Info: The source package appears to be using a dh_ command but doesn't build
+ depend on the package that actually provides it.  If it uses it, it must
+ build depend on it.
+
+Tag: missing-build-dependency-for-dh-addon
+Severity: important
+Certainty: possible
+Info: The source package appears to be using a dh addon but doesn't build
+ depend on the package that actually provides it.  If it uses it, it must
+ build depend on it.
+
+Tag: brace-expansion-in-debhelper-config-file
+Severity: normal
+Certainty: possible
+Info: This debhelper config file appears to use shell brace expansion
+ (such as <tt>{foo,bar}</tt>) to specify files.  This happens to work due
+ to an accident of implementation but is not a supported feature.  Only
+ <tt>?</tt>, <tt>*</tt>, and <tt>[...]</tt> are supported.
+Ref: debhelper(1)
+
+Tag: weak-dependency-on-misc-depends
+Severity: normal
+Certainty: possible
+Ref: debhelper(7)
+Info: The source package declares a weak dependency on ${misc:Depends} in
+ the given binary package's debian/control entry.  A stronger dependency, that
+ is one that ensures the package's installation, is required so that the
+ additional commands are available to the maintainer scripts when they are run.
+
+Tag: debhelper-compat-not-a-number
+Severity: important
+Certainty: certain
+Ref: debhelper(7)
+Info: The debhelper compatibility level specified in
+ <tt>debian/compat</tt> is not a number.
+
+Tag: debhelper-compat-file-contains-multiple-levels
+Severity: important
+Certainty: certain
+Ref: debhelper(7)
+Info: The <tt>debian/compat</tt> file appears to contain multiple
+ compatibility levels.
+ .
+ This was likely due to the use of &gt;&gt; instead of &gt; when
+ updating the level.
+ .
+ Please update the file to specify a single level.
+
+Tag: debhelper-compatibility-level-not-a-number
+Severity: important
+Certainty: possible
+Info: The debhelper compatibility level specified in <tt>debian/rules</tt>
+ is not a number.  If you're using make functions or other more complex
+ methods to generate the compatibility level, write the output into
+ <tt>debian/compat</tt> instead of setting DH_COMPAT.  The latter should
+ be available for a user to override temporarily.
+
+Tag: temporary-debhelper-file
+Severity: important
+Certainty: certain
+Ref: dh_clean(1)
+Info: The package contains temporary debhelper files, which are normally
+ removed by <tt>dh_clean</tt>.  The most common cause for this is that a
+ binary package has been renamed or removed without cleaning the build
+ directory first.
+
+Tag: unused-build-dependency-on-cdbs
+Severity: normal
+Certainty: possible
+Info: The package build-depends on cdbs, but does not include any cdbs
+ files in <tt>debian/rules</tt>.
+
+Tag: python-depends-but-no-python-helper
+Severity: serious
+Certainty: possible
+Info: The source package declares a dependency on ${python:Depends} in the
+ given binary package's debian/control entry.  However, debian/rules doesn't
+ call any helper that would generate this substitution variable.
+ .
+ The source package probably needs a call to dh_python2 (possibly via the
+ python2 dh add-on) in the debian/rules file.
+
+Tag: python3-depends-but-no-python3-helper
+Severity: serious
+Certainty: possible
+Info: The source package declares a dependency on ${python3:Depends} in the
+ given binary package's debian/control entry.  However, debian/rules doesn't
+ call any helper that would generate this substitution variable.
+
+Tag: package-file-is-executable
+Severity: normal
+Certainty: certain
+Info: The packaging file is marked executable.  For control, changelog and
+ copyright there is no reason for them to be executable.
+ .
+ This tag is also emitted if a debhelper file is marked executable without
+ using compat level 9, since debhelper does not execute them at lower
+ compat levels.
+
+Tag: executable-debhelper-file-without-being-executable
+Severity: important
+Certainty: possible
+Info: The packaging file is marked executable, but it does not appear to be
+ executable (e.g. it has no #! line).
+ .
+ If debhelper file is not supposed to be executable, please remove the
+ executable bit from it.
+
+Tag: dh-exec-private-helper
+Severity: important
+Certainty: certain
+Info: The packaging file uses dh-exec, but it does not use /usr/bin/dh-exec.
+ .
+ If running dh-exec with the default set of helpers is not desired,
+ use its --with or --without options instead of directly using the
+ desired helper.
+
+Tag: package-uses-dh-exec-but-lacks-build-depends
+Severity: important
+Certainty: possible
+Info: If a package uses dh-exec, it must declare a Build-Depends
+ on it.
+
+Tag: dh-exec-script-without-dh-exec-features
+Severity: normal
+Certainty: possible
+Info: The package uses dh-exec in at least one of its files, but does
+ not use any of the features provided by dh-exec.
+ .
+ If the features provided by dh-exec is not needed, please remove the
+ executable bit, and the dh-exec usage.
+
+Tag: dh-exec-install-not-allowed-here
+Severity: important
+Certainty: possible
+Info: The package uses a dh-exec-install construct in a debhelper
+ config file, where it is not permitted.
+ .
+ The dh-exec-install constructs are only allowed in dh_install's
+ .install and dh_installman's .manpages files, and nowhere else.
+
+Tag: dh-exec-subst-unknown-variable
+Severity: minor
+Certainty: wild-guess
+Info: The package uses a variable in one of its debhelper config
+ files, but the variable is not one known to dpkg-architecture.
+ .
+ It is recommended to use a known subset of variables.  If the package
+ needs more than that, and makes sure the variable is exported through
+ the build one way or the other, then this tag can be safely ignored
+ or overridden.
+
+Tag: dh-exec-useless-usage
+Severity: wishlist
+Certainty: possible
+Info: The package uses dh-exec for things it is not needed for.
+ .
+ This typically includes using ${DEB_HOST_MULTIARCH} in an install
+ target where a wildcard would suffice. For example, if you had:
+ .
+  #! /usr/bin/dh-exec
+  usr/lib/${DEB_HOST_MULTIARCH}
+ .
+ This could be replaced with the following in most cases, dropping the
+ need for dh-exec:
+ .
+  usr/lib/*
+ .
+ However, there may be other directories that match the wildcard,
+ which one does not wish to install. In that case, this warning should
+ be ignored or overridden.
+
+Tag: debhelper-compat-file-is-missing
+Severity: normal
+Certainty: certain
+Info: The package uses debhelper but does not ship a compat file.
+ This is deprecated and eventually cause the package to FTBFS.
+ .
+ Please refer to the debhelper documentation on how to create the
+ compat file and the differences between each compat level.
+Ref: https://lists.debian.org/debian-devel-changes/2012/01/msg01335.html,
+ debhelper(7)
+
+Tag: dh-manual-sequence-control-obsolete
+Severity: important
+Certainty: certain
+Info: The package uses one (or more) of the obsolete dh parameters
+ to control the debhelper command sequence.  This method has been
+ deprecated and is now replaced by override targets.  If you had:
+ .
+  [...]
+  install: build
+           dh install --before dh_auto_install
+           dh_auto_install -- PKG_DEST_DIR=`pwd`/debian/tmp/usr
+           dh install --after dh_auto_install
+  [...]
+ .
+ This should now be replaced by:
+ .
+   %:
+        dh $@
+ .
+   override_dh_auto_install:
+        dh_auto_install -- PKG_DEST_DIR=`pwd`/debian/tmp/usr
+ .
+ Please refer to the debhelper documentation for more information.
+Ref: https://lists.debian.org/debian-devel-changes/2011/08/msg00519.html,
+ debhelper(7)
+
+Tag: debian-build-system
+Severity: classification
+Certainty: certain
+Info: This is the build system that Lintian believes the package is
+ using.
+
+Tag: typo-in-debhelper-override-target
+Severity: normal
+Certainty: possible
+Info: The listed target in debian/rules command is a likely misspelling.
+ .
+ This can result in (for example) a <tt>dh_override_</tt>-style target
+ silently not being executed by <tt>make</tt>.
+ .
+ Implementation detail: The typo is detected by using "Levenshtein
+ edit distance".  Therefore, if the typo involve several characters,
+ Lintian may not detect it.
+
+Tag: maintscript-includes-maint-script-parameters
+Severity: normal
+Certainty: possible
+Info: Lines in a <tt>debian/*.maintscript</tt> correspond to
+ <tt>dpkg-maintscript-helper(1)</tt> commands and parameters.  However, the
+ "maint-script-parameters" should not be included as debhelper will add those
+ automatically. See <tt>dh_installdeb(1)</tt> for more information.
+
+Tag: useless-autoreconf-build-depends
+Severity: normal
+Certainty: possible
+Info: Since compatibility level 10, debhelper enables the <tt>autoreconf</tt>
+ sequence by default.
+ .
+ It is therefore not necessary to specify build-dependencies on
+ <tt>dh-autoreconf</tt> or <tt>autotools-dev</tt> and they can be removed.
+
+Tag: debhelper-tools-from-autotools-dev-are-deprecated
+Severity: minor
+Certainty: certain
+Info: The debhelper tools from autotools-dev has been replaced by the tool
+ <tt>dh_update_autotools_config</tt>, which was available in
+ debhelper (&gt;= 9.20160114)
+ .
+ The <tt>dh_update_autotools_config</tt> is run by default via the <tt>dh</tt>
+ command sequencer.  If you are using <tt>dh</tt>, you can probably just remove
+ the uses of the tooling from autotools-dev without doing any further changes.
+ .
+ If you use the "classic" debhelper style, then please replace all
+ calls to <tt>dh_autotools-dev_updateconfig</tt> with
+ <tt>dh_update_autotools_config</tt>.  The calls to
+ <tt>dh_autotools-dev_restoreconfig</tt> are replaced by
+ <tt>dh_clean</tt>, so they can most likely just be removed without
+ any further changes.
+Ref: #878528
+
+Tag: dh-quilt-addon-but-quilt-source-format
+Severity: normal
+Certainty: certain
+Info: The package uses (for example) <tt>dh $@ --with quilt</tt> in
+ <tt>debian/rules</tt> but is already using the <tt>3.0 (quilt)</tt>
+ source format via the <tt>debian/source/format</tt> file.
+ .
+ Please remove the <tt>--with quilt</tt> argument.
+
+Tag: debian-rules-uses-deprecated-systemd-override
+Severity: serious
+Certainty: certain
+Info: The <tt>debian/rules</tt> file for this package has an
+ <tt>override_dh_systemd_enable</tt> or <tt>override_dh_systemd_start</tt>
+ target but the package uses debhelper compatibility level 11.
+ .
+ The <tt>dh_systemd_{enable,start}</tt> commands were deprecated in this
+ compat level and are no longer called. This is likely to cause your
+ package to not function as intended.
+ .
+ Please replace these with calls to <tt>dh_installsystemd</tt>.
+Ref: debhelper(7)
+
+Tag: debian-rules-uses-unnecessary-dh-argument
+Severity: minor
+Certainty: certain
+Info: The <tt>debian/rules</tt> file passes the specified argument to
+ <tt>dh $@</tt> but it is enabled by default from this debhelper
+ compatibility level onwards.
+ .
+ Please remove the argument from the call to <tt>dh(1)</tt>.
+Ref: debhelper(7), dh(1)

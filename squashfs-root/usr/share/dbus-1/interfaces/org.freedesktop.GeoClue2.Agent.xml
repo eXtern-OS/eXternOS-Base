@@ -1,0 +1,49 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+
+<!--
+    GeoClue 2.0 Agent Interface Specification
+
+    Copyright 2014 Red Hat, Inc.
+-->
+
+<node>
+
+  <!--
+      org.freedesktop.GeoClue2.Agent:
+      @short_description: The GeoClue agent interface
+
+      This is the interface all application-authorizing agents must implement.
+      There must be a separate agent object for every logged-in user on path
+      "/org/freedesktop/GeoClue2/Agent".
+  -->
+  <interface name="org.freedesktop.GeoClue2.Agent">
+
+    <!--
+        AuthorizeApp:
+        @desktop_id: The desktop file id (the basename of the desktop file) of the application requesting location information.
+        @req_accuracy_level: The level of location accuracy requested by client, as <link linkend="GClueAccuracyLevel">GClueAccuracyLevel</link>.
+        @authorized: Return value indicating if application should be given location information or not.
+        @allowed_accuracy_level: The level of location accuracy allowed for client, as <link linkend="GClueAccuracyLevel">GClueAccuracyLevel</link>.
+
+        This is the method that will be called by geoclue to get applications
+        authorized to be given location information.
+    -->
+    <method name="AuthorizeApp">
+      <arg name="desktop_id" type="s" direction="in"/>
+      <arg name="req_accuracy_level" type="u" direction="in"/>
+      <arg name="authorized" type="b" direction="out"/>
+      <arg name="allowed_accuracy_level" type="u" direction="out"/>
+    </method>
+
+    <!--
+        MaxAccuracyLevel:
+
+        The global maximum level of accuracy allowed for all clients. Since
+        agents are per-user, this can be different for each user. See
+        <link linkend="GClueAccuracyLevel">GClueAccuracyLevel</link> for
+        possible values.
+    -->
+    <property name="MaxAccuracyLevel" type="u" access="read"/>
+  </interface>
+</node>

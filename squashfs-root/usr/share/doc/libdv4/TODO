@@ -1,0 +1,54 @@
+[ This file is way out of date ]
+
+Performance:
+
+  - MMX ycrcb conversion to rgb 
+
+  - combine multiplies across weight/quant/idct prescale (?)
+
+  - parse:
+        - re-arrange data so that coeff blocks are all one big array
+          (alignment + one big memset (mmx!) at beginning of segment)
+        - more efficient bookkeeping (vs current brute force mark and sweep) 
+          in second and third passes of parse
+
+  - still optimize vlc:
+        - combine lookup tables that use the same index:
+            - first level of classes, class_index_mask, class_index_rshift
+	      (all indexed by maxbits)
+            - vlc_lookups, vlc_index_mask, vlc_index_rshift (all indexed by class)
+            - sign_mask, sign_rshift (indexed by vlc len)
+	  
+  - think about optimizing vlc/getbits interface based on a few 
+    observations:
+	- there are three lookups in vlc of the form ((bits & mask) >> shift) are really doing this:
+              bitstream_show_skip(bs,skip,len) // show len bits, beginning skip bits from current position
+        - if we add that interface, and then mmx getbits, this could free registers
+          for better tuning the rest of the vlc lookup code.
+            - note that start and len are bounded to the range 0-16, it might pay
+              to ensure that after flush, show can always count on at least 16 bits
+              remaining in bs->current_word
+            - (there are multiple shows for each flush - eliminates branch in show)
+	- since we parse a whole video segment before we do idcts, we can reserve
+          mmx registers for getbits state for the entire duration of parsing a video segment
+             - note that bitstream state is re-initialized everytime we start a new video segment
+
+ - mmx version of 248 idct
+
+  - tune cache footprint: access input and output withouth polluting L1
+
+  - get everything working in Windows and use VTune to analyze and
+    improve x86 performance.
+
+Documentation:
+
+  - there is none!
+
+  - the contents of this file has/will move to the project task list
+    on sourceforge.
+
+
+        
+
+            
+    

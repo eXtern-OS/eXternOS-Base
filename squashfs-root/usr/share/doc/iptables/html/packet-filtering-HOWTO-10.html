@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.72">
+ <TITLE>Linux 2.4 Packet Filtering HOWTO: Differences Between iptables and ipchains</TITLE>
+ <LINK HREF="packet-filtering-HOWTO-11.html" REL=next>
+ <LINK HREF="packet-filtering-HOWTO-9.html" REL=previous>
+ <LINK HREF="packet-filtering-HOWTO.html#toc10" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="packet-filtering-HOWTO-11.html">Next</A>
+<A HREF="packet-filtering-HOWTO-9.html">Previous</A>
+<A HREF="packet-filtering-HOWTO.html#toc10">Contents</A>
+<HR>
+<H2><A NAME="Appendix-A"></A> <A NAME="s10">10.</A> <A HREF="packet-filtering-HOWTO.html#toc10">Differences Between iptables and ipchains</A></H2>
+
+<P>
+<UL>
+<LI> Firstly, the names of the built-in chains have changed from
+lower case to UPPER case, because the INPUT and OUTPUT chains now only
+get locally-destined and locally-generated packets.  They used to see
+all incoming and all outgoing packets respectively.
+</LI>
+<LI> The `-i' flag now means the incoming interface, and only works
+in the INPUT and FORWARD chains.  Rules in the FORWARD or OUTPUT
+chains that used `-i' should be changed to `-o'.
+</LI>
+<LI> TCP and UDP ports now need to be spelled out with the
+--source-port or --sport (or --destination-port/--dport) options, and
+must be placed after the `-p tcp' or `-p udp' options, as this loads
+the TCP or UDP extensions respectively.
+</LI>
+<LI> The TCP -y flag is now --syn, and must be after `-p tcp'.
+</LI>
+<LI> The DENY target is now DROP, finally.
+</LI>
+<LI> Zeroing single chains while listing them works.
+</LI>
+<LI> Zeroing built-in chains also clears policy counters.
+</LI>
+<LI> Listing chains gives you the counters as an atomic snapshot.
+</LI>
+<LI> REJECT and LOG are now extended targets, meaning they are
+separate kernel modules.
+</LI>
+<LI> Chain names can be up to 31 characters.
+</LI>
+<LI> MASQ is now MASQUERADE and uses a different syntax.  REDIRECT,
+while keeping the same name, has also undergone a syntax change.  See
+the NAT-HOWTO for more information on how to configure both of these.
+</LI>
+<LI> The -o option is no longer used to direct packets to the userspace
+device (see -i above).  Packets are now sent to userspace via the QUEUE
+target.
+</LI>
+<LI> Probably heaps of other things I forgot.</LI>
+</UL>
+</P>
+
+<HR>
+<A HREF="packet-filtering-HOWTO-11.html">Next</A>
+<A HREF="packet-filtering-HOWTO-9.html">Previous</A>
+<A HREF="packet-filtering-HOWTO.html#toc10">Contents</A>
+</BODY>
+</HTML>

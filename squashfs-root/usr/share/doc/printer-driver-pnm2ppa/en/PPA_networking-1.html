@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>Networking HP PPA DeskJet Printers using SAMBA.: Networking HP DeskJet PPA printers with SAMBA </TITLE>
+ <LINK HREF="PPA_networking-2.html" REL=next>
+
+ <LINK HREF="PPA_networking.html#toc1" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="PPA_networking-2.html">Next</A>
+Previous
+<A HREF="PPA_networking.html#toc1">Contents</A>
+<HR>
+<H2><A NAME="s1">1. Networking HP DeskJet PPA printers with SAMBA </A></H2>
+
+<P>
+<H2><A NAME="ss1.1">1.1 Overview of PPA printers.</A>
+</H2>
+
+<P>The HP DeskJet 710/712C, 720/722C, 820Cse/820Cxi and 1000Cse/1000Cxi 
+printers are
+&quot;Winprinters&quot; which are designed only for use with
+MS Windows  operating systems.   HP supplies Windows-only software
+that processes the input data into the proprietary and unpublished
+PPA (&quot;Printer Performance Architecture&quot;) protocol.   
+<P>HP states that these printers are <B>not supported as networked 
+printers</B>, but they in fact function correctly as shared (SMB)
+printers under MS Windows.   
+<P>In this document, the <B>Host</B> is the computer to which
+the PPA  printer is physically connected, and the <B>Clients</B> are
+other computers on the network that wish to print documents
+on the PPA printer.
+<P>In the Windows printing system, separate copies of the HP PPA printer drivers
+are installed on each Client, and are run on the Client to produce PPA output
+that is sent over the network to be spooled
+on the Host to which the printer is attached.
+<P>HP's drivers are only supplied for Windows systems.  The 
+independently-produced 
+<A HREF="http://sourceforge.net/projects/pnm2ppa">pnm2ppa</A> 
+driver runs on Linux, some other Unix systems, and BeOS.  
+<P>This document describes various tested strategies for
+using <CODE>pnm2ppa</CODE> and the 
+<A HREF="http://www.samba.org">samba</A> 
+suite of SMB tools to allow the PPA printer to be attached to
+a non-Windows host on a (TCP-based) SMB network, or to allow
+non-Windows Clients to receive printing services from a Host
+on the network.
+<P>
+<H2><A NAME="ss1.2">1.2 Choice of protocol for sending over the network.</A>
+</H2>
+
+<P>There are <B>two</B> possible ways to send printer data from a Client to
+the printer Host over the network.
+<UL>
+<LI> as <B>PPA data</B>, created by a driver on the Client.  
+This is what 
+happens when using conventional printer sharing on Windows.</LI>
+<LI> as <B>PostScript data</B>, created on the Client, which
+is then translated into PPA instructions by
+drivers running on the printer Host.</LI>
+</UL>
+
+Since PPA data is rather large, the first method involves sending
+larger amounts of data over the network, which may be why HP do 
+not officially support PPA DeskJets as networked printers.  It also 
+requires that PPA drivers are installed on the Client.  
+<P>The Host to which the printer is attached can thus provide <B>two</B> 
+classes
+of printing services:
+<UL>
+<LI><B>PPA printing services:</B> the Host accepts PPA-format
+printing jobs created on the Clients either with HP's native PPA drivers
+(Windows Clients) or <CODE>pnm2ppa</CODE> (Unix/Linux/BeOS Clients);</LI>
+<LI><B>PostScript printing services:</B> the Host accepts PostScript-format
+printing jobs created on any postscript-capable  Client, and converts
+them to PPA format using either HP's native PPA drivers
+(Windows Host) or <CODE>pnm2ppa</CODE> (Unix/Linux/BeOS Host);</LI>
+</UL>
+
+It is useful to set up the Host to offer <B>both types</B> of service, 
+sharing a common spooling system.
+<P>
+<HR>
+<A HREF="PPA_networking-2.html">Next</A>
+Previous
+<A HREF="PPA_networking.html#toc1">Contents</A>
+</BODY>
+</HTML>

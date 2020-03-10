@@ -1,0 +1,458 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><meta charset="UTF-8"><TITLE
+>Overrides</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="Lintian User's Manual"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Getting started"
+HREF="chapter-2.html"><LINK
+REL="PREVIOUS"
+TITLE="Lintian Tags"
+HREF="section-2.3.html"><LINK
+REL="NEXT"
+TITLE="Vendor Profiles"
+HREF="section-2.5.html"></HEAD
+><BODY
+CLASS="sect1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Lintian User's Manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="section-2.3.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 2. Getting started</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="section-2.5.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="sect1"
+><H1
+CLASS="sect1"
+><A
+NAME="section-2.4"
+>2.4. Overrides</A
+></H1
+><P
+>&#13;        In some cases, the checked package does not have a bug or does
+        not violate policy, but Lintian still reports an error or
+        warning. This can have the following reasons: Lintian has a
+        bug itself, a specific Lintian check is not smart enough to
+        know about a special case allowed by policy, or the policy
+        does allow exceptions to some rule in general.
+      </P
+><P
+>&#13;        In the first case (where Lintian has a bug) you should send a
+        bug report to the Debian bug tracking system and describe
+        which package you checked, which messages have been displayed,
+        and why you think Lintian has a bug. Best would be, if you
+        would run Lintian again over your packages using
+        the <CODE
+CLASS="option"
+>-d</CODE
+> (or <CODE
+CLASS="option"
+>--debug</CODE
+>) option,
+        which will cause Lintian to output much more information
+        (debugging info), and include these messages in your bug
+        report. This will simplify the debugging process for the
+        authors of Lintian.
+      </P
+><P
+>&#13;        In the other two cases (where the error is actually an exception to
+        policy), you should probably add an override. If you're unsure though whether
+        it's indeed a good case for an override, you should contact the Lintian
+        maintainers too, including the Lintian error message and a short note, stating
+        why you think this is an exception. This way, the Lintian maintainers can be
+        sure the problem is not actually a bug in Lintian or an error in the author's
+        reading of policy. Please do not override bugs in lintian, they should rather
+        be fixed than overridden.
+      </P
+><P
+>&#13;        Once it has been decided that an override is needed, you can easily add one by
+        supplying an overrides file. If the override is for a binary or udeb
+        package, you have to place it at
+        <TT
+CLASS="filename"
+>/usr/share/lintian/overrides/<TT
+CLASS="replaceable"
+><I
+>&#60;package&#62;</I
+></TT
+></TT
+>
+        inside the package.  The tool <B
+CLASS="command"
+>dh_lintian</B
+>
+        from the Debian
+        package <SPAN
+CLASS="systemitem"
+>debhelper</SPAN
+> may
+        be useful for this purpose.
+      </P
+><P
+>&#13;        If the override is for a source package, you have to place it
+        at <TT
+CLASS="filename"
+>debian/source/lintian-overrides</TT
+>
+        or <TT
+CLASS="filename"
+>debian/source.lintian-overrides</TT
+> (the
+        former path is preferred). With that, Lintian will know about
+        this exception and not report the problem again when checking
+        your package. (Actually, Lintian will report the problem
+        again, but with type <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>overridden</I
+></SPAN
+>, see
+        above.)
+      </P
+><P
+>&#13;        Note that Lintian extracts the override file from the (u)deb
+        and stores it in the laboratory. The files currently installed
+        on the system are not used in current Lintian versions.
+      </P
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="section-2.4.1"
+>2.4.1. Format of override files</A
+></H2
+><P
+>&#13;          The format of the overrides file is simple, it consists of one override per
+          line (and may contain empty lines and comments, starting with a <TT
+CLASS="literal"
+>#</TT
+>, on others):
+          <TT
+CLASS="literal"
+>[[<TT
+CLASS="replaceable"
+><I
+>&#60;package&#62;</I
+></TT
+>][ <TT
+CLASS="replaceable"
+><I
+>&#60;archlist&#62;</I
+></TT
+>][ <TT
+CLASS="replaceable"
+><I
+>&#60;type&#62;</I
+></TT
+>]: ]<TT
+CLASS="replaceable"
+><I
+>&#60;lintian-tag&#62;</I
+></TT
+>[
+            [*]<TT
+CLASS="replaceable"
+><I
+>&#60;lintian-info&#62;</I
+></TT
+>[*]]</TT
+>.  <TT
+CLASS="replaceable"
+><I
+>&#60;package&#62;</I
+></TT
+> is the package name;
+          <TT
+CLASS="replaceable"
+><I
+>&#60;archlist&#62;</I
+></TT
+> is an
+          architecture list (see Architecture specific overrides for
+          more info);
+          <TT
+CLASS="replaceable"
+><I
+>&#60;type&#62;</I
+></TT
+> is one of <TT
+CLASS="literal"
+>binary</TT
+>, <TT
+CLASS="literal"
+>udeb</TT
+> and
+          <TT
+CLASS="literal"
+>source</TT
+>,
+          and <TT
+CLASS="replaceable"
+><I
+>&#60;lintian-info&#62;</I
+></TT
+> is all
+          additional information provided by Lintian except for the
+          tag. What's inside brackets is optional and may be omitted if
+          you want to match it all.  An example file for a binary
+          package would look like:
+        </P
+><PRE
+CLASS="screen"
+>&#13;/usr/share/lintian/overrides/foo, where foo is the name of your package
+
+# We use a non-standard dir permission to only allow the webserver to look
+# into this directory:
+foo binary: non-standard-dir-perm
+foo binary: FSSTND-dir-in-usr /usr/man/man1/foo.1.gz
+</PRE
+><P
+>An example file for a source package would look like:</P
+><PRE
+CLASS="screen"
+>&#13;debian/source/lintian-overrides in your base source directory
+foo source: debian-files-list-in-source
+# Upstream distributes it like this, repacking would be overkill though, so
+# tell lintian to not complain:
+foo source: configure-generated-file-in-source config.cache
+</PRE
+><P
+>&#13;          Many tags can occur more than once (e.g. if the same error is
+          found in more than one file). You can override a tag either
+          completely by specifying its name (first line in the examples)
+          or only one occurrence of it by specifying the additional
+          info, too (second line in the examples).  If you add an
+          asterisk (<TT
+CLASS="literal"
+>*</TT
+>) in the additional info, this
+          will match arbitrary strings similar to the shell wildcard.
+          For example:
+        </P
+><PRE
+CLASS="screen"
+>&#13;# The "help text" must also be covered by the override
+source-is-missing apidoc/html/api_data.js *
+</PRE
+><P
+>&#13;          The first wildcard support appeared in Lintian 2.0.0, which
+          only allowed the wildcards in the very beginning or end.
+          Version 2.5.0~rc4 extended this to allow wildcards any where
+          in the additional info.
+        </P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="section-2.4.2"
+>2.4.2. Documenting overrides</A
+></H2
+><P
+>&#13;          To assist reviewers, Lintian will extract the comments from
+          the overrides file and display the related comments next to
+          the overridden tags.
+        </P
+><P
+>&#13;          Comments directly above an override will be shown next to all
+          tags it overrides.  If an override for the same tags appears
+          on the very next line, it will inherit the comment from the
+          override above it.
+        </P
+><PRE
+CLASS="screen"
+>&#13;# This comment will be shown above all tags overridden by the following
+# two overrides, (because they apply to the same tag and there is no
+# empty line between them)
+foo source: some-tag exact match
+foo source: some-tag wildcard * match
+# This override has its own comment, and it is not shared with the
+# override below (because there is an empty line in between them).
+foo source: some-tag another exact match
+
+foo source: some-tag override without a comment
+</PRE
+><P
+>&#13;          Empty lines can be used to disassociate a comment from an
+          override following it.  This can also be used to make a general
+          comment about the overrides that will not be displayed.
+        </P
+><PRE
+CLASS="screen"
+>&#13;# This is a general comment not connected to any override, since there
+# is one (or more) empty lines after it.
+
+foo source: another-tag without any comments
+</PRE
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="section-2.4.3"
+>2.4.3. Architecture specific overrides</A
+></H2
+><P
+>&#13;          In rare cases, Lintian tags may be architecture specific.
+          It is possible to mark overrides architecture specific by
+          using the optional architecture list.
+        </P
+><P
+>&#13;          The architecture list has the same syntax as the
+          architecture list in the "Build-Depends" field of a source
+          package. This is described in detail in the <A
+HREF="https://www.debian.org/doc/debian-policy/#s-controlsyntax"
+TARGET="_top"
+>&#13;          Debian Policy Manual §7.1</A
+>.  Examples:
+        </P
+><PRE
+CLASS="screen"
+>&#13;# This is an example override that only applies to the i386
+# architecture.
+foo [i386] binary: some-tag optional-extra
+
+# An architecture wildcard would look like:
+foo [any-i386] binary: another-tag optional-extra
+
+# Negation also works
+foo [!amd64 !i386] binary: some-random-tag optional-extra
+
+# Negation even works for wildcards
+foo [!any-i386] binary: some-tag-not-for-i386 optional-extra
+
+# The package name and the package type is optional, so this
+# also works
+[linux-any]: tag-only-for-linux optional-extra.
+</PRE
+><P
+>&#13;          Support for architecture specific overrides was added in
+          Lintian 2.5.0.  Wildcard support was added in 2.5.5.  Basic
+          sanity checking was also added in 2.5.5, where unknown
+          architectures trigger
+          a <TT
+CLASS="literal"
+>malformed-override</TT
+> tag.  As does an
+          architecture specific override for architecture independent
+          packages.
+        </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="section-2.3.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="section-2.5.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Lintian Tags</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="chapter-2.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Vendor Profiles</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

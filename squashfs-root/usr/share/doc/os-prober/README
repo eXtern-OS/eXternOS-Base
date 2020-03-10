@@ -1,0 +1,71 @@
+This is a small package that may be depended on by any bootloader
+installer package to detect other filesystems with operating systems on
+them, and work out how to boot other linux installs.
+
+os-prober
+---------
+
+All one has to do is Depend on os-prober, and then run the os-prober
+command. This command takes no arguments: it will scan all disks available
+on the system for other operating systems, and output a list of strings
+such as:
+
+ /dev/sda1:Windows NT/2000/XP:WinNT:chain
+ ^-------^ ^----------------^ ^---^ ^---^
+   part.    OS name for boot  short May change: type of boot loader
+            loader's pretty   name  required. Usually there is only
+            output                  a 'linux' style bootloader or
+                                    a chain one for other partitions
+                                    with their own boot sectors.
+
+Tests are executable programs in the directory /usr/lib/os-probes/. Each
+test is called once per partition, with the partition to check as its
+parameter, and may output a string as described above, or nothing if it does
+not recognise an OS on that partition. Tests return an exit code of 0
+if they successfully found an OS, and no further tests will be run on that
+partition; or return an exit code of 1 to indicate that no OS was found,
+and let the next test run.
+
+Tests that require the partition to be mounted can be placed in
+/usr/lib/os-probes/mounted/. These tests are passed the following
+parameters: partition, mount point, filesystem.
+
+Bootloader installer packages will then have to process this output (fairly
+trivial) to create valid configuration entries for the bootloader.
+
+Note that os-prober can find other Linux installations, as well as other
+operating systems. It does not try to work out all the information needed
+to boot Linux (initrd, kernel params, etc). That task is left to
+linux-boot-prober.
+
+linux-boot-prober
+-----------------
+
+The linux-boot-prober command should be run with a single argument
+consisting of a partition that is known to have a linux root filesystem on
+it, as returned by the os-prober command. It will try to work out how to
+boot that linux installation, and if it is successful, will output one or
+more lines in the form:
+
+ /dev/sda2:/dev/sda1:Linux:/vmlinuz:/initrd.gz:root=/dev/sda1
+ ^-------^ ^-------^ ^---^ ^------^ ^--------^ ^------------^
+   root      boot    label  kernel    initrd    kernel params
+   part.     part.
+
+The root partition and boot partition may of course be the same. No guarantee
+is made that any partitions referred to in the kernel parameters will still be
+in the same place after Debian is installed, or that the /etc/fstab of the
+system will be right, or that the system will even boot. The initrd field may
+be empty if there is no initrd. The label is whatever label was used in the
+boot loader for this linux installation, and it may be quite long or very
+short (or nonexistent), and may be inaccurate, confusing, or non-unique. See
+TODO for other limitations.
+
+The tests used by linux-boot-prober are in the directory
+/usr/lib/linux-boot-probes/ and also in /usr/lib/linux-boot-probes/mounted,
+and they are called in a similar way as the os-probes described above.
+The mounted probes are passed parameters for the root partition, the boot
+partition, and the directory the filesystems are mounted in.
+
+linux-boot-prober skips over partitions that are currently mounted on /,
+/target, or /target/boot.

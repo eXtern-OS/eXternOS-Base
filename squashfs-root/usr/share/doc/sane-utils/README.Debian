@@ -1,0 +1,83 @@
+sane-utils (sane-backends) for Debian
+-------------------------------------
+
+This package contains various utilities shipped with sane-backends, among
+which saned, the network scanner daemon used to share scanners over the
+network.
+
+
+saned setup
+-----------
+
+Please read this file carefully to setup your saned server properly.
+
+ -> Setting up permissions for saned
+ -> Running saned from inetd
+ -> Running saned as a standalone daemon
+
+
+ Setting up permissions for saned
+ --------------------------------
+
+A saned user and a saned group have been added to your system; it is highly
+recommended to run saned as user and group saned and NEVER EVER as root.
+
+To operate properly, saned must be able to access your scanners; different
+setups are possible, depending on who should be able to use the scanners:
+
+ * saned users only:
+   => device owned by saned:saned, saned:root or root:saned
+
+ * saned users and local users:
+   => device owned by saned:scanner, local users added to the scanner group
+
+ * local users only:
+   => device owned by root:scanner, local users added to the scanner group
+
+By default the saned user is NOT part of the scanner group. If you add the
+saned user to the scanner group, ALL scanners will be made available over the
+network without restrictions. Do that if you do not want/need to restrict one
+or more scanners to local users only.
+
+If you intend to use saned with a USB scanner, note that the permissions for
+USB scanners are handled by udev.
+
+See /usr/share/doc/libsane/README.Debian.gz for more information on setting up
+appropriate permissions.
+
+ Running saned from inetd
+ ------------------------
+
+To enable saned in the default configuration (running as user and group saned),
+use update-inetd to enable the service:
+ # update-inetd --enable sane-port
+To disable saned, use update-inetd to disable the service:
+ # update-inetd --disable sane-port
+
+If you want to run saned under another user and/or group, edit /etc/inetd.conf
+and change saned:saned for the appropriate user:group combination.
+
+ Running saned from systemd
+ --------------------------
+
+To enable saned in the default configuration (running as user and group saned),
+use systemctl to enable the service:
+ # systemctl enable saned.socket
+To disable saned, use systemctl to disable the service:
+ # systemctl disable saned.socket
+
+
+ Running saned as a standalone daemon
+ ------------------------------------
+
+When run as a standalone daemon, saned can advertise its services over the
+network, and the SANE clients will automatically discover the saned servers
+(provided the clients support this).
+
+To run saned as a standalone server:
+  - if you were previously running saned from inetd, disable it (see above)
+  - run dpkg-reconfigure sane-utils
+
+
+-- Julien BLACHE <jblache@debian.org>, Mon, 05 May 2008 19:29:28 +0200
+-- Jörg Frings-Fürst <debian@jff-webhosting.net>  Tue, 16 Dec 2014 22:04:23 +0100

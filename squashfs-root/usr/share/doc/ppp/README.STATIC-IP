@@ -1,0 +1,45 @@
+Static IP addresses support with mgetty/autoPPP
+-----------------------------------------------
+
+Debian PPP package includes a variant of ppp-2.3.0-static.diff, a patch to
+ppp-2.3.0 to support using static IP addresses with Mgetty and AutoPPP. It
+does not affect normal dynamic assignments. There is no need to re-compile
+the kernel.
+
+You should update the pap-secrets file to contain the entries of those users
+you want to have static IP addresses. Typical entry might look like:
+
+#client     server     secret     IP addresses
+ jdoe         *        realpswd   207.69.189.15 
+   *          *         ""            *
+ 
+Also, inform your static IP users to include their IP when
+connecting. E.g. run `pppd 207.69.189.15:`
+Or for Windows folks, check the "Specify an IP address" option and
+type in the IP.
+
+Note: The second line is what most folks will use to authenticate
+users who will be dynamically assigned their addresses by 
+/dev/ttyXX. This along with the login option allows users to be PAP
+authenticated against the /etc/passwd or /etc/shadow. If you enter each and
+every user into your pap-secrets file and do not have the last line,
+(wildcards line) you MUST place a "*" at the end of each users line. 
+Without it, the authentication will fail.  For example:
+
+#client     server     secret     IP addresses
+ jdoe         *        passwd     207.69.189.15 *
+
+This "*" at the end allows the patches to work properly without changing
+the normal process.  The IP address is normally assigned via the
+/etc/ppp/options.ttyXX file. The patches do not interfere with this process
+at all. The only thing different is when the user tells pppd he has his own
+address, pppd will allow him to use it, if he and his address are
+authenticated via the pap-secrets file. The only thing to remember, is tell
+your static IP users to set the "correct" IP or they will be assigned the
+normal dynamic address.  (And of course that's not what we want :>) If you
+have any questions....
+
+While I tested this as many ways as our systems would allow, no warranty 
+is implied.  They work well for us.  
+
+Author: Jeff Myers <jmyers@southcom.net>

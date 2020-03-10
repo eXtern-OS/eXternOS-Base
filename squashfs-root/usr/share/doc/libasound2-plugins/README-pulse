@@ -1,0 +1,60 @@
+PulseAudio <--> ALSA plugins
+============================
+
+This plugin allows any program that uses the ALSA API to access a PulseAudio
+sound daemon. In other words, native ALSA applications can play and record
+sound across a network.
+
+There are two plugins in the suite, one for PCM and one for mixer control. A
+typical configuration will look like:
+
+    pcm.pulse {
+        type pulse
+    }
+
+    ctl.pulse {
+        type pulse
+    }
+
+Put the above in ~/.asoundrc, or /etc/asound.conf, and use "pulse" as device
+in your ALSA applications. For example:
+
+    % aplay -Dpulse foo.wav
+    % amixer -Dpulse
+
+PulseAudio will accept more or less any format you throw at it. So a plug
+wrapper is unnecessary. Mixing is also handled so dmix will only cause a
+performance hit without any gain.
+
+The plugins will respect your PulseAudio environment variables (like
+PULSE_SERVER), but you can override these in ALSA's configuration files.
+
+Both plugins accept the "server" parameter, specifying which PulseAudio server
+to contact. Both also accept the "device" parameter, which indicate which
+source and sink to use.
+
+The mixer control plugin also accepts the parameters "source" and "sink" for
+when you need to specify a sink/source combination with different names. If
+you need to do this with PCM:s then specify two PCM:s with different "device".
+
+If you do not specify any source and/or sink, then the server's defaults will
+be used.
+
+When "fallback" option is set, the plugin will try to open the given PCM
+(or control) automatically when connecting to PA server fails.  Typically,
+it should point to "sysdefault", which was introduced recently in alsa-lib,
+so that the system-default setup is used even when you overwrite "default"
+PCM and control definitions.
+
+    pcm.pulse {
+        type pulse
+        fallback "sysdefault"
+    }
+
+    ctl.pulse {
+        type pulse
+        fallback "sysdefault"
+    }
+
+   pcm.!default "pulse"
+   ctl.!default "pulse"

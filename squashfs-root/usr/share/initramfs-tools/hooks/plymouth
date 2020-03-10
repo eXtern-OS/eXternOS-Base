@@ -1,0 +1,189 @@
+#!/bin/sh
+
+set -e
+
+OPTION=FRAMEBUFFER
+PREREQ=""
+
+prereqs()
+{
+	echo "${PREREQ}"
+}
+
+case "${1}" in
+	prereqs)
+		prereqs
+		exit 0
+		;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+THEME_PATH="$(update-alternatives --query default.plymouth 2>/dev/null | sed -e '/^Value:/!d' -e 's/^Value: \(.*\)/\1/')"
+THEME="$(basename ${THEME_PATH:-none} .plymouth || true)"
+THEMES="/usr/share/plymouth/themes"
+
+mkdir -p "${DESTDIR}/${THEMES}"
+
+if [ -n "${THEME}" ] && [ "${THEME}" != "none" ]
+then
+	THEME_NAME="${THEME}"
+	THEME="${THEMES}/${THEME}/${THEME}.plymouth"
+	# create default theme symlink
+	ln -s "${THEME}" "${DESTDIR}/${THEMES}/default.plymouth"
+fi
+
+PLUGIN_PATH="$(plymouth --get-splash-plugin-path)"
+
+# default text theme alternative
+TEXTTHEME_PATH="$(update-alternatives --query text.plymouth 2>/dev/null | sed -e '/^Value:/!d' -e 's/^Value: \(.*\)/\1/')"
+TEXTTHEME="$(basename ${TEXTTHEME_PATH:-none} .plymouth || true)"
+
+if [ -n "${TEXTTHEME}" ] & [ "${TEXTTHEME}" != "none" ]
+then
+	TEXTTHEME_NAME="${TEXTTHEME}"
+	TEXTTHEME="${THEMES}/${TEXTTHEME}/${TEXTTHEME}.plymouth"
+    # create default text theme symlink
+    ln -s "${TEXTTHEME}" "${DESTDIR}/${THEMES}/text.plymouth"
+fi
+
+# ensure we at least have one theme configured
+if [ ! -r "${THEME}" ] && [ ! -r "${TEXTTHEME}" ]
+then
+    exit 0
+fi
+
+# copy base themes content
+currthemes="${THEME_NAME} ${TEXTTHEME_NAME}"
+for currtheme in $currthemes
+do
+	case "${currtheme}" in
+		text|details|tribar|ubuntu-text)
+			PLUGINS="text.so details.so"
+			;;
+
+		*)
+			PLUGINS="details.so label.so"
+			;;
+	esac
+
+	MODULE="${PLUGIN_PATH}/$(sed -n 's/^ModuleName=\(.*\)/\1/p' ${THEMES}/${currtheme}/${currtheme}.plymouth 2>/dev/null || true).so"
+
+	if [ ! -e "$MODULE" ]
+	then
+		echo "W: plymouth module ($MODULE) missing, skipping that theme."
+		continue
+	fi
+
+	# copy plugin and images for current theme
+	copy_exec "${MODULE}"
+	cp -a "${THEMES}/${currtheme}" "${DESTDIR}/${THEMES}"
+
+	# copy base plugins if any
+	for PLUGIN in ${PLUGINS}
+	do
+		if [ -f ${PLUGIN_PATH}/${PLUGIN} ]
+		then
+			copy_exec ${PLUGIN_PATH}/${PLUGIN}
+		else
+			echo "W: plymouth: The plugin ${PLUGIN} is missing, the selected theme might not work as expected."
+			echo "W: plymouth: You might want to install the plymouth-themes and plymouth-label package to fix this."
+		fi
+	done
+
+done
+
+# copy binaries and base plugins
+copy_exec /bin/plymouth
+copy_exec /sbin/plymouthd
+
+# copy base themes and logo
+cp -a "${THEMES}/details" "${DESTDIR}/${THEMES}"
+
+if [ -f /etc/os-release ]
+then
+	cp /etc/os-release "${DESTDIR}/etc"
+fi
+
+case "${THEME_NAME}" in
+	""|ubuntu-text|text|details)
+
+		;;
+
+	*)
+		cp /usr/share/plymouth/ubuntu-logo.png "${DESTDIR}/usr/share/plymouth"
+
+		# fontconfig
+		mkdir -p "${DESTDIR}/etc/fonts/conf.d"
+		cp -a /etc/fonts/fonts.conf "${DESTDIR}/etc/fonts"
+		mkdir -p "${DESTDIR}/var/cache/fontconfig"
+
+		# Make Ubuntu the default sans-serif, and mono fonts.  Ubuntu
+		# font is always present if we have python-label installed; if
+		# not installed, then we have no graphical themes that display
+		# text, so that's ok.
+		if [ -e /usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf ]
+		then
+		    sed 's|\(<family>DejaVu Sans</family>\)|<family>Ubuntu</family>\1|;s|\(<family>DejaVu Sans Mono</family>\)|<family>Ubuntu Mono</family>\1|;' \
+			/etc/fonts/conf.d/60-latin.conf > "${DESTDIR}/etc/fonts/conf.d/60-latin.conf"
+		    mkdir -p "${DESTDIR}/usr/share/fonts/truetype/ubuntu"
+		    cp -a /usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf "${DESTDIR}/usr/share/fonts/truetype/ubuntu"
+		    cp -a /usr/share/fonts/truetype/ubuntu/UbuntuMono-R.ttf "${DESTDIR}/usr/share/fonts/truetype/ubuntu"
+		fi
+
+		# pango
+		if ls /usr/lib/x86_64-linux-gnu/pango/1* > /dev/null 2>&1
+		then
+			# wheezy
+			PANGO_VERSION="$(ls /usr/lib/x86_64-linux-gnu/pango)"
+
+			mkdir -p "${DESTDIR}/usr/lib/x86_64-linux-gnu/pango/${PANGO_VERSION}/module-files.d"
+			mkdir -p "${DESTDIR}/usr/lib/x86_64-linux-gnu/pango/${PANGO_VERSION}/modules"
+			cp /usr/lib/x86_64-linux-gnu/pango/${PANGO_VERSION}/module-files.d/libpango1.0-0.modules ${DESTDIR}/usr/lib/x86_64-linux-gnu/pango/${PANGO_VERSION}/module-files.d/
+			copy_exec /usr/lib/x86_64-linux-gnu/pango/${PANGO_VERSION}/modules/pango-basic-fc.so
+		else
+			# jessie
+			copy_exec /usr/lib/x86_64-linux-gnu/libpango-1.0.so.0
+		fi
+		;;
+esac
+
+# add drm modules
+copy_modules_dir kernel/drivers/gpu/drm mga r128 savage sis tdfx via
+
+# copy renderers
+copy_exec /usr/lib/x86_64-linux-gnu/plymouth/renderers/frame-buffer.so
+copy_exec /usr/lib/x86_64-linux-gnu/plymouth/renderers/drm.so
+
+# copy config files
+mkdir -p "${DESTDIR}/etc/plymouth"
+
+if [ -r /etc/plymouth/plymouthd.conf ]
+then
+	cp -a /etc/plymouth/plymouthd.conf "${DESTDIR}/etc/plymouth/"
+fi
+
+# copy defaults file if exist
+if [ -r /usr/share/plymouth/plymouthd.defaults ]
+then
+	cp -a /usr/share/plymouth/plymouthd.defaults "${DESTDIR}/usr/share/plymouth/"
+fi
+
+# temporarily include dummy root account lookup (#691598)
+if ! grep -qs '^root:' "${DESTDIR}/etc/passwd"
+then
+	echo "root:x:0:0:root:/root:/bin/sh" >> "${DESTDIR}/etc/passwd"
+fi
+
+if ! grep -qs '^passwd: files' "${DESTDIR}/etc/nsswitch.conf"
+then
+	echo "passwd: files" >> "${DESTDIR}/etc/nsswitch.conf"
+fi
+
+for _LIBRARY in /lib/x86_64-linux-gnu/libnss_files*
+do
+	if [ -e "${_LIBRARY}" ]
+	then
+		copy_exec "${_LIBRARY}"
+	fi
+done

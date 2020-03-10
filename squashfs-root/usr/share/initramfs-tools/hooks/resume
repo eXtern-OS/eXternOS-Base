@@ -1,0 +1,83 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+. /usr/share/initramfs-tools/scripts/functions
+
+# First check if a location is set and is a valid swap partition.
+# If so, the config file will be copied in and there is nothing to do.
+if [ -n "$RESUME" ] && [ "$RESUME" != auto ]; then
+	if [ "$RESUME" = none ]; then
+		exit 0
+	fi
+	if resume_dev_node="$(resolve_device "$RESUME")" && \
+	   blkid -p -n swap "$resume_dev_node" >/dev/null 2>&1; then
+		exit 0
+	fi
+
+	echo >&2 "W: initramfs-tools configuration sets RESUME=$RESUME"
+	echo >&2 "W: but no matching swap device is available."
+fi
+
+# If we were not explicitly requested to select a device, report that we
+# are doing so
+report_auto()
+{
+	test "$RESUME" = auto || echo >&2 "I: $*"
+}
+
+# We need to be able to read the listed swap partitions
+if ischroot || [ ! -r /proc/swaps ]; then
+	resume_auto=
+else
+	# Try to autodetect the RESUME partition, using biggest swap?
+	resume_auto=$(grep ^/dev/ /proc/swaps | sort -rnk3 | head -n 1 | cut -d " " -f 1)
+	if [ -n "$resume_auto" ]; then
+		dm_name="$(dmsetup info -c --noheadings -o name "$resume_auto" 2>/dev/null)"
+	fi
+	if [ -n "$dm_name" ] && [ -e /etc/crypttab ]; then
+		while read cryptdev srcdev keyfile junk; do
+			if [ "$cryptdev" = "$dm_name" ] && [ "$keyfile" = /dev/urandom ]; then
+				resume_auto=
+			fi
+		done < /etc/crypttab
+	fi
+	if [ -n "$resume_auto" ]; then
+		if [ -n "$dm_name" ]; then
+			resume_auto_canon="/dev/mapper/$dm_name"
+		elif UUID=$(blkid -s UUID -o value "$resume_auto"); then
+			resume_auto_canon="UUID=$UUID"
+		else
+			resume_auto_canon=
+		fi
+		report_auto "The initramfs will attempt to resume from $resume_auto"
+		if [ -n "$resume_auto_canon" ]; then
+			report_auto "($resume_auto_canon)"
+			resume_auto="$resume_auto_canon"
+		fi
+		report_auto "Set the RESUME variable to override this."
+	fi
+fi
+
+# Write selected resume device to intramfs conf.d
+if [ "$RESUME" = auto ] || [ -n "$resume_auto" ]; then
+	# If we were explicitly requested to select a device, and we failed,
+	# report that
+	if [ -z "$resume_auto" ]; then
+		echo >&2 "W: initramfs-tools failed to select a resume device"
+	fi
+	echo "RESUME=${resume_auto}" > ${DESTDIR}/conf/conf.d/zz-resume-auto
+fi

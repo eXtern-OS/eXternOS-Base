@@ -1,0 +1,51 @@
+Following is the changelog for deb822 before it was merged into python-debian.
+
+deb822 (0.3) unstable; urgency=low
+
+  * deb822.py:
+    - Allow Deb822 objects to be initialized with a dict containing the initial
+      key-value pairs.
+    - _multivalued class:
+      + Make all the multivalued dicts Deb822Dict objects, so the keys are
+        case-preserving, but case-insensitive
+    - Add a Release class, which knows about Release-file multivalued fields.
+      Thanks to Alexandre Fayolle.  (Closes: 428540)
+    - Deb822Dict no longer directly subclasses dict.  All of the important
+      methods were already implemented with userdict.DictMixin; the dict
+      subclass was so that Python would see a Deb822Dict instance as a dict
+      instance.  Unfortunately, this causes confusion if you do something like
+        d = dict(Deb822Dict({'foo': 'bar'})
+      The "Pythonic" way to check for a dictionary interface is to check for
+      the 'items' attribute.
+  * test_deb822.py:
+    - Add a test case for deriving a Python dict from a Deb822Dict.
+  * debian/control:
+    - Add a XS-Vcs-Bzr field
+
+ -- John Wright <john@movingsucks.org>  Tue, 12 Jun 2007 17:37:05 -0600
+
+deb822 (0.2) unstable; urgency=low
+
+  * debian/rules:
+    - Tell setup.py not to compile the modules -- python-support does that at
+      install time
+  * README:
+    - Fix a typo
+  * debian/control:
+    - Improve the description
+    - Remove X[BS]-Python-Version fields, as per python-support README
+  * deb822.py:
+    - Add a get_pool_path() method to the Changes class which returns the path
+      in the pool you would expect to find the files listed in the .changes
+      file
+    - Fix a typo in Deb822Dict.__init__ where I was referring to fields, not
+      _fields
+  * Remove debian/pycompat, as per python-support README
+
+ -- John Wright <john@movingsucks.org>  Fri,  5 Jan 2007 17:40:54 -0700
+
+deb822 (0.1) unstable; urgency=low
+
+  * Initial packaging (Closes: 380173)
+
+ -- John Wright <john@movingsucks.org>  Wed, 15 Nov 2006 17:00:32 -0700

@@ -1,0 +1,63 @@
+Speex Preprocessing Plugin
+==========================
+
+This plugin provides a pre-processing of a mono stream like denoise
+using libspeex DSP API.  You can use the plugin with the plugin type
+"speex" like below:
+
+	pcm.my_pcm {
+		type speex
+		slave.pcm "default"
+	}
+
+Then record like
+
+	% arecord -fdat -c1 -Dplug:my_pcm foo.wav
+
+so that you'll get 48kHz mono stream with the denoising effect.
+
+Right now, the plugin supports only a mono stream.
+The accepted format is only S16.
+
+The following parameters can be set optionally:
+
+* frames
+
+  This controls the frames of the intermediate buffer.  This
+  corresponds to the latency of the filter.  As default it's 64.
+
+* denoise
+
+  A boolean value to enable/disable the denoise function.  Default is
+  yes.
+
+* agc
+   
+  A boolean value to enable/disable the auto-gain control function.
+  Default is no.
+
+* agc_level
+
+  A float value for the automatic gain-control level.  Default is 8000.
+
+* dereverb
+
+  A boolean value to enable/disable dereverb function.  Default is no.
+
+* echo
+
+  A boolean value to enable/disable echo-cancellation function.
+  Default is no.
+
+* filter_length
+
+  Number of samples of echo to cancel.  As default it's 256.
+
+For example, you can enable agc like
+
+	pcm.my_pcm {
+		type speex
+		slave.pcm "default"
+		agc 1
+		agc_level 8000
+	}

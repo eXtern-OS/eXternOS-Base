@@ -1,0 +1,87 @@
+# -*- mode: org; -*-
+
+#+STARTUP: showall
+
+For jessie, GDB uses Python 3 by default.
+
+* Users
+
+  For the time being, you may switch back to Python 2 by installing
+  gdb-python2.  The gdb-python2 package is likely to be dropped before
+  <jessie+1>, assuming we don't hit any really serious problems.
+
+  Please report bugs for any problems we might care about, whether in
+  or out of Debian, so we can track the impact and assist in dealing
+  with any issues.  (Include "python" in the subject.)
+
+  - If the problem is with a script from a package that's in Debian
+    (even if the Debian package does not install that script) please
+    report a bug against the package and [X-Debbugs-]CC us:
+
+    + Run "reportbug --list-cc=gdb@packages.debian.org
+      <package-or-file>" and follow the prompts.
+
+  - If the problem is with scripts from packages that aren't in Debian
+    but are in free software, report a bug against gdb:
+
+    + Run "reportbug gdb" and follow the prompts.
+
+    + Tell us (1) where to get the software and (2) how to get in
+      touch with upstream (preferably in the form of a link to a
+      report about it in the upstream bugtracker).
+
+      If the project doesn't welcome contributions, please let us know
+      so we don't waste time writing patches.
+
+    We don't *promise* to fix such problems, but we still want to know
+    about them, and we're likely to take a stab at them if it doesn't
+    take too long to get from initiating a VCS checkout to having the
+    software built.
+
+  - If the problem is with private scripts but you think it's because
+    of a deficiency in GDB, please construct a minimal example of the
+    issue and report that to us, too:
+
+    + Run "reportbug gdb" and follow the prompts.
+    + Include your example in the email.
+    + Links to any relevant bug reports/discussion are appreciated (as
+      always).
+
+* Packagers
+
+  - Packages will be considered *buggy* if their GDB scripts do not
+    work with *both* Python 2 *and* Python 3.
+
+    + This is partly so that things will work for users of both gdb and
+      gdb-python2, and partly because it is the only sane way to do
+      things upstream: GDB can only be built with one version of Python
+      at a time, and not all distributions, users, etc. have/are/will
+      switch(ed/ing/) at the same time (or even in the same direction).
+
+  - Packages will be considered *RC buggy* if they conflict with,
+    break, or depend on either gdb or gdb-python2 just because of such
+    broken scripts.
+
+    + It is, after all, better to have scripts that don't work than to
+      be unable to even install the package it is in.  Also, users
+      could have other builds of GDB around to use such scripts with.
+
+  The "six" module may be useful for reference/inspiration here:
+    <https://pythonhosted.org/six/>
+  as might these pages:
+    <https://wiki.python.org/moin/Python3.0>
+    <http://docs.pythonsprints.com/python3_porting/py-porting.html>
+
+  If you would like us to make each gdb package pull in the
+  appropriate "six" package, we would be happy to do that; just file a
+  bug and/or prod SamB on IRC.
+
+  - The motivation being to prevent lib or -dbg packages (wherever you
+    ship you scripts) needing to either reinvent pieces of the "six"
+    package or pull in python-six *and* python3-six (thus keeping both
+    versions of python installed) when the user may not even have or
+    want to use gdb: there *are* other uses for -dbg packages, and
+    some scripts are shipped in lib packages anyway.
+
+  - However, this probably won't be too helpful from an upstream PoV
+    unless we can get this to happen on other distros as well.

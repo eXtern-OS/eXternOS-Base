@@ -1,0 +1,722 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+ "dtd/kdedbx45.dtd" [
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Dutch "INCLUDE"
+> <!-- change language only here -->
+]>
+
+<book id="ksysguard" lang="&language;">
+<bookinfo>
+<title
+>Het handboek van &ksysguard;</title>
+
+<authorgroup>
+<author
+>&Chris.Schlaeger;&Chris.Schlaeger.mail; </author>
+
+<othercredit role="developer"
+>&John.Tapsell; &John.Tapsell.mail; </othercredit>
+
+<othercredit role="developer"
+>&Chris.Schlaeger;&Chris.Schlaeger.mail; </othercredit>
+
+<othercredit role="developer"
+>&Tobias.Koenig;&Tobias.Koenig.mail; </othercredit>
+
+&Niels.Reedijk;&Rinse.Devries;&Kristof.Bal;&Freek.de.Kruijf; 
+</authorgroup>
+
+<copyright>
+<year
+>2000</year>
+<holder
+>&Chris.Schlaeger;</holder>
+</copyright>
+
+<legalnotice
+>&FDLNotice;</legalnotice>
+
+<date
+>2016-01-31</date>
+<releaseinfo
+>&plasma; 5.9</releaseinfo>
+
+<abstract
+><para
+>&ksysguard; is een voor het netwerk geschikte taken- en systeemmonitor.</para
+></abstract
+> 
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>KSysGuard</keyword>
+<keyword
+>processenmonitor</keyword>
+<keyword
+>prestatiemonitor</keyword>
+<keyword
+>systeemmonitor</keyword>
+<keyword
+>top</keyword>
+<keyword
+>ps</keyword>
+</keywordset>
+</bookinfo>
+
+<chapter id="introduction">
+<title
+>Inleiding</title>
+
+<para
+>&ksysguard; is de taak- en prestatiemonitor van &plasma;. </para>
+<para
+>Het levert een client/server-architectuur waarmee u zowel lokale als ook externe hosts kunt observeren. De grafische schil gebruikt zogenaamde sensors om de getoonde informatie op te halen. Een sensor kan eenvoudige waarden of meer complexe informatie, zoals tabbellen weergeven. Voor elk informatietype worden een of meer displays aangeleverd. Displays zijn georganiseerd in werkbladen die onafhankelijk van elkaar kunnen worden geladen en opgeslagen. &ksysguard; is dus niet alleen een eenvoudige takenmonitor maar ook een zeer krachtig gereedschap om grote serverfarms te beheren.</para>
+
+</chapter>
+
+<chapter id="usingtheksysguard">
+<title
+>&ksysguard; gebruiken</title>
+
+<sect1 id="getting-started">
+<title
+>Hoe te beginnen</title>
+
+<para
+>&ksysguard; kan worden gestart vanuit het programma om toepassingen te starten, via <guimenuitem
+>Systeemmonitor</guimenuitem
+> in <menuchoice
+> <guimenu
+>Toepassingen</guimenu
+><guisubmenu
+>Systeem</guisubmenu
+></menuchoice
+>. Vanuit een terminal kunt u het programma starten met het commando <command
+>ksysguard</command
+>.</para>
+
+<para
+>Het hoofdvenster van &ksysguard; bestaat uit een menubalk, een optionele werkbalk en een statusbalk en de werkplek. Aangepaste tabbladen tonen ook de sensorbrowser. </para>
+<!--
+<para
+>Download, Save, Import tabs</para>
+-->
+<para
+>Standaard toont &ksysguard; twee werkbladen: <guilabel
+>Processentabel</guilabel
+> en <guilabel
+>Systeembelasting</guilabel
+>. De <guilabel
+>Processentabel</guilabel
+> toont de draaiende processen en laat de gebruiker deze beheren. Meerdere processen kunnen samen geselecteerd en beheerd worden. De <guilabel
+>Systeembelasting</guilabel
+> toont grafieken van het systeemgebruik: <guilabel
+>CPU geschiedenis</guilabel
+>, <guilabel
+>Geheugen en swap geschiedenis</guilabel
+> en de <guilabel
+>Netwerkgeschiedenis</guilabel
+>. </para>
+
+<para
+>Deze standaardopstelling is voldoende voor onervaren gebruikers voor het uitvoeren van enig systeembeheer. Een ervaren gebruiker of een systeembeheerder van een groot computerlab heeft echter andere wensen. Om een groot gebruikerbereik te bedienen is &ksysguard; zeer flexibel.</para>
+
+<note
+><para
+>U kunt de <guilabel
+>Procestabel</guilabel
+> starten met de globale sneltoets <keycombo action="simul"
+> &Ctrl;&Esc;</keycombo
+>. De procestabel wordt getoond in een venster getiteld <guilabel
+>Systeemactiviteit</guilabel
+>. </para
+></note>
+
+</sect1>
+
+<sect1 id="process-controller">
+<title
+>Processentabel</title>
+
+<para
+>De processentabel geeft u een lijst met de processen die op uw computer draaien. De lijst kan op elke kolom worden gesorteerd. Druk eenvoudigweg op de kop van de kolom waarop u wilt sorteren. </para>
+
+<para
+>Gebruik de hulp <guilabel
+>Wat is dit</guilabel
+> voor de kolomtitels om aanvullende informatie over de hier getoonde waarde te krijgen.</para>
+
+<para
+>In het contextmenu van een proces in de weergave van de lijst view vindt u extra acties zoals wijzigen van de prioriteit, signalen verzenden naar het proces, schakelen naar het toepassingsvenster, gedetailleerde geheugeninformatie tonen en het proces afbreken.</para>
+
+<para
+>De lijst toont de volgende informatie over elk proces. Houd er rekening mee dat niet alle waarden beschikbaar zijn op elk besturingsysteem.</para>
+
+<table>
+<title
+>Standaard kolommen in de procestabel</title>
+<tgroup cols="2">
+<tbody>
+<row>
+<entry
+><guilabel
+>Naam</guilabel
+></entry>
+<entry
+>De naam van het programma dat het proces heeft gestart</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Gebruikersnaam</guilabel
+></entry>
+<entry
+>De gebruiker die eigenaar is van dit proces</entry>
+</row>
+<row>
+<entry
+><guilabel
+>CPU %</guilabel
+></entry>
+<entry
+>Het huidige totale processorgebruik van het proces, gedeeld door het aantal processorkernen in de computer</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Geheugen</guilabel
+></entry>
+<entry
+><para
+>Dit is de hoeveelheid echt fysiek geheugen dat dit proces zelf gebruikt en benadert het private geheugengebruik van het proces.</para>
+<para
+>Dit bevat geen wisselgeheugen en ook niet de grootte van de code van gedeelde bibliotheken.</para>
+<para
+>Dit getal is het meest bruikbaar om na te gaan hoeveel geheugen een programma gebruikt.</para
+></entry>
+</row>
+<row>
+<entry
+><guilabel
+>Ged. geh.</guilabel
+></entry>
+<entry
+>Dit is bij benadering de hoeveelheid fysiek geheugen dat de gedeelde bibliotheken van dit proces gebruiken. Dit geheugen wordt gedeeld door alle processen die deze bibliotheek gebruiken</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Venstertitel</guilabel
+></entry>
+<entry
+>De titel van elk venster dat door dit proces wordt getoond.</entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<table>
+<title
+>Extra kolommen in de procestabel</title>
+<tgroup cols="2">
+<tbody>
+<row>
+<entry
+><guilabel
+>PID</guilabel
+></entry>
+<entry
+>Het unieke proces-<abbrev
+>id</abbrev
+> waarmee het proces geïdentificeerd wordt</entry>
+</row>
+<row>
+<entry
+><guilabel
+>TTY</guilabel
+></entry>
+<entry
+>De terminal waar dit proces op draait</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Niceness</guilabel
+></entry>
+<entry
+>De prioriteit waarmee dit proces draait. Voor de normale taakverdeler, loopt dit vanaf 19 (erg lief, laagste prioriteit) tot -19 (topprioriteit)</entry>
+</row>
+<row>
+<entry
+><guilabel
+>CPU-tijd</guilabel
+></entry>
+<entry
+>Het totaal van gebruiker- en systeemtijd dat dit proces heeft gedraaid, getoond als minuten:seconden.</entry>
+</row>
+<row>
+<entry
+><guilabel
+>IO-lezen</guilabel
+></entry>
+<entry
+>Het aantal gelezen bytes. <guilabel
+>Eenheden getoond</guilabel
+> en <guilabel
+>Getoonde informatie</guilabel
+> kan worden gewijzigd met het contextmenu van deze kolomkop</entry>
+</row>
+<row>
+<entry
+><guilabel
+>IO-schrijven</guilabel
+></entry>
+<entry
+>Het aantal geschreven bytes. <guilabel
+>Eenheden getoond</guilabel
+> en <guilabel
+>Getoonde informatie</guilabel
+> kan worden gewijzigd met het contextmenu van deze kolomkop</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Virtuele grootte</guilabel
+></entry>
+<entry
+>Dit is de hoeveelheid virtuele geheugenruimte dat het proces gebruikt, inclusief gedeelde biblliotheken, grafisch geheugen, bestanden op schijf enzovoorts. Dit aantal is bijna zonder betekenis. Gebruik het contextmenu om de <guilabel
+>Getoonde eenheden</guilabel
+> te selecteren</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Commando</guilabel
+></entry>
+<entry
+>Het commando waarmee dit proces is opgestart</entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<para
+>Bovenaan de tabel vindt u drie knoppen die we nu van links naar rechts zullen beschrijven.</para>
+
+<sect2 id="thekillbutton">
+<title
+>Processen beëindigen</title>
+
+<para
+>Als u een of meerder processen hebt geselecteerd kunt u op de knop <guibutton
+>Proces beëindigen</guibutton
+> drukken om ze geforceerd te beëindigen. Het signaal <errorcode
+>SIGKILL</errorcode
+> wordt dan naar de processen gestuurd, waardoor die onmiddellijk worden beëindigd. Als deze programma's nog niet opgeslagen gegevens bevatten, dan gaan deze verloren. Gebruik deze knop dus voorzichtig.</para>
+</sect2>
+
+<sect2 id="the-filter-bar">
+<title
+>Filterbalk</title>
+
+<para
+>Filter welke processen getoond worden met de hier gegeven tekst. De tekst mag een gedeeltelijke tekstovereenkomst hebben met de <guilabel
+>Naam</guilabel
+>, het <guilabel
+>Commando</guilabel
+> of de <guilabel
+>Venstertitel</guilabel
+> van het proces. Het kan ook een <guilabel
+>Gebruikersnaam</guilabel
+> of een proces-<abbrev
+>id</abbrev
+>-nummer zijn.</para>
+
+</sect2>
+
+<sect2 id="the-process-filter">
+<title
+>Processenfilter</title>
+
+<para
+>Het processenfilter kan worden gebruikt om het aantal in de tabel getoonde processen te verminderen. U kunt op die manier de processen waarin u niet geïnteresseerd bent eruit filteren. U kunt <guilabel
+>Alle processen</guilabel
+> in een platte of boomstructuur, alleen <guilabel
+>Systeemprocessen</guilabel
+>, alleen <guilabel
+>Gebruikersprocessen</guilabel
+> of uw <guilabel
+>Eigen processen</guilabel
+> weergeven.</para>
+
+<para
+>De boomstructuurweergave toont de relaties tussen de draaiende processen. Een proces dat door een ander proces is gestart wordt een subproces of dochterproces (<foreignphrase lang="en"
+>child proces</foreignphrase
+>) genoemd. De relatie tussen processen en bijhorende subprocessen kan via een boomstructuur op een heldere wijze worden getond. Het proces <emphasis
+>init</emphasis
+> is de vader van alle processen.</para>
+
+<para
+>Als u niet geïnteresseerd bent in de subprocessen van een bepaald proces, dan klikt u op het kleine vakje links van het hoofdproces. De subtak zal dan worden ingevouwen. Een tweede klik vouwt de subtak weer uit.</para>
+
+</sect2>
+
+</sect1>
+
+<sect1 id="the-workspace">
+<title
+>Werkruimte</title>
+
+<para
+>De werkruimte is georganiseerd als werkbladen. Selecteer <guimenuitem
+>Nieuw tabblad...</guimenuitem
+> in menu <guimenu
+>Bestand</guimenu
+> om een nieuw werkblad aan te maken. In de dialoog die wordt geopend kunt u de naam, grootte en bijwerkinterval van het werkblad instellen. Om een werkblad weer te verwijderen, kies <guimenuitem
+>Tabblad sluiten</guimenuitem
+> in menu <guimenu
+>Bestand</guimenu
+>. Eventuele wijzigingen worden opgeslagen in het werkbladbestand. Als een werkblad nog niet eerder is opgeslagen zult u gevraagd worden om een bestandsnaam. Werkbladen zijn opgebouwd uit cellen die als een rooster zijn georganiseerd.</para>
+
+<para
+>Elke cel kan worden gevuld met een display voor een of meer browsers. U kunt een cel vullen door een sensor uit de Sensorbrowser te slepen naar de cel. Als er meer dan een displaytype beschikbaar is voor de sensor, dan zal er een contextmenu worden geopend. U kunt dan kiezen welke display u wilt gebruiken. Bepaalde displaytypes kunnen meer dan een sensor tonen. Voeg meer sensors toe aan een display door ze vanuit de Sensorbrowser te verslepen naar de reeds bestaande display.</para>
+
+<para
+>U kunt werkbladen instellen door te klikken op <guimenuitem
+>Tabblad-eigenschappen</guimenuitem
+> in het menu <guimenu
+>Beeld</guimenu
+>. In de dialoog die wordt geopend kunt u de grootte en het bijwerkinterval instellen.</para>
+
+<para
+>Displays kunt u instellen door er met de rechter muisknop op te klikken. In het contextmenu dat wordt geopend kunt u bepalen of u de eigenschappen van dat display wilt wijzigen, het wilt verwijderen uit het werkblad.</para>
+
+<sect2 id="the-sensor-browser">
+<title
+>Sensorbrowser</title>
+<para
+>De sensorbrowser toont de geavanceerde functionaliteit van &ksysguard;. Om hem te gebruiken moet u eerst in het menu <guimenu
+>Bestand</guimenu
+> een nieuw werkblad aanmaken. Het wordt getoond wanneer een aangepast werkblad is geselecteerd.</para>
+<para
+>De Sensorbrowser toont de geregistreerde hosts en hun sensors in een boomstructuur. Klik op de hoofditems om een zijtak te openen. Elke sensor observeert een bepaalde systeemwaarde.</para>
+<tip
+><para
+>Nadat u uw aangepaste werkblad hebt ingesteld gebruikt u de splitfunctie en verplaatst u het naar de rechter rand van het venster om de sensorbrowser te verbergen.</para
+> 
+<para
+>Als de sensorbrowser niet verschijnt op een aangepast werkblad, dan is het waarschijnlijk verborgen. Om het te voorschijn te brengen, selecteert u de rechter rand van het venster en sleept u het naar links.</para
+></tip>
+</sect2>
+
+<sect2 id="line-graph">
+<title
+>Lijngrafiek</title>
+
+<para
+>De lijnplotter toont informatie van een of meer sensors over een bepaald tijdsbestek. Als er meerdere sensoren worden afgebeeld, dan worden de waarden in verschillende kleuren op elkaar gestapeld. Als de display groot genoeg is zal er een raster worden getoond die het bereik van de geplotte informatie weergeeft. Standaard worden de minimum- en maximumwaarden automatisch ingesteld. In sommige gevallen is een vaste minimum- of maximumwaarde gewenst. In dat geval kunt u de automatische waardebereiken uitschakelen en de waarden instellen in de eigenschappendialoog.</para>
+</sect2>
+
+<sect2 id="digital-display">
+<title
+>Digitale weergave</title>
+
+<para
+>De multimeter toont de sensorwaarden als een digitale meter. In de eigenschappendialoog kunt u een boven- en onderlimiet opgeven. Als zo'n limiet wordt overschreden wordt de display met de alarmkleur ingekleurd.</para>
+</sect2>
+
+<sect2 id="bargraph">
+<title
+>Balkgrafiek</title>
+
+<para
+>De balkgrafiek toont de sensorwaarden als bewegende balken. In de eigenschappendialoog kunt u de minimum- en maximumwaarden van een bereik opgeven en de boven- onderlimiet. Als een limiet wordt overschreden wordt de display met de alarmkleur ingekleurd.</para>
+</sect2>
+
+<sect2 id="sensorlogger">
+<title
+>Log opslaan in bestand</title>
+
+<para
+>De sensor-logger toont geen waarden, maar logt ze in een bestand met bijhorende datum en tijd. voor elke sensor kunt u een boven- en onderlimiet opgeven in de eigenschappendialoog. Als een limiet wordt overschreden wordt het item in de sensortabel gekleurd met de alarmkleur.</para>
+</sect2>
+
+<sect2 id="partition-table">
+<title
+>Partitietabel</title>
+
+<para
+>Het <guilabel
+>Partitiegebruik</guilabel
+> heeft een speciale tabelsensor die de informatie toont over alle aangekoppelde partities</para>
+</sect2>
+
+<sect2 id="connectingtootherhosts">
+<title
+>Verbinden met andere hosts</title>
+<!--FIXME https://techbase.kde.org/Development/Tutorials/Sensors -->
+<para
+>Merk op dat het menu-item <guimenuitem
+>Machine op afstand monitoren</guimenuitem
+> alleen beschikbaar is op aangepaste tabbladen.</para>
+
+<para
+>Om met een nieuwe host te verbinden, gebruikt u <guimenuitem
+>Monitor machine op afstand...</guimenuitem
+> uit menu <guimenuitem
+>Bestand</guimenuitem
+>. Er wordt dan een dialoog geopend waarin u de naam van de host kunt invullen waarmee u verbinding wilt maken. Onder deze naam kunt u de verbindingsmethode kiezen. Standaard is <guimenu
+>ssh</guimenu
+>, de <foreignphrase lang="en"
+>secure shell</foreignphrase
+>. Daarnaast kunt u <guimenuitem
+>rsh</guimenuitem
+>, de <foreignphrase lang="en"
+>remote shell</foreignphrase
+>, de daemon-modus of een eigen commando gebruiken. Klik op <guimenu
+>OK</guimenu
+> om de verbinding op te bouwen. Kort daarna zal de nieuwe host verschijnen in de Sensorbrowser en kunt u door de lijst met sensors bladeren.</para>
+
+<para
+>Om de verbinding met een host te verbreken, moet u het afsluiten en &ksysguard; opnieuw opstarten.</para>
+
+<para
+>Om verbinding te maken dient u het programma <application
+>ksysguardd</application
+> op de nieuwe host installeren. Dit programma kan op twee manieren worden gestart.</para>
+
+<variablelist>
+<varlistentry>
+<term
+>daemon-modus</term>
+<listitem>
+<para
+>U kunt <application
+>ksysguardd</application
+> tijdens de boot als een <guilabel
+>Daemon</guilabel
+> opstarten door <parameter
+>-d</parameter
+> als argument toe te voegen aan het commando. In dit geval dient u Daemon als verbindingstype selecteren in de verbindingsdialoog van <application
+>ksysguard</application
+>. Een nadeel van dit verbindingstype is dat u niet in staat zult zijn om een proces te beëindigen (<foreignphrase lang="en"
+>kill</foreignphrase
+>) of de prioriteit ervan te wijzigen (<foreignphrase lang="en"
+>renice</foreignphrase
+>) vanuit de <guilabel
+>Processentabel</guilabel
+>. Daarnaast wordt de gegevensuitwisseling over het netwerk niet versleuteld. Daemonmodus wordt dus niet aangeraden.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term
+>shell-modus</term>
+<listitem>
+<para
+>In deze modus wordt <application
+>ksysguardd</application
+> gestart tijdens de verbindingsopbouw van <application
+>ksysguard</application
+>. Om dat mogelijk te maken dient de locatie ervan in uw omgevingsvariabele <envar
+>PATH</envar
+> te worden gezet. Helaas doorzoekt <application
+>ssh</application
+> niet uw <filename
+>.profile</filename
+>-bestand, dus zal uw reguliere <envar
+>PATH</envar
+> niet beschikbaar zijn. <application
+>Ssh</application
+>  gebruikt in plaats daarvan een standaard <envar
+>PATH</envar
+>, zoals <parameter
+>/bin:/usr/bin</parameter
+>. Omdat &plasma; op sommige computers niet in een van deze mappen is geïnstalleerd dient u het omgevingsvariabelebestand van ssh in uw persoonlijke map te wijzigen of aan te maken. Het bestand heet <filename
+>environment</filename
+> en staat in een verborgen map genaamd <filename
+>.ssh</filename
+>. Lees de man-pagina van <application
+>ssh</application
+> voor meer details. Het bestand dient een regel als deze te bevatten:</para>
+
+<screen
+><userinput
+>PATH=/bin:/usr/bin:/opt/kde/bin</userinput
+>
+</screen>
+
+<para
+>waarbij we er van uitgaan dat <application
+>ksysguardd</application
+> gevonden kan worden onder <filename
+>/opt/kde/bin/ksysguardd</filename
+>.</para>
+
+<tip
+><para
+>Als u <application
+>ssh</application
+> gebruikt, zorg er dan voor dat u uw <filename
+>identity.pub</filename
+> hebt geïnstalleerd op de externe computer en dat de <foreignphrase lang="en"
+>host key</foreignphrase
+> van de externe machine al is geregistreerd op uw computer. U kunt dit controleren door <command
+>ssh <option
+>externe-computer ksysguardd</option
+></command
+> in een terminal te typen. Als u wordt begroet door <application
+>ksysguardd</application
+> is alles in orde. U kunt dan <userinput
+>quit</userinput
+> typen om hem weer af te sluiten.</para
+></tip>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<note
+><para
+>Voor experts: <application
+>ksysguardd</application
+> is een klein programmaatje dat alleen is gelinkt tegen libc. Het kan dus worden gebruikt op computers die geen &plasma; hebben geïnstalleerd, zoals servers. Veel distributies zorgen voor een apart pakket <application
+>ksysguardd</application
+>. Als u in de verbindingsdialoog een aangepast commando opgeeft, dan dient u het complete commando om <application
+>ksysguardd</application
+> op te starten in te voeren.</para
+></note>
+
+</sect2>
+
+<!-- This was removed with revision 517573, but how to disconnect then?
+<sect2 id="disconnecting-hosts">
+<title
+>Disconnecting hosts</title>
+
+<para
+>To disconnect from a host, select the host in the sensor browser and
+choose <guimenuitem
+>Disconnect Host</guimenuitem
+> from the
+<guimenu
+>File</guimenu
+> menu. If you still have sensors in use, the display
+frames will be grayed and the displays won't update any longer.</para>
+</sect2>
+-->
+</sect1>
+
+</chapter>
+
+<chapter id="multiple-platforms">
+<title
+><application
+>ksysguardd</application
+> instellen</title>
+
+<para
+>De grafische schil is beschikbaar op elk platform waar &plasma; op draait. De back-end is momenteel beschikbaar voor de volgende &UNIX;-varianten:</para>
+
+<variablelist>
+<varlistentry>
+<term
+>&Linux;</term>
+<listitem
+><para
+>Om <application
+>ksysguardd</application
+> te kunnen gebruiken is het belangrijk dat de &Linux;-kernel gebruik maakt van het <filename
+>/proc</filename
+> bestandssysteem. Deze is standaard meegecompileerd met de kernel en beschikbaar in de meeste &Linux;-distributies.</para
+> </listitem>
+</varlistentry>
+<varlistentry>
+<term
+>FreeBSD</term>
+<listitem
+><para
+>Het programma <application
+>ksysguardd</application
+> dient lid te zijn van de groep <systemitem class="groupname"
+>kmem</systemitem
+> met de setgid bit ingesteld.</para
+></listitem
+> 
+</varlistentry>
+<varlistentry>
+<term
+>&Solaris;</term>
+<listitem
+><para
+>Nog niet omschreven</para
+></listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Aan de ondersteuning voor andere platformen wordt nog gewerkt. Uw hulp is meer dan welkom.</para>
+</chapter>
+
+<chapter id="credits-and-license">
+<title
+>Dankbetuigingen en licentie</title>
+
+<para
+>&ksysguard; wordt momenteel ontwikkeld en onderhouden door &John.Tapsell; &John.Tapsell.mail;. &ksysguard; is afgeleid van <application
+>KTop</application
+>, de takenbeheerder van KDE 1.x. Diverse andere personen hebben meegeholpen bij het ontwikkelen van <application
+>KTop</application
+>:</para>
+
+<itemizedlist>
+<listitem
+><para
+>A. Sanda <email
+>alex@darkstar.ping.at</email
+></para
+></listitem>
+<listitem
+><para
+>Ralf Mueller <email
+>ralf@bj-ig.de</email
+></para
+></listitem>
+<listitem
+><para
+>&Bernd.Johannes.Wuebben; <email
+>wuebben@math.cornell.edu</email
+></para
+></listitem>
+<listitem
+><para
+>Nicolas Leclercq <email
+>nicknet@planete.net</email
+></para
+></listitem>
+</itemizedlist>
+
+<para
+>Het overzetten naar ander platforms dan &Linux; is gedaan door:</para>
+
+<itemizedlist>
+<listitem
+><para
+>FreeBSD: Hans Petter Bieker <email
+>zerium@traad.lavvu.no</email
+></para
+></listitem>
+</itemizedlist>
+
+&meld.fouten;&vertaling.niels;&vertaling.rinse;&vertaling.kristof;&nagelezen.freek; &underFDL; &underGPL; </chapter>
+
+</book>
+<!--
+Local Variables:
+mode: sgml
+sgml-omittag: nil
+sgml-shorttag: t
+End:
+-->
+

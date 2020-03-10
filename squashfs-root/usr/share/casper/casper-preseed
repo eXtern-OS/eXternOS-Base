@@ -1,0 +1,26 @@
+#! /bin/sh
+set -e
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
+
+# Only do this once.
+if [ -z "$DEBCONF_REDIR" ]; then
+	exec <&4
+	export DEBIAN_HAS_FRONTEND=1
+	export DEBCONF_REDIR=1
+fi
+
+root="$1"
+. "$root/usr/share/debconf/confmodule"
+
+question="$2"
+value="$3"
+seen="$4"
+[ "$seen" ] || seen=true
+
+if ! db_set "$question" "$value"; then
+	db_register debian-installer/dummy "$question"
+	db_set "$question" "$value"
+fi
+db_fset "$question" seen "$seen"
+
+exit 0

@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::ProcessablePool</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#METHODS'>METHODS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::ProcessablePool -- Pool of processables</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre> use Lintian::ProcessablePool;
+ 
+ my $pool = Lintian::ProcessablePool-&#62;new;
+ $pool-&#62;add_file(&#39;foo.changes&#39;);
+ $pool-&#62;add_file(&#39;bar.dsc&#39;);
+ $pool-&#62;add_file(&#39;baz.deb&#39;);
+ $pool-&#62;add_file(&#39;qux.buildinfo&#39;);
+ foreach my $gname ($pool-&#62;get_group_names){
+    my $group = $pool-&#62;get_group($gname);
+    process($gname, $group);
+ }</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="METHODS"
+>METHODS</a></h1>
+
+<dl>
+<dt><a name="Lintian::ProcessablePool-&#62;new_([LAB])"
+>Lintian::ProcessablePool-&#62;new ([LAB])</a></dt>
+
+<dd>
+<p>Creates a new empty pool.</p>
+
+<p>If LAB is given, it is assumed to be a Lintian::Lab. In this case, any processable added to this pool will be stored as a <a href="../Lintian/Lab/Entry.html" class="podlinkpod"
+>lab entry</a> from LAB.</p>
+
+<dt><a name="$pool-&#62;add_file($file)"
+>$pool-&#62;add_file($file)</a></dt>
+
+<dd>
+<p>Adds a file to the pool. The $file will be turned into a <a href="../Lintian/Processable.html" class="podlinkpod"
+>processable</a> and grouped together with other processables from the same source package (if any).</p>
+
+<dt><a name="$pool-&#62;add_proc_($proc)"
+>$pool-&#62;add_proc ($proc)</a></dt>
+
+<dd>
+<p>Adds a <a href="../Lintian/Processable.html" class="podlinkpod"
+>processable</a> to the pool.</p>
+
+<dt><a name="$pool-&#62;get_group_names"
+>$pool-&#62;get_group_names</a></dt>
+
+<dd>
+<p>Returns the name of all the groups in this pool.</p>
+
+<p>Do not modify the list nor its contents.</p>
+
+<dt><a name="$pool-&#62;get_group($name)"
+>$pool-&#62;get_group($name)</a></dt>
+
+<dd>
+<p>Returns the group called $name or <code>undef</code> if there is no group called $name.</p>
+
+<dt><a name="$pool-&#62;get_groups"
+>$pool-&#62;get_groups</a></dt>
+
+<dd>
+<p>Returns all the groups in the pool.</p>
+
+<p>Do not modify the list nor its contents.</p>
+
+<dt><a name="$pool-&#62;empty"
+>$pool-&#62;empty</a></dt>
+
+<dd>
+<p>Returns true if the pool is empty.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Niels Thykier &#60;niels@thykier.net&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1)</p>
+
+<p><a href="../Lintian/Processable.html" class="podlinkpod"
+>Lintian::Processable</a></p>
+
+<p><a href="../Lintian/ProcessableGroup.html" class="podlinkpod"
+>Lintian::ProcessableGroup</a></p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

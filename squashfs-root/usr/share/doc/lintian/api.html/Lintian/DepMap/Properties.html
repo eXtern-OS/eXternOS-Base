@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::DepMap::Properties</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::DepMap::Properties - Dependencies with properties map/tree creator</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre>    use Lintian::DepMap::Properties;
+
+    my $map = Lintian::DepMap::Properties-&#62;new;</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Lintian::DepMap::Properties is a simple layer between Lintian::DepMap and the application allowing nodes to have application-defined properties.</p>
+
+<dl>
+<dt><a name="add(node,_[dependencies],_[ref_to_property])"
+>add(node, [dependencies], [ref to property])</a></dt>
+
+<dd>
+<p>Adds a node with possibly one or more dependencies and sets the <code>node</code>&#39;s property to the ref, if defined. The property must be a reference (it can be to a hash, an array, a function, an object, etc) and must be the last argument given to the method.</p>
+
+<p>E.g.</p>
+
+<pre>    $map-&#62;add(&#39;foo&#39;, {name =&#62; &#39;John Doe&#39;, age =&#62; 20});</pre>
+
+<dt><a name="addp(node[,_prefix,_dependency[,_dependency...]],_[ref_to_property])"
+>addp(node[, prefix, dependency[, dependency...]], [ref to property])</a></dt>
+
+<dd>
+<p>Adds the given <code>node</code> to the map marking any third or more parameters, after prefixing them with <code>prefix</code>, as its dependencies and sets the <code>node</code>&#39;s property to the ref, if defined. See add()&#39;s description for more information about properties. E.g.</p>
+
+<pre>    # pA and pB have no dependency:
+    $map-&#62;addp(&#39;pA&#39;, {name =&#62; &#39;John Doe&#39;});
+    $map-&#62;addp(&#39;pB&#39;, {name =&#62; &#39;Jane Doe&#39;});
+    # Df depends on pA and pB:
+    $map-&#62;addp(&#39;Df&#39;, &#39;p&#39;, &#39;A&#39;, &#39;B&#39;, {name =&#62; &#39;Doe Family&#39;});</pre>
+
+<dt><a name="getp(node)"
+>getp(node)</a></dt>
+
+<dd>
+<p>Returns the reference to the given <code>node</code>&#39;s properties.</p>
+
+<p>E.g.</p>
+
+<pre>    # prints John Doe
+    print $map-&#62;getp(&#39;foo&#39;)-&#62;{&#39;name&#39;};
+    # changes the value of &#39;name&#39;
+    $map-&#62;getp(&#39;foo&#39;)-&#62;{&#39;name&#39;} = &#39;Jane Doe&#39;;
+    # prints Jane Doe
+    print $map-&#62;getp(&#39;foo&#39;)-&#62;{&#39;name&#39;};</pre>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Raphael Geissert &#60;atomo64@gmail.com&#62; for Lintian.</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

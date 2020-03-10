@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.72">
+ <TITLE>Linux 2.4 NAT HOWTO: Quick Translation From 2.0 and 2.2 Kernels</TITLE>
+ <LINK HREF="NAT-HOWTO-5.html" REL=next>
+ <LINK HREF="NAT-HOWTO-3.html" REL=previous>
+ <LINK HREF="NAT-HOWTO.html#toc4" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="NAT-HOWTO-5.html">Next</A>
+<A HREF="NAT-HOWTO-3.html">Previous</A>
+<A HREF="NAT-HOWTO.html#toc4">Contents</A>
+<HR>
+<H2><A NAME="s4">4.</A> <A HREF="NAT-HOWTO.html#toc4">Quick Translation From 2.0 and 2.2 Kernels</A></H2>
+
+<P>Sorry to those of you still shell-shocked from the 2.0 (ipfwadm) to
+2.2 (ipchains) transition.  There's good and bad news.</P>
+
+<P>Firstly, you can simply use ipchains and ipfwadm as before.  To do
+this, you need to insmod the `ipchains.o' or `ipfwadm.o' kernel
+modules found in the latest netfilter distribution.  These are
+mutually exclusive (you have been warned), and should not be combined
+with any other netfilter modules.</P>
+
+<P>Once one of these modules is installed, you can use ipchains and
+ipfwadm as normal, with the following differences:</P>
+<P>
+<UL>
+<LI> Setting the masquerading timeouts with ipchains -M -S, or
+ipfwadm -M -s does nothing.  Since the timeouts are longer for
+the new NAT infrastructure, this should not matter.
+</LI>
+<LI> The init_seq, delta and previous_delta fields in the verbose
+masquerade listing are always zero.
+</LI>
+<LI> Zeroing and listing the counters at the same time `-Z -L' does
+not work any more: the counters will not be zeroed.
+</LI>
+<LI> The backward compatibility layer doesn't scale very well for
+large numbers of connections: don't use it for your corporate
+gateway!</LI>
+</UL>
+</P>
+<P>Hackers may also notice:</P>
+<P>
+<UL>
+<LI> You can now bind to ports 61000-65095 even if you're
+masquerading.  The masquerading code used to assume anything
+in this range was fair game, so programs couldn't use it.
+</LI>
+<LI> The (undocumented) `getsockname' hack, which transparent proxy
+programs could use to find out the real destinations of
+connections no longer works.
+</LI>
+<LI> The (undocumented) bind-to-foreign-address hack is also not
+implemented; this was used to complete the illusion of
+transparent proxying.
+</LI>
+</UL>
+</P>
+
+<H2><A NAME="ss4.1">4.1</A> <A HREF="NAT-HOWTO.html#toc4.1">I just want masquerading!  Help!</A>
+</H2>
+
+<P>This is what most people want.  If you have a dynamically allocated
+IP PPP dialup (if you don't know, this is you), you simply want to
+tell your box that all packets coming from your internal network
+should be made to look like they are coming from the PPP dialup box.</P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+# Load the NAT module (this pulls in all the others).
+modprobe iptable_nat
+
+# In the NAT table (-t nat), Append a rule (-A) after routing
+# (POSTROUTING) for all packets going out ppp0 (-o ppp0) which says to
+# MASQUERADE the connection (-j MASQUERADE).
+iptables -t nat -A POSTROUTING -o ppp0 -j MASQUERADE
+
+# Turn on IP forwarding
+echo 1 > /proc/sys/net/ipv4/ip_forward
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+<P>Note that you are not doing any packet filtering here: for that, see
+the Packet Filtering HOWTO: `Mixing NAT and Packet Filtering'.</P>
+
+<H2><A NAME="ss4.2">4.2</A> <A HREF="NAT-HOWTO.html#toc4.2">What about ipmasqadm?</A>
+</H2>
+
+<P>This is a much more niche user base, so I didn't worry about
+backward compatibility as much.  You can simply use `iptables -t nat'
+to do port forwarding.  So for example, in Linux 2.2 you might have
+done:</P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+# Linux 2.2
+# Forward TCP packets going to port 8080 on 1.2.3.4 to 192.168.1.1's port 80
+ipmasqadm portfw -a -P tcp -L 1.2.3.4 8080 -R 192.168.1.1 80
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+<P>Now you would do:</P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+# Linux 2.4
+# Append a rule before routing (-A PREROUTING) to the NAT table (-t nat) that
+# TCP packets (-p tcp) going to 1.2.3.4 (-d 1.2.3.4) port 8080 (--dport 8080)
+# have their destination mapped (-j DNAT) to 192.168.1.1, port 80
+# (--to 192.168.1.1:80).
+iptables -A PREROUTING -t nat -p tcp -d 1.2.3.4 --dport 8080 \
+        -j DNAT --to 192.168.1.1:80
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+
+<HR>
+<A HREF="NAT-HOWTO-5.html">Next</A>
+<A HREF="NAT-HOWTO-3.html">Previous</A>
+<A HREF="NAT-HOWTO.html#toc4">Contents</A>
+</BODY>
+</HTML>

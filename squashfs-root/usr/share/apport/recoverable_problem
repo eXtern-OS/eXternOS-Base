@@ -1,0 +1,78 @@
+#!/usr/bin/python3
+
+'''Report an error that can be recovered from.
+
+This application should be called with its standard input pipe fed a
+nul-separated list of key-value pairs.
+'''
+
+# Copyright (C) 2012 Canonical Ltd.
+# Author: Evan Dandrea <ev@ubuntu.com>
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.  See http://www.gnu.org/copyleft/gpl.html for
+# the full text of the license.
+
+import apport.report
+import sys
+import os
+import argparse
+
+
+def main():
+    # Check parameters
+    argparser = argparse.ArgumentParser('%(prog) [options]')
+    argparser.add_argument('-p', '--pid', action='store', type=int, dest='optpid')
+    args = argparser.parse_args()
+
+    # Build the base report
+    report = apport.report.Report('RecoverableProblem')
+
+    # If we have a parameter pid, use that, otherwise look to our parent
+    if args.optpid:
+        report.pid = args.optpid
+    else:
+        report.pid = os.getppid()
+
+    # Grab PID info right away, as we don't know how long it'll stick around
+    try:
+        report.add_proc_info(report.pid)
+    except ValueError as e:
+        # The process may have gone away before we could get to it.
+        if str(e) == 'invalid process':
+            return
+
+    # Get the info on the bug
+    items = sys.stdin.read().split('\0')
+    if len(items) % 2 != 0:
+        sys.stderr.write('Expect even number of fields in stdin, needs to have pairs of key and value.\n')
+        sys.exit(1)
+
+    while items:
+        key = items.pop(0)
+        if not items:
+            break
+        value = items.pop(0)
+        report[key] = value
+
+    # Put in the more general stuff
+    report.add_os_info()
+    report.add_user_info()
+
+    ds = report.get('DuplicateSignature', '')
+    exec_path = report.get('ExecutablePath', '')
+    if exec_path and ds:
+        report['DuplicateSignature'] = '%s:%s' % (exec_path, ds)
+
+    # Write the final report
+    try:
+        with apport.fileutils.make_report_file(report) as f:
+            report.write(f)
+    except (IOError, OSError) as e:
+        apport.fatal('Cannot create report: ' + str(e))
+
+
+if __name__ == '__main__':
+    main()

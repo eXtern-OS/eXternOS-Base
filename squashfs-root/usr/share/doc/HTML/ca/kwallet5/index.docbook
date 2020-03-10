@@ -1,0 +1,822 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN" "dtd/kdedbx45.dtd" [
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Catalan  "INCLUDE">
+]>
+
+<book id="kwallet5" lang="&language;">
+<bookinfo>
+<title
+>El manual del &kwallet5;</title>
+
+<authorgroup>
+<author
+>&George.Staikos; &George.Staikos.mail; </author>
+<author
+>&Lauri.Watts; &Lauri.Watts.mail; </author>
+<othercredit role="developer"
+><firstname
+>George</firstname
+><surname
+>Staikos</surname
+> <affiliation
+><address
+>&George.Staikos.mail;</address
+></affiliation>
+<contrib
+>Desenvolupador</contrib>
+</othercredit>
+<othercredit role="translator"
+> <firstname
+>Albert</firstname
+> <surname
+>Astals Cid</surname
+> <affiliation
+><address
+><email
+>aacid@kde.org</email
+></address
+></affiliation
+> <contrib
+>Traductor</contrib
+> </othercredit
+> <othercredit role="translator"
+> <firstname
+>Raül</firstname
+> <surname
+>Garrigasait</surname
+> <affiliation
+><address
+><email
+>rgarrigasait@gmail.com</email
+></address
+></affiliation
+> <contrib
+>Traductor</contrib
+> </othercredit
+> &traductor.Antoni.Bella; 
+</authorgroup>
+
+<legalnotice
+>&FDLNotice;</legalnotice>
+
+<date
+>5 de juliol de 2016</date>
+<releaseinfo
+>Aplicacions 16.04</releaseinfo>
+
+<abstract>
+<para
+>El subsistema de carteres ofereix una manera còmoda i segura de gestionar totes les vostres contrasenyes.</para>
+
+</abstract>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>Kwallet</keyword>
+<keyword
+>contrasenyes</keyword>
+<keyword
+>formularis</keyword>
+</keywordset>
+
+</bookinfo>
+
+<chapter id="introduction">
+<title
+>Introducció</title>
+
+<para
+>Els usuaris d'ordinadors tenen una gran quantitat de dades per gestionar, algunes de les quals són de naturalesa delicada. En concret, és habitual que hàgiu de gestionar moltes contrasenyes. Recordar-les és difícil, apuntar-les en un paper o en un fitxer de text no és gaire segur.</para>
+
+<para
+>El &kwallet5; proporciona una forma segura d'emmagatzemar les contrasenyes i altra informació secreta, el que permet a l'usuari recordar una única contrasenya en comptes de nombroses contrasenyes i credencials diferents. </para>
+
+<sect1 id="kwallet-create">
+
+<title
+>Crear una cartera</title>
+
+<para
+>La cartera és un emmagatzematge per a les contrasenyes. En general n'hi ha prou tenint una sola cartera assegurada amb una contrasenya mestra, però podeu organitzar la vostra gran col·lecció de contrasenyes emprant carteres i el &kwalletmanager5;.</para>
+
+<para
+>Per omissió, s'emprarà una cartera anomenada <guilabel
+>kdewallet</guilabel
+> per emmagatzemar les vostres contrasenyes. Aquesta cartera està assegurada per la vostra contrasenya d'inici de sessió i s'obrirà automàticament en iniciar la sessió, si hi ha instal·lat el «kwallet_pam» i està configurat correctament. En certes distribucions (&pex;, Archlinux) el «kwallet_pam» no està instal·lat per omissió.</para>
+
+
+<para
+>Les altres carteres s'han d'obrir manualment.</para>
+
+<para
+>Hi ha dues maneres de crear una cartera nova:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Utilitzant l'element <menuchoice
+><guimenu
+>Fitxer</guimenu
+><guimenuitem
+>Cartera nova</guimenuitem
+></menuchoice
+> del menú en el &kwalletmanager5;.</para
+></listitem>
+
+<listitem
+><para
+>Utilitzant el botó <guibutton
+>Nova</guibutton
+> al mòdul <guilabel
+>Cartera del KDE</guilabel
+> a &systemsettings;.</para
+></listitem>
+</itemizedlist>
+
+<para
+>Si encara no heu creat una cartera, vegeu la secció <link linkend="kwallet-using"
+>Ús del &kwallet5;</link
+>. </para>
+
+<para
+>El &kwallet5; ofereix dues maneres diferents per emmagatzemar les vostres dades:</para>
+
+<screenshot>
+<screeninfo
+>Selecció de l'encriptatge</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="wallet-encryption-selection.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Selecció de l'encriptatge</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<variablelist>
+
+<varlistentry>
+<term
+>Encriptatge blowfish</term>
+<listitem>
+<para
+>El &kwallet5; desa aquestes dades sensibles en un fitxer encriptat fort, accessible per totes les aplicacions, i protegit amb una contrasenya mestra que definiu.</para>
+
+<screenshot>
+<screeninfo
+>Creació d'una cartera amb encriptatge blowfish</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="first-open-request.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Creació d'una cartera amb encriptatge blowfish</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Les dades són encriptades amb l'<ulink url="http://www.schneier.com/blowfish.html"
+>algoritme de xifrat de blocs simètrics Blowfish</ulink
+>, la clau algorítmica deriva del <ulink url="http://www.ietf.org/rfc/rfc3174.txt"
+>hash SHA-1</ulink
+> de la contrasenya, amb una longitud de clau de 156 bits (20 bytes). Les dades dins del fitxer de cartera també estan xifrades amb SHA-1, i es comproven abans de ser desxifrades i posades a disposició de les aplicacions. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+>Encriptatge GPG</term>
+<listitem>
+<para
+>GnuPG ofereix alguns algoritmes d'encriptatge molt forts i utilitza claus protegides amb llargues frases de pas.</para>
+
+<screenshot>
+<screeninfo
+>No s'ha trobat la clau GPG</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="error-nokey.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>No s'ha trobat la clau GPG</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+<para
+>Les captures de pantalla anteriors mostren el cas on no s'ha trobat al sistema una clau GPG capaç d'encriptar. Utilitzeu aplicacions com &kgpg; o &kleopatra; per crear una clau i torneu-ho a provar.</para>
+
+<para
+>Si no es troba una clau GPG obtindreu el següent diàleg, des d'on podreu seleccionar una clau a utilitzar per a la vostra nova cartera. </para>
+<screenshot>
+<screeninfo
+>Selecció d'una clau per a l'encriptatge</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="key-selection.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Selecció d'una clau per a l'encriptatge</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>El &kwallet5; ara farà servir GPG en emmagatzemar carteres i en obrir-les. El diàleg de la frase de pas només es mostrarà una vegada. Encara que la cartera es tanqui després de l'obertura inicial, les posteriors obertures es produiran en silenci durant la mateixa sessió. </para>
+
+<para
+>La mateixa sessió pot gestionar simultàniament els dos formats de fitxer. El &kwallet5; detectarà de forma transparent el format de fitxer i carregarà el dorsal correcte per a gestionar-lo.</para>
+
+<para
+>Per utilitzar les dades sensibles de la vostra cartera clàssica amb el nou dorsal feu el següent:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Creeu una nova cartera basada en GPG.</para
+></listitem>
+<listitem
+><para
+>Llanceu el &kwalletmanager5; emprant el &krunner; (<keycombo
+>&Alt; <keycap
+>F2</keycap
+></keycombo
+>) o un altre llançador d'aplicacions (el menú) i seleccioneu la vostra cartera antiga. Després escolliu <menuchoice
+><guimenu
+>Fitxer</guimenu
+> <guimenuitem
+>Exporta com a encriptada</guimenuitem
+></menuchoice
+> per a crear un fitxer d'arxiu amb les vostres dades sensibles. </para
+></listitem>
+<listitem
+><para
+>Seleccioneu la nova cartera basada en GPG, a continuació escolliu <menuchoice
+><guimenu
+>Fitxer</guimenu
+> <guimenuitem
+>Importa una encriptada</guimenuitem
+></menuchoice
+> i seleccioneu el fitxer que acabeu de desar.</para>
+</listitem>
+
+<listitem
+><para
+>Aneu a &systemsettings; <menuchoice
+><guimenu
+>Detalls del compte</guimenu
+> <guimenuitem
+>Cartera del KDE</guimenuitem
+></menuchoice
+> i seleccioneu la nova cartera basada en GPG que acabeu de crear des del quadre combinat <guilabel
+>Seleccioneu la cartera a usar per defecte</guilabel
+>. </para
+></listitem>
+</itemizedlist>
+
+<para
+>De manera alternativa utilitzeu <guimenuitem
+>Importa una cartera</guimenuitem
+> però en aquest cas cal seleccionar el fitxer <filename class="extension"
+>.kwl</filename
+> corresponent per a la vostra cartera antiga, localitzada a la carpeta <filename class="directory"
+>kwalletd</filename
+> a <userinput
+>qtpaths --paths GenericDataLocation</userinput
+>. </para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+<tip>
+<para
+>El &kwallet5; permet emprar més d'una cartera, per fer l'operació més segura, hauríeu d'utilitzar una cartera per a les contrasenyes locals i una altra per a les contrasenyes de xarxa i dades dels formularis. Ho podeu configurar al mòdul &kwallet5; de l'&systemsettings;. Tanmateix, per defecte s'emmagatzemarà tot en una cartera anomenada <guilabel
+>kdewallet</guilabel
+>.</para>
+</tip>
+
+<para
+>Les carteres, per defecte, estan tancades, cosa que significa que heu de proporcionar una contrasenya per obrir-les. Un cop oberta una cartera, el seu contingut pot ser llegit per qualsevol procés d'usuari, de manera que es pot tractar d'una qüestió de seguretat.</para>
+</sect1>
+
+<sect1 id="kwallet-using">
+<title
+>Ús del &kwallet5;</title>
+
+<para
+>Si, &pex;, visiteu el sistema de seguiment d'errors del &kde; i introduïu les vostres dades d'inici de sessió per primera vegada, apareixerà un diàleg oferint-vos la possibilitat d'emmagatzemar la contrasenya en una cartera encriptada:</para>
+
+<screenshot>
+<screeninfo
+>Petició per a desar la informació d'inici de sessió</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="save-login-information.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Petició per a desar la informació d'inici de sessió</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Si voleu emmagatzemar aquesta informació, seleccioneu <guibutton
+>Emmagatzema</guibutton
+> per a continuar. Si encara no heu creat una cartera, el següent diàleg us demanarà pel dorsal d'encriptatge i crearà una cartera anomenada «kdewallet». </para>
+
+<para
+>La pròxima vegada que torneu a visitar el mateix lloc web, l'aplicació rebrà les dades d'inici de la sessió des d'una cartera oberta, i omplirà el formulari amb aquests secrets.</para>
+
+<screenshot>
+<screeninfo
+>Preomplint la informació per a l'inici de la sessió</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="prefilled-forms.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Preomplint la informació per a l'inici de la sessió</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Si la cartera es troba tancada, l'aplicació demanarà obrir-ne una. Introduïu la contrasenya de la cartera i feu clic al botó <guibutton
+>Obre</guibutton
+>.</para>
+
+<screenshot>
+<screeninfo
+>Petició per obrir una cartera</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="openwallet-request.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Petició per obrir una cartera</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Això connecta l'aplicació a la cartera, us permet llegir les dades d'accés des de la cartera i restaurar la informació d'accés a aquest lloc web. Una vegada que una aplicació es connecta a la carpeta, automàticament es pot restaurar qualsevol informació d'inici de sessió emmagatzemada en la cartera.</para>
+
+</sect1>
+
+</chapter>
+
+<chapter id="kwalletmanager5">
+<title
+>&kwalletmanager5;</title>
+
+<para
+>El &kwalletmanager5; té diverses funcions. En primer lloc, us permet veure si hi ha carteres obertes, de quines carteres es tracta i quines aplicacions utilitzen cada cartera. Podeu desconnectar l'accés d'una aplicació a una cartera des del &kwalletmanager5;.</para>
+
+<para
+>També podeu gestionar les carteres que teniu instal·lades al vostre sistema: podeu crear i suprimir carteres i manipular-ne el contingut (canviant claus, etc.).</para>
+
+<para
+>L'aplicació &kwalletmanager5; es pot llançar amb el menú <menuchoice
+> <guimenu
+>Aplicacions</guimenu
+><guisubmenu
+>Sistema</guisubmenu
+> <guimenuitem
+>Eina de gestió de carteres</guimenuitem
+></menuchoice
+> des del llançador d'aplicacions. Altrament també podeu iniciar &krunner; amb la drecera <keycombo action="simul"
+>&Alt;<keycap
+>F2</keycap
+></keycombo
+> i introduir <command
+>kwalletmanager5</command
+>.</para>
+
+<para
+>Feu clic una vegada sobre la icona de la cartera de la safata del sistema per a visualitzar la finestra del &kwalletmanager5;.</para>
+<para>
+<screenshot>
+<screeninfo
+>Finestra principal amb una cartera</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwalletmanager.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Finestra principal amb una cartera</phrase>
+</textobject>
+<caption
+><para
+>Finestra principal amb una cartera</para
+></caption>
+</mediaobject>
+</screenshot>
+</para>
+
+<!--FIXME
+How to get assistant "First Use"? kwalletwizardpageintro.ui
+Last code change with http://websvn.kde.org/?view=revision&revision=882694
+see also https://bugs.kde.org/show_bug.cgi?id=290309
+-->
+<sect1 id="kwalletmanager-wallet-window">
+<title
+>La finestra de les carteres</title>
+
+<para
+>Si teniu més d'una cartera, totes les carteres disponibles es mostraran a l'esquerra.</para>
+
+<para
+>Feu clic sobre una cartera de la finestra i el &kwalletmanager5; mostrarà l'estatus i el contingut de la cartera en qüestió. Una cartera pot contenir qualsevol quantitat de carpetes, les quals permeten emmagatzemar informació referent a contrasenyes. Per defecte, una cartera conté les carpetes anomenades «Form Data» i «Passwords». </para>
+
+<screenshot>
+<screeninfo
+>Finestra principal amb dues carteres</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-edit.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Finestra principal amb dues carteres</phrase>
+</textobject>
+<caption
+><para
+>Finestra principal amb dues carteres</para
+></caption>
+</mediaobject>
+</screenshot>
+<para
+>Utilitzeu <guibutton
+>Obre</guibutton
+> per a mostrar el contingut d'una carpeta tancada. Se us demanarà que introduïu la contrasenya mestra.</para>
+
+<sect2>
+<title
+>La pestanya Contingut</title>
+
+<para
+>La pestanya <guilabel
+>Contingut</guilabel
+> té tres seccions:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Una línia de cerca per filtrar els elements de la cartera actual</para
+></listitem>
+<listitem
+><para
+>La vista en arbre de les carpetes que conté la cartera. Feu clic sobre les icones <guiicon
+>&gt;</guiicon
+> / <guiicon
+>v</guiicon
+> per a plegar o desplegar la vista en arbre.</para
+></listitem>
+<listitem
+><para
+>El contingut de la carpeta seleccionada al costat dret. Per omissió, la contrasenya i el valor restaran ocults. Per mostrar-los i editar-los activeu <guilabel
+>Mostra els valors</guilabel
+> o feu clic al botó <guilabel
+>Mostra el contingut</guilabel
+>. </para
+></listitem>
+</itemizedlist>
+
+<para
+>Es poden afegir o suprimir les carpetes mitjançant el menú contextual, i si se selecciona una carpeta s'actualitzarà la llista d'entrades de la carpeta i la presentació resumida. Si se selecciona una entrada d'una carpeta, s'actualitzarà el plafó de continguts, i podreu editar-la.</para>
+
+<para
+>També es poden crear, reanomenar o suprimir les entrades mitjançant el menú contextual del contingut de la carpeta.</para>
+
+<para
+>Totes les carpetes i entrades es poden arrossegar i deixar anar a altres carteres o carpetes respectivament. Això us permet empaquetar una cartera nova per transferir-la a un altre entorn. Per exemple, es pot crear una cartera nova i copiar-la a un dispositiu de memòria flash extraïble. Hi podeu transferir contrasenyes importants per tenir-les disponibles en altres llocs.</para>
+
+<sect3 id="kwallet-import-export">
+<title
+>Importar i exportar</title>
+<para
+>Si voleu transferir els vostres secrets a un altre dispositiu o ordinador utilitzeu les accions al menú <guimenu
+>Fitxer</guimenu
+>. Amb <guimenuitem
+>Exporta com a encriptada</guimenuitem
+>, les carteres es poden exportar a un fitxer d'arxiu. Podeu importar aquest fitxer amb <guimenuitem
+>Importa una encriptada</guimenuitem
+> i haureu de proporcionar la contrasenya mestra de la cartera. </para>
+<para
+>De manera alternativa, es pot utilitzar un fitxer <filename class="extension"
+>.xml</filename
+> per a transferir una cartera. Tingueu en compte que en aquest fitxer, tots els secrets es desaran com a text net. </para>
+</sect3>
+
+<sect3 id="kwallet-adding-entries">
+<title
+>Afegir entrades manualment</title>
+<para
+>Obriu el menú contextual fent clic amb el &BDR; a <guilabel
+>Correspondències</guilabel
+> o <guilabel
+>Contrasenyes</guilabel
+> a la vista en arbre <guilabel
+>Carpetes</guilabel
+>. Seleccioneu <guimenuitem
+>Nova</guimenuitem
+> o <guimenuitem
+>Cartera nova</guimenuitem
+> i escolliu un nom per a la nova entrada.</para>
+<para
+>Al plafó de la carpeta de continguts seleccioneu <guilabel
+>Carpeta nova</guilabel
+> des del menú contextual de <quote
+>De les dades</quote
+> o <quote
+>Contrasenyes</quote
+>. Per a les contrasenyes feu clic al botó <guilabel
+>Mostra el contingut</guilabel
+>, introduïu la nova contrasenya. Per a les correspondències cal que afegiu una <guilabel
+>Clau</guilabel
+> i un <guilabel
+>Valor</guilabel
+>. Feu clic al botó <guilabel
+>Desa</guilabel
+> per emmagatzemar les noves entrades al fitxer de la carpeta encriptada. </para>
+</sect3>
+</sect2>
+
+<sect2>
+<title
+>La pestanya Aplicacions</title>
+<para>
+<screenshot>
+<screeninfo
+>La pestanya Aplicacions</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-applications.png"/>
+</imageobject>
+<textobject>
+<phrase
+>La pestanya Aplicacions</phrase>
+</textobject>
+<caption
+><para
+>La pestanya Aplicacions</para
+></caption>
+</mediaobject>
+</screenshot>
+</para>
+<para
+>La primera llista mostra totes les aplicacions connectades a la carpeta seleccionada. Utilitzeu el botó al costat dret de cada entrada per a desconnectar l'aplicació.</para>
+
+<para
+>A la segona llista es mostren totes les aplicacions que estan autoritzades per accedir a la carpeta. Utilitzeu el botó dret de cada entrada a la llista per a revocar l'accés. </para>
+<!-- FIXME difference to remove the policy in kwallermanager settings dialog?-->
+</sect2>
+</sect1>
+
+</chapter>
+
+<chapter id="kwallet-kcontrol-module">
+<title
+>Configuració del &kwallet5;</title>
+
+<sect1 id="wallet-preferences">
+<title
+>Preferències de les carteres</title>
+
+<para
+>El &kwallet5; conté un petit tauler de configuració amb diverses opcions que us permet adequar el &kwallet5; a les vostres preferències personals. L'arranjament per defecte del &kwallet5; és suficient per a la majoria dels usuaris.</para>
+
+<para
+>Seleccioneu la casella per activar o desactivar del tot el subsistema de carteres del &kde;. Si aquesta casella no està seleccionada, el &kwallet5; està completament desactivat i no tindrà efecte cap de les altres opcions. El &kwallet5; no emmagatzemarà cap mena d'informació ni s'oferirà per omplir-vos formularis.</para>
+
+<variablelist>
+<title
+><guilabel
+>Tancament de carteres</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Tanca quan no s'hagi usat durant:</guilabel
+></term>
+<listitem>
+<para
+>Tanca la cartera actual després d'un període d'inactivitat. Si marqueu aquesta opció, indiqueu el període al quadre; el valor per defecte és 10 minuts. Quan una cartera està tancada, cal introduir la contrasenya per tornar-hi a accedir.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Tanca quan s'iniciï l'estalvi de pantalla</guilabel
+></term>
+<listitem>
+<para
+>Tanca la cartera així que s'inicia l'estalvi de pantalla. Quan la cartera està tancada, es necessita la contrasenya per tornar-hi a accedir.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Tanca quan es tanqui l'última aplicació que l'usava</guilabel
+></term>
+<listitem>
+<para
+>Tanca la cartera així que s'aturin les aplicacions que la utilitzen. Fixeu-vos que la cartera només es tancarà quan s'hagin aturat totes les aplicacions que la utilitzen. Quan una cartera està tancada, cal introduir la contrasenya per tornar-hi a accedir.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title
+><guilabel
+>Selecció automàtica de carteres</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Seleccioneu la cartera a usar per defecte:</guilabel
+></term>
+<listitem>
+<para
+>Seleccioneu quina carpeta voleu utilitzar com a carpeta per omissió. Si us plau, tingueu en compte que només s'obrirà automàticament en iniciar la sessió la cartera anomenada <guilabel
+>kdewallet</guilabel
+>, si les contrasenyes per aquesta cartera i la d'inici de la sessió són idèntiques. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Cartera diferent per les contrasenyes locals:</guilabel
+></term>
+<listitem>
+<para
+>Si està seleccionada, trieu una cartera diferent per a les contrasenyes locals.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title
+><guilabel
+>Gestor de carteres</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Mostra el gestor a la safata del sistema</guilabel
+></term>
+<listitem>
+<para
+>Permet que el gestor de carteres tingui la seva icona a la safata del sistema.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Amaga la icona de la safata del sistema quan es tanca l'última cartera</guilabel
+></term>
+<listitem>
+<para
+>Quan ja no hi ha cap cartera en ús, elimina la icona de la cartera de la safata del sistema.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Finalment, hi ha un botó anomenat <guibutton
+>Inicia el gestor de carteres</guibutton
+>, que fa justament això.</para>
+<para
+>Aquest botó només està visible si &kwalletmanager5; no està en execució.</para>
+</sect1>
+
+<sect1 id="wallet-access-control">
+<title
+>Control d'accés</title>
+
+<para
+>En aquesta pàgina només hi ha una opció:</para>
+
+<variablelist>
+<varlistentry>
+<term
+><guilabel
+>Pregunta quan una aplicació accedeixi a una cartera oberta</guilabel
+></term>
+<listitem>
+<para
+>Indica quan una aplicació accedeix a una cartera oberta.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Al costat hi ha una vista en arbre dels controls d'accés a les vostres carteres.</para>
+
+<screenshot>
+<screeninfo
+>Control d'accés</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-access-control.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Control d'accés</phrase>
+</textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Feu clic amb el &BER; sobre el símbol <guiicon
+>&gt;</guiicon
+> que hi ha al costat del nom d'una cartera per expandir-la en arbre. Veureu el nom de cada aplicació que ha demanat accés a la cartera i la política que heu establert per a cadascuna. Aquí no podeu editar les polítiques o afegir-ne de noves, però podeu suprimir una entrada fent-hi clic amb el &BDR; al damunt i triant <guimenuitem
+>Suprimeix</guimenuitem
+> al menú contextual que apareixerà, o simplement seleccionant l'entrada i prement la tecla <keycap
+>Supr</keycap
+>.</para>
+
+<para
+>Una aplicació que se li ha permès l'accés a una cartera té permís per accedir a totes les contrasenyes que conté.</para>
+
+<para
+>Si heu configurat erròniament una aplicació que no utilitza el &kwallet5;, suprimiu aquí la política per aquesta aplicació.</para>
+<!-- FIXME difference to Revoke Authorization in kwallermanager?-->
+<para
+>En el següent inici d'aquesta aplicació podreu definir una nova política d'accés a la cartera. </para>
+<screenshot>
+<screeninfo
+>Petició per obrir una cartera</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="application-request-to-open-wallet.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Petició per obrir una cartera</phrase>
+</textobject>
+<caption
+><para
+>Una aplicació demana accés a una cartera oberta</para
+></caption>
+</mediaobject>
+</screenshot>
+
+</sect1>
+
+</chapter>
+
+<chapter id="advanced-features">
+<title
+>Característiques avançades</title>
+
+<para
+>Es poden arrossegar carteres des de la finestra del &kwalletmanager5;. Això us permet arrossegar una cartera a una finestra d'un navegador de fitxers, on podeu copiar-la, moure-la o crear-hi un enllaç.</para>
+
+<para
+>Podeu emprar això per desar una cartera en un suport portàtil, com ara un clauer USB. Així podreu emportar-vos les vostres contrasenyes a la feina o de vacances i continuar accedint a llocs importants de manera còmoda.</para>
+
+</chapter>
+
+<chapter id="credits-and-license">
+<title
+>Crèdits i llicència</title>
+
+<para
+>&kwallet5; &copy; 2003 &George.Staikos;</para>
+<para
+>Documentació &copy; &Lauri.Watts; i &George.Staikos;</para>
+
+<para
+>Traductors de la documentació: Albert Astals Cid <email
+>aacid@kde.org</email
+>, Raül Garrigasait <email
+>rgarrigasait@gmail.com</email
+> i &credits.Antoni.Bella;</para
+> &underFDL; &underGPL; </chapter>
+
+&documentation.index;
+
+</book>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+
+// vim:ts=2:sw=2:tw=78:noet
+-->

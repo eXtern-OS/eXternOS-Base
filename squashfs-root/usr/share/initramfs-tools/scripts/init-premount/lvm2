@@ -1,0 +1,41 @@
+#!/bin/sh
+
+# init-premount script for lvm2.
+
+PREREQS="udev mdadm"
+prereqs()
+{
+	echo $PREREQS
+}
+
+mountroot_fail()
+{
+	if ! /sbin/lvm vgscan >/dev/null 2>&1 ; then
+		cat <<EOF
+There appears to be one or more degraded LVM volumes, and your root device may
+depend on the LVM volumes being online. One or more of the following LVM volumes
+are degraded:
+EOF
+		/sbin/lvm vgscan
+	fi
+	# Nothing has been fixed on the system, so "fail" our recovery attempt.
+	exit 1
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+	prereqs
+	exit 0
+	;;
+mountfail)
+	mountroot_fail
+	exit 0
+	;;
+esac
+
+. /scripts/functions
+
+add_mountroot_fail_hook "20-lvm2"
+
+exit 0

@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+   This type of file is for ordering named PPD files for a given
+   printer.
+
+   When choosing a driver for a known printer, first the complete list
+   of available drivers is compiled.  This includes any generic
+   drivers that are likely to be able to drive the device, based on
+   its IEEE 1284 Device ID's COMMAND SET field.
+
+   The next task is to present this list to the user in order of
+   preference, i.e. the drivers most likely to be the "right" ones
+   first.
+
+   This is done with reference to an XML file of the type described
+   here.
+
+   Child elements of the preferenceorder element are processed in
+   order, with each printer element being matched against the printer
+   in question.  Once all the elements have been processed, the result
+   will be a list of driver types in preference order (most preferred
+   first), and a set of blacklisted driver types.
+
+   For each printer element, at least one of the make-and-model and
+   deviceid elements must match.  A deviceid element matches if all of
+   the field regular expressions match.  For a matching printer
+   element, the driver types matching each pattern contained in the
+   drivers, avoid, and blacklist elements are appended to separate
+   lists for drivers to use, drivers to avoid, and drivers that must
+   not be used.
+
+   A printer element that does not contain any make-and-model or
+   deviceid elements is a "catch-all" element and matches any
+   printer.
+
+   To convert this into a list of drivers (i.e. PPDs), the drivertypes
+   element is examined.  Each PPD is assigned a driver type name, and
+   then the PPDs are arranged in order corresponding to the list of
+   preferred driver types.  Drivers in the avoid list are then placed
+   at the end of the list, and drivers in the blacklist are removed
+   altogether.
+
+   To determine the driver type name for a PPD, the child elements of
+   the drivertypes element are examined.  For each drivertype element,
+   the criteria elements defined are matched against the PPD
+   attributes.  If all criteria are satisfied, this PPD's driver type
+   is given by the "name" attribute of the containing drivertype
+   element.  In this case, no further drivertype elements are
+   examined.
+
+   If there are no criteria defined by a driver type, it is considered
+   to match (i.e. it is a "catch-all" type).
+  -->
+
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+	 xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" 
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="preferreddrivers">
+      <ref name="drivertypes"/>
+      <ref name="preferenceorder"/>
+    </element>
+  </start>
+
+  <!-- drivertypes -->
+  <define name="drivertypes">
+    <element name="drivertypes">
+      <zeroOrMore>
+	<!-- First matching element stops processing of elements
+	     following it -->
+	<ref name="drivertype"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="drivertype">
+    <element name="drivertype">
+      <attribute name="name">
+	<!-- Same name may be specified in more than one drivertype
+	     element -->
+	<data type="normalizedString"/>
+      </attribute>
+
+      <optional>
+	<attribute name="packagehint">
+	  <!-- A filename belonging to the package providing this
+	       driver type -->
+	  <data type="normalizedString"/>
+	</attribute>
+      </optional>
+
+      <!-- Match criteria (ppdname, attributes, deviceid, fit)
+	   within one drivertype element must all be satisfied -->
+      <interleave>
+	<optional>
+	  <ref name="ppdname"/>
+	</optional>
+
+	<zeroOrMore>
+	  <ref name="attribute"/>
+	</zeroOrMore>
+
+	<zeroOrMore>
+	  <ref name="deviceid"/>
+	</zeroOrMore>
+
+	<zeroOrMore>
+	  <ref name="fit"/>
+	</zeroOrMore>
+      </interleave>
+    </element>
+  </define>
+
+  <define name="ppdname">
+    <element name="ppdname">
+      <attribute name="match">
+	<!-- Extended regular expression for matching against
+	     ppd-name attribute value (starting at beginning)
+	-->
+	<data type="string"/>
+      </attribute>
+
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attribute">
+    <element name="attribute">
+      <attribute name="name">
+	<!-- IPP attribute name, e.g. ppd-make-and-model -->
+	<data type="normalizedString"/>
+      </attribute>
+
+      <attribute name="match">
+	<!-- Extended regular expression for matching against
+	     attribute's value (starting at beginning) -->
+	<data type="string"/>
+      </attribute>
+
+      <empty/>
+    </element>
+  </define>
+
+  <define name="deviceid">
+    <element name="deviceid">
+      <oneOrMore>
+	<element name="field">
+	  <attribute name="name">
+	    <!-- Case-insensitive, abbreviated form of IEEE 1284
+		 Device ID field key name e.g. MFG -->
+	    <data type="normalizedString"/>
+	  </attribute>
+
+	  <attribute name="match">
+	    <!-- Extended regular expression for matching against
+		 IEEE 1284 Device ID field's value (starting at
+		 beginning) -->
+	    <data type="string"/>
+	  </attribute>
+
+	  <empty/>
+	</element>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="fit">
+    <element name="fit">
+      <list>
+	<oneOrMore>
+	  <choice>
+	    <!-- Drivers are put into one of the following categories
+	         regarding how well it fits for this particular
+	         printer.  When matching against a category of
+	         fitness, "exact" implies "exact-cmd", i.e. an
+	         "exact-cmd" driver will match an entry listing
+	         "exact". -->
+
+	    <!-- STATUS_SUCCESS and CMD matches -->
+	    <value>exact-cmd</value>
+
+	    <!-- STATUS_SUCCESS -->
+	    <value>exact</value>
+
+	    <!-- STATUS_MODEL_MISMATCH -->
+	    <value>close</value>
+
+	    <!-- STATUS_GENERIC_DRIVER -->
+	    <value>generic</value>
+
+	    <!-- STATUS_NO_DRIVER -->
+	    <value>none</value>
+	  </choice>
+	</oneOrMore>
+      </list>
+    </element>
+  </define>
+
+  <!-- typeorders -->
+  <define name="preferenceorder">
+    <element name="preferenceorder">
+      <zeroOrMore>
+	<!-- Matches are accumulated -->
+	<ref name="printer"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="printer">
+    <element name="printer">
+
+      <!-- Any of these make-and-model or deviceid criteria must match -->
+      <optional>
+	<element name="make-and-model">
+	  <attribute name="match">
+	    <!-- Extended regular expression for matching against
+		 device-make-and-model attribute value (starting at
+		 beginning) -->
+	    <data type="string"/>
+	  </attribute>
+	  <empty/>
+	</element>
+      </optional>
+
+      <zeroOrMore>
+	<ref name="deviceid"/>
+      </zeroOrMore>
+
+      <interleave>
+	<optional>
+	  <element name="drivers">
+	    <!-- Ordered list of named drivertypes, most preferred
+		 first -->
+	    <oneOrMore>
+	      <element name="drivertype">
+		<!-- drivertype glob pattern -->
+		<text/>
+	      </element>
+	    </oneOrMore>
+	  </element>
+	</optional>
+
+	<optional>
+	  <!-- These drivertypes will collectively be put last in
+	       the preference list, in no particular order. -->
+	  <element name="avoid">
+	    <oneOrMore>
+	      <element name="drivertype">
+		<!-- drivertype glob pattern -->
+		<text/>
+	      </element>
+	    </oneOrMore>
+	  </element>
+	</optional>
+
+	<optional>
+	  <element name="blacklist">
+	    <!-- List of named drivertypes which must not be used -->
+	    <oneOrMore>
+	      <element name="drivertype">
+		<!-- drivertype glob pattern -->
+		<text/>
+	      </element>
+	    </oneOrMore>
+	  </element>
+	</optional>
+      </interleave>
+    </element>
+  </define>
+</grammar>

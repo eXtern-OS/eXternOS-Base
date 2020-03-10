@@ -1,0 +1,461 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>cracklib2 - a pro-active password library</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"></HEAD
+><BODY
+CLASS="article"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="ARTICLE"
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="title"
+><A
+NAME="AEN1"
+>cracklib2 - a pro-active password library</A
+></H1
+><H3
+CLASS="author"
+><A
+NAME="AEN51"
+>Jean Pierre LeJacq</A
+></H3
+><H3
+CLASS="author"
+><A
+NAME="AEN56"
+>Martin Pitt</A
+></H3
+><H3
+CLASS="author"
+><A
+NAME="AEN61"
+>Jan Dittberner</A
+></H3
+><P
+CLASS="copyright"
+>Copyright &copy; 1998, 1999 Jean Pierre LeJacq</P
+><P
+CLASS="copyright"
+>Copyright &copy; 2003 Martin Pitt</P
+><P
+CLASS="copyright"
+>Copyright &copy; 2008 Jan Dittberner</P
+><P
+CLASS="pubdate"
+>$Date$<BR></P
+><DIV
+><DIV
+CLASS="abstract"
+><P
+></P
+><A
+NAME="AEN4"
+></A
+><P
+><SPAN
+CLASS="application"
+>cracklib2</SPAN
+> is a library
+      containing a C function which may be used in a <A
+HREF="/cgi-bin/man/man2html/passwd+1"
+TARGET="_top"
+>passwd
+      (1)</A
+> like program. The idea is simple: try to prevent
+      users from choosing passwords that could be guessed by <A
+HREF="http://www.crypticide.com/alecm/security/c50-faq.html"
+TARGET="_top"
+><SPAN
+CLASS="application"
+><TT
+CLASS="filename"
+>crack</TT
+></SPAN
+></A
+>
+      by filtering them out, at
+      source. <SPAN
+CLASS="application"
+>cracklib2</SPAN
+> is
+      <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>not</I
+></SPAN
+> a replacement <A
+HREF="/cgi-bin/man/man2html/passwd+1"
+TARGET="_top"
+>passwd
+      (1)</A
+> program. <SPAN
+CLASS="application"
+>cracklib2</SPAN
+> is a
+      <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>library</I
+></SPAN
+>.</P
+><P
+><SPAN
+CLASS="application"
+>cracklib2</SPAN
+> is an offshoot of
+      version 5 of the <A
+HREF="http://www.crypticide.org/users/alecm/security/c50-faq.html"
+TARGET="_top"
+><SPAN
+CLASS="application"
+><TT
+CLASS="filename"
+>crack</TT
+></SPAN
+></A
+>
+      software and contains a considerable number of ideas nicked from
+      the new software.</P
+><P
+><SPAN
+CLASS="application"
+>cracklib2</SPAN
+>'s <A
+HREF="http://www.crypticide.org/dropsafe/about"
+TARGET="_top"
+>original home
+      page</A
+> provides some links on security publications and
+      access to source code written by the author of
+      <SPAN
+CLASS="application"
+>cracklib2</SPAN
+>.  While there is a <A
+HREF="README"
+TARGET="_top"
+>README</A
+> there is not much documentation
+      available on <SPAN
+CLASS="application"
+>cracklib2</SPAN
+>.  Hopefully
+      this page that I generated for the <A
+HREF="http://www.debian.org"
+TARGET="_top"
+>Debian/GNU Linux</A
+>
+      distribution will improve this situation.</P
+><P
+><SPAN
+CLASS="application"
+>cracklib2</SPAN
+> has been forked by
+      <FONT
+COLOR="RED"
+><SPAN
+CLASS="firstname"
+>Nathan</SPAN
+><SPAN
+CLASS="surname"
+>Neulinger</SPAN
+></FONT
+>
+      who is now coordinating the further development. This fork has
+      been blessed by the original maintainer in <A
+HREF="http://www.crypticide.com/dropsafe/article/1019"
+TARGET="_top"
+>this
+      article</A
+>. The new upstream branch is hosted at the <A
+HREF="http://sourceforge.net/projects/cracklib"
+TARGET="_top"
+><SPAN
+CLASS="application"
+>cracklib2</SPAN
+>
+      <SPAN
+CLASS="trademark"
+>SourceForge</SPAN
+>&#8482; project page</A
+>.</P
+><P
+></P
+></DIV
+></DIV
+><HR></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+>1. <A
+HREF="#AEN67"
+>Why <SPAN
+CLASS="application"
+>cracklib2</SPAN
+>?</A
+></DT
+><DT
+>2. <A
+HREF="#AEN72"
+>Who is responsible for all of this?</A
+></DT
+><DT
+>3. <A
+HREF="#AEN93"
+>How to use <SPAN
+CLASS="application"
+>cracklib2</SPAN
+> with
+    Debian</A
+></DT
+><DT
+>4. <A
+HREF="#AEN111"
+>Debian <SPAN
+CLASS="application"
+>cracklib2</SPAN
+> package overview</A
+></DT
+></DL
+></DIV
+><DIV
+CLASS="section"
+><H2
+CLASS="section"
+><A
+NAME="AEN67"
+>1. Why <SPAN
+CLASS="application"
+>cracklib2</SPAN
+>?</A
+></H2
+><P
+>One of the most common security weaknesses in computer
+    systems is the use of easily guessed
+    passwords. <SPAN
+CLASS="application"
+>cracklib2</SPAN
+> tries to prevent
+    the selection of weak passwords by checking potential passwords
+    against dictionaries of commonly used or easily guessed
+    words.</P
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="AEN72"
+>2. Who is responsible for all of this?</A
+></H2
+><P
+><A
+HREF="mailto:alecm@crypticide.com"
+TARGET="_top"
+>Alec Muffet</A
+>
+    is the author of <SPAN
+CLASS="application"
+>cracklib2</SPAN
+>. <A
+HREF="mailto:jplejacq@quoininc.com"
+TARGET="_top"
+>Jean
+    Pierre LeJacq</A
+>
+    initially produced this Debian package, <A
+HREF="mailto:mpitt@debian.org"
+TARGET="_top"
+>Martin Pitt</A
+>
+    is its current maintainer. <A
+HREF="mailto:jandd@debian.org"
+TARGET="_top"
+>Jan Dittberner</A
+>
+    packaged the new upstream version of
+    <SPAN
+CLASS="application"
+>cracklib2</SPAN
+> and updated the
+    documentation.</P
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="AEN93"
+>3. How to use <SPAN
+CLASS="application"
+>cracklib2</SPAN
+> with
+    Debian</A
+></H2
+><P
+>Ideally, the password quality check should be done when an
+    user sets his/her password. The PAM (Pluggable Authentication
+    Modules) architecture makes it easy to integrate arbitrary checks
+    (like <SPAN
+CLASS="application"
+>cracklib2</SPAN
+>) into programs like
+    <SPAN
+CLASS="application"
+><TT
+CLASS="filename"
+>passwd</TT
+></SPAN
+> and
+    <SPAN
+CLASS="application"
+><TT
+CLASS="filename"
+>ssh</TT
+></SPAN
+>.</P
+><P
+>To use <SPAN
+CLASS="application"
+>cracklib2</SPAN
+> in Debian,
+    install the package <FONT
+COLOR="RED"
+>libpam_cracklib</FONT
+> and follow
+    the instructions to enable <FONT
+COLOR="RED"
+>libpam_cracklib</FONT
+> in
+    <TT
+CLASS="filename"
+>/etc/pam.d/common-password</TT
+>.</P
+><P
+>From now on,<SPAN
+CLASS="application"
+>cracklib2</SPAN
+> checks the
+    password quality whenever a password is changed with
+    <SPAN
+CLASS="application"
+><TT
+CLASS="filename"
+>passwd</TT
+></SPAN
+> and rejects
+    bad ones.</P
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="AEN111"
+>4. Debian <SPAN
+CLASS="application"
+>cracklib2</SPAN
+> package overview</A
+></H2
+><P
+>The source package is <FONT
+COLOR="RED"
+>cracklib2</FONT
+> which
+    generates the following binary packages:</P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><FONT
+COLOR="RED"
+>libcrack2</FONT
+></DT
+><DD
+><P
+>Shared library and this
+        documentation.</P
+></DD
+><DT
+><FONT
+COLOR="RED"
+>libcrack2-dev</FONT
+></DT
+><DD
+><P
+>Header files, static libraries, and symbolic
+        links developers using <SPAN
+CLASS="application"
+>cracklib2</SPAN
+>
+        will need. This package also provides an example program that
+        shows the usage of <SPAN
+CLASS="application"
+>cracklib2</SPAN
+> in own
+        applications.</P
+></DD
+><DT
+><FONT
+COLOR="RED"
+>cracklib-runtime</FONT
+></DT
+><DD
+><P
+>Run-time support programs which use the shared
+        library in <FONT
+COLOR="RED"
+>libcrack2</FONT
+> including programs to
+        build the password dictionary databases used by the functions
+        in the shared library.</P
+></DD
+><DT
+><FONT
+COLOR="RED"
+>python-cracklib</FONT
+></DT
+><DD
+><P
+>This package provides Python bindings for the
+        shared library in
+        <FONT
+COLOR="RED"
+>libcrack2</FONT
+>.</P
+></DD
+></DL
+></DIV
+><P
+>This package does not include dictionaries since there are
+    already lots of them in Debian (<FONT
+COLOR="RED"
+>wenglish</FONT
+>,
+    <FONT
+COLOR="RED"
+>wngerman</FONT
+>, etc.).</P
+></DIV
+></DIV
+></BODY
+></HTML
+>

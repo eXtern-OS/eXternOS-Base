@@ -1,0 +1,1 @@
+../../linux-headers-5.0.0-32/scripts/extract_xc3028.pl

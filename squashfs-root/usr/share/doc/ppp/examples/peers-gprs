@@ -1,0 +1,39 @@
+# example configuration for a GPRS/UMTS/HDSPA connection
+#
+# See the manual page pppd(8) for information on all the options.
+
+# If your carrier requires authentication, uncomment this directive and
+# replace myusername@realm with the login name provided by them.
+# If authentication is used, there should be a matching entry with the
+# password in /etc/ppp/pap-secrets and/or /etc/ppp/chap-secrets.
+#user "myusername@realm"
+
+# MUST CHANGE: replace ******** with the APN name specific to your
+# mobile carrier and data plan.
+# The /etc/chatscripts/gprs chat script may be modified to change the
+# modem initialization string.
+connect "/usr/sbin/chat -v -f /etc/chatscripts/gprs -T ********"
+
+# Serial device to which the modem is connected.
+/dev/modem
+
+# Assumes that your IP address is allocated dynamically by the ISP.
+noipdefault
+# Try to get the name server addresses from the ISP.
+usepeerdns
+# Use this connection as the default route.
+defaultroute
+
+# Makes pppd "dial again" when the connection is lost.
+persist
+
+# Do not ask the remote to authenticate.
+noauth
+
+# Disable some PPP protocol features which are usually not supported by
+# mobile carriers.
+novj
+novjccomp
+noccp
+nomagic
+

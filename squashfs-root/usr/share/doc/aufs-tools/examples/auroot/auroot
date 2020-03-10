@@ -1,0 +1,71 @@
+#!/bin/sh
+
+# Copyright (C) 2005-2017 Junjiro R. Okajima
+#
+# This program, aufs is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+#set -x
+tmp=/tmp/$$
+set -e
+
+test $# -eq 0 -o "$1" = "-help" -o "$1" = "--help" &&
+cat << EOF 1>&2 && exit 1
+usage: $0 [--size rw_size] dir [command]
+Makes a jail or chrooted environment under the given dir for the given
+command such as chroot(8), but it is based upon AUFS.
+If you want to hide/modify something under /, then remove/modify it
+under AUFS or customize this script.
+
+This script includes a sample customization for apache on debian
+system. e.g. "sudo sh ./auroot.sh /tmp/jail /etc/init.d/apache2 start"
+EOF
+
+size=64M
+test "$1" = "--size" &&
+{
+	size=$2
+	shift 2
+}
+dir="$1"
+mkdir -p "$dir" "$tmp"
+mount -t tmpfs -o size=$size none "$tmp"
+
+# a sample for generic mount
+#mount -o ro,rbind / $tmp.ro
+#mount -t aufs -o br:$tmp.rw:$tmp.ro aufs "$dir"
+
+# a sample for my test system,
+# which has /, /dev, /var and /usr on separated partitions for each.
+f()
+{
+	mntpnt="$1"
+	name="$2"
+	rw="$tmp/rw.$name"
+
+	mkdir -p "$rw"
+	mount -t aufs -o br:"$rw":"$mntpnt"=ro aufs "$dir$mntpnt"
+}
+
+f / root
+for i in dev var usr
+do
+	f /$i $i
+done
+
+# a sample for apache2 on debian
+f="$dir/etc/default/apache2"
+test -w $f && echo 'NO_START=0' >> $f
+
+exec chroot "$@"

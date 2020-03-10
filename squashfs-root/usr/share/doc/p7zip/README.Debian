@@ -1,0 +1,42 @@
+Notes about Debian 7-Zip packages.
+----------------------------------
+
+The Debian 7-Zip suite consists of the three following packages:
+
+1. p7zip package, which is the smallest one and includes:
+
+    - 7zr command, which provides support for compressing and
+      decompressing archives in 7-Zip, LZMA and XZ formats only.
+
+      *Note*: the 7zr command cannot be used neither on archives
+      protected by passwords, nor on archives that use the PPMD
+      compression method. However both are supported by 7za and 7z
+      commands from the p7zip-full package.
+
+    - p7zip script which is a gzip-like wrapper on 7zr or 7za
+      commands.
+
+2. p7zip-full package that depends on the above p7zip package
+   and consists of:
+
+    - 7za command which is standalone command line version of 7-Zip.
+      It supports more archive formats than 7zr.
+
+    - 7z command which is the full featured command line version of
+      7-Zip. 7z uses other modules from 7-Zip package, so it handles
+      more archive formats, but might be a bit slower than 7za.
+      Modules are installed in /usr/lib/p7zip.
+
+    - Small additional documentation in the HTML format.
+
+3. Non-free p7zip-rar package that contains non-free (due to the terms
+   of the UnRAR license) Rar.so module for the 7z command.
+
+Note concerning directory exclusion.
+------------------------------------
+
+ - Directory exclusion only works when an exclude list file is provided
+   and if directories to exclude are listed as relative paths of the
+   location 7z or 7za is run from.
+
+ - Using absolute directories *won't* work, as noted in #296665.

@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- requires rpm-python package installed -->
+<snippets language="rpmspec">
+  <snippet id="ch">
+    <text><![CDATA[$<
+import rpm
+import datetime
+
+spec = rpm.spec($GEDIT_CURRENT_DOCUMENT_PATH)
+date = datetime.date.today().strftime("%a %b %d %Y")
+headers = spec.packages[0].header
+version = headers['Version']
+release = ".".join(headers['Release'].split(".")[:-1])
+packager = headers['Packager']
+newheader = "* %s %s - %s-%s\n- " % (date, packager, version, release)
+return newheader
+>
+]]></text>
+    <tag>ch</tag>
+    <description>changelog entry</description>
+  </snippet>
+</snippets>

@@ -1,0 +1,189 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>Color correction for pnm2ppa</TITLE>
+
+
+</HEAD>
+<BODY>
+Next
+Previous
+Contents
+<HR>
+<H1>Color correction for pnm2ppa</H1>
+
+<H2>The pnm2ppa project team 
+<A HREF="mailto:ppa-rpms@sourceforge.net">ppa-rpms@users.sourceforge.net</A></H2> v0.6, October 28,  2000
+<P><HR>
+<EM>Information and instructions
+for color correction of pnm2ppa
+color printing.
+<A HREF="http://sourceforge.net/projects/pnm2ppa">http://sourceforge.net/projects/pnm2ppa</A>
+(Updated for pnm2ppa-1.0 and later.)</EM>
+<HR>
+<P><B> Overview of Color correction.</B>
+<P>Color Pixmap input to <CODE>pnm2ppa</CODE> (ppm format, produced
+by the ghostscript output devices <CODE>ppmraw</CODE> or <CODE>ppm</CODE>)
+specifies the color of a pixel  as three coordinates (Red, Green, Blue) in the
+range 0-255.   The program <CODE>pnm2ppa</CODE> converts these to relative amounts
+of Cyan, Magenta and Yellow ink drops printed on the page.
+<P><B>Color correction</B> allows the user to attempt to match the printed
+colors to some reference colors, such as those displayed on the
+terminal, or those printed on a different printer,  or those printed
+on the same printer  with a different
+driver (such as the Win9x drivers supplied by HP with their PPA printers).
+<P>
+<P>The color output from <CODE>pnm2ppa</CODE> can be controlled in two ways:
+<UL>
+<LI> by a color correction &quot;gamma&quot; file, if it is installed.
+By  default this file is 
+<CODE>/etc/pnm2ppa.gamma</CODE>,
+but it may also be specified with the pnm2ppa option 
+<CODE> pnm2ppa ... -F gammafile ... </CODE>.</LI>
+<LI> if there is no gamma file,  by  three values
+specified by keywords ( either
+<CODE>GammaR</CODE>,
+<CODE>GammaG</CODE>,
+<CODE>GammaB</CODE>
+or
+<CODE>RedGammaIdx</CODE>, 
+<CODE>BlueGammaIdx</CODE>, 
+<CODE>GreenGammaIdx</CODE>) in the
+<CODE>pnm2ppa</CODE> configuration file.</LI>
+</UL>
+<P>
+<P><CODE>pnm2ppa</CODE> will carry out  <B>&quot;color correction&quot;</B>,
+unless it is called with the <B>--noGamma</B> command line option.
+However, unless you set up a color correction scheme, the default
+color correction does not change any colors.
+<P>
+<P>Color correction is specified by three color intensity
+functions (curves), one for each of
+Red, Green, and Blue.    In their simplest form, these curves
+have a standard form controlled 
+by a single &quot;gamma&quot; parameter such as
+<CODE>GammaR</CODE>.  The more sophisticated correction, in the
+file <CODE>pnm2ppa.gamma</CODE>, specifies these curves more generally
+as a table of numbers that translate each possible
+color intensity value to a new value.
+<P>
+<P>
+<P>Note that, in principle, different color corrections are needed
+for different print quality settings, and for different
+brands and qualities of paper!
+<P>At present the methods for constructing a  color correction for
+<CODE>pnm2ppa</CODE> are not very user-friendly.  If you can improve
+them, please help!.
+<P><B>Color correction with &quot;gamma&quot; values in the configuration file.</B>
+<P>The PixMap (ppa) format specifies colors by an intensity for
+each primary color, Red, Green and Blue, in the range 0-255, so
+(0,0,0) is black, and (255,255,255) is white.
+The standard color intensity enhancement function replaces the ppm
+intensity <CODE>i</CODE> of each  primary color by 
+<CODE> Enh(i) </CODE> which is the closest integer
+to  ( i / 256)  raised to the power
+<CODE>Gamma</CODE>, times 256.
+<P>
+<P>You can specify the Gamma values in the configuration file
+as decimal numbers <CODE>GammaR</CODE>, <CODE>GammaG</CODE>, <CODE>GammaB</CODE>,
+but how do you find out what values to choose?.   Perhaps by experimenting
+with changing the Gamma values.
+<P>A source of information on Gamma color correction  is
+<A HREF="http://www.cgsd.com/papers/gamma.html">www.cgsd.com/papers/gamma.html</A><P>
+<P>One method for constructing a Gamma correction
+has been built into <CODE>pnm2ppa</CODE>, but it 
+wastes quite a lot of ink, and many users
+find it less effective than producing a customized
+color correction curve as described in the next section.
+<P>
+<P>You must first use pnm2ppa to print a color test page, and then 
+generate a file <CODE>gamma.ppm</CODE> to compare to it.
+To do this, type
+<BLOCKQUOTE><CODE>
+<PRE>
+pnm2ppa -g -i - -o /dev/lp0
+</PRE>
+</CODE></BLOCKQUOTE>
+
+(replace <CODE>/dev/lp0</CODE> by whatever printer device your PPA printer uses,
+or use <CODE> ... -o - | lpr -l </CODE>, etc.).   Note also that
+as <CODE>pnm2ppa</CODE> is not receiving any ghostscript input to tell it
+the paper size, this must be correctly specified by a configuration
+file entry or, e.g., a  <CODE> -s a4 </CODE> option, if the default US Letter
+paper is not being used.   This procedure will print a color calibration
+page.
+<P>The printed output is an array of sets of three colored bands,
+red, blue and green, each of which increases in brightness from
+left to right.   The topmost set of bands should be referrred to as
+bands &quot;0&quot;, the next ones as &quot;1&quot;, etc.
+<P>Next, run the extra program <CODE>calibrate_ppa</CODE> which will produce
+a (large, 10MB) PixMap (ppm) file:
+<BLOCKQUOTE><CODE>
+<PRE>
+calibrate_ppa -g -o gamma.ppm
+</PRE>
+</CODE></BLOCKQUOTE>
+
+This will produce the PixMap file as
+<CODE>gamma.ppm</CODE> in the current directory.
+<P>To color-correct the printer so that its colors match those on the
+terminal screen,
+you should now attempt to view the file <CODE>gamma.ppm</CODE> 
+using some application 
+(such as the GNU image manipulation program <CODE>gimp</CODE>, or <CODE>xv</CODE>)
+that can view <CODE>.ppm</CODE> files.    For each color, identify the
+printed band (0, 1, 2, ... etc)
+that most closely corresponds to the brightness profile
+shown on the screen.    The default values are now:
+<BLOCKQUOTE><CODE>
+<PRE>
+RedGammaIdx 0
+GreenGammaIdx 0
+BlueGammaIdx 0
+</PRE>
+</CODE></BLOCKQUOTE>
+
+(i.e., no color correction).
+Enter your modified values for these in the <CODE>pnm2ppa</CODE>
+configuration file (usually <CODE>/etc/pnm2ppa.conf</CODE>).
+<P>The actual Gamma value is then  <B>1.0 - 0.033*(Color)GammaIdx </B>;
+<P>To color-correct with respect to another printer (or the Win9x drivers),
+you must manage to print <CODE>gamma.ppm</CODE> on that other device, then
+make the comparison.  (Or print the output of <CODE>pnm2ppa -g  </CODE>
+on that device; the top line is  the same uncorrected color data as  
+<CODE>gamma.ppm</CODE>.)
+<P><B>Color correction using a &quot;gamma file&quot;.</B>
+<P>A &quot;gamma correction file&quot; is a binary file containing 
+3 x 256 numbers, 
+which are lookup tables of corrected  red green and blue
+color intensities.
+<P>The program <CODE>pnm2ppa</CODE> will use a default correction file
+<CODE>/etc/pnm2ppa.gamma</CODE> if it exists, unless the 
+<CODE>--noGamma </CODE> option is used.    The default correction file
+location can be changed by using the <CODE>pnm2ppa</CODE>
+option  <CODE>-F gammafile </CODE>, where &quot;gammafile&quot; is the name
+(including the full path) of the gamma correction file to be used.
+<P>
+<P>Currently, there are two available tools for constructing a gamma
+correction file:
+<UL>
+<LI>A graphical utility <CODE>ppagammacorrect</CODE> is available in the
+PPA Color Correction Utilities section of
+the <CODE>pnm2ppa</CODE> web page 
+<A HREF="http://sourceforge.net/projects/pnm2ppa">http://sourceforge.net/projects/pnm2ppa</A>,
+(but at the time of writing,
+this appears to be frozen in early stages of development, with
+little documentation, and may not be fully functional).</LI>
+<LI>A working procedure is given in
+<A HREF="http://download.sourceforge.net/pnm2ppa/color-calibrate-1.0.tar.gz">http://download.sourceforge.net/pnm2ppa/color-calibrate-1.0.tar.gz</A>,
+which is made available by Klamer Schutte.
+<B>This is the method recommended by many users.</B></LI>
+</UL>
+<P>
+<HR>
+Next
+Previous
+Contents
+</BODY>
+</HTML>

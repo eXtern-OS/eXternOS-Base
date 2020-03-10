@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Processable</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#CLASS_METHODS'>CLASS METHODS</a>
+  <li class='indexItem indexItem1'><a href='#INSTANCE_METHODS'>INSTANCE METHODS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Processable -- An (abstract) object that Lintian can process</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre> use Lintian::Processable::Package;
+ 
+ # Instantiate via Lintian::Processable::Package
+ my $proc = Lintian::Processable::Package-&#62;new (&#39;lintian_2.5.0_all.deb&#39;);
+ my $pkg_name = $proc-&#62;pkg_name;
+ my $pkg_version = $proc-&#62;pkg_version;
+ # etc.</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Instances of this perl class are objects that Lintian can process (e.g. deb files). Multiple objects can then be combined into <a href="../Lintian/ProcessableGroup.html" class="podlinkpod"
+>groups</a>, which Lintian will process together.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS_METHODS"
+>CLASS METHODS</a></h1>
+
+<dl>
+<dt><a name="new_from_metadata_(TYPE,_PARAGRAPH[,_BASEPATH])"
+>new_from_metadata (TYPE, PARAGRAPH[, BASEPATH])</a></dt>
+
+<dd>
+<p>Returns a Lintian::Processable from a PARAGRAPH in a Sources or a Packages file with the following exception.</p>
+
+<p>If the PARAGRAPH has a field named &#34;pkg_path&#34;, then that is used instead of creating the path from BASEPATH path concatenated with the TYPE specific field(s). Hench BASEPATH is optional if and only if, the paragraph has a field called &#34;pkg_path&#34;.</p>
+
+<p>The TYPE parameter determines the type of the processable and is required.</p>
+
+<p>NB: Optional fields (e.g. &#34;Source&#34; for binaries) may be omitted in PARAGRAPH as usual. In this case, the respective values are computed from the required fields according to the Policy Manual.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="INSTANCE_METHODS"
+>INSTANCE METHODS</a></h1>
+
+<dl>
+<dt><a name="$proc-&#62;pkg_name"
+>$proc-&#62;pkg_name</a></dt>
+
+<dd>
+<p>Returns the package name.</p>
+
+<dt><a name="$proc-&#62;pkg_version"
+>$proc-&#62;pkg_version</a></dt>
+
+<dd>
+<p>Returns the version of the package.</p>
+
+<dt><a name="$proc-&#62;pkg_path"
+>$proc-&#62;pkg_path</a></dt>
+
+<dd>
+<p>Returns the path to the packaged version of actual package. This path is used in case the data needs to be extracted from the package.</p>
+
+<p>Note: This may return the path to a symlink to the package.</p>
+
+<dt><a name="$proc-&#62;pkg_type"
+>$proc-&#62;pkg_type</a></dt>
+
+<dd>
+<p>Returns the type of package (e.g. binary, source, udeb ...)</p>
+
+<dt><a name="$proc-&#62;pkg_arch"
+>$proc-&#62;pkg_arch</a></dt>
+
+<dd>
+<p>Returns the architecture(s) of the package. May return multiple values from changes processables. For source processables it is &#34;source&#34;.</p>
+
+<dt><a name="$proc-&#62;pkg_src"
+>$proc-&#62;pkg_src</a></dt>
+
+<dd>
+<p>Returns the name of the source package.</p>
+
+<dt><a name="$proc-&#62;pkg_src_version"
+>$proc-&#62;pkg_src_version</a></dt>
+
+<dd>
+<p>Returns the version of the source package.</p>
+
+<dt><a name="$proc-&#62;tainted"
+>$proc-&#62;tainted</a></dt>
+
+<dd>
+<p>Returns a truth value if one or more fields in this Processable is tainted. On a best effort basis tainted fields will be sanitized to less dangerous (but possibly invalid) values.</p>
+
+<dt><a name="$proc-&#62;identifier"
+>$proc-&#62;identifier</a></dt>
+
+<dd>
+<p>Produces an identifier for this processable. The identifier is based on the type, name, version and architecture of the package.</p>
+
+<dt><a name="$proc-&#62;group([$group])"
+>$proc-&#62;group([$group])</a></dt>
+
+<dd>
+<p>Returns the <a href="../Lintian/ProcessableGroup.html" class="podlinkpod"
+>group</a> $proc is in, if any. If the processable is not in a group, this returns <code>undef</code>.</p>
+
+<p>Can also be used to set the group of this processable.</p>
+
+<dt><a name="$proc-&#62;info"
+>$proc-&#62;info</a></dt>
+
+<dd>
+<p>Returns <a href="../Lintian/Collect.html" class="podlinkpod"
+>$info</a> element for this processable.</p>
+
+<p>Note: This method must be implemented by sub-classes unless they provide an &#34;info&#34; field.</p>
+
+<dt><a name="$proc-&#62;clear_cache"
+>$proc-&#62;clear_cache</a></dt>
+
+<dd>
+<p>Discard the info element, so the memory used by it can be reclaimed. Mostly useful when checking a lot of packages (e.g. on lintian.d.o).</p>
+
+<p>Note: By default this does nothing, but it may (and should) be overridden by sub-classes.</p>
+
+<dt><a name="$proc-&#62;get_field_($field[,_$def])"
+>$proc-&#62;get_field ($field[, $def])</a></dt>
+
+<dd>
+<p>Optional method to access a field in the underlying data set.</p>
+
+<p>Returns $def if the field is not present or the implementation does not have (or want to expose) it. This method is <i>not</i> guaranteed to return the same value as &#34;$proc-&#62;info-&#62;field ($field, $def)&#34;.</p>
+
+<p>If <code>$def</code> is omitted is defaults to <code>undef</code>.</p>
+
+<p>Default implementation accesses them via the hashref stored in &#34;extra-fields&#34; if present. If the field is present, but not defined $def is returned instead.</p>
+
+<p>NB: This is mostly an optimization used by <a href="../Lintian/Lab.html" class="podlinkpod"
+>Lintian::Lab</a> to avoid (re-)reading the underlying package data.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Niels Thykier &#60;niels@thykier.net&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1)</p>
+
+<p><a href="../Lintian/ProcessableGroup.html" class="podlinkpod"
+>Lintian::ProcessableGroup</a></p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

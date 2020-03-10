@@ -1,0 +1,33 @@
+Rate Converter Plugin Using libavcodec
+======================================
+
+The plugin in rate-lavc subdirectory is an external rate converter using
+libavcodec's resampler.  You can use this rate converter plugin by defining a
+rate PCM with "converter" parameter, such as:
+
+	pcm.my_rate {
+		type rate
+		slave.pcm "hw"
+		converter "lavcrate"
+	}
+
+The plug plugin has also a similar field, "rate_converter".
+
+Or, more easily, define a global variable "defaults.pcm.rate_converter",
+which is used as the default converter type by plug and rate plugins:
+
+	defaults.pcm.rate_converter "lavcrate"
+
+Write the above in your ~/.asoundrc or /etc/asound.conf.
+
+The following converter types are available:
+
+  - lavcrate_higher		Use	length=64
+  - lavcrate_high  		Use length=32
+  - lavcrate       		Use length=16
+  - lavcrate_fast  		Use length=8
+  - lavcrate_faster		Use length=4
+
+Linear interpolation and cutoff values are automatically used depending on
+the supplied parameters and whether the plugin is used to upsample or
+downsample.

@@ -1,0 +1,256 @@
+#!/usr/bin/python
+
+# xml2lst - convert Discover 2 XML files back to Discover 1 format
+
+import sys
+import optparse
+import string
+import re
+import xml.sax
+import xml.sax.handler
+
+recognized_data_paths = { "linux/module/name": "%s",
+                          "xfree86/server/device/driver": "Server:XFree86(%s)",
+                          "xfree86/server/name": "Server:%s"
+                        }
+recognized_precedence = ("xfree86/server/device/driver",
+                         "xfree86/server/name", "linux/module/name")
+
+class DeviceHandler(xml.sax.handler.ContentHandler):
+    def __init__(self, busclass, vendor, old_busclass_list, versions,
+                 explicit_version):
+        self.busclasses = busclass
+        self.vendors = vendor
+        self.old_busclasses = old_busclass_list
+        self.versions = versions
+        self.explicit_version = explicit_version
+
+        self.devices = {}
+        for vendor in self.vendors.keys():
+            self.devices[vendor] = {}
+
+        self.clearDevice()
+
+    def clearDevice(self):
+        self.current_device = None
+        self.current_device_items = {}
+        self.data_path = []
+        self.data_version = None
+        self.data_version_node = None
+        self.content = ""
+
+    def startElement(self, name, attrs):
+        if name == 'data':
+	    # This code fail to take into account that there might be
+	    # several data tags with different version settings.
+            if attrs.has_key("version"):
+                self.data_version = attrs["version"]
+                self.data_version_node = attrs["class"]
+            self.data_path.append(attrs["class"])
+        elif name == 'device':
+            self.clearDevice()
+            self.current_device = attrs.copy()
+
+    def endElement(self, name):
+        if name == 'data':
+            data_key = string.join(self.data_path, "/")
+            if not self.current_device_items.has_key(data_key):
+                self.current_device_items[data_key] = []
+            if len(self.content) > 0:
+                self.current_device_items[data_key].append((self.content.strip(),
+                                                            self.data_version))
+                self.content = ""
+
+            old_class = self.data_path.pop()
+            if old_class == self.data_version_node:
+                self.data_version = None
+                self.data_version_node = None
+        elif name == 'device':
+            self.saveDevice()
+            self.clearDevice()
+
+    def characters(self, content):
+        if len(self.data_path) < 1 or \
+           not re.search(r'\S+', content):
+            return
+
+        self.content += content
+
+    def saveDevice(self):
+        item = {}
+	if self.current_device.has_key("subvendor"):
+	    return # discover 1 do not understand subvendors, ignore entry
+        vendor_model_id = self.current_device["vendor"] + self.current_device["model"]
+        if self.current_device.has_key("busclass"):
+            item["busclass"] = self.busclasses[self.current_device["busclass"]]
+        elif self.old_busclasses.has_key(vendor_model_id):
+            item["busclass"] = self.old_busclasses[vendor_model_id][0]
+        else:
+            item["busclass"] = "unknown"
+        item["name"] = self.current_device["model_name"]
+
+        if self.old_busclasses.has_key(vendor_model_id):
+            item["driver"] = self.old_busclasses[vendor_model_id][1]
+        else:
+            item["driver"] = "unknown"
+
+        found = False
+        for key in recognized_precedence:
+            if not self.current_device_items.has_key(key):
+                continue
+
+            for (content, version) in self.current_device_items[key]:
+                if self.explicit_version and version is None:
+                    continue
+                if self.versions.has_key(key) and \
+                   version is not None and \
+                   not version_in_set(version, self.versions[key]):
+                    continue
+                item["driver"] = recognized_data_paths[key] % (content,)
+                found = True
+                break
+            if found:
+                break
+
+        vendor = self.current_device["vendor"]
+        model = self.current_device["model"]
+        self.devices[vendor][model] = item
+
+def version_compare(ver1, ver2):
+    """Return negative if the second version is bigger, positive if the
+    first version is bigger, or zero if the versions are equal."""
+
+    if ver1 == ver2:
+        return 0
+    elif ver1 == "inf":
+        return 1
+    elif ver2 == "inf":
+        return -1
+
+    ver1_parts = map(lambda x: int(x), string.split(ver1, "."))
+    ver2_parts = map(lambda x: int(x), string.split(ver2, "."))
+    ver1_len = len(ver1_parts)
+    ver2_len = len(ver2_parts)
+
+    if ver1_len > ver2_len:
+        compare_len = ver2_len
+    else:
+        compare_len = ver1_len
+
+    for i in range(0, compare_len):
+        if ver1_parts[i] != ver2_parts[i]:
+            return ver1_parts[i] - ver2_parts[i]
+
+    return ver1_len - ver2_len
+
+def version_in_set(set, version):
+    (low_version, high_version) = re.split(r",\s*", set[1:-1], 1)
+    low_inclusive = set[0] == "["
+    high_inclusive = set[-1] == "]"
+
+    low_comp = version_compare(low_version, version)
+    if low_comp > 0 or (low_comp == 0 and not low_inclusive):
+        return False
+
+    high_comp = version_compare(version, high_version)
+    if high_comp > 0 or (high_comp == 0 and not high_inclusive):
+        return False
+
+    return True
+
+def load_id_db(infile):
+    class IdHandler(xml.sax.handler.ContentHandler):
+        def __init__(self):
+            self.idmap = {}
+
+        def startElement(self, name, attrs):
+            if len(filter(lambda x: x not in ('id', 'name'),
+                          attrs.keys())) == 0:
+                self.idmap[attrs['id']] = attrs['name']
+
+        def getResults(self):
+            return self.idmap
+
+    handler = IdHandler()
+    xml.sax.parse(infile, handler)
+    return handler.getResults()
+
+def main():
+    usage = "usage: %prog [options] busclass_file vendor_file device_file"
+    cmdline = optparse.OptionParser(usage)
+    cmdline.add_option("-o", dest="output_fn", metavar="FILE",
+                       help="file to write instead of stdout")
+    cmdline.add_option("--previous-file", dest="input_fn", default=None,
+                       metavar="FILE",
+                       help="previous lst file to base updates on")
+    cmdline.add_option("--data-version", dest="data_versions", action="append",
+                       default=[], metavar="path:version",
+                       help="limit output for path to version")
+    cmdline.add_option("--explicit-version", dest="explicit_version",
+                       action="store_true", default=False,
+                       help="skip data missing version info")
+    (options, args) = cmdline.parse_args()
+    (busclass_fn, vendor_fn, device_fn) = args
+
+    old_busclasses = {}
+    old_vendors = []
+    if options.input_fn:
+        input_file = open(options.input_fn)
+        for line in input_file:
+            if line[0] not in string.whitespace:
+                (id, rest) = string.split(line, None, 1)
+                old_vendors.append(id)
+            else:
+                (id, busclass, module, rest) = \
+                     string.split(string.lstrip(line), None, 3)
+                if busclass == "unknown":
+                    continue
+                old_busclasses[id] = (busclass, module)
+
+        input_file.close()
+
+    if options.output_fn:
+        output_file = open(options.output_fn, "w")
+    else:
+        output_file = sys.stdout
+
+    version_dict = {}
+    if options.data_versions:
+        for optstr in options.data_versions:
+            (path, ver) = string.split(optstr, ":", 1)
+            version_dict[path] = ver
+
+    busclasses = load_id_db(busclass_fn)
+    vendors = load_id_db(vendor_fn)
+
+    parser = DeviceHandler(busclasses, vendors, old_busclasses, version_dict,
+                           options.explicit_version)
+    xml.sax.parse(device_fn, parser)
+
+    vendor_ids = vendors.keys()
+    vendor_ids.sort()
+    for vendor in vendor_ids:
+        device_ids = parser.devices[vendor].keys()
+        if len(device_ids) < 1:
+            if vendor not in old_vendors:
+                continue
+
+        result_unicode = "%s %s\n" % (vendor, vendors[vendor])
+        output_file.write(result_unicode.encode("iso-8859-1"))
+
+        device_ids.sort()
+        for device in device_ids:
+	    vendor_out = vendor
+	    device_out = device
+	    if 'default' == device:
+		vendor_out = 'ffff'
+		device_out = 'ffff'
+            result_unicode = "\t%s%s\t%s\t%s\t%s\n" \
+                             % (vendor_out, device_out,
+                                parser.devices[vendor][device]["busclass"],
+                                parser.devices[vendor][device]["driver"],
+                                parser.devices[vendor][device]["name"])
+            output_file.write(result_unicode.encode("iso-8859-1"))
+
+if __name__ == "__main__":
+    main()

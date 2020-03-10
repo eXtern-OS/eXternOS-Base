@@ -1,0 +1,153 @@
+#!/usr/bin/perl -w
+# changelog-file -- lintian collector script
+
+# Copyright (C) 1998 Richard Braakman
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, you can find it on the World Wide
+# Web at http://www.gnu.org/copyleft/gpl.html, or write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+
+package Lintian::coll::changelog_file;
+
+no lib '.';
+
+use strict;
+use warnings;
+use autodie;
+
+use File::Copy qw(copy);
+
+use lib "$ENV{'LINTIAN_ROOT'}/lib";
+use Lintian::Util qw(internal_error gunzip_file is_ancestor_of);
+
+sub collect {
+    my ($pkg, $type, $dir) = @_;
+
+    unlink("$dir/changelog")
+      if -e "$dir/changelog" or -l "$dir/changelog";
+
+    # Extract NEWS.Debian files as well, with similar precautions.
+    # Ignore any symlinks to other packages here; in that case, we
+    # just won't check the file.
+    unlink("$dir/NEWS.Debian")
+      if -l "$dir/NEWS.Debian"
+      or -e _;
+
+    # Pick the first of these files that exists.
+    my @changelogs = (
+        "$dir/unpacked/usr/share/doc/$pkg/changelog.Debian.gz",
+        "$dir/unpacked/usr/share/doc/$pkg/changelog.Debian",
+        "$dir/unpacked/usr/share/doc/$pkg/changelog.debian.gz",
+        "$dir/unpacked/usr/share/doc/$pkg/changelog.debian",
+        "$dir/unpacked/usr/share/doc/$pkg/changelog.gz",
+        "$dir/unpacked/usr/share/doc/$pkg/changelog",
+    );
+
+    my $chl;
+
+    if (-d "$dir/unpacked/usr/share/doc/$pkg"
+        && !is_ancestor_of("$dir/unpacked", "$dir/unpacked/usr/share/doc/$pkg")
+      ) {
+        # If the parent dir is outside this package, pretend we didn't find
+        # anything.
+        return;
+    }
+
+    for (@changelogs) {
+        if (-l $_ || -f _) {
+            $chl = $_;
+            last;
+        }
+    }
+
+    # If the changelog file we found was a symlink, we have to be
+    # careful.  It could be a symlink to some file outside of the
+    # laboratory and we don't want to end up reading that file by
+    # mistake.  Relative links within the same directory or to a
+    # subdirectory we accept; anything else is replaced by an
+    # intentionally broken symlink so that checks can do the right
+    # thing.
+    if (defined($chl) && -l $chl) {
+        my $link = readlink($chl);
+        if ($link =~ /\.\./
+            || ($link =~ m%/% && $link !~ m%^[^/]+(?:/+[^/]+)*\z%)) {
+            symlink("$dir/file-is-in-another-package", "$dir/changelog");
+            undef $chl;
+        } elsif (!-f $chl) {
+            undef $chl;
+        }
+    }
+
+    # If the changelog was a broken symlink, it will be undefined and we'll now
+    # treat it the same as if we didn't find a changelog and do nothing.  If it
+    # was a symlink, copy the file, since otherwise the relative symlinks are
+    # going to break things.
+    if (not defined $chl) {
+        # no changelog found
+    } elsif ($chl =~ /\.gz$/) {
+        gunzip_file($chl, "$dir/changelog");
+    } elsif (-f $chl && -l $chl) {
+        copy($chl, "$dir/changelog") or internal_error("cannot copy $chl: $!");
+    } else {
+        link($chl, "$dir/changelog");
+    }
+
+    if ($chl && $chl !~ m/changelog\.debian/i) {
+        # Either this is a native package OR a non-native package where the
+        # debian changelog is missing.  checks/changelog is not too happy
+        # with the latter case, so check looks like a Debian changelog.
+        open(my $fd, '<', "$dir/changelog");
+        my $ok = 0;
+        while (my $line = <$fd>) {
+            next if $line =~ m/^\s*+$/o;
+            # look for something like
+            # lintian (2.5.3) UNRELEASED; urgency=low
+            if ($line
+                =~ m/^\S+\s*\([^\)]+\)\s*(?:UNRELEASED|(?:[^ \t;]+\s*)+)\;/o) {
+                $ok = 1;
+            }
+            last;
+        }
+        close($fd);
+        # Remove it if it not the Debian changelog.
+        unlink("$dir/changelog") unless $ok;
+    }
+
+    my $news = "$dir/unpacked/usr/share/doc/$pkg/NEWS.Debian.gz";
+    if (-f $news) {
+        if (-l $news) {
+            my $link = readlink($news);
+            if ($link =~ /\.\./
+                || ($link =~ m%/% && $link !~ m%^[^/]+(?:/+[^/]+)*\z%)) {
+                undef $news;
+            }
+        }
+        if ($news) {
+            gunzip_file($news, "$dir/NEWS.Debian");
+        }
+    }
+
+    return;
+}
+
+collect(@ARGV) if $0 =~ m,(?:^|/)changelog-file$,;
+
+1;
+
+# Local Variables:
+# indent-tabs-mode: nil
+# cperl-indent-level: 4
+# End:
+# vim: syntax=perl sw=4 sts=4 sr et

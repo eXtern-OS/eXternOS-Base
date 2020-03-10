@@ -1,0 +1,19 @@
+Notes on libdv for Debian
+=========================
+
+On the i386 architecture, the shared library version of libdv does not comprise
+of position-independent code only. While not desirable in general, this choice
+was done on purpose by the upstream developers for some performance critical
+routines that contain hand-optimized assembler code. As such, it meets an
+exceptio for position-dependent code in shared libraries granted in section
+10.2 of Debian policy (version 3.7.2). It was discussed in report #175077 in
+the Debian bug tracking system. The difficulties of converting the assembly
+part to position-independent code have been discussed on the debian-devel
+mailing list in <20030110165246.GC1494@neljae> and follow-ups. In the meantime,
+folks over at Gentoo (Mike Frysinger?) have managed to come up with a
+working patch that turns the i386 assembly into position-independent code
+(cf. http://bugs.gentoo.org/show_bug.cgi?id=121871). As this patch is quite
+intrusive, I've opted not to include it in the Debian package for now, and
+wait on the upstream developers' opinions instead.
+
+ -- Daniel Kobras <kobras@debian.org>  Tue, 26 Sep 2006 14:21:55 +0200

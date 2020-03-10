@@ -1,0 +1,44 @@
+Upgrade notifier tray icon
+--------------------------
+
+This is a small tray icon that backgrounds itself and checks for
+upgrades. It must be ensured by other means (like a cron job) that a
+regular "apt-get update" is done. This is ensured by installing a
+option into /etc/apt/apt.conf.d to trigger a cron update script.
+
+It uses the following file from the apt package for the updating
+of the package information:
+  /etc/cron.daily/apt
+
+The following files are installed as part of the update-notifier-common
+package and trigger regular the /etc/cron.daily/apt job:
+  /etc/apt/apt.conf.d/10periodic
+  /etc/apt/apt.conf.d/20archive
+
+The "10periodic" file controls how often (in days) certain actions are
+run. The most common one is: APT::Periodic::Update-Package-Lists is
+used for the "apt-get update". The header of /etc/cron.daily/apt
+contains more information of the individual options.
+
+The "20archive" file controls the packages (.deb) cache in
+/var/cache/apt/archives - it can be used to define a maximum total
+size for the deb files there and the time (in days) until they get
+deleted. See the header of /etc/cron.daily/apt for more details.
+
+It uses GIO to monitor /var/lib/apt/lists/* and
+/var/lib/update-notifier/dpkg-run-stamp. If they change it updates
+it's status.
+
+It also supports interactive hooks and reboot notification support,
+see HOOKS for details.
+
+It will detect if a new distribution CD is inserted.
+
+Additionally it has grown avahi and crash report collection
+support. Both are Ubuntu specific.
+
+Based on ideas of Matt Zimmerman und Jeff Waught. Tray example from
+Lukas Lipka <lukas@pmad.net>. Lot's of cleanups from Michiel Sikkes.
+Thanks!
+
+Michael Vogt

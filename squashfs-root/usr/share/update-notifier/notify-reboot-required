@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# we do not include ". gettext.sh" here because:
+# a) it breaks if its not available
+# b) the string we have here does not need it (because it has no vars)
+eval_gettext() {
+    if [ -x /usr/bin/gettext ]; then
+        echo $(gettext "$1")
+    else
+        echo "$1"
+    fi
+}
+export TEXTDOMAIN=update-notifier
+export TEXTDOMAINDIR=/usr/share/locale
+
+case "$DPKG_MAINTSCRIPT_PACKAGE::$DPKG_MAINTSCRIPT_NAME" in
+    linux-image-extra*::postrm)
+        exit 0;;
+esac
+
+if [ "$0" = "/etc/kernel/postinst.d/update-notifier" ]; then
+    DPKG_MAINTSCRIPT_PACKAGE=linux-base
+fi
+
+# Wake the applet up
+echo "*** $(eval_gettext "System restart required") ***" > /var/run/reboot-required
+echo "$DPKG_MAINTSCRIPT_PACKAGE" >> /var/run/reboot-required.pkgs

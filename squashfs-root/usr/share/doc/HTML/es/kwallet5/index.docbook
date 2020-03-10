@@ -1,0 +1,806 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN" "dtd/kdedbx45.dtd" [
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Spanish "INCLUDE">
+]>
+
+<book id="kwallet5" lang="&language;">
+<bookinfo>
+<title
+>Manual de &kwallet5;</title>
+
+<authorgroup>
+<author
+>&George.Staikos; &George.Staikos.mail; </author>
+<author
+>&Lauri.Watts; &Lauri.Watts.mail; </author>
+<othercredit role="developer"
+><firstname
+>George</firstname
+><surname
+>Staikos</surname
+> <affiliation
+><address
+>&George.Staikos.mail;</address
+></affiliation>
+<contrib
+>Desarrollador</contrib>
+</othercredit>
+<othercredit role="translator"
+> <firstname
+>Eloy</firstname
+> <surname
+>Cuadra</surname
+> <affiliation
+><address
+><email
+>ecuadra@eloihr.net</email
+></address
+></affiliation
+> <contrib
+>Traductor</contrib
+> </othercredit
+> 
+</authorgroup>
+
+<legalnotice
+>&FDLNotice;</legalnotice>
+
+<date
+>2016-07-05</date>
+<releaseinfo
+>Aplicaciones 16.04</releaseinfo>
+
+<abstract>
+<para
+>El subsistema de carteras proporciona un modo conveniente y seguro para manejar todas sus contraseñas.</para>
+
+</abstract>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>Kwallet</keyword>
+<keyword
+>contraseñas</keyword>
+<keyword
+>formularios</keyword>
+</keywordset>
+
+</bookinfo>
+
+<chapter id="introduction">
+<title
+>Introducción</title>
+
+<para
+>Los usuarios de sistemas informáticos tienen una gran cantidad de datos que manejar, algunos de los cuales son delicados. En particular, tendrá que usar muchas contraseñas con toda seguridad. Recordarlas es difícil, y escribirlas en un papel o en un archivo de texto es inseguro</para>
+
+<para
+>&kwallet5; proporciona un modo seguro de guardar contraseñas y otra información secreta, permitiendo al usuario recordar una única contraseña en lugar de numerosas contraseñas y credenciales diferentes. </para>
+
+<sect1 id="kwallet-create">
+
+<title
+>Crear una cartera</title>
+
+<para
+>La cartera es un almacén de contraseñas. Por lo general, es suficiente tener una única cartera asegurada con una contraseña maestra, aunque puede organizar una gran colección de contraseñas en carteras usando &kwalletmanager5;.</para>
+
+<para
+>De forma predeterminada, se usará una cartera llamada <guilabel
+>kdewallet</guilabel
+> para guardar sus contraseñas. Esta cartera está asegurada por su contraseña de inicio de sesión y se abrirá automáticamente cuando inicie sesión si «kwallet_pam» está instalado y configurado correctamente. En ciertas distribuciones (como, &eg;, Archlinux) «kwallet_pam» no se instala de forma predeterminada.</para>
+
+
+<para
+>El resto de carteras se deben abrir de forma manual.</para>
+
+<para
+>Existen dos formas de crear una nueva cartera:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Use la opción del menú <menuchoice
+><guimenu
+>Archivo</guimenu
+><guimenuitem
+>Nueva cartera</guimenuitem
+></menuchoice
+> en &kwalletmanager5;</para
+></listitem>
+
+<listitem
+><para
+>Use el botón <guibutton
+>Nueva</guibutton
+> el el módulo <guilabel
+>Cartera de KDE</guilabel
+> de &systemsettings;</para
+></listitem>
+</itemizedlist>
+
+<para
+>Si todavía no ha creado ninguna cartera, consulte la sección <link linkend="kwallet-using"
+>Uso de &kwallet5;</link
+>. </para>
+
+<para
+>&kwallet5; ofrece dos modos diferentes para guardar datos:</para>
+
+<screenshot>
+<screeninfo
+>Seleccionar cifrado</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="wallet-encryption-selection.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Seleccionar cifrado</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<variablelist>
+
+<varlistentry>
+<term
+>Cifrado Blowfish</term>
+<listitem>
+<para
+>&kwallet5; guarda estos datos confidenciales por usted en un archivo cifrado con mucha seguridad, al que pueden acceder todas las aplicaciones, y protegido con la contraseña maestra de su elección.</para>
+
+<screenshot>
+<screeninfo
+>Crear una cartera cifrada con blowfish</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="first-open-request.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Crear una cartera cifrada con blowfish</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Los datos se cifran con el <ulink url="http://www.schneier.com/blowfish.html"
+>algoritmo de cifrado de bloques simétricos Blowfish</ulink
+>, cuya clave algorítmica deriva del <ulink url="http://www.ietf.org/rfc/rfc3174.txt"
+>hash SHA-1</ulink
+> de la contraseña, con una longitud de clave de 156 bits (20 bytes). Dentro del archivo de cartera, los datos también están cifrados con SHA-1, y se comprueban antes de ser descifrados y puestos a disposición de las aplicaciones. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+>Cifrado GPG</term>
+<listitem>
+<para
+>GnuPG ofrece varios algoritmos de cifrado muy seguros y usa claves protegidas con frases largas.</para>
+
+<screenshot>
+<screeninfo
+>Ninguna clave GPG encontrada</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="error-nokey.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Ninguna clave GPG encontrada</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+<para
+>Las capturas de pantalla anteriores muestran un caso en el que no se ha encontrado en el sistema una clave GPG que permitía cifrar datos. Por favor, use aplicaciones como &kgpg; o &kleopatra; para crear una clave y vuelva a intentarlo de nuevo.</para>
+
+<para
+>Si no se encuentra una clave GPG, se le mostrará e siguiente diálogo, en el que podrá seleccionar la clave a usar en la nueva cartera. </para>
+<screenshot>
+<screeninfo
+>Seleccionar una clave de cifrado</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="key-selection.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Seleccionar una clave de cifrado</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>&kwallet5; no usará GPG cuando guarde carteras ni cuando las abra. El diálogo de la contraseña larga se muestra solo una vez. Incluso si la cartera está cerrada tras haber sido abierta, las posteriores aperturas de la misma se realizarán de forma inadvertida durante la misma sesión. </para>
+
+<para
+>La misma sesión puede manejar de forma simultánea ambos formatos de archivo. &kwallet5; detectará de manera transparente el formato del archivo y cargará el motor correcto para manejarlo.</para>
+
+<para
+>Para usar los datos confidenciales de una cartera clásica con el nuevo motor, siga estos pasos:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Cree una nueva cartera basada en GPG</para
+></listitem>
+<listitem
+><para
+>Inicie &kwalletmanager5;, usando &krunner; (<keycombo
+>&Alt; <keycap
+>F2</keycap
+></keycombo
+>) o el lanzador de aplicaciones (menú) y seleccione su cartera antigua. Después, use <menuchoice
+><guimenu
+>Archivo</guimenu
+> <guimenuitem
+>Exportar como cifrado</guimenuitem
+></menuchoice
+> para crear un archivo comprimido con sus datos confidenciales. </para
+></listitem>
+<listitem
+><para
+>Seleccione la nueva cartera basada en GPG, elija <menuchoice
+><guimenu
+>Archivo</guimenu
+> <guimenuitem
+>Importar cifrado</guimenuitem
+></menuchoice
+> y seleccione el archivo que acaba de guardar.</para>
+</listitem>
+
+<listitem
+><para
+>Vaya a &systemsettings; <menuchoice
+><guimenu
+>Detalles de la cuenta</guimenu
+> <guimenuitem
+>Cartera de KDE</guimenuitem
+></menuchoice
+> y seleccione la cartera basada en GPG recién creada en la lista desplegable <guilabel
+>Seleccionar la cartera a usar por omisión</guilabel
+>. </para
+></listitem>
+</itemizedlist>
+
+<para
+>Como método alternativo, use <guimenuitem
+>Importar cartera</guimenuitem
+>, aunque en este caso debe seleccionar el archivo <filename class="extension"
+>.kwl</filename
+> correspondiente a la cartera antigua, situado en la carpeta <filename class="directory"
+>kwalletd</filename
+> existente en <userinput
+>qtpaths --paths GenericDataLocation</userinput
+>. </para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+<tip>
+<para
+>&kwallet5; permite el uso de múltiples carteras, de modo que para un uso más seguro puede utilizar una cartera para las contraseñas locales y otra para las contraseñas de red y datos de formularios. Puede configurar este comportamiento en el módulo &kwallet5; de &systemsettings;, ya que el modo por omisión es almacenar todo en una única cartera llamada <guilabel
+>kdewallet</guilabel
+>.</para>
+</tip>
+
+<para
+>Una cartera está cerrada de modo predeterminado, lo que significa que deberá introducir una contraseña para abrirla. Una vez abierta, cualquier proceso del usuario puede leer el contenido de la cartera, por lo que esto podría ser un problema de seguridad.</para>
+</sect1>
+
+<sect1 id="kwallet-using">
+<title
+>Uso de &kwallet5;</title>
+
+<para
+>Si, &eg;, visita el sistema de rastreo de fallos de &kde; e introduce sus datos de inicio de sesión por primera vez, aparecerá un diálogo ofreciéndole la posibilidad de almacenar la contraseña en una cartera cifrada:</para>
+
+<screenshot>
+<screeninfo
+>Petición para guardar la información de inicio de sesión</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="save-login-information.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Petición para guardar la información de inicio de sesión</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Si desea guardar esta información, seleccione <guibutton
+>Almacenar</guibutton
+> para continuar. Si no hubiera creado una cartera hasta ahora, el siguiente diálogo le pedirá que escoja un motor de cifrado y creará una cartera llamada «kdewallet». </para>
+
+<para
+>La próxima vez que vuelva a visitar el mismo sitio web, la aplicación obtendrá los datos de inicio de sesión de una cartera abierta y rellenará los formularios con estos datos confidenciales.</para>
+
+<screenshot>
+<screeninfo
+>Información de inicio de sesión ya rellenada</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="prefilled-forms.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Información de inicio de sesión ya rellenada</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Si la cartera está cerrada, la aplicación solicitará su apertura. Introduzca la contraseña de la cartera y pulse el botón <guibutton
+>Abrir</guibutton
+>.</para>
+
+<screenshot>
+<screeninfo
+>Petición para abrir una cartera</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="openwallet-request.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Petición para abrir una cartera</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Esto conecta la aplicación a la cartera, recupera de ella los datos del inicio de sesión e introduce esta información en el sitio web. Una vez que una aplicación se ha conectado a la cartera puede recuperar cualquier información de inicio de sesión almacenada en ella.</para>
+
+</sect1>
+
+</chapter>
+
+<chapter id="kwalletmanager5">
+<title
+>&kwalletmanager5;</title>
+
+<para
+>&kwalletmanager5; proporciona varias funciones. Principalmente, le permite ver si hay carteras abiertas, qué carteras lo están y qué aplicaciones están usando cada cartera. Puede desconectar el acceso de una aplicación a una cartera desde &kwalletmanager5;.</para>
+
+<para
+>También puede administrar las carteras instaladas en el sistema, crear y eliminar carteras y manipular su contenido (cambiar claves, etc.).</para>
+
+<para
+>La aplicación &kwalletmanager5; se puede iniciar con el menú <menuchoice
+> <guimenu
+>Aplicaciones</guimenu
+><guisubmenu
+>Sistema</guisubmenu
+> <guimenuitem
+>Herramienta de gestión de carteras</guimenuitem
+></menuchoice
+> del lanzador de aplicaciones. También puede iniciar &krunner; con el acceso de teclado <keycombo action="simul"
+>&Alt;<keycap
+>F2</keycap
+></keycombo
+> e introducir en él la orden <command
+>kwalletmanager5</command
+>.</para>
+
+<para
+>Haga clic sobre el icono de la cartera que hay en la bandeja del sistema para mostrar la ventana del &kwalletmanager5;.</para>
+<para>
+<screenshot>
+<screeninfo
+>Ventana principal con una cartera</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwalletmanager.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Ventana principal con una cartera</phrase>
+</textobject>
+<caption
+><para
+>Ventana principal con una cartera</para
+></caption>
+</mediaobject>
+</screenshot>
+</para>
+
+<!--FIXME
+How to get assistant "First Use"? kwalletwizardpageintro.ui
+Last code change with http://websvn.kde.org/?view=revision&revision=882694
+see also https://bugs.kde.org/show_bug.cgi?id=290309
+-->
+<sect1 id="kwalletmanager-wallet-window">
+<title
+>La ventana de cartera</title>
+
+<para
+>Si dispone de más de una cartera, todas las carteras disponibles se muestran a la izquierda.</para>
+
+<para
+>Al pulsar sobre una cartera en la ventana del &kwalletmanager5; se abrirá una nueva ventana que muestra estado y contenido de la cartera. Una cartera puede contener cualquier número de carpetas, que le permiten almacenar información sobre contraseñas. De forma predeterminada, una cartera solo contiene dos carpetas denominadas «Datos de formularios» y «Contraseñas». </para>
+
+<screenshot>
+<screeninfo
+>Ventana principal con dos carteras</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-edit.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Ventana principal con dos carteras</phrase>
+</textobject>
+<caption
+><para
+>Ventana principal con dos carteras</para
+></caption>
+</mediaobject>
+</screenshot>
+<para
+>Utilice <guibutton
+>Abrir</guibutton
+> para mostrar el contenido de una cartera cerrada. Se le pedirá introducir la contraseña maestra.</para>
+
+<sect2>
+<title
+>Pestaña de contenidos</title>
+
+<para
+>La pestaña <guilabel
+>Contenidos</guilabel
+> tiene tres secciones:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Una línea de búsqueda para filtrar los elementos de la cartera actual</para
+></listitem>
+<listitem
+><para
+>La vista de árbol de las carpetas que contiene la cartera. Pulse sobre los iconos <guiicon
+>&gt;</guiicon
+> / <guiicon
+>v</guiicon
+> para plegar o desplegar la vista de árbol.</para
+></listitem>
+<listitem
+><para
+>Los contenidos de la entrada de carpeta seleccionada en el lado derecho. Por omisión, la contraseña y valor se ocultan. para mostrarlos y editarlos, active <guilabel
+>Mostrar valores</guilabel
+> o pulse el botón <guilabel
+>Mostrar contenidos</guilabel
+>. </para
+></listitem>
+</itemizedlist>
+
+<para
+>Es posible añadir, borrar o renombrar carpetas mediante el menú de contexto, y al seleccionar una carpeta se actualizará su lista de entradas y el resumen. Al seleccionar una entrada de carpeta se actualizará la entrada de contenido del panel, y se le permitirá editar esa entrada.</para>
+
+<para
+>También puede crear, eliminar y cambiar el nombre de las entradas mediante el menú de contexto para el contenido de la carpeta.</para>
+
+<para
+>Todas las carpetas y las entradas pueden ser arrastradas y soltadas en otras carteras o carpetas, respectivamente. Esto permite a un usuario empaquetar fácilmente una nueva cartera para transferir a otro entorno. Por ejemplo, una nueva cartera puede ser creada y copiada en un dispositivo extraíble de memoria flash. Las contraseñas importantes pueden ser transferidas allí, de modo que pueda disponer de ellas en otros lugares.</para>
+
+<sect3 id="kwallet-import-export">
+<title
+>Importar y exportar</title>
+<para
+>Si desea transferir sus datos confidenciales a otro dispositivo o equipo, use las acciones del menú <guimenu
+>Archivo</guimenu
+>. Con <guimenuitem
+>Exportar como cifrado</guimenuitem
+> podrá exportar las carteras en un archivo comprimido cifrado. Al importar este archivo con <guimenuitem
+>Importar cifrado</guimenuitem
+> tendrá que proporcionar la contraseña maestra de la cartera. </para>
+<para
+>Alternativamente, se puede usar un archivo <filename class="extension"
+>.xml</filename
+> para transferir una cartera. Tenga en mente que todos los secretos se almacenan como texto sin formato en este archivo. </para>
+</sect3>
+
+<sect3 id="kwallet-adding-entries">
+<title
+>Añadir entradas manualmente</title>
+<para
+>Abra el menú de contexto con el &RMB;, pulse sobre <guilabel
+>Mapas</guilabel
+> o <guilabel
+>Contraseñas</guilabel
+> en la vista de árbol <guilabel
+>Carpeta</guilabel
+>. Seleccione <guimenuitem
+>Nuevo</guimenuitem
+> o <guimenuitem
+>Nueva carpeta</guimenuitem
+> y elija el nombre de la nueva entrada.</para>
+<para
+>En el panel de contenidos de la carpeta, seleccione <guilabel
+>Nueva carpeta</guilabel
+> desde el menú de contexto de <quote
+>Datos de formularios</quote
+> o de <quote
+>Contraseñas</quote
+>. Para las contraseñas pulse el botón <guilabel
+>Mostrar contenidos</guilabel
+> e introduzca la nueva contraseña. Para mapas, tendrá que añadir una <guilabel
+>Clave</guilabel
+> y un <guilabel
+>Valor</guilabel
+>. Pulse el botón <guilabel
+>Guardar</guilabel
+> para almacenar las nuevas entradas en el archivo de cartera cifrado. </para>
+</sect3>
+</sect2>
+
+<sect2>
+<title
+>Pestaña de aplicaciones</title>
+<para>
+<screenshot>
+<screeninfo
+>Pestaña de aplicaciones</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-applications.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Pestaña de aplicaciones</phrase>
+</textobject>
+<caption
+><para
+>Pestaña de aplicaciones</para
+></caption>
+</mediaobject>
+</screenshot>
+</para>
+<para
+>La primera lista muestra todas las aplicaciones conectadas actualmente a la cartera seleccionada. Use el botón del lado derecho de cada entrada para desconectar la aplicación.</para>
+
+<para
+>En la segunda lista se muestran todas las aplicaciones que están autorizadas a acceder a la cartera. Use el botón derecho de cada entrada para revocar el acceso. </para>
+<!-- FIXME difference to remove the policy in kwallermanager settings dialog?-->
+</sect2>
+</sect1>
+
+</chapter>
+
+<chapter id="kwallet-kcontrol-module">
+<title
+>Configuración de &kwallet5;</title>
+
+<sect1 id="wallet-preferences">
+<title
+>Preferencias de la cartera</title>
+
+<para
+>&kwallet5; contiene un pequeño panel de configuración con algunas opciones que le permiten afinar &kwallet5; según sus preferencias personales. Las opciones por omisión de &kwallet5; son suficientes para la mayoría de usuarios.</para>
+
+<para
+>Marque la casilla para activar o desactivar completamente el sistema de carteras de &kde;. Si esta casilla está sin marcar, &kwallet5; estará completamente desactivado y ninguna de las restantes opciones tendrá efecto, y &kwallet5; no guardará ninguna información, ni rellenará los formularios por usted.</para>
+
+<variablelist>
+<title
+><guilabel
+>Cerrar cartera</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Cerrar cuando no se use durante:</guilabel
+></term>
+<listitem>
+<para
+>Cerrar la cartera actual tras un periodo de inactividad. Si marca esta opción debe establecer el periodo en el campo correspondiente (es 10 minutos de forma predeterminada). Tras cerrar una cartera será necesario volver a introducir la contraseña para acceder a ella de nuevo.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Cerrar cuando se inicie el salvapantallas</guilabel
+></term>
+<listitem>
+<para
+>Cerrar la cartera en cuanto se inicie el salvapantallas. Cuando se ha cerrado una cartera será necesario volver a introducir la contraseña para acceder a ella de nuevo.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Cerrar cuando la última aplicación deje de usarla</guilabel
+></term>
+<listitem>
+<para
+>Cerrar la cartera en cuanto se cierren las aplicaciones que la están usando. Tenga en cuenta que sus carteras solo se cerrarán cuando termine todas las aplicaciones que la están usando. Tras cerrar una cartera será necesario volver a introducir la contraseña para acceder a ella de nuevo.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title
+><guilabel
+>Selección automática de cartera</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Seleccione la cartera que se usará por omisión:</guilabel
+></term>
+<listitem>
+<para
+>Seleccione la cartera que desea usar por omisión. Tenga en cuenta que solo la cartera llamada <guilabel
+>kdewallet</guilabel
+> se abrirá de forma automática cuando inicie sesión, si dicha cartera y su contraseña de inicio de sesión son idénticas. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Cartera distinta para las contraseñas locales:</guilabel
+></term>
+<listitem>
+<para
+>Si está marcado, seleccione una cartera distinta para las contraseñas locales.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title
+><guilabel
+>Administrador de cartera</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Mostrar el administrador en la bandeja del sistema</guilabel
+></term>
+<listitem>
+<para
+>Activar el icono del administrador de carteras en la bandeja del sistema.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Ocultar el icono de la bandeja del sistema cuando se cierre la última cartera</guilabel
+></term>
+<listitem>
+<para
+>Eliminar el icono de la cartera de la bandeja del sistema cuando no se esté usando ninguna cartera.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Por último, existe un botón con la etiqueta <guibutton
+>Iniciar el gestor de carteras</guibutton
+> que hace precisamente eso.</para>
+<para
+>Este botón es visible solo si &kwalletmanager5; no está en ejecución</para>
+</sect1>
+
+<sect1 id="wallet-access-control">
+<title
+>Control de acceso</title>
+
+<para
+>Solo hay una opción en esta página:</para>
+
+<variablelist>
+<varlistentry>
+<term
+><guilabel
+>Preguntar cuando una aplicación accede a una cartera</guilabel
+></term>
+<listitem>
+<para
+>Advertirle cuando una aplicación accede a una cartera.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Sigue una vista de árbol de los controles de acceso para sus carteras.</para>
+
+<screenshot>
+<screeninfo
+>Control de acceso</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-access-control.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Control de acceso</phrase>
+</textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Haga clic con el &LMB; sobre el símbolo <guiicon
+>&gt;</guiicon
+> que hay al lado del nombre de una cartera para expandir el árbol. Verá el nombre de cada aplicación que ha solicitado acceder a la cartera, y la política que ha establecido para ella. No podrá editar las políticas aquí, ni añadirlas, pero es posible eliminar una entrada haciendo clic con el &RMB; sobre ella y seleccionando <guimenuitem
+>Eliminar</guimenuitem
+> del menú de contexto que aparece, o simplemente seleccionándola y pulsando la tecla <keysym
+>Supr</keysym
+>.</para>
+
+<para
+>Una aplicación a la que se le ha permitido el acceso a una cartera tiene permiso para acceder a todas las contraseñas que contiene.</para>
+
+<para
+>Si ha configurado erróneamente una aplicación para que no use &kwallet5;, borre aquí la política para dicha aplicación.</para>
+<!-- FIXME difference to Revoke Authorization in kwallermanager?-->
+<para
+>En el siguiente arranque de esta aplicación, usted puede definir una nueva política para acceder a la cartera. </para>
+<screenshot>
+<screeninfo
+>Petición de acceso para abrir una cartera</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="application-request-to-open-wallet.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Petición de acceso para abrir una cartera</phrase>
+</textobject>
+<caption
+><para
+>Una aplicación pidiendo acceso a una cartera</para
+></caption>
+</mediaobject>
+</screenshot>
+
+</sect1>
+
+</chapter>
+
+<chapter id="advanced-features">
+<title
+>Características avanzadas</title>
+
+<para
+>Puede arrastrar las carteras desde la ventana de &kwalletmanager5;. Esto le permite soltarlas sobre una ventana del navegador de archivos, donde podrá elegir entre copiarla, moverla o enlazarla.</para>
+
+<para
+>Puede usar esto para guardar una cartera en un medio portable, como un lápiz de memoria USB, de modo que pueda llevar sus contraseñas a su trabajo o cuando está de vacaciones para seguir teniendo un cómodo acceso a lugares importantes.</para>
+
+</chapter>
+
+<chapter id="credits-and-license">
+<title
+>Créditos y licencia</title>
+
+<para
+>&kwallet5; &copy; 2003 &George.Staikos;</para>
+<para
+>Documentación &copy; &Lauri.Watts; y &George.Staikos;</para>
+
+<para
+>Traducido por Eloy Cuadra <email
+>ecuadra@eloihr.net</email
+></para
+> &underFDL; &underGPL; </chapter>
+
+&documentation.index;
+
+</book>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+
+// vim:ts=2:sw=2:tw=78:noet
+-->

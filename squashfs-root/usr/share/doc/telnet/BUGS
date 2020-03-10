@@ -1,0 +1,24 @@
+telnet:
+	- will apparently sometimes assert in ungetch. I think I've
+	  fixed this, so if you still see it let me know.
+	- hangs if you telnet to chargen port and push ^Z 
+	  (due to bogus protocol negotiation attempts)
+	- binary mode doesn't handle crlf right
+	- should warn if the connection isn't encrypted
+
+telnetd:
+	- hangs if you do the following:
+		telnet
+		log in
+		cat >/dev/null
+		type 256 'a's with no CRs
+	    *THIS IS A KERNEL BUG*  Patch enclosed.
+	
+	- crashes in ncurses if the terminal type is undefined,
+	  with some versions of ncurses.
+	- should allow passing random user envs as "TELNET_*"
+	- should set REMOTEHOST to the remote hostname
+	- passes login the -p flag instead of sending envs explicitly
+	- should only use included logout() et al. if real ones aren't 
+	  available in system libs.
+	- addarg() in sys_term.c does some very questionable casts.

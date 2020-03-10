@@ -1,0 +1,28 @@
+#!/bin/sh -e
+
+### BEGIN INIT INFO
+# Provides:          discover
+# Required-Start:    mountvirtfs checkroot $local_fs
+# Required-Stop: 
+# Default-Start:     S 1 2 3 4 5
+# Default-Stop:      0 6
+### END INIT INFO
+
+# $Progeny$
+
+test -x /sbin/discover-modprobe || exit 0
+
+case "$1" in
+start|restart)
+    if [ "$VERBOSE" = "no" ] ; then
+       discover-modprobe
+    else
+       discover-modprobe -v
+    fi
+    ;;
+stop|reload|force-reload)
+    exit 0
+    ;;
+*)  echo "usage: /etc/init.d/discover [start|stop|force-reload]"
+    exit 1
+esac

@@ -1,0 +1,80 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      type="topic" style="task"
+      id="dconf-keyfiles">
+
+  <info>
+    <link type="guide" xref="setup" />
+<!--    <link type="seealso" xref="dconf-profiles" />-->
+    <revision pkgversion="3.9" date="2013-08-06" status="stub"/>
+
+    <credit type="author copyright">
+      <name>Ryan Lortie</name>
+      <email>desrt@desrt.ca</email>
+      <years>2012</years>
+    </credit>
+    <credit type="author">
+      <name>Aruna Sankaranarayanan</name>
+      <email>aruna.evam@gmail.com</email>
+    </credit>
+
+    <include href="legal.xml" xmlns="http://www.w3.org/2001/XInclude"/>
+
+    <desc>Use <sys its:translate="no">dconf</sys> <em>keyfiles</em> to
+    configure specific settings with a text editor.</desc>
+  </info>
+
+  <title>Control system settings with keyfiles</title>
+
+  <comment>
+    <cite date="2013-08-06" href="mailto:mdhillca@gmail.com">Michael Hill</cite>
+    <p>Separate page incorporating description from dconf.page.stub and
+    paragraph from dconf-favorite-applications#all-users, but including an
+    example?</p>
+
+    <p>To support the ability to configure the system with a text editor, 
+    <sys its:translate="no">dconf</sys> has introduced
+    <em>keyfile directories</em>. For any given system database, a corresponding
+    directory can be created (with ".d" added to the filename, for example
+    <file>/etc/dconf/db/local.d</file>).</p>
+  </comment>
+
+  <p>System database files, located in
+  <file its:translate="no">/etc/dconf/db</file>, cannot be edited because
+  they are written in GVDB format. In order to change system settings using a
+  text editor, you can modify <em>keyfiles</em> found in
+  <em>keyfile directories</em>. Each keyfile directory corresponds to a
+  particular system database file, and has the same name as the database file
+  with a “.d” extension appended (for example,
+  <file>/etc/dconf/db/local.d</file>). All keyfile directories are found in
+  <file its:translate="no">/etc/dconf/db</file>, and each one contains keyfiles
+  in a special format that can be compiled into the
+  <sys its:translate="no">dconf</sys> database.</p>
+
+  <listing>
+    <title>A keyfile in this directory will look something like this:</title>
+      <code>
+# Some useful default settings for our site
+
+[system/proxy/http]
+host='172.16.0.1'
+enabled=true
+
+[org/gnome/desktop/background]
+picture-uri='file:///usr/local/rupert-corp/company-wallpaper.jpeg'
+      </code>
+  </listing>
+
+  <note style="important">
+    <p><cmd>dconf update</cmd> must be run whenever you modify a keyfile.
+    When you do this, <sys its:translate="no">dconf</sys> compares the
+    timestamp on a system database file with the timestamp on the corresponding
+    keyfile directory. If the timestamp on the keyfile directory is more
+    recent than the one on the database file,
+    <sys its:translate="no">dconf</sys> regenerates the
+    <code>system-db</code> file and sends a notification to the system
+    <sys>Dbus</sys>, which in turn notifies all running applications to
+    reread their settings.</p>
+  </note>
+
+</page>

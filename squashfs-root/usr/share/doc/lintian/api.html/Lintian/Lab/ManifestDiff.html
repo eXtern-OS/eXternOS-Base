@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Lab::ManifestDiff</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#METHODS'>METHODS</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Lab::ManifestDiff -- Difference representation between two Manifests</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre> use Lintian::Lab::Manifest;
+ 
+ my $olist = Lintian::Lab::Manifest-&#62;new (&#39;binary&#39;);
+ my $nlist = Lintian::Lab::Manifest-&#62;new (&#39;binary&#39;);
+ $olist-&#62;read_list (&#39;old/binary-packages&#39;);
+ $nlist-&#62;read_list (&#39;new/binary-packages&#39;);
+ my $diff = $olist-&#62;diff($nlist);
+ foreach my $added (@{ $diff-&#62;added }) {
+    my $entry = $nlist-&#62;get (@$added);
+    # do something
+ }
+ foreach my $removed (@{ $diff-&#62;removed }) {
+    my $entry = $olist-&#62;get (@$removed);
+    # do something
+ }
+ foreach my $changed (@{ $diff-&#62;changed }) {
+    my $oentry = $olist-&#62;get (@$changed);
+    my $nentry = $nlist-&#62;get (@$changed);
+    # use/diff $oentry and $nentry as needed
+ }</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Instances of this class provides access to the packages list used by the Lab as caches.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="METHODS"
+>METHODS</a></h1>
+
+<dl>
+<dt><a name="$diff-&#62;added"
+>$diff-&#62;added</a></dt>
+
+<dd>
+<p>Returns a listref containing the keys of the elements that has been added.</p>
+
+<p>Each element is a listref of keys; this list (when dereferenced) can be used with the manifest&#39;s get method to look up the item.</p>
+
+<dt><a name="$diff-&#62;removed"
+>$diff-&#62;removed</a></dt>
+
+<dd>
+<p>Returns a listref containing the keys of the elements that has been removed.</p>
+
+<p>Each element is a listref of keys; this list (when dereferenced) can be used with the manifest&#39;s get method to look up the item.</p>
+
+<dt><a name="$diff-&#62;changed"
+>$diff-&#62;changed</a></dt>
+
+<dd>
+<p>Returns a listref containing the keys of the elements that has been changed.</p>
+
+<p>Each element is a listref of keys; this list (when dereferenced) can be used with the manifest&#39;s get method to look up the item.</p>
+
+<dt><a name="$diff-&#62;nlist"
+>$diff-&#62;nlist</a></dt>
+
+<dd>
+<p>Returns the &#34;new&#34; manifest used to create this diff. Note the manifest is not copied and may have been changed since the diff has been created.</p>
+
+<dt><a name="$diff-&#62;olist"
+>$diff-&#62;olist</a></dt>
+
+<dd>
+<p>Returns the &#34;orig&#34; manifest used to create this diff. Note the manifest is not copied and may have been changed since the diff has been created.</p>
+</dd>
+</dl>
+
+<p>Originally written by Niels Thykier &#60;niels@thykier.net&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1)</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

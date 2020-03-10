@@ -1,0 +1,267 @@
+#!/bin/sh
+#
+# check-requirements: verify all the required iptables functionality is
+# available
+#
+# Copyright 2008-2014 Canonical Ltd.
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License version 3,
+#    as published by the Free Software Foundation.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+set -e
+
+chain="ufw-check-requirements"
+error=""
+error_runtime=""
+
+runcmd() {
+    runtime="no"
+    if [ "$1" = "runtime" ]; then
+        runtime="yes"
+        shift 1
+    fi
+    local output ret=0
+    # make sure to always return success below because of set -e
+    output=$( "$@" 2>&1 ) || ret=$?
+    if [ $ret -eq 0 ]; then
+        echo pass
+    else
+        if [ "$runtime" = "yes" ]; then
+            echo "FAIL (no runtime support)"
+            echo "error was: $output"
+            error_runtime="yes"
+        else
+            echo FAIL
+            echo "error was: $output"
+            error="yes"
+        fi
+    fi
+}
+
+# check python
+found_python="no"
+echo -n "Has python: "
+for exe in python2.7 python2.6 python2.5 python3.2 python3.3 python3.4 python3.5 python python3 ; do
+    if ! which $exe >/dev/null 2>&1; then
+        continue
+    fi
+    v=`$exe --version 2>&1 | cut -f 2 -d ' '`
+    if echo "$v" | grep -q "^2.[567]"; then
+        echo "pass (binary: $exe, version: $v, py2)"
+        found_python="yes"
+        break
+    elif echo "$v" | grep -q "^3.[234]"; then
+        echo "pass (binary: $exe, version: $v, py3)"
+        found_python="yes"
+        break
+    fi
+done
+if [ "$found_python" != "yes" ]; then
+    echo "ERROR: could not find valid python" >&2
+    error="yes"
+fi
+
+
+# check binaries
+for i in "" 6; do
+    exe="iptables"
+    if [ "$i" = "6" ]; then
+        exe="ip6tables"
+    fi
+
+    echo -n "Has $exe: "
+    if ! which $exe >/dev/null 2>&1; then
+        echo "ERROR: could not find '$exe'" >&2
+        error="yes"
+    else
+        echo "pass"
+    fi
+done
+
+if [ -n "$error" ]; then
+    exit 1
+fi
+echo ""
+
+# check /proc
+for i in /proc/net/dev /proc/net/if_inet6; do
+    echo -n "Has $i: "
+    if [ ! -e "$i" ]; then
+        echo "no"
+        error="yes"
+    else
+        echo "pass"
+    fi
+done
+if [ -n "$error" ]; then
+    exit 1
+fi
+echo ""
+
+echo "This script will now attempt to create various rules using the iptables"
+echo "and ip6tables commands. This may result in module autoloading (eg, for"
+echo "IPv6)."
+if [ "$1" != "-f" ]; then
+    echo -n "Proceed with checks (Y/n)? "
+    read ans
+    if [ "$ans" = "n" ] || [ "$ans" = "N" ] || [ "$ans" = "no" ]; then
+        echo "Aborting"
+        exit 1
+    fi
+fi
+
+# check modules
+for i in "" 6; do
+    exe="iptables"
+    c="${chain}"
+    ipv="4"
+    if [ "$i" = "6" ]; then
+        exe="ip6tables"
+        c="${chain}6"
+        ipv="6"
+    fi
+
+    if [ "$i" = "6" ]; then
+        echo "== IPv6 =="
+    else
+        echo "== IPv4 =="
+    fi
+
+    echo -n "Creating '$c'... "
+    $exe -N "$c" || {
+        echo "ERROR: could not create '$c'. Aborting" >&2
+        error="yes"
+        break
+    }
+    echo "done"
+
+    # set up a RETURN rule right at the top, so we don't open anything up when
+    # running the script. Isn't attached to INPUT, but better safe than sorry.
+    echo -n "Inserting RETURN at top of '$c'... "
+    $exe -I "$c" -j RETURN || {
+        echo "ERROR: could insert RETURN rule into '$c'. Aborting" >&2
+        error="yes"
+        break
+    }
+    echo "done"
+
+    echo -n "TCP: "
+    runcmd $exe -A $c -p tcp -j ACCEPT
+
+    echo -n "UDP: "
+    runcmd $exe -A $c -p udp -j ACCEPT
+
+    echo -n "destination port: "
+    runcmd $exe -A $c -p tcp --dport 22 -j ACCEPT
+
+    echo -n "source port: "
+    runcmd $exe -A $c -p tcp --sport 22 -j ACCEPT
+
+    for j in ACCEPT DROP REJECT LOG; do
+        echo -n "$j: "
+        runcmd $exe -A $c -p tcp --sport 23 -j $j
+    done
+
+    echo -n "hashlimit: "
+    runcmd $exe -A $c -m hashlimit -m tcp -p tcp --dport 22 --hashlimit 1/min --hashlimit-mode srcip --hashlimit-name ssh -m conntrack --ctstate NEW -j ACCEPT
+
+    echo -n "limit: "
+    runcmd $exe -A $c -m limit --limit 3/min --limit-burst 10 -j ACCEPT
+
+    for j in NEW RELATED ESTABLISHED INVALID; do
+        echo -n "ctstate ($j): "
+        runcmd $exe -A $c -m conntrack --ctstate $j
+    done
+
+    echo -n "ctstate (new, recent set): "
+    runcmd runtime $exe -A $c -m conntrack --ctstate NEW -m recent --set
+
+    echo -n "ctstate (new, recent update): "
+    runcmd runtime $exe -A $c -m conntrack --ctstate NEW -m recent --update --seconds 30 --hitcount 6 -j ACCEPT
+
+    echo -n "ctstate (new, limit): "
+    runcmd $exe -A $c -m conntrack --ctstate NEW -m limit --limit 3/min --limit-burst 10 -j ACCEPT
+
+    echo -n "interface (input): "
+    runcmd $exe -A $c -i eth0 -j ACCEPT
+
+    echo -n "interface (output): "
+    runcmd $exe -A $c -o eth0 -j ACCEPT
+
+    echo -n "multiport: "
+    runcmd $exe -A $c -p tcp -m multiport --dports 80,443,8080:8090 -j ACCEPT
+
+    echo -n "comment: "
+    runcmd $exe -A $c -m comment --comment 'dapp_Samba'
+
+    if [ -z "$i" ]; then
+        for j in LOCAL MULTICAST BROADCAST; do
+            echo -n "addrtype ($j): "
+            runcmd $exe -A $c -m addrtype --dst-type $j -j RETURN
+        done
+
+        for j in destination-unreachable source-quench time-exceeded parameter-problem echo-request; do
+            echo -n "icmp ($j): "
+            runcmd $exe -A $c -p icmp --icmp-type $j -j ACCEPT
+        done
+    else
+        for j in destination-unreachable packet-too-big time-exceeded parameter-problem echo-request; do
+            echo -n "icmpv6 ($j): "
+            runcmd $exe -A $c -p icmpv6 --icmpv6-type $j -j ACCEPT
+        done
+
+        for j in neighbor-solicitation neighbor-advertisement router-solicitation router-advertisement; do
+            echo -n "icmpv6 with hl ($j): "
+            runcmd $exe -A $c -p icmpv6 --icmpv6-type $j -m hl --hl-eq 255 -j ACCEPT
+        done
+
+        echo -n "ipv6 rt: "
+        runcmd $exe -A $c -m rt --rt-type 0 -j ACCEPT
+    fi
+
+    echo ""
+done
+
+# cleanup
+for i in "" 6; do
+    exe="iptables"
+    c="${chain}"
+    if [ "$i" = "6" ]; then
+        exe="ip6tables"
+        c="${chain}6"
+    fi
+    $exe -F $c >/dev/null 2>&1 || {
+        if [ -z "$error" ]; then
+            echo "ERROR: could not flush '$c'" >&2
+            error="yes"
+        fi
+    }
+    $exe -X $c >/dev/null 2>&1 || {
+        if [ -z "$error" ]; then
+            error="yes"
+            echo "ERROR: could not remove '$c'" >&2
+        fi
+    }
+done
+
+if [ -n "$error" ] || [ -n "$error_runtime" ]; then
+    if [ -n "$error" ]; then
+        echo "FAIL: check your kernel and that you have iptables >= 1.4.0"
+    fi
+    if [ -n "$error_runtime" ]; then
+        echo "FAIL: check your kernel and iptables for additional runtime support"
+    fi
+    exit 1
+fi
+echo "All tests passed"
+exit 0
+

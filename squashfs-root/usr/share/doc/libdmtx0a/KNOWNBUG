@@ -1,0 +1,44 @@
+Bugs in libdmtx
+-----------------------------------------------------------------
+
+1. libdtmx - Core Library
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+While regular encoder works fine, the optimizer feature (--best)
+still occasionally generates codeword sequences that are not 100%
+legal according to the ISO specification.  Everything still
+appears to decode properly, but until I have time to go through
+every corner case and validate the behavior this will be treated
+as an experimental feature.  For now dmtxwrite will encode using
+a straight ASCII scheme by default.
+
+Data Mosaic encoding doesn't produce output for certain sizes:
+
+   $ echo -n foo | dmtxwrite -M    <-- works
+   $ echo -n fooo | dmtxwrite -M   <-- doesn't work
+   $ echo -n foooo | dmtxwrite -M  <-- works
+
+
+2. Test Programs
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+multi_test:
+  * No known issues (not included in general download)
+
+rotate_test:
+  * No known issues (not included in general download)
+
+simple_test:
+  * No known issues
+
+unit_test:
+  * Missing files   (not included in general download)
+
+
+3. Scripts in the script directory
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+The check_headers.pl script verifies that every function has
+a correctly-formed header comment.  But the test condition is
+currently pretty simple, and does not test the first function
+appearing in each file.

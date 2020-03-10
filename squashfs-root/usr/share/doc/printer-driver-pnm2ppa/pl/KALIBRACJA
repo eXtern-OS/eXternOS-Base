@@ -1,0 +1,35 @@
+XXX
+XXX	Uwaga, Uwaga: Tak naprawdê, to mo¿e nie dzia³aæ...
+XXX	Spróbuj sam, mo¿e Tobie siê uda...
+XXX
+
+	Kalibracja (ustawianie) pnm2ppa dla Twojej drukarki
+
+Zanim zaczniesz drukowanie powiniene¶ skalibrowaæ drukarkê. Mo¿na to zrobiæ
+u¿ywaj±c programu 'calibrate'. Proces ustawiania polega na wydrukowaniu strony
+testowej o maksymalnym rozmiarze. Ca³a zabawa polega na takich ustawieniach
+marginesu w pliku konfiguracyjnym, aby ca³a strona by³a wydrukowana w ca³o¶ci.
+
+Program 'calibrate' jest prosty jak drut. Wyrzuca na wyj¶cie wzór testowy w formacie
+pbmraw. Gdy skierujemy to co wypluje 'calibrate' do programu pnm2ppa przy u¿yciu komendy:
+
+  calibrate | pnm2ppa > /dev/lp1
+      ( jako <root> )
+
+      - lub -
+
+    calibrate | pnm2ppa | lpr -l
+      ( je¶li Twoj filtr drukarki rozpoznaje parametr '-l')
+
+	Wydrukowana strona powinna zawieraæ siatkê oraz liczby okre¶laj±ce wspó³rzêdne
+pikseli. Na nieszczê¶cie pierwsze wydruki obcinaj± wydrukowan± stronê przy brzegach
+strony. Je¶li tak siê dzieje powiniene¶ ustaliæ marginesy w pliku konfiguracyjnym
+/etc/pnm2ppa.conf. Podane tam warto¶ci podane s± w jednostkach punktów na cal. Czyli
+je¶li podamy tam warto¶æ np. 100, bêdzie to 100/600 cala (rozdzielczo¶æ druku 600dpi)
+czyli 1/6cala. Je¶li szczê¶liwie uda Ci siê znale¼æ odpowiednie warto¶ci to mo¿esz je
+wpisaæ na trzy sposoby: [1]do pliku konfiguracyjnego, [2] do pliku "global.h" i
+przekompilowaæ ca³y program, [3] u¿ywaj±c parametrów '-x', '-y' przy uruchamianiu
+programu. (osobi¶cie polecam rozwi±zanie [2]). Je¶li wszystko jest odpowiednio ustawione
+to wydruk testowy powinien byæ na ¶rodku kartki. Marginesy prawdopodobnie powinny byæ nie
+wiêksze ni¿ 1/4 cala bez efektu 'ucinania strony'.
+

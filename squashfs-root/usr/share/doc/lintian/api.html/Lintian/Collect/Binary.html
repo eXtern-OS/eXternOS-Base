@@ -1,0 +1,375 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Collect::Binary</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#CLASS_METHODS'>CLASS METHODS</a>
+  <li class='indexItem indexItem1'><a href='#INSTANCE_METHODS'>INSTANCE METHODS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Collect::Binary - Lintian interface to binary package data collection</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre>    my ($name, $type, $dir) = (&#39;foobar&#39;, &#39;binary&#39;, &#39;/path/to/lab-entry&#39;);
+    my $collect = Lintian::Collect-&#62;new ($name, $type, $dir);
+    if ($collect-&#62;native) {
+        print &#34;Package is native\n&#34;;
+    }</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Lintian::Collect::Binary provides an interface to package data for binary packages. It implements data collection methods specific to binary packages.</p>
+
+<p>This module is in its infancy. Most of Lintian still reads all data from files in the laboratory whenever that data is needed and generates that data via collect scripts. The goal is to eventually access all data about binary packages via this module so that the module can cache data where appropriate and possibly retire collect scripts in favor of caching that data in memory.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS_METHODS"
+>CLASS METHODS</a></h1>
+
+<dl>
+<dt><a name="new_(PACKAGE)"
+>new (PACKAGE)</a></dt>
+
+<dd>
+<p>Creates a new Lintian::Collect::Binary object. Currently, PACKAGE is ignored. Normally, this method should not be called directly, only via the <a href="../../Lintian/Collect.html" class="podlinkpod"
+>Lintian::Collect</a> constructor.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="INSTANCE_METHODS"
+>INSTANCE METHODS</a></h1>
+
+<p>In addition to the instance methods listed below, all instance methods documented in the <a href="../../Lintian/Collect.html" class="podlinkpod"
+>Lintian::Collect</a> and the <a href="../../Lintian/Collect/Package.html" class="podlinkpod"
+>Lintian::Collect::Package</a> modules are also available.</p>
+
+<dl>
+<dt><a name="native"
+>native</a></dt>
+
+<dd>
+<p>Returns true if the binary package is native and false otherwise. Nativeness will be judged by the source version number.</p>
+
+<p>If the version number is absent, this will return false (as native packages are a lot rarer than non-native ones).</p>
+
+<p>Needs-Info requirements for using <i>native</i>: <a href="../../Lintian/Collect.html#field_(%5BFIELD%5B%2C_DEFAULT%5D%5D)" class="podlinkpod"
+>Same as field</a></p>
+
+<dt><a name="changelog"
+>changelog</a></dt>
+
+<dd>
+<p>Returns the changelog of the binary package as a Parse::DebianChangelog object, or undef if the changelog doesn&#39;t exist. The changelog-file collection script must have been run to create the changelog file, which this method expects to find in <em>changelog</em>.</p>
+
+<p>Needs-Info requirements for using <i>changelog</i>: changelog-file</p>
+
+<dt><a name="control_([FILE])"
+>control ([FILE])</a></dt>
+
+<dd>
+<p><b>This method is deprecated</b>. Consider using <a href="#control_index_resolved_path(PATH)" class="podlinkpod"
+>&#34;control_index_resolved_path(PATH)&#34;</a> instead, which returns <a href="../../Lintian/Path.html" class="podlinkpod"
+>Lintian::Path</a> objects.</p>
+
+<p>Returns the path to FILE in the control.tar.gz. FILE must be either a <a href="../../Lintian/Path.html" class="podlinkpod"
+>Lintian::Path</a> object (&#62;= 2.5.13~) or a string denoting the requested path. In the latter case, the path must be relative to the root of the control.tar.gz member and should be normalized.</p>
+
+<p>It is not permitted for FILE to be <code>undef</code>. If the &#34;root&#34; dir is desired either invoke this method without any arguments at all, pass it the correct <a href="../../Lintian/Path.html" class="podlinkpod"
+>Lintian::Path</a> or the empty string.</p>
+
+<p>To get a list of entries in the control.tar.gz or the file meta data of the entries (as <a href="../../Lintian/Path.html" class="podlinkpod"
+>path objects</a>), see <a href="#sorted_control_index" class="podlinkpod"
+>&#34;sorted_control_index&#34;</a> and <a href="#control_index_(FILE)" class="podlinkpod"
+>&#34;control_index (FILE)&#34;</a>.</p>
+
+<p>The caveats of <a href="../../Lintian/Collect/Package.html#unpacked_(%5BFILE%5D)" class="podlinkpod"
+>unpacked</a> also apply to this method. However, as the control.tar.gz is not known to contain symlinks, a simple file type check is usually enough.</p>
+
+<p>Needs-Info requirements for using <i>control</i>: bin-pkg-control</p>
+
+<dt><a name="control_index_(FILE)"
+>control_index (FILE)</a></dt>
+
+<dd>
+<p>Returns a <a href="../../Lintian/Path.html" class="podlinkpod"
+>path object</a> to FILE in the control.tar.gz. FILE must be relative to the root of the control.tar.gz and must be without leading slash (or &#34;./&#34;). If FILE is not in the control.tar.gz, it returns <code>undef</code>.</p>
+
+<p>To get a list of entries in the control.tar.gz, see <a href="#sorted_control_index" class="podlinkpod"
+>&#34;sorted_control_index&#34;</a>. To actually access the underlying file (e.g. the contents), use <a href="#control_(%5BFILE%5D)" class="podlinkpod"
+>&#34;control ([FILE])&#34;</a>.</p>
+
+<p>Note that the &#34;root directory&#34; (denoted by the empty string) will always be present, even if the underlying tarball omits it.</p>
+
+<p>Needs-Info requirements for using <i>control_index</i>: bin-pkg-control</p>
+
+<dt><a name="sorted_control_index"
+>sorted_control_index</a></dt>
+
+<dd>
+<p>Returns a sorted array of file names listed in the control.tar.gz. The names will not have a leading slash (or &#34;./&#34;) and can be passed to <a href="#control_(%5BFILE%5D)" class="podlinkpod"
+>&#34;control ([FILE])&#34;</a> or <a href="#control_index_(FILE)" class="podlinkpod"
+>&#34;control_index (FILE)&#34;</a> as is.</p>
+
+<p>The array will not contain the entry for the &#34;root&#34; of the control.tar.gz.</p>
+
+<p>Needs-Info requirements for using <i>sorted_control_index</i>: <a href="#control_index_(FILE)" class="podlinkpod"
+>Same as control_index</a></p>
+
+<dt><a name="control_index_resolved_path(PATH)"
+>control_index_resolved_path(PATH)</a></dt>
+
+<dd>
+<p>Resolve PATH (relative to the root of the package) and return the <a href="../../Lintian/Path.html" class="podlinkpod"
+>entry</a> denoting the resolved path.</p>
+
+<p>The resolution is done using <a href="../../Lintian/Path.html#resolve_path(%5BPATH%5D)" class="podlinkpod"
+>resolve_path</a>.</p>
+
+<p>Needs-Info requirements for using <i>control_index_resolved_path</i>: <a href="#control_index_(FILE)" class="podlinkpod"
+>Same as control_index</a></p>
+
+<dt><a name="strings_(FILE)"
+>strings (FILE)</a></dt>
+
+<dd>
+<p>Returns an open handle, which will read the data from coll/strings for FILE. If coll/strings did not collect any strings about FILE, this returns an open read handle with no content.</p>
+
+<p>Caller is responsible for closing the handle either way.</p>
+
+<p>Needs-Info requirements for using <i>strings</i>: strings</p>
+
+<dt><a name="scripts"
+>scripts</a></dt>
+
+<dd>
+<p>Returns a hashref mapping a FILE to its script/interpreter information (if FILE is a script). If FILE is not a script, it is not in the hash (and callers should use exists to test membership to ensure this invariant holds).</p>
+
+<p>The value for a given FILE consists of a table with the following keys (and associated value):</p>
+
+<dl>
+<dt><a name="calls_env"
+>calls_env</a></dt>
+
+<dd>
+<p>Returns a truth value if the script uses env (/usr/bin/env or /bin/env) in the &#34;#!&#34;. Otherwise it is <code>undef</code>.</p>
+
+<dt><a name="interpreter"
+>interpreter</a></dt>
+
+<dd>
+<p>This is the interpreter used. If calls_env is true, this will be the first argument to env. Otherwise it will be the command listed after the &#34;#!&#34;.</p>
+
+<p>NB: Some template files have &#34;#!&#34; lines like &#34;#!@PERL@&#34; or &#34;#!perl&#34;. In this case, this value will be @PERL@ or perl (respectively).</p>
+
+<dt><a name="name"
+>name</a></dt>
+
+<dd>
+<p>Return the file name of the script. This will be identical to key to look up this table.</p>
+</dd>
+</dl>
+
+<p>Needs-Info requirements for using <i>scripts</i>: scripts</p>
+
+<dt><a name="objdump_info"
+>objdump_info</a></dt>
+
+<dd>
+<p>Returns a hashref mapping a FILE to the data collected by objdump-info or <code>undef</code> if no data is available for that FILE. Data is generally only collected for ELF files.</p>
+
+<p>Needs-Info requirements for using <i>objdump_info</i>: objdump-info</p>
+
+<dt><a name="hardening_info"
+>hardening_info</a></dt>
+
+<dd>
+<p>Returns a hashref mapping a FILE to its hardening issues.</p>
+
+<p>NB: This is generally only useful for checks/binaries to emit the hardening-no-* tags.</p>
+
+<p>Needs-Info requirements for using <i>hardening_info</i>: hardening-info</p>
+
+<dt><a name="java_info"
+>java_info</a></dt>
+
+<dd>
+<p>Returns a hashref containing information about JAR files found in binary packages, in the form <i>file name</i> -&#62; <i>info</i>, where <i>info</i> is a hash containing the following keys:</p>
+
+<dl>
+<dt><a name="manifest"
+>manifest</a></dt>
+
+<dd>
+<p>A hash containing the contents of the JAR file manifest. For instance, to find the classpath of <i>$file</i>, you could use:</p>
+
+<pre> if (exists $info-&#62;java_info-&#62;{$file}{&#39;manifest&#39;}) {
+     my $cp = $info-&#62;java_info-&#62;{$file}{&#39;manifest&#39;}{&#39;Class-Path&#39;};
+     # ...
+ }</pre>
+
+<p>NB: Not all jar files have a manifest. For those without, this will value will not be available. Use exists (rather than defined) to check for it.</p>
+
+<dt><a name="files"
+>files</a></dt>
+
+<dd>
+<p>A table of the files in the JAR. Each key is a file name and its value is its &#34;Major class version&#34; for Java or &#34;-&#34; if it is not a class file.</p>
+
+<dt><a name="error"
+>error</a></dt>
+
+<dd>
+<p>If it exists, this is an error that occurred during reading of the zip file. If it exists, it is unlikely that the other fields will be present.</p>
+</dd>
+</dl>
+
+<p>Needs-Info requirements for using <i>java_info</i>: java-info</p>
+
+<dt><a name="relation_(FIELD)"
+>relation (FIELD)</a></dt>
+
+<dd>
+<p>Returns a <a href="../../Lintian/Relation.html" class="podlinkpod"
+>Lintian::Relation</a> object for the specified FIELD, which should be one of the possible relationship fields of a Debian package or one of the following special values:</p>
+
+<dl>
+<dt><a name="all"
+>all</a></dt>
+
+<dd>
+<p>The concatenation of Pre-Depends, Depends, Recommends, and Suggests.</p>
+
+<dt><a name="strong"
+>strong</a></dt>
+
+<dd>
+<p>The concatenation of Pre-Depends and Depends.</p>
+
+<dt><a name="weak"
+>weak</a></dt>
+
+<dd>
+<p>The concatenation of Recommends and Suggests.</p>
+</dd>
+</dl>
+
+<p>If FIELD isn&#39;t present in the package, the returned Lintian::Relation object will be empty (always satisfied and implies nothing).</p>
+
+<p>Needs-Info requirements for using <i>relation</i>: <a href="../../Lintian/Collect.html#field_(%5BFIELD%5B%2C_DEFAULT%5D%5D)" class="podlinkpod"
+>Same as field</a></p>
+
+<dt><a name="is_pkg_class_([TYPE])"
+>is_pkg_class ([TYPE])</a></dt>
+
+<dd>
+<p>Returns a truth value if the package is the given TYPE of special package. TYPE can be one of &#34;transitional&#34;, &#34;debug&#34; or &#34;any-meta&#34;. If omitted it defaults to &#34;any-meta&#34;. The semantics for these values are:</p>
+
+<dl>
+<dt><a name="transitional"
+>transitional</a></dt>
+
+<dd>
+<p>The package is (probably) a transitional package (e.g. it is probably empty, just depend on stuff will eventually disappear.)</p>
+
+<p>Guessed from package description.</p>
+
+<dt><a name="any-meta"
+>any-meta</a></dt>
+
+<dd>
+<p>This package is (probably) some kind of meta or task package. A meta package is usually empty and just depend on stuff. It will also return a truth value for &#34;tasks&#34; (i.e. tasksel &#34;tasks&#34;).</p>
+
+<p>A transitional package will also match this.</p>
+
+<p>Guessed from package description, section or package name.</p>
+
+<dt><a name="debug"
+>debug</a></dt>
+
+<dd>
+<p>The package is (probably) a package containing debug symbols.</p>
+
+<p>Guessed from the package name.</p>
+
+<dt><a name="auto-generated"
+>auto-generated</a></dt>
+
+<dd>
+<p>The package is (probably) a package generated automatically (e.g. a dbgsym package)</p>
+
+<p>Guessed from the &#34;Auto-Built-Package&#34; field.</p>
+</dd>
+</dl>
+
+<p>Needs-Info requirements for using <i>is_pkg_class</i>: <a href="../../Lintian/Collect.html#field_(%5BFIELD%5B%2C_DEFAULT%5D%5D)" class="podlinkpod"
+>Same as field</a></p>
+
+<dt><a name="is_conffile_(FILE)"
+>is_conffile (FILE)</a></dt>
+
+<dd>
+<p>Returns a truth value if FILE is listed in the conffiles control file. If the control file is not present or FILE is not listed in it, it returns <code>undef</code>.</p>
+
+<p>Note that FILE should be the filename relative to the package root (even though the control file uses absolute paths). If the control file does relative paths, they are assumed to be relative to the package root as well (and used without warning).</p>
+
+<p>Needs-Info requirements for using <i>is_conffile</i>: <a href="#control_index_resolved_path(PATH)" class="podlinkpod"
+>Same as control_index_resolved_path</a></p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Frank Lichtenheld &#60;djpig@debian.org&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1), <a href="../../Lintian/Collect.html" class="podlinkpod"
+>Lintian::Collect</a>, <a href="../../Lintian/Relation.html" class="podlinkpod"
+>Lintian::Relation</a></p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

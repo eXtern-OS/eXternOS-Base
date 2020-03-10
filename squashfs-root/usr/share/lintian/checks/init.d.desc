@@ -1,0 +1,392 @@
+Check-Script: init.d
+Author: Christian Schwarz <schwarz@debian.org>
+Abbrev: ini
+Type: binary
+Info: Check if a binary package conforms to policy with respect to
+ scripts in /etc/init.d.
+Needs-Info: bin-pkg-control, unpacked
+
+Tag: duplicate-updaterc.d-calls-in-postinst
+Severity: important
+Certainty: certain
+Info: The <tt>postinst</tt> script calls <tt>update-rc.d</tt> several
+ times for the same <tt>/etc/init.d</tt> script.
+
+Tag: output-of-updaterc.d-not-redirected-to-dev-null
+Severity: wishlist
+Certainty: certain
+Info: The output messages of the <tt>update-rc.d</tt> command should be
+ redirected to <tt>/dev/null</tt> because it is currently very chatty
+ per default.
+
+Tag: preinst-calls-updaterc.d
+Severity: important
+Certainty: certain
+Info: The <tt>preinst</tt> package calls <tt>update-rc.d</tt>. Instead,
+ you should call it in the <tt>postinst</tt> script.
+Ref: policy 9.3.3.1
+
+Tag: duplicate-updaterc.d-calls-in-postrm
+Severity: important
+Certainty: certain
+Info: The <tt>postrm</tt> script calls <tt>update-rc.d</tt> several
+ times for the same <tt>/etc/init.d</tt> script.
+
+Tag: prerm-calls-updaterc.d
+Severity: important
+Certainty: certain
+Info: The <tt>prerm</tt> package calls <tt>update-rc.d</tt>. Instead,
+ you should call it in the <tt>postrm</tt> script.
+Ref: policy 9.3.3.1
+
+Tag: postrm-does-not-call-updaterc.d-for-init.d-script
+Severity: important
+Certainty: certain
+Info: An <tt>/etc/init.d</tt> script which has been registered in the
+ <tt>postinst</tt> script is not de-registered in the
+ <tt>postrm</tt> script.
+Ref: policy 9.3.3.1
+
+Tag: postrm-contains-additional-updaterc.d-calls
+Severity: important
+Certainty: certain
+Info: The <tt>postrm</tt> de-registers an <tt>/etc/init.d</tt> script which
+ has not been registered in the <tt>postinst</tt> script before.
+
+Tag: init.d-script-not-marked-as-conffile
+Severity: important
+Certainty: wild-guess
+Ref: policy 9.3.2
+Info: <tt>/etc/init.d</tt> scripts should be marked as conffiles.
+ .
+ This is usually an error, but the Policy allows for managing these files
+ manually in maintainer scripts and Lintian cannot reliably detect that.
+
+Tag: init.d-script-does-not-implement-required-option
+Severity: important
+Certainty: certain
+Ref: policy 9.3.2
+Info: The <tt>/etc/init.d</tt> scripts have to support the following
+ command line arguments: start, stop, restart, force-reload.
+
+Tag: init.d-script-does-not-implement-optional-option
+Severity: wishlist
+Certainty: certain
+Ref: https://wiki.debian.org/LSBInitScripts
+Info: The <tt>/etc/init.d</tt> script does not implement the status
+ option.  This is not required by the Policy, but often requested by
+ users.
+
+Tag: init.d-script-not-included-in-package
+Severity: important
+Certainty: certain
+Info: The <tt>/etc/init.d</tt> script is registered in the
+ <tt>postinst</tt> script, but is not included in the package.
+
+Tag: script-in-etc-init.d-not-registered-via-update-rc.d
+Severity: normal
+Certainty: possible
+Info: The package installs an <tt>/etc/init.d</tt> script which is
+ not registered in the <tt>postinst</tt> script. This is usually a bug
+ (such as omitting the <tt>#DEBHELPER#</tt> token) unless you omit the links
+ intentionally for some reason or create the links some other way.
+
+Tag: upstart-job-in-etc-init.d-not-registered-via-update-rc.d
+Severity: normal
+Certainty: possible
+Info: The package installs an upstart-job in <tt>/etc/init.d</tt>
+ which is not registered in the <tt>postinst</tt> script. On
+ non-upstart systems this is usually a bug, unless you omit the links
+ intentionally for some reason or create the links some other way.
+ .
+ This tag should only be emitted for vendors that do not use upstart
+ by default (such as Debian).  If this tag is emitted by a vendor
+ using upstart (e.g. Ubuntu), it may be a misconfiguration of their
+ Lintian vendor profile.
+
+Tag: init.d-script-has-duplicate-lsb-section
+Severity: important
+Certainty: certain
+Ref: https://wiki.debian.org/LSBInitScripts
+Info: This <tt>/etc/init.d</tt> script has more than one LSB keyword
+ section.  These sections start with <tt>### BEGIN INIT INFO</tt> and end
+ with <tt>### END INIT INFO</tt>.  There should be only one such section
+ per init script.
+
+Tag: init.d-script-has-unterminated-lsb-section
+Severity: important
+Certainty: certain
+Ref: https://wiki.debian.org/LSBInitScripts
+Info: This <tt>/etc/init.d</tt> script has an LSB keyword section starting
+ with <tt>### BEGIN INIT INFO</tt> but either has no matching <tt>### END
+ INIT INFO</tt> or has lines between those two markers that are not
+ comments.  The line number given is the first line that doesn't look like
+ part of an LSB keyword section.  There must be an end marker after all
+ the keyword settings and there must not be any lines between those
+ markers that do not begin with <tt>#</tt>.
+
+Tag: init.d-script-has-duplicate-lsb-keyword
+Severity: normal
+Certainty: certain
+Ref: https://wiki.debian.org/LSBInitScripts
+Info: The given keyword was set twice in the LSB keyword section in this
+ <tt>/etc/init.d</tt> script.  This is probably a mistake; the behavior of
+ setting the same keyword twice is undefined.
+
+Tag: init.d-script-has-unknown-lsb-keyword
+Severity: minor
+Certainty: certain
+Ref: https://wiki.debian.org/LSBInitScripts
+Info: The given keyword was set in the LSB keyword section in this
+ <tt>/etc/init.d</tt> script but isn't one of the known LSB keywords and
+ doesn't begin with <tt>X-</tt>.  One of the standard keywords may have
+ been misspelled.
+
+Tag: init.d-script-has-bad-lsb-line
+Severity: normal
+Certainty: certain
+Ref: https://wiki.debian.org/LSBInitScripts
+Info: This line in the LSB keyword section of an <tt>/etc/init.d</tt>
+ script doesn't match the required formatting of that section.  Note that
+ keyword settings must start with <tt>#</tt>, a single space, the keyword,
+ a colon, and some whitespace, followed by the value (if any).  Only the
+ Description keyword allows continuation lines, and continuation lines
+ must begin with <tt>#</tt> and either a tab or two or more spaces.
+
+Tag: init.d-script-missing-lsb-section
+Severity: normal
+Certainty: certain
+Ref: https://wiki.debian.org/LSBInitScripts
+Info: This <tt>/etc/init.d</tt> script does not have an LSB keyword
+ section (or the <tt>### BEGIN INIT INFO</tt> tag is incorrect).  This
+ section provides description and runlevel information in a standard
+ format and provides dependency information that can be used to
+ parallelize the boot process.  Please consider adding it.
+
+Tag: init.d-script-missing-lsb-keyword
+Severity: normal
+Certainty: certain
+Ref: https://wiki.debian.org/LSBInitScripts
+Info: This <tt>/etc/init.d</tt> script has an LSB keyword section, but it
+ is missing the given required LSB keyword.  If the value of this keyword
+ should be empty, please still include it in the LSB keyword section with
+ an empty value.
+
+Tag: init.d-script-missing-lsb-short-description
+Severity: wishlist
+Certainty: certain
+Ref: https://wiki.debian.org/LSBInitScripts
+Info: This <tt>/etc/init.d</tt> script has an LSB keyword section, but it
+ is missing a Short-Description LSB keyword.  This field isn't directly
+ used currently, but adding it is still a good idea for documentation
+ purposes.
+
+Tag: init.d-script-has-bad-start-runlevel
+Severity: normal
+Certainty: certain
+Ref: https://wiki.debian.org/LSBInitScripts
+Info: The given runlevel specified in the Default-Start keyword of the LSB
+ keyword section of this <tt>/etc/init.d</tt> script isn't one of the
+ recognized standard runlevels (S, 0, 1, 2, 3, 4, 5, and 6).
+
+Tag: init.d-script-has-bad-stop-runlevel
+Severity: normal
+Certainty: certain
+Ref: https://wiki.debian.org/LSBInitScripts
+Info: The given runlevel specified in the Default-Stop keyword of the LSB
+ keyword section of this <tt>/etc/init.d</tt> script isn't one of the
+ recognized standard runlevels (0, 1, 2, 3, 4, 5, and 6).
+
+Tag: init.d-script-has-conflicting-start-stop
+Severity: normal
+Certainty: certain
+Ref: https://wiki.debian.org/LSBInitScripts
+Info: The given runlevel was included in both the Default-Start and
+ Default-Stop keywords of the LSB keyword section of this
+ <tt>/etc/init.d</tt> script.  Since it doesn't make sense to both start
+ and stop a service in the same runlevel, there is probably an error in
+ one or the other of these keywords.
+
+Tag: init-d-script-stops-in-s-runlevel
+Severity: normal
+Certainty: certain
+Info: This <tt>/etc/init.d</tt> script specifies the S runlevel in
+ Default-Stop in its LSB keyword section.  The S runlevel is not a real
+ runlevel and is only used during boot.  There is no way to switch to it
+ and hence no use for stop scripts for it, so S should be removed from
+ Default-Stop.
+
+Tag: init.d-script-uses-usr-interpreter
+Severity: normal
+Certainty: possible
+Info: The given <tt>/etc/init.d</tt> script specifies an interpreter in
+ its shebang located under <tt>/usr</tt>.
+ .
+ It indicates that the init script may be using a non-essential
+ interpreter.  Since init scripts are configuration files, they may be
+ left on the system after their package has been removed but not purged.
+ At that point, the package dependencies are not guaranteed to exist and
+ the interpreter may therefore not be available.
+ .
+ It's generally best to write init scripts using <tt>/bin/sh</tt> or
+ <tt>/bin/bash</tt> where possible, since they are guaranteed to always be
+ available.
+
+Tag: init.d-script-sourcing-without-test
+Severity: serious
+Certainty: possible
+Info: The given <tt>/etc/init.d</tt> script seems to be sourcing an
+ <tt>/etc/default/</tt> file without checking for its existence first.
+ Files in <tt>/etc/default/</tt> can be deleted by the administrator at
+ any time, and init scripts are required to handle the situation
+ gracefully. For example:
+ .
+  [ -r /etc/default/foo ] && . /etc/default/foo
+Ref: policy 9.3.2
+
+Tag: init.d-script-starts-in-stop-runlevel
+Severity: serious
+Certainty: certain
+Info: This <tt>/etc/init.d</tt> script specifies the 0 or 6 runlevels in
+ Default-Start in its LSB keyword section.  The 0 and 6 runlevels are
+ meant to only stop services, not to start them.  Even if the init script
+ is doing something that isn't exactly stopping a service, the run-level
+ should be listed in Default-Stop, not Default-Start, and the script
+ should perform those actions when passed the <tt>stop</tt> argument.
+
+Tag: init.d-script-provides-virtual-facility
+Severity: normal
+Certainty: certain
+Info: This <tt>/etc/init.d</tt> script indicates in its LSB headers that
+ it provides a virtual facility, denoted by the dollar sign in front of
+ the name.
+ .
+ This is not the correct way to provide a virtual facility.  Instead, the
+ package should include a file in <tt>/etc/insserv.conf.d</tt>, usually
+ named after the package, containing:
+ .
+  $virtual_facility_name +init-script-name
+ .
+ to declare that the named init script provides the named virtual
+ facility.
+Ref: https://wiki.debian.org/LSBInitScripts/DebianVirtualFacilities
+
+Tag: init.d-script-does-not-provide-itself
+Severity: minor
+Certainty: possible
+Info: This <tt>/etc/init.d</tt> script indicates it provides one or
+ more facilities, but none of the provided facilities match the name of
+ the init script.  In certain cases, it may be necessary to not follow
+ that convention, but normally init scripts should always provide a
+ facility matching the name of the init script.
+Ref: https://wiki.debian.org/LSBInitScripts
+
+Tag: init.d-script-should-depend-on-virtual-facility
+Severity: important
+Certainty: possible
+Info: The given <tt>/etc/init.d</tt> script depends on a non-virtual
+ facility that should probably be replaced by a virtual facility.  For
+ example, init scripts should depend on the virtual facility
+ <tt>$network</tt> rather than the facility <tt>networking</tt>, and the
+ virtual facility <tt>$named</tt> rather than the specific facility
+ <tt>bind9</tt>.
+ .
+ Properly using virtual facilities allows multiple implementations of the
+ same facility and accommodates systems where that specific facility may
+ not be enough to provide everything the script expects.
+
+Tag: init.d-script-possible-missing-stop
+Severity: normal
+Certainty: possible
+Info: The given <tt>/etc/init.d</tt> script indicates it should be
+ stopped at one of the runlevels 0, 1, or 6 but not at all of them.
+ This is usually a mistake.  Normally, facilities that need to be stopped
+ at any of those runlevels need to be stopped at all of them.
+ .
+ For example, if it is safe for the facility provided by this init script
+ to be stopped by <tt>sendsigs</tt> at runlevels 0 and 6, there should be
+ no reason to special case runlevel 1, where <tt>killprocs</tt> would
+ stop it.  If the facility needs special shutdown handling when rebooting
+ the system (runlevel 6), it probably needs the same handling when
+ halting the system (runlevel 0) or switching to single-user mode
+ (runlevel 1).
+
+Tag: init.d-script-missing-start
+Severity: normal
+Certainty: certain
+Info: The given <tt>/etc/init.d</tt> script indicates it should be
+ started at one of the runlevels 2-5 but not at all of them. This is a
+ mistake.  The system administrators should be given the opportunity to
+ customize the runlevels at their will.
+Ref: policy 9.3.3.1
+
+Tag: init.d-script-missing-dependency-on-local_fs
+Severity: important
+Certainty: possible
+Info: The given init script seems to refer to <tt>/var</tt>, possibly
+ using a file from there.  Without a dependency on <tt>$local_fs</tt> in
+ Required-Start or Required-Stop, as appropriate, the init script might be
+ run before <tt>/var</tt> is mounted or after it's unmounted.
+ .
+ Using Should-Start or Should-Stop to declare the dependency is
+ conceptually incorrect since the $local_fs facility is always
+ available.  Required-Start or Required-Stop should be used instead.
+Ref: https://wiki.debian.org/LSBInitScripts
+
+Tag: init.d-script-depends-on-unknown-virtual-facility
+Severity: serious
+Certainty: possible
+Info: The given init script declares a dependency on a virtual facility
+ that is not known to be provided by any init.d script in the archive.
+ If the dependency cannot be satisfied upon the package's
+ installation, insserv will refuse the activation of the init.d script.
+Ref: https://wiki.debian.org/LSBInitScripts
+
+Tag: init.d-script-depends-on-all-virtual-facility
+Severity: serious
+Certainty: possible
+Info: The given init script declares a dependency on the
+ virtual facility "$all".
+ .
+ This virtual facility is reserved for local scripts.
+ .
+ Moreover, using $all in more than one init.d script is
+ totally broken.
+Ref: https://wiki.debian.org/LSBInitScripts
+
+Tag: init.d-script-needs-depends-on-lsb-base
+Severity: important
+Certainty: possible
+Info: The given init script sources the <tt>/lib/lsb/init-functions</tt> utility
+ functions without declaring the corresponding dependency on lsb-base.
+ .
+ This dependency is not required for packages that ship a native service file.
+
+Tag: init.d-script-contains-skeleton-template-content
+Severity: important
+Certainty: certain
+Info: The given init script appears to contain content from the
+ <tt>/etc/init.d/skeleton</tt> example.
+ .
+ Please double-check the script and/or replace it with content suitable to
+ this binary package.
+
+Tag: init.d-script-should-always-start-service
+Severity: important
+Certainty: possible
+Info: The specified file under <tt>/etc/default/</tt> includes a line
+ such as <tt>ENABLED=</tt>, <tt>DISABLED=</tt>, <tt>RUN=</tt>, etc.
+ .
+ This is an older practice used so that the package's init script would
+ not start the service until the local system administrator changed this
+ value.
+ .
+ However, this hides from the underlying init system whether or not the
+ daemon should actually be started leading to confusing behavior
+ including <tt>service package start</tt> returning success without the
+ service actually starting.
+ .
+ Please remove this mechanism and disable enabling the daemon on install
+ via <tt>dh_installinit --no-enable</tt> or move to automatically
+ starting it.
+Ref: policy 9.3.3.1, update-rc.d(8), dh_installinit(1)

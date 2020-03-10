@@ -1,0 +1,491 @@
+Check-Script: binaries
+Author: Christian Schwarz <schwarz@debian.org>
+Abbrev: bin
+Type: binary, udeb
+Needs-Info: objdump-info, file-info, strings, unpacked
+Info: This script checks binaries and object files for bugs.
+
+Tag: arch-independent-package-contains-binary-or-object
+Severity: serious
+Certainty: possible
+Info: The package contains a binary or object file but is tagged
+ Architecture: all.
+ .
+ If this package contains binaries or objects for cross-compiling or
+ binary blobs for other purposes independent of the host architecture
+ (such as BIOS updates or firmware), please add a Lintian override.
+
+Tag: unstripped-binary-or-object
+Severity: important
+Certainty: certain
+Ref: policy 10.1, policy 10.2
+Info: The package installs an unstripped binary or object file.
+ .
+ Please note, that shared libraries have to be stripped with the
+ <tt>--strip-unneeded</tt> option.
+
+Tag: library-in-debug-or-profile-should-not-be-stripped
+Severity: serious
+Certainty: certain
+Info: Libraries in <tt>.../lib/debug</tt> or in
+ <tt>.../lib/profile</tt> must not be stripped; this defeats the whole
+ point of the separate library.
+
+Tag: statically-linked-binary
+Severity: important
+Certainty: possible
+Info: The package installs a statically linked binary or object file.
+ .
+ Usually this is a bug.  Otherwise, please add an override if your package
+ is an exception.  Binaries named *-static and *.static are automatically
+ excluded, as are any binaries in packages named *-static.
+
+Tag: library-not-linked-against-libc
+Severity: important
+Certainty: possible
+Ref: policy 10.2, #698720
+Info: The package installs a library which is not dynamically linked
+ against libc.
+ .
+ It is theoretically possible to have a library which doesn't use any
+ symbols from libc, but it is far more likely that this is a violation
+ of the requirement that "shared libraries must be linked against all
+ libraries that they use symbols from in the same way that binaries
+ are".
+
+Tag: program-not-linked-against-libc
+Severity: important
+Certainty: possible
+Ref: #698720
+Info: The package installs a binary which is not dynamically linked
+ against libc.
+ .
+ It is theoretically possible to have a program which doesn't use any
+ symbols from libc, but it is far more likely that this binary simply
+ isn't linked correctly.
+
+Tag: binary-or-shlib-defines-rpath
+Severity: serious
+Certainty: possible
+Ref: https://wiki.debian.org/RpathIssue
+Info: The binary or shared library sets RPATH or RUNPATH.  This
+ overrides the normal library search path, possibly interfering with
+ local policy and causing problems for multilib, among other issues.
+ .
+ The only time a binary or shared library in a Debian package should
+ set RPATH or RUNPATH is if it is linked to private shared libraries
+ in the same package.  In that case, place those private shared
+ libraries in <tt>/usr/lib/<i>package</i></tt>.  Libraries used by
+ binaries in other packages should be placed in <tt>/lib</tt> or
+ <tt>/usr/lib</tt> as appropriate, with a proper SONAME, in which case
+ RPATH/RUNPATH is unnecessary.
+ .
+ To fix this problem, look for link lines like:
+     gcc test.o -o test -Wl,--rpath,/usr/local/lib
+ or
+     gcc test.o -o test -R/usr/local/lib
+ and remove the <tt>-Wl,--rpath</tt> or <tt>-R</tt> argument.  You can also
+ use the chrpath utility to remove the RPATH.
+
+Tag: binary-has-unneeded-section
+Severity: wishlist
+Certainty: certain
+Info: The binary or shared library is stripped, but still contains a
+ section that is not useful.  You should call strip with
+ <tt>--remove-section=.comment --remove-section=.note</tt> to remove the
+ <tt>.note</tt> and <tt>.comment</tt> sections.
+ .
+ <tt>dh_strip</tt> will do this automatically for you, but
+ <tt>install -s</tt> will not because it calls strip without any
+ arguments.
+
+Tag: static-library-has-unneeded-section
+Severity: wishlist
+Certainty: certain
+Info: The static library is stripped, but still contains a section
+ that is not useful.  You should call strip with
+ <tt>--remove-section=.comment --remove-section=.note</tt> to remove the
+ <tt>.note</tt> and <tt>.comment</tt> sections.
+ .
+ <tt>dh_strip</tt> (after debhelper/9.20150811) will do this
+ automatically for you, but <tt>install -s</tt> will not because it calls
+ strip without any arguments.
+
+Tag: unstripped-static-library
+Severity: wishlist
+Certainty: certain
+Info: The package installs an unstripped static library.
+ .
+ Please note, that static libraries have to be stripped with the
+ <tt>--strip-debug</tt> option.  You will probably also want to
+ use <tt>--remove-section=.comment --remove-section=.note</tt>
+ to avoid the static-library-has-unneeded-section tag.
+ .
+ <tt>dh_strip</tt> (after debhelper/9.20150811) will do this
+ automatically for you.
+
+Tag: missing-depends-line
+Severity: normal
+Certainty: certain
+Info: The package contains an ELF binary with dynamic dependencies,
+ but does not have a Depends line in its control file.  This usually
+ means that a call to <tt>dpkg-shlibdeps</tt> is missing from the
+ package's <tt>debian/rules</tt> file.
+
+Tag: shared-lib-without-dependency-information
+Severity: normal
+Certainty: certain
+Info: The listed shared library doesn't include information about which
+ other libraries the library was linked against. (When running "<tt>ldd
+ foo.so</tt>" ldd should report about these other libraries. In your
+ case, ldd just reports "statically linked".)
+ .
+ To fix this, you should explicitly specify the libraries which are
+ used (e.g., "-lc") when building the shared library with "ld".
+ .
+ If you have questions about this, please contact &debdev;.
+
+Tag: arch-dependent-file-in-usr-share
+Severity: serious
+Certainty: certain
+Ref: fhs usrsharearchitectureindependentdata
+Info: This package installs an ELF binary in the <tt>/usr/share</tt>
+ hierarchy, which is reserved for architecture-independent files.
+
+Tag: arch-dependent-file-not-in-arch-specific-directory
+Severity: serious
+Certainty: possible
+Ref: https://wiki.ubuntu.com/MultiarchSpec
+Info: This package is Multi-Arch "same", but it installs an ELF binary in the
+ directory that is not architecture-specific.
+
+Tag: binary-in-etc
+Severity: serious
+Certainty: certain
+Ref: fhs etchostspecificsystemconfiguration
+Info: This package installs an ELF binary in <tt>/etc</tt>.  The
+ Filesystem Hierarchy Standard forbids this.
+
+Tag: binary-compiled-with-profiling-enabled
+Severity: normal
+Certainty: certain
+Info: While profiling is useful for testing and debugging purposes, enabling
+ it causes a program to leave gmon.out files whenever a user runs it.
+
+Tag: package-name-doesnt-match-sonames
+Severity: normal
+Certainty: possible
+Info: The package name of a library package should usually reflect
+ the soname of the included library. The package name can determined
+ from the library file name with the following code snippet:
+ .
+  $ objdump -p /path/to/libfoo-bar.so.1.2.3 | sed -n -e's/^[[:space:]]*SONAME[[:space:]]*//p' | \
+      sed -r -e's/([0-9])\.so\./\1-/; s/\.so(\.|$)//; y/_/-/; s/(.*)/\L&/'
+
+Tag: binary-with-bad-dynamic-table
+Severity: serious
+Certainty: possible
+Info: This appears to be an ELF file.  According to readelf, the
+ program headers suggests it should have a dynamic section, but
+ readelf cannot find it.
+ .
+ If it is meant to be external debugging symbols for another file,
+ it should be installed under /usr/lib/debug.  Otherwise, this
+ could be a corrupt ELF file.
+
+Tag: apparently-corrupted-elf-binary
+Severity: normal
+Certainty: possible
+Info: This appears to be an ELF file but readelf cannot parse it.
+ .
+ This may be a mistake or a corrupted file, you may need to
+ install binutils-multiarch on the system running Lintian so that
+ non-native binaries are handled correctly, or it may be a
+ misidentification of a file as ELF that actually isn't.
+
+Tag: missing-dependency-on-libc
+Severity: serious
+Certainty: possible
+Ref: policy 8.6.1
+Info: The listed file appears to be linked against the C library, but the
+ package doesn't depend on the C library package.  Normally this indicates
+ that ${shlibs:Depends} was omitted from the Depends line for this package
+ in <tt>debian/control</tt>.
+ .
+ All shared libraries and compiled binaries must be run through
+ dpkg-shlibdeps to find out any libraries they are linked against (often
+ via the dh_shlibdeps debhelper command).  The package containing these
+ files must then depend on ${shlibs:Depends} in <tt>debian/control</tt> to
+ get the proper package dependencies for those libraries.
+
+Tag: missing-dependency-on-libstdc++
+Severity: serious
+Certainty: possible
+Experimental: yes
+Ref: policy 8.6.1
+Info: The listed file appears to be linked against the C++ library, but the
+ package doesn't depend on the C++ library package.  Normally this indicates
+ that ${shlibs:Depends} was omitted from the Depends line for this package
+ in <tt>debian/control</tt>.
+ .
+ All shared libraries and compiled binaries must be run through
+ dpkg-shlibdeps to find out any libraries they are linked against (often
+ via the dh_shlibdeps debhelper command).  The package containing these
+ files must then depend on ${shlibs:Depends} in <tt>debian/control</tt> to
+ get the proper package dependencies for those libraries.
+
+Tag: missing-dependency-on-perlapi
+Severity: serious
+Certainty: certain
+Ref: perl-policy 4.4.2
+Info: This package includes a *.so file in <tt>/usr/lib/.../perl5</tt>,
+ normally indicating that it includes a binary Perl module.  Binary Perl
+ modules must depend on perlapi-$Config{version} (from the Config module).
+ If the package is using debhelper, this problem is usually due to a
+ missing dh_perl call in <tt>debian/rules</tt> or a missing
+ ${perl:Depends} substitution variable in the Depends line in
+ <tt>debian/control</tt>.
+
+Tag: missing-dependency-on-phpapi
+Severity: serious
+Certainty: certain
+Info: This package includes a *.so file in <tt>/usr/lib/phpN</tt>
+ (where N is a number representing the major PHP version), normally
+ indicating that it includes a PHP extension.  PHP extensions must
+ depend on phpapi-$(php-configN --phpapi), without adding an
+ alternative package with the OR operator.
+ .
+ This can usually be achieved by, for example, adding the following
+ code to the binary-arch target of the rules file and adding
+ <tt>${php:Depends}</tt> to the <tt>Depends</tt> field of the binary
+ package shipping the extension:
+ .
+ echo "php:Depends=phpapi-$(php-config5 --phpapi)" &gt; debian/substvars
+
+Tag: missing-dependency-on-numpy-abi
+Severity: serious
+Certainty: possible
+Info: This package includes a Python extension module, which uses Numpy via its
+ binary interface. Such packages must depend on python-numpy-abi<i>N</i>.
+ .
+ If the package is using debhelper, this problem is usually due to a
+ missing dh_numpy (or dh_numpy3) call in <tt>debian/rules</tt>.
+Ref: /usr/share/doc/python-numpy/README.DebianMaints
+
+Tag: debug-file-should-use-detached-symbols
+Severity: normal
+Certainty: certain
+Ref: devref 6.7.9
+Info: This file is in a location generally used for detached debugging
+ symbols, but it appears to contain a complete copy of the executable or
+ library instead of only the debugging symbols.  Files in subdirectories
+ of <tt>/usr/lib/debug</tt> mirroring the main file system should contain
+ only debugging information generated by <tt>objcopy
+ --only-keep-debug</tt>.  Binaries or shared objects built with extra
+ debugging should be installed directly in <tt>/usr/lib/debug</tt> or in
+ subdirectories corresponding to the package, not in the directories that
+ mirror the main file system.
+ .
+ If you are using dh_strip with the --dbg-package flag, don't also install
+ the library in <tt>/usr/lib/debug</tt>.  dh_strip does all the work for
+ you.
+
+Tag: binary-from-other-architecture
+Severity: serious
+Certainty: possible
+Info: This ELF binary appears to have been built for an architecture other
+ than the one of the binary package being tested.  This may occur when a
+ pre-built binary is shipped in the package or when an attempt to
+ cross-compile didn't work.
+
+Tag: spelling-error-in-binary
+Severity: minor
+Certainty: wild-guess
+Info: Lintian found a spelling error in the given binary.  Lintian has a
+ list of common misspellings that it looks for.  It does not have a
+ dictionary like a spelling checker does.
+ .
+ If the string containing the spelling error is translated with the help
+ of gettext or a similar tool, please fix the error in the translations as
+ well as the English text to avoid making the translations fuzzy.  With
+ gettext, for example, this means you should also fix the spelling mistake
+ in the corresponding msgids in the *.po files.
+ .
+ You can often find the word in the source code by running:
+ .
+  grep -rw &lt;word&gt; &lt;source-tree&gt;
+ .
+ This tag may produce false positives for words that contain non-ASCII
+ characters due to limitations in <tt>strings</tt>.
+
+Tag: embedded-library
+Severity: serious
+Certainty: possible
+Ref: policy 4.13
+Info: The given ELF object appears to have been statically linked to
+ a library.  Doing this is strongly discouraged due to the extra work
+ needed by the security team to fix all the extra embedded copies or
+ trigger the package rebuilds, as appropriate.
+ .
+ If the package uses a modified version of the given library it is highly
+ recommended to coordinate with the library's maintainer to include the
+ changes on the system version of the library.
+
+Tag: debug-symbols-directly-in-usr-lib-debug
+Severity: important
+Certainty: certain
+Info: The given debugging symbols-only object is installed directly in
+ <tt>/usr/lib/debug</tt>, although it should be installed in a
+ subdirectory.  For example, debug symbols of a binary in
+ <tt>/usr/bin</tt> should be placed in <tt>/usr/lib/debug/usr/bin</tt>.
+ gdb, when looking for debugging symbols, prepends <tt>/usr/lib/debug</tt>
+ to whatever path it finds in the .gnu_debuglink section, which when using
+ dh_strip(1) is either the path to your binary/library or a build-id based
+ path.
+
+Tag: ocaml-custom-executable
+Severity: normal
+Certainty: possible
+Info: This package provides an OCaml bytecode executable linked with a
+ custom runtime. Such executables cannot be stripped and require
+ special care. Their usage is deprecated in favour of shared libraries
+ for C stubs (dll*.so).
+
+Tag: hardening-no-fortify-functions
+Severity: normal
+Certainty: wild-guess
+Info: This package provides an ELF binary that lacks the use of fortified
+ libc functions. Either there are no potentially unfortified functions
+ called by any routines, all unfortified calls have already been fully
+ validated at compile-time, or the package was not built with the default
+ Debian compiler flags defined by <tt>dpkg-buildflags</tt>. If built using
+ <tt>dpkg-buildflags</tt> directly, be sure to import <tt>CPPFLAGS</tt>.
+ .
+ NB: Due to false-positives, Lintian ignores some unprotected functions
+ (e.g. memcpy).
+Ref: https://wiki.debian.org/Hardening, #673112
+
+Tag: hardening-no-relro
+Severity: normal
+Certainty: certain
+Info: This package provides an ELF binary that lacks the "read-only
+ relocation" link flag. This package was likely not built with the
+ default Debian compiler flags defined by <tt>dpkg-buildflags</tt>.
+ If built using <tt>dpkg-buildflags</tt> directly, be sure to import
+ <tt>LDFLAGS</tt>.
+Ref: https://wiki.debian.org/Hardening
+
+Tag: hardening-no-bindnow
+Severity: wishlist
+Certainty: certain
+Info: This package provides an ELF binary that lacks the "bindnow"
+ linker flag.
+ .
+ This is needed (together with "relro") to make the "Global Offset
+ Table" (GOT) fully read-only.  The bindnow feature trades startup
+ time for improved security.  Please consider enabling this feature
+ or consider overriding the tag (possibly with a comment about why).
+ .
+ If you use <tt>dpkg-buildflags</tt>, you may have to add
+ <tt>hardening=+bindnow</tt> or <tt>hardening=+all</tt> to
+ <tt>DEB_BUILD_MAINT_OPTIONS</tt>.
+ .
+ The relevant compiler flags are set in <tt>LDFLAGS</tt>.
+Ref: https://wiki.debian.org/Hardening
+
+Tag: hardening-no-pie
+Severity: normal
+Certainty: certain
+Info: This package provides an ELF executable that was not compiled
+ as a position independent executable (PIE).
+ .
+ In Debian, since version 6.2.0-7 of the gcc-6 package GCC will
+ compile ELF binaries with PIE by default.  In most cases a simple
+ rebuild will be sufficient to remove this tag.
+ .
+ PIE is required for fully enabling Address Space Layout
+ Randomization (ASLR), which makes "Return-oriented" attacks more
+ difficult.
+ .
+ Historically, PIE has been associated with noticeable performance
+ overhead on i386.  However, GCC &gt;= 5 has implemented an optimization
+ that can reduce the overhead significantly.
+ .
+ If you use <tt>dpkg-buildflags</tt> with <tt>hardening=+all,-pie</tt>
+ in <tt>DEB_BUILD_MAINT_OPTIONS</tt>, remove the <tt>-pie</tt>.
+Ref: https://wiki.debian.org/Hardening,
+ https://gcc.gnu.org/gcc-5/changes.html,
+ https://software.intel.com/en-us/blogs/2014/12/26/new-optimizations-for-x86-in-upcoming-gcc-50-32bit-pic-mode
+
+Tag: debug-file-with-no-debug-symbols
+Severity: normal
+Certainty: possible
+Ref: #668437
+Info: The binary is installed as a detached "debug symbols" ELF file,
+ but it does not appear to have debug information associated with it.
+ .
+ A common cause is not passing <tt>-g</tt> to GCC when compiling.
+ .
+ Implementation detail: Lintian checks for the ".debug_line" and the
+ ".debug_str" sections.  If either of these are present, the binary
+ is assumed to contain debug information.
+
+Tag: binary-file-built-without-LFS-support
+Severity: minor
+Certainty: possible
+Experimental: yes
+Info: The listed ELF binary appears to be (partially) built without
+ "Large File Support" (LFS).  If so, it may not be able to handle large
+ files or files with large metadata values (ex: inode numbers) correctly.
+ .
+ To support large files, code review might be needed to make sure that
+ those files are not slurped into memory or mmap(2)ed, and that correct
+ 64-bit data types are used (ex: off_t instead of ssize_t), etc.  Once
+ that has been done ensure <tt>_FILE_OFFSET_BITS</tt> is defined and
+ set to 64 before any system headers are included (note that on systems
+ were the ABI has LFS enabled by default, setting <tt>_FILE_OFFSET_BITS</tt>
+ to 64 will be a no-op, and as such optional).  This can be done by using
+ the <tt>AC_SYS_LARGEFILE</tt> macro with autoconf which will set any
+ macro required to enable LFS when necessary, or by enabling the
+ <tt>lfs</tt> feature from the <tt>future</tt> dpkg-buildflags feature
+ area which sets the <tt>CPPFLAGS</tt> variable (since dpkg-dev 1.19.0).
+ Note though, that <tt>getconf LFS_CFLAGS</tt> must not be used,
+ as it does  not support cross-building.  Using
+ <tt>_FILE_OFFSET_BITS</tt> should require no system function renames (eg.
+ from open(2) to open64(2)), and if this tag is still emitted, the most
+ probable cause is because the macro is not seen by the system code being
+ compiled.
+ .
+ Take into account that even if this tag is not emitted, that does not
+ mean the binary is LFS-safe (ie. no OOM conditions, file truncation
+ or overwrite will happen).
+ .
+ Also note that enabling LFS on a shared library is not always safe as
+ it might break ABI in case some of the exported types change size, in
+ those cases a SOVERSION bump might be required.  Or alternatively, on
+ systems with an ABI without LFS, defining <tt>_LARGEFILE64_SOURCE</tt>
+ and exporting both 32 and 64-bit variants of the interfaces can avoid
+ the SOVERSION bump, at the cost of more complex maintenance.
+Ref: http://www.unix.org/version2/whatsnew/lfs20mar.html,
+ https://www.gnu.org/software/libc/manual/html_node/Feature-Test-Macros.html
+
+Tag: development-package-ships-elf-binary-in-path
+Severity: minor
+Certainty: possible
+Experimental: yes
+Info: This development package (ie. from the <tt>libdevel</tt> section of
+ the archive) installs an ELF binary within <tt>$PATH</tt>.
+ .
+ Commonly, executables in development packages provide values that are
+ relevant for using the library. Source packages that use such
+ development packages tend to execute those executables to discover how
+ to use the library.
+ .
+ When performing a cross build, host architecture binaries are generally not
+ executable. However, development packages need to be installed on the host
+ architecture so such files are useless.
+ .
+ An alternative approach is to use <tt>pkg-config(1)</tt> or potentially
+ splitting architecture-independent development tools into a separate
+ package that can be marked <tt>Multi-Arch: foreign</tt>.
+Ref: #794295, #794103

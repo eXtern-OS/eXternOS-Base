@@ -1,0 +1,47 @@
+<!--
+To use a step in this file:
+<include href="dconf-snippets.xml"
+         xpointer="xpointer(/*/*[@xml:id='THE_XML_ID'])"
+         xmlns="http://www.w3.org/2001/XInclude"/>
+-->
+<steps xmlns="http://projectmallard.org/1.0/"
+       xmlns:its="http://www.w3.org/2005/11/its">
+
+  <item xml:id="dconf-profile-user">
+    <p>Create the <file its:translate="no">user</file> profile which contains
+    the following lines:</p>
+    <listing its:translate="no">
+      <title><file>/etc/dconf/profile/user</file></title>
+      <code>user-db:user
+system-db:local</code>
+    </listing>
+    <p><input its:translate="no">local</input> is the name of a
+    <sys its:translate="no" xref="dconf">dconf</sys> database.</p>
+  </item>
+  <item xml:id="dconf-profile-user-dir">
+    <p>Create the directory <file>/etc/dconf/db/local.d/</file>
+    if it does not already exist.</p>
+  </item>
+
+  <item xml:id="dconf-profile-gdm">
+    <p>Create the <file its:translate="no">gdm</file> profile which contains the
+    following lines:</p>
+    <listing its:translate="no">
+      <title><file>/etc/dconf/profile/gdm</file></title>
+      <code>user-db:user
+system-db:gdm
+file-db:/usr/share/gdm/greeter-dconf-defaults</code>
+    </listing>
+    <p><input its:translate="no">gdm</input> is the name of a
+    <sys its:translate="no" xref="dconf">dconf</sys> database.</p>
+  </item>
+
+  <item xml:id="dconf-update">
+    <p>Update the system databases:</p>
+    <screen><output style="prompt"># </output><input>dconf update</input></screen>
+  </item>
+  <item xml:id="dconf-logoutin">
+    <p>Users must log out and back in again before the system-wide
+    settings take effect.</p>
+  </item>
+</steps>

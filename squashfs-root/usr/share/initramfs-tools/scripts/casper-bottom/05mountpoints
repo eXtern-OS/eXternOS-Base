@@ -1,0 +1,31 @@
+#!/bin/sh
+
+PREREQ=""
+DESCRIPTION="Moving mount points..."
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+
+log_begin_msg "$DESCRIPTION"
+
+# Move to the new root filesystem so that programs there can get at it.
+mkdir -p /root/cdrom
+mount -n -o move /cdrom /root/cdrom
+
+# temporary hack for LP#727783
+mkdir -p /root/media
+ln -s /cdrom /root/media/cdrom
+
+log_end_msg

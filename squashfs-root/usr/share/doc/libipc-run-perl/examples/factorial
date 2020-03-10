@@ -1,0 +1,53 @@
+#!/usr/bin/perl -w
+
+## Demonstration of event-driven interaction with a subprocess
+
+## Event driven programming is a pain.  This code is not that readable
+## and is not a good place to start, especially since few people (including
+## me) are familiar with bc's nuances.
+
+use strict;
+
+use IPC::Run qw( run );
+
+die "usage: $0 <num>\n\nwhere <num> is a positive integer\n" unless @ARGV;
+my $i = shift;
+die "\$i must be > 0, not '$i'" unless $i =~ /^\d+$/ && $i > 0;
+
+## bc instructions to initialize two variables and print one out
+my $stdin_queue = "a = i = $i ; i\n";
+
+## Note the FALSE on failure result (opposite of system()).
+die $! unless run(
+    ['bc'],
+    sub {
+        ## Consume all input and return it.  This is used instead of a plain
+        ## scalar because run() would close bc's stdin the first time the
+        ## scalar emptied.
+        my $r = $stdin_queue;
+        $stdin_queue = '';
+        return $r;
+    },
+    sub {
+        my $out = shift;
+        print "bc said: ", $out;
+
+        if ( $out =~ s/.*?(\d+)\n/$1/g ) {
+            ## Grab the number from bc.  Assume all numbers are delivered in
+            ## single chunks and all numbers are significant.
+            if ( $out > $i ) {
+                ## i! is always >i for i > 0
+                print "result = ", $out, "\n";
+                $stdin_queue = undef;
+            }
+            elsif ( $out == '1' ) {
+                ## End of calculation loop, get bc to output the result.
+                $stdin_queue = "a\n";
+            }
+            else {
+                ## get bc to calculate the next iteration and print it out.
+                $stdin_queue = "i = i - 1 ; a = a * i ; i\n";
+            }
+        }
+    },
+);

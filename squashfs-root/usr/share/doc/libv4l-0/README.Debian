@@ -1,0 +1,15 @@
+Since v0.8.4 libv4l decodes JPEG and MJPEG picture formats via libjpeg
+instead of using the its own tinyjpeg decoder. For cameras delivering
+a non-standars stream this leads to non working or flickering video.
+
+An indication might be the following output on stderr:
+"libv4l2: error converting / decoding frame data"
+
+libv4l already takes care of some broken cameras by falling back to
+the tinyjpeg decoder. To test if this might help with your camera,
+please set the following environment variable before starting the
+webcam application:
+
+export LIBV4LCONTROL_FLAGS=32
+
+If this helps please file a bug report caintaing the output of 'lsusb'.

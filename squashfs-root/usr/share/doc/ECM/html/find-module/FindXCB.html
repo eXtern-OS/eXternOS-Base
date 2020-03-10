@@ -1,0 +1,159 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>FindXCB &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ecm-kde-modules(7)" href="../manual/ecm-kde-modules.7.html" />
+    <link rel="prev" title="FindX11_XCB" href="FindX11_XCB.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../manual/ecm-kde-modules.7.html" title="ecm-kde-modules(7)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="FindX11_XCB.html" title="FindX11_XCB"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-find-modules.7.html" accesskey="U">ecm-find-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="findxcb">
+<span id="find-module:FindXCB"></span><h1>FindXCB<a class="headerlink" href="#findxcb" title="Permalink to this headline">¶</a></h1>
+<p>Try to find XCB.</p>
+<p>This is a component-based find module, which makes use of the COMPONENTS and
+OPTIONAL_COMPONENTS arguments to find_module.  The following components are
+available:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">XCB</span>
+<span class="n">ATOM</span>         <span class="n">AUX</span>          <span class="n">COMPOSITE</span>    <span class="n">CURSOR</span>       <span class="n">DAMAGE</span>
+<span class="n">DPMS</span>         <span class="n">DRI2</span>         <span class="n">DRI3</span>         <span class="n">EVENT</span>        <span class="n">EWMH</span>
+<span class="n">GLX</span>          <span class="n">ICCCM</span>        <span class="n">IMAGE</span>        <span class="n">KEYSYMS</span>      <span class="n">PRESENT</span>
+<span class="n">RANDR</span>        <span class="n">RECORD</span>       <span class="n">RENDER</span>       <span class="n">RENDERUTIL</span>   <span class="n">RES</span>
+<span class="n">SCREENSAVER</span>  <span class="n">SHAPE</span>        <span class="n">SHM</span>          <span class="n">SYNC</span>         <span class="n">UTIL</span>
+<span class="n">XEVIE</span>        <span class="n">XF86DRI</span>      <span class="n">XFIXES</span>       <span class="n">XINERAMA</span>     <span class="n">XINPUT</span>
+<span class="n">XKB</span>          <span class="n">XPRINT</span>       <span class="n">XTEST</span>        <span class="n">XV</span>           <span class="n">XVMC</span>
+</pre></div>
+</div>
+<p>If no components are specified, this module will act as though all components
+except XINPUT (which is considered unstable) were passed to
+OPTIONAL_COMPONENTS.</p>
+<p>This module will define the following variables, independently of the
+components searched for or found:</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">XCB_FOUND</span></code></dt>
+<dd>True if (the requestion version of) xcb is available</dd>
+<dt><code class="docutils literal"><span class="pre">XCB_VERSION</span></code></dt>
+<dd>Found xcb version</dd>
+<dt><code class="docutils literal"><span class="pre">XCB_TARGETS</span></code></dt>
+<dd>A list of all targets imported by this module (note that there may be more
+than the components that were requested)</dd>
+<dt><code class="docutils literal"><span class="pre">XCB_LIBRARIES</span></code></dt>
+<dd>This can be passed to target_link_libraries() instead of the imported
+targets</dd>
+<dt><code class="docutils literal"><span class="pre">XCB_INCLUDE_DIRS</span></code></dt>
+<dd>This should be passed to target_include_directories() if the targets are
+not used for linking</dd>
+<dt><code class="docutils literal"><span class="pre">XCB_DEFINITIONS</span></code></dt>
+<dd>This should be passed to target_compile_options() if the targets are not
+used for linking</dd>
+</dl>
+<p>For each searched-for components, <code class="docutils literal"><span class="pre">XCB_&lt;component&gt;_FOUND</span></code> will be set to
+true if the corresponding xcb library was found, and false otherwise.  If
+<code class="docutils literal"><span class="pre">XCB_&lt;component&gt;_FOUND</span></code> is true, the imported target <code class="docutils literal"><span class="pre">XCB::&lt;component&gt;</span></code>
+will be defined.  This module will also attempt to determine
+<code class="docutils literal"><span class="pre">XCB_*_VERSION</span></code> variables for each imported target, although
+<code class="docutils literal"><span class="pre">XCB_VERSION</span></code> should normally be sufficient.</p>
+<p>In general we recommend using the imported targets, as they are easier to use
+and provide more control.  Bear in mind, however, that if any target is in the
+link interface of an exported library, it must be made available by the
+package config file.</p>
+<p>Since pre-1.0.0.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="FindX11_XCB.html"
+                        title="previous chapter">FindX11_XCB</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../manual/ecm-kde-modules.7.html"
+                        title="next chapter">ecm-kde-modules(7)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/find-module/FindXCB.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../manual/ecm-kde-modules.7.html" title="ecm-kde-modules(7)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="FindX11_XCB.html" title="FindX11_XCB"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-find-modules.7.html" >ecm-find-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

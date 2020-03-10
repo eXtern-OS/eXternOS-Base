@@ -1,0 +1,230 @@
+<?xml version="1.0" ?>
+<!DOCTYPE article PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+"dtd/kdedbx45.dtd" [
+  <!ENTITY kdebugdialog5 "<application
+>KDebugDialog</application
+>">
+  <!ENTITY kappname "&kdebugdialog;">
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Ukrainian "INCLUDE"
+> <!-- change language only here -->
+  
+  
+]>
+
+<article id="kdebugdialog5" lang="&language;">
+<title
+>KDebugDialog</title>
+<articleinfo>
+<authorgroup>
+<author
+>&David.Faure; &David.Faure.mail;</author>
+<othercredit role="translator"
+><firstname
+>Юрій</firstname
+><surname
+>Чорноіван</surname
+><affiliation
+><address
+><email
+>yurchor@ukr.net</email
+></address
+></affiliation
+><contrib
+>Переклад українською</contrib
+></othercredit
+> 
+</authorgroup>
+
+<date
+>2 квітня 2016 року</date>
+<releaseinfo
+>Frameworks 5.21</releaseinfo>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>KDebugdialog</keyword>
+<keyword
+>Налагодження</keyword>
+</keywordset>
+</articleinfo>
+
+
+<para
+>&kdebugdialog; — це діалогове вікно, призначене для керування діагностичними повідомленнями під час виконання програм. У ньому передбачено простий та повний режими.</para>
+<para
+>Щоб мати змогу вносити зміни, вам слід зняти позначку з пункту <guilabel
+>Вимкнути всі повідомлення налагоджування</guilabel
+>.</para>
+
+<note>
+<para
+>Лише для програм, де використовується бібліотека Frameworks kdelibs4support.</para>
+<para
+>kDebug() вважається застарілим у &kde; Frameworks 5. Замість нього використовується вбудоване до &Qt; категоризоване ведення журналу, див. <ulink url="http://doc.qt.io/qt-5/qloggingcategory.html"
+>QLoggingCategory</ulink
+>. Для вмикання та вимикання qCDebug скористайтеся <ulink url="https://commits.kde.org/kdebugsettings"
+>kdebugsettings</ulink
+>. </para>
+</note>
+
+<variablelist>
+<varlistentry>
+<term
+>Простий режим</term>
+<listitem>
+<para
+>Якщо ви просто виконаєте команду <command
+>kdebugdialog5</command
+>, ви побачите список <quote
+>областей</quote
+>, які можна вимкнути або увімкнути. Виклик <function
+>kDebug(область)</function
+> у коді дасть якийсь налагоджувальний вивід, лише якщо цю область було увімкнено.</para>
+
+<note
+><para
+>Зауважте, що kWarning, kError і kFatal з’являтимуться завжди, їх поява <emphasis
+>НЕ</emphasis
+> контролюється цим параметром. </para
+></note>
+
+<para
+>Введіть шаблон пошуку у поле <guilabel
+>Пошук</guilabel
+>, розташоване у верхній частині списку. Таким чином, ви зможете наказати програмі виконати фільтрування пунктів, які буде показано на панелі списку. За допомогою кнопок, розташованих під панеллю списку ви можете позначити або зняти позначення з усіх пунктів (без виконання будь-яких інших дій) чи увімкнути або вимкнути вивід даних для певного пункту позначенням або зняттям позначки у полі перед ним. </para>
+
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+>Повний режим</term>
+<listitem>
+<para
+>Якщо ви запустите команду <command
+>kdebugdialog5</command
+> <option
+>--fullmode</option
+>, ви зможете самі визначити дії, які буде виконано з діагностичними повідомленнями для кожного з рівнів важливості, те саме стосується і кожної з областей налагоджування.</para>
+
+<para
+>У повному режимі (fullmode), вам спочатку слід буде обрати потрібну область налагоджування за допомогою списку, розташованого у діалоговому вікні ліворуч, та поля для пошуку, розташованого над списком.</para>
+
+<para
+>Ви можете окремо встановити виведення для різних типів повідомлень:</para>
+
+<itemizedlist>
+<listitem
+><para
+><guilabel
+>Інформація</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Попередження</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Помилка</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Фатальна помилка</guilabel
+></para
+></listitem>
+</itemizedlist>
+
+<para
+>Для кожного з цих типів ви можете встановити такі параметри:</para>
+
+<variablelist>
+<varlistentry>
+<term
+><guilabel
+>Виводити до:</guilabel
+></term>
+<listitem>
+<para
+>За допомогою цього спадного списку ви можете обрати область призначення для повідомлень. Серед варіантів: <quote
+>Файл</quote
+>, <quote
+>Вікно повідомлень</quote
+>, <quote
+>Командна оболонка</quote
+> (тобто stderr) і <quote
+>Системний журнал</quote
+>. Будь ласка, не спрямовуйте повідомлення про критичні помилки до системного журналу (syslog), якщо ви не є системним адміністратором. Типовим значенням є <quote
+>Командна оболонка</quote
+>.</para
+> 
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Назва файла:</guilabel
+></term>
+<listitem
+><para
+>Це поле стане доступним, лише якщо ви обрали як область призначення <quote
+>Файл</quote
+>, у ньому ви можете вказати назву цього файла (відносно поточної теки). Типовим значенням є <filename
+>kdebug.dbg</filename
+>.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Окрім всього переліченого, ви також можете позначити поле з міткою <guilabel
+>Зупинятися під час фатальних помилок</guilabel
+>. У цьому випадку, якщо буде виведено діагностичне повідомлення з рівнем важливості <computeroutput
+>KDEBUG_FATAL</computeroutput
+>, програма завершить свою роботу з сигналом SIGABRT після виведення цього повідомлення.</para>
+
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Після того, як ви закриєте це діалогове вікно натисканням кнопки <guibutton
+>Гаразд</guibutton
+>, вказані вами параметри буде негайно застосовано і збережено до файла <filename
+>$<envar
+>XDG_CONFIG_HOME</envar
+>/kdebugrc</filename
+> (типово ~/.config/kdebugrc). Якщо ви натиснете кнопку <guibutton
+>Скасувати</guibutton
+>, вказані вами параметри буде скасовано і відновлено попередні значення.</para>
+
+<para
+>Дякуємо Kalle Dalheimer за початкову версію &kdebugdialog;</para>
+
+<para
+>Переклад українською: Юрій Чорноіван <email
+>yurchor@ukr.net</email
+></para
+> 
+
+&underFDL;
+
+</article>
+<!--
+Local Variables:
+mode: sgml
+sgml-omittag: nil
+sgml-general-insert-case: lower
+sgml-shorttag: t
+End:
+-->
+

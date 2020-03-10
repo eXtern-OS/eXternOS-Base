@@ -1,0 +1,249 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ECMAddQtDesignerPlugin &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ECMAddTests" href="ECMAddTests.html" />
+    <link rel="prev" title="ECMAddQch" href="ECMAddQch.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ECMAddTests.html" title="ECMAddTests"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ECMAddQch.html" title="ECMAddQch"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" accesskey="U">ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ecmaddqtdesignerplugin">
+<span id="module:ECMAddQtDesignerPlugin"></span><h1>ECMAddQtDesignerPlugin<a class="headerlink" href="#ecmaddqtdesignerplugin" title="Permalink to this headline">¶</a></h1>
+<p>This module provides the <code class="docutils literal"><span class="pre">ecm_add_qtdesignerplugin</span></code> function for generating
+Qt Designer plugins for custom widgets. Each of those widgets is described
+using a second function <code class="docutils literal"><span class="pre">ecm_qtdesignerplugin_widget</span></code>.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_add_qtdesignerplugin</span><span class="p">(</span><span class="o">&lt;</span><span class="n">target_name</span><span class="o">&gt;</span>
+    <span class="n">NAME</span> <span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span>
+    <span class="n">WIDGETS</span> <span class="o">&lt;</span><span class="n">widgetid</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">widgetid2</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]</span>
+    <span class="n">LINK_LIBRARIES</span> <span class="o">&lt;</span><span class="n">lib</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">lib2</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]</span>
+    <span class="n">INSTALL_DESTINATION</span> <span class="o">&lt;</span><span class="n">install_path</span><span class="o">&gt;</span>
+    <span class="p">[</span><span class="n">OUTPUT_NAME</span> <span class="o">&lt;</span><span class="n">output_name</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">DEFAULT_GROUP</span> <span class="o">&lt;</span><span class="n">group</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">DEFAULT_HEADER_CASE</span> <span class="o">&lt;</span><span class="n">SAME_CASE</span><span class="o">|</span><span class="n">LOWER_CASE</span><span class="o">|</span><span class="n">UPPER_CASE</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">DEFAULT_HEADER_EXTENSION</span> <span class="o">&lt;</span><span class="n">header_extension</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">DEFAULT_ICON_DIR</span> <span class="o">&lt;</span><span class="n">icon_dir</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">INCLUDE_FILES</span> <span class="o">&lt;</span><span class="n">include_file</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">include_file2</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]]</span>
+    <span class="p">[</span><span class="n">SOURCES</span> <span class="o">&lt;</span><span class="n">src</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">src2</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]]</span>
+    <span class="p">[</span><span class="n">COMPONENT</span> <span class="o">&lt;</span><span class="n">component</span><span class="o">&gt;</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">NAME</span></code> specifies the base name to use in the generated sources.
+The default is &lt;target_name&gt;.</p>
+<p><code class="docutils literal"><span class="pre">WIDGETS</span></code> specifies the widgets the plugin should support. Each widget has
+to be defined before by a call of <code class="docutils literal"><span class="pre">ecm_qtdesignerplugin_widget</span></code> with the
+respective &lt;widgetid&gt;, in a scope including the current call.</p>
+<p><code class="docutils literal"><span class="pre">LINK_LIBRARIES</span></code> specifies the libraries to link against. This will be at
+least the library providing the widget class(es).</p>
+<p><code class="docutils literal"><span class="pre">INSTALL_DESTINATION</span></code> specifies where the generated plugin binary will be
+installed.</p>
+<p><code class="docutils literal"><span class="pre">OUTPUT_NAME</span></code> specifies the name of the plugin binary. The default is
+“&lt;target_name&gt;”.</p>
+<p><code class="docutils literal"><span class="pre">DEFAULT_GROUP</span></code> specifies the default group in Qt Designer where the
+widgets will be placed. The default is “Custom”.</p>
+<p><code class="docutils literal"><span class="pre">DEFAULT_HEADER_CASE</span></code> specifies how the name of the header is derived from
+the widget class name.  The default is “LOWER_CASE”.</p>
+<p><code class="docutils literal"><span class="pre">DEFAULT_HEADER_EXTENSION</span></code> specifies what file name extension is used for
+the header file derived from the class name.  The default is “h”.</p>
+<p><code class="docutils literal"><span class="pre">DEFAULT_ICON_DIR</span></code> specifies what file name extension is used for
+the header file derived from the class name.  The default is “pics”.</p>
+<p><code class="docutils literal"><span class="pre">INCLUDE_FILES</span></code> specifies additional include files to include with the
+generated source file. This can be needed for custom code used in
+initializing or creating widgets.</p>
+<p><code class="docutils literal"><span class="pre">SOURCES</span></code> specifies additional source files to build the plugin from.
+This can be needed to support custom code used in initializing or
+creating widgets.</p>
+<p><code class="docutils literal"><span class="pre">COMPONENT</span></code> specifies the installation component name with which the install
+rules for the generated plugin are associated.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_qtdesignerplugin_widget</span><span class="p">(</span><span class="o">&lt;</span><span class="n">widgetid</span><span class="o">&gt;</span>
+    <span class="p">[</span><span class="n">CLASS_NAME</span> <span class="o">&lt;</span><span class="n">class_name</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">INCLUDE_FILE</span> <span class="o">&lt;</span><span class="n">include_file</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">CONTAINER</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">ICON</span> <span class="o">&lt;</span><span class="n">iconfile</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">TOOLTIP</span> <span class="o">&lt;</span><span class="n">tooltip</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">WHATSTHIS</span> <span class="o">&lt;</span><span class="n">whatsthis</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">GROUP</span> <span class="o">&lt;</span><span class="n">group</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">CREATE_WIDGET_CODE_FROM_VARIABLE</span> <span class="o">&lt;</span><span class="n">create_widget_code_variable</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">INITIALIZE_CODE_FROM_VARIABLE</span> <span class="o">&lt;</span><span class="n">initialize_code_variable</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">DOM_XML_FROM_VARIABLE</span> <span class="o">&lt;</span><span class="n">dom_xml_variable</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">IMPL_CLASS_NAME</span> <span class="o">&lt;</span><span class="n">impl_class_name</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">CONSTRUCTOR_ARGS_CODE</span> <span class="o">&lt;</span><span class="n">constructor_args_code</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">CONSTRUCTOR_ARGS_CODE_FROM_VARIABLE</span> <span class="o">&lt;</span><span class="n">constructor_args_code_variable</span><span class="o">&gt;</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">CLASS_NAME</span></code> specifies the name of the widget class, including namespaces.
+The default is “&lt;widgetid&gt;”.</p>
+<p><code class="docutils literal"><span class="pre">INCLUDE_FILE</span></code> specifies the include file to use for the class of this
+widget. The default is derived from &lt;class_name&gt; as configured by the
+<code class="docutils literal"><span class="pre">DEFAULT_HEADER_*</span></code> options of <code class="docutils literal"><span class="pre">ecm_add_qtdesignerplugin</span></code>, also replacing
+any namespace separators with “/”.</p>
+<p><code class="docutils literal"><span class="pre">CONTAINER</span></code> specifies, if set, that this widget is a container
+for other widgets.</p>
+<p><code class="docutils literal"><span class="pre">ICON</span></code> specifies the icon file to use as symbol for this widget.
+The default is “{lowercased &lt;class_name&gt;}.png” in the default icons dir as
+configured by the <code class="docutils literal"><span class="pre">DEFAULT_ICON_DIR</span></code> option of
+<code class="docutils literal"><span class="pre">ecm_add_qtdesignerplugin</span></code>, if such a file exists.</p>
+<p><code class="docutils literal"><span class="pre">TOOLTIP</span></code> specifies the tooltip text to use for this widget. Default is
+“&lt;class_name&gt; Widget”.</p>
+<p><code class="docutils literal"><span class="pre">WHATSTHIS</span></code> specifies the What’s-This text to use for this widget.
+Defaults to the tooltip.</p>
+<p><code class="docutils literal"><span class="pre">GROUP</span></code> specifies the group in Qt Designer where the widget will be placed.
+The default is set as configured by the <code class="docutils literal"><span class="pre">DEFAULT_GROUP</span></code> option of
+<code class="docutils literal"><span class="pre">ecm_add_qtdesignerplugin</span></code>.</p>
+<p><code class="docutils literal"><span class="pre">CREATE_WIDGET_CODE_FROM_VARIABLE</span></code> specifies the variable to get from the
+C++ code to use as factory code to create an instance of the widget,
+for the override of
+<code class="docutils literal"><span class="pre">QDesignerCustomWidgetInterface::createWidget(QWidget*</span> <span class="pre">parent)</span></code>.
+The default is “return new &lt;impl_class_name&gt;&lt;constructor_args_code&gt;;”.</p>
+<p><code class="docutils literal"><span class="pre">INITIALIZE_CODE_FROM_VARIABLE</span></code> specifies the variable to get from the C++
+code to use with the override of
+<code class="docutils literal"><span class="pre">QDesignerCustomWidgetInterface::initialize(QDesignerFormEditorInterface*</span> <span class="pre">core)</span></code>.
+The code has to use the present class member <code class="docutils literal"><span class="pre">m_initialized</span></code> to track and
+update the state. The default code simply sets <code class="docutils literal"><span class="pre">m_initialized</span></code> to
+<code class="docutils literal"><span class="pre">true</span></code>, if it was not before.</p>
+<p><code class="docutils literal"><span class="pre">DOM_XML_FROM_VARIABLE</span></code> specifies the variable to get from the string to
+use with the optional override of
+<code class="docutils literal"><span class="pre">QDesignerCustomWidgetInterface::domXml()</span></code>.
+Default does not override.</p>
+<p><code class="docutils literal"><span class="pre">IMPL_CLASS_NAME</span></code> specifies the name of the widget class to use for the
+widget instance with Qt Designer. The default is “&lt;class_name&gt;”.</p>
+<p><code class="docutils literal"><span class="pre">CONSTRUCTOR_ARGS_CODE</span></code> specifies the C++ code to use for the constructor
+arguments with the default of <code class="docutils literal"><span class="pre">CREATE_WIDGET_CODE_FROM_VARIABLE</span></code>. Note
+that the parentheses are required. The default is “(parent)”.</p>
+<p><code class="docutils literal"><span class="pre">CONSTRUCTOR_ARGS_CODE_FROM_VARIABLE</span></code> specifies the variable to get from
+the C++ code instead of passing it directly via <code class="docutils literal"><span class="pre">CONSTRUCTOR_ARGS_CODE</span></code>.
+This can be needed if the code is more complex and e.g. includes “;” chars.</p>
+<p>Example usage:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">ecm_qtdesignerplugin_widget</span><span class="p">(</span><span class="s">FooWidget</span>
+    <span class="s">TOOLTIP</span> <span class="s2">&quot;Enables to browse foo.&quot;</span>
+    <span class="s">GROUP</span> <span class="s2">&quot;Views (Foo)&quot;</span>
+<span class="p">)</span>
+
+<span class="nb">set</span><span class="p">(</span><span class="s">BarWidget_CREATE_WIDGET_CODE</span>
+<span class="s2">&quot;</span>
+<span class="s2">    auto* widget = new BarWidget(parent);</span>
+<span class="s2">    widget-&gt;setBar(&quot;</span><span class="s">Example</span> <span class="s">bar</span><span class="s2">&quot;);</span>
+<span class="s2">    return widget;</span>
+<span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">ecm_qtdesignerplugin_widget</span><span class="p">(</span><span class="s">BarWidget</span>
+    <span class="s">TOOLTIP</span> <span class="s2">&quot;Displays bars.&quot;</span>
+    <span class="s">GROUP</span> <span class="s2">&quot;Display (Foo)&quot;</span>
+    <span class="s">CREATE_WIDGET_CODE_FROM_VARIABLE</span> <span class="s">BarWidget_CREATE_WIDGET_CODE</span>
+<span class="p">)</span>
+
+<span class="nb">ecm_add_qtdesignerplugin</span><span class="p">(</span><span class="s">foowidgets</span>
+    <span class="s">NAME</span> <span class="s">FooWidgets</span>
+    <span class="s">OUTPUT_NAME</span> <span class="s">foo2widgets</span>
+    <span class="s">WIDGETS</span>
+        <span class="s">FooWidget</span>
+        <span class="s">BarWidget</span>
+    <span class="s">LINK_LIBRARIES</span>
+        <span class="s">Foo::Widgets</span>
+    <span class="s">INSTALL_DESTINATION</span> <span class="s2">&quot;${KDE_INSTALL_QTPLUGINDIR}/designer&quot;</span>
+    <span class="s">COMPONENT</span> <span class="s">Devel</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Since 5.62.0.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ECMAddQch.html"
+                        title="previous chapter">ECMAddQch</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ECMAddTests.html"
+                        title="next chapter">ECMAddTests</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/module/ECMAddQtDesignerPlugin.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ECMAddTests.html" title="ECMAddTests"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ECMAddQch.html" title="ECMAddQch"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" >ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

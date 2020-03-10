@@ -1,0 +1,51 @@
+From: Marek Michalkiewicz <marekm@linux.org.pl>
+To: Debian Bug Tracking System <submit@bugs.debian.org>
+Subject: Bug#85426: default route uses wrong interface with the same IP address
+
+Package: ppp
+Version: 2.4.0f-1
+Severity: wishlist
+
+The pppd "defaultroute" option, when the ppp0 interface comes up, seems
+to do the equivalent of "route add default gw $ip_address", and I think
+it should do the equivalent of "route add default dev ppp0" instead.
+
+In most normal cases this shouldn't matter (because each interface has
+its own unique IP address), but specifying the interface by name (not
+by its IP address) may be preferable if there is more than one interface
+with the same IP address.
+
+I have a dummy0 interface with the same IP address as that of ppp0.
+This makes it possible to connect to the box from the internal LAN
+using its normal hostname (even if ppp0 is down at the moment), and
+to run named (possibly started before ppp0 comes up) as non-root.
+
+Using the "defaultroute" option causes pppd to set up the default route
+via dummy0 (first device found with matching IP address), not ppp0.
+I've worked around this by disabling the pppd defaultroute option and
+creating a small shell script called /etc/ppp/ip-up.d/000defaultroute
+(run before 00ipmasq) with the following contents:
+
+#! /bin/sh
+set -e
+/sbin/route add default dev $PPP_IFACE
+
+This gets the default route right (no corresponding ip-down script is
+necessary - when ppp0 goes down, the route is removed automatically).
+Please consider at least documenting this workaround, as I think it
+may be useful to someone.
+
+Thanks,
+Marek
+
+-- System Information
+Debian Release: testing/unstable
+Architecture: i386
+Kernel: Linux alf 2.2.19pre7 #1 Sat Jan 27 15:26:41 CET 2001 i586
+
+Versions of packages ppp depends on:
+ii  libc6                         2.2.1-1    GNU C Library: Shared libraries an
+ii  libpam-modules                0.72-12    Pluggable Authentication Modules f
+ii  libpam0g                      0.72-12    Pluggable Authentication Modules l
+ii  netbase                       4.05       Basic TCP/IP networking system    
+ii  sysvinit                      2.78-4     System-V like init.               

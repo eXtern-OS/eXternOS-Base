@@ -1,0 +1,82 @@
+gnome-getting-started-docs
+==========================
+
+This package contains the Getting Started guide which is packaged and
+shipped as gnome-getting-started-docs in the core GNOME distribution.
+
+The GNOME Documentation Project (GDP) is responsible for this documentation.
+
+GDP homepage: http://live.gnome.org/DocumentationProject
+GDP mailing list: http://mail.gnome.org/mailman/listinfo/gnome-doc-list
+
+Translators
+-----------
+
+Although this guide includes a number of media files (videos, SVGs),
+translators just need to translate a single POT file for the Getting Started
+guide, which also includes strings extracted from the media files.
+
+Where to get translated videos
+------------------------------
+
+As a temporary workaround for https://bugzilla.gnome.org/show_bug.cgi?id=699998,
+translated videos are not stored in the Git repository anymore, instead, they
+are pulled from an external source at the following URL when releasing a new
+tarball:
+
+http://people.gnome.org/~jimmac/gnome-getting-started-docs/
+
+Rendering video files
+---------------------
+
+Rendering translated videos is not currently supported at build time. If you
+want to have the video files generated for your language, please get in touch
+with gnome-getting-started-docs maintainers. The plan is to have the video
+files generated for all available languages when releasing a new tarball.
+
+See the animation/language-whitelist.txt file in the gnome-getting-started-docs
+repository for a list of languages for which the videos are currently rendered.
+
+Generating SVG files
+--------------------
+
+To generate translated SVGs that are used as still images for some topics in
+the guide, run the following command in the gnome-getting-started-docs root
+directory:
+
+./autogen.sh && make
+
+Then change to the gnome-help/<your_language>/ directory to see your
+translated SVGs.
+
+Note that depending on your distribution, you may need to install some
+additional packages to run the commands.
+
+Please do not commit the generated SVGs, these files will be regenerated for
+all available languages when releasing a new tarball. The .gitignore file is
+properly set to ignore these files.
+
+The gs-browse-web.page file
+---------------------------
+
+The gs-browse-web.page file contains conditionalized information on both the
+upstream default browser Web (Epiphany) and Firefox, which often replaces Web
+as the default browser downstream.
+
+See comments in the gs-browse-web.page file for a hint on how to adjust the
+file so that the appropriate information is displayed for your downstream
+distribution.
+
+Language packs
+--------------
+
+Given the size of the video files, distributors might want to create
+language packs for individual locales, as the overall package size for
+the gnome-getting-started-docs package would be too large otherwise.
+
+Reporting problems
+------------------
+
+If you find problems in the documentation, please report bugs in GNOME Bugzilla:
+
+https://bugzilla.gnome.org/enter_bug.cgi?product=gnome-getting-started

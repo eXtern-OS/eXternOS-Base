@@ -1,0 +1,24 @@
+inputattach for Debian
+----------------------
+
+This package does not include an initscript to initialize your
+devices automatically; it isn't possible to adequately control
+inputattach as would be required for an initscript.
+
+To automatically attach a serial device to the input layer, the
+recommended approach is simply to add the appropriate lines to
+/etc/rc.local, or to a local udev rules file. For example, to
+configure a Mouse Systems mouse on the first serial port:
+ * in /etc/rc.local
+	inputattach --daemon -msc /dev/ttyS0
+ * or in /etc/udev/010_local.rules
+	ACTION=="add", KERNEL=="ttyS0", RUN+="/usr/bin/inputattach --daemon -msc /dev/%k"
+
+This package includes udev rules to automatically attach Wacom W8001
+devices on Fujitsu T2010 or Lenovo X200-series laptops and tablets.
+These rules conflict with versions of xserver-xorg-wacom matching WACf
+or FUJ02e5 in a MatchProduct line; to use the tablets with
+inputattach, the matching identifiers in the MatchProduct line must be
+removed so that the evdev driver is used in X.org.
+
+ -- Stephen Kitt <skitt@debian.org>, Fri,  8 Jan 2016 23:50:11 +0100

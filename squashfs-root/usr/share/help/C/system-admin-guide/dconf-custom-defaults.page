@@ -1,0 +1,109 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      type="topic" style="task"
+      id="dconf-custom-defaults">
+
+  <info>
+    <link type="guide" xref="setup" />
+    <link type="seealso" xref="dconf-profiles" />
+    <link type="seealso" xref="dconf-lockdown" />
+    <link type="seealso" xref="dconf" />
+    <revision pkgversion="3.6" version="0.1" date="2012-05-21" status="draft"/>
+
+    <credit type="author copyright">
+      <name>Ryan Lortie</name>
+      <email>desrt@desrt.ca</email>
+      <years>2012</years>
+    </credit>
+    <credit type="author copyright">
+      <name>Jeremy Bicha</name>
+      <email>jbicha@ubuntu.com</email>
+      <years>2012</years>
+    </credit>
+    <credit type="author copyright">
+      <name>Jim Campbell</name>
+      <email>jwcampbell@gmail.com</email>
+      <years>2012</years>
+    </credit>
+    <credit type="editor">
+      <name>Jana Svarova</name>
+      <email>jana.svarova@gmail.com</email>
+      <years>2013</years>
+    </credit>
+    <credit type="copyright editor">
+      <name>Ekaterina Gerasimova</name>
+      <email>kittykat3756@gmail.com</email>
+      <years>2013</years>
+    </credit>
+
+    <include href="legal.xml" xmlns="http://www.w3.org/2001/XInclude"/>
+
+    <desc>Set system-wide default settings using
+    <sys its:translate="no">dconf</sys> profiles.</desc>
+
+  </info>
+
+  <title>Custom default values for system settings</title>
+
+  <!-- TODO: reveiw against dconf-lockdown.page -->
+
+  <p>System-wide default settings can be set by providing a default for a key
+  in a <sys its:translate="no">dconf</sys> profile. These defaults can be
+  overridden by the user.</p>
+
+<section id="example">
+  <title>Set a default value</title>
+
+  <p>To set a default for a key, the <sys>user</sys> profile must exist and the
+  value for the key must be added to a <sys its:translate="no">dconf</sys>
+  database.</p>
+
+  <comment>
+    <cite date="2012-08-14">Jeremy Bicha</cite>
+    <p>You don't have to use "local" as the profile name. You can even have
+    different profiles for different users. This isn't mentioned because this
+    functionality needs something like accountsservice integration to enforce
+    this. gnome-control-center integration would be great too.</p>
+  </comment>
+
+  <steps>
+    <title>An example demonstrating how to set the default background</title>
+    <item>
+      <p>Create the <file its:translate="no">user</file> profile:</p>
+      <listing its:translate="no">
+        <title><file>/etc/dconf/profile/user</file></title>
+        <code>user-db:user
+system-db:local</code>
+      </listing>
+      <p><input its:translate="no">local</input> is the name of a
+      <sys its:translate="no">dconf</sys> database.</p>
+    </item>
+    <item>
+      <p>Create a <em>keyfile</em> for the <input its:translate="no">local</input>
+      database which contains the default settings:</p>
+      <listing its:translate="no">
+        <title><file>/etc/dconf/db/local.d/01-background</file></title>
+<code># <span its:translate="yes">dconf path</span>
+[org/gnome/desktop/background]
+
+# <span its:translate="yes">dconf key names and their corresponding values</span>
+picture-uri='file:///usr/local/share/backgrounds/wallpaper.jpg'
+picture-options='scaled'
+primary-color='000000'
+secondary-color='FFFFFF'</code>
+      </listing>
+    </item>
+    <include href="dconf-snippets.xml"
+      xpointer="xpointer(/*/*[@xml:id='dconf-update'])"
+      xmlns="http://www.w3.org/2001/XInclude"/>
+  </steps>
+
+  <note>
+    <p>When the <sys its:translate="no">user</sys> profile is created or
+    changed, the user will need to log out and log in again before the changes
+    will be applied.</p>
+  </note>
+
+</section>
+
+</page>

@@ -1,0 +1,52 @@
+
+. /scripts/functions
+
+# Print a message and wait for enter
+log_wait_msg()
+{
+	if [ -x /bin/plymouth ] && plymouth --ping; then
+		plymouth message --text="$@"
+		plymouth watch-keystroke | read nunya
+	fi
+	_log_msg "Waiting: $@ ..."
+}
+
+lang2locale() {
+	langpart="${1%%_*}"
+	if [ "$1" != "C" ]; then
+		# Match the language code with 1st field in languagelist
+		line=$(grep -v "^#" /root/usr/share/localechooser/languagelist | cut -f1,3,4 -d\; | grep -v ';C$' | grep "^$langpart[_;]")
+		if [ -n "$line" ]; then
+			if [ "$(echo "$line" | grep -c '')" -gt 1 ]; then
+				# More than one match; try matching the
+				# country as well.
+				countrypart="${1#*_}"
+				if [ "$countrypart" = "$1" ]; then
+					countryline="$(echo "$line" | head -n1)"
+					echo "${countryline##*;}"
+					return
+				fi
+				countrypart="${countrypart%%[@.]*}"
+				countryline="$(echo "$line" | grep ";$countrypart;" | head -n1 || true)"
+				if [ "$countryline" ]; then
+					echo "${countryline##*;}"
+					return
+				fi
+			fi
+			echo "${line##*;}"
+		fi
+	else
+		echo "C"
+	fi
+}
+
+load_confmodule() {
+	# Only do this once.
+	if [ -z "$DEBCONF_REDIR" ]; then
+		exec <&4
+		export DEBIAN_HAS_FRONTEND=1
+		export DEBCONF_REDIR=1
+	fi
+
+	. /root/usr/share/debconf/confmodule
+}

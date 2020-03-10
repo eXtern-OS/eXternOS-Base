@@ -1,0 +1,43 @@
+pnm2ppa for Debian
+----------------------
+
+This Debian package is a rewrite of the original pnm2ppa package using the
+Debian Build System (dbs) and debconf templates.  The goal of this conversion
+was to bring pnm2ppa packages up to date with current Debian standards and to
+clean up the installation and upgrade process.  This package provides the
+following:
+
+	o A reasonable default configuration file
+	o Clean generation of magicfilter files 
+	o Basic debconf management of the pnm2ppa.conf file
+
+Debconf and Configuration
+-------------------------
+Debconf asks whether or not you'ld like it to manage your /etc/pnm2ppa.conf
+file and whether or not you want magicfilters generated in the /etc/magicfilter
+directory.  If you choose to do this manually, you will need to edit the
+/etc/pnm2ppa.conf file yourself.
+
+        You MUST choose a printer model for pnm2ppa to work!
+	
+Some models behave differently than others, so pnm2ppa will fail if you do not
+choose a model.
+
+Magicfilter
+-----------
+Magicfilter is a useful print filtering tool to help you manage your
+/etc/printcap with print servers such as lpd or lprng.  If you are using
+cupsys, you will not need magicfilter.  There is a template for these filters
+located in /usr/share/pnm2ppa/templates called pnm2ppa-magicfilter.in.  The
+scriptlet /usr/share/pnm2ppa/update-magicfilter will take this template and
+generate four filters: color, color economy, black and white, and black and
+white economy.
+
+Additionally, symbolic links are created from the generated pnm2ppa magicfilter
+files to pbm2ppa filters (the deprecated predecessor to pnm2ppa).  This is
+simply provided for backwards compatibility with an existing /etc/printcap you
+may be using.  This feature may be removed in the future.
+
+Once the filters are installed, run magicfilterconfig to generate your
+/etc/printcap.
+

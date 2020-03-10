@@ -1,0 +1,22 @@
+#! /bin/sh
+set -e
+
+OPTION=FRAMEBUFFER
+PREREQ="framebuffer console_setup"
+
+prereqs () {
+	echo "$PREREQ"
+}
+
+case $1 in
+	prereqs)
+		prereqs
+		exit 0
+		;;
+esac
+
+if grep -q braille=ask /proc/cmdline; then
+	brltty-setup || true
+fi
+
+exit 0

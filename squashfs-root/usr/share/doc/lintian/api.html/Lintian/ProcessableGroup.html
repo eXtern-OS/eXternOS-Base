@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::ProcessableGroup</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#METHODS'>METHODS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::ProcessableGroup -- A group of objects that Lintian can process</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre> use Lintian::ProcessableGroup;
+
+ my $group = Lintian::ProcessableGroup-&#62;new(&#39;lintian_2.5.0_i386.changes&#39;);
+ foreach my $proc ($group-&#62;get_processables){
+     printf &#34;%s %s (%s)\n&#34;, $proc-&#62;pkg_name,
+            $proc-&#62;pkg_version, $proc-&#62;pkg_type;
+ }
+ # etc.</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Instances of this perl class are sets of <a href="../Lintian/Processable.html" class="podlinkpod"
+>processables</a>. It allows at most one source and one changes or buildinfo package per set, but multiple binary packages (provided that the binary is not already in the set).</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="METHODS"
+>METHODS</a></h1>
+
+<dl>
+<dt><a name="Lintian::ProcessableGroup-&#62;new_([LAB[,_FILE]])"
+>Lintian::ProcessableGroup-&#62;new ([LAB[, FILE]])</a></dt>
+
+<dd>
+<p>Creates a group and optionally add all processables from .changes or .buildinfo file FILE.</p>
+
+<p>If the LAB parameter is given, all processables added to this group will be stored as a <a href="../Lintian/Lab/Entry.html" class="podlinkpod"
+>lab entry</a> from LAB.</p>
+
+<dt><a name="$group-&#62;add_new_processable_($pkg_path[,_$pkg_type])"
+>$group-&#62;add_new_processable ($pkg_path[, $pkg_type])</a></dt>
+
+<dd>
+<p>Adds a new processable of type $pkg_type from $pkg_path. If $pkg_type is not given, it will be determined by the file extension.</p>
+
+<p>This is short hand for:</p>
+
+<pre> $group-&#62;add_processable(
+    Lintian::Processable-&#62;new ($pkg_path, $pkg_type));</pre>
+
+<dt><a name="$group-&#62;add_processable($proc)"
+>$group-&#62;add_processable($proc)</a></dt>
+
+<dd>
+<p>Adds $proc to $group. At most one source and one changes $proc can be in a $group. There can be multiple binary $proc&#39;s, as long as they are all unique.</p>
+
+<p>This will error out if an additional source or changes $proc is added to the group. Otherwise it will return a truth value if $proc was added.</p>
+
+<dt><a name="$group-&#62;get_processables([$type])"
+>$group-&#62;get_processables([$type])</a></dt>
+
+<dd>
+<p>Returns an array of all processables in $group. The processables are returned in the following order: changes (if any), source (if any), all binaries (if any) and all udebs (if any).</p>
+
+<p>This order is based on the original order that Lintian processed packages in and some parts of the code relies on this order.</p>
+
+<p>Note if $type is given, then only processables of that type is returned.</p>
+
+<dt><a name="$group-&#62;remove_processable($proc)"
+>$group-&#62;remove_processable($proc)</a></dt>
+
+<dd>
+<p>Removes $proc from $group</p>
+
+<dt><a name="$group-&#62;get_source_processable"
+>$group-&#62;get_source_processable</a></dt>
+
+<dd>
+<p>Returns the processable identified as the &#34;source&#34; package (e.g. the dsc).</p>
+
+<p>If $group does not have a source processable, this method returns <code>undef</code>.</p>
+
+<dt><a name="$group-&#62;get_buildinfo_processable"
+>$group-&#62;get_buildinfo_processable</a></dt>
+
+<dd>
+<p>Returns the processable identified as the &#34;buildinfo&#34; processable (e.g. the buildinfo file).</p>
+
+<p>If $group does not have a buildinfo processable, this method returns <code>undef</code>.</p>
+
+<dt><a name="$group-&#62;get_changes_processable"
+>$group-&#62;get_changes_processable</a></dt>
+
+<dd>
+<p>Returns the processable identified as the &#34;changes&#34; processable (e.g. the changes file).</p>
+
+<p>If $group does not have a changes processable, this method returns <code>undef</code>.</p>
+
+<dt><a name="$group-&#62;get_binary_processables"
+>$group-&#62;get_binary_processables</a></dt>
+
+<dd>
+<p>Returns all binary (and udeb) processables in $group.</p>
+
+<p>If $group does not have any binary processables then an empty list is returned.</p>
+
+<dt><a name="$group-&#62;info"
+>$group-&#62;info</a></dt>
+
+<dd>
+<p>Returns <a href="../Lintian/Collect/Group.html" class="podlinkpod"
+>$info</a> element for this group.</p>
+
+<dt><a name="$group-&#62;init_shared_cache"
+>$group-&#62;init_shared_cache</a></dt>
+
+<dd>
+<p>Prepare a shared memory cache for all current members of the group. This is solely a memory saving optimization and is not required for correct performance.</p>
+
+<dt><a name="$group-&#62;clear_cache"
+>$group-&#62;clear_cache</a></dt>
+
+<dd>
+<p>Discard the info element of all members of this group, so the memory used by it can be reclaimed. Mostly useful when checking a lot of packages (e.g. on lintian.d.o).</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Niels Thykier &#60;niels@thykier.net&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1)</p>
+
+<p><a href="../Lintian/Processable.html" class="podlinkpod"
+>Lintian::Processable</a></p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

@@ -1,0 +1,54 @@
+OpenBSD netcat for Debian
+-------------------------
+
+Merge with upstream again, now it links against -lresov and -lbsd. The
+former one is from libc, and the latter provides a good strlcpy(). Now
+the package has a much saner dependency to make its way into base system.
+A lot of bug fixes and some new features are also applied.
+
+For record, the reason of not implementing features like -c or -e in this
+cat is about security. These options enable anyone on the system to open
+port and execute arbitrary command on local host from remote very easily,
+which is not desired for ordinary multi-user systems. If you do need such
+function, please try nc.traditional or nc6.
+
+ -- Aron Xu <aron@debian.org>  Wed, 15 Feb 2012 01:39:04 +0800
+
+This package has been rebased on OpenBSD's implementation of netcat. The
+code has been massively cleaned up, and important functionality has been
+added.
+
+ -- Soren Hansen <soren@ubuntu.com>  Tue, 15 Jan 2008 10:38:34 +0100
+
+The OpenBSD implementation has been split from netcat-traditional for
+two reasons (not counting sentimental value):
+
+ 1. Netcat should be part of the base system; OpenBSD netcat uses
+    strlcpy. While there is already a perfectly good implementation of
+    strlcpy in Debian, it is part of glib, which is not included in base.
+ 2. Packages should not be replaced under users' feet; a transitional
+    package will be provided for lenny so that users can note the new
+    package and switch if they wish.
+
+You may install this package alongside netcat-traditional; they both
+use the alternatives system for nc(1) as well as the deprecated alias
+netcat(1). Other implementations of netcat with compatible command line
+options are encouraged to also do so and provide the virtual package
+"netcat".
+
+The following features from netcat-traditional will not be added to this
+package:
+
+  * The -e and -c options (This should be done by redirecting the
+    appropriate file descriptors, not within netcat. How to do so should
+    be better documented.)
+  * Printing "connection refused" messages when -v is not specified
+    (because there is only one level of verbosity in this netcat, and
+    that message is primarily what the option is for.)
+
+Anything else that netcat-traditional does that this package doesn't
+is a bug. Wherever possible, command-line compatibility with the BSDs
+and Fedora is desired, but it should be easy to use netcat-openbsd as a
+"drop-in" replacement for netcat-traditional as well.
+
+ -- Decklin Foster <decklin@red-bean.com>  Tue, 22 Jan 2008 18:50:08 -0500

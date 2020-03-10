@@ -1,0 +1,73 @@
+Check-Script: conffiles
+Author: Christian Schwarz <schwarz@debian.org>
+Abbrev: cnf
+Type: binary
+Needs-Info: bin-pkg-control, unpacked
+Info: This script checks if the conffiles control file of a binary
+ package is correct.
+
+Tag: file-in-usr-marked-as-conffile
+Severity: serious
+Certainty: certain
+Ref: policy 10.7.2
+Info: All configuration files must reside in <tt>/etc</tt>.  Files below
+ <tt>/usr</tt> may not be marked as conffiles since <tt>/usr</tt> might be
+ mounted read-only.  The local system administrator would therefore not
+ have a chance to modify this configuration file.
+
+Tag: non-etc-file-marked-as-conffile
+Severity: serious
+Certainty: possible
+Info: A file installed in some other directory than <tt>/etc</tt>
+ is marked as conffile.  A conffile typically implies a configuration
+ file, and Policy mandates such files to be in <tt>/etc</tt>.
+Ref: policy 10.7.2
+
+Tag: relative-conffile
+Severity: important
+Certainty: certain
+Ref: policy 5.1*
+Info: All entries in the <tt>debian/conffiles</tt> control file should
+ have an absolute path specification.
+
+Tag: duplicate-conffile
+Severity: important
+Certainty: certain
+Info: The file is listed more than once in your <tt>debian/conffiles</tt> file.
+ Usually, this is because debhelper (dh_installdeb, compat level 3 or higher)
+ will add any files in your package located in /etc automatically to the list
+ of conffiles, so if you do that manually too, you'll get duplicates.
+
+Tag: file-in-etc-not-marked-as-conffile
+Severity: serious
+Certainty: certain
+Ref: policy 10.7
+Info: Files in <tt>/etc</tt> must be marked conffiles if they are included
+ in a package.  Otherwise they should be created by maintainer scripts.
+
+Tag: file-in-etc-rc.d-marked-as-conffile
+Severity: important
+Certainty: certain
+Ref: policy 9.3.3
+Info: The symbolic links in <tt>/etc/rc?.d</tt> may not be marked as conffiles.
+
+Tag: conffile-has-bad-file-type
+Severity: important
+Certainty: certain
+Ref: #690051, #690910
+Info: The conffiles lists this path, which is not a file.  This will
+ almost certainly not work.
+ .
+ Note that dpkg does not support symlinks being conffiles.
+
+Tag: conffile-is-not-in-package
+Severity: important
+Certainty: certain
+Info: The conffiles control file lists this path, but the path does
+ not appear to exist in the package.  Lintian may also emit this tag
+ when the file exists, but the canonical name is used in the
+ "conffiles" control file (e.g. if a parent segment are symlinks).
+ .
+ Note that dpkg and Lintian strips all whitespace from the right hand
+ side of each line.  Thus it is not possible for a file ending with
+ trailing whitespace to be marked as a conffile.

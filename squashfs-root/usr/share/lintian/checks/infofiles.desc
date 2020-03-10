@@ -1,0 +1,83 @@
+Check-Script: infofiles
+Author: Josip Rodin <jrodin@jagor.srce.hr>
+Abbrev: info
+Type: binary
+Needs-Info: unpacked, file-info
+Info: This script checks if a binary package conforms to info document policy.
+
+Tag: info-document-not-compressed
+Severity: important
+Certainty: certain
+Info: Info documents should be compressed with <tt>gzip -9n</tt>.
+Ref: policy 12.2
+
+Tag: info-document-not-compressed-with-gzip
+Severity: important
+Certainty: certain
+Info: Info documents should be compressed with <tt>gzip -9n</tt>.  This
+ file ends in <tt>.gz</tt> but doesn't appear to be a gzip-compressed
+ file.
+Ref: policy 12.2
+
+Tag: info-document-not-compressed-with-max-compression
+Severity: important
+Certainty: certain
+Info: Info documents should be compressed with <tt>gzip -9n</tt>.  This
+ file is compressed with gzip, but without using maximum compression.
+Ref: policy 12.2
+
+Tag: info-document-has-wrong-extension
+Severity: normal
+Certainty: certain
+Info: The info document has an extension other than info*.gz.
+
+Tag: info-document-missing-dir-section
+Severity: important
+Certainty: certain
+Info: This info document has no INFO-DIR-SECTION line.
+ <tt>install-info</tt> will be unable to determine the section into which
+ this info page should be put.  The best solution is to add a line like:
+ .
+   @dircategory Software development
+ .
+ to the texinfo source so that the generated info file will contain a
+ section.  See <tt>/usr/share/info/dir</tt> for sections to choose from.
+ You will have to ensure that the build process builds new info files
+ rather than using ones built by upstream.
+
+Tag: info-document-missing-dir-entry
+Severity: important
+Certainty: certain
+Info: This info document has no directory entry.  This is text between
+ START-INFO-DIR-ENTRY and END-INFO-DIR-ENTRY lines which is copied into
+ the <tt>dir</tt> file in <tt>/usr/share/info</tt> by
+ <tt>install-info</tt>.  The best solution is to add lines like:
+ .
+   @dircategory Software development
+   @direntry
+   * foo: (foo).                Foo creator and editor
+   @end direntry
+ .
+ to the texinfo source so that the generated info file will contain an
+ appropriate entry.  You will have to ensure that the build process builds
+ new info files rather than using ones built by upstream.
+
+Tag: info-document-missing-image-file
+Severity: normal
+Certainty: certain
+Info: This info document contains an "[image]" but the image file it
+ specifies is missing.  Texinfo <tt>@image{}</tt> becomes
+ .
+  [image src="filename.png"]
+ .
+ in the <tt>.info</tt>.  Emacs 22 and up info
+ mode can display this in a GUI if filename.png is in
+ <tt>/usr/share/info</tt> or if the src gives a path to the file
+ elsewhere.
+ .
+ If you put an image file in <tt>/usr/share/info</tt> then please name
+ it like the document so as to avoid name clashes.  Eg. foo.info might
+ call an image foo-example1.png.  If upstream does not do this already
+ then it may be easier to <tt>sed</tt> the <tt>src=""</tt> to a path
+ elsewhere, perhaps to share with an HTML rendition under say
+ <tt>/usr/share/doc/foo/html/</tt>.

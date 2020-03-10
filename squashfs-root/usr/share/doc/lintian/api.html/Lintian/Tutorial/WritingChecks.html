@@ -1,0 +1,589 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Tutorial::WritingChecks</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#Create_a_check_.desc_file'>Create a check .desc file</a>
+    <li class='indexItem indexItem2'><a href='#Create_the_Perl_check_module'>Create the Perl check module</a>
+    <li class='indexItem indexItem2'><a href='#Emitting_a_tag'>Emitting a tag</a>
+    <li class='indexItem indexItem2'><a href='#Accessing_fields'>Accessing fields</a>
+    <li class='indexItem indexItem2'><a href='#Checking_dependencies'>Checking dependencies</a>
+    <li class='indexItem indexItem2'><a href='#Using_static_data_files'>Using static data files</a>
+    <li class='indexItem indexItem2'><a href='#Accessing_contents_of_the_package'>Accessing contents of the package</a>
+    <ul   class='indexList indexList3'>
+      <li class='indexItem indexItem3'><a href='#Accessing_contents_of_a_file_in_a_package'>Accessing contents of a file in a package</a>
+    </ul>
+    <li class='indexItem indexItem2'><a href='#Keeping_Needs-Info_up_to_date'>Keeping Needs-Info up to date</a>
+    <li class='indexItem indexItem2'><a href='#Avoiding_security_issues'>Avoiding security issues</a>
+  </ul>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Tutorial::WritingChecks -- Writing checks for Lintian</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<p>This guide will quickly guide you through the basics of writing a Lintian check.
+Most of the work is in writing the two files:</p>
+
+<pre>  checks/&#60;my-check&#62;.pm
+  checks/&#60;my-check&#62;.desc</pre>
+
+<p>And then either adding a Lintian profile or extending an existing one.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>The basics of writing a check are outlined in the Lintian User Manual (&#167;3.3). This tutorial will focus on the act of writing the actual check. In this tutorial, we will assume the name of the check to be written is &#34;deb/pkg-check&#34;.</p>
+
+<p>The tutorial will work with a &#34;binary&#34; and &#34;udeb&#34; check. Checking source packages works in a similar fashion.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Create_a_check_.desc_file"
+>Create a check <i>.desc</i> file</a></h2>
+
+<p>As mentioned, this tutorial will focus on the writing of a check. Please see the Lintian User Manual (&#167;3.3) for how to do this part.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Create_the_Perl_check_module"
+>Create the Perl check module</a></h2>
+
+<p>Start with the template:</p>
+
+<pre> # deb/pkg-check is loaded as Lintian::deb::pkg_check
+ # - See Lintian User Manual &#167;3.3 for more info
+ package Lintian::deb::pkg_check;
+
+ use strict;
+ use warnings;
+ 
+ use Lintian::Tags qw(tag);
+ 
+ sub run {
+     my ($pkg, $type, $info, $proc, $group) = @_;
+     return;
+ }</pre>
+
+<p>The snippet above is a simple valid check that does &#34;nothing at all&#34;. We will extend it in just a moment, but first let us have a look at the arguments at the setup.</p>
+
+<p>The <i>run</i> sub is the entry point of our &#34;deb/pkg-check&#34; check; it will be invoked once per package it should process. In our case, that will be once per &#34;binary&#34; (.deb) and once per udeb package processed.</p>
+
+<p>It is given 5 arguments (in the future, possibly more), which are:</p>
+
+<dl>
+<dt><a name="$pkg_-_The_name_of_the_package_being_processed."
+>$pkg - The name of the package being processed.</a></dt>
+
+<dd>
+<p>(Same as $proc-&#62;pkg_name)</p>
+
+<dt><a name="$type_-_The_type_of_the_package_being_processed."
+>$type - The type of the package being processed.</a></dt>
+
+<dd>
+<p>At the moment, $type is one of &#34;binary&#34; (.deb), &#34;udeb&#34;, &#34;source&#34; (.dsc) or &#34;changes&#34;. This argument is mostly useful if certain checks do not apply equally to all package types being processed.</p>
+
+<p>Generally it is advisable to check only binaries (&#34;binary&#34; and &#34;udeb&#34;), sources or changes in a given check. But in rare cases, it makes sense to lump multiple types together in the same check and this argument helps you do that.</p>
+
+<p>(Current it is always identical to $proc-&#62;pkg_type)</p>
+
+<dt><a name="$info_-_Accessor_to_the_data_Lintian_has_extracted"
+>$info - Accessor to the data Lintian has extracted</a></dt>
+
+<dd>
+<p>Basically all information you want about a given package comes from the $info object. Sometimes referred to as either the &#34;info object&#34; or (an instance of) <a href="../../Lintian/Collect.html" class="podlinkpod"
+>Lintian::Collect</a>.</p>
+
+<p>This object (together with a properly set Needs-Info in the <i>.desc</i> file) will grant you access to all of the data Lintian has extracted about this package.</p>
+
+<p>Based on the value of the $type argument, it will be one of <a href="../../Lintian/Collect/Binary.html" class="podlinkpod"
+>Lintian::Collect::Binary</a>, <a href="../../Lintian/Collect/Changes.html" class="podlinkpod"
+>Lintian::Collect::Changes</a> or <a href="../../Lintian/Collect/Source.html" class="podlinkpod"
+>Lintian::Collect::Source</a>.</p>
+
+<p>(Currently it is the same as $proc-&#62;info)</p>
+
+<dt><a name="$proc_-_Basic_metadata_about_the_package"
+>$proc - Basic metadata about the package</a></dt>
+
+<dd>
+<p>This is an instance of <a href="../../Lintian/Processable.html" class="podlinkpod"
+>Lintian::Processable</a> and is useful for trivially obtaining very basic package metadata. Particularly, the name of source package and version of source package are readily available through this object..</p>
+
+<dt><a name="$group_-_Group_of_processables_from_the_same_source"
+>$group - Group of processables from the same source</a></dt>
+
+<dd>
+<p>If you want to do a cross-check between different packages built from the same source, $group helps you access those other packages (if they are available).</p>
+
+<p>This is an instance of <a href="../../Lintian/ProcessableGroup.html" class="podlinkpod"
+>Lintian::ProcessableGroup</a>.</p>
+</dd>
+</dl>
+
+<p>Now back to the coding.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Emitting_a_tag"
+>Emitting a tag</a></h2>
+
+<p>Emitting a tag is fairly simple in itself. Simply invoke the <a href="../../Lintian/Tags.html#tag(TAG%2C_%5BEXTRA%2C_...%5D)" class="podlinkpod"
+>tag</a> sub with one or more arguments in the <i>run</i> sub. The first argument being the name of the tag to emit and the rest being the &#34;extra&#34; information (if any).</p>
+
+<p>The full example being:</p>
+
+<pre> # deb/pkg-check is loaded as Lintian::deb::pkg_check
+ # - See Lintian User Manual &#167;3.3 for more info
+ package Lintian::deb::pkg_check;
+ 
+ use strict;
+ use warnings;
+ 
+ use Lintian::Tags qw(tag);
+ 
+ sub run {
+     my ($pkg, $type, $info, $proc, $group) = @_;
+     tag &#39;deb-pkg-check-works&#39;,
+         &#34;I was emitted for $pkg, which was a $type package&#34;;
+     return;
+ }</pre>
+
+<p>Assuming there is a tag called &#34;deb-pkg-check-works&#34; in your <i>.desc</i> file, the above will faithfully emit said tag for all packages processed by this check.</p>
+
+<p>Emitting a tag is fairly simple; the hard part is emitting exactly when there is an issue and without introducing a security hole in Lintian/your check.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Accessing_fields"
+>Accessing fields</a></h2>
+
+<p>Let&#39;s do a slightly harder example. Assume we wanted to emit a tag for all packages without a (valid) Multi-Arch field. This requires us to A) identify if the package has a Multi-Arch field and B) identify if the content of the field was valid.</p>
+
+<p>Starting from the top. All $info objects have a method called field, which gives you access to a (raw) field from the control file of the package. It returns <code>undef</code> if said field is not present or the content of said field otherwise. Note that field names must be given in all lowercase letters (i.e. use &#34;multi-arch&#34;, not &#34;Multi-Arch&#34;).</p>
+
+<pre> # deb/pkg-check is loaded as Lintian::deb::pkg_check
+ # - See Lintian User Manual &#167;3.3 for more info
+ package Lintian::deb::pkg_check;
+ 
+ use strict;
+ use warnings;
+ 
+ use Lintian::Tags qw(tag);
+ 
+ sub run {
+     my ($pkg, $type, $info, $proc, $group) = @_;
+ 
+     my $multiarch = $info-&#62;field(&#39;multi-arch&#39;);
+ 
+     # Emit a &#34;missing-multi-arch-field&#34; for all packages without the
+     # Multi-Arch field
+     tag &#39;missing-multi-arch-field&#39; unless defined($multiarch);
+     return;
+ }</pre>
+
+<p>This was the first half. Let&#39;s look at checking the value. Multi-arch fields can (currently) be one of &#34;no&#34;, &#34;same&#34;, &#34;foreign&#34; or &#34;allowed&#34;. One way of checking this would be using the regex:</p>
+
+<pre>  /^(?:no|same|foreign|allowed)$/</pre>
+
+<p>An alternative route is using a table like:</p>
+
+<pre>  my %VALID_MULTI_ARCH_VALUES = map { $_ =&#62; 1} qw(no same foreign allowed);</pre>
+
+<p>We will use the second here:</p>
+
+<pre> # deb/pkg-check is loaded as Lintian::deb::pkg_check
+ # - See Lintian User Manual &#167;3.3 for more info
+ package Lintian::deb::pkg_check;
+ 
+ use strict;
+ use warnings;
+ 
+ use Lintian::Tags qw(tag);
+ 
+ my %VALID_MULTI_ARCH_VALUES = map { $_ =&#62; 1} qw(
+      no same foreign allowed
+ );
+ 
+ sub run {
+     my ($pkg, $type, $info, $proc, $group) = @_;
+ 
+     my $multiarch = $info-&#62;field(&#39;multi-arch&#39;);
+ 
+     if (defined($multiarch)) {
+        # The field is present, lets check it is valid.
+        tag &#39;invalid-multi-arch-field&#39;, $multiarch
+            unless exists $VALID_MULTI_ARCH_VALUES{$multiarch};
+     } else {
+         # Emit a &#34;missing-multi-arch-field&#34; for all packages without the
+         # Multi-Arch field
+         tag &#39;missing-multi-arch-field&#39;;
+     }
+     return;
+ }</pre>
+
+<p>Notice that Lintian automatically strips leading and trailing spaces on the <i>first</i> line in a field. It also strips trailing spaces from all other lines, but leading spaces and the &#34; .&#34;-continuation markers are kept as is.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Checking_dependencies"
+>Checking dependencies</a></h2>
+
+<p>Lintian can do some checking of dependencies. For most cases it works similar to a normal dependency check, but keep in mind that Lintian uses <i>pure</i> logic to determine if dependencies are satisfied (i.e. it will not look up relations like Provides for you).</p>
+
+<p>Suppose you wanted all packages with a multi-arch &#34;same&#34; field to pre-depend on the package &#34;multiarch-support&#34;. Well, we could use the <a href="../../Lintian/Collect/Binary.html#relation_(FIELD)" class="podlinkpod"
+>$info-&#62;relation</a> method for this.</p>
+
+<p>$info-&#62;relation returns an instance of <a href="../../Lintian/Relation.html" class="podlinkpod"
+>Lintian::Relation</a>. This object has an &#34;implies&#34; method that can be used to check if a package has an explicit dependency. Note that &#34;implies&#34; actually checks if one relation &#34;implies&#34; another (i.e. if you satisfied relationA then you definitely also satisfied relationB).</p>
+
+<p>As with the &#34;field&#34;-method, field names have to be given in all lowercase. However &#34;relation&#34; will never return <code>undef</code> (not even if the field is missing).</p>
+
+<p>For example:</p>
+
+<pre> my $predepends = $info-&#62;relation(&#39;pre-depends&#39;);
+ unless ($predepends-&#62;implies(&#39;multiarch-support&#39;)) {
+    tag &#39;missing-pre-depends-on-multiarch-support&#39;;
+ }</pre>
+
+<p>Inserted in the proper place, our check now looks like:</p>
+
+<pre> # deb/pkg-check is loaded as Lintian::deb::pkg_check
+ # - See Lintian User Manual &#167;3.3 for more info
+ package Lintian::deb::pkg_check;
+ 
+ use strict;
+ use warnings;
+ 
+ use Lintian::Tags qw(tag);
+ 
+ my %VALID_MULTI_ARCH_VALUES = map { $_ =&#62; 1} qw(
+      no same foreign allowed
+ );
+ 
+ sub run {
+     my ($pkg, $type, $info, $proc, $group) = @_;
+ 
+     my $multiarch = $info-&#62;field(&#39;multi-arch&#39;);
+ 
+     if (defined($multiarch)) {
+         # The field is present, lets check it is valid.
+         tag &#39;invalid-multi-arch-field&#39;, $multiarch
+             unless exists $VALID_MULTI_ARCH_VALUES{$multiarch};
+         if ($multiarch eq &#39;same&#39;) {
+             my $predepends = $info-&#62;relation(&#39;pre-depends&#39;);
+             tag &#39;missing-pre-depends-on-multiarch-support&#39;
+                 unless $predepends-&#62;implies(&#39;multiarch-support&#39;);
+         }
+     } else {
+         # Emit a &#34;missing-multi-arch-field&#34; for all packages without the
+         # Multi-Arch field
+         tag &#39;missing-multi-arch-field&#39;;
+     }
+     return;
+ }</pre>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Using_static_data_files"
+>Using static data files</a></h2>
+
+<p>Currently our check mixes data and code. Namely all the valid values for the Multi-Arch field are currently hard-coded in our check. We can move those out of the check by using a data file.</p>
+
+<p>Lintian natively supports data files that are either &#34;sets&#34; or &#34;tables&#34; via <a href="../../Lintian/Data.html" class="podlinkpod"
+>Lintian::Data</a> (i.e. &#34;unordered&#34; collections). As an added bonus, <a href="../../Lintian/Data.html" class="podlinkpod"
+>Lintian::Data</a> transparently supports vendor specific data files for us.</p>
+
+<p>First we need to make a data file containing the values. Which could be:</p>
+
+<pre> # A table of all the valid values for the multi-arch field.
+ no
+ same
+ foreign
+ allowed</pre>
+
+<p>This can then be stored in the data directory as <i>data/deb/pkg-check/multiarch-values</i>.</p>
+
+<p>Now we can load it by using:</p>
+
+<pre> use Lintian::Data;
+ 
+ my $VALID_MULTI_ARCH_VALUES =
+     Lintian::Data-&#62;new(&#39;deb/pkg-check/multiarch-values&#39;);</pre>
+
+<p>Actually, this is not quite true. <a href="../../Lintian/Data.html" class="podlinkpod"
+>Lintian::Data</a> is lazy, so it will not load anything before we force it to do so. Most of the time this is just an added bonus. However, if you ever have to force it to load something immediately, you can do so by invoking its &#34;known&#34; method (with an arbitrary defined string and ignore the result).</p>
+
+<p>Data files work with 3 access methods, &#34;all&#34;, &#34;known&#34; and &#34;value&#34;.</p>
+
+<dl>
+<dt><a name="all"
+>all</a></dt>
+
+<dd>
+<p>&#34;all&#34; (i.e. $data-&#62;all) returns a list of all the entries in the data file (for key/value tables, all returns the keys). The list is not sorted in any order (not even input order).</p>
+
+<dt><a name="known"
+>known</a></dt>
+
+<dd>
+<p>&#34;known&#34; (i.e. $data-&#62;known(&#39;item&#39;)) returns a truth value if a given item or key is known (present) in the data set or table. For key/pair tables, the value associated with the key can be retrieved with &#34;value&#34; (see below).</p>
+
+<dt><a name="value"
+>value</a></dt>
+
+<dd>
+<p>&#34;value&#34; (i.e. $data-&#62;value(&#39;key&#39;)) returns a value associated with a key for key/value tables. For unknown keys, it returns <code>undef</code>. If the data file is not a key/value table but just a set, value returns a truth value for known keys.</p>
+</dd>
+</dl>
+
+<p>While we could use both &#34;value&#34; and &#34;known&#34;, we will use the latter for readability (and to remind ourselves that this is a data set and not a data table).</p>
+
+<p>Basically we will be replacing:</p>
+
+<pre>  unless exists $VALID_MULTI_ARCH_VALUES{$multiarch};</pre>
+
+<p>with</p>
+
+<pre>  unless $VALID_MULTI_ARCH_VALUES-&#62;known($multiarch);</pre>
+
+<p>So the resulting check is:</p>
+
+<pre> # deb/pkg-check is loaded as Lintian::deb::pkg_check
+ # - See Lintian User Manual &#167;3.3 for more info
+ package Lintian::deb::pkg_check;
+ 
+ use strict;
+ use warnings;
+ 
+ use Lintian::Data;
+ use Lintian::Tags qw(tag);
+ 
+ my $VALID_MULTI_ARCH_VALUES =
+     Lintian::Data-&#62;new(&#39;deb/pkg-check/multiarch-values&#39;);
+ 
+ sub run {
+     my ($pkg, $type, $info, $proc, $group) = @_;
+ 
+     my $multiarch = $info-&#62;field(&#39;multi-arch&#39;);
+ 
+     if (defined($multiarch)) {
+         # The field is present, lets check it is valid.
+         tag &#39;invalid-multi-arch-field&#39;, $multiarch
+             unless $VALID_MULTI_ARCH_VALUES-&#62;known($multiarch);
+         if ($multiarch eq &#39;same&#39;) {
+             my $predepends = $info-&#62;relation(&#39;pre-depends&#39;);
+             tag &#39;missing-pre-depends-on-multiarch-support&#39;
+                 unless $predepends-&#62;implies(&#39;multiarch-support&#39;);
+         }
+     } else {
+         # Emit a &#34;missing-multi-arch-field&#34; for all packages without the
+         # Multi-Arch field
+         tag &#39;missing-multi-arch-field&#39;;
+     }
+     return;
+ }</pre>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Accessing_contents_of_the_package"
+>Accessing contents of the package</a></h2>
+
+<p>Another heavily used mechanism is to check for the presence (or absence) of a given file. Generally this is what the <a href="../../Lintian/Collect/Package.html#index_(FILE)" class="podlinkpod"
+>$info-&#62;index</a> and <a href="../../Lintian/Collect/Package.html#sorted_index" class="podlinkpod"
+>$info-&#62;sorted_index</a> methods are for. The &#34;index&#34; method returns instances of <a href="../../Lintian/Path.html" class="podlinkpod"
+>Lintian::Path</a>, which has a number of utility methods.</p>
+
+<p>If you want to loop over all files in a package, the sorted_index will do this for you. If you are looking for a specific file (or directory), a call to &#34;index&#34; will be much faster. For the contents of a specific directory, you can use something like:</p>
+
+<pre> if (my $dir = $info-&#62;index(&#39;path/to/dir/&#39;)) {
+     foreach my $elem ($dir-&#62;children) {
+         print $elem-&#62;name . &#34; is a file&#34; if $elem-&#62;is_file;
+         # ...
+     }
+ }</pre>
+
+<p>Keep in mind that using the &#34;index&#34; or &#34;sorted_index&#34; method will require that you put &#34;unpacked&#34; in Needs-Info. See <a href="#Keeping_Needs-Info_up_to_date" class="podlinkpod"
+>&#34;Keeping Needs-Info up to date&#34;</a>.</p>
+
+<p>There are also a pair of methods for accessing the control files of a binary package. These are <a href="../../Lintian/Collect/Package.html#control_index_(FILE)" class="podlinkpod"
+>$info-&#62;control_index</a> and <a href="../../Lintian/Collect/Package.html#sorted_control_index" class="podlinkpod"
+>$info-&#62;sorted_control_index</a>.</p>
+
+<h3><a class='u' href='#___top' title='click to go to top of document'
+name="Accessing_contents_of_a_file_in_a_package"
+>Accessing contents of a file in a package</a></h3>
+
+<p>When you actually want to see the contents of a file, you can use <a href="../../Lintian/Path.html#open" class="podlinkpod"
+>open</a> (or <a href="../../Lintian/Path.html#open_gz" class="podlinkpod"
+>open_gz</a>) on an object returned by e.g. <a href="../../Lintian/Collect/Package.html#index_(FILE)" class="podlinkpod"
+>$info-&#62;index</a>. These methods will open the underlying file for reading (the latter applying a gzip decompression).</p>
+
+<p>However, please do assert that the file is safe to read by calling <a href="../../Lintian/Path.html#is_open_ok" class="podlinkpod"
+>is_open_ok</a> first. Generally, it will only be true for files or safely resolvable symlinks pointing to files. Should you attempt to open a path that does not satisfy those criteria, <a href="../../Lintian/Path.html" class="podlinkpod"
+>Lintian::Path</a> will raise a trappable error at runtime.</p>
+
+<p>Alternatively, if you access the underlying file object, you can use the <a href="../../Lintian/Path.html#fs_path" class="podlinkpod"
+>fs_path</a> method. Usually, you will want to test either <a href="../../Lintian/Path.html#is_open_ok" class="podlinkpod"
+>is_open_ok</a> or <a href="../../Lintian/Path.html#is_valid_path" class="podlinkpod"
+>is_valid_path</a> first to ensure you do not follow unsafe symlinks. The &#34;is_open_ok&#34; check will also assert that it is not (e.g.) a named pipe or such.</p>
+
+<p>Should you call <a href="../../Lintian/Path.html#fs_path" class="podlinkpod"
+>fs_path</a> on a symlink that escapes the package root, the method will throw a trappable error at runtime. Once the path is returned, there are no more built-in fail-safes. When you use the returned path, keep things like &#34;../../../../../etc/passwd&#34;-symlink and &#34;fifo&#34; pipes in mind.</p>
+
+<p>In some cases, you may even need to access the file system objects <i>without</i> using <a href="../../Lintian/Path.html" class="podlinkpod"
+>Lintian::Path</a>. This is, of course, discouraged and suffers from the same issues above (all checking must be done manually by you). Here you have to use the &#34;unpacked&#34;, &#34;debfiles&#34; or &#34;control&#34; methods from <a href="../../Lintian/Collect.html" class="podlinkpod"
+>Lintian::Collect</a> or its subclasses.</p>
+
+<p>The following snippet may be useful for testing that a given path does not escape the root.</p>
+
+<pre> use Lintian::Util qw(is_ancestor_of);
+ 
+ my $path = ...;
+ # The snippet applies equally well to $info-&#62;debfiles and
+ # $info-&#62;control (just remember to subst all occurrences of
+ # $info-&#62;unpacked).
+ my $unpacked_file = $info-&#62;unpacked($path);
+ if ( -f $unpacked_file &#38;&#38; is_ancestor_of($info-&#62;unpacked, $unpacked_file)) {
+    # a file and contained within the package root.
+ } else {
+    # not a file or an unsafe path
+ }</pre>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Keeping_Needs-Info_up_to_date"
+>Keeping Needs-Info up to date</a></h2>
+
+<p>Keeping the &#34;Needs-Info&#34; field of your <i>.desc</i> file is a bit of manual work. In the API description for the method there will generally be a line looking something like:</p>
+
+<pre>  Needs-Info requirements for using methodx: Y</pre>
+
+<p>Which means that the methodx requires Y to work. Here Y is a comma separated list and each element of Y basically falls into 3 cases.</p>
+
+<ul>
+<li>The element is the word <i>none</i>
+<p>In this case, the method has no &#34;external&#34; requirements and can be used without any changes to your Needs-Info. The &#34;field&#34; method is an example of this.</p>
+
+<p>This only makes sense if it is the only element in the list.</p>
+</li>
+
+<li>The element is a link to a method
+<p>In this case, the method uses another method to do its job. An example is the <a href="../../Lintian/Collect/Binary.html#sorted_control_index" class="podlinkpod"
+>sorted_control_index</a> method, which uses the <a href="../../Lintian/Collect/Binary.html#control_index_(FILE)" class="podlinkpod"
+>control_index</a> method. So using <i>sorted_control_index</i> has the same requirements as using <i>control_index</i>.</p>
+</li>
+
+<li>The element is the name of a collection (e.g. &#34;control_index&#34;).
+<p>In this case, the method needs the given collection to be run. So to use (e.g.) <a href="../../Lintian/Collect/Binary.html#control_index_(FILE)" class="podlinkpod"
+>control_index</a>, you have to put &#34;bin-pkg-control&#34; in your Needs-Info.</p>
+</li>
+</ul>
+
+<p>CAVEAT: Methods can have different requirements based on the type of package! An example of this &#34;changelog&#34;, which requires &#34;changelog-file&#34; in binary packages and &#34;Same as debfiles&#34; in source packages.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Avoiding_security_issues"
+>Avoiding security issues</a></h2>
+
+<p>Over the years a couple of security issues have been discovered in Lintian. The problem is that people can in theory create some really nasty packages. Please keep the following in mind when writing a check:</p>
+
+<ul>
+<li>Avoid 2-arg open, system/exec($shellcmd), `$shellcmd` like the plague.
+<p>When you get any one of those wrong you introduce &#34;arbitrary code execution&#34; vulnerabilities (we learned this the hard way via CVE-2009-4014).</p>
+
+<p>Usually 3-arg open and the non-shell variant of system/exec are enough. When you actually need a shell pipeline, consider using <a href="../../Lintian/Command.html" class="podlinkpod"
+>Lintian::Command</a>. It also provides a <i>safe_qx</i> command to assist with capturing stdout as an alternative to `$cmd` (or qx/$cmd/).</p>
+</li>
+
+<li>Do not trust field values.
+<p>This is especially true if you intend to use the value as part of a file name. Verify that the field contains what you expect before you use it.</p>
+</li>
+
+<li>Use <a href="../../Lintian/Path.html" class="podlinkpod"
+>Lintian::Path</a> (or, failing that, is_ancestor_of)
+<p>You might be tempted to think that the following code is safe:</p>
+
+<pre> use autodie;
+ 
+ my $filename = &#39;some/file&#39;;
+ my $ufile = $info-&#62;unpacked($filename);
+ if ( ! -l $ufile) {
+    # Looks safe, but isn&#39;t in general
+    open(my $fd, &#39;&#60;&#39;, $ufile);
+    ...;
+ }</pre>
+
+<p>This is definitely unsafe if &#34;$filename&#34; contains at least one directory segment. So, if in doubt, use <a href="../../Lintian/Util.html#is_ancestor_of(PARENTDIR%2C_PATH)" class="podlinkpod"
+>is_ancestor_of</a> to verify that the requested file is indeed the file you think it is. A better version of the above would be:</p>
+
+<pre> use autodie,
+ use Lintian::Util qw(is_ancestor_of);
+ [...]
+ my $filename = &#39;some/file&#39;;
+ my $ufile = $info-&#62;unpacked($filename);
+ if ( ! -l $ufile &#38;&#38; -f $ufile &#38;&#38; is_ancestor_of($info-&#62;unpacked, $ufile)) {
+    # $ufile is a file and it is contained within the package root.
+    open(m $fd, &#39;&#60;&#39;, $ufile);
+    ...;
+ }</pre>
+
+<p>In some cases you can even drop the &#34;! -l $ufile&#34; part.</p>
+
+<p>Of course, it is much easier to use the <a href="../../Lintian/Path.html" class="podlinkpod"
+>Lintian::Path</a> object (whenever possible).</p>
+
+<pre> my $filename = &#39;some/file&#39;;
+ my $ufile = $info-&#62;index($filename);
+ if ( $ufile &#38;&#38; $ufile-&#62;is_file &#38;&#38; $ufile-&#62;is_open_ok) {
+     my $fd = $ufile-&#62;open;
+     ...;
+ }</pre>
+
+<p>Here you can drop the &#34; &#38;&#38; $ufile-&#62;is_file&#34; if you want to permit safe symlinks.</p>
+
+<p>For more information on the is_ancestor_of check, see <a href="../../Lintian/Util.html#is_ancestor_of(PARENTDIR%2C_PATH)" class="podlinkpod"
+>is_ancestor_of</a></p>
+</li>
+</ul>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p><a href="../../Lintian/Tutorial/WritingTests.html" class="podlinkpod"
+>Lintian::Tutorial::WritingTests</a>, <a href="../../Lintian/Tutorial/TestSuite.html" class="podlinkpod"
+>Lintian::Tutorial::TestSuite</a></p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

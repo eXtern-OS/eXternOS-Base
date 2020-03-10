@@ -1,0 +1,726 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+ "dtd/kdedbx45.dtd" [
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Italian "INCLUDE"
+> <!-- change language only here -->
+]>
+
+<book id="ksysguard" lang="&language;">
+<bookinfo>
+<title
+>Manuale del monitor di sistema</title>
+
+<authorgroup>
+<author
+>&Chris.Schlaeger;&Chris.Schlaeger.mail; </author>
+
+<othercredit role="developer"
+>&John.Tapsell; &John.Tapsell.mail; </othercredit>
+
+<othercredit role="developer"
+>&Chris.Schlaeger;&Chris.Schlaeger.mail; </othercredit>
+
+<othercredit role="developer"
+>&Tobias.Koenig;&Tobias.Koenig.mail; </othercredit>
+
+<othercredit role="translator"
+><firstname
+>Samuele</firstname
+> <surname
+>Kaplun</surname
+> <affiliation
+><address
+><email
+>kaplun@aliceposta.it</email
+></address
+></affiliation
+> <contrib
+>Traduzione del documento</contrib
+></othercredit
+> 
+</authorgroup>
+
+<copyright>
+<year
+>2000</year>
+<holder
+>&Chris.Schlaeger;</holder>
+</copyright>
+
+<legalnotice
+>&FDLNotice;</legalnotice>
+
+<date
+>31/01/2016</date>
+<releaseinfo
+>&plasma; 5.9</releaseinfo>
+
+<abstract
+><para
+>Il monitor di sistema è un gestore di processi e del sistema abilitato alla rete.</para
+></abstract
+> 
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>Monitor di sistema</keyword>
+<keyword
+>monitor di processi</keyword>
+<keyword
+>monitor delle prestazioni</keyword>
+<keyword
+>monitor di sistema</keyword>
+<keyword
+>top</keyword>
+<keyword
+>ps</keyword>
+</keywordset>
+</bookinfo>
+
+<chapter id="introduction">
+<title
+>Introduzione</title>
+
+<para
+>&ksysguard; è il monitor delle attività e delle prestazioni per &plasma;. </para>
+<para
+>È caratterizzato da una architettura client/server che permette il controllo sia di host locali che remoti. L'interfaccia grafica utilizza i cosiddetti sensori per ottenere le informazioni da visualizzare. Un sensore può restituire un semplice valore o informazioni più complesse come delle tabelle. Per ogni tipo di informazione è disponibile uno o più indicatori. Gli indicatori sono organizzati in fogli di lavoro che possono essere salvati e caricati indipendentemente l'uno dall'altro. Così, il monitor di sistema non è solo un semplice gestore dei processi ma anche uno strumento molto potente per controllare grandi server farm.</para>
+
+</chapter>
+
+<chapter id="usingtheksysguard">
+<title
+>Usare il monitor di sistema</title>
+
+<sect1 id="getting-started">
+<title
+>Per iniziare</title>
+
+<para
+>Il monitor di sistema può essere avviato dal menu di avvio delle applicazioni con la voce <guimenuitem
+>Monitor di sistema</guimenuitem
+> nel menu <menuchoice
+><guimenu
+>Applicazioni</guimenu
+><guisubmenu
+>Sistema</guisubmenu
+></menuchoice
+>. Alternativamente, puoi avviarlo digitando <command
+>ksysguard</command
+> in un terminale.</para>
+
+<para
+>La finestra principale del monitor di sistema consiste in una barra dei menu, una barra degli strumenti facoltativa e lo spazio di lavoro. I fogli di lavoro configurabili possono includere l'elenco dei sensori. </para>
+<!--
+<para
+>Download, Save, Import tabs</para>
+-->
+<para
+>Normalmente il monitor di sistema mostra due fogli di lavoro: la <guilabel
+>Tabella dei processi</guilabel
+> e il <guilabel
+>Carico di sistema</guilabel
+>. La <guilabel
+>Tabella dei processi</guilabel
+> elenca i processi attivi e permette all'utente di controllarli. Si possono selezionare e controllare più processi allo stesso tempo. Il foglio del <guilabel
+>Carico di sistema</guilabel
+> mostra dei grafici dell'uso del sistema: la <guilabel
+>Cronologia della CPU</guilabel
+>, la <guilabel
+>Cronologia della memoria e della swap</guilabel
+>, e la <guilabel
+>Cronologia della rete</guilabel
+>. </para>
+
+<para
+>Questa impostazione predefinita è sufficiente per un utente inesperto per amministrare un po' il sistema. Un utente con esperienza o addirittura un amministratore di sistema di un grande laboratorio informatico ha necessità differenti. Per indirizzare un'ampia gamma di utenti, il monitor di sistema è altamente flessibile.</para>
+
+<note
+><para
+>Si può avviare in qualsiasi momento la <guilabel
+>tavola dei processi</guilabel
+> per mezzo della scorciatoia globale <keycombo action="simul"
+> &Ctrl;&Esc;</keycombo
+>. La tavola dei processi viene visualizzata in una finestra dal titolo <guilabel
+>Attività del sistema</guilabel
+>. </para
+></note>
+
+</sect1>
+
+<sect1 id="process-controller">
+<title
+>Tabella dei processi</title>
+
+<para
+>La <guilabel
+>Tabella dei processi</guilabel
+> presenta un elenco dei processi sul sistema. L'elenco può essere riordinato per qualsiasi colonna, basta premere il &LMB; sulla sua intestazione. </para>
+
+<para
+>Usa l'aiuto <guilabel
+>Che cos'è?</guilabel
+> sui titoli delle colonne per avere informazioni aggiuntive sui valori lì indicati.</para>
+
+<para
+>Nel menu contestuale di un processo nella vista a elenco troverai altre azioni, come per cambiarne la priorità, inviargli segnali, passare alla sua finestra, mostrarne informazioni dettagliate di memoria e terminarlo.</para>
+
+<para
+>L'elenco mostra le seguenti informazioni su ogni processo. Nota che non tutte le proprietà sono disponibili su ogni sistema operativo.</para>
+
+<table>
+<title
+>Colonne predefinite nella tabella dei processi</title>
+<tgroup cols="2">
+<tbody>
+<row>
+<entry
+><guilabel
+>Nome</guilabel
+></entry>
+<entry
+>Il nome dell'eseguibile che ha avviato il processo.</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Nome utente</guilabel
+></entry>
+<entry
+>L'utente a cui appartiene il processo.</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Processore %</guilabel
+></entry>
+<entry
+>L'uso totale attuale del processore da parte del processo, diviso per il numero di nuclei nella macchina.</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Memoria</guilabel
+></entry>
+<entry
+><para
+>Questa è la quantità di memoria fisica reale che questo processo usa di per sé, e approssima il suo uso di memoria privato.</para>
+<para
+>Non include la memoria passata a swap, né eventuali librerie condivise.</para>
+<para
+>Questo di solito è il numero più utile per giudicare l'uso di memoria di un programma.</para
+></entry>
+</row>
+<row>
+<entry
+><guilabel
+>Memoria condivisa</guilabel
+></entry>
+<entry
+>Questa è approssimativamente la quantità di memoria fisica reale usata dalle librerie condivise di questo processo. Questa memoria è condivisa tra tutti i processi che usano questa libreria.</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Titolo della finestra</guilabel
+></entry>
+<entry
+>Il titolo di qualsiasi finestra su cui questo processo viene visualizzato</entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<table>
+<title
+>Altre colonne nella tabella dei processi</title>
+<tgroup cols="2">
+<tbody>
+<row>
+<entry
+><guilabel
+>PID</guilabel
+></entry>
+<entry
+>L'identificativo univoco di un processo.</entry>
+</row>
+<row>
+<entry
+><guilabel
+>TTY</guilabel
+></entry>
+<entry
+>Il terminale di controllo su cui questo processo è in esecuzione.</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Priorità</guilabel
+></entry>
+<entry
+>La priorità con cui questo processo viene eseguito. Per lo scheduler normale, va da 19 (priorità minima) a -19 (massima).</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Tempo del processore</guilabel
+></entry>
+<entry
+>Il tempo totale di utente e sistema per cui questo processo è stato in esecuzione, visualizzato come minuti:secondi</entry>
+</row>
+<row>
+<entry
+><guilabel
+>IO letto</guilabel
+></entry>
+<entry
+>Il numero di byte letti. Si possono cambiare le <guilabel
+>Unità di visualizzazione</guilabel
+> e le <guilabel
+>Informazioni visualizzate</guilabel
+> con il menu contestuale di questa intestazione.</entry>
+</row>
+<row>
+<entry
+><guilabel
+>IO scritto</guilabel
+></entry>
+<entry
+>Il numero di byte scritti. Si possono cambiare le <guilabel
+>Unità di visualizzazione</guilabel
+> e le <guilabel
+>Informazioni visualizzate</guilabel
+> con il menu contestuale di questa intestazione.</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Dimensione virtuale</guilabel
+></entry>
+<entry
+>Questa è la quantità di spazio in memoria virtuale usato dal processo, incluse le librerie condivise, la memoria grafica, i file sul disco e così via. Questo numero è praticamente inutile. Usa il menu contestuale per selezionare le <guilabel
+>Unità di visualizzazione</guilabel
+>.</entry>
+</row>
+<row>
+<entry
+><guilabel
+>Comando</guilabel
+></entry>
+<entry
+>Il comando con cui questo processo è stato avviato.</entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<para
+>In cima alla tabella ci sono tre controlli che saranno ora descritti da sinistra a destra.</para>
+
+<sect2 id="thekillbutton">
+<title
+>Termina processi</title>
+
+<para
+>Se hai selezionato uno o più processi puoi premere il pulsante <guibutton
+>Termina processi</guibutton
+> per terminarli. Viene spedito un cosiddetto segnale <errorcode
+>SIGKILL</errorcode
+> ai processi che ne causa l'immediata terminazione. Se queste applicazioni hanno ancora dei dati non salvati questi dati saranno persi, quindi usa questo pulsante con attenzione.</para>
+</sect2>
+
+<sect2 id="the-filter-bar">
+<title
+>Barra di filtraggio</title>
+
+<para
+>Filtra quali processi mostrare con il testo qui inserito. Il testo può essere una stringa parzialmente corrispondente al <guilabel
+>Nome</guilabel
+>, al <guilabel
+>Comando</guilabel
+> o al <guilabel
+>Titolo della finestra</guilabel
+> del processo. Può anche essere un <guilabel
+>Nome utente</guilabel
+> o un numero identificativo del processo.</para>
+
+</sect2>
+
+<sect2 id="the-process-filter">
+<title
+>Filtro dei processi</title>
+
+<para
+>Il filtro dei processi può essere usato per ridurre il numero di processi visualizzati nella tabella. Puoi filtrare i processi che non ti interessano. Attualmente puoi visualizzare <guilabel
+>Tutti i processi</guilabel
+> in una vista piatta o ad albero, solo i <guilabel
+>Processi di sistema</guilabel
+>, solo i <guilabel
+>Processi utente</guilabel
+>, solo i <guilabel
+>Processi propri</guilabel
+> o <guilabel
+>Solo programmi</guilabel
+>.</para>
+
+<para
+>La visuale ad albero è stata progettata per mostrare le relazioni tra i processi in esecuzione. Un processo avviato da un altro processo ne è detto figlio. Un albero è un modo elegante per mostrare la relazione padre-figlio. Il processo <emphasis
+>init</emphasis
+> è l'antenato di tutti i processi.</para>
+
+<para
+>Se non sei interessato ai figli di un particolare processo puoi fare clic sulla piccola casella alla sinistra del padre ed il sotto-albero si chiuderà. Un altro clic su quella casella riaprirà nuovamente il sotto-albero.</para>
+
+</sect2>
+
+</sect1>
+
+<sect1 id="the-workspace">
+<title
+>Spazio di Lavoro</title>
+
+<para
+>Lo spazio di lavoro è organizzato in fogli di lavoro. Seleziona <guimenuitem
+>Nuova scheda</guimenuitem
+> dal menu <guimenu
+>File</guimenu
+> per creare un nuovo foglio di lavoro. Apparirà una finestra di dialogo dove potrai impostare il nome, la dimensione e l'intervallo di aggiornamento del foglio di lavoro. Di nuovo, per rimuovere un foglio di lavoro seleziona <guimenuitem
+>Chiudi scheda</guimenuitem
+> dal menu <guimenu
+>File</guimenu
+>. Qualsiasi modifica sarà salvata nel file del foglio di lavoro. Se un foglio di lavoro non è mai stato salvato, ti sarà chiesto un nome per il file. I fogli di lavoro sono formati da celle organizzate in una griglia.</para>
+
+<para
+>Ogni cella può essere riempita con un indicatore per uno o più sensori. Puoi riempire una cella trascinando un sensore dall'elenco dei sensori e rilasciandolo sopra alla cella. Se c'è più di un tipo di visualizzazione disponibile per quel tipo di sensore, apparirà un menu a comparsa. Puoi quindi selezionare quale visualizzazione preferisci utilizzare. Certi tipi di visualizzazioni possono visualizzare più di un sensore. Aggiungi più sensori ad un indicatore trascinandoli dall'elenco dei sensori e rilasciandoli sull'indicatore già esistente.</para>
+
+<para
+>I fogli di lavoro possono essere configurati facendo clic su <guimenuitem
+>Proprietà della scheda</guimenuitem
+> nel menu <guimenu
+>Visualizza</guimenu
+>. Nella finestra che appare puoi impostare l'intervallo di aggiornamento.</para>
+
+<para
+>Gli indicatori possono essere configurati facendoci clic con il &RMB;. Compare così un menu a comparsa dove, quando vuoi, puoi modificare le proprietà dell'indicatore o rimuoverlo dal foglio di lavoro.</para>
+
+<sect2 id="the-sensor-browser">
+<title
+>Elenco dei sensori</title>
+<para
+>L'elenco dei sensori è una caratteristica avanzata del monitor di sistema. Per usarlo, devi prima aprire il menu <guimenu
+>File</guimenu
+> e creare un nuovo foglio di lavoro. Verrà mostrato se si sceglie un foglio configurabile.</para>
+<para
+>L'elenco dei sensori visualizza gli host registrati e i loro sensori in forma di albero. Fai clic sulle maniglie dell'albero per aprire o chiudere le ramificazioni. Ogni sensore controlla un certo valore di sistema.</para>
+<tip
+><para
+>Dopo aver configurato il foglio configurabile, usa il divisore e spostalo sul lato destro della finestra per nascondere l'elenco dei sensori.</para
+> 
+<para
+>Se l'elenco dei sensori non appare in un foglio configurabile, probabilmente è nascosto. Per rivelarlo, seleziona il lato destro della finestra e trascinalo a sinistra.</para
+></tip>
+</sect2>
+
+<sect2 id="line-graph">
+<title
+>Grafico a linee</title>
+
+<para
+>Il grafico a linee stampa campioni di uno o più sensori nel tempo. Se sono visualizzati diversi sensori, i valori sono impilati in colori diversi. Se l'indicatore è largo abbastanza verrà visualizzata una griglia per mostrare l'intervallo dei campioni rappresentati. Per impostazione predefinita è attiva la modalità di intervallo automatico, così il minimo e il massimo valore saranno impostati automaticamente. A volte si desiderano valori minimo e massimo fissi. In questo caso, puoi disattivare la modalità di intervallo automatico e impostare i valori nella finestra delle proprietà.</para>
+</sect2>
+
+<sect2 id="digital-display">
+<title
+>Indicatore digitale</title>
+
+<para
+>Il multimetro visualizza i valori del sensore come un contatore digitale. Nella finestra di dialogo delle proprietà puoi specificare un limite inferiore e uno superiore. Se viene oltrepassato l'intervallo, l'indicatore viene colorato con il colore di allarme.</para>
+</sect2>
+
+<sect2 id="bargraph">
+<title
+>Grafico a barre</title>
+
+<para
+>Il grafico a barre visualizza il valori del sensore come barre oscillanti. Nella finestra di dialogo delle proprietà puoi specificare i valori minimo e massimo dell'intervallo ed un limite inferiore e superiore. Se l'intervallo è oltrepassato, l'indicatore viene colorato con il colore di allarme.</para>
+</sect2>
+
+<sect2 id="sensorlogger">
+<title
+>Registrare su file</title>
+
+<para
+>Il registro dei sensori non visualizza nessun valore, ma li registra in un file con l'informazione aggiuntiva della data e dell'ora. Per ogni sensore puoi specificare un limite inferiore e superiore nella finestra di dialogo delle proprietà. Se l'intervallo è superato, la voce della tabella del sensore viene colorata con il colore di allarme.</para>
+</sect2>
+
+<sect2 id="partition-table">
+<title
+>Tabella delle partizioni</title>
+
+<para
+>L'<guilabel
+>Uso delle partizioni</guilabel
+> ha un particolare sensore per la tabella che mostra informazioni su tutte le partizioni montate.</para>
+</sect2>
+
+<sect2 id="connectingtootherhosts">
+<title
+>Connettersi ad altri host</title>
+<!--FIXME https://techbase.kde.org/Development/Tutorials/Sensors -->
+<para
+>Nota che l'elemento del menu <guimenuitem
+>Controlla macchina remota...</guimenuitem
+> è disponibile solo nelle schede personalizzate.</para>
+
+<para
+>Per connetterti ad un nuovo host utilizza <guimenuitem
+>Controlla macchina remota...</guimenuitem
+> dal menu <guimenu
+>File</guimenu
+>. Apparirà una finestra che permetterà di inserire il nome dell'host a cui connettersi. Sotto al nome potrai scegliere il metodo di connessione. L'impostazione predefinita è <application
+>ssh</application
+>, la shell sicura. In alternativa può essere usata <application
+>rsh</application
+>, la shell remota, la modalità daemon o un comando configurabile. Fai clic su <guibutton
+>OK</guibutton
+> per stabilire la connessione. In breve tempo il nuovo host apparirà nell'elenco dei sensori.</para>
+
+<para
+>Per disconnetterti da un host devi chiudere e poi riaprire nuovamente &ksysguard;.</para>
+
+<para
+>Per stabilire una connessione, deve essere installato nel nuovo host un programma chiamato <application
+>ksysguardd</application
+>, che può essere avviato nei seguenti due modi.</para>
+
+<variablelist>
+<varlistentry>
+<term
+>modalità daemon</term>
+<listitem>
+<para
+>Puoi avviare <application
+>ksysguardd</application
+> in fase di avvio del computer in modalità <guilabel
+>Demone</guilabel
+> aggiungendo <parameter
+>-d</parameter
+> come argomento. In questo caso, devi selezionare modalità daemon nella finestra di dialogo della connessione del monitor di sistema. Uno svantaggio di questo tipo di connessione è che non sarai in grado di terminare i processi o cambiarne la priorità nella <guilabel
+>Tabella dei processi</guilabel
+> e lo scambio dei dati attraverso la rete non sarà cifrato.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term
+>modalità shell</term>
+<listitem>
+<para
+>In questa modalità <application
+>ksysguardd</application
+> viene avviato alla connessione da <application
+>ksysguard</application
+>. Perché sia possibile, la sua posizione deve essere inclusa nella variabile d'ambiente <envar
+>PATH</envar
+>. Sfortunatamente ssh non elabora il file <filename
+>.profile</filename
+>, e quindi la normale impostazione del <envar
+>PATH</envar
+> non sarà disponibile. Usa invece un <envar
+>PATH</envar
+> predefinito come <parameter
+>/bin:/usr/bin</parameter
+>. Dato che è molto probabile che &plasma; non sia installato in queste cartelle hai bisogno di creare o aggiornare un file nella cartella Home. Il file è chiamato <filename
+>environment</filename
+> e deve trovarsi in una cartella nascosta chiamata <filename
+>.ssh</filename
+>. Guarda la pagina di manuale di <application
+>ssh</application
+> per maggiori dettagli. Il file deve contenere una riga simile a:</para>
+
+<screen
+><userinput
+>PATH=/bin:/usr/bin:/opt/kde/bin</userinput
+>
+</screen>
+
+<para
+>assumendo che <application
+>ksysguardd</application
+> possa essere trovato sotto <filename
+>/opt/kde/bin/ksysguardd</filename
+>.</para>
+
+<tip
+><para
+>Quando usi <application
+>ssh</application
+> dovresti assicurarti di avere il tuo file <filename
+>identity.pub</filename
+> installato nella macchina remota e che la chiave host della macchina remota sia già registrata sulla macchina. Se non imposti correttamente <filename
+>identity.pub</filename
+>, ti verrà chiesta la password ogni volta che avvii il monitor di sistema. Il modo più semplice per verificare ciò è digitare <command
+>ssh <option
+><replaceable
+>host_remoto</replaceable
+> ksysguardd</option
+></command
+> in una shell. Se ricevi il benvenuto di <application
+>ksysguardd</application
+> tutto è a posto e puoi digitare <userinput
+>quit</userinput
+>.</para
+></tip>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<note
+><para
+>Per gli esperti: <application
+>ksysguardd</application
+> è un programma molto piccolo, collegato solamente alla libc. Può quindi essere usato anche su macchine che non hanno installato &plasma; completo di tutto, come i server. Molte tra le principali distribuzioni forniscono per praticità un pacchetto separato per <application
+>ksysguardd</application
+>. Se scegli l'opzione di comando configurabile nella connessione dell'host, devi specificare il comando completo per avviare <application
+>ksysguardd</application
+>.</para
+></note>
+
+</sect2>
+
+<!-- This was removed with revision 517573, but how to disconnect then?
+<sect2 id="disconnecting-hosts">
+<title
+>Disconnecting hosts</title>
+
+<para
+>To disconnect from a host, select the host in the sensor browser and
+choose <guimenuitem
+>Disconnect Host</guimenuitem
+> from the
+<guimenu
+>File</guimenu
+> menu. If you still have sensors in use, the display
+frames will be grayed and the displays won't update any longer.</para>
+</sect2>
+-->
+</sect1>
+
+</chapter>
+
+<chapter id="multiple-platforms">
+<title
+>Configurare <application
+>ksysguardd</application
+></title>
+
+<para
+>L'interfaccia grafica è disponibile in ogni piattaforma su cui &plasma; giri. Il back-end è al momento disponibile sulle seguenti versioni di &UNIX;:</para>
+
+<variablelist>
+<varlistentry>
+<term
+>&Linux;</term>
+<listitem
+><para
+>Per far funzionare <application
+>ksysguardd</application
+> è necessario compilare il Kernel &Linux; con il filesystem <filename
+>/proc</filename
+> abilitato. Questa è l'impostazione predefinita e la maggior parte delle Distribuzioni &Linux; ce l'hanno già.</para
+> </listitem>
+</varlistentry>
+<varlistentry>
+<term
+>FreeBSD</term>
+<listitem
+><para
+>Il programma <application
+>ksysguardd</application
+> deve essere posseduto dal gruppo <systemitem class="groupname"
+>kmem</systemitem
+> e deve avere il bit setgid impostato.</para
+></listitem
+> 
+</varlistentry>
+<varlistentry>
+<term
+>&Solaris;</term>
+<listitem
+><para
+>Ancora da scrivere</para
+></listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Il supporto per altre piattaforme è in fase di sviluppo. Il tuo aiuto è veramente apprezzato.</para>
+</chapter>
+
+<chapter id="credits-and-license">
+<title
+>Riconoscimenti e licenza</title>
+
+<para
+>Il monitor di sistema è attualmente sviluppato e mantenuto da &John.Tapsell; &John.Tapsell.mail;. Il monitor di sistema è una riscrittura di <application
+>KTop</application
+>, il gestore dei progetti di KDE 1.x. Diverse altre persone hanno lavorato su <application
+>KTop</application
+>:</para>
+
+<itemizedlist>
+<listitem
+><para
+>A. Sanda <email
+>alex@darkstar.ping.at</email
+></para
+></listitem>
+<listitem
+><para
+>Ralf Mueller <email
+>ralf@bj-ig.de</email
+></para
+></listitem>
+<listitem
+><para
+>&Bernd.Johannes.Wuebben; <email
+>wuebben@math.cornell.edu</email
+></para
+></listitem>
+<listitem
+><para
+>Nicolas Leclercq <email
+>nicknet@planete.net</email
+></para
+></listitem>
+</itemizedlist>
+
+<para
+>Il porting verso altre piattaforme oltre a &Linux; è stato fatto da:</para>
+
+<itemizedlist>
+<listitem
+><para
+>FreeBSD: Hans Petter Bieker <email
+>zerium@traad.lavvu.no</email
+></para
+></listitem>
+</itemizedlist>
+
+<para
+>Traduzione italiana di Samuele Kaplun <email
+>kaplun@aliceposta.it</email
+></para
+> &underFDL; &underGPL; </chapter>
+
+</book>
+<!--
+Local Variables:
+mode: sgml
+sgml-omittag: nil
+sgml-shorttag: t
+End:
+-->
+

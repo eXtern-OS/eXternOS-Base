@@ -1,0 +1,7093 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>The Discover Hardware Detection System</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"></HEAD
+><BODY
+CLASS="book"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="BOOK"
+><A
+NAME="AEN1"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="title"
+><A
+NAME="AEN2"
+>The <SPAN
+CLASS="application"
+>Discover</SPAN
+> Hardware Detection System</A
+></H1
+><H3
+CLASS="author"
+><A
+NAME="AEN5"
+></A
+>G. Branden Robinson</H3
+><H3
+CLASS="author"
+><A
+NAME="AEN9"
+></A
+>John R. Daily</H3
+><P
+CLASS="copyright"
+>Copyright &copy; 2002 Progeny Linux Systems, Inc.</P
+><P
+CLASS="copyright"
+>Copyright &copy; 2002 Hewlett-Packard Company</P
+><DIV
+CLASS="legalnotice"
+><P
+></P
+><A
+NAME="AEN22"
+></A
+><P
+>Permission is hereby granted, free of charge, to any
+    person obtaining a copy of this software and associated
+    documentation files (the "Software"), to deal in
+    the Software without restriction, including without
+    limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software,
+    and to permit persons to whom the Software is furnished to
+    do so, subject to the following conditions:</P
+><P
+>The above copyright notice and this permission notice
+    shall be included in all copies or substantial portions of
+    the Software.</P
+><P
+>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT
+    WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+    LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+    PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+    THE COPYRIGHT HOLDER(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR
+    OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+    OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.</P
+><P
+></P
+></DIV
+><DIV
+CLASS="legalnotice"
+><P
+></P
+><A
+NAME="AEN26"
+></A
+><P
+>Linux is a registered trademark of Linus Torvalds.</P
+><P
+></P
+></DIV
+><SPAN
+CLASS="releaseinfo"
+>$Progeny$<BR></SPAN
+><HR></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="#pr-what_is_discover"
+>What Is <SPAN
+CLASS="application"
+>Discover</SPAN
+>?</A
+></DT
+><DT
+>I. <A
+HREF="#pt-data_structure"
+>Data Structure</A
+></DT
+><DD
+><DL
+><DT
+>1. <A
+HREF="#ch-overview_discover_data_format"
+>Overview of
+      the <SPAN
+CLASS="application"
+>Discover</SPAN
+> Data Format</A
+></DT
+><DT
+>2. <A
+HREF="#ch-master_list"
+>Master List</A
+></DT
+><DT
+>3. <A
+HREF="#ch-busclass_lists"
+>Busclass Lists</A
+></DT
+><DD
+><DL
+><DT
+>3.1. <A
+HREF="#sc-busclass_list_element"
+>The
+        <CODE
+CLASS="sgmltag"
+>busclass_list</CODE
+> element</A
+></DT
+><DD
+><DL
+><DT
+>3.1.1. <A
+HREF="#sc-busclass_list_element_bus_attribute"
+>The
+          <CODE
+CLASS="sgmltag"
+>bus</CODE
+> attribute</A
+></DT
+></DL
+></DD
+><DT
+>3.2. <A
+HREF="#sc-busclass_element"
+>The
+        <CODE
+CLASS="sgmltag"
+>busclass</CODE
+> element</A
+></DT
+><DD
+><DL
+><DT
+>3.2.1. <A
+HREF="#sc-busclass_element_id_attribute"
+>The
+          <CODE
+CLASS="sgmltag"
+>id</CODE
+> attribute</A
+></DT
+><DT
+>3.2.2. <A
+HREF="#sc-busclass_element_name_attribute"
+>The
+          <CODE
+CLASS="sgmltag"
+>name</CODE
+> attribute</A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+>4. <A
+HREF="#ch-vendor_lists"
+>Vendor Lists</A
+></DT
+><DD
+><DL
+><DT
+>4.1. <A
+HREF="#sc-vendor_list_element"
+>The
+        <CODE
+CLASS="sgmltag"
+>vendor_list</CODE
+> element</A
+></DT
+><DD
+><DL
+><DT
+>4.1.1. <A
+HREF="#sc-vendor_list_element_bus_attribute"
+>The
+          <CODE
+CLASS="sgmltag"
+>bus</CODE
+> attribute</A
+></DT
+></DL
+></DD
+><DT
+>4.2. <A
+HREF="#sc-vendor_element"
+>The <CODE
+CLASS="sgmltag"
+>vendor</CODE
+> element</A
+></DT
+><DD
+><DL
+><DT
+>4.2.1. <A
+HREF="#sc-vendor_element_id_attribute"
+>The <CODE
+CLASS="sgmltag"
+>id</CODE
+> attribute</A
+></DT
+><DT
+>4.2.2. <A
+HREF="#sc-vendor_element_name_attribute"
+>The <CODE
+CLASS="sgmltag"
+>name</CODE
+> attribute</A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+>5. <A
+HREF="#ch-device_lists"
+>Device Lists</A
+></DT
+><DD
+><DL
+><DT
+>5.1. <A
+HREF="#sc-device_list_element"
+>The
+        <CODE
+CLASS="sgmltag"
+>device_list</CODE
+> element</A
+></DT
+><DD
+><DL
+><DT
+>5.1.1. <A
+HREF="#sc-device_list_element_bus_attribute"
+>The
+          <CODE
+CLASS="sgmltag"
+>bus</CODE
+> attribute</A
+></DT
+></DL
+></DD
+><DT
+>5.2. <A
+HREF="#sc-device_element"
+>The <CODE
+CLASS="sgmltag"
+>device</CODE
+> element</A
+></DT
+><DT
+>5.3. <A
+HREF="#sc-data_element"
+>The <CODE
+CLASS="sgmltag"
+>data</CODE
+> element</A
+></DT
+><DD
+><DL
+><DT
+>5.3.1. <A
+HREF="#sc-data_element_class_attribute"
+>The <CODE
+CLASS="sgmltag"
+>class</CODE
+> attribute</A
+></DT
+><DT
+>5.3.2. <A
+HREF="#sc-data_element_version_attribute"
+>The <CODE
+CLASS="sgmltag"
+>version</CODE
+> attribute</A
+></DT
+></DL
+></DD
+><DT
+>5.4. <A
+HREF="#sc-accessing_device_data"
+>Accessing the Device
+        Data</A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+>II. <A
+HREF="#pt-data_content"
+>Recommended Data Content Conventions</A
+></DT
+><DD
+><DL
+><DT
+>6. <A
+HREF="#ch-data_hierarchy"
+>Data Hierarchy</A
+></DT
+><DD
+><DL
+><DT
+>6.1. <A
+HREF="#sc-linux_kernel_modules"
+>Linux Kernel Modules</A
+></DT
+><DT
+>6.2. <A
+HREF="#sc-xfree86_x_servers"
+>XFree86 X Servers</A
+></DT
+><DT
+>6.3. <A
+HREF="#sc-locally-defined_interfaces"
+>Locally-Defined Interfaces</A
+></DT
+></DL
+></DD
+><DT
+>7. <A
+HREF="#ch-order-matters"
+>Why Order Matters</A
+></DT
+><DT
+>8. <A
+HREF="#ch-using_data_versioning"
+>Using Data Versioning</A
+></DT
+><DD
+><DL
+><DT
+>8.1. <A
+HREF="#sc-specifying_range"
+>Specifying a Range</A
+></DT
+><DT
+>8.2. <A
+HREF="#sc-how_discover_library_matches_range"
+>How the <SPAN
+CLASS="application"
+>Discover</SPAN
+> Library Matches a Range</A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+>III. <A
+HREF="#pt-command-line_tools"
+>Command-Line Tools</A
+></DT
+><DD
+><DL
+><DT
+>9. <A
+HREF="#ch-discover_manpage"
+><B
+CLASS="command"
+>discover</B
+> Manual Page</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="#AEN798"
+>discover</A
+>&nbsp;--&nbsp;hardware detection utility</DT
+></DL
+></DD
+><DT
+>10. <A
+HREF="#ch-discover-conf_manpage"
+><TT
+CLASS="filename"
+>discover.conf</TT
+> Manual Page</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="#AEN1223"
+>discover.conf</A
+>&nbsp;--&nbsp;configuration file format for discover(1)</DT
+></DL
+></DD
+><DT
+>11. <A
+HREF="#ch-discover-modprobe_manpage"
+><B
+CLASS="command"
+>discover-modprobe</B
+>
+      Manual Page</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="#AEN1270"
+>discover-modprobe</A
+>&nbsp;--&nbsp;kernel module loading using discover(1)</DT
+></DL
+></DD
+><DT
+>12. <A
+HREF="#ch-discover-modprobe-conf_manpage"
+><TT
+CLASS="filename"
+>discover-modprobe.conf</TT
+>
+      Manual Page</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="#AEN1333"
+>discover-modprobe.conf</A
+>&nbsp;--&nbsp;configuration file for discover-modprobe(5)</DT
+></DL
+></DD
+></DL
+></DD
+><DT
+>IV. <A
+HREF="#pt-library"
+>Library</A
+></DT
+><DD
+><DL
+><DT
+>13. <A
+HREF="#ch-discover_library"
+>The <SPAN
+CLASS="application"
+>Discover</SPAN
+> Library</A
+></DT
+><DD
+><DL
+><DT
+>13.1. <A
+HREF="#sc-library_design_principles"
+>Library Design
+        Principles</A
+></DT
+><DT
+>13.2. <A
+HREF="#sc-discover_data_sources"
+><SPAN
+CLASS="application"
+>Discover</SPAN
+> Data
+        Sources</A
+></DT
+><DT
+>13.3. <A
+HREF="#sc-bus_map"
+>The Bus Map</A
+></DT
+><DT
+>13.4. <A
+HREF="#sc-scanning_system"
+>Scanning the System</A
+></DT
+><DT
+>13.5. <A
+HREF="#sc-using_discover_device_t_structures"
+>Using
+        <SPAN
+CLASS="type"
+>discover_device_t</SPAN
+> Structures</A
+></DT
+></DL
+></DD
+><DT
+>14. <A
+HREF="#ch-sysdeps"
+>System Dependencies</A
+></DT
+><DD
+><DL
+><DT
+>14.1. <A
+HREF="#sc-sysdeps_api"
+><ACRONYM
+CLASS="acronym"
+>API</ACRONYM
+></A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+>A. <A
+HREF="#ap-discover_api_reference"
+><SPAN
+CLASS="application"
+>Discover</SPAN
+> <ACRONYM
+CLASS="acronym"
+>API</ACRONYM
+> Reference</A
+></DT
+><DT
+>B. <A
+HREF="#ap-discover_dtd"
+><SPAN
+CLASS="application"
+>Discover</SPAN
+> <ACRONYM
+CLASS="acronym"
+>DTD</ACRONYM
+></A
+></DT
+><DT
+>C. <A
+HREF="#ap-discover_conf_dtd"
+><SPAN
+CLASS="application"
+>Discover</SPAN
+> Configuration File <ACRONYM
+CLASS="acronym"
+>DTD</ACRONYM
+></A
+></DT
+><DT
+>D. <A
+HREF="#ap-licensing_issue_linux_sysdeps"
+>Licensing Issue on the Linux Sysdeps</A
+></DT
+></DL
+></DIV
+><DIV
+CLASS="LOT"
+><DL
+CLASS="LOT"
+><DT
+><B
+>List of Figures</B
+></DT
+><DT
+>6-1. <A
+HREF="#fg-linux_interface"
+>Linux interface</A
+></DT
+><DT
+>6-2. <A
+HREF="#fg-xfree86_interface"
+>XFree86 interface</A
+></DT
+></DL
+></DIV
+><DIV
+CLASS="LOT"
+><DL
+CLASS="LOT"
+><DT
+><B
+>List of Examples</B
+></DT
+><DT
+>3-1. <A
+HREF="#ex-busclass_list"
+>The
+        <CODE
+CLASS="sgmltag"
+>busclass_list</CODE
+> element</A
+></DT
+><DT
+>4-1. <A
+HREF="#ex-vendor_list"
+>The <CODE
+CLASS="sgmltag"
+>vendor_list</CODE
+>
+        element</A
+></DT
+><DT
+>5-1. <A
+HREF="#ex-sample_device_data"
+>Sample device data</A
+></DT
+><DT
+>6-1. <A
+HREF="#ex-defining_an_interface"
+>Defining an interface</A
+></DT
+><DT
+>6-2. <A
+HREF="#ex-using_linux_interface"
+>Using the <CODE
+CLASS="sgmltag"
+>linux</CODE
+> interface</A
+></DT
+><DT
+>6-3. <A
+HREF="#ex-using_xfree86_interface"
+>Using the <CODE
+CLASS="sgmltag"
+>xfree86</CODE
+> interface</A
+></DT
+><DT
+>7-1. <A
+HREF="#AEN737"
+>Matching <CODE
+CLASS="sgmltag"
+>device</CODE
+> elements</A
+></DT
+><DT
+>8-1. <A
+HREF="#ex-using_version_attribute_of_data_element"
+>Using the
+          <CODE
+CLASS="sgmltag"
+>version</CODE
+> attribute of the
+          <CODE
+CLASS="sgmltag"
+>data</CODE
+> element</A
+></DT
+><DT
+>9-1. <A
+HREF="#d1-ex-scan-buses"
+>Scan the local buses</A
+></DT
+><DT
+>9-2. <A
+HREF="#d1-ex-view-video-cards"
+>View PCI video cards</A
+></DT
+><DT
+>9-3. <A
+HREF="#d1-ex-query-xfree86"
+>Query for the driver module for
+      XFree86 server version 4.2.0</A
+></DT
+><DT
+>9-4. <A
+HREF="#d1-ex-type-summary"
+>Get model and vendor
+      information by type</A
+></DT
+><DT
+>10-1. <A
+HREF="#AEN1252"
+>Establishing default buses to scan</A
+></DT
+><DT
+>10-2. <A
+HREF="#AEN1255"
+>A more complex example</A
+></DT
+><DT
+>14-1. <A
+HREF="#AEN1558"
+>Linux <ACRONYM
+CLASS="acronym"
+>PCI</ACRONYM
+> sysdep code</A
+></DT
+></DL
+></DIV
+><DIV
+CLASS="preface"
+><HR><H1
+><A
+NAME="pr-what_is_discover"
+></A
+>What Is <SPAN
+CLASS="application"
+>Discover</SPAN
+>?</H1
+><P
+><SPAN
+CLASS="application"
+>Discover</SPAN
+> is a tool that reports information about a
+    system's hardware.  It uses operating system-dependent modules
+    (selected at build time) to detect what hardware is actually on the
+    system and provides system-independent interfaces for querying <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> data
+    sources about this hardware.  These data sources contain specific
+    information required to enable support for various devices via defined
+    software interfaces.  The tool can be accessed by linking to the
+    <SPAN
+CLASS="application"
+>Discover</SPAN
+> library or by calling <A
+HREF="#ch-discover_manpage"
+><B
+CLASS="command"
+>discover</B
+></A
+> (which
+    itself links to the <SPAN
+CLASS="application"
+>Discover</SPAN
+> library) and parsing its output.  In the
+    future, other interfaces (for example, modules for interpreted
+    languages such as Perl and Python) may be included.</P
+><P
+>Why use <SPAN
+CLASS="application"
+>Discover</SPAN
+>?  There are at least a few reasons:</P
+><P
+></P
+><UL
+><LI
+><P
+><EM
+>Flexibility.</EM
+> <SPAN
+CLASS="application"
+>Discover</SPAN
+> is designed
+        from the ground up to be flexible.  It is portable to a variety
+        of operating environments, and its modular design supports the
+        addition
+        of arbitrary methods for querying the host operating system (OS)
+        about installed devices.  <SPAN
+CLASS="application"
+>Discover</SPAN
+> is also designed to be
+        flexible in terms of the types of data that can be retrieved.
+        <SPAN
+CLASS="application"
+>Discover</SPAN
+> does not tie the user to retrieving only one type of
+        information, such as the name of the Linux kernel module that
+        should be loaded to support a given device.  Instead, <SPAN
+CLASS="application"
+>Discover</SPAN
+>
+        supports the association of arbitrary data with hardware devices,
+        typically through specification of an interface to the hardware in
+        question, such as a Linux kernel module or an XFree86 server driver
+        module.</P
+></LI
+><LI
+><P
+><EM
+>Updatability.</EM
+> Many
+        hardware-autodetection programs suffer from an inherent
+        limitation in that they are restricted to reading hardware
+        lists or databases that are stored on the local filesystem.
+        This is not an efficient approach in the fast-moving world of
+        consumer computer hardware, with new devices constantly being
+        introduced.  A couple of months after the latest version of
+        your OS of choice is released, it may fail to recognize that
+        the latest revision of, for instance, a video chipset is
+        compatible with an older one, and can use the same software
+        interfaces.  <SPAN
+CLASS="application"
+>Discover</SPAN
+> overcomes this problem by supporting the
+        retrieval of hardware information via <ACRONYM
+CLASS="acronym"
+>HTTP</ACRONYM
+><A
+NAME="AEN53"
+HREF="#FTN.AEN53"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+> (<SPAN
+CLASS="QUOTE"
+>"over the web"</SPAN
+>).  When
+        <ACRONYM
+CLASS="acronym"
+>HTTP</ACRONYM
+> access is impossible, <SPAN
+CLASS="application"
+>Discover</SPAN
+> falls back to
+        locally stored hardware lists.</P
+></LI
+><LI
+><P
+><EM
+>Portability.</EM
+> On top of its
+        flexibility in terms of system interfaces to hardware, <SPAN
+CLASS="application"
+>Discover</SPAN
+>
+        has been written to be broadly portable to all of
+        today's popular POSIX-compliant systems.  <SPAN
+CLASS="application"
+>Discover</SPAN
+> is not a
+        Linux-only solution.  <SPAN
+CLASS="application"
+>Discover</SPAN
+> is intended to provide operating
+        system vendors, computer manufacturers, and third-party vendors of
+        software and peripherals with a powerful tool for describing the
+        hardware they support to the interfaces they care about.  Because
+        <SPAN
+CLASS="application"
+>Discover</SPAN
+>'s data sources can be anywhere on the Internet, the OS
+        vendor need not be the sole provider of hardware catalogs.</P
+></LI
+><LI
+><P
+><EM
+>Usability.</EM
+> <SPAN
+CLASS="application"
+>Discover</SPAN
+> is not an in-house
+        tool designed to solve a narrow class of problems.  <SPAN
+CLASS="application"
+>Discover</SPAN
+> is
+        designed to be easy to use from the perspectives of the individual
+        system administrator, the applications programmer, and the hardware
+        manufacturer or support staff.  <SPAN
+CLASS="application"
+>Discover</SPAN
+>'s <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> database
+        structure, its command-line tools, and its library <ACRONYM
+CLASS="acronym"
+>API</ACRONYM
+> are
+        well documented and support extensions to meet diverse
+        demands.</P
+></LI
+><LI
+><P
+><EM
+>Freely licensed.</EM
+> <SPAN
+CLASS="application"
+>Discover</SPAN
+> has a
+        copyright license that is highly adaptable to the needs of the
+        varied audiences to which <SPAN
+CLASS="application"
+>Discover</SPAN
+> is targeted.  Under the
+        so-called
+        <SPAN
+CLASS="QUOTE"
+>"UCB/BSD"</SPAN
+> or <SPAN
+CLASS="QUOTE"
+>"MIT/X Consortium"</SPAN
+> terms,
+        after the names of American universities and some very well known
+        software projects that used these terms, anyone is free to copy,
+        modify, and distribute the software, and to extend (or not) these
+        same freedoms to those who receive the software.  Progeny
+        would like to see <SPAN
+CLASS="application"
+>Discover</SPAN
+> adopted by a wide variety of existing
+        software products, such the various GNU/Linux distributions; the
+        FreeBSD, NetBSD, and OpenBSD projects; the GNU Project of the Free
+        Software Foundation; the XFree86 Project; system integrators; and
+        the designers and manufacturers of computer hardware.
+        We believe that <SPAN
+CLASS="application"
+>Discover</SPAN
+>'s design empowers those with the
+        greatest knowledge of hardware and the software interfaces to that
+        hardware to express
+        that knowledge and make it available to the world, thereby
+        ameliorating an entire class of computer configuration problems.
+        Progeny does not want <SPAN
+CLASS="application"
+>Discover</SPAN
+>'s licensing to stand in the way of
+        realizing that dream, which is why we have chosen these license
+        terms.</P
+></LI
+></UL
+><P
+>We must take a moment to explain what <SPAN
+CLASS="application"
+>Discover</SPAN
+> is
+    <EM
+>not</EM
+>: <SPAN
+CLASS="application"
+>Discover</SPAN
+> is not a replacement for the
+    service &#8212; usually provided by the underlying operating system
+    kernel or a user-space program that interfaces with it &#8212; of
+    simply translating bus-specific vendor and model identifiers to
+    human-readable names.  <SPAN
+CLASS="application"
+>Discover</SPAN
+> performs its own translations of
+    this data as a convenience for generating human-readable reports, but
+    it does not attempt to enumerate all hardware devices that exist for a
+    particular bus architecture.  Rather, <SPAN
+CLASS="application"
+>Discover</SPAN
+> is intended only to
+    catalog data for which there is some useful information to impart
+    regarding software interfaces.  Facilities already exist in modern
+    operating systems for answering the questions <SPAN
+CLASS="QUOTE"
+>"What is the name
+    of this device?"</SPAN
+> and <SPAN
+CLASS="QUOTE"
+>"Who manufactured it?"</SPAN
+>
+    <SPAN
+CLASS="application"
+>Discover</SPAN
+>'s role is to answer questions like <SPAN
+CLASS="QUOTE"
+>"What Linux kernel
+    module do I need to load for this device to work?"</SPAN
+>  More
+    importantly, <SPAN
+CLASS="application"
+>Discover</SPAN
+> will enable you to provide answers in the
+    future to questions you don't even expect to ask today.</P
+><P
+><SPAN
+CLASS="application"
+>Discover</SPAN
+> is not intended to be a comprehensive
+    hardware-management tool.  It is an
+    <EM
+>enabling technology</EM
+>,
+    designed to provide data that a tool layered above it can use.  Two
+    applications are provided with <SPAN
+CLASS="application"
+>Discover</SPAN
+> to demonstrate how the
+    library can be leveraged: the command-line utility <B
+CLASS="command"
+>discover</B
+>,
+    and a Linux kernel module loading script,
+    <B
+CLASS="command"
+>discover-modprobe</B
+>, designed to be invoked at system
+    boot time.</P
+><P
+>This manual is divided into four parts.  First, we examine the
+    <SPAN
+CLASS="application"
+>Discover</SPAN
+> <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> data file format, exploring the elements and
+    attributes used to describe hardware and various interfaces to it. This
+    part will enable you to read and understand a <SPAN
+CLASS="application"
+>Discover</SPAN
+> <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> file.  
+    Next, we offer some recommendations for writing your own <SPAN
+CLASS="application"
+>Discover</SPAN
+>
+    <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> data. Knowing the syntax is valuable, but knowing how best to
+    take advantage of it is even more useful.  We then present the
+    reference pages describing Progeny's <SPAN
+CLASS="application"
+>Discover</SPAN
+>-based command-line
+    tools and the configuration files used to control their behavior. You
+    may want to use these references as a guide when implementing your own
+    <SPAN
+CLASS="application"
+>Discover</SPAN
+>-based applications.  The final part describes the <SPAN
+CLASS="application"
+>Discover</SPAN
+>
+    library <ACRONYM
+CLASS="acronym"
+>API</ACRONYM
+> so that you can develop your own solutions based on
+    <SPAN
+CLASS="application"
+>Discover</SPAN
+>.  Appendices offer references to the formal descriptions of
+    the <SPAN
+CLASS="application"
+>Discover</SPAN
+> <ACRONYM
+CLASS="acronym"
+>API</ACRONYM
+> and <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> <ACRONYM
+CLASS="acronym"
+>DTD</ACRONYM
+>s.</P
+></DIV
+><DIV
+CLASS="PART"
+><A
+NAME="pt-data_structure"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="title"
+>I. Data Structure</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+>1. <A
+HREF="#ch-overview_discover_data_format"
+>Overview of
+      the <SPAN
+CLASS="application"
+>Discover</SPAN
+> Data Format</A
+></DT
+><DT
+>2. <A
+HREF="#ch-master_list"
+>Master List</A
+></DT
+><DT
+>3. <A
+HREF="#ch-busclass_lists"
+>Busclass Lists</A
+></DT
+><DD
+><DL
+><DT
+>3.1. <A
+HREF="#sc-busclass_list_element"
+>The
+        <CODE
+CLASS="sgmltag"
+>busclass_list</CODE
+> element</A
+></DT
+><DD
+><DL
+><DT
+>3.1.1. <A
+HREF="#sc-busclass_list_element_bus_attribute"
+>The
+          <CODE
+CLASS="sgmltag"
+>bus</CODE
+> attribute</A
+></DT
+></DL
+></DD
+><DT
+>3.2. <A
+HREF="#sc-busclass_element"
+>The
+        <CODE
+CLASS="sgmltag"
+>busclass</CODE
+> element</A
+></DT
+><DD
+><DL
+><DT
+>3.2.1. <A
+HREF="#sc-busclass_element_id_attribute"
+>The
+          <CODE
+CLASS="sgmltag"
+>id</CODE
+> attribute</A
+></DT
+><DT
+>3.2.2. <A
+HREF="#sc-busclass_element_name_attribute"
+>The
+          <CODE
+CLASS="sgmltag"
+>name</CODE
+> attribute</A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+>4. <A
+HREF="#ch-vendor_lists"
+>Vendor Lists</A
+></DT
+><DD
+><DL
+><DT
+>4.1. <A
+HREF="#sc-vendor_list_element"
+>The
+        <CODE
+CLASS="sgmltag"
+>vendor_list</CODE
+> element</A
+></DT
+><DD
+><DL
+><DT
+>4.1.1. <A
+HREF="#sc-vendor_list_element_bus_attribute"
+>The
+          <CODE
+CLASS="sgmltag"
+>bus</CODE
+> attribute</A
+></DT
+></DL
+></DD
+><DT
+>4.2. <A
+HREF="#sc-vendor_element"
+>The <CODE
+CLASS="sgmltag"
+>vendor</CODE
+> element</A
+></DT
+><DD
+><DL
+><DT
+>4.2.1. <A
+HREF="#sc-vendor_element_id_attribute"
+>The <CODE
+CLASS="sgmltag"
+>id</CODE
+> attribute</A
+></DT
+><DT
+>4.2.2. <A
+HREF="#sc-vendor_element_name_attribute"
+>The <CODE
+CLASS="sgmltag"
+>name</CODE
+> attribute</A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+>5. <A
+HREF="#ch-device_lists"
+>Device Lists</A
+></DT
+><DD
+><DL
+><DT
+>5.1. <A
+HREF="#sc-device_list_element"
+>The
+        <CODE
+CLASS="sgmltag"
+>device_list</CODE
+> element</A
+></DT
+><DD
+><DL
+><DT
+>5.1.1. <A
+HREF="#sc-device_list_element_bus_attribute"
+>The
+          <CODE
+CLASS="sgmltag"
+>bus</CODE
+> attribute</A
+></DT
+></DL
+></DD
+><DT
+>5.2. <A
+HREF="#sc-device_element"
+>The <CODE
+CLASS="sgmltag"
+>device</CODE
+> element</A
+></DT
+><DT
+>5.3. <A
+HREF="#sc-data_element"
+>The <CODE
+CLASS="sgmltag"
+>data</CODE
+> element</A
+></DT
+><DD
+><DL
+><DT
+>5.3.1. <A
+HREF="#sc-data_element_class_attribute"
+>The <CODE
+CLASS="sgmltag"
+>class</CODE
+> attribute</A
+></DT
+><DT
+>5.3.2. <A
+HREF="#sc-data_element_version_attribute"
+>The <CODE
+CLASS="sgmltag"
+>version</CODE
+> attribute</A
+></DT
+></DL
+></DD
+><DT
+>5.4. <A
+HREF="#sc-accessing_device_data"
+>Accessing the Device
+        Data</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="chapter"
+><HR><H1
+><A
+NAME="ch-overview_discover_data_format"
+></A
+>Chapter 1. Overview of
+      the <SPAN
+CLASS="application"
+>Discover</SPAN
+> Data Format</H1
+><P
+>Most modern computer peripherals contain self-identifying
+      information in a format standardized for the hardware interface
+      (bus).  This enables the OS on the host system
+      to query or scan a bus and catalog the devices.  In general, the OS
+      stores this information in the same basic format in which it is
+      returned, without translating it more times than necessary for
+      device drivers to communicate with the peripheral.  However, this
+      information varies by bus type and is often insufficiently clear for
+      human consumption. Furthermore, many operating systems do not contain
+      a comprehensive database that maps each peripheral to every subsystem
+      running on the OS that may want to communicate with that peripheral.
+      <SPAN
+CLASS="application"
+>Discover</SPAN
+> addresses these issues by providing flexible databases
+      stored in <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> format.</P
+><P
+>Extensible Markup Language (<ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+>) is a highly flexible
+      hypertext format. <SPAN
+CLASS="application"
+>Discover</SPAN
+> uses <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> exclusively to store hardware
+      information externally.  Some familiarity with <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> syntax is
+      therefore assumed. For more information,
+      see <A
+HREF="http://www.w3.org/XML/"
+TARGET="_top"
+>the
+      W3C's <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> website</A
+>.</P
+><P
+>For a formal description of <SPAN
+CLASS="application"
+>Discover</SPAN
+>'s <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> data format, see
+      the <SPAN
+CLASS="application"
+>Discover</SPAN
+> <A
+HREF="#ap-discover_dtd"
+>Document Type
+      Definition (<ACRONYM
+CLASS="acronym"
+>DTD</ACRONYM
+>)</A
+> document.  The purpose of this document is
+      to present the information in a form digestible by the novice.</P
+><P
+>Because each hardware bus type, such as <ACRONYM
+CLASS="acronym"
+>PCI</ACRONYM
+> or <ACRONYM
+CLASS="acronym"
+>USB</ACRONYM
+>,
+      communicates different details about the connected devices
+      (essentially, each one solves the same problem in a different way),
+      <SPAN
+CLASS="application"
+>Discover</SPAN
+> has a different set of lists for each bus type.  For each
+      bus, up to three lists are stored: a bus class list
+      maps the bus specification's notion of a device type (hereinafter
+      referred to as a <SPAN
+CLASS="QUOTE"
+>"device class"</SPAN
+> to reduce confusion) to
+      <SPAN
+CLASS="application"
+>Discover</SPAN
+>'s device types, which are used for running selective
+      queries; a vendor list associates bus-specific vendor identification
+      data with natural-language names for hardware vendors; and a device
+      list contains information specific to individual devices.</P
+></DIV
+><DIV
+CLASS="chapter"
+><HR><H1
+><A
+NAME="ch-master_list"
+></A
+>Chapter 2. Master List</H1
+><P
+>When <SPAN
+CLASS="application"
+>Discover</SPAN
+> is provided with a <ACRONYM
+CLASS="acronym"
+>URL</ACRONYM
+> for the retrieval of
+      hardware information, the data retrieved is expected to be in
+      <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> format and to contain further <ACRONYM
+CLASS="acronym"
+>URL</ACRONYM
+>s for retrieval.</P
+><P
+>The root element must be <CODE
+CLASS="sgmltag"
+>discover-data</CODE
+>, which has no attributes,
+        and can only contain <CODE
+CLASS="sgmltag"
+>location</CODE
+>
+        elements.</P
+><P
+>The <CODE
+CLASS="sgmltag"
+>location</CODE
+> element is
+      always empty, and has three required attributes: <CODE
+CLASS="sgmltag"
+>bus</CODE
+>, <CODE
+CLASS="sgmltag"
+>type</CODE
+>, and <CODE
+CLASS="sgmltag"
+>url</CODE
+>.</P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><P
+><B
+><CODE
+CLASS="sgmltag"
+>location</CODE
+>
+        Attributes</B
+></P
+><DL
+><DT
+><CODE
+CLASS="sgmltag"
+>type</CODE
+></DT
+><DD
+><P
+>This attribute can have one of these values: <CODE
+CLASS="sgmltag"
+>busclass</CODE
+>, <CODE
+CLASS="sgmltag"
+>device</CODE
+>, or <CODE
+CLASS="sgmltag"
+>vendor</CODE
+>. See <A
+HREF="#ch-busclass_lists"
+>Chapter 3</A
+>, <A
+HREF="#ch-vendor_lists"
+>Chapter 4</A
+>, and <A
+HREF="#ch-device_lists"
+>Chapter 5</A
+>.</P
+></DD
+><DT
+><CODE
+CLASS="sgmltag"
+>url</CODE
+></DT
+><DD
+><P
+>This must be a valid <ACRONYM
+CLASS="acronym"
+>URL</ACRONYM
+> containing one of the three
+              types of data lists.</P
+></DD
+><DT
+><CODE
+CLASS="sgmltag"
+>bus</CODE
+></DT
+><DD
+><P
+>This is the bus to which the <ACRONYM
+CLASS="acronym"
+>URL</ACRONYM
+> applies.  See <A
+HREF="#sc-busclass_element_name_attribute"
+>Section 3.2.2</A
+> for a list of
+            valid bus names.</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="chapter"
+><HR><H1
+><A
+NAME="ch-busclass_lists"
+></A
+>Chapter 3. Busclass Lists</H1
+><P
+>As noted in the previous chapter, a busclass list provides a
+      mapping between device classes recognized by the hardware bus and the
+      device type names used by <SPAN
+CLASS="application"
+>Discover</SPAN
+>.  Because every bus is
+      different, sometimes there is no perfect, one-to-one correspondence
+      between <SPAN
+CLASS="application"
+>Discover</SPAN
+> device types and the device classes recognized by
+      a particular bus.  This is one reason that the busclass lists, like
+      other types of <SPAN
+CLASS="application"
+>Discover</SPAN
+> data lists, are updatable.
+      Revisions in a bus specification may demand updates to the
+      mapping.</P
+><P
+>The device classes recognized by a bus are typically determined
+      by the specification for the bus as determined by a standards
+      committee or other technical body, and do not change frequently (if
+      at all).</P
+><DIV
+CLASS="example"
+><A
+NAME="ex-busclass_list"
+></A
+><P
+><B
+>Example 3-1. The
+        <CODE
+CLASS="sgmltag"
+>busclass_list</CODE
+> element</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="programlisting"
+>&#60;?xml version="1.0"?&#62;
+
+&#60;busclass_list bus="usb"&#62;
+  &#60;busclass id="0202" name="modem"/&#62;
+  &#60;busclass id="1030" name="broadband"/&#62;
+  &#60;busclass id="0101" name="printer"/&#62;
+  &#60;busclass id="ffff" name="imaging"/&#62;
+  &#60;busclass id="0206" name="network"/&#62;
+  &#60;busclass id="0300" name="humaninput"/&#62;
+  &#60;busclass id="ff00" name="video"/&#62;
+  &#60;busclass id="0000" name="unknown"/&#62;
+  &#60;busclass id="0804" name="removabledisk"/&#62;
+&#60;/busclass_list&#62;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>In the foregoing example, we can see one possible mapping of
+      the <ACRONYM
+CLASS="acronym"
+>USB</ACRONYM
+> bus's numeric device class IDs to <SPAN
+CLASS="application"
+>Discover</SPAN
+>'s device type
+      names (see <A
+HREF="#sc-busclass_element_name_attribute"
+>Section 3.2.2</A
+>).
+      The file begins by declaring the version of the <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> standard to
+      which it conforms, and then presents data.  The format should be
+      fairly familiar to those accustomed to <ACRONYM
+CLASS="acronym"
+>HTML</ACRONYM
+>-style structured markup
+      languages.</P
+><P
+>Not all of <SPAN
+CLASS="application"
+>Discover</SPAN
+>'s supported device types are listed in
+      the example; for example, <TT
+CLASS="literal"
+>display</TT
+> is missing.
+      This is not a problem, since not all buses are used for all hardware
+      applications.  <ACRONYM
+CLASS="acronym"
+>USB</ACRONYM
+> 1.1 would be a poor choice of bus for
+      <ACRONYM
+CLASS="acronym"
+>VGA</ACRONYM
+>-compatible display controllers, for instance, because the
+      available bandwidth on the <ACRONYM
+CLASS="acronym"
+>USB</ACRONYM
+> 1.1 bus is insufficient to handle
+      typical data loads for such devices.</P
+><P
+>Another infelicity in the above example is the association of
+      the <TT
+CLASS="literal"
+>ffff</TT
+> device class ID with the <SPAN
+CLASS="application"
+>Discover</SPAN
+> 
+      device type <TT
+CLASS="literal"
+>imaging</TT
+>.  In actuality, a device type 
+      class of <TT
+CLASS="literal"
+>ffff</TT
+> in the <ACRONYM
+CLASS="acronym"
+>USB</ACRONYM
+> specification indicates 
+      a device of an unknown classification.  In practice, most
+      consumer-level devices with this device class are scanners, one of 
+      the first applications of <ACRONYM
+CLASS="acronym"
+>USB</ACRONYM
+> technology in the consumer 
+      marketplace.  It is
+      possible that in certain deployments, the association of <ACRONYM
+CLASS="acronym"
+>USB</ACRONYM
+>'s
+      unknown device class ID with <SPAN
+CLASS="application"
+>Discover</SPAN
+>'s <TT
+CLASS="literal"
+>imaging</TT
+>
+      device type is suboptimal &#8212; another reason the busclass lists
+      are not hard-coded into the library.</P
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="sc-busclass_list_element"
+>3.1. The
+        <CODE
+CLASS="sgmltag"
+>busclass_list</CODE
+> element</A
+></H2
+><P
+>A <CODE
+CLASS="sgmltag"
+>busclass_list</CODE
+> element possesses a
+        <CODE
+CLASS="sgmltag"
+>bus</CODE
+> attribute and contains one or more
+        <CODE
+CLASS="sgmltag"
+>busclass</CODE
+> elements.</P
+><DIV
+CLASS="section"
+><HR><H3
+CLASS="section"
+><A
+NAME="sc-busclass_list_element_bus_attribute"
+>3.1.1. The
+          <CODE
+CLASS="sgmltag"
+>bus</CODE
+> attribute</A
+></H3
+><P
+>The <CODE
+CLASS="sgmltag"
+>bus</CODE
+> attribute of the
+          <CODE
+CLASS="sgmltag"
+>busclass_list</CODE
+> element is set to the name of
+          the bus being described by the busclass list.</P
+><P
+>The <CODE
+CLASS="sgmltag"
+>bus</CODE
+> attribute
+          presently supports the following values:</P
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="literal"
+>ata</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>pci</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>pcmcia</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>scsi</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>usb</TT
+></P
+></LI
+></UL
+><P
+>We expect to support more buses in the future;
+          <TT
+CLASS="literal"
+>ieee1394</TT
+> and <TT
+CLASS="literal"
+>sbus</TT
+> are
+          possible candidates.</P
+></DIV
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="sc-busclass_element"
+>3.2. The
+        <CODE
+CLASS="sgmltag"
+>busclass</CODE
+> element</A
+></H2
+><P
+>A <CODE
+CLASS="sgmltag"
+>busclass</CODE
+> element possesses two
+        attributes, <CODE
+CLASS="sgmltag"
+>id</CODE
+> and <CODE
+CLASS="sgmltag"
+>name</CODE
+>, and
+        contains no elements.</P
+><DIV
+CLASS="section"
+><HR><H3
+CLASS="section"
+><A
+NAME="sc-busclass_element_id_attribute"
+>3.2.1. The
+          <CODE
+CLASS="sgmltag"
+>id</CODE
+> attribute</A
+></H3
+><P
+>The <CODE
+CLASS="sgmltag"
+>id</CODE
+> attribute is set to a bus-specific
+          device class identifier.</P
+></DIV
+><DIV
+CLASS="section"
+><HR><H3
+CLASS="section"
+><A
+NAME="sc-busclass_element_name_attribute"
+>3.2.2. The
+          <CODE
+CLASS="sgmltag"
+>name</CODE
+> attribute</A
+></H3
+><P
+>The <CODE
+CLASS="sgmltag"
+>name</CODE
+> attribute is set to a
+          <SPAN
+CLASS="application"
+>Discover</SPAN
+> device type.  <SPAN
+CLASS="application"
+>Discover</SPAN
+>'s device types are an effort
+          to balance a few criteria:</P
+><P
+></P
+><UL
+><LI
+><P
+>Device types (<SPAN
+CLASS="QUOTE"
+>"bus classes"</SPAN
+> in <SPAN
+CLASS="application"
+>Discover</SPAN
+>
+              terminology) defined by the <ACRONYM
+CLASS="acronym"
+>PCI</ACRONYM
+> specification</P
+></LI
+><LI
+><P
+>Bus classes defined by the <ACRONYM
+CLASS="acronym"
+>USB</ACRONYM
+> specification</P
+></LI
+><LI
+><P
+>Bus classes defined by the <ACRONYM
+CLASS="acronym"
+>SCSI</ACRONYM
+> specification</P
+></LI
+><LI
+><P
+>Device types commonly conceived of by the personal
+              computer user</P
+></LI
+></UL
+><P
+><SPAN
+CLASS="application"
+>Discover</SPAN
+>'s definitions of device types will not meet with
+          universal agreement; as happens in most categorization problems,
+          some decisions had to be made arbitrarily.  <SPAN
+CLASS="application"
+>Discover</SPAN
+> does not
+          attempt to solve the general problem of grouping various
+          peripherals into categories; rather, <SPAN
+CLASS="application"
+>Discover</SPAN
+> solves the
+          problem for itself and uses bus-specific mappings to translate a
+          device's own notion of its type to <SPAN
+CLASS="application"
+>Discover</SPAN
+>'s device
+          type.</P
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="literal"
+>audio</TT
+></P
+><P
+>A device capable of producing an analog or digital
+    sound signal is an <I
+CLASS="firstterm"
+>audio</I
+> device.
+    Typically, any device commonly referred to as a
+    <SPAN
+CLASS="QUOTE"
+>"sound card"</SPAN
+> is classified by <SPAN
+CLASS="application"
+>Discover</SPAN
+> as
+    an audio device.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>bridge</TT
+></P
+><P
+>A device that provides access to devices of a
+    different type, commonly on a different bus, is a
+    <I
+CLASS="firstterm"
+>bridge</I
+> device.  For instance, consumer
+    <ACRONYM
+CLASS="acronym"
+>PCI</ACRONYM
+> chipsets often feature a bridge to <ACRONYM
+CLASS="acronym"
+>ATA</ACRONYM
+> (also
+    known as IDE) devices.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>broadband</TT
+></P
+><P
+>An interface device to a computer communications
+    network implemented on top of a technology not explicitly
+    designed for that purpose is a <I
+CLASS="firstterm"
+>broadband</I
+>
+    device.  Examples include ISDN terminal adapters as well
+    as DSL and cable <SPAN
+CLASS="QUOTE"
+>"modems"</SPAN
+>; analog
+    phone-line modems are not included in this classification
+    (see <SPAN
+CLASS="QUOTE"
+>"modem"</SPAN
+> below).</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>display</TT
+></P
+><P
+>A device controlled by the host machine's CPU and
+    capable of producing an analog or digital video signal
+    for output purposes is a <I
+CLASS="firstterm"
+>display</I
+> device.
+    Typically, any device commonly referred to as a
+    <SPAN
+CLASS="QUOTE"
+>"video card"</SPAN
+> is classified by <SPAN
+CLASS="application"
+>Discover</SPAN
+> as
+    a display device.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>fixeddisk</TT
+></P
+><P
+>A high-speed, fixed magnetic storage device such as
+    a hard disk drive is a <I
+CLASS="firstterm"
+>fixeddisk</I
+> device.
+    Removable media devices such as floppy disk drives,
+    CD-ROM drives, magneto-optical devices, tape drives, and
+    Compact Flash card readers are not included in this
+    classification.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>humaninput</TT
+></P
+><P
+>A device that receives tactile input from a person
+    for the purpose of directing a computer's activity is a
+    <I
+CLASS="firstterm"
+>humaninput</I
+> device.  Examples include
+    keyboards, mice, trackballs, joysticks, gamepads, digital
+    tablets manipulated with a stylus or finger, and so
+    forth.  Input devices that rely upon non-tactile means of
+    determining a person's intent, such as speech-recognition
+    devices or cameras, are not included in this
+    classification.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>imaging</TT
+></P
+><P
+>A device that captures still images for input
+    purposes is an <I
+CLASS="firstterm"
+>imaging</I
+> device.  Scanners
+    and digital cameras are examples of imaging
+    devices.  Motion-capture devices such as television tuner
+    cards, webcams, and digital video cameras are not
+    included in this classification.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>miscellaneous</TT
+></P
+><P
+>Any device that cannot logically be classified as
+    another device type is a <I
+CLASS="firstterm"
+>miscellaneous</I
+>
+    device.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>modem</TT
+></P
+><P
+>An analog phone-line modulator/demodulator
+    (modem) is classified by <SPAN
+CLASS="application"
+>Discover</SPAN
+> as a
+    <I
+CLASS="firstterm"
+>modem</I
+> device.  No other kind of device is
+    so classified.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>network</TT
+></P
+><P
+>An interface device to a conventional computer
+    data communications network that does not require the use of a terminal
+    adapter is a <I
+CLASS="firstterm"
+>network</I
+> device.  For example,
+    Ethernet and Token Ring network interface cards are network
+    devices.  Analog phone-line modems; terminal adapters
+    for technologies such as ISDN and DSL; and <SPAN
+CLASS="QUOTE"
+>"cable modems"</SPAN
+>
+    are not <SPAN
+CLASS="QUOTE"
+>"network"</SPAN
+> devices.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>optical</TT
+></P
+><P
+>An optical-technology storage device, often using
+    read-only media, is an <I
+CLASS="firstterm"
+>optical</I
+> device.  By
+    far the most common examples of these devices are CD-ROM
+    and DVD-ROM drives, including versions of these drives
+    that can <SPAN
+CLASS="QUOTE"
+>"burn"</SPAN
+> (write to) optical
+    discs.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>printer</TT
+></P
+><P
+>A device that renders visual output in a permanent
+    or semi-permanent manner to a physical medium is a
+    <I
+CLASS="firstterm"
+>printer</I
+>.  Typically, any device
+    colloquially referred to as a <SPAN
+CLASS="QUOTE"
+>"printer"</SPAN
+> is
+    also classified by <SPAN
+CLASS="application"
+>Discover</SPAN
+> as a
+    printer.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>removabledisk</TT
+></P
+><P
+>Storage devices that feature removable media using
+    just about any technology except that of magnetic tape,
+    CD-ROM, and DVD-ROM drives are
+    <I
+CLASS="firstterm"
+>removabledisk</I
+> devices.  Examples include
+    floppy disk drives, magneto-optical drives, and Compact
+    Flash card readers.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>tape</TT
+></P
+><P
+>A sequential-access mass storage device using
+    magnetic tape is a <I
+CLASS="firstterm"
+>tape</I
+> device.  Commonly
+    used for archival and backup purposes, DAT drives are
+    examples of tape devices.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>video</TT
+></P
+><P
+>A device that produces a real-time digital video
+    signal for input purposes is a <I
+CLASS="firstterm"
+>video</I
+>
+    device.  Webcams, digital video cameras, and television
+    tuners are examples of video
+    devices.  Note that still digital cameras with
+    <SPAN
+CLASS="QUOTE"
+>"movie"</SPAN
+> capability are
+    <EM
+>not</EM
+> considered video
+    devices unless they can transmit the live video signal to
+    the host in real time.</P
+></LI
+></UL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="chapter"
+><HR><H1
+><A
+NAME="ch-vendor_lists"
+></A
+>Chapter 4. Vendor Lists</H1
+><P
+>Many buses have vendor identification numbers
+      that are registered with that bus's standardization body and
+      programmed into the devices when they are manufactured.  These
+      numbers generally are assigned arbitrarily, and typically have little
+      meaning to the end user; therefore, most hardware detection tools
+      provide a way to translate these numeric vendor IDs to human-readable
+      strings.  Thus, instead of knowing that your <ACRONYM
+CLASS="acronym"
+>PCI</ACRONYM
+> or <ACRONYM
+CLASS="acronym"
+>AGP</ACRONYM
+> video card
+      was manufactured by <SPAN
+CLASS="QUOTE"
+>"1002,"</SPAN
+> you can determine that it
+      was manufactured by <SPAN
+CLASS="QUOTE"
+>"ATI Technologies, Inc."</SPAN
+></P
+><DIV
+CLASS="example"
+><A
+NAME="ex-vendor_list"
+></A
+><P
+><B
+>Example 4-1. The <CODE
+CLASS="sgmltag"
+>vendor_list</CODE
+>
+        element</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="programlisting"
+>&#60;?xml version="1.0"?&#62;
+
+&#60;vendor_list bus="pci"&#62;
+  &#60;vendor id="0675" name="Dynalink"/&#62;
+  &#60;vendor id="0e11" name="Compaq Computer Corporation"/&#62;
+  &#60;vendor id="1004" name="VLSI Technology Inc"/&#62;
+  &#60;vendor id="1025" name="Acer Incorporated [ALI]"/&#62;
+  &#60;vendor id="102b" name="Matrox Graphics, Inc."/&#62;
+  &#60;vendor id="109e" name="Brooktree Corporation"/&#62;
+&#60;/vendor_list&#62;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>The foregoing example is similar in structure to the <A
+HREF="#ex-busclass_list"
+>busclass list example</A
+>; a numeric
+      vendor ID maps to a vendor name, which can be used by <SPAN
+CLASS="application"
+>Discover</SPAN
+> for
+      queries or reports generated for the user's benefit.</P
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="sc-vendor_list_element"
+>4.1. The
+        <CODE
+CLASS="sgmltag"
+>vendor_list</CODE
+> element</A
+></H2
+><P
+>A <CODE
+CLASS="sgmltag"
+>vendor_list</CODE
+> element possesses a
+        <CODE
+CLASS="sgmltag"
+>bus</CODE
+> attribute and contains one or more
+        <CODE
+CLASS="sgmltag"
+>vendor</CODE
+> elements.</P
+><DIV
+CLASS="section"
+><HR><H3
+CLASS="section"
+><A
+NAME="sc-vendor_list_element_bus_attribute"
+>4.1.1. The
+          <CODE
+CLASS="sgmltag"
+>bus</CODE
+> attribute</A
+></H3
+><P
+>The <CODE
+CLASS="sgmltag"
+>bus</CODE
+> attribute of the
+          <CODE
+CLASS="sgmltag"
+>vendor_list</CODE
+> element is set to the name of
+          the bus being described by the vendor list.</P
+><P
+>The following bus attributes are supported:</P
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="literal"
+>ata</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>pci</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>pcmcia</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>scsi</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>usb</TT
+></P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="sc-vendor_element"
+>4.2. The <CODE
+CLASS="sgmltag"
+>vendor</CODE
+> element</A
+></H2
+><P
+>A <CODE
+CLASS="sgmltag"
+>vendor</CODE
+> element possesses two
+        attributes, <CODE
+CLASS="sgmltag"
+>id</CODE
+> and <CODE
+CLASS="sgmltag"
+>name</CODE
+>, and
+        contains no elements.</P
+><DIV
+CLASS="section"
+><HR><H3
+CLASS="section"
+><A
+NAME="sc-vendor_element_id_attribute"
+>4.2.1. The <CODE
+CLASS="sgmltag"
+>id</CODE
+> attribute</A
+></H3
+><P
+>The <CODE
+CLASS="sgmltag"
+>id</CODE
+> attribute is set to a bus-specific
+          vendor identifier.</P
+></DIV
+><DIV
+CLASS="section"
+><HR><H3
+CLASS="section"
+><A
+NAME="sc-vendor_element_name_attribute"
+>4.2.2. The <CODE
+CLASS="sgmltag"
+>name</CODE
+> attribute</A
+></H3
+><P
+>The <CODE
+CLASS="sgmltag"
+>name</CODE
+> attribute is set to a
+          human-readable vendor identifier, typically the official name of
+          the corporation or other business entity that designed or
+          manufactured that peripheral.</P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="chapter"
+><HR><H1
+><A
+NAME="ch-device_lists"
+></A
+>Chapter 5. Device Lists</H1
+><P
+>The device lists are the heart of <SPAN
+CLASS="application"
+>Discover</SPAN
+>'s functionality.
+      They are the most frequently updated lists and contain the
+      information of greatest value.</P
+><P
+><SPAN
+CLASS="application"
+>Discover</SPAN
+>'s device lists not only provide a way to identify
+      individual peripherals by name, but also permit the specification of
+      an arbitrary quantity of organized data for each device, supporting
+      an arbitrary number of software interfaces.</P
+><DIV
+CLASS="note"
+><P
+></P
+><TABLE
+CLASS="note"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="http://www.progeny.com/images/utility/note.png"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>The following is a fictitious example.  The information
+        within it is for illustrative purposes only.  See <A
+HREF="#pt-data_content"
+>Part II in <I
+>The <SPAN
+CLASS="application"
+>Discover</SPAN
+> Hardware Detection System</I
+></A
+> for a discussion of the
+        <SPAN
+CLASS="QUOTE"
+>"real"</SPAN
+> hardware data as provided by Progeny, and for
+        some suggested conventions on organizing the data namespace.</P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="example"
+><A
+NAME="ex-sample_device_data"
+></A
+><P
+><B
+>Example 5-1. Sample device data</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="programlisting"
+>&#60;?xml version="1.0"?&#62;
+
+&#60;device_list bus="pci"&#62;
+  &#60;device busclass="1984" model="0101" model_name="Cerebral Reprogrammer" vendor="B16B"&#62;
+    &#60;data class="linux"&#62;
+      &#60;data class="module"&#62;
+        &#60;data class="name"&#62;winston&#60;/data&#62;
+        &#60;data class="options"&#62;base_address=0x300 manual_override=0&#60;/data&#62;
+      &#60;/data&#62;
+    &#60;/data&#62;
+    &#60;data class="win2k"&#62;
+      &#60;data class="hal_driver"&#62;
+        &#60;data class="StrUglyHungarianNotatedDriverName"&#62;settlement&#60;/data&#62;
+        &#60;data class="flags"&#62;NSA_KEY=96b5f3e3283a62c85f6cb6f4017135c2&#60;/data&#62;
+      &#60;/data&#62;
+    &#60;/data&#62;
+  &#60;/device&#62;
+&#60;/device_list&#62;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>The example above includes a <CODE
+CLASS="sgmltag"
+>device_list</CODE
+>
+      element containing <CODE
+CLASS="sgmltag"
+>device</CODE
+> elements, and a
+      <CODE
+CLASS="sgmltag"
+>device</CODE
+> element that defines the device itself,
+      but reserves any software- or interface-specific details to the
+      <CODE
+CLASS="sgmltag"
+>data</CODE
+> elements it contains.</P
+><P
+>The actual data provided in the example is accessed by means of
+      data paths; see <A
+HREF="#sc-accessing_device_data"
+>Section 5.4</A
+> for 
+      further information.</P
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="sc-device_list_element"
+>5.1. The
+        <CODE
+CLASS="sgmltag"
+>device_list</CODE
+> element</A
+></H2
+><P
+>A <CODE
+CLASS="sgmltag"
+>device_list</CODE
+> element possesses a
+        <CODE
+CLASS="sgmltag"
+>bus</CODE
+> attribute and contains one or more
+        <CODE
+CLASS="sgmltag"
+>device</CODE
+> elements.</P
+><DIV
+CLASS="section"
+><HR><H3
+CLASS="section"
+><A
+NAME="sc-device_list_element_bus_attribute"
+>5.1.1. The
+          <CODE
+CLASS="sgmltag"
+>bus</CODE
+> attribute</A
+></H3
+><P
+>The <CODE
+CLASS="sgmltag"
+>bus</CODE
+> attribute of the
+          <CODE
+CLASS="sgmltag"
+>device_list</CODE
+> element is set to the name of
+          the bus described by the device list.</P
+><P
+>The following bus attributes are supported:</P
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="literal"
+>ata</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>pci</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>pcmcia</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>scsi</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>usb</TT
+></P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="sc-device_element"
+>5.2. The <CODE
+CLASS="sgmltag"
+>device</CODE
+> element</A
+></H2
+><P
+>A <CODE
+CLASS="sgmltag"
+>device</CODE
+> element possesses four attributes:</P
+><P
+></P
+><UL
+><LI
+><P
+><CODE
+CLASS="sgmltag"
+>busclass</CODE
+></P
+></LI
+><LI
+><P
+><CODE
+CLASS="sgmltag"
+>vendor</CODE
+></P
+></LI
+><LI
+><P
+><CODE
+CLASS="sgmltag"
+>model</CODE
+></P
+></LI
+><LI
+><P
+><CODE
+CLASS="sgmltag"
+>model_name</CODE
+></P
+></LI
+></UL
+><P
+>All of these attributes must be specified for each
+        <CODE
+CLASS="sgmltag"
+>device</CODE
+> element.  The <CODE
+CLASS="sgmltag"
+>busclass</CODE
+>
+        attribute is set to a <A
+HREF="#sc-busclass_element_id_attribute"
+>busclass
+        identifier</A
+>, <CODE
+CLASS="sgmltag"
+>vendor</CODE
+> to a <A
+HREF="#sc-vendor_element_id_attribute"
+>vendor
+        identifier</A
+>, <CODE
+CLASS="sgmltag"
+>model</CODE
+> to a bus-specific
+        model identifier, and <CODE
+CLASS="sgmltag"
+>model_name</CODE
+> to a
+        human-readable vendor identifier, typically the name of the product
+        under which the device reporting the <CODE
+CLASS="sgmltag"
+>model</CODE
+>
+        identifier is sold or otherwise distributed.</P
+><P
+>A <CODE
+CLASS="sgmltag"
+>device</CODE
+> element contains zero or more
+        <CODE
+CLASS="sgmltag"
+>data</CODE
+> elements.</P
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="sc-data_element"
+>5.3. The <CODE
+CLASS="sgmltag"
+>data</CODE
+> element</A
+></H2
+><P
+>A <CODE
+CLASS="sgmltag"
+>data</CODE
+> element possesses a mandatory
+        <CODE
+CLASS="sgmltag"
+>class</CODE
+> attribute, an optional
+        <CODE
+CLASS="sgmltag"
+>version</CODE
+> attribute, and zero or more
+        <CODE
+CLASS="sgmltag"
+>data</CODE
+> elements.</P
+><P
+>The ability to nest <CODE
+CLASS="sgmltag"
+>data</CODE
+> elements inside
+        other <CODE
+CLASS="sgmltag"
+>data</CODE
+> elements affords interface designers
+        and device driver authors the ability to specify a hierarchy of
+        data, instead of being compelled to encapsulate only one piece of
+        data per device for their interface.</P
+><DIV
+CLASS="section"
+><HR><H3
+CLASS="section"
+><A
+NAME="sc-data_element_class_attribute"
+>5.3.1. The <CODE
+CLASS="sgmltag"
+>class</CODE
+> attribute</A
+></H3
+><P
+>A <CODE
+CLASS="sgmltag"
+>class</CODE
+> attribute is set to an arbitrary
+          value determined by an interface designer.  For
+          <CODE
+CLASS="sgmltag"
+>data</CODE
+> elements whose parent element is a
+          <CODE
+CLASS="sgmltag"
+>device</CODE
+> element, this should be the name of
+          the interface being described, such as
+          <TT
+CLASS="literal"
+>freebsd</TT
+>, <TT
+CLASS="literal"
+>linux</TT
+>, or
+          <TT
+CLASS="literal"
+>xfree86</TT
+>.</P
+><P
+>A <CODE
+CLASS="sgmltag"
+>data</CODE
+> element whose parent element is a
+          <CODE
+CLASS="sgmltag"
+>data</CODE
+> element should set this attribute to a
+          term reflecting the interface designer's intended data hierarchy.
+          <SPAN
+CLASS="application"
+>Discover</SPAN
+> does not mandate any particular hierarchy for
+          interface designers.</P
+></DIV
+><DIV
+CLASS="section"
+><HR><H3
+CLASS="section"
+><A
+NAME="sc-data_element_version_attribute"
+>5.3.2. The <CODE
+CLASS="sgmltag"
+>version</CODE
+> attribute</A
+></H3
+><P
+>Data elements have an optional attribute named <CODE
+CLASS="sgmltag"
+>version</CODE
+>.  This indicates a version
+          <EM
+>range</EM
+> applicable to the data contained
+          within the element.  The purpose of this attribute is to permit
+          the specification of data that is valid only for a range of
+          versions of the given interface.  For example, the Linux kernel
+          changed some of the names of its modules between the 2.2 and 2.4
+          series.</P
+><P
+><SPAN
+CLASS="application"
+>Discover</SPAN
+>'s range syntax, common in mathematical writings,
+          is expressed as an interval; that is, it consists of a pair of
+          endpoints with a comma between them, and brackets or parentheses
+          as qualifiers for inclusion or exclusion of the endpoints' exact
+          values.  For example, the version specification <TT
+CLASS="literal"
+>[1.0,
+          2.0)</TT
+> matches any version less than 2.0 and greater
+          than or equal to 1.0.  It is the responsibility of the calling
+          environment to specify the version of the interface actually in
+          use.  In other words, the <SPAN
+CLASS="application"
+>Discover</SPAN
+> library does not take it
+          upon itself to determine the currently running version of the
+          Linux kernel, XFree86 X server, CUPS printing daemon, and so
+          forth.</P
+><P
+>Due to the lack of consistent standards for version numbers
+          (in fact, some version numbers aren't numbers at all),
+          <SPAN
+CLASS="application"
+>Discover</SPAN
+> requires simplifications for the <CODE
+CLASS="sgmltag"
+>version</CODE
+> attribute.  The versions that
+          express the range must be in dotted-decimal form, such as
+          <TT
+CLASS="literal"
+>7.1.0</TT
+>.  The version that is supplied to the
+          <SPAN
+CLASS="application"
+>Discover</SPAN
+> library as part of a query (for example, via the
+          <CODE
+CLASS="option"
+>--data-version</CODE
+> argument to <B
+CLASS="command"
+>discover</B
+>)
+          may or may not comply with this requirement, but should
+          be expressed such that it compares in a desirable way against
+          version strings that do.</P
+><P
+>In place of the upper end of the range,
+          <TT
+CLASS="literal"
+>inf</TT
+> (infinity) can be used if the information
+          is still relevant and should be for forseeable versions.</P
+></DIV
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="sc-accessing_device_data"
+>5.4. Accessing the Device
+        Data</A
+></H2
+><P
+><SPAN
+CLASS="application"
+>Discover</SPAN
+> data is grouped into hierarchical <CODE
+CLASS="sgmltag"
+>data</CODE
+> elements.  This data can be accessed
+        via its data path.  The data path is the concatenation of the class
+        attribute values of a <CODE
+CLASS="sgmltag"
+>data</CODE
+>
+        element and all its parents, separated by slash
+        (<TT
+CLASS="literal"
+>/</TT
+>) characters.  In the following example,
+        <TT
+CLASS="literal"
+>quux</TT
+> is accessed via the data path
+        <SPAN
+CLASS="QUOTE"
+>"foo/bar"</SPAN
+>:</P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN580"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="programlisting"
+>&#60;data class="foo"&#62;
+  &#60;data class="bar"&#62;quux&#60;/data&#62;
+&#60;/data&#62;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+><P
+>In <A
+HREF="#ex-sample_device_data"
+>Example 5-1</A
+> above, we would
+        determine the name of the Linux kernel module
+        (<SPAN
+CLASS="QUOTE"
+>"winston"</SPAN
+>) for the <SPAN
+CLASS="QUOTE"
+>"Cerebral
+        Reprogrammer"</SPAN
+> device by referencing the data path
+        <TT
+CLASS="literal"
+>linux/module/name</TT
+>; similarly, the data path
+        <TT
+CLASS="literal"
+>win2k/hal_driver/flags</TT
+> returns
+        <TT
+CLASS="literal"
+>NSA_KEY=96b5f3e3283a62c85f6cb6f4017135c2</TT
+>.</P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="PART"
+><A
+NAME="pt-data_content"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="title"
+>II. Recommended Data Content Conventions</H1
+><DIV
+CLASS="PARTINTRO"
+><A
+NAME="AEN591"
+></A
+><P
+>As discussed in the <A
+HREF="#pr-what_is_discover"
+>preface</A
+>, <SPAN
+CLASS="application"
+>Discover</SPAN
+> is not
+      intended to be a replacement for system utilities such as
+      <B
+CLASS="command"
+>lspci</B
+> on Linux.  A
+      <CODE
+CLASS="sgmltag"
+>device</CODE
+> element should exist
+      for a piece of hardware only if there is some interface information
+      to communicate about the hardware; that is, some 
+      <CODE
+CLASS="sgmltag"
+>data</CODE
+> elements to house within the
+      <CODE
+CLASS="sgmltag"
+>device</CODE
+> element. This part of the
+      manual contains Progeny's recommendations on how to organize that
+      information for maximum utility.</P
+></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+>6. <A
+HREF="#ch-data_hierarchy"
+>Data Hierarchy</A
+></DT
+><DD
+><DL
+><DT
+>6.1. <A
+HREF="#sc-linux_kernel_modules"
+>Linux Kernel Modules</A
+></DT
+><DT
+>6.2. <A
+HREF="#sc-xfree86_x_servers"
+>XFree86 X Servers</A
+></DT
+><DT
+>6.3. <A
+HREF="#sc-locally-defined_interfaces"
+>Locally-Defined Interfaces</A
+></DT
+></DL
+></DD
+><DT
+>7. <A
+HREF="#ch-order-matters"
+>Why Order Matters</A
+></DT
+><DT
+>8. <A
+HREF="#ch-using_data_versioning"
+>Using Data Versioning</A
+></DT
+><DD
+><DL
+><DT
+>8.1. <A
+HREF="#sc-specifying_range"
+>Specifying a Range</A
+></DT
+><DT
+>8.2. <A
+HREF="#sc-how_discover_library_matches_range"
+>How the <SPAN
+CLASS="application"
+>Discover</SPAN
+> Library Matches a Range</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="chapter"
+><HR><H1
+><A
+NAME="ch-data_hierarchy"
+></A
+>Chapter 6. Data Hierarchy</H1
+><P
+>As discussed in <A
+HREF="#sc-accessing_device_data"
+>Section 5.4</A
+>, the
+      <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> structure around the data allows for a hierarchical
+      view.</P
+><P
+>While <SPAN
+CLASS="application"
+>Discover</SPAN
+> does not mandate any particular hierarchy or
+      namespace organization for <CODE
+CLASS="sgmltag"
+>data</CODE
+>
+      elements, the <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> files provided by Progeny express &#8212; and
+      some applications based on <SPAN
+CLASS="application"
+>Discover</SPAN
+> (such as
+      <B
+CLASS="command"
+>discover-modprobe</B
+>) expect &#8212; a certain
+      structure for Linux kernel module and XFree86 configuration
+      information.</P
+><P
+>At Progeny, we have often found it convenient to refer to a
+      top-level <CODE
+CLASS="sgmltag"
+>data</CODE
+> element's <CODE
+CLASS="sgmltag"
+>class</CODE
+> attribute value as an
+      <SPAN
+CLASS="QUOTE"
+>"interface"</SPAN
+> (see the following example).</P
+><DIV
+CLASS="example"
+><A
+NAME="ex-defining_an_interface"
+></A
+><P
+><B
+>Example 6-1. Defining an interface</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="programlisting"
+>&#60;device busclass="0300" vendor="de8d" model="90a9" model_name="Stingray"&#62;
+  &#60;data class="xfree86"&#62;
+    &#60;data class="server" version="[3, 4)"&#62;
+      &#60;data class="name"&#62;XF86_SVGA&#60;/data&#62;
+    &#60;/data&#62;
+  &#60;/data&#62;
+  &#60;data class="openbsd"&#62;
+    &#60;data class="security_level"&#62;untrusted&#60;/data&#62;
+  &#60;/data&#62;
+&#60;/device&#62;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>In <A
+HREF="#ex-defining_an_interface"
+>Example 6-1</A
+>, two interfaces
+      have been defined for the <SPAN
+CLASS="QUOTE"
+>"Stingray"</SPAN
+> device:
+      <TT
+CLASS="literal"
+>xfree86</TT
+> and <TT
+CLASS="literal"
+>openbsd</TT
+>.</P
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="sc-linux_kernel_modules"
+>6.1. Linux Kernel Modules</A
+></H2
+><P
+>A hardware device that requires a particular Linux kernel
+        module should have nested <CODE
+CLASS="sgmltag"
+>data</CODE
+>
+        elements to describe that module.  The top-level <CODE
+CLASS="sgmltag"
+>data</CODE
+> element should have a <CODE
+CLASS="sgmltag"
+>class</CODE
+> attribute with a value of
+        <CODE
+CLASS="sgmltag"
+>linux</CODE
+>.  Underneath that should
+        be a <CODE
+CLASS="sgmltag"
+>data</CODE
+> element with a
+        <CODE
+CLASS="sgmltag"
+>class</CODE
+> of <CODE
+CLASS="sgmltag"
+>module</CODE
+>.</P
+><P
+>Within that <CODE
+CLASS="sgmltag"
+>data</CODE
+> element,
+        there should be one or two more, one with a <CODE
+CLASS="sgmltag"
+>class</CODE
+> of <CODE
+CLASS="sgmltag"
+>name</CODE
+>, and an optional one with a
+        <CODE
+CLASS="sgmltag"
+>class</CODE
+> of <CODE
+CLASS="sgmltag"
+>options</CODE
+>.  The former has as content the
+        name of the module; the latter, options to be passed to
+        <B
+CLASS="command"
+>modprobe</B
+>.</P
+><DIV
+CLASS="figure"
+><A
+NAME="fg-linux_interface"
+></A
+><P
+><B
+>Figure 6-1. Linux interface</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="screen"
+>/linux
+    |
+    |-/module
+          |
+          |-/name
+          |
+          |-/options</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>In <A
+HREF="#fg-linux_interface"
+>Figure 6-1</A
+>, each component of
+        the tree represents a <CODE
+CLASS="sgmltag"
+>data</CODE
+>
+        element; the label is the value of its <CODE
+CLASS="sgmltag"
+>class</CODE
+> attribute.</P
+><P
+>If the kernel version affects the choice of module name or
+        options, the top-level <CODE
+CLASS="sgmltag"
+>linux</CODE
+>
+        <CODE
+CLASS="sgmltag"
+>data</CODE
+> element should have a
+        version range attribute; see <A
+HREF="#sc-data_element_version_attribute"
+>Section 5.3.2</A
+>.</P
+><DIV
+CLASS="example"
+><A
+NAME="ex-using_linux_interface"
+></A
+><P
+><B
+>Example 6-2. Using the <CODE
+CLASS="sgmltag"
+>linux</CODE
+> interface</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="programlisting"
+>&#60;device busclass="0204" model="1702" model_name="IS64PH ISDN Adapter" vendor="0675"&#62;
+  &#60;data class="linux"&#62;
+    &#60;data class="module"&#62;
+       &#60;data class="name"&#62;hisax&#60;/data&#62;
+       &#60;data class="options"&#62;io=0x300 irq=11&#60;/data&#62;
+    &#60;/data&#62;
+  &#60;/data&#62;
+&#60;/device&#62;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>See <A
+HREF="#ex-using_version_attribute_of_data_element"
+>Example 8-1</A
+> for guidance
+        on how to specify different Linux kernel modules for the same
+        device, depending on the version of the Linux kernel in use.</P
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="sc-xfree86_x_servers"
+>6.2. XFree86 X Servers</A
+></H2
+><P
+>The data hierarchy of a video card device (<SPAN
+CLASS="application"
+>Discover</SPAN
+>'s
+        <TT
+CLASS="literal"
+>display</TT
+> type) should include a top-level
+        <CODE
+CLASS="sgmltag"
+>data</CODE
+> element with a <CODE
+CLASS="sgmltag"
+>class</CODE
+> attribute of <CODE
+CLASS="sgmltag"
+>xfree86</CODE
+> (the interface)
+        and likely with a <CODE
+CLASS="sgmltag"
+>version</CODE
+>
+        attribute as well; nested within that element will be a <CODE
+CLASS="sgmltag"
+>server</CODE
+> <CODE
+CLASS="sgmltag"
+>data</CODE
+> element containing a <CODE
+CLASS="sgmltag"
+>name</CODE
+> <CODE
+CLASS="sgmltag"
+>data</CODE
+> element identifying the name of the
+        server executable.  For XFree86 version 4.0 or greater, the
+        <CODE
+CLASS="sgmltag"
+>name</CODE
+> will always be <CODE
+CLASS="sgmltag"
+>XFree86</CODE
+>, and the <CODE
+CLASS="sgmltag"
+>server</CODE
+> <CODE
+CLASS="sgmltag"
+>data</CODE
+> element will also contain a <CODE
+CLASS="sgmltag"
+>device</CODE
+> <CODE
+CLASS="sgmltag"
+>data</CODE
+> element, which contains one or more
+        <CODE
+CLASS="sgmltag"
+>data</CODE
+> elements communicating
+        information to be stored in the <TT
+CLASS="filename"
+>XF86Config</TT
+>
+        file.  The children of the <CODE
+CLASS="sgmltag"
+>device</CODE
+> <CODE
+CLASS="sgmltag"
+>data</CODE
+> element are named in correspondence
+        with the syntax of the <TT
+CLASS="filename"
+>XF86Config</TT
+> file's
+        <TT
+CLASS="literal"
+>Device</TT
+> section; see the <A
+HREF="http://www.xfree86.org/current/XF86Config.5.html"
+TARGET="_top"
+>XF86Config
+        manual page</A
+> for further information.  In particular, note
+        that in many cases only a
+        <CODE
+CLASS="sgmltag"
+>driver</CODE
+> <CODE
+CLASS="sgmltag"
+>data</CODE
+> element is necessary.</P
+><DIV
+CLASS="figure"
+><A
+NAME="fg-xfree86_interface"
+></A
+><P
+><B
+>Figure 6-2. XFree86 interface</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="screen"
+>/xfree86
+    |
+    |-/server
+          |
+          |-/name
+          |
+          |-/device
+                |
+                |-/driver
+                |
+                |-/chipid
+                |
+                |-/chipset
+                |
+                |-/ramdac
+                |
+                |-/dacspeed
+                |
+                |-/videoram
+                |
+                |-/options
+                |
+                |-...</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><P
+><A
+HREF="#fg-xfree86_interface"
+>Figure 6-2</A
+> illustrates the
+        <CODE
+CLASS="sgmltag"
+>xfree86</CODE
+>
+        interface.  <A
+HREF="#ex-using_xfree86_interface"
+>Example 6-3</A
+> shows
+        how you might write <CODE
+CLASS="sgmltag"
+>xfree86</CODE
+>
+        interface information for a <SPAN
+CLASS="application"
+>Discover</SPAN
+> <CODE
+CLASS="sgmltag"
+>display</CODE
+> device.</P
+><DIV
+CLASS="example"
+><A
+NAME="ex-using_xfree86_interface"
+></A
+><P
+><B
+>Example 6-3. Using the <CODE
+CLASS="sgmltag"
+>xfree86</CODE
+> interface</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="programlisting"
+>&#60;device busclass="0300" vendor="1002" model="4654" model_name="Mach64 VT [264VT FT]"&#62;
+  &#60;data class="xfree86"&#62;
+    &#60;data class="server" version="[4, inf)"&#62;
+      &#60;data class="name"&#62;XFree86&#60;/data&#62;
+      &#60;data class="device"&#62;
+        &#60;data class="driver"&#62;ati&#60;/data&#62;
+      &#60;/data&#62;
+    &#60;/data&#62;
+    &#60;data class="server" version="(0, 4)"&#62;
+      &#60;data class="name"&#62;XF86_Mach64&#60;/data&#62;
+    &#60;/data&#62;
+  &#60;/data&#62;
+&#60;/device&#62;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="sc-locally-defined_interfaces"
+>6.3. Locally-Defined Interfaces</A
+></H2
+><P
+>Progeny recommends that publicly distributed <SPAN
+CLASS="application"
+>Discover</SPAN
+>
+          <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> files avoid using the interface name
+          <TT
+CLASS="literal"
+>local</TT
+>; that is, a
+          <CODE
+CLASS="sgmltag"
+>class</CODE
+> attribute value of
+          <TT
+CLASS="literal"
+>local</TT
+> in a top-level
+          <CODE
+CLASS="sgmltag"
+>data</CODE
+> element.  This
+          means that data paths such as <TT
+CLASS="literal"
+>local/foo/bar</TT
+>
+          should not be defined in a public <SPAN
+CLASS="application"
+>Discover</SPAN
+> <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> file, but
+          both <TT
+CLASS="literal"
+>foo/bar/local</TT
+> and
+          <TT
+CLASS="literal"
+>foo/local/bar</TT
+> are okay.</P
+><P
+>The intention is to reserve this part of the namespace
+          for users' experiments with defining their own &#8212;
+          and possibly future, widely adopted &#8212; interface definitions
+          for <SPAN
+CLASS="application"
+>Discover</SPAN
+> data.  An interface definition could thus be
+          <SPAN
+CLASS="QUOTE"
+>"beta tested"</SPAN
+> by a person or organization to ensure
+          that it is efficiently structured before it is unleashed upon the
+          world elsewhere in the namespace, where people may write tools
+          that expect to be able to resolve the interface definition's data
+          paths.</P
+><P
+>Likewise, Progeny recommends that authors of applications
+          that use <SPAN
+CLASS="application"
+>Discover</SPAN
+> avoid traversing into a top-level
+          <TT
+CLASS="literal"
+>local</TT
+> <CODE
+CLASS="sgmltag"
+>data</CODE
+>
+          element, which may impose an undesirable support burden on
+          the designers of the interface while they are still working out
+          their design.  (The application also may not find the data it
+          desires, or may not get back what it expects.)</P
+></DIV
+></DIV
+><DIV
+CLASS="chapter"
+><HR><H1
+><A
+NAME="ch-order-matters"
+></A
+>Chapter 7. Why Order Matters</H1
+><P
+>When searching device elements, the first exact match will be
+      selected.  Subsequent matches are ignored.
+      </P
+><P
+>Specifically, three comparisons are made:</P
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>The hardware must provide identification that matches
+          attributes of the <CODE
+CLASS="sgmltag"
+>device</CODE
+> element.  As an
+          example, a <ACRONYM
+CLASS="acronym"
+>PCI</ACRONYM
+> device supplies numeric vendor and model
+          identifiers, which are used to match the
+          <CODE
+CLASS="sgmltag"
+>model</CODE
+> and <CODE
+CLASS="sgmltag"
+>vendor</CODE
+>
+          attributes.</P
+></LI
+><LI
+><P
+>The <CODE
+CLASS="sgmltag"
+>class</CODE
+> attributes of child
+          <CODE
+CLASS="sgmltag"
+>data</CODE
+> elements must match the data path as
+          given to the library for searching.</P
+></LI
+><LI
+><P
+>The first version range, if any, associated with the nested
+          <CODE
+CLASS="sgmltag"
+>data</CODE
+> elements must encompass any
+          version provided by the client.</P
+></LI
+></OL
+><DIV
+CLASS="example"
+><A
+NAME="AEN737"
+></A
+><P
+><B
+>Example 7-1. Matching <CODE
+CLASS="sgmltag"
+>device</CODE
+> elements</B
+></P
+><P
+>Assume that the path <TT
+CLASS="literal"
+>linux/module/name</TT
+> is
+        provided, along with a version of 2.4.2.  The following is sample
+        data; the <CODE
+CLASS="sgmltag"
+>device</CODE
+> elements may be from the same
+        or different data files.</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="programlisting"
+>&#13;&#60;device busclass="0000" vendor="102f" model="5555" model_name="100VG ethernet"&#62;
+  &#60;data class="linux" version="[2.4, inf)"&#62;<A
+NAME="bad_name"
+><IMG
+SRC="http://www.progeny.com/images/utility/callouts/1.gif"
+HSPACE="0"
+VSPACE="0"
+BORDER="0"
+ALT="(1)"></A
+>
+    &#60;data class="modules"&#62;
+        &#60;data class="name"&#62;vg100&#60;/data&#62;
+    &#60;/data&#62;
+  &#60;/data&#62;
+  &#60;data class="linux" version="[2.0, 2.2)"&#62;<A
+NAME="range_20to22"
+><IMG
+SRC="http://www.progeny.com/images/utility/callouts/2.gif"
+HSPACE="0"
+VSPACE="0"
+BORDER="0"
+ALT="(2)"></A
+>
+    &#60;data class="module"&#62;
+        &#60;data class="name"&#62;vg100&#60;/data&#62;
+        &#60;data class="options"&#62;io=0x300&#60;/data&#62;
+    &#60;/data&#62;
+  &#60;/data&#62;
+&#60;/device&#62;
+
+&#60;device busclass="0000" vendor="102f" model="5555" model_name="100VG ethernet"&#62;
+  &#60;data class="linux"&#62;<A
+NAME="blank_range"
+><IMG
+SRC="http://www.progeny.com/images/utility/callouts/3.gif"
+HSPACE="0"
+VSPACE="0"
+BORDER="0"
+ALT="(3)"></A
+>
+    &#60;data class="module"&#62;
+        &#60;data class="name"&#62;vg100new&#60;/data&#62;
+    &#60;/data&#62;
+  &#60;/data&#62;
+  &#60;data class="linux" version="[2.4, inf)"&#62;<A
+NAME="range_24toinf"
+><IMG
+SRC="http://www.progeny.com/images/utility/callouts/4.gif"
+HSPACE="0"
+VSPACE="0"
+BORDER="0"
+ALT="(4)"></A
+>
+    &#60;data class="module"&#62;
+        &#60;data class="name"&#62;vg100old&#60;/data&#62;
+    &#60;/data&#62;
+  &#60;/data&#62;
+&#60;/device&#62;
+
+</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="calloutlist"
+><DL
+COMPACT="COMPACT"
+><DT
+><A
+HREF="#bad_name"
+><IMG
+SRC="http://www.progeny.com/images/utility/callouts/1.gif"
+HSPACE="0"
+VSPACE="0"
+BORDER="0"
+ALT="(1)"></A
+></DT
+><DD
+>This item is the first one scanned, and would match,
+            except that the requested data path includes
+            <SPAN
+CLASS="QUOTE"
+>"module"</SPAN
+> as a component, not
+            <SPAN
+CLASS="QUOTE"
+>"modules"</SPAN
+> as specified here.</DD
+><DT
+><A
+HREF="#range_20to22"
+><IMG
+SRC="http://www.progeny.com/images/utility/callouts/2.gif"
+HSPACE="0"
+VSPACE="0"
+BORDER="0"
+ALT="(2)"></A
+></DT
+><DD
+>This item doesn't match because the provided range is
+            outside the limits defined by the element. (2.4.2 is not
+            greater than or equal to 2.0 and less than 2.2.)</DD
+><DT
+><A
+HREF="#blank_range"
+><IMG
+SRC="http://www.progeny.com/images/utility/callouts/3.gif"
+HSPACE="0"
+VSPACE="0"
+BORDER="0"
+ALT="(3)"></A
+></DT
+><DD
+>This item matches because no range is given, so
+            <SPAN
+CLASS="QUOTE"
+>"vg100new"</SPAN
+> is the value returned.</DD
+><DT
+><A
+HREF="#range_24toinf"
+><IMG
+SRC="http://www.progeny.com/images/utility/callouts/4.gif"
+HSPACE="0"
+VSPACE="0"
+BORDER="0"
+ALT="(4)"></A
+></DT
+><DD
+>This is the nearest match, but the <SPAN
+CLASS="application"
+>Discover</SPAN
+> library
+            will never select it because its previous sibling has no
+            version range, and thus will catch any version provided.</DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="chapter"
+><HR><H1
+><A
+NAME="ch-using_data_versioning"
+></A
+>Chapter 8. Using Data Versioning</H1
+><DIV
+CLASS="section"
+><H2
+CLASS="section"
+><A
+NAME="sc-specifying_range"
+>8.1. Specifying a Range</A
+></H2
+><P
+>Because multiple versions of a software interface often are
+        in simultaneous deployment, Progeny recommendeds that the upper
+        bound of a <CODE
+CLASS="sgmltag"
+>data</CODE
+> element's
+        <CODE
+CLASS="sgmltag"
+>version</CODE
+> attribute be defined
+        as the first version that is inconsistent with the information
+        provided within it, and that the upper end of the interval be open
+        (terminated with a parenthesis).  As an example, suppose we know
+        that the name of the Linux kernel module to drive the RealTek
+        RTL-8139 Ethernet device was <TT
+CLASS="literal"
+>rtl8139</TT
+> in the 2.2
+        kernel series and <TT
+CLASS="literal"
+>8139too</TT
+> in the 2.4 series.  To
+        express this, we would say the following:</P
+><DIV
+CLASS="example"
+><A
+NAME="ex-using_version_attribute_of_data_element"
+></A
+><P
+><B
+>Example 8-1. Using the
+          <CODE
+CLASS="sgmltag"
+>version</CODE
+> attribute of the
+          <CODE
+CLASS="sgmltag"
+>data</CODE
+> element</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="programlisting"
+>&#60;device_list bus="pci"&#62;
+&#60;device busclass="0200" model="8139" model_name="RTL-8139" vendor="10ec"&#62;
+  &#60;data class="linux" version="[2.4,inf)"&#62;
+    &#60;data class="module"&#62;
+       &#60;data class="name"&#62;8139too&#60;/data&#62;
+    &#60;/data&#62;
+  &#60;/data&#62;
+  &#60;data class="linux" version="[2.2,2.4)"&#62;
+    &#60;data class="module"&#62;
+       &#60;data class="name"&#62;rtl8139&#60;/data&#62;
+    &#60;/data&#62;
+  &#60;/data&#62;
+&#60;/device&#62;
+&#60;/device_list&#62;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>In the first data element, for instance, we would not use a
+        version attribute of <TT
+CLASS="literal"
+>[2.2.0,2.2.19]</TT
+> because it is needlessly specific.  What happens if the Linux kernel
+        developers release Linux kernel 2.2.20?  By saying
+        <TT
+CLASS="literal"
+>[2.2,2.4)</TT
+>, we <SPAN
+CLASS="QUOTE"
+>"catch"</SPAN
+> everything in
+        the kernel 2.2 series<A
+NAME="AEN779"
+HREF="#FTN.AEN779"
+><SPAN
+CLASS="footnote"
+>[2]</SPAN
+></A
+> &#8212; past,
+        present, and future.</P
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="sc-how_discover_library_matches_range"
+>8.2. How the <SPAN
+CLASS="application"
+>Discover</SPAN
+> Library Matches a Range</A
+></H2
+><P
+>The data files will be searched in order; the first data path
+        that matches the version range or doesn't have a version range will
+        be returned.</P
+><P
+>Recalling the discussion in <A
+HREF="#sc-data_element_version_attribute"
+>Section 5.3.2</A
+>, if you want the
+        first data element matching the requested data path to also be the
+        <SPAN
+CLASS="QUOTE"
+>"fallback"</SPAN
+> element if no version range applies, you
+        can duplicate that data element and place it at the end.  However,
+        a better practice is to make certain that all reasonable versions
+        will match one of the ranges, and that the first range listed has
+        an open-ended high end, such as <TT
+CLASS="literal"
+>[2.4, inf)</TT
+> for
+        Linux kernel modules in
+        <A
+HREF="#ex-using_version_attribute_of_data_element"
+>Example 8-1</A
+>.  This
+        will have the effect of <SPAN
+CLASS="QUOTE"
+>"assuming"</SPAN
+> that
+        all unversioned requests for <TT
+CLASS="literal"
+>linux</TT
+> data will be
+        for Linux kernel 2.4 or later.</P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="PART"
+><A
+NAME="pt-command-line_tools"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="title"
+>III. Command-Line Tools</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+>9. <A
+HREF="#ch-discover_manpage"
+><B
+CLASS="command"
+>discover</B
+> Manual Page</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="#AEN798"
+>discover</A
+>&nbsp;--&nbsp;hardware detection utility</DT
+></DL
+></DD
+><DT
+>10. <A
+HREF="#ch-discover-conf_manpage"
+><TT
+CLASS="filename"
+>discover.conf</TT
+> Manual Page</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="#AEN1223"
+>discover.conf</A
+>&nbsp;--&nbsp;configuration file format for discover(1)</DT
+></DL
+></DD
+><DT
+>11. <A
+HREF="#ch-discover-modprobe_manpage"
+><B
+CLASS="command"
+>discover-modprobe</B
+>
+      Manual Page</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="#AEN1270"
+>discover-modprobe</A
+>&nbsp;--&nbsp;kernel module loading using discover(1)</DT
+></DL
+></DD
+><DT
+>12. <A
+HREF="#ch-discover-modprobe-conf_manpage"
+><TT
+CLASS="filename"
+>discover-modprobe.conf</TT
+>
+      Manual Page</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="#AEN1333"
+>discover-modprobe.conf</A
+>&nbsp;--&nbsp;configuration file for discover-modprobe(5)</DT
+></DL
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="chapter"
+><HR><H1
+><A
+NAME="ch-discover_manpage"
+></A
+>Chapter 9. <B
+CLASS="command"
+>discover</B
+> Manual Page</H1
+><H1
+><A
+NAME="AEN798"
+></A
+>discover</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN812"
+></A
+><H2
+>Name</H2
+>discover&nbsp;--&nbsp;hardware detection utility</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN815"
+></A
+><H2
+>Synopsis</H2
+><P
+><B
+CLASS="command"
+>discover</B
+>  [DATA_OPTIONS] [DISPLAY_OPTIONS] [--bus-summary] [bus...]</P
+><P
+><B
+CLASS="command"
+>discover</B
+>  [DATA_OPTIONS] [DISPLAY_OPTIONS]  --type-summary  [type...]</P
+><P
+><B
+CLASS="command"
+>discover</B
+>  [DATA_OPTIONS]  --data-path=<TT
+CLASS="replaceable"
+><I
+>path/to/data</I
+></TT
+>...  [--data-version=<TT
+CLASS="replaceable"
+><I
+>version</I
+></TT
+>] [--normalize-whitespace] [--format=<TT
+CLASS="replaceable"
+><I
+>format string</I
+></TT
+>] [type | id...]</P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+>DATA_OPTIONS</DT
+><DD
+><P
+></P
+><UL
+><LI
+><P
+><CODE
+CLASS="option"
+>-d | --disable-bus=<TT
+CLASS="replaceable"
+><I
+>bus</I
+></TT
+></CODE
+></P
+></LI
+><LI
+><P
+><CODE
+CLASS="option"
+>-e | --enable-bus=<TT
+CLASS="replaceable"
+><I
+>bus</I
+></TT
+></CODE
+></P
+></LI
+><LI
+><P
+><CODE
+CLASS="option"
+>--insert-url=<TT
+CLASS="replaceable"
+><I
+>url</I
+></TT
+></CODE
+></P
+></LI
+><LI
+><P
+><CODE
+CLASS="option"
+>--append-url=<TT
+CLASS="replaceable"
+><I
+>url</I
+></TT
+></CODE
+></P
+></LI
+><LI
+><P
+><CODE
+CLASS="option"
+>-v | --verbose</CODE
+></P
+></LI
+></UL
+></DD
+><DT
+>DISPLAY_OPTIONS</DT
+><DD
+><P
+></P
+><UL
+><LI
+><P
+><CODE
+CLASS="option"
+>--model | --no-model</CODE
+></P
+></LI
+><LI
+><P
+><CODE
+CLASS="option"
+>--model-id | --no-model-id</CODE
+></P
+></LI
+><LI
+><P
+><CODE
+CLASS="option"
+>--vendor | --no-vendor</CODE
+></P
+></LI
+><LI
+><P
+><CODE
+CLASS="option"
+>--vendor-id | --no-vendor-id</CODE
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="d1-rs-description"
+></A
+><H2
+>Description</H2
+><P
+><B
+CLASS="command"
+>discover</B
+> provides an extensible hardware
+    detection and reporting interface. Hardware information is stored in an
+    <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> data format and can be retrieved across the network.</P
+><P
+>Fundamental modes of operation:</P
+><P
+></P
+><UL
+><LI
+><P
+>Display a list of hardware devices based on type of device or
+          system bus on which the devices reside, via
+          <CODE
+CLASS="option"
+>--type-summary</CODE
+> or
+          <CODE
+CLASS="option"
+>--bus-summary</CODE
+> (the latter of which is the
+          default behavior).
+          
+        </P
+></LI
+><LI
+><P
+>Query specified data for attached hardware, via
+          <CODE
+CLASS="option"
+>--data-path</CODE
+>.</P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="d1-rs-options"
+></A
+><H2
+>Options</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><CODE
+CLASS="option"
+>-h | --help</CODE
+></DT
+><DD
+><P
+>Display a simple help message.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>-v | --verbose</CODE
+></DT
+><DD
+><P
+>Instruct the tool to provide feedback as it operates. This
+          will affect the output as <B
+CLASS="command"
+>discover</B
+> parses certain
+          arguments, so this should appear early in the command line.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>-V | --version</CODE
+></DT
+><DD
+><P
+>Display the tool name and version.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>-b | --bus-summary</CODE
+></DT
+><DD
+><P
+>This is the default behavior: Display basic information
+          regarding all devices on the appropriate buses. See
+          <A
+HREF="#d1-rs-bus-selection"
+><I
+>Selecting Buses</I
+></A
+>.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>-t | --type-summary</CODE
+></DT
+><DD
+><P
+>Summarize devices by class of hardware. Examples of valid
+          device types include <TT
+CLASS="literal"
+>broadband</TT
+>,
+          <TT
+CLASS="literal"
+>fixeddisk</TT
+>,
+          <TT
+CLASS="literal"
+>display</TT
+>, and
+          <TT
+CLASS="literal"
+>network</TT
+>.  See <A
+HREF="#d1-rs-device-types"
+><I
+>Device Types</I
+></A
+>.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>--data-path=<TT
+CLASS="replaceable"
+><I
+>path/to/data</I
+></TT
+></CODE
+></DT
+><DD
+><P
+>Query matching devices for detailed information.
+          Device-specific data is stored in a hierarchical
+          fashion, and the query argument comprises strings
+          naming each level in that hierarchy.</P
+><P
+>Typically, the top-level component of the data
+          path will be the <SPAN
+CLASS="QUOTE"
+>"platform"</SPAN
+> that will need
+          the information, such as <TT
+CLASS="literal"
+>linux</TT
+> or
+          <TT
+CLASS="literal"
+>xfree86</TT
+>. For example, to retrieve
+          the Linux kernel module name for a piece of hardware,
+          the <CODE
+CLASS="option"
+>--data-path</CODE
+> argument would be
+          <TT
+CLASS="literal"
+>linux/module/name</TT
+>.</P
+><P
+>If multiple <CODE
+CLASS="option"
+>--data-path</CODE
+>
+          arguments are given and no format string (see
+          <CODE
+CLASS="option"
+>--format</CODE
+>) is provided, only the last
+          path is used.</P
+><P
+>See also the <CODE
+CLASS="option"
+>--data-version</CODE
+>
+          argument.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>--data-version=<TT
+CLASS="replaceable"
+><I
+>version</I
+></TT
+></CODE
+></DT
+><DD
+><P
+>Specify a version string for the platform that
+          will use the information specified by the argument to
+          <CODE
+CLASS="option"
+>--data-path</CODE
+>.</P
+><P
+>This string must be in dotted-decimal notation in
+          order to be matched against a range of values, and thus
+          may be shorter than the real version.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>--format=<TT
+CLASS="replaceable"
+><I
+>format string</I
+></TT
+></CODE
+></DT
+><DD
+><P
+>Dictate the output of the results of the queries
+          specified by <CODE
+CLASS="option"
+>--data-path</CODE
+> arguments.
+          This format string should follow
+          <CODE
+CLASS="function"
+>printf(3)</CODE
+> specifications, although
+          only <TT
+CLASS="literal"
+>%s</TT
+> and appropriate flags,
+          precision, and width values are supported (or
+          make sense); literal text and <TT
+CLASS="literal"
+>%%</TT
+>
+          can also be used.  The behavior when the string is
+          poorly formatted is undefined.  See also
+          <CODE
+CLASS="option"
+>--normalize-whitespace</CODE
+>.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>-d | --disable-bus=<TT
+CLASS="replaceable"
+><I
+>bus</I
+></TT
+></CODE
+></DT
+><DD
+><P
+>Use this option to override the list of
+          buses to scan by default as defined in
+          <TT
+CLASS="filename"
+>discover.conf</TT
+>. Use
+          <TT
+CLASS="replaceable"
+><I
+>all</I
+></TT
+> as an argument to
+          disable all buses; this is useful only if
+          followed by
+          <CODE
+CLASS="option"
+>--enable-bus</CODE
+> (or <CODE
+CLASS="option"
+>-e</CODE
+>)
+          arguments.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>-e | --enable-bus=<TT
+CLASS="replaceable"
+><I
+>bus</I
+></TT
+></CODE
+></DT
+><DD
+><P
+>Specify a bus to be scanned.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>--insert-url=<TT
+CLASS="replaceable"
+><I
+>url</I
+></TT
+></CODE
+></DT
+><DD
+><P
+>Insert a <ACRONYM
+CLASS="acronym"
+>URL</ACRONYM
+> at the head of
+          the list of network resources to include in the search
+          for hardware information.  Earlier data overrides
+          later data; to override the local data
+          sources, insert URLs into the list.  See also
+          <CODE
+CLASS="option"
+>--append-url</CODE
+>.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>--append-url=<TT
+CLASS="replaceable"
+><I
+>url</I
+></TT
+></CODE
+></DT
+><DD
+><P
+>Append a <ACRONYM
+CLASS="acronym"
+>URL</ACRONYM
+> to the end of the
+          list of network resources to search for
+          hardware information. See also
+          <CODE
+CLASS="option"
+>--insert-url</CODE
+>.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>--model</CODE
+></DT
+><DD
+><P
+>Include the model description in summary
+          information. This is enabled by default.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>--model-id</CODE
+></DT
+><DD
+><P
+>Include the numeric model identifier in summary
+          information.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>--no-model</CODE
+></DT
+><DD
+><P
+>Do not include the model description in summary
+          information.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>--no-model-id</CODE
+></DT
+><DD
+><P
+>Do not include the numeric model identifier in summary
+          information. This is the default.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>--vendor</CODE
+></DT
+><DD
+><P
+>Include the vendor description in summary
+          information. This is enabled by default.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>--vendor-id</CODE
+></DT
+><DD
+><P
+>Include the numeric vendor identifier in summary
+          information.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>--no-vendor</CODE
+></DT
+><DD
+><P
+>Do not include the vendor description in summary
+          information.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>--no-vendor-id</CODE
+></DT
+><DD
+><P
+>Do not include the numeric vendor identifier in summary
+          information. This is the default.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>--normalize-whitespace</CODE
+></DT
+><DD
+><P
+>Consolidate whitespace in the results of a
+          <CODE
+CLASS="option"
+>--data-path</CODE
+> query.  The default is not to do so,
+          which faithfully reproduces all text in the raw <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> data.</P
+><P
+>With this option enabled, leading and trailing whitespace
+          is removed, and any consecutive internal whitespaces are
+          compressed to a single space character.</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="d1-rs-bus-selection"
+></A
+><H2
+>Selecting Buses</H2
+><P
+><TT
+CLASS="filename"
+>discover.conf</TT
+> defines two lists of system
+    buses: one to scan by default (used by the <B
+CLASS="command"
+>discover</B
+>
+    command), and one never to scan (used by the <SPAN
+CLASS="application"
+>Discover</SPAN
+> library).</P
+><P
+>You can override and/or extend the list of default buses with
+    <CODE
+CLASS="option"
+>--disable-bus</CODE
+> and <CODE
+CLASS="option"
+>--enable-bus</CODE
+>.
+    The list of buses <EM
+>not</EM
+> to scan cannot be overridden
+    without changing <TT
+CLASS="filename"
+>discover.conf</TT
+>, so that list
+    should be used only for buses that may be dangerous to probe.</P
+><P
+>Both arguments take the string <SPAN
+CLASS="QUOTE"
+>"all"</SPAN
+> as a
+    value.</P
+><P
+>If a bus summary is being performed, which is indicated
+    either by the presence of <CODE
+CLASS="option"
+>--bus-summary</CODE
+> or
+    the absence of <CODE
+CLASS="option"
+>--type-summary</CODE
+> and
+    <CODE
+CLASS="option"
+>--data-path</CODE
+>, any unattached arguments on the
+    command line will be interpreted as the only buses to scan.
+    This is equivalent to using <CODE
+CLASS="option"
+>--disable-bus
+    all</CODE
+> before invoking <CODE
+CLASS="option"
+>--enable-bus</CODE
+>
+    for the buses of interest.</P
+><P
+>The following buses are currently supported by <SPAN
+CLASS="application"
+>Discover</SPAN
+>:
+    
+
+
+
+<P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="literal"
+>ata</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>pci</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>pcmcia</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>scsi</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>usb</TT
+></P
+></LI
+></UL
+>
+
+    </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="d1-rs-device-types"
+></A
+><H2
+>Device Types</H2
+><P
+><SPAN
+CLASS="application"
+>Discover</SPAN
+> defines its own device types, to which the
+    device types used by each bus are mapped.  <SPAN
+CLASS="application"
+>Discover</SPAN
+>
+    currently recognizes the following device types:
+    
+
+
+
+<P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="literal"
+>audio</TT
+></P
+><P
+>A device capable of producing an analog or digital
+    sound signal is an <I
+CLASS="firstterm"
+>audio</I
+> device.
+    Typically, any device commonly referred to as a
+    <SPAN
+CLASS="QUOTE"
+>"sound card"</SPAN
+> is classified by <SPAN
+CLASS="application"
+>Discover</SPAN
+> as
+    an audio device.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>bridge</TT
+></P
+><P
+>A device that provides access to devices of a
+    different type, commonly on a different bus, is a
+    <I
+CLASS="firstterm"
+>bridge</I
+> device.  For instance, consumer
+    <ACRONYM
+CLASS="acronym"
+>PCI</ACRONYM
+> chipsets often feature a bridge to <ACRONYM
+CLASS="acronym"
+>ATA</ACRONYM
+> (also
+    known as IDE) devices.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>broadband</TT
+></P
+><P
+>An interface device to a computer communications
+    network implemented on top of a technology not explicitly
+    designed for that purpose is a <I
+CLASS="firstterm"
+>broadband</I
+>
+    device.  Examples include ISDN terminal adapters as well
+    as DSL and cable <SPAN
+CLASS="QUOTE"
+>"modems"</SPAN
+>; analog
+    phone-line modems are not included in this classification
+    (see <SPAN
+CLASS="QUOTE"
+>"modem"</SPAN
+> below).</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>display</TT
+></P
+><P
+>A device controlled by the host machine's CPU and
+    capable of producing an analog or digital video signal
+    for output purposes is a <I
+CLASS="firstterm"
+>display</I
+> device.
+    Typically, any device commonly referred to as a
+    <SPAN
+CLASS="QUOTE"
+>"video card"</SPAN
+> is classified by <SPAN
+CLASS="application"
+>Discover</SPAN
+> as
+    a display device.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>fixeddisk</TT
+></P
+><P
+>A high-speed, fixed magnetic storage device such as
+    a hard disk drive is a <I
+CLASS="firstterm"
+>fixeddisk</I
+> device.
+    Removable media devices such as floppy disk drives,
+    CD-ROM drives, magneto-optical devices, tape drives, and
+    Compact Flash card readers are not included in this
+    classification.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>humaninput</TT
+></P
+><P
+>A device that receives tactile input from a person
+    for the purpose of directing a computer's activity is a
+    <I
+CLASS="firstterm"
+>humaninput</I
+> device.  Examples include
+    keyboards, mice, trackballs, joysticks, gamepads, digital
+    tablets manipulated with a stylus or finger, and so
+    forth.  Input devices that rely upon non-tactile means of
+    determining a person's intent, such as speech-recognition
+    devices or cameras, are not included in this
+    classification.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>imaging</TT
+></P
+><P
+>A device that captures still images for input
+    purposes is an <I
+CLASS="firstterm"
+>imaging</I
+> device.  Scanners
+    and digital cameras are examples of imaging
+    devices.  Motion-capture devices such as television tuner
+    cards, webcams, and digital video cameras are not
+    included in this classification.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>miscellaneous</TT
+></P
+><P
+>Any device that cannot logically be classified as
+    another device type is a <I
+CLASS="firstterm"
+>miscellaneous</I
+>
+    device.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>modem</TT
+></P
+><P
+>An analog phone-line modulator/demodulator
+    (modem) is classified by <SPAN
+CLASS="application"
+>Discover</SPAN
+> as a
+    <I
+CLASS="firstterm"
+>modem</I
+> device.  No other kind of device is
+    so classified.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>network</TT
+></P
+><P
+>An interface device to a conventional computer
+    data communications network that does not require the use of a terminal
+    adapter is a <I
+CLASS="firstterm"
+>network</I
+> device.  For example,
+    Ethernet and Token Ring network interface cards are network
+    devices.  Analog phone-line modems; terminal adapters
+    for technologies such as ISDN and DSL; and <SPAN
+CLASS="QUOTE"
+>"cable modems"</SPAN
+>
+    are not <SPAN
+CLASS="QUOTE"
+>"network"</SPAN
+> devices.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>optical</TT
+></P
+><P
+>An optical-technology storage device, often using
+    read-only media, is an <I
+CLASS="firstterm"
+>optical</I
+> device.  By
+    far the most common examples of these devices are CD-ROM
+    and DVD-ROM drives, including versions of these drives
+    that can <SPAN
+CLASS="QUOTE"
+>"burn"</SPAN
+> (write to) optical
+    discs.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>printer</TT
+></P
+><P
+>A device that renders visual output in a permanent
+    or semi-permanent manner to a physical medium is a
+    <I
+CLASS="firstterm"
+>printer</I
+>.  Typically, any device
+    colloquially referred to as a <SPAN
+CLASS="QUOTE"
+>"printer"</SPAN
+> is
+    also classified by <SPAN
+CLASS="application"
+>Discover</SPAN
+> as a
+    printer.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>removabledisk</TT
+></P
+><P
+>Storage devices that feature removable media using
+    just about any technology except that of magnetic tape,
+    CD-ROM, and DVD-ROM drives are
+    <I
+CLASS="firstterm"
+>removabledisk</I
+> devices.  Examples include
+    floppy disk drives, magneto-optical drives, and Compact
+    Flash card readers.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>tape</TT
+></P
+><P
+>A sequential-access mass storage device using
+    magnetic tape is a <I
+CLASS="firstterm"
+>tape</I
+> device.  Commonly
+    used for archival and backup purposes, DAT drives are
+    examples of tape devices.</P
+></LI
+><LI
+><P
+><TT
+CLASS="literal"
+>video</TT
+></P
+><P
+>A device that produces a real-time digital video
+    signal for input purposes is a <I
+CLASS="firstterm"
+>video</I
+>
+    device.  Webcams, digital video cameras, and television
+    tuners are examples of video
+    devices.  Note that still digital cameras with
+    <SPAN
+CLASS="QUOTE"
+>"movie"</SPAN
+> capability are
+    <EM
+>not</EM
+> considered video
+    devices unless they can transmit the live video signal to
+    the host in real time.</P
+></LI
+></UL
+>
+
+    </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="d1-rs-examples"
+></A
+><H2
+>Examples</H2
+><DIV
+CLASS="example"
+><A
+NAME="d1-ex-scan-buses"
+></A
+><P
+><B
+>Example 9-1. Scan the local buses</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="screen"
+># discover
+Intel Corporation 82815 Chipset Host Bridge and Memory Controller Hub
+unknown unknown
+unknown unknown
+unknown unknown
+Intel Corporation 82815 Chipset IDE controller
+Intel Corporation 82815 Chipset USB (A)
+Intel Corporation 82815 System Management bus controller
+ATI Technologies, Inc. Rage 128 Pro GL [PF]
+3Com Corporation 3c905C-TX [Fast Etherlink]
+Ensoniq ES1371 [AudioPCI-97]
+unknown unknown</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="example"
+><A
+NAME="d1-ex-view-video-cards"
+></A
+><P
+><B
+>Example 9-2. View PCI video cards</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="screen"
+># discover -v --type-summary --disable-bus all --enable-bus pci display
+Disabled pci
+Disabled pcmcia
+Disabled scsi
+Disabled usb
+Enabled pci
+Loading XML data... pci Done
+Scanning buses... pci Done
+ATI Technologies, Inc. Rage 128 Pro GL [PF]</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="example"
+><A
+NAME="d1-ex-query-xfree86"
+></A
+><P
+><B
+>Example 9-3. Query for the driver module for
+      XFree86 server version 4.2.0</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="screen"
+># discover --data-path=xfree86/server/device/driver --data-version=4.2.0 display
+ati</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="example"
+><A
+NAME="d1-ex-type-summary"
+></A
+><P
+><B
+>Example 9-4. Get model and vendor
+      information by type</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="screen"
+>$ discover -t --no-model
+Intel Corporation
+NVIDIA Corporation
+3Com Corporation
+$ discover -t --no-vendor
+82815 System Management bus controller
+Vanta [NV6]
+3c905C-TX [Fast Etherlink]</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="d1-rs-files"
+></A
+><H2
+>Files</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><TT
+CLASS="filename"
+>/etc/discover.conf.d</TT
+></DT
+><DD
+><P
+>The directory containing configuration files that control 
+          the default behavior for both the <B
+CLASS="command"
+>discover</B
+> tool and 
+          the <SPAN
+CLASS="application"
+>Discover</SPAN
+> library.
+          </P
+></DD
+><DT
+><TT
+CLASS="filename"
+>file:///lib/discover/list.xml</TT
+></DT
+><DD
+><P
+>An <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> file containing <ACRONYM
+CLASS="acronym"
+>URL</ACRONYM
+>s with
+            hardware information. This list can be extended with
+            <CODE
+CLASS="option"
+>--append-url</CODE
+> and
+            <CODE
+CLASS="option"
+>--extend-url</CODE
+>.
+          </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="d1-rs-authors"
+></A
+><H2
+>Authors</H2
+><P
+>Josh Bressers, John R. Daily, and
+    G. Branden Robinson developed the current implementation of
+    <SPAN
+CLASS="application"
+>Discover</SPAN
+> for Progeny Linux Systems.</P
+><P
+>The Linux implementation of the system-dependent interfaces is
+    derived from <B
+CLASS="command"
+>detect</B
+>, by MandrakeSoft SA.</P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="d1-rs-see-also"
+></A
+><H2
+>See Also</H2
+><P
+>discover.conf(5), discover-modprobe(8)</P
+></DIV
+></DIV
+><DIV
+CLASS="chapter"
+><HR><H1
+><A
+NAME="ch-discover-conf_manpage"
+></A
+>Chapter 10. <TT
+CLASS="filename"
+>discover.conf</TT
+> Manual Page</H1
+><H1
+><A
+NAME="AEN1223"
+></A
+>discover.conf</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN1237"
+></A
+><H2
+>Name</H2
+>discover.conf&nbsp;--&nbsp;configuration file format for discover(1)</DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="dc5-rs-description"
+></A
+><H2
+>Description</H2
+><P
+><SPAN
+CLASS="application"
+>Discover</SPAN
+> looks for configuration files in a configuration
+    directory, containing a number of files.  These define the 
+    system buses that should be scanned by default, those that should 
+    never be scanned, and the <ACRONYM
+CLASS="acronym"
+>URL</ACRONYM
+>s for hardware data 
+    files beyond the local copy provided with the software.</P
+><P
+>The file format is <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+>; the <A
+HREF="#ap-discover_conf_dtd"
+><ACRONYM
+CLASS="acronym"
+>DTD</ACRONYM
+></A
+>
+    is provided with the <SPAN
+CLASS="application"
+>Discover</SPAN
+> software, and can be used for
+    informational or validation purposes.</P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="dc5-rs-examples"
+></A
+><H2
+>Examples</H2
+><DIV
+CLASS="example"
+><A
+NAME="AEN1252"
+></A
+><P
+><B
+>Example 10-1. Establishing default buses to scan</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="programlisting"
+>&#13;&#60;?xml version="1.0"?&#62;
+
+&#60;!DOCTYPE conffile SYSTEM "conffile.dtd"&#62;
+
+&#60;conffile&#62;
+  &#60;busscan scan="default"&#62;
+    &#60;bus name="ata"/&#62;
+    &#60;bus name="pci"/&#62;
+    &#60;bus name="pcmcia"/&#62;
+    &#60;bus name="scsi"/&#62;
+    &#60;bus name="usb"/&#62;
+  &#60;/busscan&#62;
+&#60;/conffile&#62;
+
+</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="example"
+><A
+NAME="AEN1255"
+></A
+><P
+><B
+>Example 10-2. A more complex example</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="programlisting"
+>&#13;&#60;?xml version="1.0"?&#62;
+
+&#60;!DOCTYPE conffile SYSTEM "conffile.dtd"&#62;
+
+&#60;conffile&#62;
+  &#60;busscan scan="default"&#62;
+    &#60;bus name="ata"/&#62;
+    &#60;bus name="pci"/&#62;
+    &#60;bus name="pcmcia"/&#62;
+    &#60;bus name="usb"/&#62;
+  &#60;/busscan&#62;
+  &#60;!-- My ancient SCSI card locks up when probed --&#62;
+  &#60;busscan scan="never"&#62;
+    &#60;bus name="scsi"/&#62;
+  &#60;/busscan&#62;
+  &#60;data-sources&#62;
+    &#60;data-source url="http://www.example.com/discover/xfree86.xml"
+                 label="Updated XFree86 hardware information"&#62;
+  &#60;/data-sources&#62;
+&#60;/conffile&#62;
+
+</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN1258"
+></A
+><H2
+>Authors</H2
+><P
+>Josh Bressers, John R. Daily, and
+    G. Branden Robinson developed the current implementation of
+    <SPAN
+CLASS="application"
+>Discover</SPAN
+> for Progeny Linux Systems.</P
+><P
+>The Linux implementation of the system-dependent interfaces is
+    derived from <B
+CLASS="command"
+>detect</B
+>, by MandrakeSoft SA.</P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="dc5-rs-see-also"
+></A
+><H2
+>See Also</H2
+><P
+>discover(1)</P
+></DIV
+></DIV
+><DIV
+CLASS="chapter"
+><HR><H1
+><A
+NAME="ch-discover-modprobe_manpage"
+></A
+>Chapter 11. <B
+CLASS="command"
+>discover-modprobe</B
+>
+      Manual Page</H1
+><H1
+><A
+NAME="AEN1270"
+></A
+>discover-modprobe</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN1284"
+></A
+><H2
+>Name</H2
+>discover-modprobe&nbsp;--&nbsp;kernel module loading using discover(1)</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN1287"
+></A
+><H2
+>Synopsis</H2
+><P
+><B
+CLASS="command"
+>discover-modprobe</B
+>  [-n] [-v]</P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="dm8-rs-description"
+></A
+><H2
+>Description</H2
+><P
+><B
+CLASS="command"
+>discover-modprobe</B
+> loads kernel modules
+    identified by <B
+CLASS="command"
+>discover</B
+>. It will typically be invoked
+    automatically at boot time.</P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="dm8-rs-options"
+></A
+><H2
+>Options</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><CODE
+CLASS="option"
+>-n</CODE
+></DT
+><DD
+><P
+>Echo the <B
+CLASS="command"
+>modprobe</B
+> invocations instead of
+          running them.</P
+></DD
+><DT
+><CODE
+CLASS="option"
+>-v</CODE
+></DT
+><DD
+><P
+>Be verbose.</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="dm8-rs-files"
+></A
+><H2
+>Files</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><TT
+CLASS="filename"
+>/etc/discover-modprobe.conf</TT
+></DT
+><DD
+><P
+>This configuration file defines the types of modules
+          to load by default, and specific modules
+          <EM
+>not</EM
+> to load.</P
+></DD
+><DT
+><TT
+CLASS="filename"
+>/var/lib/discover/crash</TT
+></DT
+><DD
+><P
+>A crash file written and erased each time
+    <B
+CLASS="command"
+>discover-modprobe</B
+> attempts to load a
+    module. If the file lingers, the computer is assumed to have
+    crashed while loading that module, and the module name is added
+      to <TT
+CLASS="filename"
+>discover-modprobe.conf</TT
+> as a module to
+    skip in the future.
+    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="dm8-rs-see-also"
+></A
+><H2
+>See Also</H2
+><P
+>discover-modprobe.conf(5), modprobe(8), discover(1)</P
+></DIV
+></DIV
+><DIV
+CLASS="chapter"
+><HR><H1
+><A
+NAME="ch-discover-modprobe-conf_manpage"
+></A
+>Chapter 12. <TT
+CLASS="filename"
+>discover-modprobe.conf</TT
+>
+      Manual Page</H1
+><H1
+><A
+NAME="AEN1333"
+></A
+>discover-modprobe.conf</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN1347"
+></A
+><H2
+>Name</H2
+>discover-modprobe.conf&nbsp;--&nbsp;configuration file for discover-modprobe(5)</DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="dmc5-rs-description"
+></A
+><H2
+>Description</H2
+><P
+><TT
+CLASS="filename"
+>discover-modprobe.conf</TT
+> is the configuration
+      file for <B
+CLASS="command"
+>discover-modprobe</B
+>, which is responsible
+      for retrieving and loading kernel modules.</P
+><DIV
+CLASS="warning"
+><P
+></P
+><TABLE
+CLASS="warning"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="http://www.progeny.com/images/utility/warning.png"
+HSPACE="5"
+ALT="Warning"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>This file is a shell script, and
+      as such is subject to a string variable assignment syntax. No space
+      is allowed between the variable name, the equal (=) sign, and the
+      value(s) assigned. If multiple values are to be assigned, the list
+      must be space-delimited with surrounding quotes.</P
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>Two directives can be used in this file:
+      <TT
+CLASS="literal"
+>types</TT
+> and <TT
+CLASS="literal"
+>skip</TT
+>. Both can be
+      defined multiple times.</P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><TT
+CLASS="literal"
+>types</TT
+></DT
+><DD
+><P
+>This describes the classes of hardware that should be
+            scanned and queried.</P
+></DD
+><DT
+><TT
+CLASS="literal"
+>skip</TT
+></DT
+><DD
+><P
+>These modules should never be loaded. See the
+            <SPAN
+CLASS="QUOTE"
+>"Files"</SPAN
+> section for details on the mechanism for
+            generating these entries automatically.</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="dmc5-rs-files"
+></A
+><H2
+>Files</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><TT
+CLASS="filename"
+>/var/lib/discover/crash</TT
+></DT
+><DD
+><P
+>A crash file written and erased each time
+    <B
+CLASS="command"
+>discover-modprobe</B
+> attempts to load a
+    module. If the file lingers, the computer is assumed to have
+    crashed while loading that module, and the module name is added
+      to <TT
+CLASS="filename"
+>discover-modprobe.conf</TT
+> as a module to
+    skip in the future.
+    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="dmc5-rs-see-also"
+></A
+><H2
+>See Also</H2
+><P
+>discover-modprobe(8), modprobe(8), discover(1)</P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="PART"
+><A
+NAME="pt-library"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="title"
+>IV. Library</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+>13. <A
+HREF="#ch-discover_library"
+>The <SPAN
+CLASS="application"
+>Discover</SPAN
+> Library</A
+></DT
+><DD
+><DL
+><DT
+>13.1. <A
+HREF="#sc-library_design_principles"
+>Library Design
+        Principles</A
+></DT
+><DT
+>13.2. <A
+HREF="#sc-discover_data_sources"
+><SPAN
+CLASS="application"
+>Discover</SPAN
+> Data
+        Sources</A
+></DT
+><DT
+>13.3. <A
+HREF="#sc-bus_map"
+>The Bus Map</A
+></DT
+><DT
+>13.4. <A
+HREF="#sc-scanning_system"
+>Scanning the System</A
+></DT
+><DT
+>13.5. <A
+HREF="#sc-using_discover_device_t_structures"
+>Using
+        <SPAN
+CLASS="type"
+>discover_device_t</SPAN
+> Structures</A
+></DT
+></DL
+></DD
+><DT
+>14. <A
+HREF="#ch-sysdeps"
+>System Dependencies</A
+></DT
+><DD
+><DL
+><DT
+>14.1. <A
+HREF="#sc-sysdeps_api"
+><ACRONYM
+CLASS="acronym"
+>API</ACRONYM
+></A
+></DT
+></DL
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="chapter"
+><HR><H1
+><A
+NAME="ch-discover_library"
+></A
+>Chapter 13. The <SPAN
+CLASS="application"
+>Discover</SPAN
+> Library</H1
+><DIV
+CLASS="section"
+><H2
+CLASS="section"
+><A
+NAME="sc-library_design_principles"
+>13.1. Library Design
+        Principles</A
+></H2
+><P
+>Lazy allocation is used throughout <SPAN
+CLASS="application"
+>Discover</SPAN
+>.  This means
+        that there are no <SPAN
+CLASS="QUOTE"
+>"init"</SPAN
+> functions, and no functions
+        to scan the bus.  Instead, retrieval functions scan or initialize
+        as necessary. Each of these retrieval functions has an equivalent
+        function for freeing the allocated memory.  This is valuable to
+        long-lived processes to aid in memory management, but even
+        short-lived processes may want to use them to force reloading of
+        the information.</P
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="sc-discover_data_sources"
+>13.2. <SPAN
+CLASS="application"
+>Discover</SPAN
+> Data
+        Sources</A
+></H2
+><P
+><SPAN
+CLASS="application"
+>Discover</SPAN
+> knows about one data source by default: the local
+        data from the <TT
+CLASS="literal"
+>discover-data</TT
+> package.  Additional
+        sources can be added with the
+        <CODE
+CLASS="function"
+>discover_conf_append_url</CODE
+> and
+        <CODE
+CLASS="function"
+>discover_conf_insert_url</CODE
+> functions.  As their
+        names suggest, they append or insert <ACRONYM
+CLASS="acronym"
+>URL</ACRONYM
+>s on the data source
+        list.  Earlier data overrides later data; to override
+        the local data sources, insert <ACRONYM
+CLASS="acronym"
+>URL</ACRONYM
+>s.</P
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="sc-bus_map"
+>13.3. The Bus Map</A
+></H2
+><P
+>Most high-level operations begin at the bus map.  Bus maps
+        (<A
+HREF="api-reference/group__types.html#a2"
+TARGET="_top"
+><SPAN
+CLASS="type"
+>discover_bus_map_t</SPAN
+></A
+>)
+        are retrieved with calls to
+        <CODE
+CLASS="function"
+>discover_conf_get_bus_map</CODE
+> or
+        <CODE
+CLASS="function"
+>discover_conf_get_bus_map_by_name</CODE
+>.
+        <CODE
+CLASS="function"
+>discover_conf_get_bus_map</CODE
+> returns an array of
+        maps, one for each supported bus, with the last element being all
+        0s. <CODE
+CLASS="function"
+>discover_conf_get_bus_map_by_name</CODE
+> returns
+        the map for the named bus.  The map contains pointers to all the
+        functions that operate on the bus, as well as the
+        <CODE
+CLASS="varname"
+>scan_default</CODE
+> variable, which determines whether
+        the bus is scanned by default.  There is also a
+        <CODE
+CLASS="varname"
+>scan_never</CODE
+> variable, but it is for internal use
+        only.  The name of the bus is stored in the
+        <CODE
+CLASS="varname"
+>name</CODE
+> variable.</P
+><P
+>The following functions are available in the bus map.  The
+        <SPAN
+CLASS="QUOTE"
+>"get"</SPAN
+> functions take a single <A
+HREF="api-reference/group__types.html#a1"
+TARGET="_top"
+><SPAN
+CLASS="type"
+>discover_error_t</SPAN
+></A
+>
+        argument and return a list of <A
+HREF="api-reference/group__types.html#a3"
+TARGET="_top"
+><SPAN
+CLASS="type"
+>discover_device_t</SPAN
+></A
+>
+        structures, while the <SPAN
+CLASS="QUOTE"
+>"free"</SPAN
+> functions take no
+        arguments and return no value.</P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><CODE
+CLASS="function"
+>get_devices</CODE
+></DT
+><DD
+><P
+>Retrieve the list of devices found on this bus.
+              Returns NULL if the bus is not present on the
+              system, or if no devices are attached to it.</P
+></DD
+><DT
+><CODE
+CLASS="function"
+>xml_get_busclasses</CODE
+></DT
+><DD
+><P
+>Retrieve the list of busclasses for this bus (from
+              the <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> data sources).</P
+></DD
+><DT
+><CODE
+CLASS="function"
+>xml_get_devices</CODE
+></DT
+><DD
+><P
+>Retrieve the list of devices for this bus (from
+              the <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> data sources).  Note that this is the list of
+              devices that <SPAN
+CLASS="application"
+>Discover</SPAN
+> knows about, not the list of devices
+              present on the system.</P
+></DD
+><DT
+><CODE
+CLASS="function"
+>xml_get_vendors</CODE
+></DT
+><DD
+><P
+>Retrieve the list of vendors for this bus (from
+              the <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> data sources).</P
+></DD
+><DT
+><CODE
+CLASS="function"
+>xml_get_busclass_urls</CODE
+></DT
+><DD
+><P
+>Retrieve the list of <ACRONYM
+CLASS="acronym"
+>URL</ACRONYM
+>s from which busclass data
+              is retrieved.  This function is probably not useful to
+              most clients.</P
+></DD
+><DT
+><CODE
+CLASS="function"
+>xml_get_device_urls</CODE
+></DT
+><DD
+><P
+>Retrieve the list of <ACRONYM
+CLASS="acronym"
+>URL</ACRONYM
+>s from which device data
+              is retrieved.  This function is probably not useful to
+              most clients.</P
+></DD
+><DT
+><CODE
+CLASS="function"
+>xml_get_vendor_urls</CODE
+></DT
+><DD
+><P
+>Retrieve the list of <ACRONYM
+CLASS="acronym"
+>URL</ACRONYM
+>s from which vendor data
+              is retrieved.  This function is probably not useful to
+              most clients.</P
+></DD
+><DT
+><CODE
+CLASS="function"
+>free_devices</CODE
+></DT
+><DD
+><P
+>Free the list of devices.</P
+></DD
+><DT
+><CODE
+CLASS="function"
+>xml_free_busclasses</CODE
+></DT
+><DD
+><P
+>Free the list of busclasses.</P
+></DD
+><DT
+><CODE
+CLASS="function"
+>xml_free_devices</CODE
+></DT
+><DD
+><P
+>Free the list of devices (the <ACRONYM
+CLASS="acronym"
+>XML</ACRONYM
+> data, not the
+              list of devices found on the system).</P
+></DD
+><DT
+><CODE
+CLASS="function"
+>xml_free_vendors</CODE
+></DT
+><DD
+><P
+>Free the list of vendors.</P
+></DD
+><DT
+><CODE
+CLASS="function"
+>xml_free_busclass_urls</CODE
+></DT
+><DD
+><P
+>Free the list of busclass <ACRONYM
+CLASS="acronym"
+>URL</ACRONYM
+>s.</P
+></DD
+><DT
+><CODE
+CLASS="function"
+>xml_free_device_urls</CODE
+></DT
+><DD
+><P
+>Free the list of device <ACRONYM
+CLASS="acronym"
+>URL</ACRONYM
+>s.</P
+></DD
+><DT
+><CODE
+CLASS="function"
+>xml_free_vendor_urls</CODE
+></DT
+><DD
+><P
+>Free the list of vendor <ACRONYM
+CLASS="acronym"
+>URL</ACRONYM
+>s.</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="sc-scanning_system"
+>13.4. Scanning the System</A
+></H2
+><P
+><SPAN
+CLASS="application"
+>Discover</SPAN
+> provides a few ways to scan the system for
+        information.</P
+><P
+>You can walk the bus map:</P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN1511"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="programlisting"
+>for (i = 0; busmap[i].name; i++) {
+    if (busmap[i].scan == DISCOVER_SCAN_DEFAULT) {
+        devices = busmap[i].get_devices(&#38;status);
+        check_status(status);
+        do_something_cool(devices);
+    }
+}</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+><P
+>You can scan a specific bus:</P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN1514"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="programlisting"
+>devices = discover_get_pci_devices(&#38;status);
+check_status(status);
+do_something_cool(devices);</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+><P
+>Perhaps most usefully, you can scan for devices
+        of a specific type:</P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN1517"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="programlisting"
+>devices = discover_device_find("video", &#38;status);
+check_status(status);
+do_something_video(devices);</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="sc-using_discover_device_t_structures"
+>13.5. Using
+        <SPAN
+CLASS="type"
+>discover_device_t</SPAN
+> Structures</A
+></H2
+><P
+>Now that you have some device structures, what can you
+        do with them?  The most interesting operation is retrieving
+        data with <CODE
+CLASS="function"
+>discover_device_get_data</CODE
+>.  Also
+        available are
+        <CODE
+CLASS="function"
+>discover_device_get_vendor_name</CODE
+>,
+        <CODE
+CLASS="function"
+>discover_device_get_model_name</CODE
+>,
+        <CODE
+CLASS="function"
+>discover_device_get_model_id</CODE
+>, and
+        <CODE
+CLASS="function"
+>discover_device_get_vendor_id</CODE
+>.</P
+><P
+><CODE
+CLASS="function"
+>discover_device_get_data</CODE
+> takes a
+        <A
+HREF="#sc-accessing_device_data"
+>data path</A
+> and a
+        <A
+HREF="#sc-data_element_version_attribute"
+>version
+        number</A
+> and searches for the first data structure that
+        matches.</P
+><P
+><CODE
+CLASS="function"
+>discover_device_get_vendor_name</CODE
+>
+        returns the human-readable name for the device's
+        vendor.</P
+><P
+><CODE
+CLASS="function"
+>discover_device_get_model_name</CODE
+>
+        returns the human-readable name for the device's model.</P
+><P
+><CODE
+CLASS="function"
+>discover_device_get_model_id</CODE
+>
+        returns the bus-specific ID for the device model.</P
+><P
+><CODE
+CLASS="function"
+>discover_device_get_vendor_id</CODE
+>
+        returns the bus-specific ID for the device vendor.</P
+></DIV
+></DIV
+><DIV
+CLASS="chapter"
+><HR><H1
+><A
+NAME="ch-sysdeps"
+></A
+>Chapter 14. System Dependencies</H1
+><DIV
+CLASS="section"
+><H2
+CLASS="section"
+><A
+NAME="sc-sysdeps_api"
+>14.1. <ACRONYM
+CLASS="acronym"
+>API</ACRONYM
+></A
+></H2
+><P
+>The system-dependent code (<I
+CLASS="firstterm"
+>sysdeps</I
+>)
+        that must be custom-written for each operating system conforms to a
+        very simple <ACRONYM
+CLASS="acronym"
+>API</ACRONYM
+>.  <SPAN
+CLASS="application"
+>Discover</SPAN
+> invokes
+        <CODE
+CLASS="function"
+>_discover_get_<TT
+CLASS="replaceable"
+><I
+>busname</I
+></TT
+>_raw()</CODE
+>
+        with no arguments, and expects a linked list of
+        <A
+HREF="api-reference/sysdep_8h.html#a0"
+TARGET="_top"
+><SPAN
+CLASS="type"
+>discover_sysdep_data_t</SPAN
+></A
+> structures in return.</P
+><P
+>The <A
+HREF="api-reference/sysdep_8h.html#a0"
+TARGET="_top"
+><SPAN
+CLASS="type"
+>discover_sysdep_data_t</SPAN
+></A
+> structures should
+        contain as much descriptive information as they can regarding the
+        devices discovered.  Specifically, the three pieces of information
+        desired are the <A
+HREF="#ch-busclass_lists"
+>busclass</A
+> (device
+        type), <A
+HREF="#ch-vendor_lists"
+>vendor
+        identifier</A
+>, and model identifier, which is a unique
+        identification string that the vendor has provided for the given
+        piece of hardware.</P
+><DIV
+CLASS="example"
+><A
+NAME="AEN1558"
+></A
+><P
+><B
+>Example 14-1. Linux <ACRONYM
+CLASS="acronym"
+>PCI</ACRONYM
+> sysdep code</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="programlisting"
+>#include &#60;config.h&#62;
+
+#include &#60;stdio.h&#62;
+#include &#60;stdlib.h&#62;
+
+#include &#60;sysdep.h&#62;
+
+discover_sysdep_data_t *
+_discover_get_pci_raw(void)
+{
+    FILE *f;
+    char *line = NULL;
+    size_t len = 0;
+    discover_sysdep_data_t *head = NULL, *node, *last = NULL;
+    unsigned int id;
+
+    if ((f = fopen(PATH_PROC_PCI, "r"))) {
+        while (getline(&#38;line, &#38;len, f) &#62;= 0) {
+            if (line[0] == '\n' || line[0] == '#') {
+                continue;
+            }
+
+            node = _discover_sysdep_data_new();
+            sscanf(line, "%*04x\t%08x", &#38;id);
+            node-&#62;vendor = (id &#62;&#62; 16);
+            node-&#62;model = id &#38; 0xffff;
+
+            if (head == NULL) {
+                head = node;
+                last = head;
+            } else {
+                last-&#62;next = node;
+                last = node;
+            }
+        }
+        free(line);
+        fclose(f);
+    }
+    return head;
+}
+</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="appendix"
+><HR><H1
+><A
+NAME="ap-discover_api_reference"
+></A
+>Appendix A. <SPAN
+CLASS="application"
+>Discover</SPAN
+> <ACRONYM
+CLASS="acronym"
+>API</ACRONYM
+> Reference</H1
+><P
+>The <ACRONYM
+CLASS="acronym"
+>API</ACRONYM
+> reference is <A
+HREF="api-reference/index.html"
+TARGET="_top"
+>here</A
+>.</P
+></DIV
+><DIV
+CLASS="appendix"
+><HR><H1
+><A
+NAME="ap-discover_dtd"
+></A
+>Appendix B. <SPAN
+CLASS="application"
+>Discover</SPAN
+> <ACRONYM
+CLASS="acronym"
+>DTD</ACRONYM
+></H1
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="programlisting"
+>&#13;&#60;!-- $Progeny$ --&#62;
+
+&#60;!ELEMENT discover-data (location)*&#62;
+
+&#60;!ELEMENT location EMPTY&#62;
+&#60;!ATTLIST location bus          NMTOKEN #REQUIRED
+                   type         NMTOKEN #REQUIRED
+                   url          CDATA   #REQUIRED&#62;
+
+&#60;!ELEMENT busclass_list (busclass)*&#62;
+&#60;!ATTLIST busclass_list bus NMTOKEN #REQUIRED&#62;
+
+&#60;!ELEMENT busclass EMPTY&#62;
+&#60;!ATTLIST busclass id           NMTOKEN #REQUIRED
+                   name         NMTOKEN #REQUIRED&#62;
+
+&#60;!ELEMENT vendor_list (vendor)*&#62;
+&#60;!ATTLIST vendor_list bus NMTOKEN #REQUIRED&#62;
+
+&#60;!ELEMENT vendor EMPTY&#62;
+&#60;!ATTLIST vendor id             CDATA #REQUIRED
+                 name           CDATA #REQUIRED&#62;
+
+&#60;!ELEMENT device_list (device)*&#62;
+&#60;!ATTLIST device_list bus NMTOKEN #REQUIRED&#62;
+
+&#60;!ELEMENT device (data)*&#62;
+&#60;!ATTLIST device busclass       NMTOKEN #REQUIRED
+                 model          CDATA #DEFAULT default
+                 model_name     CDATA   #REQUIRED
+                 vendor         CDATA #REQUIRED&#62;
+
+&#60;!ELEMENT data (#PCDATA|data)*&#62;
+&#60;!ATTLIST data class		NMTOKEN	#REQUIRED
+               version		CDATA	#IMPLIED&#62;
+
+&#60;!-- vim:set ai et sts=8 sw=8 tw=0: --&#62;
+
+    </PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="appendix"
+><HR><H1
+><A
+NAME="ap-discover_conf_dtd"
+></A
+>Appendix C. <SPAN
+CLASS="application"
+>Discover</SPAN
+> Configuration File <ACRONYM
+CLASS="acronym"
+>DTD</ACRONYM
+></H1
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="programlisting"
+>&#13;&#60;!-- $Progeny$ --&#62;
+
+&#60;!ELEMENT conffile (busscan*,data-sources?)&#62;
+
+&#60;!ELEMENT data-sources (data-source)*&#62;
+&#60;!ELEMENT data-source EMPTY&#62;
+&#60;!ATTLIST data-source url          CDATA #REQUIRED
+                      label        CDATA #IMPLIED
+                      place        NMTOKEN #IMPLIED&#62;
+
+&#60;!ELEMENT busscan (bus)*&#62;
+
+&#60;!-- The attributes will likely be handled by different parts of        --&#62;
+&#60;!-- Discover. If there is a list of buses never to scan, the library   --&#62;
+&#60;!-- should be aware of it. If there is a list of buses to scan by      --&#62;
+&#60;!-- default, that will be of interest to the client tool.              --&#62;
+&#60;!ATTLIST busscan scan (default|never) #REQUIRED&#62;
+
+&#60;!ELEMENT bus EMPTY&#62;
+&#60;!ATTLIST bus name              NMTOKEN #REQUIRED&#62;
+
+    </PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="appendix"
+><HR><H1
+><A
+NAME="ap-licensing_issue_linux_sysdeps"
+></A
+>Appendix D. Licensing Issue on the Linux Sysdeps</H1
+><P
+>It should be noted that the Linux-specific files in the
+    <TT
+CLASS="filename"
+>sysdeps/linux</TT
+> directory of the source distribution
+    are derived from code written for the <SPAN
+CLASS="application"
+>Detect</SPAN
+>
+    library by MandrakeSoft SA, and are licensed under the
+    <ACRONYM
+CLASS="acronym"
+>GNU</ACRONYM
+> Project's <A
+HREF="http://www.gnu.org/copyleft/gpl.html"
+TARGET="_top"
+>General Public
+    License</A
+> (<ACRONYM
+CLASS="acronym"
+>GPL</ACRONYM
+>).</P
+><P
+>Note that section 2 of the <ACRONYM
+CLASS="acronym"
+>GPL</ACRONYM
+> places
+    requirements on derived works that prevent licensees from exercising
+    some of the permissions granted under the license on the rest of
+    <SPAN
+CLASS="application"
+>Discover</SPAN
+>.  However, not everyone who modifies or distributes
+    <SPAN
+CLASS="application"
+>Discover</SPAN
+> will necessarily be subject to the terms of the
+    <ACRONYM
+CLASS="acronym"
+>GPL</ACRONYM
+>.  If you do not compile, use, or distribute the
+    Linux sysdeps (for instance, if you are building <SPAN
+CLASS="application"
+>Discover</SPAN
+> for
+    FreeBSD), then the license terms on them do not attach.</P
+><P
+>We realize, however, that it is desirable that all of <SPAN
+CLASS="application"
+>Discover</SPAN
+>
+    be under the the same license terms.  There are a few possible
+    solutions to this problem:</P
+><P
+></P
+><UL
+><LI
+><P
+>If you do not need the Linux sysdeps, you can delete them
+        from your copy of <SPAN
+CLASS="application"
+>Discover</SPAN
+>.</P
+></LI
+><LI
+><P
+>You can rewrite the Linux sysdeps.  The resulting code will
+        be your work, so the only limitations on you will be those imposed
+        by <SPAN
+CLASS="application"
+>Discover</SPAN
+>'s license.  If you do so, we encourage you to license
+        your rewrite under the same terms as the rest of <SPAN
+CLASS="application"
+>Discover</SPAN
+> &#8212;
+        in that event, Progeny will be happy to incorporate your code into
+        a future release of <SPAN
+CLASS="application"
+>Discover</SPAN
+>.</P
+></LI
+><LI
+><P
+>You can contact MandrakeSoft SA and negotiate a different
+        license to their code that is used in the Linux sysdeps.</P
+></LI
+><LI
+><P
+>You can contact MandrakeSoft SA and attempt to persuade them
+        to relicense their code that is used in the Linux sydeps
+        under the terms used by the rest of <SPAN
+CLASS="application"
+>Discover</SPAN
+>. (MandrakeSoft SA
+        would not have to abandon or assign their copyright.)  If you
+        succeed in this effort, please let Progeny know and we will update
+        the license terms on our copy of the MandrakeSoft SA code.</P
+></LI
+><LI
+><P
+>You can wait; eventually Progeny employees, or some
+        volunteer, will rewrite the Linux sysdeps and license them under
+        the terms that the rest of <SPAN
+CLASS="application"
+>Discover</SPAN
+> uses.</P
+></LI
+></UL
+><DIV
+CLASS="note"
+><P
+></P
+><TABLE
+CLASS="note"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="http://www.progeny.com/images/utility/note.png"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>The foregoing discussing is not legal advice and makes no claim
+      to be such.  It is a layperson's understanding of the licensing
+      issues from a software developer's perspective.  Progeny makes no
+      warranties or guarantees as to the accuracy of the above
+      analysis in a legal context.  If you require a professional legal
+      opinion, consult attorneys specializing in copyright and licensed to
+      practice in the jurisdictions of interest to you or to your
+      organization.</P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>Notes</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN53"
+HREF="#AEN53"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>Other
+        protocols such as <ACRONYM
+CLASS="acronym"
+>FTP</ACRONYM
+> are available but deprecated; <SPAN
+CLASS="application"
+>Discover</SPAN
+>
+        uses integrity verification mechanisms such as
+        <ACRONYM
+CLASS="acronym"
+>MD5</ACRONYM
+> checksums in the <ACRONYM
+CLASS="acronym"
+>HTTP</ACRONYM
+>
+        protocol.</P
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN779"
+HREF="#AEN779"
+><SPAN
+CLASS="footnote"
+>[2]</SPAN
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>We would say
+        <TT
+CLASS="literal"
+>[2.2,2.3)</TT
+> instead, but, like many Free Software
+        projects, the Linux kernel uses odd minor version numbers to
+        denote unstable, development series of the software, and even minor
+        version numbers to denote stable, production series of the
+        software. In the example, then, we arbitrarily treat all 2.3 series
+        kernels the same as 2.2 kernels.</P
+></TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

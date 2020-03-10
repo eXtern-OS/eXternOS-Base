@@ -1,0 +1,1735 @@
+#!/usr/bin/perl
+
+
+#   pppconfig: a text menu based utility for configuring ppp.
+#
+#   Copyright (C) 1999-2005 John G. Hasler (john@dhh.gt.org)
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License Version 2 as 
+#   published by the Free Software Foundation.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to Free Software Foundation, 
+#   Inc., 51 Franklin St, Fifth Floor, Boston,  MA 02110-1301, USA.
+#   or contact the author.
+#
+#   On Debian systems the GNU General Public License can be found in
+#   /usr/doc/copyright/GPL or /usr/share/common-licenses/GPL.
+
+# This hack exists so that the program can run in the absence of gettext
+# or POSIX.
+
+BEGIN {
+  eval "use Locale::gettext";
+  $no_gettext = $@;
+  eval "use POSIX";
+  if ($no_gettext || $@) {
+    eval 'sub gettext($) { return $_[0]; }';
+  }
+  else {
+    setlocale($ENV{LC_MESSAGES}, "");
+    textdomain("pppconfig");
+  }
+}
+
+$version = "2.3.18";
+
+$etc = "/etc";
+$ppppath = "$etc/ppp";
+$pppconfig_dir = "/var/lib/pppconfig";
+$pppresolv = "$ppppath/resolv";
+$optionpath = "$ppppath/peers";
+$chatpath = "$etc/chatscripts";
+
+$ipdefault = $ipnumber = $route = $user_arg = $ispport = '';
+$connectcmd = $authcmd = $debugcmd = $demand = $ispspeed = $ispauth = '';
+$nullnull = $abortstring = $modemnull = $modeminit = $modemok = '';
+$ispnumber = $atdx = $ispconnect = $isplogin = $ispname = '';
+$ispprompt = $dns = $remotename = $ipparam = $ipparam_arg = '';
+$isppassword = $prelogin = $postlogin = $postloginsend = '';
+$ispnull = $usepeerdns = $ipcp_accept_local = $ipcp_accept_remote = '';
+$persist = $idle = $idle_arg ='';
+
+$ispconnect = "CONNECT";
+# Global arrays
+@chatarray = ();
+@deletelist = ();
+@optionarray = ();
+@secrets = ();
+@pap_secrets = ();
+@chap_secrets = ();
+@newuserlist = ();
+%oldfiles = ();
+
+$resolv_conf ="OK";
+$maxoptionfile = 20000; # Arbitrary upper limits on option and chat files.
+$maxchatfile = 2000;    # If they are bigger than this something is wrong.
+
+$backtitle = gettext("\"GNU/Linux PPP Configuration Utility\"");
+
+LOOP: foreach $opt (@ARGV) {
+  $opt =~ /^\-\-version$/ && do {
+    usage() if $#ARGV > 0;
+    version();
+  };
+  $opt =~  /^\-\-help$/ && do {
+    usage() if $#ARGV > 0;
+    help();
+  };
+  $opt =~  /^\-\-whiptail$/ && do {
+    usage() if $ui;
+    $ui = "whiptail";
+    next LOOP;
+  };
+  $opt =~  /^\-\-dialog$/ && do {
+    usage() if $ui;
+    $ui = "dialog";
+    next LOOP;
+  };
+  $opt =~  /^\-\-gdialog$/ && do {
+    usage() if $ui;
+    $ui = "gdialog";
+    next LOOP;
+  };
+  $opt =~  /^\-\-kdialog$/ && do {
+    usage() if $ui;
+    $ui = "kdialog";
+    next LOOP;
+  };
+  $opt =~  /^\-\-xdialog$/ && do {
+    usage() if $ui;
+    $ui = "Xdialog";
+    next LOOP;
+  };
+  $opt =~ /^\-\-noname$/ && do {
+    usage() if $provider;
+    $noname = 1;
+    $provider = "provider";
+    next LOOP;
+  };
+  usage() if $provider;
+  $noname = 1;
+  $provider = $opt;
+  next LOOP;
+}
+
+$changing_provider = 0;
+if ($noname == 1) {
+   if (do_files( "test", $provider )) { $changing_provider = 1; }
+}
+
+
+SWITCH: {
+  if (`which $ui`)      {last SWITCH; }
+#  if (`gdialog --version 2>&1` =~ /^gdialog.*debian/)  {$ui = "gdialog"; last SWITCH; }
+  if (`which whiptail`) {$ui = "whiptail"; last SWITCH; }
+  if (`which dialog`)   {$ui = "dialog"; last SWITCH; }
+  die gettext("No UI\n");
+}
+
+die (gettext("You must be root to run this program.\n")) if( $> != 0 );
+die(sprintf(gettext("%s does not exist.\n"), "$etc/chatscripts")) if( ! -d "$etc/chatscripts" );
+die(sprintf(gettext("%s does not exist.\n"), "$etc/ppp/peers")) if( ! -d "$etc/ppp/peers" );
+
+MAIN: do_action (); # This is the main loop.
+
+# Make a dialog box.
+sub dialogbox(@) {
+    my $type;
+    my @options = ();
+    my @vars;
+    my $text;
+    my $title;
+    my @uilist;
+    my $pid;
+    my $temp = '';
+    my $item = '';
+    @vars=@_;
+# On option is allowed, and must follow the type.  Pull the type 
+# and the option out of @vars and put them in @options in the correct order.
+    @options=(shift(@vars));
+    unshift @options, (shift @vars) if $vars[0] =~/--/;
+    $text=shift( @vars );
+    $title=shift( @vars ) if( $#vars >= 0 );
+    @uilist = ($ui, "--title", $title, "--backtitle", $backtitle, @options, "--", $text, "22", "80", @vars);
+# Using fork()/exec() and a pipe instead of system() or backticks avoids
+# the shell and consequently simplifies quoting.
+
+    pipe(RDR,  WTR);
+    if ($pid = fork) { # Parent
+	close WTR or die(gettext("Can't close WTR in parent: "), $!, "\n");
+	while($temp = <RDR>) {
+	    $temp =~ s/\n/ /;
+	    $item .= $temp;
+	}
+	chomp $item;
+	close RDR or die(gettext("Can't close RDR in parent: "), $!, "\n");
+	waitpid($pid, 0);
+    } 
+    else { # Child or failed fork()
+	die (gettext("cannot fork: "), $!, "\n") unless defined $pid;
+	close RDR or die(gettext("Can't close RDR in child: "), $!, "\n");
+	open STDERR, ">&WTR" or die(gettext("Can't redirect stderr: "), $!, "\n");
+	exec @uilist or die(gettext("Exec failed: "), $!, "\n");
+    }
+    $result = ($? >> 8);
+    quit() if ($result == 255);
+    die(gettext("Internal error: "), $!, "\n") unless($result == 0 || $result == 1);
+    return $item;
+}
+
+sub msgbox(@) {
+    dialogbox( "--msgbox", @_ );
+}
+
+sub infobox(@) {
+    dialogbox( "--infobox", @_ );
+}
+
+sub yesnobox(@) {
+    dialogbox( "--yesno", @_ );
+}
+
+# A yesnobox that defaults to no.
+sub noyesbox(@) { 
+    if ($ui =~ /whiptail|dialog/) {
+	dialogbox("--yesno", "--defaultno", @_ );
+    }
+    else {
+	dialogbox( "--yesno", @_ );
+    }
+}
+
+sub inputbox(@) {
+    dialogbox( "--inputbox", @_ );
+}
+
+sub menu(@) {
+    my $text;
+    my $title;
+    my $menu_height;
+    $text=shift( @_ );
+    $title=shift( @_ );
+    $menu_height=shift( @_ );
+    dialogbox( '--menu', $text, $title, $menu_height, @_ );
+}
+
+sub checklist(@) {
+    my $text;
+    my $title;
+    my $menu_height;
+    $text=shift( @_ );
+    $title=shift( @_ );
+    $menu_height=shift( @_ );
+    dialogbox( '--checklist', $text, $title, $menu_height, @_);
+}
+
+sub radiolist(@) {
+    my $text;
+    my $title;
+    my $menu_height;
+    $text=shift( @_ );
+    $title=shift( @_ );
+    $menu_height=shift( @_ );
+    dialogbox( "--radiolist", $text, $title, $menu_height, @_ );
+}
+
+sub form(@) {
+    my $text;
+    my $title;
+    my $menu_height;
+    $text = shift(@_);
+    $title=shift( @_ );
+    $menu_height=shift( @_ );
+    dialogbox( "--form", $text, $title, $menu_height, @_ );
+}
+# end of interface to dialog
+
+sub mkmenu {
+  my ($a, $b, $c, $d, $e, $f, $h, $i, $j) = '';
+  my $action = '';
+  my @menuvar = '';
+  my $menu = $_[0];
+
+  $createstring = gettext("Create a connection");
+
+  if($noname) {
+      if ($changing_provider) {
+	  $createstring = sprintf(gettext("Change the connection named %s"), $provider);
+      }
+      else {
+	  $createstring =  sprintf(gettext("Create a connection named %s"), $provider);
+      }
+  }
+
+ SWITCH: for( $menu ) {
+    /^main/ && do {
+      # This section sets up the main menu.
+
+      @menuvar = (gettext("This is the PPP configuration utility.  It does not connect to your isp: just configures ppp so that you can do so with a utility such as pon.  It will ask for the username, password, and phone number that your ISP gave you.  If your ISP uses PAP or CHAP, that is all you need.  If you must use a chat script, you will need to know how your ISP prompts for your username and password.  If you do not know what your ISP uses, try PAP.  Use the up and down arrow keys to move around the menus.  Hit ENTER to select an item.  Use the TAB key to move from the menu to <OK> to <CANCEL> and back.  To move on to the next menu go to <OK> and hit ENTER. To go back to the previous menu go to <CANCEL> and hit enter."),
+gettext("Main Menu"), 5, 
+"Create", $createstring); 
+      push @menuvar, "Change", gettext("Change a connection"),
+"Delete", gettext("Delete a connection") unless $noname;
+      push @menuvar, "Finished", gettext("Finish and save files") if checkchanges("CHECK");
+      unshift @menuvar, "--nocancel";
+      last SWITCH;
+    };
+
+    /^method/ && do {
+      # menu of connection methods
+      my $authmethod = uc($$ispauth);
+      @menuvar = (sprintf(gettext("Please select the authentication method for this connection.  PAP is the method most often used in Windows 95, so if your ISP supports the NT or Win95 dial up client, try PAP.  The method is now set to %s."), $authmethod),
+sprintf(gettext(" Authentication Method for %s"), $provider), 6,
+"PAP",  gettext("Peer Authentication Protocol"),
+"Chat", gettext("Use \"chat\" for login:/password: authentication"),
+"CHAP", gettext("Crypto Handshake Auth Protocol"),
+" ",    " " );
+      last SWITCH; 
+    };
+    # end of method block
+
+    /^properties/ && do {    # list of variables about a connection
+      # to be modified by the user.
+
+      # Format the variables for display.
+      $a = chatescape("UNDO", $$ispnumber);
+      $a = sprintf "%-20.20s", $a =~ /at.*?d[p|t](.+)/i;
+      $b = sprintf "%-20.20s", $$isplogin;
+      $c = sprintf "%-20.20s", chatescape("UNDO", $$ispname);
+      $d = sprintf "%-20.20s", $$ispprompt;
+      $e = $$isppassword;
+      $e = sprintf "%-20.20s", chatescape("UNDO", $e);
+      $e =~ s/^\\q//;
+      $f = sprintf "%-20.20s", $$ispspeed;
+      $g = sprintf "%-20.20s", $$ispport;
+      $h = sprintf "%-20.20s", $$ispauth;
+
+      @menuvar = (gettext("Please select the property you wish to modify, select \"Cancel\" to go back to start over, or select \"Finished\" to write out the changed files."),
+sprintf(gettext("\"Properties of %s\""), $provider), 14,
+                       "Number",    sprintf(gettext("%s Telephone number"), $a));
+      push @menuvar, ( "ISPLogin",  sprintf(gettext("%s Login prompt" ), $b)) 
+        if( uc($$ispauth) eq "CHAT" );
+      push @menuvar, ( "User",      sprintf(gettext("%s ISP user name"), $c));
+      push @menuvar, ( "ISPPrompt", sprintf(gettext("%s Password prompt"), $d)) 
+        if( uc($$ispauth) eq "CHAT" );
+      push @menuvar, ( "Password",  sprintf(gettext("%s ISP password"), $e),
+                       "Speed",     sprintf(gettext("%s Port speed"), $f),
+                       "Com",       sprintf(gettext("%s Modem com port"), $g),
+	               "Method",    sprintf(gettext("%s Authentication method"), $h),
+                       " ",       " ",
+                       "Advanced",  gettext("Advanced Options"),
+                       " ",       " ",
+                       "Finished",  gettext("Write files and return to main menu."));
+
+      last SWITCH; 
+    };
+    # end of properties block
+
+    /^advanced/   && do {    # configure advanced properties
+  if ($$usepeerdns eq "usepeerdns") {
+    $dns = "dynamic";
+  }
+  elsif ($$ipparam eq "ipparam") {
+    $dns = "static";
+  }
+  else {
+    $dns = "none";
+  }
+      $a = sprintf "%-20.20s", $$ispconnect;
+      $b = sprintf "%-20.20s", $$postlogin;
+      $c = sprintf "%-20.20s", $$modeminit;
+      $d = sprintf "%-20.20s", $$route;
+      $e = sprintf "%-20.20s", $$ipdefault;
+      $f = $$debugcmd ? "enabled" : "disabled";
+      $g = sprintf "%-20.20s", $f;
+      $h = sprintf "%-20.20s", $$prelogin;
+      $i = sprintf "%-20.20s", $dns;
+      $j = sprintf "%-20.20s", $$remotename_arg;
+      $k = sprintf "%-20.20s", $$idle ? $$idle_arg : "none";
+      $l = $$demand ? "enabled" : "disabled";
+      $m = sprintf "%-20.20s", $l;
+      $n = $$persist ? "enabled" : "disabled";
+      $o = sprintf "%-20.20s", $n;
+
+#      @menuvar = (gettext("\
+#This menu allows you to change some of the more obscure settings.  Select \
+#the setting you wish to change, and select \"Previous\" when you are done. \
+#Use the arrow keys to scroll the list."),
+      @menuvar = (gettext("This menu allows you to change some of the more obscure settings.  Select the setting you wish to change, and select \"Previous\" when you are done. Use the arrow keys to scroll the list."),
+sprintf(gettext("\"Advanced Settings for %s\""), $provider), 11,
+                       "Modeminit",    sprintf(gettext("%s Modem init string"), $c),
+                       "ISPConnect",   sprintf(gettext("%s Connect response"), $a),
+                       "Pre-Login",    sprintf(gettext("%s Pre-login chat"), $h),
+                       "Defaultroute", sprintf(gettext("%s Default route state"), $d),
+                       "Ipdefault",    sprintf(gettext("%s Set ip addresses"), $e),
+	               "Debug",        sprintf(gettext("%s Turn debugging on or off"), $g),
+	               "Demand",       sprintf(gettext("%s Turn demand dialing on or off"), $m));
+      push @menuvar,  ("Persist",      sprintf(gettext("%s Turn persist on or off"), $o))
+	unless $$demand;
+      push @menuvar,  ("Nameservers",  sprintf(gettext("%s Change DNS"), $i));
+      push @menuvar,  ("Add-User",     gettext("                     Add a ppp user")) if(getgrnam("dip"));
+
+      push @menuvar,  ("Post-Login",   sprintf(gettext("%s Post-login chat "), $b))
+        if( uc($$ispauth) eq "CHAT" );
+      push @menuvar,  ("Remotename",   sprintf(gettext("%s Change remotename "), $j))
+        unless( uc($$ispauth) eq "CHAT" );
+      push @menuvar,  ("Idle-timeout", sprintf(gettext("%s Idle timeout "), $k),
+                       " ",            " " );
+      last SWITCH; };
+    # end of Advanced block
+    
+    /^CANCEL/ && do {
+	return "CANCEL";
+      last SWITCH; };
+    
+  } # End of SWITCH
+
+  push @menuvar, "Previous", ( gettext("Return to previous menu")) unless $menu eq "main";
+  
+  push @menuvar, ( "Quit", gettext("Exit this utility"));
+
+  do { $action = menu @menuvar } while $action eq ' ' ;
+  # Put up the menu that we just constructed.
+  # ' ' means that a blank line has been selected, so just loop.
+  return "CANCEL" if ($result != 0); # He hit cancel: return to main menu.
+  return $action;
+} # end of mkmenu
+
+sub do_action() {
+  my $action;
+  my $menu = "main";
+  my @previous_action_stack;
+  my @previous_menu_stack = "main";
+  while (1) {
+    push @previous_menu_stack, $menu if $menu ne $previous_menu_stack[-1];
+    $action = mkmenu( $menu );
+    ACTION: for( $action ) {
+      /^Previous|^CANCEL/ && do {
+	pop @previous_menu_stack;
+	$menu = @previous_menu_stack ? pop @previous_menu_stack : "main";
+	last ACTION;
+      };
+      /^Properties/ && do {
+	$menu = "properties";
+	last ACTION;
+      };
+      /^Advanced/ && do {
+        $menu = "advanced";
+	last ACTION;
+      };
+      /^Method/ && do {
+	$menu = "method";
+	last ACTION;
+      };
+      /^Change/ && do {
+	$menu = changeConnection( $menu );
+	last ACTION;
+      };
+      /^PAP/ && do {
+	$menu = ispauth( "PAP", $menu );
+	last ACTION;
+      };
+      /^CHAP/ && do {
+	$menu = ispauth( "CHAP", $menu );
+	last ACTION;
+      };
+      /^Chat/ && do { 
+	$menu = ispauth( "Chat", $menu );
+	last ACTION;
+      };
+      /^Nameservers/ && do { 
+	$menu = getnameservers( $menu );
+	last ACTION;
+      };
+	/^Add-User/ && do { 
+	$menu = add_user( $menu );
+	last ACTION;
+      };
+      /^ISPConnect/ && do { 
+	$menu = ispconnect( $menu );
+	last ACTION;
+      };
+      /^Pre-Login/ && do { 
+	$menu = prelogin( $menu );
+	last ACTION;
+      };
+      /^ISPLogin/ && do { 
+	$menu = isplogin( $menu );
+	last ACTION;
+      };
+      /^ISPPrompt/ && do { 
+	$menu = ispprompt( $menu );
+	last ACTION;
+      };
+      /^Post-Login/ && do {
+	$menu = postlogin( $menu );
+	last ACTION;
+      };
+      /^Password/ && do { 
+	$menu = isppassword( $menu );
+	last ACTION;
+      };
+      /^Com/ && do {
+	$menu = ispport( $menu );
+	last ACTION;
+      };
+      /^Defaultroute/ && do { 
+	$menu = defaultroute( $menu );
+	last ACTION;
+      };
+      /^Ipdefault/ && do { 
+	$menu = ipdefault( $menu );
+	last ACTION;
+      };
+      /^Speed/ && do {  
+	$menu = ispspeed( $menu );
+	last ACTION;
+      };
+      /^User/ && do { 
+        $menu = ispname( $menu );
+	last ACTION;
+      };
+      /^Number/ && do { 
+	$menu = ispnumber( $menu );
+	last ACTION;
+      };
+      /^Modeminit/ && do { 
+	$menu = modeminit( $menu );
+	last ACTION;
+      };
+      /^Finished/ && do {
+	$menu = finish( $menu );
+	last ACTION;
+      };
+      /^Create/ && do {
+	$menu = newConnection( $menu );
+	last ACTION;
+      };
+      /^Delete/ && do { 
+	$menu = deleteconnection( $menu );
+	last ACTION;
+      };
+      /^Debug/ && do { 
+	$menu = debug( $menu );
+	last ACTION;
+      };
+      /^Demand/ && do { 
+	$menu = demand( $menu );
+	last ACTION;
+      };
+      /^Persist/ && do { 
+	$menu = persist( $menu );
+	last ACTION;
+      };
+      /^Remotename/ && do { 
+	$menu = remotename( $menu );
+	last ACTION;
+      };
+      /^Idle-timeout/ && do { 
+	$menu = idle_timeout( $menu );
+	last ACTION;
+      };
+      /^Quit/ && do {
+	$menu = quit( $menu );
+	last ACTION;
+      };
+      /.*/ && do {
+	die (sprintf(gettext("Internal error: no such thing as %s, "), $action));
+      };
+    }
+  } # End of while(1)
+} # End of do_action
+
+sub ispconnect($) {	# the connection string sent by the modem
+  $temp=inputbox(gettext("Enter the text of connect acknowledgement, if any.  This string will be sent when the CONNECT string is received from the modem.  Unless you know for sure that your ISP requires such an acknowledgement you should leave this as a null string: that is, \'\'.\
+"), gettext("Ack String"), "$$ispconnect" );
+  return "CANCEL" if( $result != 0 );
+  return $_[0] if $$ispconnect eq $temp;
+  $$ispconnect=$temp;
+  return $_[0];
+}
+
+sub isplogin($) {	# the login prompt string sent by the ISP
+  $temp=inputbox(gettext("Enter the text of the login prompt.  Chat will send your username in response.  The most common prompts are login: and username:.  Sometimes the first letter is capitalized and so we leave it off and match the rest of the word.  Sometimes the colon is omitted.  If you aren\'t sure, try ogin:."),
+gettext("Login Prompt"), "$$isplogin" );
+  return "CANCEL" if( $result != 0 );
+  return $_[0] if $$isplogin eq $temp;
+  $$isplogin=$temp;
+  return $_[0]; 
+}
+
+sub ispprompt($) {	# password prompt sent by the ISP
+  $temp=inputbox(gettext("Enter the text of the password prompt.  Chat will send your password in response. The most common prompt is password:.  Sometimes the first letter is capitalized and so we leave it off and match the last part of the word."), gettext("Password Prompt"), "$$ispprompt" );
+  return "CANCEL" if( $result != 0 );
+  return $_[0] if $$ispprompt eq $temp;
+  $$ispprompt=$temp;
+  return $_[0];
+}
+
+sub prelogin($) {	# optional pre-login chat
+  $temp = inputbox(gettext("You probably do not need to put anything here.  Enter any additional input your isp requires before you log in.  If you need to make an entry, make the first entry the prompt you expect and the second the required response.  Example: your isp sends \'Server:\' and expect you to respond with \'trilobite\'.  You would put \'erver trilobite\' (without the quotes) here.  All entries must be separated by white space.  You can have more than one expect-send pair."), gettext("Pre-Login"), "$$prelogin" );
+  return "CANCEL" if( $result != 0 );
+  return $_[0] if $$prelogin eq $temp;
+  $$prelogin=$temp;
+  return $_[0];
+}
+
+sub postlogin($) {	# post-login chat
+  $temp = inputbox(gettext("You probably do not need to change this.  It is initially \'\' \\d\\c which tells chat to expect nothing, wait one second, and send nothing.  This gives your isp time to get ppp started.  If your isp requires any additional input after you have logged in you should put it here.  This may be a program name like ppp as a response to a menu prompt.  If you need to make an entry, make the first entry the prompt you expect and the second the required response.  Example: your isp sends \'Protocol\' and expect you to respond with \'ppp\'.  You would put \'otocol ppp\' (without the quotes) here.  Fields must be separated by white space.  You can have more than one expect-send pair."), gettext("Post-Login"), "$$postlogin" );
+  return "CANCEL" if( $result != 0 );
+  return $_[0] if $$postlogin eq $temp;
+  $$postlogin=$temp;
+  return $_[0];
+}
+
+sub do_ops($) {
+  my $temp;
+  $temp = ispname($_[0]);
+  return "CANCEL" if $temp eq "CANCEL";
+  $temp = isppassword($_[0]);
+  return "CANCEL" if $temp eq "CANCEL";
+  $temp = ispspeed($_[0]);
+  return  "CANCEL"if $temp eq "CANCEL";
+  $temp = ispnumber($_[0]);
+  return "CANCEL" if $temp eq "CANCEL";
+  $temp = ispport($_[0]);
+  return $temp;
+}
+
+sub ispname($) { # input the user name for the ppp account
+  ISPNAME: $d = chatescape("UNDO", $$ispname);
+  $temp=inputbox (gettext("Enter the username given to you by your ISP."),
+gettext("User Name"), "$d");
+  return "CANCEL" if ( $result != 0 );
+  return $_[0] if $d eq $temp;
+  if ($temp) {
+      $$ispname = chatescape("DO", $temp);
+  }
+  else { 
+       goto ISPNAME if (uc($$ispauth) ne "CHAT");
+      $$ispname = '""';
+     }
+  $$user_arg=$$ispname;
+  return $_[0];
+}
+
+sub ispport($) { # identify the port the modem is on
+  my (@ttys, $manual, $tty, $port, $lines, @array, $temp);
+  my $good = 0;
+  yesnobox(gettext("Answer \'yes\' to have the port your modem is on identified automatically.  It will take several seconds to test each serial port.  Answer \'no\' if you would rather enter the serial port yourself"),
+gettext("Choose Modem Config Method"));
+  if (! $result) { # true $result means no.
+    if (!system("pidof", "pppd")) {
+      msgbox(gettext("Can\'t probe while pppd is running."));
+      goto MANUAL;
+    }
+    $manual = "on";
+#    system ("clear");
+    foreach $tty (grep /16[45]50/, (`setserial -g /dev/ttyS\* 2>/dev/null`)) {
+      ($port) = $tty =~ /^(\/dev\/ttyS\d+)/;
+      print sprintf(gettext("Probing %s"), $port), "\n";
+      $temp = `pppd nodetach noauth nocrtscts $port connect \"chat -t1 \'\' AT OK\"`;
+      $good = (grep /established/, $temp) ? "on" : "off";
+      $manual = "off" if $good eq "on";
+      push @ttys, ($port, " ", $good);
+    }
+    $lines = $#ttys > 12 ? 5 : ($#ttys + 1)/3 + 1;
+    @array = (gettext("Below is a list of all the serial ports that appear to have hardware that can be used for ppp.  One that seems to have a modem on it has been preselected.  If no modem was found \'Manual\' was preselected.  To accept the preselection just hit TAB and then ENTER.  Use the up and down arrow keys to move among the selections, and press the spacebar to select one.  When you are finished, use TAB to select <OK> and ENTER to move on to the next item. "), gettext("Select Modem Port"), $lines);
+    push @array, @ttys;
+    push @array, "Manual", gettext("Enter the port by hand. "), $manual;
+    $temp = radiolist @array;
+    return "CANCEL" if ( $result != 0 ) ;
+    if ($temp ne "Manual") {
+      $$ispport = $temp;
+      return $_[0];
+    }
+  }
+MANUAL:  $temp=inputbox (gettext("Enter the port your modem is on. \
+/dev/ttyS0 is COM1 in DOS. \
+/dev/ttyS1 is COM2 in DOS. \
+/dev/ttyS2 is COM3 in DOS. \
+/dev/ttyS3 is COM4 in DOS. \
+/dev/ttyS1 is the most common.  Note that this must be typed exactly as shown.  Capitalization is important: ttyS1 is not the same as ttys1."),
+gettext("Manually Select Modem Port"), "$$ispport");
+  return "CANCEL" if ( $result != 0 ) ;
+  $$ispport = $temp;
+  return $_[0];
+}
+
+sub defaultroute($) {
+  if ( $$route eq "defaultroute" ) {
+    $nodefaultroute="off";
+    $ddefaultroute="on";
+  }
+  else {
+    $nodefaultroute="on";
+    $ddefaultroute="off";
+  }
+  $temp=radiolist (gettext("Enabling default routing tells your system that the way to reach hosts to which it is not directly connected is via your ISP.  This is almost certainly what you want.  Use the up and down arrow keys to move among the selections, and press  the spacebar to select one.  When you are finished, use TAB to select <OK> and ENTER to move on to the next item."),
+gettext("Default Route"), 2, 
+"defaultroute", gettext("Enable default route"), $ddefaultroute,
+"nodefaultroute", gettext("Disable default route"),  $nodefaultroute);
+  return  "CANCEL"if ( $result != 0 );
+  $$route = $temp;
+  return $_[0];
+}
+
+sub ipdefault($) {
+  $temp=inputbox (gettext("You almost certainly do not want to change this from the default value of noipdefault. This is not the place for your nameserver ip numbers.  It is the place for your ip number if and only if your ISP has assigned you a static one.  If you have been given only a local static ip, enter it with a colon at the end, like this: 192.168.1.2:  If you have been given both a local and a remote ip, enter the local ip, a colon, and the remote ip, like this: 192.168.1.2:10.203.1.2"),
+gettext("IP Numbers"),  "$$ipdefault");
+  return "CANCEL" if ( $result != 0 );
+  $$ipdefault = $temp;
+  return $_[0];
+}
+
+sub ispspeed($) { # get the port speed
+  $temp=inputbox (gettext("Enter your modem port speed (e.g. 9600, 19200, 38400, 57600, 115200).  I suggest that you leave it at 115200."),
+gettext("Speed"), "$$ispspeed");
+  return "CANCEL" if ( $result != 0 );
+  $$ispspeed = $temp;
+  return $_[0];
+}
+
+sub modeminit($) {
+   $tempmodeminit = chatescape("UNDO", $$modeminit);
+  $temp=inputbox (gettext("Enter modem initialization string.  The default value is ATZ, which tells the modem to use it\'s default settings.  As most modems are shipped from the factory with default settings that are appropriate for ppp, I suggest you not change this."),
+gettext("Modem Initialization"), "$tempmodeminit");
+  return  "CANCEL"if ( $result != 0 );
+  return $_[0] if $tempmodeminit eq $temp;
+  $$modeminit = chatescape("DO", $temp);
+  return $_[0];
+}
+
+sub ispnumber($) { # Are we using pulse or dial?
+  $tempispnumber = chatescape("UNDO", $$ispnumber);
+  ($atdx, $number) = $tempispnumber =~ /(at.*?d[p|t])(.+)/i;
+  $pulse = $atdx =~ /dp/i ? "on" : "off";
+  $tone = $pulse eq "on" ? "off" : "on";
+  $tempatdx = $atdx;
+  $temp=radiolist (gettext("Select method of dialing.  Since almost everyone has touch-tone, you should leave the dialing method set to tone unless you are sure you need pulse.  Use the up and down arrow keys to move among the selections, and press the spacebar to select one.  When you are finished, use TAB to select <OK> and ENTER to move on to the next item."),
+gettext("Pulse or Tone"), 2,
+"Tone", "", $tone,
+"Pulse", "", $pulse);
+  return "CANCEL" if ( $result != 0 );
+  $tempatdx =~ s/dp/DT/i if ($temp eq "Tone" && $pulse); 
+  $tempatdx =~ s/dt/DP/i if ($temp eq "Pulse" && $tone);
+  # Now get the number.
+  $tempnumber = inputbox (gettext("Enter the number to dial.  Don\'t include any dashes.  See your modem manual if you need to do anything unusual like dialing through a PBX."),
+gettext("Phone Number"), "$number");
+  return "CANCEL" if ( $result != 0 );
+  return $_[0] if ($number eq $tempnumber && $atdx eq $tempatdx);
+  $temp = $tempatdx . $tempnumber;
+  $$ispnumber = chatescape("DO", $temp);
+  return $_[0];
+}
+
+sub isppassword($) {
+  ISPWORD: $d = $$isppassword;
+  $d = chatescape("UNDO", $d);
+  $d =~ s/^\\q//;
+  $temp = inputbox (gettext("Enter the password your ISP gave you."),
+gettext("Password"),
+"$d");
+  return "CANCEL" if ( $result != 0 );
+  return $_[0] if $temp eq $d;
+  # Add enclosing quotes and a \q to keep the password out of the log if we are using chat.
+  if ($temp) {
+      $temp = ( uc($$ispauth) eq "CHAT" ) ? '\\q' . $temp : $temp;
+      $$isppassword = chatescape("DO", $temp);
+  }
+  else {
+      goto ISPWORD if (uc($$ispauth) ne "CHAT");
+      $$isppassword = '""';
+  }
+  return $_[0];
+}
+
+sub ispauth(@) {
+  return $_[1] if($_[0] eq $$ispauth);
+  my $oldauth = $$ispauth;
+  my $newauth = $_[0];
+  $password = $$isppassword;
+  if($newauth =~/AP/) {
+    $password =~ s/^\\q// if $oldauth eq "chat";
+    secrets_file("delete", $provider, $oldauth) unless ($oldauth eq "chat");
+    secrets_file("get", $provider, $newauth) unless ($newauth eq "chat");
+    $$ispauth = $newauth;
+    $$ispconnect = "\\d\\c";
+  }
+
+ SWITCH: for ($_[0]) {
+    /^PAP/ && do {
+      $$postlogin = '';
+      $$remotename = "remotename";
+      $$remotename_arg = $provider;
+      last SWITCH;
+    };
+    /^CHAP/ && do {
+      $$postlogin = $$remotename = $$remotename_arg = '';
+      last SWITCH;
+    };
+    /^Chat/ && do { # Builds a chat file
+      my $temp = isplogin($newauth);
+      return "CANCEL" if $temp eq "CANCEL";
+      $temp = ispprompt($newauth);
+      return "CANCEL" if $temp eq "CANCEL";
+      secrets_file("delete", $provider, $oldauth);
+      $$ispauth = "chat";
+      $password = "\\q" . $password;
+      $$ispconnect = "\'\'";
+      $$postlogin = "\'\' \\d\\c";
+      parse_chat();
+      last SWITCH;
+    };
+  }
+  $$isppassword = $password;
+      for ($i=0; $i<=$#chatarray; ++$i) {
+
+}
+  return $_[1];
+}
+
+sub getname()  {
+  local $temp = "provider";
+getname: do {
+    $temp=inputbox(gettext("Enter the name you wish to use to refer to this isp.  You will probably want to give the default name of \'provider\' to your primary isp.  That way, you can dial it by just giving the command \'pon\'.  Give each additional isp a unique name.  For example, you might call your employer \'theoffice\' and your university \'theschool\'.  Then you can connect to your isp with \'pon\', your office with \'pon theoffice\', and your university with \'pon theschool\'.  Note: the name must contain no spaces."),
+gettext("Provider Name"), "$temp" );
+    return "CANCEL" if( $result != 0 );
+  };
+   if (do_files ( "test", $temp )) {
+      noyesbox (gettext("This connection exists.  Do you want to overwrite it?"),
+gettext("Connection Exists"));
+      goto getname if( $result ); # true $result means no so go back to getname.
+    }  
+  $provider = $temp;
+  $$remotename_arg = $provider if $$remotename;
+  $$ipparam_arg = $provider if $$ipparam;
+  return $temp;
+}
+
+sub finish($) {
+# this is to tidy up things with the user and is in no way
+# associated with any Finnish Connections ;)
+  my $temp;
+  msgbox(sprintf(gettext("Finished configuring connection and writing changed files.  The chat strings for connecting to the ISP are in /etc/chatscripts/%s, while the options for pppd are in /etc/ppp/peers/%s.  You may edit these files by hand if you wish.  You will now have an opportunity to exit the program, configure another connection, or revise this or another one."), $provider, $provider),
+gettext("Finished"));
+  $result = 0;
+  if ($provider) {
+    do_files( "put", $provider );
+    unlink "$pppconfig_dir/$provider";
+  }
+  foreach $temp (@deletelist) {
+#    next if $temp eq $provider; # Don't delete the new provider by accident. Disabled. JGH
+    do_files("get", $temp);
+    secrets_file("delete", $temp, $$ispauth) if(lc($$ispauth) ne "chat");
+    if (grep (/\.bak$/, $temp)) { # Let him delete backups.  Avoid Swedish chef effect.
+	unlink("$optionpath/$temp", "$chatpath/$temp", "$pppresolv/$temp")
+	}
+    else {
+	rename("$optionpath/$temp", "$optionpath/$temp.bak");
+	rename("$chatpath/$temp", "$chatpath/$temp.bak");
+	rename("$pppresolv/$temp", "$pppresolv/$temp.bak");
+    }
+    unlink "$pppconfig_dir/$temp";
+  }
+
+  foreach $temp (@newuserlist) {
+    adduser($temp);
+  }
+
+  %oldfiles = ();
+  @deletelist = ();
+  @newuserlist = ();
+  secrets_file("write");
+  return "main";
+}
+
+sub newConnection($) {
+# this sets up new connections by calling other functions to:
+# - initialize a clean state by zeroing state variables
+# - query the user for information about a connection
+  $title=gettext("Create Connection");
+  $temp = getname() unless $noname; # Get the name of this provider.
+  return "CANCEL" if $temp eq "CANCEL";
+  do_files( "init", $provider );
+  # Get variables now that we know the name
+  $temp = getnameservers( $_[0] );
+  return "CANCEL" if $temp eq "CANCEL";
+  $temp = mkmenu( "method" ); 	# Put up a menu of methods.
+  return "previous_menu" if( $temp eq "Previous" );
+  return quit() if( $temp eq "Quit" );
+  # this starts the process of collecting all other
+  # connection related information
+  $temp = ispauth( $temp );
+  return "CANCEL" if $temp eq "CANCEL";
+  $temp = do_ops($temp);
+  return "CANCEL" if $temp eq "CANCEL";
+ 
+  return "properties";
+}
+
+sub changeConnection($) {
+  # Change an existing connection.
+  # - Get the names of all existing connections.
+  # - Ask the user to select one.
+  undef @files;
+  local $temp;
+  opendir OPTIONDIR, $optionpath;
+  @optionfiles = readdir OPTIONDIR;
+  closedir OPTIONDIR;
+  foreach $entry ( @optionfiles ) {
+    push @files, $entry, ' ' if do_files( "test", $entry );
+  }
+  if ($#files < 0) {
+      msgbox (gettext ("No connections to change."), gettext ("Select a Connection"));
+      return CANCEL;
+  }
+  do { 
+    $temp = menu(gettext("Select connection to change."), gettext("Select a Connection"), "14", @files );
+  } while( $temp eq ' ' );
+  return "CANCEL" if( $result != 0 || @files !~ /\w+/ );
+  $provider = $temp;
+  $title="Change $provider";
+  do_files( "get", $provider ); 
+  # Get variables now that we know the name
+  return  "properties";
+}
+
+sub deleteconnection($) {
+  # Delete an existing connection.
+  # - Get the names of all existing connections.
+  # - Ask the user to select one.
+  undef @files;
+  local $temp;
+  opendir OPTIONDIR, $optionpath;
+  @optionfiles = readdir OPTIONDIR;
+  closedir OPTIONDIR;
+  foreach $entry ( @optionfiles ) {
+    push @files, $entry, ' ' if do_files( "test", $entry );
+  }
+  if ($#files < 0) {
+      msgbox (gettext ("No connections to delete."), gettext ("Delete a Connection"));
+      return CANCEL;
+  }
+  do { 
+    $temp = menu(gettext("Select connection to delete."), gettext("Delete a Connection"), "14", (gettext("Return to Previous Menu"), " ", @files));
+  } while( $temp eq ' ' );
+  return "CANCEL" if( $result != 0 || $temp eq gettext("Return to Previous Menu"));
+  push @deletelist, $temp;
+  return $_[0];
+}
+
+sub quit($) {
+  if (checkchanges( CHECK )) {
+    noyesbox (gettext("Do you wish to quit without saving your changes?"), gettext("Quit"));
+    if( $result ) {
+      # true $result means no so go back to menu.
+      return $_[0];
+    }
+  }
+#  system(clear);
+  exit(0);
+}
+
+sub debug($) {
+
+  $a = $$debugcmd ? gettext("Debugging is presently enabled.") : gettext("Debugging is presently disabled.");
+  yesnobox(sprintf(gettext("Selecting YES will enable debugging.  Selecting NO will disable it. %s"), $a), gettext("Debug Command"));
+
+  if( $result ) { # true $result means no.
+    $$debugcmd = '';
+    $$connectcmd =~ s/chat +-v/chat/;
+  }
+  else {
+    $$debugcmd = "debug";
+    $$connectcmd =~ s/chat/chat -v/ if $$connectcmd !~ /chat +-v/;
+  }
+  return $_[0];
+}
+
+sub demand($) {
+  $a = $$demand ? "enabled" : "disabled";
+  yesnobox(sprintf(gettext("Selecting YES will enable demand dialing for this provider.  Selecting NO will disable it.  Note that you will still need to start pppd with pon: pppconfig will not do that for you.  When you do so, pppd will go into the background and wait for you to attempt to access something on the Net, and then dial up the ISP.  If you do enable demand dialing you will also want to set an idle-timeout so that the link will go down when it is idle.  Demand dialing is presently %s."), $a), gettext("Demand Command"));
+
+  if( $result ) { # true $result means no.
+    $$demand = '';
+  }
+  else {
+    $$demand = "demand";
+    $$persist = '';
+  }
+  return $_[0];
+}
+
+sub persist($) {
+  $a = $$persist ? "enabled" : "disabled";
+  yesnobox(sprintf(gettext("Selecting YES will enable persist mode.  Selecting NO will disable it.  This will cause pppd to keep trying until it connects and to try to reconnect if the connection goes down.  Persist is incompatible with demand dialing: enabling demand will disable persist.  Persist is presently %s."), $a), gettext("Persist Command"));
+  if( $result ) { # true $result means no.
+    $$persist = '';
+  }
+  else {
+    $$persist = "persist";
+  }
+  return $_[0];
+}
+
+# Get the nameservers.
+# resolv_conf is initialized to "OK".
+sub getnameservers($)  {
+  my ($a, $b, $c);
+  $a = $b = $c = "off";
+  if ($$usepeerdns eq "usepeerdns") {
+    $dns = "dynamic"; $b = "on";
+  }
+  elsif ($$ipparam eq "ipparam") {
+    $dns = "static"; $a = "on";
+  }
+  else {
+    $dns = "none"; $c = "on";
+  }
+my $method = radiolist(gettext("Choose a method.  \'Static\' means that the same nameservers will be used every time this provider is used.  You will be asked for the nameserver numbers in the next screen.  'Dynamic' means that pppd will automatically get the nameserver numbers each time you connect to this provider.  'None' means that DNS will be handled by other means, such as BIND (named) or manual editing of /etc/resolv.conf.  Select 'None' if you do not want /etc/resolv.conf to be changed when you connect to this provider.  Use the up and down arrow keys to move among the selections, and press the spacebar to select one.  When you are finished, use TAB to select <OK> and ENTER to move on to the next item."), 
+gettext("Configure Nameservers (DNS)") , 3,  
+"Static", gettext("Use static DNS"), $a, 
+"Dynamic", gettext("Use dynamic DNS"), $b,
+"None", gettext("DNS will be handled by other means"), $c );
+      return "CANCEL" if( $result != 0 );
+
+    SWITCH: for( $method ) {
+	/Static/ && do {
+	  my $ipnumber = inputbox(gettext("\
+Enter the IP number for your primary nameserver."), gettext("IP number"), '' );
+	  return "CANCEL" if( $result );
+	  # true $result means CANCEL so go back to main menu.
+
+	  $NAMESERVER1 = "nameserver ".$ipnumber."\n" if $ipnumber;
+	  $$usepeerdns = "";
+	  $$ipparam = "ipparam";
+	  $$ipparam_arg = $provider;
+	  $dns = "static";
+	  $resolv_conf="SAVE";
+	  $ipnumber = inputbox(gettext("Enter the IP number for your secondary nameserver (if any)."), gettext("IP number"), '' );
+	  return "CANCEL" if( $result );
+
+	  $NAMESERVER2 = "nameserver ".$ipnumber."\n" if $ipnumber;
+	  return $_[0];
+	  last SWITCH;
+	};
+	/Dynamic/ && do {
+	  $$usepeerdns = "usepeerdns";
+	  $NAMESERVER1 = "";
+	  $NAMESERVER2 = "";
+	  $resolv_conf="SAVE";
+	  $$ipparam = "ipparam";
+	  $$ipparam_arg = $provider;
+          $dns = "dynamic";
+	  return $_[0];
+	  last SWITCH;
+	};
+	/None/ && do {
+	  $$usepeerdns = "";
+          $$ipparam = "";
+	  $$ipparam_arg = "";
+	  $resolv_conf="OK";
+          $dns = "none";
+	  return $_[0];
+	  last SWITCH;
+	};
+      }
+    }
+
+sub add_user($) {
+  LOOP: $temp=inputbox (gettext("Enter the username of a user who you want to be able to start and stop ppp.  She will be able to start any connection.  To remove a user run the program vigr and remove the user from the dip group. "),
+gettext("Add User "),  "\"\"");
+  return "CANCEL" if ( $result != 0 );
+  unless (getpwnam $temp) { # Make sure the user exists.
+    msgbox (sprintf(gettext("\
+No such user as %s. "), $temp));
+    goto LOOP;
+  }
+  push @newuserlist, $temp;
+  return $_[0];
+}
+
+sub adduser($) { # Called from finish() to actually add the user.
+  `adduser --quiet @_[0] dip`;
+}
+
+sub remotename($) {
+  $temp=inputbox(gettext("You probably don't want to change this.  Pppd uses the remotename as well as the username to find the right password in the secrets file.  The default remotename is the provider name.  This allows you to use the same username with different providers.  To disable the remotename option give a blank remotename.  The remotename option will be omitted from the provider file and a line with a * instead of a remotename will be put in the secrets file."), gettext("Remotename"), "$$remotename_arg");
+  return "CANCEL" if( $result != 0 );
+  $$remotename_arg = $temp =~ /\w+/ ? $temp : "";;
+  $$remotename = $$remotename_arg ? "remotename" : "";
+  return $_[0];
+}
+	
+sub idle_timeout($) {
+  $temp=inputbox(gettext("If you want this PPP link to shut down automatically when it has been idle for a certain number of seconds, put that number here.  Leave this blank if you want no idle shutdown at all."), gettext("Idle Timeout"), "$$idle_arg");
+  return "CANCEL" if( $result != 0 );
+  $$idle_arg = $temp =~ /\w+/ ? $temp : "";;
+  $$idle = $$idle_arg ? "idle" : "";
+  return $_[0];
+}
+
+sub putnameservers() {
+  # Fix up resolv.conf if needed.
+  return if( $resolv_conf eq "OK" );
+  open( RESOLV, ">$pppresolv/$provider" ) or die(sprintf(gettext("Couldn\'t open %s.\n"), "$pppresolv/$provider"));
+  chmod 0644, "$pppresolv/$provider" if( $resolv_conf eq "NONE" );
+  print RESOLV "# resolv.conf created by pppconfig for $provider\n";
+  print RESOLV ($NAMESERVER1, $NAMESERVER2);
+  # Put some nameservers in it.
+  $resolv_conf="OK";
+  close RESOLV;
+  return;
+}
+
+# Static vars for checkchanges()
+my $optionchecksum = 0;
+my $chatchecksum = 0;
+my $papchecksum = checksum(@pap_secrets);
+my $chapchecksum = checksum(@chap_secrets);
+
+sub checkchanges(@) {
+# If called with CHECK, compare checksums for the arrays with those
+# computed when the files were read in.  Return true if any have changed.
+# If called with SET initialize the checksums.
+ SWITCH: for( $_[0] ) {
+    /CHECK/ && do {
+      return (($optionchecksum != checksum (@optionarray)) ||
+	      ($chatchecksum != checksum (@chatarray)) ||
+	      ($papchecksum != checksum (@pap_secrets)) ||
+	      ($chapchecksum != checksum (@chap_secrets)) ||
+	      ($resolv_conf eq "SAVE")) ||
+              ($#deletelist != -1) ||
+	      ($#newuserlist != -1);
+      last SWITCH;
+    };
+    /SET/ && do {
+      $optionchecksum = checksum (@optionarray);
+      $chatchecksum = checksum (@chatarray);
+      return;
+      last SWITCH;
+    };
+  }
+}
+sub checksum(@) {
+# Compute a 32 bit checksum.
+return (unpack ("%32C*", (join '', @_)));
+}
+
+sub chatescape(@) {
+  SWITCH: for( $_[0] ) {
+      /^DO/ && do {
+          # Just inserts quotes for now.
+	  return '"' . $_[1] . '"';
+	  last SWITCH;
+      };
+      /UNDO/ && do {
+	  $temp = $_[1];
+	  $temp =~ s/(^['"]?)(.+)\1$/$2/; # "'Remove enclosing quotes.
+	  return $temp;
+	  last SWITCH;
+      };
+  }
+}
+
+
+sub tokenize_options(@) {
+  # Parse the file into comments, quoted strings, unquoted strings
+  # and whitespace while keeping everything in order.  This will allow
+  # us to edit the file in place and write it back out without mucking
+  # up the sysadmin's changes.
+  my @array;
+  while( $_[0] =~ /(^#.*\n)|('[^']*')|("[^"]*")|(\S+)|(\s+)/gom ) {
+    @array = (@array, $&);
+  }
+  return @array;
+}
+
+sub tokenize_secrets(@) {
+  # Parse the file into comments, quoted strings, unquoted strings
+  # and whitespace while keeping everything in order.  This will allow
+  # us to edit the file in place and write it back out without mucking
+  # up the sysadmin's changes.
+  my @array;
+  while( $_[0] =~ /(^#.*\n)|('[^']*')|("[^"]*")|(\S+)|(\s+)/gom ) {
+    @array = (@array, $&);
+  }
+  return @array;
+}
+
+sub tokenize_chat(@) {
+  # Parse the file into comments, quoted strings, unquoted strings
+  # and whitespace while keeping everything in order.  This will allow
+  # us to edit the file in place and write it back out.  Handle
+  # ispauth specially.
+  my @array;
+  while( $_[0] =~ /(^# ispauth\s+)|(^#.*\n)|(\S*?'[^']*')|("[^"]*")|(\S+)|(\s+)/gomi ) {
+    @array = (@array, $&);
+  }
+  return @array;
+}
+
+sub parse_options(@) {
+  # Point the option variables at the correct fields in the optionarray
+  # filled in by tokenize_options() so that they can be edited in place.
+  my $dquad = "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}";
+  for( my $i = 0; $i < $#optionarray; $i++ ) {
+  SWITCH: for( $optionarray[$i] ) {
+      /^noipdefault$/o && do {
+	$ipdefault = \$optionarray[$i];
+	last SWITCH;
+      };
+      /($dquad:)|(:$dquad)|($dquad:$dquad)/o && do {
+	$ipnumber = \$optionarray[$i];
+	last SWITCH;
+      };
+      /^(no)??defaultroute$/o && do {
+	$route = \$optionarray[$i];
+	last SWITCH;
+      };
+      /^user$/o && do {
+	$i += 2; # Skip over whitespace.
+	$user_arg = \$optionarray[$i];
+	last SWITCH;
+      };
+      /^(\/dev\/)??ttyS[0-9]{1,2}?$|^\/dev\/modem$/o && do {
+	$ispport = \$optionarray[$i];
+	last SWITCH;
+      };
+      /^connect$/o && do {
+	$i += 2; # Skip over whitespace.
+	$connectcmd = \$optionarray[$i];
+	last SWITCH;
+      };
+      /^(no)??auth$/o && do {
+	$authcmd = \$optionarray[$i];
+	last SWITCH;
+      };
+      /^debug$/o && do {
+	$debugcmd = \$optionarray[$i];
+	last SWITCH;
+      };
+      /^demand$/o && do {
+	$demand = \$optionarray[$i];
+	last SWITCH;
+      };
+#      /^ipcp-accept-local$/o && do {
+#	$ipcp_accept_local = \$optionarray[$i];
+#	last SWITCH;
+#      };
+#      /^ipcp-accept-remote$/o && do {
+#	$ipcp_accept_remote = \$optionarray[$i];
+#	last SWITCH;
+#      };
+      /^persist$/o && do {
+	$persist = \$optionarray[$i];
+	last SWITCH;
+      };
+      /^[0-9]{3,6}$/o && do {
+	$ispspeed = \$optionarray[$i];
+	last SWITCH;
+      };
+      /^usepeerdns$/o && do {
+	$usepeerdns = \$optionarray[$i];
+	last SWITCH;
+      };
+      /^remotename$/o && do {
+	$remotename = \$optionarray[$i];
+	$i += 2; # Skip over whitespace.
+	$remotename_arg = \$optionarray[$i];
+	last SWITCH;
+      };
+      /^idle$/o && do {
+	$idle = \$optionarray[$i];
+	$i += 2; # Skip over whitespace.
+	$idle_arg = \$optionarray[$i];
+	last SWITCH;
+      };
+      /^ipparam$/o && do {
+	$ipparam = \$optionarray[$i];
+	$i += 2; # Skip over whitespace.
+	$ipparam_arg = \$optionarray[$i];
+	last SWITCH;
+      };
+
+    }
+  }
+}
+
+sub parse_chat(@) {
+  # Point the chat variables at the correct fields in the chatarray
+  # filled in by tokenize_chat() so that they can be edited in place.
+  $i = 0;
+  $i++ until $chatarray[$i] =~ /^# ispauth/o || $i > $#chatarray;
+    parse_field( $i, "# ispauth ", "ispauth", '', "nullnull" );
+  $i++ until $chatarray[$i] =~ /^# abortstring$/o || $i > $#chatarray;
+    parse_field( $i, "# abortstring\n", "abortstring", '' );
+  $i++ until $chatarray[$i] =~ /^# modeminit$/o || $i > $#chatarray;
+    parse_field( $i, "# modeminit\n", "modemnull", " ", "modeminit" );
+  $i++ until $chatarray[$i] =~ /^# ispnumber$/o || $i > $#chatarray;
+    parse_field( $i, "# ispconnect\n", "modemok", '', "ispnumber" );
+  $i++ until $chatarray[$i] =~ /^# ispconnect$/o || $i > $#chatarray;
+    parse_field( $i, "# ispconnect\n", "ispCONNECT", " ", "ispconnect" );
+  $i++ until $chatarray[$i] =~ /^# prelogin$/o || $i > $#chatarray;
+    parse_field( $i, "# prelogin\n", "prelogin", '' );
+  $i++ until $chatarray[$i] =~ /^# ispname$/o || $i > $#chatarray;
+    parse_field( $i, "# ispname\n", "isplogin", " ", "ispname" );
+  $i++ until $chatarray[$i] =~ /^# isppassword$/o || $i > $#chatarray;
+    parse_field( $i, "# isppassword\n", "ispprompt", " ", "isppassword" );
+  $i++ until $chatarray[$i] =~ /^# postlogin$/o || $i > $#chatarray;
+    parse_field( $i, "# postlogin\n", "postlogin", '' );
+  $i++ until $chatarray[$i] =~ /^# end/o || $i > $#chatarray;
+}
+
+sub parse_field(@) { # Call with index, tag, expect var, separator, send var.
+# Point the variable at the right fields, splicing in empty fields as required.
+
+  $j = $_[0]+1;
+  $j++ until( $chatarray[$j] =~ /\S+/ || $j > $#chatarray );
+  # Find the first non-empty field.
+  if( $chatarray[$j] =~ /^#.*/ ) {
+  # If it is a comment (a tag, we assume) then there are no strings.
+      splice( @chatarray, $_[0], $j - $_[0], ( $_[1], '' , $_[3], '', "\n" ));
+      # So splice in some null fields to point the variables at.
+      $j = $_[0] + 1;
+      ${"$_[2]"} = \$chatarray[$j];
+      ${"$_[4]"} = \$chatarray[$j + 2] if( $#_ > 3 );
+    }
+  else {
+    if( $#_ < 4 ) {
+    # If only one var was supplied, splice everything up to the next comment
+    # together and point the variable at the result.
+      $j++ until( $chatarray[$j + 2] =~ /^#.*/ || $j > $#chatarray );
+      splice( @chatarray, $_[0] + 1, $j - $_[0], join( "", (@chatarray[$_[0]+1...$j] )));
+      ${"$_[2]"} = \$chatarray[$_[0] + 1];
+      return;
+    }
+    ${"$_[2]"} = \$chatarray[$j];
+    $j++;
+    $j++ until ($chatarray[$j] =~ /\S+/ || $j > $#chatarray);
+    $j -= 2 if( $chatarray[$j] =~ /^#.*/ );
+    ${"$_[4]"} = \$chatarray[$j];
+  }
+}
+  
+# Static vars for do_files
+my @newoptions = ();
+  
+sub do_files(@) { # Call with 'command, provider'.
+  my $provider = $_[1];
+  my $optionfile = "$optionpath/$_[1]";
+  my $chatfile = "$chatpath/$_[1]";
+  my $options = '';
+  my $chat = '';
+  my $filesize = '';
+  my $line = '';
+  
+ SWITCH: for ($_[0]) {
+    
+    /test/ && do {
+      # Are there valid files for this provider?
+      return 0 if grep /$provider$/, @deletelist;
+      $filesize = -s $optionfile;
+      return 0 if $filesize == 0 or $filesize > $maxoptionfile;
+      $filesize = -s $chatfile;
+      return 0 if $filesize == 0 or $filesize > $maxchatfile;
+      open( OPTIONFILE, "<$optionfile" ) or return 0;
+      $line = <OPTIONFILE>;
+      close OPTIONFILE;
+      grep( /pppconfig/, $line ) or return 0;
+      open( CHATFILE, "<$chatfile" ) or return 0;
+      undef $/;
+      $chat = <CHATFILE>; # Read the entire file into a string.
+      $/ = "\n";
+      close CHATFILE;
+      
+      # Make sure the file contains all the tags in the correct order.
+      if ($chat =~ /.*?pppconfig.*?\# ispauth.*?\# abortstring.*?\# modeminit.*?\# ispnumber.*?\# ispconnect.*?\# prelogin.*?\# ispname.*?\# isppasswor.*?\# postlogin.*/so)
+      {
+	return 1;
+      }
+      else { 
+	return oldfiles ("test", $provider);
+      }
+    };
+
+  /init/ && do { 
+      my $i;
+      for( $i = 0; $i < 300; $i++ ) {
+        $optionarray[$i] = '';
+      }
+      # Load the options variable with defaults.
+      $options = "# This optionfile was generated by pppconfig $version. 
+# 
+#
+hide-password 
+noauth
+connect \"/usr/sbin/chat -v -f $chatpath/$provider\"
+debug
+/dev/ttyS1
+115200
+defaultroute
+noipdefault 
+user replace_with_your_login_name
+remotename $provider
+ipparam $provider
+";
+
+      newoptions();
+
+      # And then tokenize and parse them just as we would if they had been
+      # read from a file.
+      undef $/;
+      @optionarray = tokenize_options( $options );
+      $/ = "\n";
+      parse_options( @optionarray );      
+      chatinit();
+      return 0;
+    };
+
+    /get/ && do {
+      open( OPTIONFILE, "<$optionfile" ) or die( sprintf(gettext("Can\'t open %s.\n"), $optionfile));
+      # Get an exclusive lock.  Return if we can't get it.
+      flock( OPTIONFILE, 6 ) or die( sprintf(gettext("Can\'t lock %s.\n"), $optionfile));
+      undef $/;
+      my $options = <OPTIONFILE>; # Read the entire file into a string.
+      $/ = "\n";
+      do {} while chomp $options;
+      $options .= "\n";
+      close OPTIONFILE;
+      flock( OPTIONFILE, 8 ); # Unlock
+      newoptions();
+      unshift @optionarray, tokenize_options( $options );
+      parse_options( @optionarray );
+      if (exists $oldfiles{$provider}) {
+	oldfiles("get", $provider);
+      }
+      else {
+	open( CHATFILE, "<$chatfile" ) or die(sprintf(gettext("Can\'t open %s.\n"), $chatfile));
+	# Get an exclusive lock.  Return if we can't get it.
+	flock( CHATFILE, 6 ) or die(sprintf(gettext("Can\'t lock %s.\n"), $chatfile));
+	undef $/;
+	$chat = <CHATFILE>; # Read the entire file into a string.
+	$/ = "\n";
+	close CHATFILE;
+	flock( CHATFILE, 8 ); # unlock
+	@chatarray = tokenize_chat( $chat );
+	parse_chat( @chatarray );
+      }
+      if( uc($$ispauth) eq "PAP" || uc($$ispauth) eq "CHAP" ) {
+        secrets_file( "get", $provider, $$ispauth );
+      }
+      checkchanges( SET );
+    };
+  
+    /put/ && do {
+for( $i=1; $i<$#newoptions; $i+=2) {
+  push( @optionarray, $newoptions[$i-1], $newoptions[$i]) if( $newoptions[$i] );
+}
+      # Write out the files for this provider.  Write to a temporary file and
+      # then rename the temporary with the name of the original file after renaming 
+      # original (if it exists) with a '.bak' suffix.  This makes the operation 
+      # atomic while not disturbing processes which may have the file open for 
+      # reading (nobody else should be writing).
+      if ( uc($$ispauth) eq "PAP" || uc($$ispauth) eq "CHAP" ) {
+        secrets_file("put", $provider, $$ispauth);
+	trimchat ();
+      }
+      undef $\;
+      writefile(@optionarray, $optionfile, 0640);
+      writefile(@chatarray, $chatfile, 0640);
+       putnameservers ();
+       checkchanges("SET");
+      return;
+    };
+  }
+} # End of do_files
+
+sub newoptions() {
+  my $i;
+  for( $i = 0; $i < 300; $i++ ) {
+    $optionarray[$i] = '';
+  }      
+  $optionarray[-1] = "\n";
+  
+  $i = 0;
+  
+  $newoptions[$i++] = "\n";
+  $ipdefault = \$newoptions[$i++];
+  $newoptions[$i++] = "\n";
+  $ipnumber = \$newoptions[$i++];
+  $newoptions[$i++] = "\n";
+  $route = \$newoptions[$i++];
+  $newoptions[$i++] = "\nuser ";
+  $user_arg = \$newoptions[$i++];
+  $newoptions[$i++] = "\n";
+  $ispport = \$newoptions[$i++];
+  $newoptions[$i++] = "\nconnect ";
+  $connectcmd = \$newoptions[$i++];
+  $newoptions[$i++] = "\n";
+  $authcmd = \$newoptions[$i++];
+  $newoptions[$i++] = "\n";
+  $debugcmd = \$newoptions[$i++];
+  $newoptions[$i++] = "\n";
+  $demand = \$newoptions[$i++];
+  $newoptions[$i++] = "\n";
+#  $ipcp_accept_local = \$newoptions[$i++];
+#  $newoptions[$i++] = "\n";
+#  $ipcp_accept_remote = \$newoptions[$i++];
+#  $newoptions[$i++] = "\n";
+  $persist = \$newoptions[$i++];
+  $newoptions[$i++] = "\n";
+  $ispspeed = \$newoptions[$i++];
+  $newoptions[$i++] = "\n";
+  $usepeerdns = \$newoptions[$i++];
+  $newoptions[$i++] = "\n";
+  $remotename = \$newoptions[$i++];
+  $newoptions[$i++] = " ";
+  $remotename_arg = \$newoptions[$i++];
+  $newoptions[$i++] = "\n";
+  $ipparam = \$newoptions[$i++];
+  $newoptions[$i++] = " ";
+  $ipparam_arg = \$newoptions[$i++];
+  $newoptions[$i++] = "\n";
+  $idle = \$newoptions[$i++];
+  $newoptions[$i++] = " ";
+  $idle_arg = \$newoptions[$i++];
+  $newoptions[$i++] = "\n";
+} # End of newoptions()
+
+sub chatinit(@) {
+  my $chat;
+  # Load the chat variable with defaults.
+  $chat = "# This chatfile was generated by pppconfig $version.
+# Please do not delete any of the comments.  Pppconfig needs them.
+# 
+# ispauth chat
+# abortstring
+ABORT BUSY ABORT \'NO CARRIER\' ABORT VOICE ABORT \'NO DIALTONE\' ABORT \'NO DIAL TONE\' ABORT \'NO ANSWER\' ABORT DELAYED
+# modeminit
+\'\' ATZ
+# ispnumber
+OK-AT-OK ATDTreplace_with_number
+# ispconnect
+CONNECT \'\'
+# prelogin
+# ispname
+ogin: replace_with_name
+# isppassword
+ssword: replace_with_password
+# postlogin
+\'\' \\d\\c
+# end of pppconfig stuff
+";
+  # And tokenize and parse them.
+  undef $/;
+  @chatarray = tokenize_chat( $chat );
+  $/ = "\n";
+  parse_chat( @chatarray );
+  checkchanges( SET );
+  return 0;
+}
+
+sub oldfiles(@) {
+  my $oldchat = '';
+  my @oldchatarray = ();
+  my $provider = $_[1];
+  open (OLDFILE, "<$pppconfig_dir/$provider") || return 0;
+  undef $/;
+  $oldchat = <OLDFILE>; # Read the entire file into a string.
+  $/ = "\n";
+  @oldchatarray = split /\n/, $oldchat;
+  return 0 if uc($oldchatarray[0]) !~ /CHAT|PAP|CHAP/;
+  return 0 if uc($oldchatarray[0]) =~ /PAP|CHAP/ &&  $#oldchatarray != 3;
+  return 0 if uc($oldchatarray[0]) eq "CHAT" && $#oldchatarray != 9;
+  if ($_[0] eq "test") {
+    $oldfiles{$provider} = 1;
+    return 1;
+  }
+  chatinit();
+  $$ispauth = $oldchatarray[0];
+  $$modeminit = $oldchatarray[1];
+  $$atdx = $oldchatarray[2];
+  $$number = $oldchatarray[3];
+  if (uc($oldchatarray[0]) eq "CHAT") {
+    $$ispconnect = $oldchatarray[4];
+    $$isplogin = $oldchatarray[5];
+    $$ispname = $oldchatarray[6];
+    $$ispprompt = $oldchatarray[7];
+    $$isppassword = $oldchatarray[8];
+    $$postlogin = $oldchatarray[9];
+  }
+  else {
+    $$ispconnect = "\\d\\c";
+    $$isplogin = '';
+    $$ispname = '';
+    $$ispprompt = '';
+    $$isppassword = '';
+  }
+  $$ispnumber = $$atdx . $$number;
+  $$remotename = "remotename";
+  $$remotename_arg = $provider;
+  return 1;
+}
+
+# Static vars for secrets_file
+my ($user_key, $remote_key);
+my $secrets_pointer = -1; 
+
+sub secrets_file(@) { # Call with command, provider, authtype.
+  my $secrettype = lc($_[2]);
+  my $secretsfile = "$ppppath/$secrettype-secrets";
+  my $secretstring;
+  return 1 if $secrettype eq "chat";
+  $secrets = ($secrettype eq "pap") ? \@pap_secrets : \@chap_secrets;
+  do { open(SECRETSFILE, "<$secretsfile") or die(sprintf(gettext("Can\'t open %s.\n"), $secretsfile));
+       # Get an exclusive lock.  Exit if we can't get it.
+
+       flock (SECRETSFILE, 6) or die(sprintf(gettext("Can\'t lock %s.\n"), $secretsfile));
+       undef $/;
+       $secretstring = <SECRETSFILE>; # Read the entire file into a string.
+       $/ = '';
+       chomp $secretstring; # Remove all trailing newlines.
+       $/ = "\n";
+       flock (SECRETSFILE, 8); # Unlock
+       close SECRETSFILE;
+       @$secrets = tokenize_secrets($secretstring);
+       $papchecksum = checksum (@pap_secrets) if ($secrettype eq "pap");
+       $chapchecksum = checksum (@chap_secrets) if ($secrettype eq "chap");
+     } unless (@$secrets || $_[0] eq "write");
+
+ SWITCH: for ($_[0]) {
+
+    /get/ && do {
+      $$ispname = $$user_arg;
+      $remote_key = $secrettype eq "pap" ? $$remotename_arg : '*';
+      for ( $i = 0; $i < $#$secrets; $i++ ) {
+	if ($$secrets[$i] eq $$user_arg && $$secrets[$i + 1] =~ /\s+/ 
+	    && $$secrets[$i + 2] eq $remote_key) {
+	  $secrets_pointer = $i;
+          $user_key = \$$secrets[$i];
+          $remote_key = \$$secrets[$i + 2];
+	  $isppassword = \$$secrets[$i + 4];
+	  return 1;
+	}
+    }
+      push @$secrets, ("\n", $$ispname, " ", $$remote_key,
+		       " ", "replace_with_password");
+      $user_key = \$$secrets[$#$secrets - 4];
+      $remote_key = \$$secrets[$#$secrets - 2];
+      $isppassword = \$$secrets[$#$secrets];
+      $secrets_pointer = $#$secrets - 4;
+      return 1;
+    };
+    
+    /put/ && do {
+	$$user_key = $$ispname;
+	$$remote_key = $$remotename ? $$remotename_arg : '*';
+      return 1;
+    };
+
+    /write/ && do {
+      if ($papchecksum != checksum (@pap_secrets)) {
+	  @temp = @pap_secrets;
+	push @temp, "\n\n"; # Make sure file ends in a newline.  I don't know 
+	                    # why two are needed.
+	writefile(@temp, "$ppppath/pap-secrets", 0600);
+	$papchecksum = checksum (@pap_secrets);
+      }
+      
+      if ($chapchecksum != checksum (@chap_secrets)) {
+	  @temp = @chap_secrets;
+	push @temp, "\n\n";
+	writefile(@temp, "$ppppath/chap-secrets", 0600);
+	$chapchecksum = checksum (@chap_secrets);
+      }
+      return 1;
+    };
+
+    /delete/ && do {
+      return 0 if($secrets_pointer == -1);
+      if(($$remote_key eq '*' ) 
+	 && ($$secrets[$secrets_pointer - 1] =~ /\#.+pppconfig for $_[1]/)) {
+	  $$secrets[$secrets_pointer - 1] = '';
+	}
+      else { # We can't be sure this line is not used elsewhere.
+	return 1 if($$remote_key eq '*' );
+      }
+      for ($i = $secrets_pointer; ($$secrets[$i] !~ /\n/) && ($i <= $#$secrets); ++$i) {
+	$$secrets[$i] = '';
+      }
+      return 1;
+    };
+  }
+} # End of secrets_file
+
+sub trimchat { # Fix up chat script for pap/chap.
+$i= 0; $i++ until ($chatarray[$i] =~ /^# ispname/o || $i == $#chattarray);
+  do {
+    $i++;
+    $chatarray[$i] = '' unless ($chatarray[$i] =~ /^#/); 
+  }
+  until ($chatarray[$i] =~ /^# postlogin/o || $i == $#chattarray);
+}
+
+sub writefile(@) {
+  # Call with @data, filename, mode,
+  # Write out a file.  Write to a temporary file and then rename the
+  # temporary with the name of the original file after renaming original
+  # (if it exists) with a '.bak' suffix.  This makes the operation atomic
+  # while not disturbing processes which may have the file open for reading
+  # (nobody else should be writing).
+  $mode = pop @_;
+  $filename = pop @_;
+  $data = join '', @_;
+#  $data =~ s/\n{2,}/\n/gso; # Remove blank lines
+  open (TEMPFILE, ">$filename.$$") or die(sprintf(gettext("Couldn\'t open %s.\n"), "$filename.$$"));
+  print (TEMPFILE $data) or die(sprintf(gettext("Couldn\'t print to %s.\n"), "$filename.$$"));
+  close TEMPFILE;
+  rename ("$filename", "$filename.bak") or die(sprintf(gettext("Couldn\'t rename %s.\n"), $filename)) if -f "$filename"; 
+  rename ("$filename.$$", "$filename") or die(sprintf(gettext("Couldn\'t rename %s.\n"), "$filename.$$"));
+  chmod $mode, "$filename";
+}
+
+sub usage() {
+  die(gettext("Usage: pppconfig [--version] | [--help] | [[--dialog] | [--whiptail] | [--gdialog] [--noname] | [providername]]\
+\'--version\' prints the version.\
+\'--help\' prints a help message.\
+\'--dialog\' uses dialog instead of gdialog.\
+\'--whiptail\' uses whiptail.\
+\'--gdialog\' uses gdialog.\
+\'--noname\' forces the provider name to be \'provider\'.\
+\'providername\' forces the provider name to be \'providername\'.\n"));
+}
+
+sub help() {
+  print "pppconfig $version
+\n" ;
+  print (gettext("pppconfig is an interactive, menu driven utility to help automate setting \
+up a dial up ppp connection.  It currently supports PAP, CHAP, and chat \
+authentication.  It uses the standard pppd configuration files.  It does \
+not make a connection to your isp, it just configures your system so that \
+you can do so with a utility such as pon.  It can detect your modem, and \
+it can configure ppp for dynamic dns, multiple ISP's and demand dialing. \
+\
+Before running pppconfig you should know what sort of authentication your \
+isp requires, the username and password that they want you to use, and the \
+phone number.  If they require you to use chat authentication, you will \
+also need to know the login and password prompts and any other prompts and \
+responses required for login.  If you can\'t get this information from your \
+isp you could try dialing in with minicom and working through the procedure \
+until you get the garbage that indicates that ppp has started on the other \
+end. \
+\
+Since pppconfig makes changes in system configuration files, you must be \
+logged in as root or use sudo to run it.\
+\n"));
+  usage();
+}
+
+sub version() {
+  die("pppconfig $version\n");
+}

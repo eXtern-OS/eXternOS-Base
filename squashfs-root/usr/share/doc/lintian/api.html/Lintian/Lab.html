@@ -1,0 +1,342 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Lab</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#CLASS_METHODS'>CLASS METHODS</a>
+  <li class='indexItem indexItem1'><a href='#INSTANCE_METHODS'>INSTANCE METHODS</a>
+  <li class='indexItem indexItem1'><a href='#Changes_to_the_lab_format.'>Changes to the lab format.</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Lab -- Interface to the Lintian Lab</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre> use Lintian::Lab;
+ 
+ # Static lab
+ my $lab = Lintian::Lab-&#62;new (&#39;/var/lib/lintian/static-lab&#39;);
+
+ if (!$lab-&#62;exists) {
+     $lab-&#62;create;
+ }
+ $lab-&#62;open;
+ 
+ # Fetch a package from the lab
+ my $lpkg = $lab-&#62;get_package (&#39;lintian&#39;, &#39;binary&#39;, &#39;2.5.4&#39;, &#39;all&#39;);
+ 
+ my $visitor = sub {
+     my ($lpkg, $pkg_name, $pkg_ver, $pkg_arch) = @_;
+     # do stuff with that entry
+ };
+ $lab-&#62;visit_packages ($visitor, &#39;source&#39;);
+ 
+ $lab-&#62;close;</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>This module provides an abstraction from &#34;How and where&#34; packages are placed. It handles creation and deletion of the Lintian Lab itself as well as providing access to the entries.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS_METHODS"
+>CLASS METHODS</a></h1>
+
+<dl>
+<dt><a name="new_([DIR])"
+>new ([DIR])</a></dt>
+
+<dd>
+<p>Creates a new Lab instance. If DIR is defined it will be used as the path to the lab and the lab will be in static mode. Otherwise the lab will be in temporary mode and will point to a temporary directory.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="INSTANCE_METHODS"
+>INSTANCE METHODS</a></h1>
+
+<dl>
+<dt><a name="dir"
+>dir</a></dt>
+
+<dd>
+<p>Returns the absolute path to the base of the lab.</p>
+
+<p>Note: This may return the empty string if either the lab has been deleted or this is a temporary lab that has not been created yet. In the latter case, <a href="#create" class="podlinkpod"
+>&#34;create&#34;</a> or <a href="#open" class="podlinkpod"
+>&#34;open&#34;</a> should be run to get a non-empty value from this method.</p>
+
+<dt><a name="is_open"
+>is_open</a></dt>
+
+<dd>
+<p>Returns a truth value if this lab is open.</p>
+
+<p>Note: If the lab is open, it also exists. However, if the lab is closed then the lab may or may not exist (see <a href="#exists" class="podlinkpod"
+>&#34;exists&#34;</a>).</p>
+
+<dt><a name="exists"
+>exists</a></dt>
+
+<dd>
+<p>Returns a truth value if the instance points to an existing lab.</p>
+
+<p>Note: This never implies that the lab is open. Though it may imply the lab is closed (see <a href="#is_open" class="podlinkpod"
+>&#34;is_open&#34;</a>).</p>
+
+<dt><a name="get_package_(NAME,_TYPE[,_EXTRA]),_get_package_(PROC)"
+>get_package (NAME, TYPE[, EXTRA]), get_package (PROC)</a></dt>
+
+<dd>
+<p>Fetches an existing package from the lab.</p>
+
+<p>The first argument can be a <a href="../Lintian/Processable.html" class="podlinkpod"
+>processable</a>. In that case all other arguments are ignored.</p>
+
+<p>If the first calling convention is used then this method will search for an existing package. The EXTRA argument can be used to narrow the search or even to add a new entry.</p>
+
+<p>EXTRA consists of (in order):</p>
+
+<ul>
+<li>version</li>
+
+<li>arch (ignored if TYPE is &#34;source&#34;)</li>
+</ul>
+
+<p>If version or arch is omitted (or if it is undef) then that search parameter is consider a wildcard for &#34;any&#34;. Example:</p>
+
+<pre> # Returns all eclipse-platform packages with architecture i386 regardless
+ # of their version (if any)
+ @ps  = $lab-&#62;get_package (&#39;eclipse-platform&#39;, &#39;binary&#39;, undef, &#39;i386&#39;);
+ # Returns all eclipse-platform packages with version 3.5.2-11 regardless
+ # of their architecture (if any)
+ @ps  = $lab-&#62;get_package (&#39;eclipse-platform&#39;, &#39;binary&#39;, &#39;3.5.2-11&#39;);
+ # Return the eclipse-platform package with version 3.5.2-11 and architecture
+ # i386 (or undef)
+ $pkg = $lab-&#62;get_package (&#39;eclipse-platform&#39;, &#39;binary&#39;, &#39;3.5.2-11&#39;, &#39;i386&#39;);</pre>
+
+<p>In list context, this returns a list of matches. In scalar context this returns the first match (if any). Note there is no guaranteed order (e.g. the returned list is not ordered).</p>
+
+<p>If the second calling convention is used, then this method will search for an entry matching the processable passed. If such an entry does not exists, a new &#34;non-existing&#34; <a href="../Lintian/Lab/Entry.html" class="podlinkpod"
+>entry</a> will be returned. This entry can be created by using the <a href="../Lintian/Lab/Entry.html#create" class="podlinkpod"
+>create</a> method on the entry.</p>
+
+<dt><a name="lab_query_(QUERY)"
+>lab_query (QUERY)</a></dt>
+
+<dd>
+<p>Process a given QUERY and return the results from it. A QUERY is a string of the format:</p>
+
+<pre>  [TYPE:]NAME[/VERSION[/ARCH]]</pre>
+
+<p>TYPE can be one of the regular package type (e.g. &#34;binary&#34;) or one of the two special values &#34;ALL&#34; (default if omitted) or &#34;GROUP&#34;. If TYPE is ALL, then the query is one once for each of package type.</p>
+
+<p>NAME is the name of the package to request. For GROUP queries, this is the name of the source package. It is not possible to do any kind of wildcards in NAME:</p>
+
+<p>VERSION is the version of the package. For GROUP queries, this is the version of the source package. If omitted or the string &#39;_&#39;, then any version will match.</p>
+
+<p>ARCH is the architecture of the package. For GROUP and &#34;source&#34; queries, ARCH is ignored (if given). If ARCH is omitted or the string &#39;_&#39;, then any package architecture will match. NB: The ARCH field should match the architecture field of the entry (which for <i>.changes</i> files usually contains spaces).</p>
+
+<p>lab_query will return a list of <a href="../Lintian/Lab/Entry.html" class="podlinkpod"
+>entries</a> matching the query. If no entries match, an empty list will be returned.</p>
+
+<dt><a name="visit_packages_(VISITOR[,_TYPE])"
+>visit_packages (VISITOR[, TYPE])</a></dt>
+
+<dd>
+<p>Passes each lab entry to VISITOR. If TYPE is passed, then only entries of that type are passed.</p>
+
+<p>VISITOR is given a reference to the <a href="../Lintian/Lab/Entry.html" class="podlinkpod"
+>entry</a>, the package name, the package version and the package architecture (may be undef for source packages).</p>
+
+<dt><a name="generate_diffs_(LIST)"
+>generate_diffs (LIST)</a></dt>
+
+<dd>
+<p>Each member of LIST must be a <a href="../Lintian/Lab/Manifest.html" class="podlinkpod"
+>Lintian::Lab::Manifest</a>.</p>
+
+<p>The lab will generate a diff between the given member and its state for the given package type.</p>
+
+<p>The diffs are accurate until the original manifest is modified or a package is added or removed to the lab.</p>
+
+<dt><a name="repair"
+>repair</a></dt>
+
+<dd>
+<p>Checks the lab contents against the current meta-data and syncs them. The lab must be open and should not be access while this method is running.</p>
+
+<p>This returns the number of corrections done by this process. If there were any corrections, the state files are written before returning.</p>
+
+<p>The method may croak if it is unable to do a full check of the lab or if it is unable to write the corrected metadata.</p>
+
+<p>Note: This may (and generally will) correct &#34;broken&#34; entries by removing them.</p>
+
+<dt><a name="create_([OPTS])"
+>create ([OPTS])</a></dt>
+
+<dd>
+<p>Creates a new lab. It will create <a href="#dir" class="podlinkpod"
+>&#34;dir&#34;</a> if it does not exist. It will also create a basic empty lab. If this is a temporary lab, this method will also setup the temporary dir for the lab.</p>
+
+<p>The lab will <i>not</i> be opened by this method. This should be done afterwards by invoking the <a href="#open" class="podlinkpod"
+>&#34;open&#34;</a> method.</p>
+
+<p>OPTS (if present) is a hashref containing options. The following options are accepted:</p>
+
+<dl>
+<dt><a name="keep-lab"
+>keep-lab</a></dt>
+
+<dd>
+<p>If &#34;keep-lab&#34; points to a truth value the temporary directory will <i>not</i> be removed by closing the lab (nor exiting the application). However, explicitly calling <a href="#remove" class="podlinkpod"
+>&#34;remove&#34;</a> will remove the lab.</p>
+
+<dt><a name="mode"
+>mode</a></dt>
+
+<dd>
+<p>If present, this will be used as mode for creating directories. Will default to 0777 if not specified. It is passed to mkdir and is thus subject to umask settings.</p>
+</dd>
+</dl>
+
+<p>Note: This will not create parent directories of <a href="#dir" class="podlinkpod"
+>&#34;dir&#34;</a> and will croak if these does not exist.</p>
+
+<p>Note: This may update the value of <a href="#dir" class="podlinkpod"
+>&#34;dir&#34;</a> as resolving the path requires it to exist.</p>
+
+<p>Note: This does nothing if the lab appears to already exists.</p>
+
+<dt><a name="open"
+>open</a></dt>
+
+<dd>
+<p>Opens the lab and reads the contents into caches. If the lab is temporary and does not exists, this method will call create to initialize the temporary lab.</p>
+
+<p>This will croak if the lab is already open. It may also croak for the same reasons as <a href="#create" class="podlinkpod"
+>&#34;create&#34;</a> if the lab is temporary.</p>
+
+<p>Note: for static labs, <a href="#dir" class="podlinkpod"
+>&#34;dir&#34;</a> must point to an existing consistent lab or this will croak. To open a new lab, please use <a href="#create" class="podlinkpod"
+>&#34;create&#34;</a>.</p>
+
+<p>Note: It is not possible to pass options to the creation of the temporary lab. If special options are required, please use <a href="#create" class="podlinkpod"
+>&#34;create&#34;</a> directly.</p>
+
+<dt><a name="close"
+>close</a></dt>
+
+<dd>
+<p>Close the lab - all state caches will be flushed to the disk and the lab can no longer be used. All references to entries in the lab should be considered invalid.</p>
+
+<p>Note: if the lab is a temporary one, this will be deleted unless it was created with &#34;keep-lab&#34; (see <a href="#create" class="podlinkpod"
+>&#34;create&#34;</a>).</p>
+
+<dt><a name="remove"
+>remove</a></dt>
+
+<dd>
+<p>Removes the lab and everything in it. Any reference to an entry returned from this lab will immediately become invalid.</p>
+
+<p>If this is a temporary lab, the lab root dir (as returned <a href="#dir" class="podlinkpod"
+>&#34;dir&#34;</a>) will be removed as well on success. Otherwise the lab root dir will not be removed by this call.</p>
+
+<p>On success, this will return a truth value. If the lab is a temporary lab, the directory path will be set to the empty string (that is, <a href="#dir" class="podlinkpod"
+>&#34;dir&#34;</a> will return &#39;&#39;).</p>
+
+<p>On error, this method will croak.</p>
+
+<p>If the lab has already been removed (or does not exist), this will return a truth value.</p>
+
+<dt><a name="is_temp"
+>is_temp</a></dt>
+
+<dd>
+<p>Returns a truth value if lab is a temporary lab.</p>
+
+<p>Note: This returns a truth value, even if the lab was created with the &#34;keep-lab&#34; property.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="Changes_to_the_lab_format."
+>Changes to the lab format.</a></h1>
+
+<p>Lab formats up to (and including) &#34;10&#34; used to store the lab format with each entry. The files in $LAB/info/ were used to list packages from a mirror (dist).</p>
+
+<p>In lab format 11 the lab format is stored in $LAB/info/lab-info. The rest of the files in $LAB/info/* have been re-purposed to be a list of packages in the lab.</p>
+
+<p>The $LAB/info/lab-info is parsed as a debian control file (See Debian Policy Manual &#167;5.1 for syntax). The consists of a single paragraph and only the following fields are allowed:</p>
+
+<dl>
+<dt><a name="Lab-Format_(simple,_mandatory)"
+>Lab-Format (simple, mandatory)</a></dt>
+
+<dd>
+<p>This field contains the lab format of this lab. Generally this is simply an integer (though during development non-integers have been used).</p>
+
+<dt><a name="Layout_(simple,_optional)"
+>Layout (simple, optional)</a></dt>
+
+<dd>
+<p>The layout parameter describes how packages are stored in the lab. Currently the only accepted value is &#34;pool&#34; and the value is not case-sensitive.</p>
+
+<p>The pool format dictates that packages are stored in:</p>
+
+<pre> pool/$l/${name}/${name}_${version}[_${arch}]_${type}/</pre>
+
+<p>Note that $arch is left out for source packages, $l is the first letter of the package name (except if the name starts with &#34;lib&#34;, then it is the first 4 letters of the package name). Whitespace (e.g. &#34; &#34;) are replaced with dashes (&#34;-&#34;) and colons (&#34;:&#34;) with underscores (&#34;_&#34;).</p>
+
+<p>If the field is missing, it defaults to &#34;pool&#34;.</p>
+</dd>
+</dl>
+
+<p>It is allowed to use comments in $LAB/info/lab-info as described in the Debian Policy Manual &#167;5.1.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Niels Thykier &#60;niels@thykier.net&#62;</p>
+
+<p>Based on the work of various others.</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

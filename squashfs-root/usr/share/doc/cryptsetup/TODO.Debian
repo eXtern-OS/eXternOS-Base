@@ -1,0 +1,69 @@
+## Post-Stretch
+
+* Restructure and clean up initramfs integration code
+* Idea: swap out basic functions into /lib/cryptsetup/functions and use
+  them both in initscript and in cryptroot hook/script? Anyway, code
+  deduplication is badly needed!
+* systemd is the default init system since stretch, and has its own
+  logic for unlocking LUKS/dm-crypt devices.  However not all options
+  (in particular keyscript=) in crypttab(5) are currently implemented,
+  hence crypttab(5) entries with unsupported options can't be processed
+  aftet pivot_root(8).  We should either convince the systemd
+  maintainers to merge patches implementing the missing options, or skip
+  systemd's own cryptsetup helper.  Cf.
+  https://lists.alioth.debian.org/pipermail/pkg-systemd-maintainers/2016-September/012641.html
+* cryptroot hook script:
+  - Parent device detection for multiple-parent-device support is spread
+    all over the hook. for btrfs, the source devices are detected in
+    get_fs_device(), for lvm a dedicated function exists and it is invoked
+    from add_device().
+  - After doing the above refactoring, we should add parent device detection
+    for mdadm (#629236) and ZFS (#820888) so users don't have to manually add
+    the 'initramfs' option to the crypttab.
+  - Variable naming is inconsistent. sometimes we use $device, sometimes $node.
+  - get_derived_device() should not be invoked by get_initramfs_devices().
+    Instead, add_device("$device") should care about such things.
+    In other words: first compile a list of device candidates according to the
+    source (root device, resume device, 'initramfs option', ...), then detect
+    possible dependencies (parent devices in case of lvm/btrfs/mdraid/...,
+    keyscripts like decrypt_derived, ...).
+  - In get_lvm_deps() the following should be replaced:
+    dmsetup table "$depnode" 2>/dev/null | cut -d' ' -f3)" != "crypt"
+    by
+    dmsetup info -c --noheadings -o subsystem "$depnode" != "CRYPT"
+  - Processing fstab and crypttab should be done in dedicated functions. At the
+    moment, crypttab is processed in different ways:
+    * get_initramfs_devices():
+	grep -s '^[^#]' /etc/crypttab | while read target source key options;
+    * get_device_opts():
+	opt="$( awk -vtarget="$target" '$1 == target {gsub(/[ \t]+/," "); print; exit}' /etc/crypttab )"
+	source=$( printf '%s' "$opt" | cut -d " " -f2 )
+	key=$( printf '%s' "$opt" | cut -d " " -f3 )
+	rootopts=$( printf '%s' "$opt" | cut -d " " -f4- )
+  - Variable name '$rootopts' in get_device_opts() is wrong now that we process
+    a lot more devices than just the root device in initramfs.
+  - Replace 'rootdev', 'resumedev', etc. flags by an option 'usage={root,resume,...}'
+* cryptroot local-top script:
+  - Find a solution to run 'lvm vgchange' only after all lvm parent devices
+    are unlocked. At the moment, ugly errors and warnings are shown in case
+    of several encrypted parent devices.
+
+
+## Post-Lenny
+
+* Would a fallback make sense? like when using any keyscript, try passphrase
+  in the case that it fails. if we implement that at all, never make it the
+  default, and warn about security issues in README.Debian. even explain that
+  backup passphrase keyslots thwart the extra security of keyfiles/keyscripts.
+  (#438481, #471729)
+
+* Implement something like 'ignore-if-no-device' to mount (/etc/fstab), and
+  thus support several situations where cryptsetup fails to setup a device:
+  -> the device is not attached at all
+  -> wrong passphrase/no keyfile available
+  -> timeouts arise
+  (#474120)
+  * seems like the fstab flag alread does exists: nofail. so reimplement
+    timeout?
+
+* Reimplement timeout support in a cleaner way?

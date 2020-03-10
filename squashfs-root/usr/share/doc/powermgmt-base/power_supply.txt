@@ -1,0 +1,82 @@
+A seemingly simple question "is this computer running on mains power" turns
+out to be really complex to answer.  Here's a simplified overview.
+
+An electrical connection doesn't imply a power sensor, for this you need
+appropriate circuitry.  Thus, most desktops and servers don't have any sense
+of where their power comes from.  Here, assuming this means AC is quite
+reasonable -- but on_ac_power doesn't make this decision for you, so you
+know you should avoid displaying an "AC plug" icon, etc.
+
+A typical laptop has one mains plug and one battery.  As running out of
+battery causes data loss, all laptops have appropriate sensors (but such
+sensors might still lack supported drivers).
+
+High-end servers have multiple mains connectors.  Some laptops have multiple
+batteries.  Phones and tablets may have different charging modes ("trickle",
+normal, fast).
+
+But in some cases, all hell goes loose.  For example, Allwinner A64 SoC
+knows about three sources: AC, USB, battery, yet particular boards using it
+don't match those.  Pine64 for one has "ac" on an USB type B plug, a
+"battery" that watches a battery attachment, USB OTG type A that can power
+the board yet lacks PMIC circuitry to signal that it's connected (thus "usb"
+will always return online=0), and can be also powered via GPIO pins on Euler
+and Exp connectors, which don't tell the kernel anything at all.  At this
+time, mainline kernel lacking proper drivers to tell us this doesn't feel
+that bad...
+
+
+Available interfaces:
+
+Modern
+======
+
+In /sys/class/power_supply/ you get one subdirectory per power source, with
+fairly straightforward data.  The main thing to look at is "online" which
+tells us whether that source is connected.  Type "type" can be one of:
+
+        "Unknown", "Battery", "UPS", "Mains", "USB",
+        "USB_DCP", "USB_CDP", "USB_ACA", "USB_C",
+        "USB_PD", "USB_PD_DRP", "BrickID"
+
+"Mains" can also mean any other known but non-specific connector.  It seems
+that usually USB describes itself this way.
+
+The difference between those many USB* variants seems to be irrelevant for
+our purposes.  I have yet to see any that would provide any data about where
+the power actually comes from.  Thus, we can't tell if we're on an USB
+charger vs a powerbank.  But that's no different from AC coming from a
+disconnected UPS...
+
+"BrickID" is an Apple specific charger that I don't know anything about.
+
+The vast majority of UPSes don't show up as "UPS" which stands only for some
+specific type of GPIO control connector (which I don't know).  Usually, we'd
+need to ask an userspace daemon like nut.
+
+
+Legacy
+======
+
+ACPI: /proc/acpi/.  Not interesting for us as all(?) drivers also provide a
+modern sysfs interface.
+
+APM: /proc/apm.  Present only on some very old 32-bit x86 machines; the
+kernel issues real mode calls to the BIOS.  In Debian, i386 kernels still
+ship APM modules, although to enable them you need to manually specify
+"acpi=off apm=on" on the kernel's command line.
+
+PMU: /proc/pmu/, specific to Apple Powerbooks.  The driver does _not_
+provide data in /sys/.
+
+
+Userspace
+=========
+
+Most UPSes are not recognized by the kernel, and talk to an userspace
+program such as nut.  on_ac_power doesn't currently query nut nor any
+other daemon of this kind.
+
+Note that the UPS provides its stored electricity as AC or DC that will
+appear to the kernel as mains power.  Thus, the UPS' answer needs to
+override sysfs data.

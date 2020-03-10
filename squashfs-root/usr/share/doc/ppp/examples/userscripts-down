@@ -1,0 +1,7 @@
+#!/bin/sh -e
+
+getent passwd | awk -F: '{print $1 " " $6}' | \
+while read user home; do
+    [ -x $home/.ip-up.d/ ] && su $user run-parts $home/.ip-up.d/
+done
+

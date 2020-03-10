@@ -1,0 +1,37 @@
+#!/usr/bin/perl -w
+
+## Demonstration of chatting with a bash shell.
+
+use strict;
+
+use IPC::Run qw( start pump finish timeout );
+
+my ( $in, $out, $err );
+
+my $h = start(
+    [qw(sh -login -i )], \$in, \$out, \$err,
+    debug => 0,
+    timeout(5),
+);
+
+## The first thing we do is to convert the user's prompt.  Normally, we would
+## do a '' as the first command in the for () loop so we could detect errors
+## that bash might emit on startup.  In this case, we need to do this
+## initialization first so that we have a prompt to look for so we know that
+## it's ready to accept input.  This is all because the startup scripts
+## that bash runs set PS1, and we can't have that.
+$in = "PS1='<PROMPT> '\n";
+
+## bash prompts on stderr.  Consume everything before the first
+## <PROMPT> (which is the second prompt bash issues).
+pump $h until $err =~ s/.*(?=^<PROMPT> (?!\n)\Z)//ms;
+
+for (qw( ls ps fOoBaR pwd )) {
+    $in  = $_ . "\n";
+    $out = '';
+    pump $h until $err =~ s/\A(<PROMPT> .*)(?=^<PROMPT> (?!\n)\Z)//ms;
+    print map { "sh err: $_\n" } split( /\n/m, $1 );
+    print map { "sh: $_\n" } split( /\n/m, $out );
+}
+
+finish $h ;

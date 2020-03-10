@@ -1,0 +1,150 @@
+Check-Script: testsuite
+Author: Nicolas Boulenguez <nicolas@debian.org>
+Type: source
+Needs-Info: unpacked
+Info: This script checks the Testsuite field in package dsc files,
+ and debian/tests/control if any.
+
+Tag: debian-tests-control-is-not-a-regular-file
+Severity: wishlist
+Certainty: certain
+Info: In case the dsc file contains a Testsuite field, "debian/tests"
+ must be a directory and contain a "control" regular file.
+
+Tag: debian-tests-control-uses-national-encoding
+Severity: normal
+Certainty: certain
+Info: The debian/tests/control file should be valid UTF-8, an encoding
+ of the Unicode character set.
+ .
+ There are many ways to convert a file from an encoding like
+ ISO-8859-1; you may for example use "iconv" like:
+ .
+  $ iconv -f ISO-8859-1 -t UTF-8 file &gt; file.new
+  $ mv file.new file
+
+Tag: illegal-runtime-test-name
+Severity: normal
+Certainty: certain
+Info: Runtime test names in debian/tests/control are only allowed to
+ contain decimal digits, lowercase ASCII letters, plus or minus signs,
+ dots or slashes.
+Ref: https://salsa.debian.org/ci-team/autopkgtest/tree/master/doc/README.package-tests.rst
+
+Tag: inconsistent-testsuite-field
+Severity: wishlist
+Certainty: certain
+Info: The package provides a debian/tests/control file but no
+ Testsuite field in the dsc file, or the field exists but not the
+ file.
+Ref: https://salsa.debian.org/ci-team/autopkgtest/tree/master/doc/README.package-tests.rst
+
+Tag: missing-runtime-tests-field
+Severity: normal
+Certainty: certain
+Info: A mandatory field is missing in some paragraph of the
+ debian/tests/control file.
+Ref: https://salsa.debian.org/ci-team/autopkgtest/tree/master/doc/README.package-tests.rst
+
+Tag: exclusive-runtime-tests-field
+Severity: normal
+Certainty: certain
+Info: Exclusive field are specified in some paragraph of the
+ debian/tests/control file.
+Ref: https://salsa.debian.org/ci-team/autopkgtest/tree/master/doc/README.package-tests.rst
+
+Tag: missing-runtime-test-file
+Severity: normal
+Certainty: possible
+Info: A test file listed in the debian/tests/control file does not
+ exist in the package source.
+Ref: https://salsa.debian.org/ci-team/autopkgtest/tree/master/doc/README.package-tests.rst
+
+Tag: runtime-test-file-is-not-a-regular-file
+Severity: wishlist
+Certainty: certain
+Info: A runtime test listed by debian/tests/control is not a regular
+ file or a relative symbolic link to a regular file in the source
+ package.
+Ref: https://salsa.debian.org/ci-team/autopkgtest/tree/master/doc/README.package-tests.rst
+
+Tag: syntax-error-in-debian-tests-control
+Severity: normal
+Certainty: certain
+Info: The debian/tests/control file didn't pass Debian control file
+ syntax check.
+ .
+ This issue may hide other issues as Lintian skips some checks on the
+ file in this case.
+Ref: https://salsa.debian.org/ci-team/autopkgtest/tree/master/doc/README.package-tests.rst
+
+Tag: unknown-runtime-tests-feature
+Severity: pedantic
+Certainty: wild-guess
+Info: A paragraph in debian/tests/control mentions a non-standard
+ value for the Features field. Though allowed, this may indicate an
+ error, as the value will be ignored.
+Ref: https://salsa.debian.org/ci-team/autopkgtest/tree/master/doc/README.package-tests.rst
+
+Tag: unknown-runtime-tests-field
+Severity: pedantic
+Certainty: wild-guess
+Info: A paragraph in debian/tests/control mentions a non-standard
+ field. Though allowed, this may indicate an error, as the whole
+ paragraph will be ignored.
+Ref: https://salsa.debian.org/ci-team/autopkgtest/tree/master/doc/README.package-tests.rst
+
+Tag: unknown-runtime-tests-restriction
+Severity: pedantic
+Certainty: wild-guess
+Info: A paragraph in debian/tests/control mentions a non-standard
+ value for the Restrictions field. Though allowed, this may indicate an
+ error, as the whole paragraph will be ignored.
+Ref: https://salsa.debian.org/ci-team/autopkgtest/tree/master/doc/README.package-tests.rst
+
+Tag: unknown-testsuite
+Severity: normal
+Certainty: certain
+Info: The dsc file sets Testsuite to an unrecognised value. This
+ field is most probably copied by dpkg-source from Testsuite in
+ debian/control.
+Ref: https://salsa.debian.org/ci-team/autopkgtest/tree/master/doc/README.package-tests.rst
+
+Tag: testsuite-dependency-has-unparsable-elements
+Severity: normal
+Certainty: possible
+Info: Lintian cannot parse the Depends field for the given autopkgtest.
+ .
+ Please double check that dependency the syntax is correct.
+ .
+ Note that Lintian has a whitelist of known "special" dependencies
+ permitted by autopkgtest (e.g. @builddep@).  Lintian does not accept
+ these as a part of an OR-clause.
+ .
+ If Lintian complains about a new special "@"-dependency, please file
+ a bug against Lintian and have it added to the whitelist.
+Ref: https://salsa.debian.org/ci-team/autopkgtest/tree/master/doc/README.package-tests.rst
+
+Tag: testsuite-autopkgtest-missing
+Severity: wishlist
+Certainty: certain
+Info: This package does not declare a test suite. Having a test suite helps with
+ automated QA in response to changes in the archive. For example, if your
+ package has a test suite, it is possible to re-execute that test suite when
+ any of the package dependencies has a new version and check whether that
+ update caused problems for your package.
+ .
+ To declare a test suite, please add a <tt>debian/tests/control</tt> file to
+ your package.
+ .
+ For more information on how to add functional tests to your package, browse to
+ https://ci.debian.net/doc/.
+
+Tag: unnecessary-testsuite-autopkgtest-field
+Severity: normal
+Certainty: certain
+Info: You do not need to specify a <tt>Testsuite: autopkgtest</tt> field if
+ a <tt>debian/tests/control</tt> file exists. It is automatically added by
+ dpkg-source(1) since dpkg 1.17.1.
+ .
+ Please remove this line from your <tt>debian/control</tt> file.

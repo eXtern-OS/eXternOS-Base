@@ -1,0 +1,70 @@
+#!/bin/sh -e
+#
+# - takes the first choice language in the LANGUAGE priority list as argument
+# - outputs locale name corresponding to that language
+
+lang=$1
+locale_name=
+
+test -n "$lang" || exit 1
+
+# remove codeset if any
+if [ "$lang" != "${lang%.*}" ]; then
+    lang=$( echo $lang | sed -r 's/([^.]+)[^@]+(.*)/\1\2/' )
+fi
+
+langtoolsdir=/usr/share/language-tools
+
+langcode=${lang%%[_@]*}
+locales=
+for loc in $( locale -a | grep -F .utf8 ); do
+    # skip locales for other languages
+    if [ $langcode = ${loc%%[._@]*} ]; then
+        loc=${loc%.*}${loc#*.utf8}
+        locales="$locales $loc"
+    fi
+done
+
+# exact match
+for loc in $locales; do
+    if [ $lang = $loc ]; then
+        locale_name=$( echo $loc | sed -r 's/([^@]+)/\1.UTF-8/' )
+        break
+    fi
+done
+
+if [ -z "$locale_name" -a $lang = ${lang%_[A-Z]*} ]; then
+
+    # try the "main" country code if any
+    main_country=
+    while read line; do
+        if [ "${line%%[[:space:]]*}" = $langcode ]; then
+            main_country=${line##*[[:space:]]}
+            if [ $lang != ${lang#*@} ]; then
+                main_country=$main_country@${lang#*@}
+            fi
+            break
+        fi
+    done < $langtoolsdir/main-countries
+    if [ -n "$main_country" ]; then
+        for loc in $locales; do
+            if [ $main_country = $loc ]; then
+                locale_name=$( echo $loc | sed -r 's/([^@]+)/\1.UTF-8/' )
+                break
+            fi
+        done
+    fi
+
+    # try out fitting locale with any country code
+    if [ -z "$locale_name" -a $langcode != 'zh' ]; then
+        for loc in $locales; do
+            if [ "${loc%%[_@]*}" = $langcode ]; then
+                locale_name=$( echo $loc | sed -r 's/([^@]+)/\1.UTF-8/' )
+                break
+            fi
+        done
+    fi
+fi
+
+echo $locale_name
+

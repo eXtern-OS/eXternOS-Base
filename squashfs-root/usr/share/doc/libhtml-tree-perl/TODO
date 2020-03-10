@@ -1,0 +1,102 @@
+TO-DO LIST FOR HTML::Tree
+
+* Make more and better tests!  Regression and otherwise.
+
+    './Build testcover' for the coverage details
+
+* Make as_HTML emit the DOCTYPE declaration before <html...>
+
+* Maybe reorganize the HTMLE::Element docs some time?
+
+
+
+========================================================================
+
+RT's
+
+14212 	HTML::TreeBuilder generates text nodes in a strange encoding
+
+	MOVE This is a bug in HTML::Entities, line 479, is encoding the Chinese
+        characters. Adding the following code reveals this:
+
+print(STDERR "1: ref = $$ref\n");
+	$$ref =~ s/([^\n\r\t !\#\$%\(-;=?-~])/$char2entity{$1} || num_entity($1)/ge;
+print(STDERR "2: ref = $$ref\n");
+
+1: ref = This is a test 漢語
+2: ref = This is a test &aelig;&frac14;&cent;&egrave;&ordf;&#158;
+
+19724 	Can't distinguish among ending tags
+
+	TRIAGE Where in the parser are the tokens handled? Suspect he'd have to use HTML::Parser directly.
+
+24407 	</p> w/o a previous <p> ends the treebuild...
+
+	TRIAGE Invalid HTML breaks parse.
+
+26938 	as_XML doesn't encode enough characters, specifically CR and LF
+
+	TRIAGE Perfectly valid to drop white space in an attibute.
+
+27288 	as_HTML() for frameset html code produces implicit <body> tag
+
+	CLOSE body is valid there. Needs to turn off implicit tags if he doesn't want them.
+
+28404 	tests fail when PERL_UNICODE is set
+
+	TRIAGE
+
+33063 	Feature request: suppress output of implicit elements by as_HTML
+
+	TRIAGE
+
+33523 	Incorrect parsing of nested inline elements
+
+	CLOSE It's invalid to nest entities that way.
+
+33961 	Allow optional_end_tags to be set globally
+
+	CLOSE This is already possible.
+
+35948 	Unhelpful message if I pass an arbitrary object in content.
+
+	TRIAGE Suggest fix breaks sub classing, need a better fix.
+
+37537 	Implementation of as_HTML makes it effectively impossible to subclass
+
+	TRIAGE
+
+38398 	TreeBuilder can broke tree with correct nesting
+
+	TRIAGE invalid HTML breaks parsing.
+
+41945 	cpan(1) install fails on OS X
+
+	Maybe FIXED, #! line was odd.
+
+42209 	The word "value" appears if you supply value => undef to an input of type "text"
+
+	TRIAGE This is because of the line '$val = $attr unless defined $val;'
+	Guess this is to catch attributes that don't have values?
+
+45069 	test failure
+
+	TRIAGE Can't duplicate.
+
+46219 	Debugger dies on parse()
+
+	TRIAGE Can't duplicate.
+
+48344 	Documentation for tree/element traversal is conflicting/confusing
+
+	TRIAGE
+
+53658 	HTML::Element::as_text collapses internal whitespace
+
+	TRIAGE The white space is being consolidated somewhere, HTML::Parser?,
+        so there is only 1 space by output time.
+
+53926 	Bug in HTML::TreeBuilder - <link> inside <ol> not parsed
+
+	TRIAGE Invalid HTML breaks parsing.
+

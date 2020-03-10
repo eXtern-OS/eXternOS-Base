@@ -1,0 +1,34 @@
+# start thai
+# vim: set sts=4 expandtab:
+
+if [ "$IM_CONFIG_PHASE" = 1 ]; then
+# set variables for the plain XIM
+XMODIFIERS=@im=BasicCheck
+
+GTK_IM_MODULE=xim
+# use gtk-im-libthai only when available for both GTK 2.0 and 3.0
+IM_CONFIG_MARKER2=0
+for IM_CONFIG_MARKER in /usr/lib/*/gtk-2.0/*/immodules/im-thai-libthai.so \
+                        /usr/lib/gtk-2.0/*/immodules/im-thai-libthai.so ; do
+    if [ -e $IM_CONFIG_MARKER ]; then
+        IM_CONFIG_MARKER2=1
+        break
+    fi
+done
+
+IM_CONFIG_MARKER3=0
+for IM_CONFIG_MARKER in /usr/lib/*/gtk-3.0/*/immodules/im-thai-libthai.so \
+                        /usr/lib/gtk-3.0/*/immodules/im-thai-libthai.so ; do
+    if [ -e $IM_CONFIG_MARKER ]; then
+        IM_CONFIG_MARKER3=1
+        break
+    fi
+done
+if [ $IM_CONFIG_MARKER2 = 1 ] && [ $IM_CONFIG_MARKER3 = 1 ] ; then
+    GTK_IM_MODULE=thai-libthai
+fi
+
+# No IM modules for Qt and Clutter for now
+QT_IM_MODULE=xim
+CLUTTER_IM_MODULE=xim
+fi

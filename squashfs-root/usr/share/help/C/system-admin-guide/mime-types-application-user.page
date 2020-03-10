@@ -1,0 +1,95 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      type="topic" style="task"
+      id="mime-types-application-user">
+
+  <info>
+    <link type="guide" xref="software#management" />
+    <link type="seealso" xref="mime-types-custom-user" />
+    <link type="seealso" xref="mime-types-custom" />
+    <revision pkgversion="3.12" date="2014-06-17" status="review"/>
+
+    <credit type="author">
+      <name>Petr Kovar</name>
+      <email>pknbe@volny.cz</email>
+    </credit>
+
+    <include href="legal.xml" xmlns="http://www.w3.org/2001/XInclude"/>
+
+  </info>
+
+    <title>Override the default registered application for individual users</title>
+    <p>
+      The <file>/usr/share/applications/defaults.list</file> file
+      specifies which application is registered to open specific MIME types by
+      default. To override the system defaults for individual users, you need to
+      create a <file>~/.local/share/applications/mimeapps.list</file>
+      file with a list of MIME types for which you want to override the default
+      registered application.
+    </p>
+    <steps>
+      <title>Override the default registered application for individual users</title>
+      <item>
+        <p>
+          Consult the <file>/usr/share/applications/defaults.list</file>
+          file to determine the MIME types for which you want to change the
+          default registered application. For example, the following sample of
+          the <file>defaults.list</file> file specifies the default
+          registered application for the <code>text/html</code> and
+          <code>application/xhtml+xml</code> MIME types:
+        </p>
+        <code>[Default Applications]
+text/html=epiphany.desktop
+application/xhtml+xml=epiphany.desktop</code>
+        <p>
+          The default application (<app>Epiphany</app>) is defined
+          by specifying its corresponding <file>.desktop</file> file
+          (<file>epiphany.desktop</file>). The system default location
+          for other applications’ <file>.desktop</file> files is
+          <file>/usr/share/applications/</file>. Individual users’
+          <file>.desktop</file> files can be stored in
+          <file>~/.local/share/applications/</file>.
+        </p>
+      </item>
+      <item>
+        <p>
+          Create the <file>~/.local/share/applications/mimeapps.list</file>
+          file. In the file, specify the MIME types and their corresponding
+          default registered applications:
+        </p>
+        <code>[Default Applications]
+text/html=<var>myapplication1.desktop</var>
+application/xhtml+xml=<var>myapplication2.desktop</var>
+
+[Added Associations]
+text/html=<var>myapplication1.desktop</var>;
+application/xhtml+xml=<var>myapplication2.desktop</var>;</code>
+      <p>
+        This sets the default registered application for the
+        <code>text/html</code> MIME type to <code>myapplication1.desktop</code>,
+        and the default registered application for the
+        <code>application/xhtml+xml</code> MIME type to
+        <code>myapplication2.desktop</code>.
+      </p>
+        <p>For these settings to function properly, ensure that both the
+        <file>myapplication1.desktop</file> and
+        <file>myapplication2.desktop</file> files are placed in the
+        <file>/usr/share/applications/</file> directory.
+      </p>
+      </item>
+      <item>
+        <p>
+          You can use the <cmd>gio mime</cmd> command to verify
+          that the default registered application has been set correctly:
+        </p>
+        <screen><output>$ </output><input>gio mime text/html</input>
+Default application for “text/html”: myapplication1.desktop
+Registered applications:
+	myapplication1.desktop
+	epiphany.desktop
+Recommended applications:
+	myapplication1.desktop
+	epiphany.desktop</screen>
+      </item>
+    </steps>
+</page>
+

@@ -1,0 +1,564 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><meta charset="UTF-8"><TITLE
+>Vendor Profiles</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="Lintian User's Manual"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Getting started"
+HREF="chapter-2.html"><LINK
+REL="PREVIOUS"
+TITLE="Overrides"
+HREF="section-2.4.html"><LINK
+REL="NEXT"
+TITLE="Vendor specific data files"
+HREF="section-2.6.html"></HEAD
+><BODY
+CLASS="sect1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Lintian User's Manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="section-2.4.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 2. Getting started</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="section-2.6.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="sect1"
+><H1
+CLASS="sect1"
+><A
+NAME="section-2.5"
+>2.5. Vendor Profiles</A
+></H1
+><P
+>&#13;        Vendor profiles allows vendors and users to customize Lintian
+        without having to modify the underlying code.  If a profile
+        is not explicitly given, Lintian will derive the best
+        possible profile for the current vendor from dpkg-vendor.
+      </P
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="section-2.5.1"
+>2.5.1. Rules for profile names and location</A
+></H2
+><P
+>&#13;          Profile names should only consist of the lower case
+          characters ([a-z]), underscore (_), dash (-) and
+          forward slashes (/).  Particularly note that dot (.) are
+          specifically <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>not</I
+></SPAN
+> allowed in a
+          profile name.
+        </P
+><P
+>&#13;          The default profile for a vendor is called
+          <TT
+CLASS="filename"
+>$VENDOR/main</TT
+>.  If Lintian sees a
+          profile name without a slash, it is taken as a short
+          form of the default profile for a vendor with that
+          name.
+        </P
+><P
+>&#13;          The filename for the profile is derived from the name by
+          simply concatenating it with <TT
+CLASS="filename"
+>.profile</TT
+>,
+          Lintian will then look for a file with that name in the
+          following directories:
+        </P
+><P
+></P
+><UL
+><LI
+><P
+>&#13;              <TT
+CLASS="filename"
+>$XDG_DATA_HOME/lintian/profiles</TT
+>
+            </P
+></LI
+><LI
+><P
+>&#13;              <TT
+CLASS="filename"
+>$HOME/.lintian/profiles</TT
+>
+            </P
+></LI
+><LI
+><P
+>&#13;              <TT
+CLASS="filename"
+>/etc/lintian/profiles</TT
+>
+            </P
+></LI
+><LI
+><P
+>&#13;              <TT
+CLASS="filename"
+>$LINTIAN_ROOT/profiles</TT
+>
+            </P
+></LI
+></UL
+><P
+>&#13;          Note that an implication of the handling of default
+          vendor profiles implies that profiles must be in
+          subdirectories of the directories above for Lintian
+          to recognise them.
+        </P
+><P
+>&#13;          The directories are checked in the listed order and the
+          first file matching the profile will be used.  This allows
+          users to override a system profile by putting one with the
+          same filename
+          in <TT
+CLASS="filename"
+>$XDG_DATA_HOME/lintian/profiles</TT
+>
+          or <TT
+CLASS="filename"
+>$HOME/.lintian/profiles</TT
+>.
+        </P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="section-2.5.2"
+>2.5.2. Profile syntax and semantics</A
+></H2
+><P
+>&#13;          Profiles are written in the same syntax as Debian
+          control files as described in the
+          <A
+HREF="https://www.debian.org/doc/debian-policy/#s-controlsyntax"
+TARGET="_top"
+>&#13;          Debian Policy Manual §5.1</A
+>.  Profiles allow
+          comments as described in the Policy Manual.
+        </P
+><DIV
+CLASS="sect3"
+><H3
+CLASS="sect3"
+><A
+NAME="section-2.5.2.1"
+>2.5.2.1. Main profile paragraph</A
+></H3
+><P
+>&#13;            The fields in the first paragraph are:
+          </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Profile</I
+></SPAN
+> (simple, mandatory)</DT
+><DD
+><P
+>&#13;                  Name of the profile.
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Extends</I
+></SPAN
+> (simple, optional)</DT
+><DD
+><P
+>&#13;                  Name of the (parent) profile, which this profile
+                  extends.  Lintian will recursively process the
+                  extended profile before continuing with processing
+                  this profile.  In the absence of this field, the
+                  profile is not based on another profile.
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Load-Checks</I
+></SPAN
+> (folded, optional)</DT
+><DD
+><P
+>&#13;                  Comma-separated list of checks.  Lintian will ensure
+                  all checks listed are loaded (allowing tags from
+                  them to be enabled or disabled via Enable-Tags or
+                  Disable-Tags).
+                </P
+><P
+>&#13;                  If a given check was already loaded before this
+                  field is processed, then it is silently ignored.
+                  Otherwise, the check is loaded and all of its tags
+                  are disabled (as if it had been listed in
+                  Disable-Tags-From-Check).
+                </P
+><P
+>&#13;                  This field is most likely only useful if the profile
+                  needs to enable a list of tags from a check in
+                  addition to any tags already enabled from that
+                  check (if any).
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Enable-Tags-From-Check</I
+></SPAN
+> (folded, optional)</DT
+><DD
+><P
+>&#13;                  Comma-separated list of checks.  All tags from each
+                  check listed will be enabled in this profile.  The check will
+                  be loaded if it wasn't already.
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Disable-Tags-From-Check</I
+></SPAN
+> (folded, optional)</DT
+><DD
+><P
+>&#13;                Comma-separated list of checks.  All tags from each
+                check listed will be disabled in this profile.  The check will
+                be loaded if it wasn't already.
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Enable-Tags</I
+></SPAN
+> (folded, optional)</DT
+><DD
+><P
+>&#13;                  Comma-separated list of tags that should be enabled.
+                  It may only list tags from checks already loaded or
+                  listed in one of the following fields "Load-Checks",
+                  "Enable-Tags-From-Check" or
+                  "Disable-Tags-From-Check" in the current profile.
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Disable-Tags</I
+></SPAN
+> (folded, optional)</DT
+><DD
+><P
+>&#13;                  Comma-separated list of tags that should be
+                  disabled.  It may only list tags from checks already
+                  loaded or listed in one of the following fields
+                  "Load-Checks", "Enable-Tags-From-Check" or
+                  "Disable-Tags-From-Check" in the current profile.
+                </P
+></DD
+></DL
+></DIV
+><P
+>&#13;            The profile is invalid and is rejected, if Enable-Tags and
+            Disable-Tags lists the same tag twice - even if it is in
+            the same field.  This holds analogously for checks and the
+            three fields Load-Checks, Enable-Tags-From-Check and
+            Disable-Tags-From-Check.
+          </P
+><P
+>&#13;            It is allowed to list a tag in Enable-Tags or
+            Disable-Tags even if the check that provides this tag is
+            listed in the Disable-Tags-From-Check or
+            Enable-Tags-From-Check field. In case of conflict,
+            Enable-Tags / Disable-Tags shall overrule
+            Disable-Tags-From-Check / Enable-Tags-From-Check within
+            the profile.
+          </P
+><P
+>&#13;            Load-Checks, Enable-Tags-From-Check and
+            Disable-Tags-From-Check can be used to load third-party or
+            vendor specific checks.
+          </P
+><P
+>&#13;            It is not an error to load, enable or disable a check or
+            tag that is already loaded, enabled or disabled
+            respectively (e.g. by a parent profile).
+          </P
+><P
+>&#13;            A profile is invalid if it directly or indirectly extends
+            itself or if it extends an invalid profile.
+          </P
+><P
+>&#13;            By default the tags from the check "lintian" will be loaded
+            as they assist people in writing and maintaining their
+            overrides file (e.g. by emitting <TT
+CLASS="literal"
+>malformed-override</TT
+>).
+            However, they can be disabled by explicitly adding the check
+            <TT
+CLASS="literal"
+>lintian</TT
+> in the Disable-Tags-From-Check field.
+          </P
+></DIV
+><DIV
+CLASS="sect3"
+><H3
+CLASS="sect3"
+><A
+NAME="section-2.5.2.2"
+>2.5.2.2. Tag alteration paragraphs</A
+></H3
+><P
+>&#13;            The fields in the secondary paragraphs are:
+          </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Tags</I
+></SPAN
+> (folded, mandatory)</DT
+><DD
+><P
+>&#13;                  Comma separated list of tags affected by this
+                  paragraph.
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Overridable</I
+></SPAN
+> (simple, optional)</DT
+><DD
+><P
+>&#13;                  Either "Yes" or "No", which decides whether these
+                  tags can be overridden.  Lintian will print an
+                  informal message if it sees an override for a tag
+                  marked as non-overridable (except if --quiet is
+                  passed).
+                </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Severity</I
+></SPAN
+> (simple, optional)</DT
+><DD
+><P
+>&#13;                  The value must be a valid tag severity other than "classification".
+                  The severity of the affected tags is set to this value.  This
+                  cannot be used on any tag that is defined as a "classification" tag.
+                </P
+><P
+>&#13;                  Note that <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>experimental</I
+></SPAN
+> is not a
+                  severity.
+                </P
+></DD
+></DL
+></DIV
+><P
+>&#13;            The paragraph must contain at least one other field than the
+            Tag field.
+          </P
+></DIV
+><DIV
+CLASS="sect3"
+><H3
+CLASS="sect3"
+><A
+NAME="section-2.5.2.3"
+>2.5.2.3. An example vendor profile</A
+></H3
+><P
+>&#13;            Below is a small example vendor profile for a fictive
+            vendor called "my-vendor".
+          </P
+><PRE
+CLASS="screen"
+>&#13;# The default profile for "my-vendor"
+Profile: my-vendor/main
+# It has all the checks and settings from the "debian" profile
+Extends: debian/main
+# Add checks specific to "my-vendor"
+Enable-Tags-From-Check:
+  my-vendor/some-check,
+  my-vendor/another-check,
+# Disable a tag
+Disable-Tags: dir-or-file-in-opt
+
+# Bump severity of no-md5sums-control-file
+# and file-missing-in-md5sums and make them
+# non-overridable
+Tags: no-md5sums-control-file,
+      file-missing-in-md5sums,
+Severity: serious
+Overridable: no
+</PRE
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="section-2.4.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="section-2.6.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Overrides</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="chapter-2.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Vendor specific data files</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

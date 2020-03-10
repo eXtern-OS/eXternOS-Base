@@ -1,0 +1,21 @@
+#! /usr/bin/awk -f
+
+# $Progeny$
+
+BEGIN {
+    FS = "\t";
+    CURRENTVENDOR = "";
+    LASTVENDOR = "Nonexistent Vendor";
+}
+
+/^[^\t]/ {
+    CURRENTVENDOR = $0;
+}
+
+/^\t/ && $3 !~ /(sound|tvcard|video)/ && $4 !~ /(unknown|ignore)/ { 
+    if (CURRENTVENDOR != LASTVENDOR) {
+        print CURRENTVENDOR;
+    }
+    print $0;
+    LASTVENDOR = CURRENTVENDOR;
+}

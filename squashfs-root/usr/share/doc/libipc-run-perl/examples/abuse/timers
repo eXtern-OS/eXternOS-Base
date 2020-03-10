@@ -1,0 +1,12 @@
+#!/usr/bin/perl -w
+
+use strict;
+use IPC::Run qw( :all );
+
+$IPC::Run::debug = 10;
+
+alarm 5;
+$SIG{ALRM} = sub { die "timeout never fired!" };
+
+my $out;
+run [ $^X, '-e', 'sleep 10' ], ">", \$out, timeout 1;

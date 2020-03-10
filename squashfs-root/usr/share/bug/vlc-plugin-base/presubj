@@ -1,0 +1,27 @@
+Debugging and bug reporting advices:
+
+VLC media player is highly modular. So in case a feature is not working
+at all, you need to check that the module handling it is present.
+
+ * Make sure that the plugins cache in /usr/lib/*/vlc/plugins/plugins.dat is
+   up-to-date. Run "/usr/lib/$MA/vlc/vlc-cache-gen /usr/lib/$MA/vlc/plugins"
+   as root to regenerate the cache where $MA the arch triplet (e.g.
+   x86_64-linux-gnu on amd64).
+
+ * If you have set custom plugin paths (e.g. with VLC_PLUGIN_PATH), remove
+   caches in these paths.
+
+ * Check that modules are correctly loaded: "vlc -vvv --color --list"
+   If you have yellow warning lines at the top, that could well be the
+   problem.
+
+ * If you have installed libraries from other repositories (e.g. to use
+   allegedly patent-encumbred encoders), revert to the official Debian
+   libraries before reporting a bug.
+
+The debug log of vlc ("vlc -vvv <your usual options>") is very useful for
+the developers, do include it in your report.
+
+When reporting a crash, please install the corresponding -dbgsym packages
+and produe a backtrace with gdb. See
+https://wiki.debian.org/HowToGetABacktrace for details.

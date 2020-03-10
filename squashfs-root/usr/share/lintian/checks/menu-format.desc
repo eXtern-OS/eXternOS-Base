@@ -1,0 +1,427 @@
+Check-Script: menu-format
+Author: Joey Hess <joeyh@master.debian.org>
+Abbrev: mnf
+Needs-Info: unpacked
+Type: binary
+Info: This script validates the format of <b>menu</b> files.
+
+Tag: old-format-menu-file
+Severity: important
+Certainty: certain
+Info: The package contains a menu file that is in the old menu file format.
+ This format is deprecated. Convert the menu file to the new menu format.
+ Note that Lintian will not test this file for any other problems.
+
+Tag: whitespace-after-continuation-character
+Severity: important
+Certainty: certain
+Info: The menu item is split up over 2 or more lines using '\' at the end of
+ the line to join them together. However, there is some whitespace after
+ the '\' character, which is not guaranteed to be handled correctly.
+ The '\' should be at the end of the line.
+
+Tag: bad-test-in-menu-item
+Severity: important
+Certainty: certain
+Info: The menu file contains an item that does not start with the text
+ "?package(somepackage):". All menu file lines must test for the existence
+ of a package in this way.
+Ref: menu 3.2
+
+Tag: unparsable-menu-item
+Severity: important
+Certainty: certain
+Info: An item of the menu file cannot be parsed as a series of tag=value
+ pairs. This could be because you didn't close a set of double quotes.
+Ref: menu 3.2
+
+Tag: pkg-not-in-package-test
+Severity: normal
+Certainty: possible
+Info: This menu item doesn't test to see if the package containing it is
+ installed.  The start of any menu item is a conditional testing whether
+ the required packages are installed.  Normally this conditional should
+ always check at least the package containing it, since menu items should
+ be included in the package that provides the application the menu refers
+ to.
+ .
+ This error usually indicates a misspelling of the package name in the
+ menu entry or a copied menu entry from another package that doesn't apply
+ to this one.
+Ref: menu 3.2
+
+Tag: duplicated-tag-in-menu-item
+Severity: normal
+Certainty: certain
+Info: The menu item contains two instances of the same tag. This is just a
+ waste of space, as menu will only use one of them.
+Ref: menu 3.2
+
+Tag: menu-item-missing-required-tag
+Severity: important
+Certainty: certain
+Info: The menu item has a line that is missing a required tag. It's likely
+ that the line will have no effect without this tag. <tt>install-menu</tt> may
+ report this as an error during package installation.
+
+Tag: menu-item-contains-unknown-tag
+Severity: minor
+Certainty: certain
+Info: The menu item has a line that has a tag in it that is not one
+ of the standard tags (needs=, section=, title=, longtitle=, command=, etc).
+ While other tags can be used for specialized purposes, this is rare and
+ it's more likely the tag's name is misspelled.
+
+Tag: menu-item-uses-icon-none
+Severity: minor
+Certainty: certain
+Info: The menu item has a line that uses icon=none. This is redundant and
+ deprecated -- if there is no icon, just leave off the icon tag.
+
+Tag: menu-item-needs-tag-has-unknown-value
+Severity: minor
+Certainty: certain
+Info: The menu item has a line that has a needs= field with a strange value.
+ This may be intentional, but it's probably a typo that will make menu
+ ignore the line.
+
+Tag: menu-item-uses-apps-games-section
+Severity: normal
+Certainty: certain
+Info: The menu item has a line that specifies a section under "Apps/Games".
+ This section has been moved to just "Games".
+Ref: menu-policy 2.1
+
+Tag: menu-item-uses-apps-section
+Severity: normal
+Certainty: certain
+Info: The menu item has a line that specifies a section under "Apps".
+ This section has been moved to "Applications".
+Ref: menu-policy 2.1
+
+Tag: menu-item-uses-windowmanagers-section
+Severity: normal
+Certainty: certain
+Info: The menu item has a line that specifies a section under
+ "WindowManagers".  This section has been moved to "Window Managers".
+Ref: menu-policy 2.1
+
+Tag: menu-item-creates-new-section
+Severity: normal
+Certainty: certain
+Info: The menu item has a line that specifies an unknown section or uses a
+ section that is intended only as a menu root, not as a section that
+ applications should use directly.  Check the spelling of the section and
+ check the section against the list in the menu policy.  (The menu
+ sections changed as of June of 2007.)
+Ref: menu-policy 2.1
+
+Tag: menu-item-creates-new-root-section
+Severity: important
+Certainty: certain
+Info: The menu item has a line that specifies a new section to put a menu
+ entry in, and this section appears right in the root menu.  This is
+ almost certainly an error.  No new sections should be added to the root
+ menu without discussion with the author of menu.
+
+Tag: menu-icon-not-in-xpm-format
+Severity: important
+Certainty: certain
+Info: Icons in the Debian menu system should be in XPM format.
+ .
+ While other image types (e.g. png images) appears to "just work",
+ window managers are not "required to support them".  Accordingly
+ using non-XPM icons could break interoperability.
+Ref: menu 3.7, #591812
+
+Tag: menu-icon-uses-relative-path
+Severity: normal
+Certainty: certain
+Info: This package contains a menu file which references an icon by a relative
+ path. However, icons should be referenced by an absolute path in menu files.
+Ref: menu 3.2, #693477
+
+Tag: menu-icon-missing
+Severity: normal
+Certainty: possible
+Info: This icon file couldn't be found.  If the path to the icon in the
+ menu file is an absolute path, make sure that icon exists at that path in
+ the package.  If the path is relative or a simple filename, make sure the
+ icon is installed in <tt>/usr/share/pixmaps</tt>, the default location.
+ .
+ If the icon is provided by another package on which this package
+ depends, Lintian may not be able to determine that icon pages are
+ available.  In this case, after confirming that all icons are
+ available after this package and its dependencies are installed,
+ please add a Lintian override.
+Ref: menu 3.7
+
+Tag: menu-icon-too-big
+Severity: important
+Certainty: certain
+Info: Icons in the Debian menu system should be at most 32x32 pixels
+ (icon16x16 icons should of course be at most 16x16 pixels)
+Ref: menu 3.7
+
+Tag: menu-icon-cannot-be-parsed
+Severity: normal
+Certainty: certain
+Info: The icon file could not be parsed.  Perhaps this means a bad XPM file,
+ or perhaps it means the Lintian parsing needs to be improved.  If the
+ window managers and standard tools accept the file then probably it's the
+ latter; please file a bug on Lintian then.
+
+Tag: su-wrapper-without--c
+Severity: important
+Certainty: certain
+Info: The menu item command or desktop file uses an su wrapper such as
+ su-to-root without the -c flag. This is a syntax error.
+Ref: su-to-root(1)
+
+Tag: su-to-root-with-usr-sbin
+Severity: normal
+Certainty: certain
+Info: The menu item or desktop file command uses su-to-root as
+ /usr/sbin/su-to-root. Since sarge su-to-root is located in /usr/bin and
+ /usr/sbin/su-to-root is only a compatibility symlink that may get dropped
+ in the future.
+ .
+ Since su-to-root is now located in /usr/bin you can use it without
+ absolute path now.
+
+Tag: su-wrapper-not-su-to-root
+Severity: normal
+Certainty: certain
+Info: The menu item or desktop file command uses an su wrapper other than
+ su-to-root.  On Debian systems, please use <tt>su-to-root -X</tt>, which
+ will pick the correct wrapper based on what's installed on the system and
+ the current desktop environment.  Using su-to-root is also important for
+ Live CD systems which need to use sudo rather than su.  su-to-root
+ permits global configuration to use sudo.
+
+Tag: menu-item-needs-dwww
+Severity: normal
+Certainty: certain
+Info: The menu item has needs=dwww. This is deprecated. Instead, you should
+ register your documentation with doc-base, and dwww entries will be 
+ automatically generated.
+
+Tag: non-wm-in-windowmanager-menu-section
+Severity: important
+Certainty: certain
+Info: The menu item is in the Window Manager section but does not needs=wm.
+ Either it is a window manager and it should needs=wm, either it isn't and
+ then it must be moved in another section.
+
+Tag: non-wm-module-in-wm-modules-menu-section
+Severity: important
+Certainty: certain
+Info: The menu item is in the FVWM Modules or Window Maker section but
+ does not declare that it needs a specific window manager (using the needs
+ key in the menu file).  Modules for Fvwm should have needs="fvwmmodule".
+ Modules for WindowMaker should have needs="wmmaker".
+
+Tag: unquoted-string-in-menu-item
+Severity: normal
+Certainty: certain
+Info: The menu item includes a tag with an unquoted string like section=Games
+ instead of section="Games". This is deprecated. Use a quoted string instead.
+Ref: menu 3.2
+
+Tag: menu-command-not-in-package
+Severity: normal
+Certainty: possible
+Info: The menu item specifies a command which is not available in the package.
+ In most cases this is a typo or after you moved a binary around, but forgot
+ to update the menu file.
+
+Tag: executable-desktop-file
+Severity: important
+Certainty: certain
+Info: The desktop entry file is marked executable.  Desktop entries are
+ regular files and should be installed mode 0644.
+
+Tag: desktop-entry-file-has-crs
+Severity: normal
+Certainty: certain
+Info: The desktop entry file has lines ending in CRLF instead of just LF.
+ The Desktop Entry Specification is explicit that lines should end with
+ only LF.  The CR may be taken by some software as part of the field.
+ .
+ Running the following command against the given file removes any
+ <tt>CR</tt> character in the file:
+ .
+ <tt>sed -i 's/\r//g' path/to/file</tt>
+Ref: https://standards.freedesktop.org/desktop-entry-spec/1.1/ar01s02.html
+
+Tag: duplicated-key-in-desktop-entry
+Severity: normal
+Certainty: certain
+Info: The desktop entry contains two instances of the same key.  The
+ behavior of such desktop entries is not well-defined by the standard.
+ .
+ The desktop-file-validate tool in the desktop-file-utils package is
+ useful for checking the syntax of desktop entries.
+
+Tag: desktop-entry-missing-required-key
+Severity: important
+Certainty: certain
+Info: Desktop entries must contain, at a minimum, the keys Type and Name.
+ .
+ The desktop-file-validate tool in the desktop-file-utils package is
+ useful for checking the syntax of desktop entries.
+Ref: https://standards.freedesktop.org/desktop-entry-spec/1.1/ar01s05.html
+
+Tag: desktop-entry-contains-unknown-key
+Severity: minor
+Certainty: certain
+Info: The key on this line of the desktop entry is not one of the standard
+ keys defined in the FreeDesktop specification, not one of the legacy KDE
+ keywords, and one that does not begin with <tt>X-</tt>.  It's most likely
+ that the key was misspelled.
+ .
+ The desktop-file-validate tool in the desktop-file-utils package is
+ useful for checking the syntax of desktop entries.
+Ref: https://standards.freedesktop.org/desktop-entry-spec/1.1/ar01s05.html
+
+Tag: desktop-entry-contains-deprecated-key
+Severity: normal
+Certainty: certain
+Info: The key on this line of the desktop entry has been deprecated in the
+ FreeDesktop specification.
+ .
+ The desktop-file-validate tool in the desktop-file-utils package is
+ useful for checking the syntax of desktop entries.
+Ref: https://standards.freedesktop.org/desktop-entry-spec/1.1/apc.html
+
+Tag: desktop-entry-contains-encoding-key
+Severity: wishlist
+Certainty: certain
+Info: The Encoding key is now deprecated by the FreeDesktop standard and
+ all strings are required to be encoded in UTF-8.  This desktop entry
+ explicitly specifies an Encoding of UTF-8, which is harmless but no
+ longer necessary.
+ .
+ The desktop-file-validate tool in the desktop-file-utils package is
+ useful for checking the syntax of desktop entries.
+Ref: https://standards.freedesktop.org/desktop-entry-spec/1.1/apc.html
+
+Tag: desktop-entry-lacks-main-category
+Severity: normal
+Certainty: certain
+Info: The categories for this desktop entry do not contain any Main
+ Categories, only Additional Categories.  Additional Categories should
+ only be used on conjunction with one or more Main Categories.
+ .
+ The desktop-file-validate tool in the desktop-file-utils package is
+ useful for checking the syntax of desktop entries.
+Ref: https://specifications.freedesktop.org/menu-spec/1.1/apa.html
+
+Tag: desktop-entry-lacks-icon-entry
+Severity: wishlist
+Certainty: certain
+Info: This .desktop file does not contain an "Icon" entry.
+ .
+ "Icon" is the name of the file (without the extension) of the icon displayed
+ by this .desktop file. The icon is searched in the different icon themes.
+ If the name is an absolute path, the given file will be used.
+ The icon should be unique enough to help the user to recogninse the application.
+ .
+ The desktop-file-validate tool in the desktop-file-utils package is
+ useful for checking the syntax of desktop entries.
+Ref: https://specifications.freedesktop.org/desktop-entry-spec/1.1/ar01s05.html,
+ https://specifications.freedesktop.org/icon-theme-spec/icon-theme-spec-0.13.html,
+ #854132
+
+Tag: desktop-entry-lacks-keywords-entry
+Severity: wishlist
+Certainty: certain
+Info: This .desktop file does either not contain a "Keywords" entry or it does
+ not contain any keywords not already present in the "Name" or
+ "GenericName" entries.
+ .
+ .desktop files are organized in key/value pairs (similar to .ini files).
+ "Keywords" is the name of the entry/key in the .desktop file containing
+ keywords relevant for this .desktop file.
+ .
+ The desktop-file-validate tool in the desktop-file-utils package is
+ useful for checking the syntax of desktop entries.
+Ref: https://specifications.freedesktop.org/desktop-entry-spec/1.1/ar01s05.html,
+ #693918, https://wiki.gnome.org/Initiatives/GnomeGoals/DesktopFileKeywords
+
+Tag: desktop-entry-uses-reserved-category
+Severity: normal
+Certainty: certain
+Info: This desktop entry includes a Reserved Category, one which has a
+ desktop-specific meaning that has not yet been standardized, but does not
+ include an OnlyShowIn key.  Desktop entries using a Reserved Category
+ must include an OnlyShowIn key limiting the entry to those environments
+ that support the category.
+ .
+ The desktop-file-validate tool in the desktop-file-utils package is
+ useful for checking the syntax of desktop entries.
+Ref: https://specifications.freedesktop.org/menu-spec/1.1/apa.html
+
+Tag: desktop-entry-invalid-category
+Severity: normal
+Certainty: certain
+Info: This desktop entry lists a category that is not one of the
+ registered Main or Additional Categories in the FreeDesktop
+ specification.  Note that case is significant and whitespace is only
+ allowed immediately before and after the equal sign in the Category key,
+ not elsewhere in the field.
+ .
+ The desktop-file-validate tool in the desktop-file-utils package is
+ useful for checking the syntax of desktop entries.
+Ref: https://specifications.freedesktop.org/menu-spec/1.1/apa.html
+
+Tag: desktop-command-not-in-package
+Severity: normal
+Certainty: possible
+Info: The desktop entry specifies a command that is not available in the
+ package.  In most cases, this is a typo or a forgotten update of the
+ desktop file after the install location of the binary was changed.  A
+ desktop file for a command should be included in the same package as that
+ command.
+
+Tag: desktop-contains-deprecated-key
+Severity: normal
+Certainty: certain
+Info: The key on this line of the desktop entry has been deprecated in the
+ FreeDesktop specification.  If the key is "KDE Desktop Entry", the right
+ fix is normally changing it to "Desktop Entry".
+ .
+ The desktop-file-validate tool in the desktop-file-utils package is
+ useful for checking the syntax of desktop entries.
+Ref: https://standards.freedesktop.org/desktop-entry-spec/1.1/apc.html
+
+Tag: desktop-mime-but-no-exec-code
+Severity: normal
+Certainty: possible
+Info: The desktop entry lists support for at least one mime type, but does not
+ provide codes like %f, %F, %u or %U for the Exec key.
+ .
+ If the application can indeed handle files of the listed mime types, it should
+ specify a way to pass the filenames as parameters.
+
+Tag: desktop-entry-limited-to-environments
+Severity: normal
+Certainty: wild-guess
+Info: This desktop entry uses OnlyShowIn to limit the environments in
+ which it's displayed but lists multiple environments.  This is often a
+ sign of a desktop file written assuming that only GNOME, KDE, and Xfce
+ are in use and the desktop file intended to exclude one of them.  This
+ unintentionally hides the application from desktop environments such as
+ LXDE where it would work fine.  If this application supports any desktop
+ environment except some specific ones, it should list the unsupported
+ environments in the NotShowIn key instead.
+
+Tag: command-in-menu-file-and-desktop-file
+Severity: normal
+Certainty: possible
+Info: The command is listed both in a menu file and a desktop file
+ .
+ Per the tech-ctte decision on #741573, this is now prohibited.
+ .
+ Please remove the menu file from the package.
+Ref: policy 9.6, https://lists.debian.org/debian-devel-announce/2015/09/msg00000.html

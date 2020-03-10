@@ -1,0 +1,149 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>Networking HP PPA DeskJet Printers using SAMBA.: Configuring the Printer Host.</TITLE>
+ <LINK HREF="PPA_networking-3.html" REL=next>
+ <LINK HREF="PPA_networking-1.html" REL=previous>
+ <LINK HREF="PPA_networking.html#toc2" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="PPA_networking-3.html">Next</A>
+<A HREF="PPA_networking-1.html">Previous</A>
+<A HREF="PPA_networking.html#toc2">Contents</A>
+<HR>
+<H2><A NAME="s2">2. Configuring the Printer Host.</A></H2>
+
+<P>
+<H2><A NAME="ss2.1">2.1 Configuring a Linux/Unix Host to share a PPA printer using Samba.</A>
+</H2>
+
+<P>It is assumed that <CODE>pnm2ppa</CODE> is installed and working
+to provide local printing services on the Host, and that 
+<CODE>lpr</CODE> will invoke a full set of print filters, as
+(e.g.) in Red Hat 6.2.  The PPA printer is installed  with
+the printer name <CODE>lp</CODE>, and
+<CODE>samba</CODE> is assumed to be installed.   General Samba configuration
+issues involving security levels, network password, etc, are outside the
+scope of this document (see the SMB-HOWTO).   You must log in as
+<CODE>root</CODE> to configure Samba.
+<P>Here is a sample entry setting up two public printer shares 
+in the Host's <CODE>/etc/smb.conf</CODE> file.
+The printer HP722C-PPA is for printing by a Client that sends
+PPA output from <CODE>pnm2ppa</CODE> or the HP drivers across
+the network, and HP722-PS is for Clients that produce PostScript
+output:
+<BLOCKQUOTE><CODE>
+<PRE>
+[HP722C-PPA]
+    comment = HP 722C printer on Linux (PPA input)
+    path = /var/tmp
+    printer name = lp
+    writable = yes
+    public = yes
+    printable = yes
+    print command = lpr -l -r -h -P %p %s
+[HP722C-PS]
+    comment = HP 722C printer on Linux (Postscript input)
+    path = /var/tmp
+    printer name = lp
+    writable = yes
+    public = yes
+    printable = yes
+    print command = lpr -r -h -P %p %s
+</PRE>
+</CODE></BLOCKQUOTE>
+
+The only differences besides the names are that the print command
+for HP722-PPA uses the &quot;<CODE> -l </CODE>&quot; 
+&quot;pass-through&quot; option so print filters are not applied.
+The <CODE>path</CODE> entry uses <CODE>/var/tmp</CODE> because this is (presumably)
+a world-readable and -writable area for temporary files.
+<P>After editing <CODE>/etc/smb.conf</CODE> to include these entries,
+save it, and test its syntax with Samba's <CODE>testparm</CODE> utility.
+Then restart samba 
+(run &quot;<CODE>/etc/rc.d/init.d/smb restart</CODE>&quot; on Red Hat).
+<P>
+<P>
+<P>
+<H2><A NAME="ss2.2">2.2 Configuring a Windows Host to share a PPA printer with non-Windows Clients.</A>
+</H2>
+
+<P>The Host is assumed to be a Window 98 system, and the PPA
+printer is assumed to be a HP722C installed with the native HP
+PPA drivers supplied on  HP's installation CD. Some details may vary
+on other Windows versions.
+<P>First set up a shared printer that can accept PPA input
+from both networked Windows Clients, and from
+networked non-Windows Clients
+that use <CODE>pnm2ppa</CODE>. 
+<P>
+<UL>
+<LI><B>IMPORTANT!</B>:
+A PPA printer attached to a Windows Host shared with a 
+Client running pnm2ppa has the following limitation:
+<UL>
+<LI> <B>Bi-Directional communication between the Windows Host and the printer
+must be disabled.</B></LI>
+</UL>
+
+If it is not done,
+<B>a General Protection Fault</B> will usually occur on
+the Windows Host when pnm2ppa sends
+output to the
+shared printer. (A &quot;Hpfbkg06&quot; error occurs,
+and the printer becomes nonfunctional until
+the Windows system is rebooted.)
+Disabling bi-directional communication appears to be a minor inconvenience:
+according to HP, the print quality is unaffected,
+but the
+&quot;advanced features of the Status Monitor&quot; 
+will no longer send reminders to align the print cartridges
+after a new cartridge is installed, or 
+send error messages 
+associated with the ink cartridges
+or the banner lever.</LI>
+</UL>
+<P>You may be able to avoid disabling bi-directional communication
+by using an emulated Postscript
+printer to serve non-Windows Clients <B>without</B> using <CODE>pnm2ppa</CODE>
+(see below).
+<P>To turn off bi-directional communication between the Windows Host
+and the printer, open the <B>Settings/Printers</B> folder,
+then right-click on the printer icon, and open the <B>Properties</B>
+dialog.   Select the <B>Details</B> tab, and click on 
+<B>Spool Settings</B>, then choose the setting
+&quot;<B>Disable bi-directional support for this printer</B>&quot;. 
+If you have any difficulties, try rebooting Windows after the change, 
+or see HP's support document
+<A HREF="http://www.hp.com/cposupport/printers/support_doc/bpd06455.html">http://www.hp.com/cposupport/printers/support_doc/bpd06455.html</A> about disabling bi-directional communication.
+<P>To set up the Host to share the printer, right-click on its
+icon in the <B>Settings/Printers</B> folder, and select <B>Sharing</B>,
+then  assign it a Share Name like  HP722C-PPA , and enter a Comment
+Line like &quot;HP 722C printer on Windows 98 (PPA input)&quot;.
+<P>You may now also wish to set up an emulated Postscript printer that
+accepts Postscript input from the Client, 
+and prints it using HP's PPA drivers
+<B>running on the Host, instead of on the Client.</B> 
+See the section 
+<A HREF="PPA_networking-4.html">Emulating a PostScript printer on a Windows Host</A><P>If you have installed and successfully tested the emulated printer,
+set it up for sharing on the network.
+Right-click on its
+icon in the <B>Settings/Printers</B> folder, and select <B>Sharing</B>,
+then  assign it a Share Name like  HP722C-PS, and  enter a Comment
+Line like &quot;HP 722C printer on Windows 98 (PostScript input)&quot;.
+<P>The emulated printer will appear like a Postscript printer to
+the Clients.  If it provides acceptable printing services to
+the non-Windows  clients, you will not need to connect <CODE>pnm2ppa</CODE>
+printers to HP722C-PPA, and will be able to re-enable bi-directional
+communication between the HP drivers and the printer.
+(However, the extra processing involved in the emulation may be
+unacceptably slow, or turn out to  use too much of the host's CPU)
+<P>
+<P>
+<HR>
+<A HREF="PPA_networking-3.html">Next</A>
+<A HREF="PPA_networking-1.html">Previous</A>
+<A HREF="PPA_networking.html#toc2">Contents</A>
+</BODY>
+</HTML>

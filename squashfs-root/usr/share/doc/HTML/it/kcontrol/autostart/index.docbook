@@ -1,0 +1,326 @@
+<?xml version="1.0" ?>
+<!DOCTYPE article PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+"dtd/kdedbx45.dtd" [
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Italian "INCLUDE">
+]>
+<article id="autostart" lang="&language;">
+<articleinfo>
+<title
+>Avvio automatico</title>
+<authorgroup>
+<author
+>&Anne-Marie.Mahfouf;</author>
+<othercredit role="translator"
+><firstname
+>Valter</firstname
+><surname
+>Mura</surname
+><affiliation
+><address
+><email
+>valtermura@gmail.com</email
+></address
+></affiliation
+><contrib
+>Traduzione della documentazione</contrib
+></othercredit
+> 
+</authorgroup>
+
+<date
+>2018-03-25</date>
+<releaseinfo
+>&plasma; 5.12</releaseinfo>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>Impostazioni di sistema</keyword>
+<keyword
+>avvio automatico</keyword>
+<keyword
+>file desktop</keyword>
+<keyword
+>file script</keyword>
+</keywordset>
+</articleinfo>
+
+<sect1 id="kcm_autostart">
+<title
+>Gestore avvio automatico</title>
+
+<para
+>Questo modulo è uno strumento di configurazione per la gestione dei programmi da avviare con la tua copia di &plasma;. Esso ti permette di aggiungere e gestire programmi o script da eseguire automaticamente all'avvio o lo spegnimento della tua sessione &plasma;.</para>
+
+<note
+><para
+>Nota che in questo modulo tutte le modifiche sono immediatamente applicate.</para
+></note>
+
+<para
+>Il programma analizza le cartelle <filename
+>$HOME/.config/autostart/</filename
+>, <filename class="directory"
+>$HOME/.config/plasma-workspace/env</filename
+> e <filename class="directory"
+>$HOME/.config/plasma-workspace/shutdown</filename
+> per verificare e visualizzare quali programmi e script sono ivi già presenti, permettendone una facile gestione. </para>
+
+<note
+><para
+>Nota che puoi cambiare la posizione della tua cartella <filename class="directory"
+>Autostart</filename
+> in <menuchoice
+><guimenu
+>Applicazioni</guimenu
+> <guimenuitem
+>Posizioni</guimenuitem
+></menuchoice
+> nella categoria <guilabel
+>Personalizzazione</guilabel
+> delle &systemsettings; e impostare una cartella diversa da <filename class="directory"
+>$HOME/.config/autostart</filename
+>.</para
+></note>
+
+<para
+>Per informazioni su come configurare il comportamento di avvio della tua sessione di &plasma;, leggi anche <ulink url="help:/kcontrol/kcmsmserver"
+>Sessione del desktop</ulink
+> e <ulink url="help:/kcontrol/kded"
+>Servizi in background</ulink
+>.</para>
+
+<para
+>Alcune applicazioni &kde; gestiscono il comportamento di avvio automatico per conto proprio, &eg; puoi abilitare o disabilitare l'avvio automatico di una applicazione nella finestra di dialogo delle impostazioni (&kalarm;) o devi usare <menuchoice
+><guimenu
+>File</guimenu
+><guimenuitem
+>Esci</guimenuitem
+></menuchoice
+> (&konversation;, &kopete;), in caso contrario l'applicazione rimarrà attiva nel vassoio di notifica e verrà avviata alla sessione successiva. </para>
+
+<sect2 id="migration">
+<title
+>Migrazione da Spazi di lavoro di &kde; 4</title>
+<para
+>Per migrare le tue impostazioni di avvio automatico personalizzate da Spazi di lavoro di &kde; 4:</para>
+<simplelist>
+<member
+>Copia i file desktop da <filename class="directory"
+>$HOME/.kde/Autostart</filename
+> a <filename class="directory"
+>$HOME/.config/autostart</filename
+></member>
+<member
+>Copia i file script di pre-avvio da <filename class="directory"
+>$HOME/.kde/Autostart</filename
+> a <filename class="directory"
+>$HOME/.config/plasma-workspace/env</filename
+></member>
+<member
+>Copia i file script di spegnimento da <filename class="directory"
+>$HOME/.kde/Autostart</filename
+> a <filename class="directory"
+>$HOME/.config/plasma-workspace/shutdown</filename
+></member>
+</simplelist>
+</sect2>
+
+<!--FIXME Disabling Autostart Files Provided By Your Distribution -> http://www.sharpley.org.uk/node/8 -->
+
+<sect2 id="current">
+<title
+>Visualizzazione dei file</title>
+<para
+>La parte principale del modulo mostra i programmi caricati all'avvio di &plasma;, inclusi gli script avviati prima o durante l'avvio di &plasma; o alla sua chiusura.</para>
+
+<variablelist>
+<varlistentry
+><term
+><guilabel
+>Nome</guilabel
+></term>
+<listitem>
+<para
+>Non puoi eliminare questa colonna. Essa dichiara il nome del programma o lo script che si desidera avviare con &plasma;. Il nome è estratto dalla chiave Nome dal file desktop per un programma, e dal nome_file per uno script. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry
+><term
+><guilabel
+>Comando</guilabel
+></term>
+<listitem>
+<para
+>Questa colonna elenca i comandi avviati per l'avvio del programma. Essi possono essere modificati tramite il pulsante <guibutton
+>Proprietà</guibutton
+> o facendo doppio clic nella riga del programma. Il comando è estratto dalla chiave Exec dal file desktop. </para>
+<para
+>Il comando per uno script è il percorso ad esso e non può essere modificato. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry
+><term
+><guilabel
+>Stato</guilabel
+></term>
+<listitem>
+<para
+>Questa impostazione è disponibile solo per i programmi collegati tramite i file desktop. Puoi conservare un programma nella cartella <filename class="directory"
+>Autostart</filename
+> ma disabilitarne l'esecuzione all'avvio di &plasma;. Deselezionando l'opzione <guilabel
+>Abilitato</guilabel
+>, il programma non verrà eseguito all'avvio del sistema. </para>
+<para
+>Deselezionando lo stato di <guilabel
+>Abilitato</guilabel
+> di un programma imposti la proprietà «Hidden» a «true» nel file desktop all'interno della cartella <filename class="directory"
+>Autostart</filename
+>. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry
+><term
+><guilabel
+>Avvio</guilabel
+></term>
+<listitem>
+<para
+>I programmi (file desktop) possono essere eseguiti solo all'avvio. Gli script possono essere eseguiti all'<guilabel
+>avvio</guilabel
+>, alla <guilabel
+>chiusura</guilabel
+> o <guilabel
+>prima dell'avvio sessione</guilabel
+>. Questa colonna permette di modificare quando deve essere eseguito uno script. Avvio è quando &plasma; parte, Chiusura quando esci da una sessione di &plasma; e Prima dell'avvio sessione è prima dell'avvio di &plasma;. </para>
+<para
+>Gli script e i file desktop impostati per essere eseguiti all'<guilabel
+>avvio</guilabel
+> sono copiati o collegati simbolicamente in <filename class="directory"
+>$HOME/.config/autostart</filename
+> e sono eseguiti durante l'avvio di &plasma;. </para>
+<para
+>Gli script impostati per essere eseguiti alla <guilabel
+>chiusura</guilabel
+> sono copiati o collegati simbolicamente nella cartella <filename class="directory"
+>$HOME/.config/plasma-workspace/shutdown</filename
+> e sono eseguiti automaticamente durante l'arresto di &plasma; dopo che l'utente ha terminato la propria sessione. </para>
+<para
+>Gli script impostati per essere eseguiti all'<guilabel
+>avvio pre-&plasma;</guilabel
+> sono copiati o collegati simbolicamente in <filename class="directory"
+>$HOME/.config/plasma-workspace/env</filename
+> e sono ricavati durante l'avvio di &plasma; (lo script <filename
+>startkde</filename
+> cercherà gli script qui). </para>
+<note
+><para
+>Per le modalità <guilabel
+>Prima dell'avvio sessione</guilabel
+> e <guilabel
+>Chiusura</guilabel
+>, &plasma; potrà leggere solo gli script con estensione <filename class="extension"
+>sh</filename
+>. </para
+></note>
+</listitem>
+</varlistentry>
+</variablelist>
+</sect2>
+
+<sect2 id="actions">
+<title
+>Azioni</title>
+<para
+>In basso sono presenti alcuni pulsanti che permettono la modifica della configurazione di Autostart. Puoi aggiungere e rimuovere programmi o script, o cambiarne le proprietà. </para>
+
+<variablelist>
+<varlistentry
+><term
+><guibutton
+>Aggiungi programma</guibutton
+></term>
+<listitem>
+<para
+>Premendo questo pulsante viene mostrata la finestra di dialogo standard di &plasma; <guilabel
+>Scegli applicazione</guilabel
+> che permette di scegliere quale programma vuoi avviare. Dopo aver scelto il programma e premuto il pulsante <guibutton
+>OK</guibutton
+> ti saranno mostrate le proprietà del programma. </para>
+<para
+>Questo copierà il programma file desktop nella cartella <filename class="directory"
+>Autostart</filename
+>. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry
+><term
+><guibutton
+>Aggiungi script</guibutton
+></term>
+<listitem>
+<para
+>Questo pulsante apre una finestra di dialogo in cui verrà chiesta la posizione dello script da aggiungere. Se mantieni attiva l'opzione <guilabel
+>Crea come collegamento</guilabel
+> (predefinito), allora lo script sarà aggiunto come collegamento simbolico. Se disattivi questa opzione, lo script verrà invece copiato nella cartella locale corrispondente. </para>
+</listitem>
+</varlistentry>
+<varlistentry
+><term
+><guibutton
+>Rimuovi</guibutton
+></term>
+<listitem>
+<para
+>«Rimuovi» rimuoverà immediatamente il file desktop per il programma, lo script o il collegamento simbolico nella cartella <filename class="directory"
+>Autostart</filename
+>. </para>
+</listitem>
+</varlistentry>
+<varlistentry
+><term
+><guibutton
+>Proprietà</guibutton
+></term>
+<listitem>
+<para
+>Questo pulsante (attivabile solo per programmi tipo file Desktop) permette di modificare le proprietà del programma o dello script. Saranno presenti le proprietà generali, i permessi, un'anteprima, quando possibile, e le proprietà delle applicazioni collegate ai programmi. </para>
+</listitem>
+</varlistentry>
+<varlistentry
+><term
+><guibutton
+>Avanzate</guibutton
+></term>
+<listitem>
+<para
+>Questo pulsante si applica solamente ai programmi (&ie; i file desktop). Una finestra di dialogo chiede se desideri che il programma si avvi automaticamente solo in &plasma; (e non in altri ambienti desktop eseguibili nel sistema). Il programma, come impostazione predefinita, si avvierà automaticamente in tutti gli ambienti desktop da te eseguibili. Attivando l'opzione <guilabel
+>Avvio automatico solo in Plasma</guilabel
+>, eseguirai il programma solo se avvii l'ambiente desktop &plasma;. </para>
+<para
+>Questo imposta il valore Plasma per la chiave OnlyShowIn del file desktop del programma. </para>
+</listitem>
+</varlistentry>
+</variablelist>
+</sect2>
+</sect1>
+</article>
+
+<!--
+Local Variables:
+mode: xml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+
+vim:tabstop=2:shiftwidth=2:expandtab
+kate: space-indent on; indent-width 2; tab-width 2; indent-mode none;
+-->

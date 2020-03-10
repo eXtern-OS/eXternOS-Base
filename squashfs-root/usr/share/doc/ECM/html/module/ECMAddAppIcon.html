@@ -1,0 +1,174 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ECMAddAppIcon &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ECMAddQch" href="ECMAddQch.html" />
+    <link rel="prev" title="ecm-modules(7)" href="../manual/ecm-modules.7.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ECMAddQch.html" title="ECMAddQch"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../manual/ecm-modules.7.html" title="ecm-modules(7)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" accesskey="U">ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ecmaddappicon">
+<span id="module:ECMAddAppIcon"></span><h1>ECMAddAppIcon<a class="headerlink" href="#ecmaddappicon" title="Permalink to this headline">¶</a></h1>
+<p>Add icons to executable files and packages.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_add_app_icon</span><span class="p">(</span><span class="o">&lt;</span><span class="n">sources_var</span><span class="o">&gt;</span>
+                 <span class="n">ICONS</span> <span class="o">&lt;</span><span class="n">icon</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">icon</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]</span>
+                 <span class="p">[</span><span class="n">SIDEBAR_ICONS</span> <span class="o">&lt;</span><span class="n">icon</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">icon</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]</span> <span class="c1"># Since 5.49</span>
+                 <span class="p">[</span><span class="n">OUTFILE_BASENAME</span> <span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="p">])</span> <span class="c1"># Since 5.49</span>
+                 <span class="p">)</span>
+</pre></div>
+</div>
+<p>The given icons, whose names must match the pattern:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">size</span><span class="o">&gt;-&lt;</span><span class="n">other_text</span><span class="o">&gt;.</span><span class="n">png</span>
+</pre></div>
+</div>
+<p>will be added to the executable target whose sources are specified by
+<code class="docutils literal"><span class="pre">&lt;sources_var&gt;</span></code> on platforms that support it (Windows and Mac OS X).
+Other icon files are ignored but on Mac SVG files can be supported and
+it is thus possible to mix those with png files in a single macro call.</p>
+<p><code class="docutils literal"><span class="pre">&lt;size&gt;</span></code> is a numeric pixel size (typically 16, 32, 48, 64, 128 or 256).
+<code class="docutils literal"><span class="pre">&lt;other_text&gt;</span></code> can be any other text. See the platform notes below for any
+recommendations about icon sizes.</p>
+<p><code class="docutils literal"><span class="pre">SIDEBAR_ICONS</span></code> can be used to add Mac OS X sidebar
+icons to the generated iconset. They are used when a folder monitored by the
+application is dragged into Finder’s sidebar. Since 5.49.</p>
+<p><code class="docutils literal"><span class="pre">OUTFILE_BASENAME</span></code> will be used as the basename for the icon file. If
+you specify it, the icon file will be called <code class="docutils literal"><span class="pre">&lt;OUTFILE_BASENAME&gt;.icns</span></code> on Mac OS X
+and <code class="docutils literal"><span class="pre">&lt;OUTFILE_BASENAME&gt;.ico</span></code> on Windows. If you don’t specify it, it defaults
+to <code class="docutils literal"><span class="pre">&lt;sources_var&gt;.&lt;ext&gt;</span></code>. Since 5.49.</p>
+<dl class="docutils">
+<dt>Windows notes</dt>
+<dd><ul class="first last simple">
+<li>Icons are compiled into the executable using a resource file.</li>
+<li>Icons may not show up in Windows Explorer if the executable
+target does not have the <code class="docutils literal"><span class="pre">WIN32_EXECUTABLE</span></code> property set.</li>
+<li>One of the tools png2ico (See <a class="reference internal" href="../find-module/FindPng2Ico.html#find-module:FindPng2Ico" title="FindPng2Ico"><code class="xref ecm ecm-find-module docutils literal"><span class="pre">FindPng2Ico</span></code></a>) or
+icotool (see <a class="reference internal" href="../find-module/FindIcoTool.html#find-module:FindIcoTool" title="FindIcoTool"><code class="xref ecm ecm-find-module docutils literal"><span class="pre">FindIcoTool</span></code></a>) is required.</li>
+<li>Supported sizes: 16, 24, 32, 48, 64, 128, 256, 512 and 1024.</li>
+</ul>
+</dd>
+<dt>Mac OS X notes</dt>
+<dd><ul class="first last simple">
+<li>The executable target must have the <code class="docutils literal"><span class="pre">MACOSX_BUNDLE</span></code> property set.</li>
+<li>Icons are added to the bundle.</li>
+<li>If the ksvg2icns tool from KIconThemes is available, .svg and .svgz
+files are accepted; the first that is converted successfully to .icns
+will provide the application icon. SVG files are ignored otherwise.</li>
+<li>The tool iconutil (provided by Apple) is required for bitmap icons.</li>
+<li>Supported sizes: 16, 32, 64, 128, 256 (and 512, 1024 after OS X 10.9).</li>
+<li>At least a 128x128px (or an SVG) icon is required.</li>
+<li>Larger sizes are automatically used to substitute for smaller sizes on
+“Retina” (high-resolution) displays. For example, a 32px icon, if
+provided, will be used as a 32px icon on standard-resolution displays,
+and as a 16px-equivalent icon (with an “&#64;2x” tag) on high-resolution
+displays. That is why you should provide 64px and 1024px icons although
+they are not supported anymore directly. Instead they will be used as
+<a class="reference external" href="mailto:32px&#37;&#52;&#48;2x">32px<span>&#64;</span>2x</a> and <a class="reference external" href="mailto:512px&#37;&#52;&#48;2x">512px<span>&#64;</span>2x</a>. ksvg2icns handles this internally.</li>
+<li>This function sets the <code class="docutils literal"><span class="pre">MACOSX_BUNDLE_ICON_FILE</span></code> variable to the name
+of the generated icns file, so that it will be used as the
+<code class="docutils literal"><span class="pre">MACOSX_BUNDLE_ICON_FILE</span></code> target property when you call
+<code class="docutils literal"><span class="pre">add_executable</span></code>.</li>
+<li>Sidebar icons should typically provided in 16, 32, 64, 128 and 256px.</li>
+</ul>
+</dd>
+</dl>
+<p>Since 1.7.0.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../manual/ecm-modules.7.html"
+                        title="previous chapter">ecm-modules(7)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ECMAddQch.html"
+                        title="next chapter">ECMAddQch</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/module/ECMAddAppIcon.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ECMAddQch.html" title="ECMAddQch"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../manual/ecm-modules.7.html" title="ecm-modules(7)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" >ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

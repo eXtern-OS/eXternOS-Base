@@ -1,0 +1,17 @@
+# warn about a file type
+#format is
+# tag (unique) ~~ type regex (x) [~~ name regex (x) optional empty means .* ~~ missing source transform regex separated by && or map or nothing do not check]
+# note that map is not evaluated but check with regex so please use correct form:
+# map { 's/SOMEREGEXP/'.$_.'/'} qw(LIST)
+#
+# File should match both "type regex" and "name regex"
+#
+source-contains-prebuilt-binary             ~~ \bELF\b                                                                   ~~                                   ~~ map { 's/(?i)(?:[\.-](?:bin|elf|e|hs|linux\d+|oo?|or|out|so(?:\.\d+)*)|static)?$/'.$_.'/'} qw(.asm .c .cc .cpp .cxx .f .F .i .ml .rc .S)
+source-contains-prebuilt-flash-object       ~~ ^Macromedia \s Flash                                                      ~~                                   ~~ s/(?i)\.swf$/.as/
+source-contains-prebuilt-flash-project      ~~ ^Composite \s Document \s File                                            ~~ (?i)\.fla$                        ~~ s/(?i)\.fla$/.as/
+# do not forget to change also $JS_EXT in file.pm
+source-contains-prebuilt-javascript-object  ~~ .*                                                                        ~~ (?i)[-._](?:compiled|compressed|lite|min|pack(?:ed)?|yc)\.js$ ~~ map{'s/(?i)(?:[-._](?:compiled|compressed|lite|min|pack(?:ed)?|prod|yc))?\.js$/'.$_.'/'} qw(.js _orig.js .js.orig .src.js -src.js .debug.js -debug.js -nc.js)
+source-contains-prebuilt-python-object      ~~ ^python \s \d(\.\d+)? \s byte-compiled                                    ~~ .*                                ~~ s/(?i)(?:\.cpython-\d{2}|\.pypy)?\.py[co]$/.py/
+source-contains-prebuilt-silverlight-object ~~ ^Zip \s archive \s data                                                   ~~ (?i)\.xac$
+source-contains-prebuilt-windows-binary     ~~ \b(?:PE(?:32|64)|(?:MS-DOS|COFF)\s executable)\b
+source-contains-prebuilt-wasm-binary        ~~ ^WebAssembly \s \(wasm\) \s binary \s module

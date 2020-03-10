@@ -1,0 +1,47 @@
+# Definitions for a schema to store CUPS printer information in LDAP
+# OID Base is iso(1) org(3) dod(6) internet(1) private(4) enterprise(1) me(5323) cupsSchema(22)
+
+# Syntaxes are under 1.3.6.1.4.1.5323.22.0
+# Attributes are under 1.3.6.1.4.1.5323.22.1
+# Object Classes are under 1.3.6.1.4.1.5323.22.2
+
+attributetype ( 1.3.6.1.4.1.5323.22.1.1
+	NAME 'printerDescription'
+	DESC 'Description of Printer'
+	EQUALITY caseExactIA5Match
+	SINGLE-VALUE
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.5323.22.1.2
+	NAME 'printerURI'
+	DESC 'CUPS style URI for printer'
+	EQUALITY caseExactIA5Match
+	SINGLE-VALUE
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.5323.22.1.3
+	NAME 'printerLocation'
+	DESC 'Identifier string for Printer Location'
+	EQUALITY caseExactIA5Match
+	SINGLE-VALUE
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.5323.22.1.4
+	NAME 'printerMakeAndModel'
+	DESC 'String CUPS uses to figure out driver'
+	EQUALITY caseExactIA5Match
+	SINGLE-VALUE
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.5323.22.1.5
+	NAME 'printerType'
+	DESC 'Integer CUPS uses to figure out type'
+	EQUALITY integerMatch
+	SINGLE-VALUE
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
+
+objectclass ( 1.3.6.1.4.1.5323.22.2.1
+    NAME 'cupsPrinter'
+	SUP top
+	AUXILIARY
+	MUST ( printerDescription $ printerURI $ printerLocation $ printerMakeAndModel $ printerType ) )

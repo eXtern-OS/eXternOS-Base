@@ -1,0 +1,203 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ECMGenerateHeaders &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ECMGeneratePkgConfigFile" href="ECMGeneratePkgConfigFile.html" />
+    <link rel="prev" title="ECMGenerateExportHeader" href="ECMGenerateExportHeader.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ECMGeneratePkgConfigFile.html" title="ECMGeneratePkgConfigFile"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ECMGenerateExportHeader.html" title="ECMGenerateExportHeader"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" accesskey="U">ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ecmgenerateheaders">
+<span id="module:ECMGenerateHeaders"></span><h1>ECMGenerateHeaders<a class="headerlink" href="#ecmgenerateheaders" title="Permalink to this headline">¶</a></h1>
+<p>Generate C/C++ CamelCase forwarding headers.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_generate_headers</span><span class="p">(</span><span class="o">&lt;</span><span class="n">camelcase_forwarding_headers_var</span><span class="o">&gt;</span>
+    <span class="n">HEADER_NAMES</span> <span class="o">&lt;</span><span class="n">CamelCaseName</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">CamelCaseName</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]</span>
+    <span class="p">[</span><span class="n">ORIGINAL</span> <span class="o">&lt;</span><span class="n">CAMELCASE</span><span class="o">|</span><span class="n">LOWERCASE</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">HEADER_EXTENSION</span> <span class="o">&lt;</span><span class="n">header_extension</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">OUTPUT_DIR</span> <span class="o">&lt;</span><span class="n">output_dir</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">PREFIX</span> <span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">REQUIRED_HEADERS</span> <span class="o">&lt;</span><span class="n">variable</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">COMMON_HEADER</span> <span class="o">&lt;</span><span class="n">HeaderName</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">RELATIVE</span> <span class="o">&lt;</span><span class="n">relative_path</span><span class="o">&gt;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>For each CamelCase header name passed to HEADER_NAMES, a file of that name
+will be generated that will include a version with <code class="docutils literal"><span class="pre">.h</span></code> or, if set,
+<code class="docutils literal"><span class="pre">.&lt;header_extension&gt;</span></code> appended.
+For example, the generated header <code class="docutils literal"><span class="pre">ClassA</span></code> will include <code class="docutils literal"><span class="pre">classa.h</span></code> (or
+<code class="docutils literal"><span class="pre">ClassA.h</span></code>, see ORIGINAL).
+If a CamelCaseName consists of multiple comma-separated files, e.g.
+<code class="docutils literal"><span class="pre">ClassA,ClassB,ClassC</span></code>, then multiple camelcase header files will be
+generated which are redirects to the first header file.
+The file locations of these generated headers will be stored in
+&lt;camelcase_forwarding_headers_var&gt;.</p>
+<p>ORIGINAL specifies how the name of the original header is written: lowercased
+or also camelcased.  The default is LOWERCASE. Since 1.8.0.</p>
+<p>HEADER_EXTENSION specifies what file name extension is used for the header
+files.  The default is “h”. Since 5.48.0.</p>
+<p>PREFIX places the generated headers in subdirectories.  This should be a
+CamelCase name like <code class="docutils literal"><span class="pre">KParts</span></code>, which will cause the CamelCase forwarding
+headers to be placed in the <code class="docutils literal"><span class="pre">KParts</span></code> directory (e.g. <code class="docutils literal"><span class="pre">KParts/Part</span></code>).  It
+will also, for the convenience of code in the source distribution, generate
+forwarding headers based on the original names (e.g. <code class="docutils literal"><span class="pre">kparts/part.h</span></code>).  This
+allows includes like <code class="docutils literal"><span class="pre">&quot;#include</span> <span class="pre">&lt;kparts/part.h&gt;&quot;</span></code> to be used before
+installation, as long as the include_directories are set appropriately.</p>
+<p>OUTPUT_DIR specifies where the files will be generated; this should be within
+the build directory. By default, <code class="docutils literal"><span class="pre">${CMAKE_CURRENT_BINARY_DIR}</span></code> will be used.
+This option can be used to avoid file conflicts.</p>
+<p>REQUIRED_HEADERS specifies an output variable name where all the required
+headers will be appended so that they can be installed together with the
+generated ones.  This is mostly intended as a convenience so that adding a new
+header to a project only requires specifying the CamelCase variant in the
+CMakeLists.txt file; the original variant will then be added to this
+variable.</p>
+<p>COMMON_HEADER generates an additional convenience header which includes all
+other header files.</p>
+<p>The RELATIVE argument indicates where the original headers can be found
+relative to CMAKE_CURRENT_SOURCE_DIR.  It does not affect the generated
+CamelCase forwarding files, but ecm_generate_headers() uses it when checking
+that the original header exists, and to generate originally named forwarding
+headers when PREFIX is set.</p>
+<p>To allow other parts of the source distribution (eg: tests) to use the
+generated headers before installation, it may be desirable to set the
+INCLUDE_DIRECTORIES property for the library target to output_dir.  For
+example, if OUTPUT_DIR is CMAKE_CURRENT_BINARY_DIR (the default), you could do</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">target_include_directories</span><span class="p">(</span><span class="s">MyLib</span> <span class="s">PUBLIC</span> <span class="s2">&quot;$&lt;BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}&gt;&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Example usage (without PREFIX):</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">ecm_generate_headers</span><span class="p">(</span>
+    <span class="s">MyLib_FORWARDING_HEADERS</span>
+    <span class="s">HEADERS</span>
+        <span class="s">MLFoo</span>
+        <span class="s">MLBar</span>
+        <span class="c"># etc</span>
+    <span class="s">REQUIRED_HEADERS</span> <span class="s">MyLib_HEADERS</span>
+    <span class="s">COMMON_HEADER</span> <span class="s">MLGeneral</span>
+<span class="p">)</span>
+<span class="nb">install</span><span class="p">(</span><span class="s">FILES</span> <span class="o">${</span><span class="nv">MyLib_FORWARDING_HEADERS</span><span class="o">}</span> <span class="o">${</span><span class="nv">MyLib_HEADERS</span><span class="o">}</span>
+        <span class="s">DESTINATION</span> <span class="o">${</span><span class="nv">CMAKE_INSTALL_PREFIX</span><span class="o">}</span><span class="s">/include</span>
+        <span class="s">COMPONENT</span> <span class="s">Devel</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Example usage (with PREFIX):</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">ecm_generate_headers</span><span class="p">(</span>
+    <span class="s">MyLib_FORWARDING_HEADERS</span>
+    <span class="s">HEADERS</span>
+        <span class="s">Foo</span>
+        <span class="c"># several classes are contained in bar.h, so generate</span>
+        <span class="c"># additional files</span>
+        <span class="s">Bar,BarList</span>
+        <span class="c"># etc</span>
+    <span class="s">PREFIX</span> <span class="s">MyLib</span>
+    <span class="s">REQUIRED_HEADERS</span> <span class="s">MyLib_HEADERS</span>
+<span class="p">)</span>
+<span class="nb">install</span><span class="p">(</span><span class="s">FILES</span> <span class="o">${</span><span class="nv">MyLib_FORWARDING_HEADERS</span><span class="o">}</span>
+        <span class="s">DESTINATION</span> <span class="o">${</span><span class="nv">CMAKE_INSTALL_PREFIX</span><span class="o">}</span><span class="s">/include/MyLib</span>
+        <span class="s">COMPONENT</span> <span class="s">Devel</span><span class="p">)</span>
+<span class="nb">install</span><span class="p">(</span><span class="s">FILES</span> <span class="o">${</span><span class="nv">MyLib_HEADERS</span><span class="o">}</span>
+        <span class="s">DESTINATION</span> <span class="o">${</span><span class="nv">CMAKE_INSTALL_PREFIX</span><span class="o">}</span><span class="s">/include/mylib</span>
+        <span class="s">COMPONENT</span> <span class="s">Devel</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Since pre-1.0.0.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ECMGenerateExportHeader.html"
+                        title="previous chapter">ECMGenerateExportHeader</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ECMGeneratePkgConfigFile.html"
+                        title="next chapter">ECMGeneratePkgConfigFile</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/module/ECMGenerateHeaders.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ECMGeneratePkgConfigFile.html" title="ECMGeneratePkgConfigFile"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ECMGenerateExportHeader.html" title="ECMGenerateExportHeader"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" >ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

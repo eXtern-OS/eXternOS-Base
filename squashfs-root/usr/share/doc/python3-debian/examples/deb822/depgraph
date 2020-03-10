@@ -1,0 +1,61 @@
+#!/usr/bin/python
+
+# depgraph
+# Copyright (C) 2008 Stefano Zacchiroli <zack@debian.org>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+"""Graph the dependencies of all packages contained in a given Packages
+file.
+
+Only consider Depends fields. Versioned dependencies are considered as they
+were not versioned. The graph is retourned in output as a (non normalized)
+graphviz graph suitable to be processed by dot (for an unstable/main Packages
+file, generating the final graph will take a while ...)."""
+
+from __future__ import print_function
+
+import sys
+from debian import deb822
+
+__fresh_id = 0
+
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: depgraph PACKAGES_FILE")
+        sys.exit(2)
+
+    def get_id():
+        global __fresh_id
+        __fresh_id += 1
+        return ("NODE_%d" % __fresh_id)
+
+    def emit_arc(node1, node2):
+        print('  "%s" -> "%s" ;' % (node1, node2))
+    def emit_node(node, dsc):
+        print('  "%s" [label="%s"] ;' % (node, dsc))
+
+    print("digraph depgraph {")
+    for pkg in deb822.Packages.iter_paragraphs(open(sys.argv[1])):
+        name = pkg['package']
+        rels = pkg.relations
+        for deps in rels['depends']:
+            if len(deps) == 1:
+                emit_arc(name, deps[0]['name'])
+            else:   # output an OR node
+                or_node = get_id()
+                emit_arc(name, or_node)
+                emit_node(or_node, 'OR')
+                for dep in deps:
+                    emit_arc(or_node, dep['name'].lower())
+                    # even though it is forbidden by policy, there are some
+                    # dependencies with upper case letter in the archive,
+                    # apparently apt-get turn them to lowercase ...
+    print("}")
+
+if __name__ == '__main__':
+    main()
+

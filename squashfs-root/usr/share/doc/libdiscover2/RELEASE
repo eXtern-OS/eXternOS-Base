@@ -1,0 +1,39 @@
+Release notes for Discover 2.0      17 Oct 2002
+-----------------------------------------------
+Copyright 2002 Progeny Linux Systems, Inc.
+
+
+Please see the LICENSE file for licensing information.  Further
+license-related information is also contained in the manual.
+
+This is the initial release of Discover 2.0, which replaces Discover 1
+(which in turn was an extensive rewrite of Mandrake's detect software).
+Discover 1 was widely used only on Debian-based systems, but Discover 2 is
+targeted at a much broader audience, including non-Linux platforms.
+
+The command-line syntax for Discover 2.0 is quite different from that of
+Discover 1.  Any software that used the original Discover command-line
+utility to report hardware information must be updated for Discover 2.
+
+One of the more subtle changes between Discover 1 and Discover 2 is the
+remapping of some busclasses: sound has become audio, video has become
+display.  There is still a video busclass; however, it now represents
+video-capturing devices rather than display devices.
+
+The error handling in Discover is inadequate.  Without the verbose flag to
+the discover executable, no errors are printed on the screen; even with the
+flag, libdiscover returns only a limited amount of error data through its
+status structure.
+
+The sysdeps are currently written for Linux only.  There is a stubs section
+of the sysdep directory.  This is to provide a base on which to build new
+sysdeps.  Discover 2.0 was designed to be a versatile, multiple-platform
+querying tool, and additional sysdeps will always be welcome.
+
+The Linux sysdeps can be found in the linux subdirectory.  As of 2.0, the
+ATA busclass sysdep is not working properly, so Discover does not support
+ATA.  Linux has a rather unique way of reporting ATA device information,
+but the busclass should become available in the near future.  The SCSI
+and PCMCIA busclasses are currently suffering from a lack of good data.
+There is a limited amount of data currently present; it was used mostly for
+testing purposes.  Please feel free to contribute data for these busclasses.

@@ -1,0 +1,110 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      type="topic" style="task"
+      id="keyboard-layout">
+
+  <info>
+    <link type="guide" xref="login#management" />
+    <revision pkgversion="3.11" date="2014-01-29" status="draft"/>
+
+    <credit type="author copyright">
+      <name>minnie_eg</name>
+      <email>amany.elguindy@gmail.com</email>
+      <years>2012</years>
+    </credit>
+    <credit type="editor">
+      <name>Ekaterina Gerasimova</name>
+      <email>kittykat3756@gmail.com</email>
+      <years>2012</years>
+    </credit>
+    <credit type="editor">
+      <name>Petr Kovar</name>
+      <email>pknbe@volny.cz</email>
+      <years>2014</years>
+    </credit>
+
+    <include href="legal.xml" xmlns="http://www.w3.org/2001/XInclude"/>
+
+    <desc>Populate the keyboard layout chooser on the login screen.</desc>
+  </info>
+
+  <title>Display multiple keyboard layouts on the login screen</title>
+
+  <comment>
+    <cite date="2012-12-02" href="mailto:amany.elguindy@gmail.com">Amany El-Guindy</cite>
+    <p>This assumes the reader knows how to edit files as root. The reader
+    will be able to add a list of keyboard layouts to the login screen, so that
+    usernames/passwords of different languages other than the default can be
+    typed.</p>
+  </comment>
+
+  <p>You can change the system keyboard layout settings to add alternative
+  keyboard layouts for users to choose from on the login screen. This can be
+  helpful for users who normally use different keyboard layouts from the default
+  and who want to have those keyboard layouts available at the login screen.</p>
+
+  <steps>
+    <title>Change the system keyboard layout settings</title>
+    <item>
+      <p>Find the codes of the desired language layouts in the
+      <file>/usr/share/X11/xkb/rules/base.lst</file> file under the section
+      named <sys>! layout</sys>.</p>
+    </item>
+    <item>
+      <p>Use the <cmd>localectl</cmd> tool to change the system keyboard
+        layout settings as follows:</p>
+      <screen><cmd>localectl set-x11-keymap <var>layout</var></cmd></screen>
+      <p>You can specify multiple layouts as a comma-separated list. For example,
+        to set <sys>es</sys> as the default layout, and <sys>us</sys>
+        as the secondary layout, run the following command:
+      </p>
+      <screen><output>$ </output><input>localectl set-x11-keymap es,us</input></screen>
+    </item>
+    <item>
+      <p>Log out to find that the defined layouts are available at the top bar
+      on the login screen.</p>
+    </item>
+  </steps>
+  <p>Note that you can also use the <cmd>localectl</cmd> tool to specify
+    the machine-wide default keyboard model, variant, and options. See the
+    <cmd>localectl</cmd>(1) man page for more information.</p>
+
+  <section id="keyboard-layout-no-localectl">
+  <title>Display multiple keyboard layouts without using localectl</title>
+
+  <p>On systems that do not provide the <cmd>localectl</cmd> tool, you can
+  change the system keyboard layout settings by editing a configuration file in
+  <file>/usr/share/X11/xorg.conf.d/</file>.</p>
+
+  <steps>
+    <title>Change the system keyboard layout settings</title>
+    <item>
+      <p>Find the codes of the desired language layouts in the
+      <file>/usr/share/X11/xkb/rules/base.lst</file> file under the section
+      named <sys>! layout</sys>.</p>
+    </item>
+    <item>
+      <p>Add the layout codes to
+      <file>/usr/share/X11/xorg.conf.d/10-evdev.conf</file> in the following
+      way:</p>
+      <screen>
+        Section "InputClass"
+          Identifier "evdev keyboard catchall"
+          MatchIsKeyboard "on"
+          MatchDevicePath "/dev/input/event*"
+          Driver "evdev"
+          <input>Option "XkbLayout" "en,fr"</input>
+        EndSection
+      </screen>
+      <p>Multiple layouts can be added as a comma separated list, as shown in
+      the example for English (<sys>en</sys>) and French (<sys>fr</sys>)
+      layouts.</p>
+    </item>
+    <item>
+      <p>Log out to find that the defined layouts are available at the top bar
+      on the login screen.</p>
+    </item>
+  </steps>
+
+  </section>
+
+</page>

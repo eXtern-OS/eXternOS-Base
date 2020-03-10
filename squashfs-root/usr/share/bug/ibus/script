@@ -1,0 +1,27 @@
+#!/bin/bash
+echo "default-display-manager: `cat /etc/X11/default-display-manager`" >&3
+type ibus >&3
+type ibus-setup >&3
+if [ -x /usr/bin/im-config ]; then
+echo -n "im-config -l => " >&3
+im-config -l >&3
+echo -n "im-config -m => " >&3
+im-config -m |xargs echo >&3
+else
+echo >&3
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >&3
+echo "!!! im-config is missing.  Please install it.                 !!!" >&3
+echo "!!! Please also read usr/share/doc/im-config/README.Debian.gz !!!" >&3
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >&3
+echo >&3
+fi
+echo "XMODIFIERS=$XMODIFIERS" >&3
+echo "GTK_IM_MODULE=$GTK_IM_MODULE" >&3
+echo "QT4_IM_MODULE=$QT4_IM_MODULE" >&3
+echo "QT_IM_MODULE=$QT_IM_MODULE" >&3
+echo "XDG_DATA_DIRS=$XDG_DATA_DIRS" >&3
+echo "XDG_MENU_PREFIX=$XDG_MENU_PREFIX" >&3
+echo "PATH=$PATH" | sed -e "s,`echo $HOME`,~,g" >&3
+echo >&3
+echo "ls -l /usr/lib/ibus/" >&3
+ls -l /usr/lib/ibus/ >&3

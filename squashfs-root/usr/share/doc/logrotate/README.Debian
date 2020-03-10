@@ -1,0 +1,23 @@
+logrotate for Debian
+--------------------
+
+Note that logrotate may not be the only log rotation program on a Debian 
+system.
+
+If sysklogd is installed, as was the case in older versions of Debian, 
+it uses its own log rotation scripts which can be found in 
+/etc/cron.daily/sysklogd and /etc/cron.weekly/sysklogd
+
+Current installs use rsyslog, which does not perform its own log 
+rotation, but makes use of logrotate.
+
+~~
+
+Logrotate prerotate/postrotate/firstaction/lastaction scripts are 
+currently executed by giving the whole script to "sh -c" thus:
+
+    execl("/bin/sh", "sh", "-c", script, "sh", logfn, NULL);
+
+This might change in future versions.
+
+ -- Paul Martin <pm@debian.org>  Mon, 05 Dec 2011 17:38:47 +0000

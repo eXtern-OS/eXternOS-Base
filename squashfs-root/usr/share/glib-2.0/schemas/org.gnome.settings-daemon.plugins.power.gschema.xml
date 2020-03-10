@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema gettext-domain="gnome-settings-daemon" id="org.gnome.settings-daemon.plugins.power" path="/org/gnome/settings-daemon/plugins/power/">
+   <key name="priority" type="i">
+      <default>0</default>
+      <summary>Priority to use for this plugin</summary>
+      <description>Priority to use for this plugin in unity-settings-daemon startup queue</description>
+    </key>
+    <key name="active" type="b">
+      <default>true</default>
+      <summary>Activation of this plugin</summary>
+      <description>Whether this plugin would be activated by unity-settings-daemon or not</description>
+    </key>
+    <key name="idle-brightness" type="i">
+      <default>30</default>
+      <summary>The brightness of the screen when idle</summary>
+      <description>This is the laptop panel screen brightness used when the session is idle.</description>
+    </key>
+    <key name="idle-dim" type="b">
+      <default>true</default>
+      <summary>Dim the screen after a period of inactivity</summary>
+      <description>If the screen should be dimmed to save power when the computer is idle.</description>
+    </key>
+    <key name="sleep-inactive-ac-timeout" type="i">
+      <default>1200</default>
+      <summary>Sleep timeout computer when on AC</summary>
+      <description>The amount of time in seconds the computer on AC power needs to be inactive before it goes to sleep. A value of 0 means never.</description>
+    </key>
+    <key name="sleep-inactive-ac-type" enum="org.gnome.settings-daemon.GsdPowerActionType">
+      <default>'suspend'</default>
+      <summary>Whether to hibernate, suspend or do nothing when inactive</summary>
+      <description>The type of sleeping that should be performed when the computer is inactive.</description>
+    </key>
+    <key name="sleep-inactive-battery-timeout" type="i">
+      <default>1200</default>
+      <summary>Sleep timeout computer when on battery</summary>
+      <description>The amount of time in seconds the computer on battery power needs to be inactive before it goes to sleep. A value of 0 means never.</description>
+    </key>
+    <key name="sleep-inactive-battery-type" enum="org.gnome.settings-daemon.GsdPowerActionType">
+      <default>'suspend'</default>
+      <summary>Whether to hibernate, suspend or do nothing when inactive</summary>
+      <description>The type of sleeping that should be performed when the computer is inactive.</description>
+    </key>
+    <!-- See http://bugzilla.gnome.org/637473 for rationale -->
+    <key name="lid-close-battery-action" enum="org.gnome.settings-daemon.GsdPowerActionType">
+      <default>'suspend'</default>
+      <summary>Laptop lid close action on battery</summary>
+      <description>The action to take when the laptop lid is closed and the laptop is on battery power.</description>
+    </key>
+    <key name="lid-close-ac-action" enum="org.gnome.settings-daemon.GsdPowerActionType">
+      <default>'suspend'</default>
+      <summary>Laptop lid close action when on AC</summary>
+      <description>The action to take when the laptop lid is closed and the laptop is on AC power.</description>
+    </key>
+    <key name="lid-close-suspend-with-external-monitor" type="b">
+      <default>false</default>
+      <summary>Laptop lid, when closed, will suspend even if there is an external monitor plugged in</summary>
+      <description>With no external monitors plugged in, closing a laptop's lid
+	will suspend the machine (as set by the lid-close-battery-action and
+	lid-close-ac-action keys).  By default, however, closing the lid when
+	an external monitor is present will not suspend the machine, so that one can keep
+	working on that monitor (e.g. for docking stations or media viewers).  Set this
+	key to False to keep the default behavior, or to True to suspend the laptop whenever the
+	lid is closed and regardless of external monitors.</description>
+    </key>
+    <key name="ambient-enabled" type="b">
+      <default>true</default>
+      <summary>Enable the ALS sensor</summary>
+      <description>If the ambient light sensor functionality is enabled.</description>
+    </key>
+    <key name="power-button-action" enum="org.gnome.settings-daemon.GsdPowerButtonActionType">
+      <default>'suspend'</default>
+      <summary>Power button action</summary>
+      <description>The action to take when the system power button is pressed. This action is hard-coded (and the setting ignored) on virtual machines (power off) and tablets (suspend).</description>
+    </key>
+    <!-- Obsolete keys still used by unity-settings-daemon -->
+    <key name="button-suspend" enum="org.gnome.settings-daemon.GsdPowerActionType">
+      <default>'suspend'</default>
+      <summary>Suspend button action</summary>
+      <description>The action to take when the system suspend button is pressed.</description>
+    </key>
+    <key name="button-hibernate" enum="org.gnome.settings-daemon.GsdPowerActionType">
+      <default>'hibernate'</default>
+      <summary>Hibernate button action</summary>
+      <description>The action to take when the system hibernate button is pressed.</description>
+    </key>
+    <key name="button-sleep" enum="org.gnome.settings-daemon.GsdPowerActionType">
+      <default>'hibernate'</default>
+      <summary>Sleep button action</summary>
+      <description>The action to take when the system sleep (non-specific type) button is pressed.</description>
+    </key>
+    <!-- See https://bugzilla.gnome.org/show_bug.cgi?id=652183 for rationale -->
+    <key name="button-power" enum="org.gnome.settings-daemon.GsdPowerActionType">
+      <default>'suspend'</default>
+      <summary>Power button action</summary>
+      <description>The action to take when the system power button is pressed.</description>
+    </key>
+    <key name="critical-battery-action" enum="org.gnome.settings-daemon.GsdPowerActionType">
+      <default>'hibernate'</default>
+      <summary>Battery critical low action</summary>
+      <description>The action to take when the battery is critically low.</description>
+    </key>
+    <key name="percentage-low" type="i">
+      <default>10</default>
+      <summary>Percentage considered low</summary>
+      <description>The percentage of the battery when it is considered low. Only valid when use-time-for-policy is false.</description>
+    </key>
+    <key name="percentage-critical" type="i">
+      <default>3</default>
+      <summary>Percentage considered critical</summary>
+      <description>The percentage of the battery when it is considered critical. Only valid when use-time-for-policy is false.</description>
+    </key>
+    <key name="percentage-action" type="i">
+      <default>2</default>
+      <summary>Percentage action is taken</summary>
+      <description>The percentage of the battery when the critical action is performed. Only valid when use-time-for-policy is false.</description>
+    </key>
+    <key name="time-low" type="i">
+      <default>1200</default>
+      <summary>The time remaining when low</summary>
+      <description>The time remaining in seconds of the battery when it is considered low. Only valid when use-time-for-policy is true.</description>
+    </key>
+    <key name="time-critical" type="i">
+      <default>300</default>
+      <summary>The time remaining when critical</summary>
+      <description>The time remaining in seconds of the battery when it is considered critical. Only valid when use-time-for-policy is true.</description>
+    </key>
+    <key name="time-action" type="i">
+      <default>120</default>
+      <summary>The time remaining when action is taken</summary>
+      <description>The time remaining in seconds of the battery when critical action is taken. Only valid when use-time-for-policy is true.</description>
+    </key>
+    <key name="use-time-for-policy" type="b">
+      <default>true</default>
+      <summary>Whether to use time-based notifications</summary>
+      <description>If time based notifications should be used. If set to false, then the percentage change is used instead, which may fix a broken ACPI BIOS.</description>
+    </key>
+    <key name="notify-perhaps-recall" type="b">
+      <default>true</default>
+      <summary>If we should show the recalled battery warning for a broken battery</summary>
+      <description>If we should show the recalled battery warning for a broken battery. Set this to false only if you know your battery is okay.</description>
+    </key>
+  </schema>
+</schemalist>

@@ -1,0 +1,52 @@
+NetworkManager is a set of co-operative tools that make networking simple and
+straightforward. Whether WiFi, wired, 3G, or Bluetooth, NetworkManager allows
+you to quickly move from one network to another.
+
+It has two components:
+
+1. a system level service which manages connections and reports network changes
+2. a graphical desktop applet which allows the user to manipulate network
+   connections. The nmcli tool provides similar functionality on the command
+   line.
+
+
+system connections and security
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In NetworkManager version 0.9, network connections are stored as keyfiles in
+the /etc/NetworkManager/system-connections/ directory.
+When creating new wireless or wired connections, they are by default
+system-owned (i.e. available to everyone) and the secrets (e.g WPA-PSK or WEP
+key) are stored as plain text in the corresponding connection configuration
+file. The advantage of system connections is, that they can be active before a
+user has logged in and they are active across user sessions.
+Modifying or creating such system-owned connections requires admin privileges.
+To avoid prompts for the root/admin password, NetworkManager ships a PolicyKit
+configuration file which grants everyone in group "netdev" or "sudo" the
+privilege to modify a system connection without prior authentication. Adding a
+user to group sudo grants him root-like privileges though. If that is not
+wanted, you can choose to add him to group netdev instead.
+If the user should not have the privilege to add and modify system connections
+don't add him to either groups.
+In that case, the user clients (like nm-applet) will default to creating
+user-owned connections where the secrets are stored in the user keyring.
+VPN and 3G type connections are by default also user-owned.
+
+For more information see NetworkManager.conf(5) or
+http://live.gnome.org/NetworkManager/SystemSettings
+
+The keyfile specification is available at
+https://developer.gnome.org/NetworkManager/0.9/ref-settings.html
+
+unmanaged devices and /etc/network/interfaces
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Network devices which are configured in /etc/network/interfaces will typically
+be managed by ifupdown. NetworkManager respects such a configuration and will
+ignore those devices and mark them as "unmanaged".
+
+If you want to have a network interface managed by NetworkManager it is thus
+recommended to manually remove any configuration for that interface from
+/etc/network/interfaces. You need to restart NetworkManager afterwards via
+"service network-manager restart".
+

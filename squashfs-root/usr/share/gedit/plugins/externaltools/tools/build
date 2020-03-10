@@ -1,0 +1,144 @@
+#!/bin/sh
+
+# [Gedit Tool]
+# Name=Build
+# Name[af]=Bou
+# Name[an]=Construir
+# Name[ar]=ابنِ
+# Name[as]=বিল্ড
+# Name[ast]=Construcción
+# Name[be]=Пабудова
+# Name[be@latin]=Buduj
+# Name[bg]=Компилиране
+# Name[bn]=বিল্ড
+# Name[bn_IN]=বিল্ড
+# Name[bs]=Izgradi
+# Name[ca]=Munta
+# Name[ca@valencia]=Munta
+# Name[crh]=İnşa
+# Name[cs]=Sestavit
+# Name[cy]=Adeiladu
+# Name[da]=Byg
+# Name[de]=Alles kompilieren
+# Name[dz]=བཟོ་བརྩིགས་
+# Name[el]=Δόμηση
+# Name[en@shaw]=𐑚𐑦𐑤𐑛
+# Name[en_GB]=Build
+# Name[eo]=Kunmeti
+# Name[es]=Construir
+# Name[et]=Ehitamine
+# Name[eu]=Eraiki
+# Name[fa]=ساختن
+# Name[fi]=Käännös
+# Name[fr]=Construire
+# Name[fur]=Costruìs
+# Name[ga]=Tóg
+# Name[gd]=Togail
+# Name[gl]=Construír
+# Name[gu]=Build
+# Name[he]=בנייה
+# Name[hi]=बिल्ड
+# Name[hr]=Izgradi
+# Name[hu]=Összeállítás
+# Name[id]=Bangun
+# Name[is]=Byggingarútgáfa
+# Name[it]=Crea
+# Name[ja]=ビルド
+# Name[kk]=Жинау
+# Name[km]=ស្ថាបនា
+# Name[kn]=ನಿರ್ಮಾಣ
+# Name[ko]=컴파일하기
+# Name[ln]=Tónga
+# Name[lt]=Sukurti
+# Name[lv]=Būvējums
+# Name[mai]=निर्मित
+# Name[mk]=Изгради
+# Name[ml]=ബിള്‍ഡ്
+# Name[mr]=बील्ड
+# Name[my]=တည်ဆောက်
+# Name[nb]=Bygg
+# Name[ne]=निर्माण गर्नुहोस्
+# Name[nl]=Bouwen
+# Name[nn]=Bygg
+# Name[oc]=Construire
+# Name[or]=ନିର୍ମାଣ କରନ୍ତୁ
+# Name[pa]=Build
+# Name[pl]=Zbuduj
+# Name[ps]=جوړول
+# Name[pt]=Compilação
+# Name[pt_BR]=Compilar
+# Name[ro]=Generează
+# Name[ru]=Сборка
+# Name[si]=සාදන්න
+# Name[sk]=Zostavenie
+# Name[sl]=Izgradi
+# Name[sq]=Gjenero
+# Name[sr]=Изгради
+# Name[sr@latin]=Izgradi
+# Name[sv]=Bygg
+# Name[ta]=உருவாக்கு
+# Name[te]=బుల్ట్
+# Name[tg]=Сохтан
+# Name[th]=ประกอบสร้าง
+# Name[tr]=Derle
+# Name[ug]=قۇرۇش
+# Name[uk]=Збірка
+# Name[vi]=Xây dựng
+# Name[zh_CN]=构建
+# Name[zh_HK]=建立
+# Name[zh_TW]=建立
+# Comment=Run “make” in the document directory
+# Comment[be]=Запуск "make" у каталозе дакумента
+# Comment[ca]=Executa «make» al directori del document
+# Comment[cs]=Spustit „make” ve složce dokumentu
+# Comment[da]=Start “make” i dokumentmappen
+# Comment[de]=»make« im Dokumentenordner ausführen
+# Comment[en_GB]=Run “make” in the document directory
+# Comment[es]=Ejecutar «make» en la carpeta del documento
+# Comment[fi]=Suorita “make” asiakirjahakemistossa
+# Comment[fr]=Exécuter « make » dans le répertoire du document
+# Comment[fur]=Eseguìs “make” te cartele dal document
+# Comment[gl]=Executar «make» no cartafol de documentos
+# Comment[hr]=Pokrenite "make" u direktoriju dokumenta
+# Comment[hu]=A „make” futtatása a dokumentum könyvtárában
+# Comment[id]=Jalankan "make" dalam direktori dokumen
+# Comment[it]=Esegue «make» nella directory del documento
+# Comment[kk]=Құжат бумасында "make" жөнелту
+# Comment[ko]=문서 디렉터리에서 “make”를 실행합니다
+# Comment[lt]=Paleisti „make“ dokumento aplanke
+# Comment[lv]=Palaist “make” dokumenta direktorijā
+# Comment[nl]=‘make’ uitvoeren in de documentmap
+# Comment[pa]=ਡੌਕੂਮੈਂਟ ਡਾਇਰੈਕਟਰੀ 'ਚ ”make” ਚਲਾਓ
+# Comment[pl]=Wykonuje „make” w katalogu dokumentu
+# Comment[pt_BR]=Executa “make” no diretório do documento
+# Comment[ro]=Execută comanda „make” în dosarul documentului
+# Comment[ru]=Выполнить «make» в каталоге с документом
+# Comment[sk]=Spustiť „make“ v adresári dokumentu
+# Comment[sl]=Zaženi ukaz »make« v mapi dokumenta
+# Comment[sr]=Изврши наредбу „make“ у фасцикли докумената
+# Comment[sr@latin]=Izvrši naredbu „make“ u fascikli dokumenata
+# Comment[sv]=Kör ”make” i dokumentkatalogen
+# Comment[tr]=Belge dizininde “make” komutunu çalıştır
+# Comment[vi]=Chạy lệnh “make” trong thư mục tài liệu
+# Comment[zh_CN]=在文档目录中运行“make”
+# Comment[zh_TW]=在文件資料夾中執行「make」指令
+# Input=nothing
+# Output=output-panel
+# Shortcut=<Control>F8
+# Applicability=local
+# Save-files=all
+# Languages=
+
+EHOME=`echo $HOME | sed "s/#/\#/"`
+DIR=$GEDIT_CURRENT_DOCUMENT_DIR
+while test "$DIR" != "/"; do
+    for m in GNUmakefile makefile Makefile; do
+        if [ -f "${DIR}/${m}" ]; then
+            echo "Using ${m} from ${DIR}" | sed "s#$EHOME#~#" > /dev/stderr
+            make -C "${DIR}"
+            exit
+        fi
+    done
+    DIR=`dirname "${DIR}"`
+done
+echo "No Makefile found!" > /dev/stderr

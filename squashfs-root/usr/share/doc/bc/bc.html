@@ -1,0 +1,1329 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- Created by GNU Texinfo 6.5, http://www.gnu.org/software/texinfo/ -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>bc Command Manual</title>
+
+<meta name="description" content="bc Command Manual">
+<meta name="keywords" content="bc Command Manual">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<link href="#Top" rel="start" title="Top">
+<link href="#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="dir.html#Top" rel="up" title="(dir)">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.indentedblock {margin-right: 0em}
+blockquote.smallindentedblock {margin-right: 0em; font-size: smaller}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style: oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nolinebreak {white-space: nowrap}
+span.roman {font-family: initial; font-weight: normal}
+span.sansserif {font-family: sans-serif; font-weight: normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en">
+<h1 class="settitle" align="center">bc Command Manual</h1>
+
+
+
+
+
+
+
+<a name="Top"></a>
+<div class="header">
+<p>
+Next: <a href="#Introduction" accesskey="n" rel="next">Introduction</a>, Previous: <a href="dir.html#Top" accesskey="p" rel="prev">(dir)</a>, Up: <a href="dir.html#Top" accesskey="u" rel="up">(dir)</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<h1 class="node-heading">Top</h1>
+
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#Introduction" accesskey="1">Introduction</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Basic-Elements" accesskey="2">Basic Elements</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Expressions" accesskey="3">Expressions</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Statements" accesskey="4">Statements</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Functions" accesskey="5">Functions</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Examples" accesskey="6">Examples</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Readline-and-Libedit-Options" accesskey="7">Readline and Libedit Options</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Comparison-with-Other-Implementations" accesskey="8">Comparison with Other Implementations</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Limits" accesskey="9">Limits</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Environment-Variables">Environment Variables</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+</table>
+
+<hr>
+<a name="Introduction"></a>
+<div class="header">
+<p>
+Next: <a href="#Basic-Elements" accesskey="n" rel="next">Basic Elements</a>, Previous: <a href="#Top" accesskey="p" rel="prev">Top</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Introduction-1"></a>
+<h2 class="chapter">1 Introduction</h2>
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#Description" accesskey="1">Description</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Command-Line-Options" accesskey="2">Command Line Options</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+</table>
+
+<hr>
+<a name="Description"></a>
+<div class="header">
+<p>
+Next: <a href="#Command-Line-Options" accesskey="n" rel="next">Command Line Options</a>, Previous: <a href="#Introduction" accesskey="p" rel="prev">Introduction</a>, Up: <a href="#Introduction" accesskey="u" rel="up">Introduction</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Description-1"></a>
+<h3 class="section">1.1 Description</h3>
+
+<p><code>bc</code> [ -hlwsqv ] [long-options] [ <var> file ...</var> ]
+</p>
+<p><code>bc</code> is a language that supports arbitrary precision numbers
+with interactive execution of statements.  There are some similarities
+in the syntax to the C programming language. 
+A standard math library is available by command line option.
+If requested, the math library is defined before processing any files.
+<code>bc</code> starts by processing code from all the files listed
+on the command line in the order listed.  After all files have been
+processed, <code>bc</code> reads from the standard input.  All code is
+executed as it is read.  (If a file contains a command to halt the
+processor, <code>bc</code> will never read from the standard input.)
+</p>
+<p>This version of <code>bc</code> contains several extensions beyond
+traditional <code>bc</code> implementations and the POSIX draft standard.
+Command line options can cause these extensions to print a warning or to
+be rejected.  This document describes the language accepted by this
+processor.  Extensions will be identified as such.
+</p>
+<p>The author would like to thank Steve Sommars
+(<a href="mailto:Steve.Sommars@att.com">Steve.Sommars@att.com</a>) for his extensive help in testing the
+implementation.  Many great suggestions were given.  This is a much
+better product due to his involvement.
+</p>
+<p>Email bug reports to <a href="mailto:bug-bc@gnu.org">bug-bc@gnu.org</a>.  Be sure to include
+the word &ldquo;bc&rdquo; somewhere in the &ldquo;Subject:&rdquo; field.
+</p>
+<hr>
+<a name="Command-Line-Options"></a>
+<div class="header">
+<p>
+Next: <a href="#Numbers" accesskey="n" rel="next">Numbers</a>, Previous: <a href="#Description" accesskey="p" rel="prev">Description</a>, Up: <a href="#Introduction" accesskey="u" rel="up">Introduction</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Command-Line-Options-1"></a>
+<h3 class="section">1.2 Command Line Options</h3>
+
+<p><code>bc</code> takes the following options from the command line:
+</p><dl compact="compact">
+<dt><code>-h, --help</code></dt>
+<dd><p>Print the usage and exit.
+</p>
+</dd>
+<dt><code>-l, --mathlib</code></dt>
+<dd><p>Define the standard math library.
+</p>
+</dd>
+<dt><code>-w, --warn</code></dt>
+<dd><p>Give warnings for extensions to POSIX <code>bc</code>.
+</p>
+</dd>
+<dt><code>-s, --standard</code></dt>
+<dd><p>Process exactly the POSIX <code>bc</code> language.
+</p>
+</dd>
+<dt><code>-q, --quiet</code></dt>
+<dd><p>Do not print the normal GNU <code>bc</code> welcome.
+</p>
+</dd>
+<dt><code>-v, --version</code></dt>
+<dd><p>Print the version number and copyright and quit.
+</p>
+</dd>
+</dl>
+
+
+<hr>
+<a name="Basic-Elements"></a>
+<div class="header">
+<p>
+Next: <a href="#Expressions" accesskey="n" rel="next">Expressions</a>, Previous: <a href="#Introduction" accesskey="p" rel="prev">Introduction</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Basic-Elements-1"></a>
+<h2 class="chapter">2 Basic Elements</h2>
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#Numbers" accesskey="1">Numbers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Variables" accesskey="2">Variables</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Comments" accesskey="3">Comments</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+</table>
+
+<hr>
+<a name="Numbers"></a>
+<div class="header">
+<p>
+Next: <a href="#Variables" accesskey="n" rel="next">Variables</a>, Previous: <a href="#Command-Line-Options" accesskey="p" rel="prev">Command Line Options</a>, Up: <a href="#Basic-Elements" accesskey="u" rel="up">Basic Elements</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Numbers-1"></a>
+<h3 class="section">2.1 Numbers</h3>
+
+<p>The most basic element in <code>bc</code> is the number.  Numbers are
+arbitrary precision numbers.  This precision is both in the integer
+part and the fractional part.  All numbers are represented internally
+in decimal and all computation is done in decimal.  (This version
+truncates results from divide and multiply operations.)  There are two
+attributes of numbers, the length and the scale.  The length is the
+total number of digits used by <code>bc</code> to represent a number and
+the scale is the total number of decimal digits after the decimal
+point.  For example, .000001 has a length of 6 and scale of 6, while
+1935.000 has a length of 7 and a scale of 3.
+</p>
+<hr>
+<a name="Variables"></a>
+<div class="header">
+<p>
+Next: <a href="#Comments" accesskey="n" rel="next">Comments</a>, Previous: <a href="#Numbers" accesskey="p" rel="prev">Numbers</a>, Up: <a href="#Basic-Elements" accesskey="u" rel="up">Basic Elements</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Variables-1"></a>
+<h3 class="section">2.2 Variables</h3>
+
+<p>Numbers are stored in two types of variables, simple variables and
+arrays.  Both simple variables and array variables are named.  Names
+begin with a letter followed by any number of letters, digits and
+underscores.  All letters must be lower case.  (Full alphanumeric
+names are an extension. In POSIX <code>bc</code> all names are a single
+lower case letter.)  The type of variable is clear by the context
+because all array variable names will be followed by brackets ( [ ] ).
+</p>
+<p>There are four special variables, <var>scale</var>, <var>ibase</var>, <var>obase</var>, and
+<var>last</var>.  <var>scale</var> defines how some operations use digits after the
+decimal point.  The default value of <var>scale</var> is 0. <var>ibase</var>
+and <var>obase</var> define the conversion base for input and output
+numbers.  The default for both input and output is base 10.
+<var>last</var> (an extension) is a variable that has the value of the last
+printed number.  These will be discussed in further detail where
+appropriate.  All of these variables may have values assigned to them
+as well as used in expressions.
+</p>
+<hr>
+<a name="Comments"></a>
+<div class="header">
+<p>
+Previous: <a href="#Variables" accesskey="p" rel="prev">Variables</a>, Up: <a href="#Basic-Elements" accesskey="u" rel="up">Basic Elements</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Comments-1"></a>
+<h3 class="section">2.3 Comments</h3>
+
+<p>Comments in <code>bc</code> start with the characters <code>/*</code> and end with
+the characters <code>*/</code>.  Comments may start anywhere and appear as a
+single space in the input.  (This causes comments to delimit other
+input items.  For example, a comment can not be found in the middle of
+a variable name.)  Comments include any newlines (end of line) between
+the start and the end of the comment.
+</p>
+<p>To support the use of scripts for <code>bc</code>, a single line comment has been
+added as an extension.  A single line comment starts at a <code>#</code>
+character and continues to the next end of the line.  The end of line
+character is not part of the comment and is processed normally.
+</p>
+<hr>
+<a name="Expressions"></a>
+<div class="header">
+<p>
+Next: <a href="#Statements" accesskey="n" rel="next">Statements</a>, Previous: <a href="#Basic-Elements" accesskey="p" rel="prev">Basic Elements</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Expressions-1"></a>
+<h2 class="chapter">3 Expressions</h2>
+
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#About-Expressions-and-Special-Variables" accesskey="1">About Expressions and Special Variables</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Basic-Expressions" accesskey="2">Basic Expressions</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Relational-Expressions" accesskey="3">Relational Expressions</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Boolean-Expressions" accesskey="4">Boolean Expressions</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Precedence" accesskey="5">Precedence</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Special-Expressions" accesskey="6">Special Expressions</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+</table>
+
+<hr>
+<a name="About-Expressions-and-Special-Variables"></a>
+<div class="header">
+<p>
+Next: <a href="#Basic-Expressions" accesskey="n" rel="next">Basic Expressions</a>, Previous: <a href="#Expressions" accesskey="p" rel="prev">Expressions</a>, Up: <a href="#Expressions" accesskey="u" rel="up">Expressions</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="About-Expressions-and-Special-Variables-1"></a>
+<h3 class="section">3.1 About Expressions and Special Variables</h3>
+
+<p>The numbers are manipulated by expressions and statements.  Since
+the language was designed to be interactive, statements and expressions
+are executed as soon as possible.  There is no main program.  Instead,
+code is executed as it is encountered.  (Functions, discussed in
+detail later, are defined when encountered.)
+</p>
+<p>A simple expression is just a constant. <code>bc</code> converts constants
+into internal decimal numbers using the current input base, specified by
+the variable <var>ibase</var>. (There is an exception in functions.)  The
+legal values of <var>ibase</var> are 2 through 36.  (Bases greater than
+16 are an extension.)  Assigning a value outside
+this range to <var>ibase</var> will result in a value of 2 or 36.  Input
+numbers may contain the characters 0-9 and A-Z. (Note: They must be
+capitals.  Lower case letters are variable names.)  Single digit numbers
+always have the value of the digit regardless of the value of
+<var>ibase</var>. (i.e. A = 10.)  For multi-digit numbers, <code>bc</code>
+changes all input digits greater or equal to <var>ibase</var> to the value of
+<var>ibase</var>-1.  This makes the number <code>ZZZ</code> always be the largest
+3 digit number of the input base.
+</p>
+<p>Full expressions are similar to many other high level languages.
+Since there is only one kind of number, there are no rules for mixing
+types.  Instead, there are rules on the scale of expressions.  Every
+expression has a scale.  This is derived from the scale of original
+numbers, the operation performed and in many cases, the value of the
+variable <var>scale</var>. Legal values of the variable <var>scale</var> are
+0 to the maximum number representable by a C integer.
+</p>
+<hr>
+<a name="Basic-Expressions"></a>
+<div class="header">
+<p>
+Next: <a href="#Relational-Expressions" accesskey="n" rel="next">Relational Expressions</a>, Previous: <a href="#About-Expressions-and-Special-Variables" accesskey="p" rel="prev">About Expressions and Special Variables</a>, Up: <a href="#Expressions" accesskey="u" rel="up">Expressions</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Basic-Expressions-1"></a>
+<h3 class="section">3.2 Basic Expressions</h3>
+
+<p>In the following descriptions of legal expressions, &quot;expr&quot; refers to a
+complete expression and &quot;<var>var</var>&quot; refers to a simple or an array variable.
+A simple variable is just a 
+</p>
+<p><var>name</var>
+</p>
+<p>and an array variable is specified as 
+</p>
+<p><var>name</var>[<var>expr</var>] 
+</p>
+<p>Unless specifically mentioned the scale of the result is the maximum
+scale of the expressions involved.
+</p>
+<dl compact="compact">
+<dt><code>- expr</code></dt>
+<dd><p>The result is the negation of the expression.
+</p>
+</dd>
+<dt><code>++ <var>var</var></code></dt>
+<dd><p>The variable is incremented by one and the new value is the result of
+the expression.
+</p>
+</dd>
+<dt><code>-- <var>var</var></code></dt>
+<dd><p>The variable
+is decremented by one and the new value is the result of the
+expression.
+</p>
+</dd>
+<dt><code><var>var</var> ++</code></dt>
+<dd><p>The result of the expression is the value of
+the variable and then the variable is incremented by one.
+</p>
+</dd>
+<dt><code><var>var</var> --</code></dt>
+<dd><p>The result of the expression is the value of the variable and then
+the variable is decremented by one.
+</p>
+</dd>
+<dt><code>expr + expr</code></dt>
+<dd><p>The result of the expression is the sum of the two expressions.
+</p>
+</dd>
+<dt><code>expr - expr</code></dt>
+<dd><p>The result of the expression is the difference of the two expressions.
+</p>
+</dd>
+<dt><code>expr * expr</code></dt>
+<dd><p>The result of the expression is the product of the two expressions.
+</p>
+</dd>
+<dt><code>expr / expr</code></dt>
+<dd><p>The result of the expression is the quotient of the two expressions.
+The scale of the result is the value of the variable <code>scale</code>
+</p>
+</dd>
+<dt><code>expr % expr</code></dt>
+<dd><p>The result of the expression is the &quot;remainder&quot; and it is computed in the
+following way.  To compute a%b, first a/b is computed to <var>scale</var>
+digits.  That result is used to compute a-(a/b)*b to the scale of the
+maximum of <var>scale</var>+scale(b) and scale(a).  If <var>scale</var> is set
+to zero and both expressions are integers this expression is the
+integer remainder function.
+</p>
+</dd>
+<dt><code>expr ^ expr</code></dt>
+<dd><p>The result of the expression is the value of the first raised to the
+second. The second expression must be an integer.  (If the second
+expression is not an integer, a warning is generated and the
+expression is truncated to get an integer value.)  The scale of the
+result is <var>scale</var> if the exponent is negative.  If the exponent
+is positive the scale of the result is the minimum of the scale of the
+first expression times the value of the exponent and the maximum of
+<var>scale</var> and the scale of the first expression.  (e.g. scale(a^b)
+= min(scale(a)*b, max(<var>scale</var>, scale(a))).)  It should be noted
+that expr^0 will always return the value of 1.
+</p>
+</dd>
+<dt><code>( expr )</code></dt>
+<dd><p>This alters the standard precedence to force the evaluation of the
+expression.
+</p>
+</dd>
+<dt><code><var>var</var> = expr</code></dt>
+<dd><p>The variable is assigned the value of the expression.
+</p>
+</dd>
+<dt><code><var>var</var> &lt;op&gt;= expr</code></dt>
+<dd><p>This is equivalent to &quot;<var>var</var> = <var>var</var> &lt;op&gt; expr&quot; with the
+exception that the &quot;<var>var</var>&quot; part is evaluated only once.  This can
+make a difference if &quot;<var>var</var>&quot; is an array.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Relational-Expressions"></a>
+<div class="header">
+<p>
+Next: <a href="#Boolean-Expressions" accesskey="n" rel="next">Boolean Expressions</a>, Previous: <a href="#Basic-Expressions" accesskey="p" rel="prev">Basic Expressions</a>, Up: <a href="#Expressions" accesskey="u" rel="up">Expressions</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Relational-Expressions-1"></a>
+<h3 class="section">3.3 Relational Expressions</h3>
+
+<p>Relational expressions are a special kind of expression that always
+evaluate to 0 or 1, 0 if the relation is false and 1 if the relation is
+true.  These may appear in any legal expression.  (POSIX <code>bc</code>
+requires that relational expressions are used only in <code>if</code>,
+<code>while</code>, and <code>for</code> statements and that only one relational
+test may be done in them.)  The relational operators are
+</p>
+<dl compact="compact">
+<dt><code>expr1 &lt; expr2</code></dt>
+<dd><p>The result is 1 if expr1 is strictly less than expr2.
+</p>
+</dd>
+<dt><code>expr1 &lt;= expr2</code></dt>
+<dd><p>The result is 1 if expr1 is less than or equal to expr2.
+</p>
+</dd>
+<dt><code>expr1 &gt; expr2</code></dt>
+<dd><p>The result is 1 if expr1 is strictly greater than expr2.
+</p>
+</dd>
+<dt><code>expr1 &gt;= expr2</code></dt>
+<dd><p>The result is 1 if expr1 is greater than or equal to expr2.
+</p>
+</dd>
+<dt><code>expr1 == expr2</code></dt>
+<dd><p>The result is 1 if expr1 is equal to expr2.
+</p>
+</dd>
+<dt><code>expr1 != expr2</code></dt>
+<dd><p>The result is 1 if expr1 is not equal to expr2.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Boolean-Expressions"></a>
+<div class="header">
+<p>
+Next: <a href="#Precedence" accesskey="n" rel="next">Precedence</a>, Previous: <a href="#Relational-Expressions" accesskey="p" rel="prev">Relational Expressions</a>, Up: <a href="#Expressions" accesskey="u" rel="up">Expressions</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Boolean-Expressions-1"></a>
+<h3 class="section">3.4 Boolean Expressions</h3>
+
+<p>Boolean operations are also legal.  (POSIX <code>bc</code> does NOT have
+boolean operations). The result of all boolean operations are 0 and 1
+(for false and true) as in relational expressions.  The boolean
+operators are:
+</p>
+<dl compact="compact">
+<dt><code>!expr</code></dt>
+<dd><p>The result is 1 if expr is 0.
+</p>
+</dd>
+<dt><code>expr &amp;&amp; expr</code></dt>
+<dd><p>The result is 1 if both expressions are non-zero.
+</p>
+</dd>
+<dt><code>expr || expr</code></dt>
+<dd><p>The result is 1 if either expression is non-zero.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Precedence"></a>
+<div class="header">
+<p>
+Next: <a href="#Special-Expressions" accesskey="n" rel="next">Special Expressions</a>, Previous: <a href="#Boolean-Expressions" accesskey="p" rel="prev">Boolean Expressions</a>, Up: <a href="#Expressions" accesskey="u" rel="up">Expressions</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Precedence-1"></a>
+<h3 class="section">3.5 Precedence</h3>
+
+<p>The expression precedence is as follows: (lowest to highest)
+</p>
+<div class="example">
+<pre class="example">|| operator, left associative
+&amp;&amp; operator, left associative
+! operator, nonassociative
+Relational operators, left associative
+Assignment operator, right associative
++ and - operators, left associative
+*, / and % operators, left associative
+^ operator, right associative
+unary - operator, nonassociative
+++ and -- operators, nonassociative
+</pre></div>
+
+<p>This precedence was chosen so that POSIX compliant <code>bc</code> programs
+will run correctly. This will cause the use of the relational and
+logical operators to have some unusual behavior when used with
+assignment expressions.  Consider the expression:
+</p>
+<div class="example">
+<pre class="example">a = 3 &lt; 5
+</pre></div>
+
+<p>Most C programmers would assume this would assign the result of &quot;3 &lt;
+5&quot; (the value 1) to the variable &quot;a&quot;.  What this does in <code>bc</code> is
+assign the value 3 to the variable &quot;a&quot; and then compare 3 to 5.  It is
+best to use parentheses when using relational and logical operators
+with the assignment operators.
+</p>
+<hr>
+<a name="Special-Expressions"></a>
+<div class="header">
+<p>
+Previous: <a href="#Precedence" accesskey="p" rel="prev">Precedence</a>, Up: <a href="#Expressions" accesskey="u" rel="up">Expressions</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Special-Expressions-1"></a>
+<h3 class="section">3.6 Special Expressions</h3>
+
+<p>There are a few more special expressions that are provided in
+<code>bc</code>.  These have to do with user-defined functions and standard
+functions.  They all appear as
+&quot;<var>name</var><code>(</code><var>parameters</var><code>)</code>&quot;.  See <a href="#Functions">Functions</a>, for
+user-defined functions.  The standard functions are:
+</p>
+<dl compact="compact">
+<dt><code>length ( <var>expression</var> )</code></dt>
+<dd><p>The value of the length function is the number of significant digits in the
+expression.
+</p>
+</dd>
+<dt><code>read ( )</code></dt>
+<dd><p>The <code>read</code> function (an extension) will read a number from the
+standard input, regardless of where the function occurs.  Beware, this
+can cause problems with the mixing of data and program in the standard
+input.  The best use for this function is in a previously written
+program that needs input from the user, but never allows program code to
+be input from the user.  The value of the <code>read</code> function is the
+number read from the standard input using the current value of the
+variable <var>ibase</var> for the conversion base.
+</p>
+</dd>
+<dt><code>scale ( <var>expression</var> )</code></dt>
+<dd><p>The value of the <code>scale</code> function is the number of digits after the
+decimal point in the expression.
+</p>
+</dd>
+<dt><code>sqrt ( <var>expression</var> )</code></dt>
+<dd><p>The value of the <code>sqrt</code> function is the square root of the
+expression.  If the expression is negative, a run time error is
+generated.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Statements"></a>
+<div class="header">
+<p>
+Next: <a href="#Functions" accesskey="n" rel="next">Functions</a>, Previous: <a href="#Expressions" accesskey="p" rel="prev">Expressions</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Statements-1"></a>
+<h2 class="chapter">4 Statements</h2>
+
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#Pseudo-Statements" accesskey="1">Pseudo Statements</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+</table>
+
+<p>Statements (as in most algebraic languages) provide the sequencing of
+expression evaluation.  In <code>bc</code> statements are executed &quot;as soon
+as possible.&quot;  Execution happens when a newline in encountered and there
+is one or more complete statements.  Due to this immediate execution,
+newlines are very important in <code>bc</code>. In fact, both a semicolon
+and a newline are used as statement separators.  An improperly placed
+newline will cause a syntax error.  Because newlines are statement
+separators, it is possible to hide a newline by using the backslash
+character.  The sequence &quot;\&lt;nl&gt;&quot;, where &lt;nl&gt; is the newline appears to
+<code>bc</code> as whitespace instead of a newline.  A statement list is a
+series of statements separated by semicolons and newlines.  The
+following is a list of <code>bc</code> statements and what they do: (Things
+enclosed in brackets ( [ ] ) are optional parts of the statement.)
+</p>
+<dl compact="compact">
+<dt><code><var>expression</var></code></dt>
+<dd><p>This statement does one of two things.  If the expression starts with
+&quot;&lt;variable&gt; &lt;assignment&gt; ...&quot;, it is considered to be an assignment
+statement.  If the expression is not an assignment statement, the
+expression is evaluated and printed to the output.  After the number is
+printed, a newline is printed.  For example, &quot;a=1&quot; is an assignment
+statement and &quot;(a=1)&quot; is an expression that has an embedded assignment.
+All numbers that are printed are printed in the base specified by the
+variable <var>obase</var>. The legal values for <var>obase</var> are 2 through
+BC_BASE_MAX (see <a href="#Environment-Variables">Environment Variables</a>).  For bases 2 through 16,
+the usual method of writing numbers is used.  For bases greater than 16,
+<code>bc</code> uses a multi-character digit method of printing the numbers
+where each higher base digit is printed as a base 10 number.  The
+multi-character digits are separated by spaces.  Each digit contains the
+number of characters required to represent the base ten value of
+&quot;<var>obase</var> -1&quot;.  Since numbers are of arbitrary precision, some
+numbers may not be printable on a single output line.  These long
+numbers will be split across lines using the &quot;\&quot; as the last character
+on a line.  The maximum number of characters printed per line is 70.
+Due to the interactive nature of <code>bc</code>, printing a number causes
+the side effect of assigning the printed value to the special variable
+<var>last</var>. This allows the user to recover the last value printed
+without having to retype the expression that printed the number.
+Assigning to <var>last</var> is legal and will overwrite the last printed
+value with the assigned value.  The newly assigned value will remain
+until the next number is printed or another value is assigned to
+<var>last</var>.  (Some installations may allow the use of a single period
+(.) which is not part of a number as a short hand notation for for
+<var>last</var>.)
+</p>
+</dd>
+<dt><code><var>string</var></code></dt>
+<dd><p>The string is printed to the output.  Strings start with a double quote
+character and contain all characters until the next double quote character.
+All characters are taken literally, including any newline.  No newline
+character is printed after the string.
+</p>
+</dd>
+<dt><code>print <var>list</var></code></dt>
+<dd><p>The <code>print</code> statement (an extension) provides another method of
+output.  The <var>list</var> is a list of strings and expressions separated by
+commas.  Each string or expression is printed in the order of the list.
+No terminating newline is printed.  Expressions are evaluated and their
+value is printed and assigned to the variable <code>last</code>. Strings in
+the print statement are printed to the output and may contain special
+characters.  Special characters start with the backslash character (\e).
+The special characters recognized by <code>bc</code> are &quot;a&quot; (alert or
+bell), &quot;b&quot; (backspace), &quot;f&quot; (form feed), &quot;n&quot; (newline), &quot;r&quot; (carriage
+return), &quot;q&quot; (double quote), &quot;t&quot; (tab), and &quot;\e&quot; (backslash).  Any other
+character following the backslash will be ignored.
+</p>
+</dd>
+<dt><code>{ <var>statement_list</var> }</code></dt>
+<dd><p>This is the compound statement.  It allows multiple statements to be
+grouped together for execution.
+</p>
+</dd>
+<dt><code>if ( <var>expression</var> ) <var>statement1</var> [else <var>statement2</var>]</code></dt>
+<dd><p>The if statement evaluates the expression and executes statement1 or
+statement2 depending on the value of the expression.  If the expression
+is non-zero, statement1 is executed.  If statement2 is present and
+the value of the expression is 0, then statement2 is executed.  (The
+<code>else</code> clause is an extension.)
+</p>
+</dd>
+<dt><code>while ( <var>expression</var> ) <var>statement</var></code></dt>
+<dd><p>The while statement will execute the statement while the expression
+is non-zero.  It evaluates the expression before each execution of
+the statement.   Termination of the loop is caused by a zero
+expression value or the execution of a <code>break</code> statement.
+</p>
+</dd>
+<dt><code>for ( [<var>expression1</var>] ; [<var>expression2</var>] ; [<var>expression3</var>] ) <var>statement</var></code></dt>
+<dd><p>The <code>for</code> statement controls repeated execution of the statement.
+<var>Expression1</var> is evaluated before the loop.  <var>Expression2</var> is
+evaluated before each execution of the statement.  If it is non-zero,
+the statement is evaluated.  If it is zero, the loop is terminated.
+After each execution of the statement, <var>expression3</var> is evaluated
+before the reevaluation of expression2.  If <var>expression1</var> or
+<var>expression3</var> are missing, nothing is evaluated at the point they
+would be evaluated.  If <var>expression2</var> is missing, it is the same as
+substituting the value 1 for <var>expression2</var>.  (The optional
+expressions are an extension. POSIX <code>bc</code> requires all three
+expressions.)  The following is equivalent code for the <code>for</code>
+statement:
+</p>
+<div class="example">
+<pre class="example">expression1;
+while (expression2) {
+   statement;
+   expression3;
+}
+</pre></div>
+
+</dd>
+<dt><code>break</code></dt>
+<dd><p>This statement causes a forced exit of the most recent enclosing <code>while</code>
+statement or <code>for</code> statement.
+</p>
+</dd>
+<dt><code>continue</code></dt>
+<dd><p>The <code>continue</code> statement (an extension)  causes the most recent enclosing
+<code>for</code> statement to start the next iteration.
+</p>
+</dd>
+<dt><code>halt</code></dt>
+<dd><p>The <code>halt</code> statement (an extension) is an executed statement that
+causes the <code>bc</code> processor to quit only when it is executed.  For
+example, &quot;if (0 == 1) halt&quot; will not cause <code>bc</code> to terminate
+because the <code>halt</code> is not executed.
+</p>
+</dd>
+<dt><code>return</code></dt>
+<dd><p>Return the value 0 from a function.  (See <a href="#Functions">Functions</a>.)
+</p>
+</dd>
+<dt><code>return ( <var>expression</var> )</code></dt>
+<dd><p>Return the value of the expression from a function.  (See <a href="#Functions">Functions</a>.)
+As an extension, the parenthesis are not required.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Pseudo-Statements"></a>
+<div class="header">
+<p>
+Previous: <a href="#Statements" accesskey="p" rel="prev">Statements</a>, Up: <a href="#Statements" accesskey="u" rel="up">Statements</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Pseudo-Statements-1"></a>
+<h3 class="section">4.1 Pseudo Statements</h3>
+
+<p>These statements are not statements in the traditional sense.  They are
+not executed statements.  Their function is performed at &quot;compile&quot; time.
+</p>
+<dl compact="compact">
+<dt><code>limits</code></dt>
+<dd><p>Print the local limits enforced by the local version of <code>bc</code>.  This
+is an extension.
+</p>
+</dd>
+<dt><code>quit</code></dt>
+<dd><p>When the <code>quit</code> statement is read, the <code>bc</code> processor
+is terminated, regardless of where the <code>quit</code> statement is found.  For
+example, &quot;if (0 == 1) quit&quot; will cause <code>bc</code> to terminate.
+</p>
+</dd>
+<dt><code>warranty</code></dt>
+<dd><p>Print a longer warranty notice.  This is an extension.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Functions"></a>
+<div class="header">
+<p>
+Next: <a href="#Examples" accesskey="n" rel="next">Examples</a>, Previous: <a href="#Statements" accesskey="p" rel="prev">Statements</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Functions-1"></a>
+<h2 class="chapter">5 Functions</h2>
+
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#Math-Library-Functions" accesskey="1">Math Library Functions</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+</table>
+
+<p>Functions provide a method of defining a computation that can be
+executed later.  Functions in <code>bc</code> always compute a value and
+return it to the caller.  Function definitions are &quot;dynamic&quot; in the
+sense that a function is undefined until a definition is encountered in
+the input.  That definition is then used until another definition
+function for the same name is encountered.  The new definition then
+replaces the older definition.  A function is defined as follows:
+</p>
+<div class="example">
+<pre class="example"><code>define</code> <var>name</var> <code>(</code> <var>parameters</var> <code>)</code> <code>{</code> <var>newline</var>
+    <var>auto_list   statement_list</var> <code>}</code>
+</pre></div>
+
+<p>A function call is just an expression of the form
+&quot;<code>name</code> <code>(</code><var>parameters</var><code>)</code>&quot;.
+</p>
+<p>Parameters are numbers or arrays (an extension).  In the function definition,
+zero or more parameters are defined by listing their names separated by
+commas.  All parameters  are call by value parameters.
+Arrays are specified in the parameter definition by
+the notation &quot;<var>name</var><code>[ ]</code>&quot;.   In the function call, actual parameters
+are full expressions for number parameters.  The same notation is used
+for passing arrays as for defining array parameters.  The named array is
+passed by value to the function.  Since function definitions are dynamic,
+parameter numbers and types are checked when a function is called.  Any
+mismatch in number or types of parameters will cause a runtime error.
+A runtime error will also occur for the call to an undefined function.
+</p>
+<p>The <var>auto_list</var> is an optional list of variables that are for
+&quot;local&quot; use.  The syntax of the auto list (if present) is &quot;<code>auto</code>
+<var>name</var>, ... ;&quot;.  (The semicolon is optional.)  Each <var>name</var> is
+the name of an auto variable.  Arrays may be specified by using the
+same notation as used in parameters.  These variables have their
+values pushed onto a stack at the start of the function.  The
+variables are then initialized to zero and used throughout the
+execution of the function.  At function exit, these variables are
+popped so that the original value (at the time of the function call)
+of these variables are restored.  The parameters are really auto
+variables that are initialized to a value provided in the function
+call.  
+Auto variables are different than traditional local variables
+because if function A calls function B, B may access function
+A&rsquo;s auto variables by just using the same name, unless function B has
+called them auto variables.  Due to the fact that auto variables and
+parameters are pushed onto a stack, <code>bc</code> supports recursive functions.
+</p>
+<p>The function body is a list of <code>bc</code> statements.  Again, statements
+are separated by semicolons or newlines.  Return statements cause the
+termination of a function and the return of a value.  There are two
+versions of the return statement.  The first form, &quot;<code>return</code>&quot;, returns
+the value 0 to the calling expression.  The second form, 
+&quot;<code>return</code> ( <var>expression</var> )&quot;, computes the value of the expression
+and returns that value to the calling expression.  There is an implied
+&quot;<code>return</code> (0)&quot; at the end of every function.  This allows a function
+to terminate and return 0 without an explicit <code>return</code> statement.
+</p>
+<p>Functions also change the usage of the variable <var>ibase</var>.  All
+constants in the function body will be converted using the value of
+<var>ibase</var> at the time of the function call.  Changes of <var>ibase</var>
+will be ignored during the execution of the function except for the
+standard function <code>read</code>, which will always use the current value
+of <var>ibase</var> for conversion of numbers.
+</p>
+<p>Several extensions have been added to functions.  First, the format of
+the definition has been slightly relaxed.  The standard requires the
+opening brace be on the same line as the <code>define</code> keyword and all
+other parts must be on following lines.  This version of <code>bc</code>
+will allow any number of newlines before and after the opening brace of
+the function.  For example, the following definitions are legal.
+</p>
+<div class="example">
+<pre class="example">   define d (n) { return (2*n); }
+   define d (n)
+       { return (2*n); }
+</pre></div>
+
+<p>Functions may be defined as <code>void</code>.  A void
+funtion returns no value and thus may not be used in any place that needs
+a value.  A void function does not produce any output when called by itself
+on an input line.  The key word <code>void</code> is placed between the key word
+<code>define</code> and the function name.  For example, consider the following
+session.
+</p>
+<div class="example">
+<pre class="example">define py (y) { print &quot;---&gt;&quot;, y, &quot;&lt;---&quot;, &quot;\n&quot;; }
+define void px (x) { print &quot;---&gt;&quot;, x, &quot;&lt;---&quot;, &quot;\n&quot;; }
+py(1)
+---&gt;1&lt;---
+0
+px(1)
+---&gt;1&lt;---
+</pre></div>
+
+<p>Since <code>py</code> is not a void function, the call of <code>py(1)</code> prints
+the desired output and then prints a second line that is the value of
+the function.  Since the value of a function that is not given an
+explicit return statement is zero, the zero is printed.  For <code>px(1)</code>,
+no zero is printed because the function is a void function.
+</p>
+<p>Also, call by variable for arrays was added.  To declare a
+call by variable array, the declaration of the array parameter in the
+function definition looks like &quot;<code>*</code><var>name</var><code>[]</code>&quot;.  The call
+to the function remains the same as call by value arrays.
+</p>
+<hr>
+<a name="Math-Library-Functions"></a>
+<div class="header">
+<p>
+Previous: <a href="#Functions" accesskey="p" rel="prev">Functions</a>, Up: <a href="#Functions" accesskey="u" rel="up">Functions</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Math-Library-Functions-1"></a>
+<h3 class="section">5.1 Math Library Functions</h3>
+
+<p>If <code>bc</code> is invoked with the <code>-l</code> option, a math library is
+preloaded and the default <var>scale</var> is set to 20.  The math functions will
+calculate their results to the scale set at the time of their call.  The
+math library defines the following functions:
+</p>
+<dl compact="compact">
+<dt><code>s (<var>x</var>)</code></dt>
+<dd><p>The sine of <var>x</var>, <var>x</var> is in radians.
+</p>
+</dd>
+<dt><code>c (<var>x</var>)</code></dt>
+<dd><p>The cosine of <var>x</var>, <var>x</var> is in radians.
+</p>
+</dd>
+<dt><code>a (<var>x</var>)</code></dt>
+<dd><p>The arctangent of <var>x</var>, arctangent returns radians.
+</p>
+</dd>
+<dt><code>l (<var>x</var>)</code></dt>
+<dd><p>The natural logarithm of <var>x</var>.
+</p>
+</dd>
+<dt><code>e (<var>x</var>)</code></dt>
+<dd><p>The exponential function of raising <var>e</var> to the value <var>x</var>.
+</p>
+</dd>
+<dt><code>j (<var>n</var>, <var>x</var>)</code></dt>
+<dd><p>The Bessel function of integer order <var>n</var> of <var>x</var>.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Examples"></a>
+<div class="header">
+<p>
+Next: <a href="#Readline-and-Libedit-Options" accesskey="n" rel="next">Readline and Libedit Options</a>, Previous: <a href="#Functions" accesskey="p" rel="prev">Functions</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Examples-1"></a>
+<h2 class="chapter">6 Examples</h2>
+
+<p>In /bin/sh,  the following will assign the value of &quot;pi&quot; to the shell
+variable <var>pi</var>.
+</p><div class="example">
+<pre class="example">
+
+pi=$(echo &quot;scale=10; 4*a(1)&quot; | bc -l)
+
+</pre></div>
+
+<p>The following is the definition of the exponential function used in the
+math library.  This function is written in POSIX <code>bc</code>.
+</p>
+<div class="example">
+<pre class="example">
+
+scale = 20
+
+/* Uses the fact that e^x = (e^(x/2))^2
+   When x is small enough, we use the series:
+     e^x = 1 + x + x^2/2! + x^3/3! + ...
+*/
+
+define e(x) {
+  auto  a, d, e, f, i, m, v, z
+
+  /* Check the sign of x. */
+  if (x&lt;0) {
+    m = 1
+    x = -x
+  } 
+
+  /* Precondition x. */
+  z = scale;
+  scale = 4 + z + .44*x;
+  while (x &gt; 1) {
+    f += 1;
+    x /= 2;
+  }
+
+  /* Initialize the variables. */
+  v = 1+x
+  a = x
+  d = 1
+
+  for (i=2; 1; i++) {
+    e = (a *= x) / (d *= i)
+    if (e == 0) {
+      if (f&gt;0) while (f--)  v = v*v;
+      scale = z
+      if (m) return (1/v);
+      return (v/1);
+    }
+    v += e
+  }
+}
+
+</pre></div>
+
+<p>The following is code that uses the extended features of <code>bc</code> to
+implement a simple program for calculating checkbook balances.  This
+program is best kept in a file so that it can be used many times 
+without having to retype it at every use.
+</p>
+<div class="example">
+<pre class="example">
+
+scale=2
+print &quot;\nCheck book program\n!&quot;
+print &quot;  Remember, deposits are negative transactions.\n&quot;
+print &quot;  Exit by a 0 transaction.\n\n&quot;
+
+print &quot;Initial balance? &quot;; bal = read()
+bal /= 1
+print &quot;\n&quot;
+while (1) {
+  &quot;current balance = &quot;; bal
+  &quot;transaction? &quot;; trans = read()
+  if (trans == 0) break;
+  bal -= trans
+  bal /= 1
+}
+quit
+
+</pre></div>
+
+
+<p>The following is the definition of the recursive factorial function.
+</p>
+<div class="example">
+<pre class="example">
+
+define f (x) {
+  if (x &lt;= 1) return (1);
+  return (f(x-1) * x);
+}
+
+</pre></div>
+
+<hr>
+<a name="Readline-and-Libedit-Options"></a>
+<div class="header">
+<p>
+Next: <a href="#Comparison-with-Other-Implementations" accesskey="n" rel="next">Comparison with Other Implementations</a>, Previous: <a href="#Examples" accesskey="p" rel="prev">Examples</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Readline-and-Libedit-Options-1"></a>
+<h2 class="chapter">7 Readline and Libedit Options</h2>
+
+<p>GNU <code>bc</code> can be compiled (via a configure option) to use the GNU
+<code>readline</code> input editor library or the BSD <code>libedit</code>
+library.  This allows the user to do
+more editing of lines before sending them to <code>bc</code>.  It also
+allows for a history of previous lines typed.  When this option is
+selected, <code>bc</code> has one more special variable.  This special
+variable, <var>history</var> is the number of lines of history retained.  A
+value of -1 means that an unlimited number of history lines are
+retained.  This is the default value.  Setting the value of
+<var>history</var> to a positive number restricts the number of history lines
+to the number given.  The value of 0 disables the history feature.  For
+more information, read the user manuals for the GNU <code>readline</code>,
+<code>history</code> and BSD <code>libedit</code> libraries.  One can not
+enable both <code>readline</code> and <code>libedit</code> at the same time.
+</p>
+<hr>
+<a name="Comparison-with-Other-Implementations"></a>
+<div class="header">
+<p>
+Next: <a href="#Limits" accesskey="n" rel="next">Limits</a>, Previous: <a href="#Readline-and-Libedit-Options" accesskey="p" rel="prev">Readline and Libedit Options</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Comparison-with-Other-Implementations-1"></a>
+<h2 class="chapter">8 Comparison with Other Implementations</h2>
+
+<p>This version of <code>bc</code> was implemented from the POSIX P1003.2/D11
+draft and contains several differences and extensions relative to the
+draft and traditional implementations.  It is not implemented in the
+traditional way using <code>dc</code>.  This version is a single process
+which parses and runs a byte code translation of the program.  There is
+an &quot;undocumented&quot; option (-c) that causes the program to output the byte
+code to the standard output instead of running it.  It was mainly used
+for debugging the parser and preparing the math library.
+</p>
+<p>A major source of differences is extensions, where a feature is extended
+to add more functionality and additions, where new features are added.
+The following is the list of differences and extensions.
+</p>
+<dl compact="compact">
+<dt>LANG environment</dt>
+<dd><p>This version does not conform to the POSIX standard in the processing
+of the LANG environment variable and all environment variables starting
+with LC_.
+</p>
+</dd>
+<dt>names</dt>
+<dd><p>Traditional and POSIX <code>bc</code>
+have single letter names for functions, variables and arrays.  They have
+been extended to be multi-character names that start with a letter and
+may contain letters, numbers and the underscore character.
+</p>
+</dd>
+<dt>Strings</dt>
+<dd><p>Strings are not allowed to contain NUL characters.  POSIX says all characters
+must be included in strings.
+</p>
+</dd>
+<dt>last</dt>
+<dd><p>POSIX <code>bc</code> does not have a \fBlast variable.  Some implementations
+of <code>bc</code> use the period (.) in a similar way.  
+</p>
+</dd>
+<dt>comparisons</dt>
+<dd><p>POSIX <code>bc</code> allows comparisons only in the <code>if</code> statement,
+the <code>while</code> statement, and the second expression of the <code>for</code>
+statement.  Also, only one relational operation is allowed in each of
+those statements.
+</p>
+</dd>
+<dt><code>if</code> statement, <code>else</code> clause</dt>
+<dd><p>POSIX <code>bc</code> does not have an <code>else</code> clause.
+</p>
+</dd>
+<dt><code>for</code> statement</dt>
+<dd><p>POSIX <code>bc</code> requires all expressions to be present in the
+<code>for</code> statement.
+</p>
+</dd>
+<dt><code>&amp;&amp;,</code> <code>||</code>, <code>!</code></dt>
+<dd><p>POSIX <code>bc</code> does not have the logical operators.
+</p>
+</dd>
+<dt><code>read</code> function</dt>
+<dd><p>POSIX <code>bc</code> does not have a <code>read</code> function.
+</p>
+</dd>
+<dt><code>print</code> statement</dt>
+<dd><p>POSIX <code>bc</code> does not have a <code>print</code> statement.
+</p>
+</dd>
+<dt><code>continue</code> statement</dt>
+<dd><p>POSIX <code>bc</code> does not have a continue statement.
+</p>
+</dd>
+<dt>array parameters</dt>
+<dd><p>POSIX <code>bc</code> does not (currently) support array parameters in full.
+The POSIX grammar allows for arrays in function definitions, but does
+not provide a method to specify an array as an actual parameter.  (This
+is most likely an oversight in the grammar.)  Traditional implementations
+of <code>bc</code> have only call by value array parameters.
+</p>
+</dd>
+<dt>function format</dt>
+<dd><p>POSIX <code>bc</code> requires the opening brace on the same line as the 
+<code>define</code> key word and the <code>auto</code> statement on the next line.
+</p>
+</dd>
+<dt><code>=+</code>, <code>=-</code>, <code>=*</code>, <code>=/</code>, <code>=%</code>, <code>=^</code></dt>
+<dd><p>POSIX <code>bc</code> does not require these &quot;old style&quot; assignment
+operators to be defined.  This version may allow these &quot;old style&quot;
+assignments.  Use the <code>limits</code> statement to see if the installed
+version supports them.  If it does support the &quot;old style&quot; assignment
+operators, the statement &quot;a =- 1&quot; will decrement <code>a</code> by 1 instead
+of setting <code>a</code> to the value -1.
+</p>
+</dd>
+<dt>spaces in numbers</dt>
+<dd><p>Other implementations of <code>bc</code> allow spaces in numbers.  For example,
+&quot;x=1 3&quot; would assign the value 13 to the variable x.  The same statement
+would cause a syntax error in this version of <code>bc</code>.
+</p>
+</dd>
+<dt>errors and execution</dt>
+<dd><p>This implementation varies from other implementations in terms of what
+code will be executed when syntax and other errors are found in the
+program.  If a syntax error is found in a function definition, error
+recovery tries to find the beginning of a statement and continue to
+parse the function.  Once a syntax error is found in the function, the
+function will not be callable and becomes undefined.
+Syntax errors in the interactive execution code will invalidate the
+current execution block.  The execution block is terminated by an
+end of line that appears after a complete sequence of statements.
+For example, 
+</p>
+<div class="example">
+<pre class="example">a = 1
+b = 2
+</pre></div>
+
+<p>has two execution blocks and
+</p>
+<div class="example">
+<pre class="example">{ a = 1
+  b = 2 }
+</pre></div>
+
+<p>has one execution block.  Any runtime error will terminate the execution
+of the current execution block.  A runtime warning will not terminate the
+current execution block.
+</p>
+</dd>
+<dt>Interrupts</dt>
+<dd><p>During an interactive session, the SIGINT signal (usually generated by
+the control-C character from the terminal) will cause execution of the
+current execution block to be interrupted.  It will display a &quot;runtime&quot;
+error indicating which function was interrupted.  After all runtime
+structures have been cleaned up, a message will be printed to notify the
+user that <code>bc</code> is ready for more input.  All previously defined
+functions remain defined and the value of all non-auto variables are the
+value at the point of interruption.  All auto variables and function
+parameters are removed during the clean up process.  During a
+non-interactive session, the SIGINT signal will terminate the entire run
+of <code>bc</code>.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Limits"></a>
+<div class="header">
+<p>
+Next: <a href="#Environment-Variables" accesskey="n" rel="next">Environment Variables</a>, Previous: <a href="#Comparison-with-Other-Implementations" accesskey="p" rel="prev">Comparison with Other Implementations</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Limits-1"></a>
+<h2 class="chapter">9 Limits</h2>
+
+<p>The following are the limits currently in place for this <code>bc</code>
+processor.  Some of them may have been changed by an installation.  Use
+the <code>limits</code> statement to see the actual values.
+</p>
+<dl compact="compact">
+<dt><code>BC_BASE_MAX</code></dt>
+<dd><p>The maximum output base is currently set at 999.  The maximum input base
+is 16.
+</p>
+</dd>
+<dt><code>BC_DIM_MAX</code></dt>
+<dd><p>This is currently an arbitrary limit of 65535 as distributed.  Your
+installation may be different.
+</p>
+</dd>
+<dt><code>BC_SCALE_MAX</code></dt>
+<dd><p>The number of digits after the decimal point is limited to INT_MAX digits.
+Also, the number of digits before the decimal point is limited to INT_MAX
+digits.
+</p>
+</dd>
+<dt><code>BC_STRING_MAX</code></dt>
+<dd><p>The limit on the number of characters in a string is INT_MAX characters.
+</p>
+</dd>
+<dt><code>exponent</code></dt>
+<dd><p>The value of the exponent in the raise operation (^) is limited to LONG_MAX.
+</p>
+</dd>
+<dt><code>multiply</code></dt>
+<dd><p>The multiply routine may yield incorrect results if a number
+has more than LONG_MAX / 90 total digits.  For 32 bit longs, this number is
+23,860,929 digits.
+</p>
+</dd>
+<dt><code>variable names</code></dt>
+<dd><p>The current limit on the number of unique names is 32767 for each of
+simple variables, arrays and functions.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Environment-Variables"></a>
+<div class="header">
+<p>
+Previous: <a href="#Limits" accesskey="p" rel="prev">Limits</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Environment-Variables-1"></a>
+<h2 class="chapter">10 Environment Variables</h2>
+
+<p>The following environment variables are processed by <code>bc</code>:
+</p>
+<dl compact="compact">
+<dt><code>POSIXLY_CORRECT</code></dt>
+<dd><p>This is the same as the -s option (see <a href="#Command-Line-Options">Command Line Options</a>).
+</p>
+</dd>
+<dt><code>BC_ENV_ARGS</code></dt>
+<dd><p>This is another mechanism to get arguments to <code>bc</code>.  The format
+is the same as the command line arguments.  These arguments are
+processed first, so any files listed in the environment arguments are
+processed before any command line argument files.  This allows the user
+to set up &quot;standard&quot; options and files to be processed at every
+invocation of <code>bc</code>.  The files in the environment variables
+would typically contain function definitions for functions the user
+wants defined every time <code>bc</code> is run.
+</p>
+</dd>
+<dt><code>BC_LINE_LENGTH</code></dt>
+<dd><p>This should be an integer specifying the number of characters in an
+output line for numbers. This includes the backslash and newline
+characters for long numbers. As an extension, the value of zero disables the 
+multi-line feature.  Any other value of this variable that is less than
+3 sets the line length to 70.
+</p></dd>
+</dl>
+
+<a name="SEC_Contents"></a>
+<h2 class="contents-heading">Table of Contents</h2>
+
+<div class="contents">
+<ul class="no-bullet">
+<li><a name="toc-Introduction-1" href="#Introduction">1 Introduction</a>
+<ul class="no-bullet">
+  <li><a name="toc-Description-1" href="#Description">1.1 Description</a></li>
+  <li><a name="toc-Command-Line-Options-1" href="#Command-Line-Options">1.2 Command Line Options</a></li>
+</ul></li>
+<li><a name="toc-Basic-Elements-1" href="#Basic-Elements">2 Basic Elements</a>
+<ul class="no-bullet">
+  <li><a name="toc-Numbers-1" href="#Numbers">2.1 Numbers</a></li>
+  <li><a name="toc-Variables-1" href="#Variables">2.2 Variables</a></li>
+  <li><a name="toc-Comments-1" href="#Comments">2.3 Comments</a></li>
+</ul></li>
+<li><a name="toc-Expressions-1" href="#Expressions">3 Expressions</a>
+<ul class="no-bullet">
+  <li><a name="toc-About-Expressions-and-Special-Variables-1" href="#About-Expressions-and-Special-Variables">3.1 About Expressions and Special Variables</a></li>
+  <li><a name="toc-Basic-Expressions-1" href="#Basic-Expressions">3.2 Basic Expressions</a></li>
+  <li><a name="toc-Relational-Expressions-1" href="#Relational-Expressions">3.3 Relational Expressions</a></li>
+  <li><a name="toc-Boolean-Expressions-1" href="#Boolean-Expressions">3.4 Boolean Expressions</a></li>
+  <li><a name="toc-Precedence-1" href="#Precedence">3.5 Precedence</a></li>
+  <li><a name="toc-Special-Expressions-1" href="#Special-Expressions">3.6 Special Expressions</a></li>
+</ul></li>
+<li><a name="toc-Statements-1" href="#Statements">4 Statements</a>
+<ul class="no-bullet">
+  <li><a name="toc-Pseudo-Statements-1" href="#Pseudo-Statements">4.1 Pseudo Statements</a></li>
+</ul></li>
+<li><a name="toc-Functions-1" href="#Functions">5 Functions</a>
+<ul class="no-bullet">
+  <li><a name="toc-Math-Library-Functions-1" href="#Math-Library-Functions">5.1 Math Library Functions</a></li>
+</ul></li>
+<li><a name="toc-Examples-1" href="#Examples">6 Examples</a></li>
+<li><a name="toc-Readline-and-Libedit-Options-1" href="#Readline-and-Libedit-Options">7 Readline and Libedit Options</a></li>
+<li><a name="toc-Comparison-with-Other-Implementations-1" href="#Comparison-with-Other-Implementations">8 Comparison with Other Implementations</a></li>
+<li><a name="toc-Limits-1" href="#Limits">9 Limits</a></li>
+<li><a name="toc-Environment-Variables-1" href="#Environment-Variables">10 Environment Variables</a></li>
+
+</ul>
+</div>
+
+<hr>
+
+
+
+</body>
+</html>

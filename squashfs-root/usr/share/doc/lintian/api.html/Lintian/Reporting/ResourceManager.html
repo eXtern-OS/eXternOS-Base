@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Reporting::ResourceManager</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#CLASS_METHODS'>CLASS METHODS</a>
+  <li class='indexItem indexItem1'><a href='#INSTANCE_METHODS'>INSTANCE METHODS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Reporting::ResourceManager -- A simple resource manager for html_reports</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre> use Lintian::Reporting::ResourceManager;
+ 
+ my $resMan = Lintian::Reporting::ResourceManager-&#62;new(
+    &#39;html_dir&#39; =&#62; &#39;path/to/HTML-root&#39;,
+ );
+ # Copy the resource
+ $resMan-&#62;install_resource(&#39;path/to/my-image.png&#39;, { install_method =&#62; &#39;copy&#39;} );
+ # Move the resource
+ $resMan-&#62;install_resource(&#39;path/to/generated-styles.css&#39;);
+ print &#39;Image: &#39; . $resMan-&#62;resource_URL(&#39;my-image.png&#39;), &#34;\n&#34;;
+ print &#39;CSS: &#39; . $resMan-&#62;resource_URL(&#39;generated-styles.css&#39;), &#34;\n&#34;;</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>A simple resource manager for Lintian&#39;s reporting tool, <b>html_reports</b>.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS_METHODS"
+>CLASS METHODS</a></h1>
+
+<dl>
+<dt><a name="new(TYPE,_OPTS)"
+>new(TYPE, OPTS)</a></dt>
+
+<dd>
+<p>Instantiates a new resource manager.</p>
+
+<p>OPTS is a key-value list, which must contain the key &#34;html_dir&#34; set to the root of the HTML path. It is beneath this path that all resources will be installed</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="INSTANCE_METHODS"
+>INSTANCE METHODS</a></h1>
+
+<dl>
+<dt><a name="install_resource(RESOURCE[,_OPT])"
+>install_resource(RESOURCE[, OPT])</a></dt>
+
+<dd>
+<p>Installs RESOURCE into the html root. The resource may be renamed (based on content etc.).</p>
+
+<p>Note that the basename of RESOURCE must be unique between all resources installed. See <a href="#resource_URL(RESOURCE_NAME)" class="podlinkpod"
+>&#34;resource_URL(RESOURCE_NAME)&#34;</a>.</p>
+
+<p>If OPT is given, it must be a hashref with 0 or more of the following keys (and values).</p>
+
+<dl>
+<dt><a name="install_method"
+>install_method</a></dt>
+
+<dd>
+<p>Can be &#34;copy&#34; or &#34;move&#34; (default). If set to &#34;move&#34;, the original file will be renamed into its new location. Otherwise, a copy is done and the original file is left in place.</p>
+
+<dt><a name="source_file"
+>source_file</a></dt>
+
+<dd>
+<p>By default, the path denoted by RESOURCE is both the resource name and the source file. This option can be used to install a given file as RESOURCE regardless of the basename of the source file.</p>
+
+<p>If this is passed, RESOURCE must be a basename (i.e. without any slashes).</p>
+</dd>
+</dl>
+
+<dt><a name="resource_URL(RESOURCE_NAME)"
+>resource_URL(RESOURCE_NAME)</a></dt>
+
+<dd>
+<p>Returns the path (relative to the HTML root) to a resource installed via <a href="#install_resource(RESOURCE)" class="podlinkpod"
+>&#34;install_resource(RESOURCE)&#34;</a>, where RESOURCE_NAME is the basename of the path given to install_resource.</p>
+
+<dt><a name="resource_integrity_value(RESOURCE_NAME)"
+>resource_integrity_value(RESOURCE_NAME)</a></dt>
+
+<dd>
+<p>Return a string that is valid in the &#34;integrity&#34; field of a <code>&#60;link&#62;</code> HTML tag. (See https://www.w3.org/TR/SRI/)</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Niels Thykier &#60;niels@thykier.net&#62; for Lintian.</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

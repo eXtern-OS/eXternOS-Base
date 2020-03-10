@@ -1,0 +1,46 @@
+=== modified file 'UpdateManager/Core/DistUpgradeFetcherCore.py'
+--- UpdateManager/Core/DistUpgradeFetcherCore.py	2011-07-15 15:32:30 +0000
++++ UpdateManager/Core/DistUpgradeFetcherCore.py	2011-11-01 13:22:16 +0000
+@@ -68,12 +68,9 @@
+             f = self.tmpdir+"/"+os.path.basename(self.new_dist.upgradeTool)
+             sig = self.tmpdir+"/"+os.path.basename(self.new_dist.upgradeToolSig)
+             print "authenticate '%s' against '%s' " % (os.path.basename(f),os.path.basename(sig))
+-            if not self.gpgauthenticate(f, sig):
+-                return False
+-
+-        # we may return False here by default if we want to make a sig
+-        # mandatory
+-        return True
++            if self.gpgauthenticate(f, sig):
++                return True
++        return False
+ 
+     def gpgauthenticate(self, file, signature,
+                         keyring='/etc/apt/trusted.gpg'):
+@@ -249,6 +246,12 @@
+                   _("Fetching the upgrade failed. There may be a network "
+                     "problem. "))
+             return
++        if not self.authenticate():
++            self.error(_("Authentication failed"),
++                  _("Authenticating the upgrade failed. There may be a problem "
++                    "with the network or with the server. "))
++            self.cleanup()
++            return
+         if not self.extractDistUpgrader():
+             self.error(_("Failed to extract"),
+                   _("Extracting the upgrade failed. There may be a problem "
+@@ -261,12 +264,6 @@
+                     "with the network or with the server. "))
+             self.cleanup()
+             return
+-        if not self.authenticate():
+-            self.error(_("Authentication failed"),
+-                  _("Authenticating the upgrade failed. There may be a problem "
+-                    "with the network or with the server. "))
+-            self.cleanup()
+-            return
+         try:
+             # check if we can execute, if we run it via sudo we will
+             # not know otherwise, sudo/gksu will not raise a exception
+

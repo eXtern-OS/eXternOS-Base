@@ -1,0 +1,178 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ECMSetupVersion &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ECMSourceVersionControl" href="ECMSourceVersionControl.html" />
+    <link rel="prev" title="ECMSetupQtPluginMacroNames" href="ECMSetupQtPluginMacroNames.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ECMSourceVersionControl.html" title="ECMSourceVersionControl"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ECMSetupQtPluginMacroNames.html" title="ECMSetupQtPluginMacroNames"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" accesskey="U">ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ecmsetupversion">
+<span id="module:ECMSetupVersion"></span><h1>ECMSetupVersion<a class="headerlink" href="#ecmsetupversion" title="Permalink to this headline">¶</a></h1>
+<p>Handle library version information.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_setup_version</span><span class="p">(</span><span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span>
+                  <span class="n">VARIABLE_PREFIX</span> <span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;</span>
+                  <span class="p">[</span><span class="n">SOVERSION</span> <span class="o">&lt;</span><span class="n">soversion</span><span class="o">&gt;</span><span class="p">]</span>
+                  <span class="p">[</span><span class="n">VERSION_HEADER</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span><span class="p">]</span>
+                  <span class="p">[</span><span class="n">PACKAGE_VERSION_FILE</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span> <span class="p">[</span><span class="n">COMPATIBILITY</span> <span class="o">&lt;</span><span class="n">compat</span><span class="o">&gt;</span><span class="p">]]</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>This parses a version string and sets up a standard set of version variables.
+It can optionally also create a C version header file and a CMake package
+version file to install along with the library.</p>
+<p>If the <code class="docutils literal"><span class="pre">&lt;version&gt;</span></code> argument is of the form <code class="docutils literal"><span class="pre">&lt;major&gt;.&lt;minor&gt;.&lt;patch&gt;</span></code>
+(or <code class="docutils literal"><span class="pre">&lt;major&gt;.&lt;minor&gt;.&lt;patch&gt;.&lt;tweak&gt;</span></code>), The following CMake variables are
+set:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;</span><span class="n">_VERSION_MAJOR</span>  <span class="o">-</span> <span class="o">&lt;</span><span class="n">major</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;</span><span class="n">_VERSION_MINOR</span>  <span class="o">-</span> <span class="o">&lt;</span><span class="n">minor</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;</span><span class="n">_VERSION_PATCH</span>  <span class="o">-</span> <span class="o">&lt;</span><span class="n">patch</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;</span><span class="n">_VERSION</span>        <span class="o">-</span> <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;</span><span class="n">_VERSION_STRING</span> <span class="o">-</span> <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span> <span class="p">(</span><span class="k">for</span> <span class="n">compatibility</span><span class="p">:</span> <span class="n">use</span> <span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;</span><span class="n">_VERSION</span> <span class="n">instead</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;</span><span class="n">_SOVERSION</span>      <span class="o">-</span> <span class="o">&lt;</span><span class="n">soversion</span><span class="o">&gt;</span><span class="p">,</span> <span class="ow">or</span> <span class="o">&lt;</span><span class="n">major</span><span class="o">&gt;</span> <span class="k">if</span> <span class="n">SOVERSION</span> <span class="n">was</span> <span class="ow">not</span> <span class="n">given</span>
+</pre></div>
+</div>
+<p>If CMake policy CMP0048 is not NEW, the following CMake variables will also
+be set:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">PROJECT_VERSION_MAJOR</span>   <span class="o">-</span> <span class="o">&lt;</span><span class="n">major</span><span class="o">&gt;</span>
+<span class="n">PROJECT_VERSION_MINOR</span>   <span class="o">-</span> <span class="o">&lt;</span><span class="n">minor</span><span class="o">&gt;</span>
+<span class="n">PROJECT_VERSION_PATCH</span>   <span class="o">-</span> <span class="o">&lt;</span><span class="n">patch</span><span class="o">&gt;</span>
+<span class="n">PROJECT_VERSION</span>         <span class="o">-</span> <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span>
+<span class="n">PROJECT_VERSION_STRING</span>  <span class="o">-</span> <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span> <span class="p">(</span><span class="k">for</span> <span class="n">compatibility</span><span class="p">:</span> <span class="n">use</span> <span class="n">PROJECT_VERSION</span> <span class="n">instead</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If the VERSION_HEADER option is used, a simple C header is generated with the
+given filename. If filename is a relative path, it is interpreted as relative
+to CMAKE_CURRENT_BINARY_DIR.  The generated header contains the following
+macros:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;</span><span class="n">_VERSION_MAJOR</span>  <span class="o">-</span> <span class="o">&lt;</span><span class="n">major</span><span class="o">&gt;</span> <span class="k">as</span> <span class="n">an</span> <span class="n">integer</span>
+<span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;</span><span class="n">_VERSION_MINOR</span>  <span class="o">-</span> <span class="o">&lt;</span><span class="n">minor</span><span class="o">&gt;</span> <span class="k">as</span> <span class="n">an</span> <span class="n">integer</span>
+<span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;</span><span class="n">_VERSION_PATCH</span>  <span class="o">-</span> <span class="o">&lt;</span><span class="n">patch</span><span class="o">&gt;</span> <span class="k">as</span> <span class="n">an</span> <span class="n">integer</span>
+<span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;</span><span class="n">_VERSION_STRING</span> <span class="o">-</span> <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span> <span class="k">as</span> <span class="n">a</span> <span class="n">C</span> <span class="n">string</span>
+<span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;</span><span class="n">_VERSION</span>        <span class="o">-</span> <span class="n">the</span> <span class="n">version</span> <span class="k">as</span> <span class="n">an</span> <span class="n">integer</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">&lt;prefix&gt;_VERSION</span></code> has <code class="docutils literal"><span class="pre">&lt;patch&gt;</span></code> in the bottom 8 bits, <code class="docutils literal"><span class="pre">&lt;minor&gt;</span></code> in the
+next 8 bits and <code class="docutils literal"><span class="pre">&lt;major&gt;</span></code> in the remaining bits.  Note that <code class="docutils literal"><span class="pre">&lt;patch&gt;</span></code> and
+<code class="docutils literal"><span class="pre">&lt;minor&gt;</span></code> must be less than 256.</p>
+<p>If the PACKAGE_VERSION_FILE option is used, a simple CMake package version
+file is created using the write_basic_package_version_file() macro provided by
+CMake. It should be installed in the same location as the Config.cmake file of
+the library so that it can be found by find_package().  If the filename is a
+relative path, it is interpreted as relative to CMAKE_CURRENT_BINARY_DIR. The
+optional COMPATIBILITY option is forwarded to
+write_basic_package_version_file(), and defaults to AnyNewerVersion.</p>
+<p>If CMake policy CMP0048 is NEW, an alternative form of the command is
+available:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_setup_version</span><span class="p">(</span><span class="n">PROJECT</span>
+                  <span class="p">[</span><span class="n">VARIABLE_PREFIX</span> <span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;</span><span class="p">]</span>
+                  <span class="p">[</span><span class="n">SOVERSION</span> <span class="o">&lt;</span><span class="n">soversion</span><span class="o">&gt;</span><span class="p">]</span>
+                  <span class="p">[</span><span class="n">VERSION_HEADER</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span><span class="p">]</span>
+                  <span class="p">[</span><span class="n">PACKAGE_VERSION_FILE</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span><span class="p">]</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>This will use the version information set by the project() command.
+VARIABLE_PREFIX defaults to the project name.  Note that PROJECT must be the
+first argument.  In all other respects, it behaves like the other form of the
+command.</p>
+<p>Since pre-1.0.0.</p>
+<p>COMPATIBILITY option available since 1.6.0.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ECMSetupQtPluginMacroNames.html"
+                        title="previous chapter">ECMSetupQtPluginMacroNames</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ECMSourceVersionControl.html"
+                        title="next chapter">ECMSourceVersionControl</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/module/ECMSetupVersion.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ECMSourceVersionControl.html" title="ECMSourceVersionControl"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ECMSetupQtPluginMacroNames.html" title="ECMSetupQtPluginMacroNames"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" >ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

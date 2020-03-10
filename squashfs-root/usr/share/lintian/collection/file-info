@@ -1,0 +1,84 @@
+#!/usr/bin/perl -w
+# file-info -- lintian collection script
+
+# Copyright (C) 1998 Richard Braakman
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, you can find it on the World Wide
+# Web at http://www.gnu.org/copyleft/gpl.html, or write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+
+package Lintian::coll::file_info;
+
+no lib '.';
+
+use strict;
+use warnings;
+use autodie;
+
+use FileHandle;
+use lib "$ENV{'LINTIAN_ROOT'}/lib";
+use Lintian::Collect;
+use Lintian::Command qw(spawn reap);
+use Lintian::Util qw(locate_helper_tool);
+
+my $helper = locate_helper_tool('coll/file-info-helper');
+
+sub collect {
+    my ($pkg, $type, $dir) = @_;
+    my $info = Lintian::Collect->new($pkg, $type, $dir);
+
+    my $outfile = "$dir/file-info.gz";
+
+    if (-e $outfile) {
+        unlink($outfile);
+    }
+
+    chdir("$dir/unpacked");
+
+    # We ignore failures from file because sometimes file returns a
+    # non-zero exit status when it can't parse a file.  So far, the
+    # resulting output still appears to be usable (although will
+    # contain "ERROR" strings, which Lintian doesn't care about), and
+    # the only problem was the exit status.
+    my %opts = (
+        pipe_in => FileHandle->new,
+        out => $outfile,
+        fail => 'never'
+    );
+    spawn(\%opts,
+        ['xargs', '-0r', 'file', '-e', 'ascii', '-NF', '', '--print0', '--'],
+        '|', [$helper], '|', ['gzip', '-9nc']);
+    $opts{pipe_in}->blocking(1);
+
+    foreach my $file ($info->sorted_index) {
+        next unless $file->is_file;
+        printf {$opts{pipe_in}} "%s\0", $file;
+    }
+
+    close($opts{pipe_in});
+    reap(\%opts);
+
+    return;
+}
+
+collect(@ARGV) if $0 =~ m,(?:^|/)file-info$,;
+
+1;
+
+# Local Variables:
+# indent-tabs-mode: nil
+# cperl-indent-level: 4
+# End:
+# vim: syntax=perl sw=4 sts=4 sr et

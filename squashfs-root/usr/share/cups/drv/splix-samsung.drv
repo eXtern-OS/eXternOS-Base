@@ -1,0 +1,1355 @@
+
+/*
+ *      samsung.drv                    (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Contains the Samsung printers drivers
+ *
+ * $Id: samsung.drv.in 315 2013-08-26 19:45:31Z tillkamppeter $
+ */
+
+Manufacturer "Samsung"
+
+/*
+ *      version.defs                   (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Current PPDs version
+ *
+ * $Id: version.defs 298 2011-07-20 16:20:18Z tillkamppeter $
+ */
+
+
+#include <font.defs>
+
+// Font included in the printer ROM
+Font *
+
+
+Version "2.0.0"
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      altitude.defs                  (C) 2008, Aurélien Croc (AP²C)
+ * 
+ * Altitude
+ *
+ * $Id: altitude.defs 270 2010-07-29 11:53:22Z tillkamppeter $
+ */
+
+Option "Altitude/Air pressure" PickOne AnySetup 10
+	*Choice "LOW/High" ""
+	Choice "HIGH/Low" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+
+
+//
+// Specific black & white printer definition
+//
+{
+/*
+ *      spl2.defs                      (C) 2007, Aurélien Croc (AP²C)
+ * 
+ *
+ *
+ * $Id: spl2.defs 313 2013-08-26 15:42:25Z tillkamppeter $
+ */
+
+// Supported paper format
+HWMargins 10.75 15 10.75 15
+/*
+ *      spl2.defs                      (C) 2007, Aurélien Croc (AP²C)
+ * 
+ *
+ *
+ * $Id$
+ */
+#include <media.defs>
+
+#media "Oficio/Oficio - 216x340mm" 612 972
+
+// Supported paper format
+*MediaSize Letter
+MediaSize Legal
+MediaSize A4
+MediaSize Executive
+MediaSize Ledger
+MediaSize A3
+MediaSize Env10
+MediaSize Monarch
+MediaSize C5
+MediaSize DL
+MediaSize B4
+MediaSize B5
+MediaSize EnvISOB5
+// Not listed
+MediaSize Postcard
+MediaSize DoublePostcardRotated
+MediaSize A5
+MediaSize A6
+MediaSize B6
+// Custom
+MediaSize C6
+MediaSize Folio
+MediaSize EnvPersonal
+MediaSize Env9
+MediaSize Oficio
+
+// VariablePaperSize yes
+
+// Supported input slots
+*InputSlot 1 "Auto/Automatic Selection"
+InputSlot 2 "Manual/Manual Feed"
+
+
+
+
+//
+// Defining PJL variables
+//
+
+// Supported paper type
+Option "MediaType/Paper Type" PickOne AnySetup 10
+   *Choice "OFF/Use Printer Default" ""
+   Choice "NORMAL/Plain Paper" ""
+   Choice "THICK/Thick Paper" ""
+   Choice "THIN/Thin Paper" ""
+   Choice "BOND/Bond" ""
+   Choice "OHP/Transparency" ""
+   Choice "CARD/Card Stock" ""
+   Choice "LABEL/Label" ""
+   Choice "USED/Preprinted" ""
+   Choice "COLOR/Colored Paper" ""
+   Choice "ENV/Envelope" ""
+   Choice "COTTON/Cotton" ""
+   Choice "RECYCLED/Recycled" ""
+   Choice "ARCHIVE/Archive" ""
+
+Attribute QPDL BandSize "128"
+Attribute PJL BeginPJL "<1B>%-12345X"
+Attribute PJL EndPJL "<09><1B>%-12345X"
+
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      filter.defs                    (C) 2007, Aurélien Croc (AP²C)
+ * 
+ *
+ *
+ * $Id: filter.defs 298 2011-07-20 16:20:18Z tillkamppeter $
+ */
+/* Define a custom filter type. */
+DriverType custom
+Filter application/vnd.cups-raster 0 rastertoqpdl
+/* Filter application/vnd.cups-postscript 50 pstoqpdl */
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      powersave.defs                 (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Power save
+ *
+ * $Id: powersave.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "PowerSave/Power Save" PickOne AnySetup 10
+    Choice "False/Off" ""
+    *Choice "5/5 Minutes" ""
+    Choice "10/10 Minutes" ""
+    Choice "15/15 Minutes" ""
+    Choice "30/30 Minutes" ""
+    Choice "45/45 Minutes" ""
+    Choice "60/1 Hour" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      tonerdensity.defs              (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Toner density
+ *
+ * $Id: tonerdensity.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "TonerDensity/Toner Density" PickOne AnySetup 10
+    Choice "1/Light" ""
+	*Choice "3/Medium" ""
+	Choice "5/Dark" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      tonersave.defs                 (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Toner save
+ *
+ * $Id: tonersave.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "EconoMode/Toner Save" PickOne AnySetup 10
+	*Choice "0/Use Printer Default" ""
+	Choice "ON/Save" ""
+    Choice "OFF/Standard" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      jamrecovery.defs               (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Jam recovery
+ *
+ * $Id: jamrecovery.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "JamRecovery/Reprint When Jam" Boolean AnySetup 10
+	*Choice "False/Off" ""
+	Choice "True/On" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+
+
+    // Monochrome printers V. 1 (old algorithms)
+    {
+/*
+ *      monochrome-v1.defs             (C) 2007-2008, Aurélien Croc (AP²C)
+ * 
+ * Monochrome printers V. 1
+ *
+ * $Id: monochrome-v1.defs 240 2008-11-24 00:10:09Z ap2c $
+ */
+
+// Black & White support
+ColorDevice false
+*ColorModel Gray/Grayscale k chunky 13
+
+// Supported resolutions
+*Resolution k 1 0 0 0 "600dpi/600 DPI"
+
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+        Attribute QPDL QPDLVersion "1"
+        Attribute General DocHeaderValues "<0><2><1>"
+        
+        {
+            Resolution k 1 0 0 0 "300dpi/300 DPI"
+ 
+            ModelName "SCX-4100"
+            PCFileName "scx4100.ppd"
+        } {
+            Resolution k 1 0 0 0 "300dpi/300 DPI"
+ 
+            ModelName "SCX-4200"
+            PCFileName "scx4200.ppd"
+        } {
+            Resolution k 1 0 0 0 "300dpi/300 DPI"
+ 
+            ModelName "SCX-4216F"
+            PCFileName "scx4216f.ppd"
+        } {
+            Resolution k 1 0 0 0 "300dpi/300 DPI"
+ 
+            ModelName "SCX-4300"
+            PCFileName "scx4300.ppd"
+        } {
+            ModelName "SCX-4500"
+            PCFileName "scx4500.ppd"
+        } {
+            ModelName "SCX-4521F"
+            PCFileName "scx4521f.ppd"
+        } {
+            Resolution k 1 0 0 0 "300dpi/300 DPI"
+ 
+            ModelName "SF-565P"
+            PCFileName "sf565p.ppd"
+        }
+
+    // Monochrome printers V. 2 (new algorithms)
+    } {
+/*
+ *      monochrome-v2.defs             (C) 2007-2008, Aurélien Croc (AP²C)
+ * 
+ * Monochrome printers V. 2
+ *
+ * $Id: monochrome-v2.defs 240 2008-11-24 00:10:09Z ap2c $
+ */
+
+// Black & White support
+ColorDevice false
+*ColorModel Gray/Grayscale k chunky 17
+
+// Supported resolutions
+*Resolution k 1 0 0 0 "600dpi/600 DPI"
+
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+
+        // QPDL Version 1
+        {
+            Attribute QPDL QPDLVersion "1"
+            Attribute General DocHeaderValues "<0><0><0>"
+    
+            {
+                Resolution k 1 0 0 0 "300dpi/300 DPI"
+/*
+ *      manualduplex.defs              (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Manual duplex
+ *
+ * $Id: manualduplex.defs 183 2008-02-09 15:24:43Z ap2c $
+ */
+
+Duplex normal
+Attribute QPDL ManualDuplex "On"
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+                {
+                    ModelName "ML-1510"
+                    PCFileName "ml1510.ppd"
+                } {
+                    ModelName "ML-1520"
+                    PCFileName "ml1520.ppd"
+                } {
+                    ModelName "ML-1610"
+                    PCFileName "ml1610.ppd"
+                } {
+                    ModelName "ML-1710"
+                    PCFileName "ml1710.ppd"
+                } {
+                    ModelName "ML-1740"
+                    PCFileName "ml1740.ppd"
+                } {
+/*
+ *      srtmode.defs                   (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * SRT mode       
+ *
+ * $Id: srtmode.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "SRTMode/SRT Mode" PickOne AnySetup 10
+	*Choice "NORMAL/Normal" ""
+	Choice "ENHANCE/Text enhance" ""
+	Choice "GRAY/Image enhance" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+                    ModelName "ML-1750"
+                    PCFileName "ml1750.ppd"
+                } {
+                    ModelName "ML-2571"
+                    PCFileName "ml2571.ppd"
+                }
+            } {
+                Resolution k 1 0 0 0 "1200dpi/1200 DPI"
+    
+                // Multi-tray
+                InputSlot 3 "Multi/Multi-Purpose Tray"
+                InputSlot 4 "Upper/Tray 1"
+                InputSlot 5 "Lower/Tray 2"
+                InputSlot 6 "Envelope/Envelope Tray"
+                InputSlot 7 "Tray3/Tray 3"
+                // But tray 2, Envelope and Tray3 are options...
+                Installable "OptionTray2/Tray 2 Installed"
+                UIConstraints "*OptionTray2 False *InputSlot Lower"
+                Installable "OptionTrayEnv/Envelope Tray Installed"
+                UIConstraints "*OptionTrayEnv False *InputSlot Envelope"
+                Installable "OptionTray3/Tray 3 Installed"
+                UIConstraints "*OptionTray3 False *InputSlot Tray3"
+    
+/*
+ *      srtmode.defs                   (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * SRT mode       
+ *
+ * $Id: srtmode.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "SRTMode/SRT Mode" PickOne AnySetup 10
+	*Choice "NORMAL/Normal" ""
+	Choice "ENHANCE/Text enhance" ""
+	Choice "GRAY/Image enhance" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+                {
+/*
+ *      manualduplex.defs              (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Manual duplex
+ *
+ * $Id: manualduplex.defs 183 2008-02-09 15:24:43Z ap2c $
+ */
+
+Duplex normal
+Attribute QPDL ManualDuplex "On"
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+                    Throughput 22
+    		{
+                    	ModelName "ML-2250"
+    	                PCFileName "ml2250.ppd"
+    		} {
+                    	ModelName "ML-2251"
+    	                PCFileName "ml2251.ppd"
+    		}
+                } {
+                    Duplex normal
+    
+                    {
+                            ModelName "ML-3471ND"
+                            PCFileName "ml3471nd.ppd"
+                    } {
+                            ModelName "ML-3560"
+                            PCFileName "ml3560.ppd"
+                    } {
+                        Resolution k 1 0 0 0 "300dpi/300 DPI"
+                        {
+                            ModelName "ML-2150"
+                            PCFileName "ml2150.ppd"
+                        } {
+                            ModelName "ML-2550"
+                            PCFileName "ml2550.ppd"
+                        }
+                    }
+                }
+            }
+        }
+    
+        // QPDL Version 2
+        {
+            Attribute QPDL QPDLVersion "2"
+            Attribute General DocHeaderValues "<0><0><1>"
+    
+            {
+                Resolution k 1 0 0 0 "1200x600dpi/1200x600 DPI"
+/*
+ *      manualduplex.defs              (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Manual duplex
+ *
+ * $Id: manualduplex.defs 183 2008-02-09 15:24:43Z ap2c $
+ */
+
+Duplex normal
+Attribute QPDL ManualDuplex "On"
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+    
+                {
+                    ModelName "ML-1630"
+                    PCFileName "ml1630.ppd"
+                } {
+                    ModelName "ML-1640"
+                    PCFileName "ml1640.ppd"
+                } {
+                    ModelName "ML-2010"
+                    PCFileName "ml2010.ppd"
+                } {
+                    ModelName "ML-2015"
+                    PCFileName "ml2015.ppd"
+                } {
+                    ModelName "ML-2240"
+                    PCFileName "ml2240.ppd"
+                } {
+/*
+ *      srtmode.defs                   (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * SRT mode       
+ *
+ * $Id: srtmode.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "SRTMode/SRT Mode" PickOne AnySetup 10
+	*Choice "NORMAL/Normal" ""
+	Choice "ENHANCE/Text enhance" ""
+	Choice "GRAY/Image enhance" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+    
+                    ModelName "ML-2510"
+                    PCFileName "ml2510.ppd"
+                }
+            }
+        }
+
+        // QPDL Version 3
+        {
+            Attribute QPDL QPDLVersion "3"
+            Attribute General DocHeaderValues "<0><0><1>"
+    
+            {
+                Resolution k 1 0 0 0 "1200x600dpi/1200x600 DPI"
+/*
+ *      manualduplex.defs              (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Manual duplex
+ *
+ * $Id: manualduplex.defs 183 2008-02-09 15:24:43Z ap2c $
+ */
+
+Duplex normal
+Attribute QPDL ManualDuplex "On"
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+    
+                {
+                    ModelName "ML-1660"
+                    PCFileName "ml1660.ppd"
+                } {
+                    ModelName "ML-1910"
+                    PCFileName "ml1910.ppd"
+                } {
+                    ModelName "ML-2525"
+                    PCFileName "ml2525.ppd"
+                } {
+                    ModelName "ML-2525W"
+                    PCFileName "ml2525w.ppd"
+                }
+            } {
+                Resolution k 1 0 0 0 "1200dpi/1200 DPI"
+    
+                {
+                    ModelName "ML-2580"
+                    PCFileName "ml2580.ppd"
+		} {
+                    ModelName "ML-2580N"
+                    PCFileName "ml2580n.ppd"
+		} {
+                    ModelName "ML-3050"
+                    PCFileName "ml3050.ppd"
+		} {
+                    ModelName "ML-3051"
+                    PCFileName "ml3051.ppd"
+		} {
+                    ModelName "ML-3310"
+                    PCFileName "ml3310.ppd"
+		} {
+                    ModelName "SCX-3200"
+                    PCFileName "scx3200.ppd"
+		} {
+                    ModelName "SCX-4600"
+                    PCFileName "scx4600.ppd"
+		} {
+                    ModelName "SCX-4623f"
+                    PCFileName "scx4623f.ppd"
+		} {
+                    ModelName "SCX-4623fw"
+                    PCFileName "scx4623fw.ppd"
+		}{
+/*
+ *      manualduplex.defs              (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Manual duplex
+ *
+ * $Id: manualduplex.defs 183 2008-02-09 15:24:43Z ap2c $
+ */
+
+Duplex normal
+Attribute QPDL ManualDuplex "On"
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+                Attribute QPDL PacketSize "512"
+                {
+                    ModelName "ML-2160"
+                    PCFileName "ml2160.ppd"
+	        }
+            }
+
+            } {
+                Resolution k 1 0 0 0 "1200dpi/1200 DPI"
+    
+                Duplex normal
+    
+		{
+                    ModelName "ML-3051ND"
+                    PCFileName "ml3051nd.ppd"
+		} {
+                    ModelName "ML-3310ND"
+                    PCFileName "ml3310nd.ppd"
+		} {
+		    ModelName "SCX-5330N"
+                    PCFileName "scx5330n.ppd"
+		} {
+		    ModelName "SCX-5530FN"
+                    PCFileName "scx5530fn.ppd"
+		}
+            }
+        }
+    }
+}
+
+//
+// ML-1915/ML-2165 printers (different margins than the other monochrome
+// printers)
+//
+{
+    HWMargins 12.5 12.5 12.5 12.5
+/*
+ *      spl2.defs                      (C) 2007, Aurélien Croc (AP²C)
+ * 
+ *
+ *
+ * $Id$
+ */
+#include <media.defs>
+
+#media "Oficio/Oficio - 216x340mm" 612 972
+
+// Supported paper format
+*MediaSize Letter
+MediaSize Legal
+MediaSize A4
+MediaSize Executive
+MediaSize Ledger
+MediaSize A3
+MediaSize Env10
+MediaSize Monarch
+MediaSize C5
+MediaSize DL
+MediaSize B4
+MediaSize B5
+MediaSize EnvISOB5
+// Not listed
+MediaSize Postcard
+MediaSize DoublePostcardRotated
+MediaSize A5
+MediaSize A6
+MediaSize B6
+// Custom
+MediaSize C6
+MediaSize Folio
+MediaSize EnvPersonal
+MediaSize Env9
+MediaSize Oficio
+
+// VariablePaperSize yes
+
+// Supported input slots
+*InputSlot 1 "Auto/Automatic Selection"
+InputSlot 2 "Manual/Manual Feed"
+
+
+
+
+//
+// Defining PJL variables
+//
+
+// Supported paper type
+Option "MediaType/Paper Type" PickOne AnySetup 10
+   *Choice "OFF/Use Printer Default" ""
+   Choice "NORMAL/Plain Paper" ""
+   Choice "THICK/Thick Paper" ""
+   Choice "THIN/Thin Paper" ""
+   Choice "BOND/Bond" ""
+   Choice "OHP/Transparency" ""
+   Choice "CARD/Card Stock" ""
+   Choice "LABEL/Label" ""
+   Choice "USED/Preprinted" ""
+   Choice "COLOR/Colored Paper" ""
+   Choice "ENV/Envelope" ""
+   Choice "COTTON/Cotton" ""
+   Choice "RECYCLED/Recycled" ""
+   Choice "ARCHIVE/Archive" ""
+
+Attribute QPDL BandSize "128"
+Attribute PJL BeginPJL "<1B>%-12345X"
+Attribute PJL EndPJL "<09><1B>%-12345X"
+
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      filter.defs                    (C) 2007, Aurélien Croc (AP²C)
+ * 
+ *
+ *
+ * $Id: filter.defs 298 2011-07-20 16:20:18Z tillkamppeter $
+ */
+/* Define a custom filter type. */
+DriverType custom
+Filter application/vnd.cups-raster 0 rastertoqpdl
+/* Filter application/vnd.cups-postscript 50 pstoqpdl */
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      powersave.defs                 (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Power save
+ *
+ * $Id: powersave.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "PowerSave/Power Save" PickOne AnySetup 10
+    Choice "False/Off" ""
+    *Choice "5/5 Minutes" ""
+    Choice "10/10 Minutes" ""
+    Choice "15/15 Minutes" ""
+    Choice "30/30 Minutes" ""
+    Choice "45/45 Minutes" ""
+    Choice "60/1 Hour" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      tonerdensity.defs              (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Toner density
+ *
+ * $Id: tonerdensity.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "TonerDensity/Toner Density" PickOne AnySetup 10
+    Choice "1/Light" ""
+	*Choice "3/Medium" ""
+	Choice "5/Dark" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      tonersave.defs                 (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Toner save
+ *
+ * $Id: tonersave.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "EconoMode/Toner Save" PickOne AnySetup 10
+	*Choice "0/Use Printer Default" ""
+	Choice "ON/Save" ""
+    Choice "OFF/Standard" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      jamrecovery.defs               (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Jam recovery
+ *
+ * $Id: jamrecovery.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "JamRecovery/Reprint When Jam" Boolean AnySetup 10
+	*Choice "False/Off" ""
+	Choice "True/On" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      monochrome-v2.defs             (C) 2007-2008, Aurélien Croc (AP²C)
+ * 
+ * Monochrome printers V. 2
+ *
+ * $Id: monochrome-v2.defs 240 2008-11-24 00:10:09Z ap2c $
+ */
+
+// Black & White support
+ColorDevice false
+*ColorModel Gray/Grayscale k chunky 17
+
+// Supported resolutions
+*Resolution k 1 0 0 0 "600dpi/600 DPI"
+
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+
+    {
+        Attribute QPDL QPDLVersion "3"
+        Attribute General DocHeaderValues "<0><0><1>"
+        {
+	    {
+                Resolution k 1 0 0 0 "1200x600dpi/1200x600 DPI"
+/*
+ *      manualduplex.defs              (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Manual duplex
+ *
+ * $Id: manualduplex.defs 183 2008-02-09 15:24:43Z ap2c $
+ */
+
+Duplex normal
+Attribute QPDL ManualDuplex "On"
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+                {
+		    Throughput "21"
+
+                    ModelName "ML-1915"
+                    PCFileName "ml1915.ppd"
+	        }
+            } {
+                Resolution k 1 0 0 0 "1200dpi/1200 DPI"
+/*
+ *      manualduplex.defs              (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Manual duplex
+ *
+ * $Id: manualduplex.defs 183 2008-02-09 15:24:43Z ap2c $
+ */
+
+Duplex normal
+Attribute QPDL ManualDuplex "On"
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+                {
+		    Throughput "21"
+
+                    ModelName "ML-2165"
+                    PCFileName "ml2165.ppd"
+	        }
+            }
+	}
+    }
+}
+
+
+
+//
+// Specific color printer definition
+//
+{
+/*
+ *      spl2.defs                      (C) 2007, Aurélien Croc (AP²C)
+ * 
+ *
+ *
+ * $Id: spl2.defs 313 2013-08-26 15:42:25Z tillkamppeter $
+ */
+
+// Supported paper format
+HWMargins 10.75 15 10.75 15
+/*
+ *      spl2.defs                      (C) 2007, Aurélien Croc (AP²C)
+ * 
+ *
+ *
+ * $Id$
+ */
+#include <media.defs>
+
+#media "Oficio/Oficio - 216x340mm" 612 972
+
+// Supported paper format
+*MediaSize Letter
+MediaSize Legal
+MediaSize A4
+MediaSize Executive
+MediaSize Ledger
+MediaSize A3
+MediaSize Env10
+MediaSize Monarch
+MediaSize C5
+MediaSize DL
+MediaSize B4
+MediaSize B5
+MediaSize EnvISOB5
+// Not listed
+MediaSize Postcard
+MediaSize DoublePostcardRotated
+MediaSize A5
+MediaSize A6
+MediaSize B6
+// Custom
+MediaSize C6
+MediaSize Folio
+MediaSize EnvPersonal
+MediaSize Env9
+MediaSize Oficio
+
+// VariablePaperSize yes
+
+// Supported input slots
+*InputSlot 1 "Auto/Automatic Selection"
+InputSlot 2 "Manual/Manual Feed"
+
+
+
+
+//
+// Defining PJL variables
+//
+
+// Supported paper type
+Option "MediaType/Paper Type" PickOne AnySetup 10
+   *Choice "OFF/Use Printer Default" ""
+   Choice "NORMAL/Plain Paper" ""
+   Choice "THICK/Thick Paper" ""
+   Choice "THIN/Thin Paper" ""
+   Choice "BOND/Bond" ""
+   Choice "OHP/Transparency" ""
+   Choice "CARD/Card Stock" ""
+   Choice "LABEL/Label" ""
+   Choice "USED/Preprinted" ""
+   Choice "COLOR/Colored Paper" ""
+   Choice "ENV/Envelope" ""
+   Choice "COTTON/Cotton" ""
+   Choice "RECYCLED/Recycled" ""
+   Choice "ARCHIVE/Archive" ""
+
+Attribute QPDL BandSize "128"
+Attribute PJL BeginPJL "<1B>%-12345X"
+Attribute PJL EndPJL "<09><1B>%-12345X"
+
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      filterColor.defs               (C) 2007, Aurélien Croc (AP²C)
+ * 
+ *
+ *
+ * $Id: filterColor.defs 298 2011-07-20 16:20:18Z tillkamppeter $
+ */
+/* Define a custom filter type. */
+DriverType custom
+Filter application/vnd.cups-postscript 0 pstoqpdl
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      powersave.defs                 (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Power save
+ *
+ * $Id: powersave.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "PowerSave/Power Save" PickOne AnySetup 10
+    Choice "False/Off" ""
+    *Choice "5/5 Minutes" ""
+    Choice "10/10 Minutes" ""
+    Choice "15/15 Minutes" ""
+    Choice "30/30 Minutes" ""
+    Choice "45/45 Minutes" ""
+    Choice "60/1 Hour" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+
+    // Color printers V. 1 (old algorithms)
+    {
+/*
+ *      color-v1.defs                  (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Color printers v. 1
+ *
+ * $Id: color-v1.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+/*
+ *      color.defs                     (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Color printers [---INCLUDED BY COLOR-V1.DEFS OR COLOR-V2.DEFS---]
+ *
+ * $Id: color.defs 180 2008-02-09 03:59:11Z ap2c $
+ */
+
+// Supported resolutions
+*Resolution - 1 0 0 0 "600dpi/600 DPI"
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+
+// Color definition
+ColorDevice true
+ColorModel Gray/Grayscale k chunky 17
+*ColorModel CMYK/Color cmyk banded 17
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      jamrecovery.defs               (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Jam recovery
+ *
+ * $Id: jamrecovery.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "JamRecovery/Reprint When Jam" Boolean AnySetup 10
+	*Choice "False/Off" ""
+	Choice "True/On" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+
+        // Multi-tray
+        InputSlot 3 "Multi/Multi-Purpose Tray"
+        InputSlot 4 "Upper/Tray 1"
+        InputSlot 5 "Lower/Tray 2"
+        // But tray 2 is optional..
+        Installable "OptionTray2/Tray 2 Installed"
+        UIConstraints "*OptionTray2 False *InputSlot Lower"
+
+        Resolution - 1 0 0 0 "1200x600dpi/1200x600 DPI"
+        Resolution - 1 0 0 0 "1200dpi/1200 DPI"
+
+        Duplex normal
+
+        Attribute General DocHeaderValues "<0><0><1>"
+        {
+            Attribute QPDL QPDLVersion "1"
+
+            {
+                Attribute General CMSFile "CLP-500"
+                Throughput 20
+
+		{
+                	ModelName "CLP-500"
+	                PCFileName "clp500.ppd"
+		} {
+                	ModelName "CLP-550"
+	                PCFileName "clp550.ppd"
+		}
+            } {
+                Attribute General CMSFile "CLP-510"
+                Throughput 24
+
+                ModelName "CLP-510"
+                PCFileName "clp510.ppd"
+            }
+        }
+        //{
+        //    Attribute QPDL QPDLVersion "5"
+        //    Attribute General CMSFile "CLP-610"
+        //    #import "reverseduplex.defs"
+
+        //    ModelName "CLP-610"
+        //    PCFileName "clp610.ppd"
+        //}
+        //{
+        //    Attribute QPDL QPDLVersion "5"
+        //    Attribute General CMSFile "CLP-610"
+        //    #import "reverseduplex.defs"
+
+        //    ModelName "CLP-610ND"
+        //    PCFileName "clp610nd.ppd"
+        //}
+    }
+
+    // Color printers V. 2 (JBIG algorithm)
+    {
+/*
+ *      color-v2.defs                  (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Color printers v. 2
+ *
+ * $Id: color-v2.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+/*
+ *      color.defs                     (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Color printers [---INCLUDED BY COLOR-V1.DEFS OR COLOR-V2.DEFS---]
+ *
+ * $Id: color.defs 180 2008-02-09 03:59:11Z ap2c $
+ */
+
+// Supported resolutions
+*Resolution - 1 0 0 0 "600dpi/600 DPI"
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+
+// Color definition
+ColorDevice true
+ColorModel Gray/Grayscale k chunky 19
+*ColorModel CMYK/Color cmyk banded 19
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+        Attribute QPDL PacketSize "512"
+/*
+ *      manualduplex.defs              (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Manual duplex
+ *
+ * $Id: manualduplex.defs 183 2008-02-09 15:24:43Z ap2c $
+ */
+
+Duplex normal
+Attribute QPDL ManualDuplex "On"
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+
+
+        // QPDL Version 1
+        {
+            Attribute QPDL QPDLVersion "1"
+            Attribute General DocHeaderValues "<0><0><0>"
+            {
+                Attribute General CMSFile "CLP-200"
+
+                ModelName "CLP-200"
+                PCFileName "clp200.ppd"
+            } { 
+                Resolution - 1 0 0 0 "1200x600dpi/1200x600 DPI"
+                Resolution - 1 0 0 0 "1200dpi/1200 DPI"
+                Attribute General CMSFile "CLP-600"
+                Throughput 20
+
+                ModelName "CLP-600"
+                PCFileName "clp600.ppd"
+            }
+        }
+
+        // QPDL Version 2
+        {
+            Attribute QPDL QPDLVersion "2"
+            Attribute General DocHeaderValues "<0><0><1>"
+
+            {
+                Attribute General CMSFile "CLX-2170"
+
+                ModelName "CLX-2170"
+                PCFileName "clx2170.ppd"
+            } {
+                Resolution - 1 0 0 0 "1200dpi/1200 DPI"
+
+                {
+                    Resolution - 1 0 0 0 "300dpi/300 DPI"
+                    Attribute General CMSFile "CLP-300"
+                    Throughput 4
+
+		    {
+                        ModelName "CLP-300"
+                        PCFileName "clp300.ppd"
+		    } {
+                        ModelName "CLP-310N"
+                        PCFileName "clp310n.ppd"
+		    }
+                } {
+                    Resolution - 1 0 0 0 "1200x600dpi/1200x600 DPI"
+
+                    {
+                        Attribute General CMSFile "CLX-216x"
+
+                        ModelName "CLX-216X"
+                        PCFileName "clx216x.ppd"
+                    } {
+                        Attribute General CMSFile "CLX-3160"
+
+                        ModelName "CLX-3160"
+                        PCFileName "clx3160.ppd"
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Color printers V. 3 (Banded JBIG algorithm)
+{
+/*
+ *      spl2.defs                      (C) 2007, Aurélien Croc (AP²C)
+ * 
+ *
+ *
+ * $Id: spl2.defs 210 2008-05-30 23:38:15Z ap2c $
+ */
+
+// Supported paper format
+// For banded jbig printers, all hardware margins seems to be 12pt.
+// HWMargins left bottom right top
+HWMargins 12 12 12 12
+/*
+ *      spl2.defs                      (C) 2007, Aurélien Croc (AP²C)
+ * 
+ *
+ *
+ * $Id$
+ */
+#include <media.defs>
+
+#media "Oficio/Oficio - 216x340mm" 612 972
+
+// Supported paper format
+*MediaSize Letter
+MediaSize Legal
+MediaSize A4
+MediaSize Executive
+MediaSize Ledger
+MediaSize A3
+MediaSize Env10
+MediaSize Monarch
+MediaSize C5
+MediaSize DL
+MediaSize B4
+MediaSize B5
+MediaSize EnvISOB5
+// Not listed
+MediaSize Postcard
+MediaSize DoublePostcardRotated
+MediaSize A5
+MediaSize A6
+MediaSize B6
+// Custom
+MediaSize C6
+MediaSize Folio
+MediaSize EnvPersonal
+MediaSize Env9
+MediaSize Oficio
+
+// VariablePaperSize yes
+
+// Supported input slots
+*InputSlot 1 "Auto/Automatic Selection"
+InputSlot 2 "Manual/Manual Feed"
+
+
+
+
+//
+// Defining PJL variables
+//
+
+// Supported paper type
+Option "MediaType/Paper Type" PickOne AnySetup 10
+   *Choice "OFF/Use Printer Default" ""
+   Choice "NORMAL/Plain Paper" ""
+   Choice "THICK/Thick Paper" ""
+   Choice "THIN/Thin Paper" ""
+   Choice "BOND/Bond" ""
+   Choice "OHP/Transparency" ""
+   Choice "CARD/Card Stock" ""
+   Choice "LABEL/Label" ""
+   Choice "USED/Preprinted" ""
+   Choice "COLOR/Colored Paper" ""
+   Choice "ENV/Envelope" ""
+   Choice "COTTON/Cotton" ""
+   Choice "RECYCLED/Recycled" ""
+   Choice "ARCHIVE/Archive" ""
+
+Attribute QPDL BandSize "128"
+Attribute PJL BeginPJL "<1B>%-12345X"
+Attribute PJL EndPJL "<09><1B>%-12345X"
+
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+
+// Enable to accept custom page sizes
+VariablePaperSize yes
+//MaxSize width length
+MaxSize 8.5in 14in
+//MinSize width length
+MinSize 3in 6.3in
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      filterColor.defs               (C) 2007, Aurélien Croc (AP²C)
+ * 
+ *
+ *
+ * $Id: filterColor.defs 298 2011-07-20 16:20:18Z tillkamppeter $
+ */
+/* Define a custom filter type. */
+DriverType custom
+Filter application/vnd.cups-postscript 0 pstoqpdl
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      powersave.defs                 (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Power save
+ *
+ * $Id: powersave.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "PowerSave/Power Save" PickOne AnySetup 10
+    Choice "False/Off" ""
+    *Choice "5/5 Minutes" ""
+    Choice "10/10 Minutes" ""
+    Choice "15/15 Minutes" ""
+    Choice "30/30 Minutes" ""
+    Choice "45/45 Minutes" ""
+    Choice "60/1 Hour" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      color-v3.defs                  (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Color printers v. 3
+ *
+ * $Id: color-v3.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+/*
+ *      color.defs                     (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Color printers [---INCLUDED BY COLOR-V1.DEFS OR COLOR-V2.DEFS---]
+ *
+ * $Id: color.defs 180 2008-02-09 03:59:11Z ap2c $
+ */
+
+// Supported resolutions
+*Resolution - 1 0 0 0 "600dpi/600 DPI"
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+
+// Color definition
+ColorDevice true
+ColorModel Gray/Grayscale k chunky 21
+*ColorModel CMYK/Color cmyk banded 21
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      manualduplex.defs              (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Manual duplex
+ *
+ * $Id: manualduplex.defs 183 2008-02-09 15:24:43Z ap2c $
+ */
+
+Duplex normal
+Attribute QPDL ManualDuplex "On"
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+    Attribute QPDL QPDLVersion "5"
+    Attribute QPDL PacketSize  "512"
+    Attribute General DocHeaderValues "<0><0><1>"
+    Resolution - 1 0 0 0 "1200x600dpi/1200x600 DPI"
+    Resolution - 1 0 0 0 "1200dpi/1200 DPI"
+    Throughput 4
+    {
+        Attribute General CMSFile "CLP-310"
+
+        ModelName "CLP-310"
+        PCFileName "clp310.ppd"
+    }{
+        Attribute General CMSFile "CLP-315"
+
+        ModelName "CLP-315"
+        PCFileName "clp315.ppd"
+    }
+}
+
+
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+

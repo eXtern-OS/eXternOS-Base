@@ -1,0 +1,32 @@
+#!/bin/sh
+
+set -e
+
+PREREQ="cryptroot"
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case $1 in
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+# Hooks for loading keyctl software into the initramfs
+
+# Check whether cryptroot hook has installed decrypt_keyctl script
+if [ ! -x ${DESTDIR}/lib/cryptsetup/scripts/decrypt_keyctl ]; then
+    exit 0
+fi
+
+# Install binaries into initramfs
+copy_exec /bin/keyctl
+copy_exec /bin/stty
+
+exit 0

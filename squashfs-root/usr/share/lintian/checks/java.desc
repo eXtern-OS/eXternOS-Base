@@ -1,0 +1,129 @@
+Check-Script: java
+Author: Vincent Fourmond <fourmond@debian.org>
+Abbrev: java
+Type: binary, source
+Needs-Info: java-info, unpacked
+Info: This script checks if the packages comply with various aspects of the
+ Debian Java policy.
+
+Tag: classpath-contains-relative-path
+Severity: normal
+Certainty: possible
+Info: The classpath listed in the jar file refers to a potential
+ missing jar file.  This could be the remnants of a build-time
+ classpath that are not relevant for a JAR bundled in a Debian
+ package.
+ .
+ Alternatively, the classpath may be correct, but the package is
+ lacking a jar file or a symlink to it.
+ .
+ Note, Lintian assumes that all (relative) classpaths pointing to
+ /usr/share/java/ (but not subdirs thereof) are satisfied by
+ dependencies as long as there is at least one strong libX-java
+ dependency.
+
+Tag: jar-not-in-usr-share
+Severity: normal
+Certainty: possible
+Ref: java-policy 2.2, java-policy 2.3
+Info: The classpath listed in some of the files references files outside
+ of /usr/share, while all installed JAR files must be within
+ /usr/share/java for libraries or /usr/share/<i>package</i> for JARs for
+ private use.
+ .
+ The rationale is that jar files are in almost all cases architecture
+ independent and therefore should be in /usr/share.  If the jar file is
+ truly architecture dependent or it cannot be moved since symlinked jar
+ files are not accepted by the application, then please override this
+ tag.
+
+Tag: maven-plugin-in-usr-share-java
+Severity: normal
+Certainty: possible
+Info: A maven plugin is incorrectly installed in /usr/share/java.
+ Maven plugins should be installed in /usr/share/maven-repo
+
+Tag: executable-jar-without-main-class
+Severity: serious
+Certainty: certain
+Ref: java-policy 2.2
+Info: An executable JAR must have a Main-Class set in its manifest.
+
+Tag: missing-dep-on-jarwrapper
+Severity: serious
+Certainty: certain
+Ref: java-policy 2.2
+Info: Packages containing an executable JAR must depend on jarwrapper or
+ other packages providing similar functionalities.
+
+Tag: javalib-but-no-public-jars
+Severity: minor
+Certainty: possible
+Info: The name of the package suggests that it contains a java library but
+ it does not contain any JAR file in /usr/share/java, while the java policy
+ mandates that JAR files outside /usr/share/java are for private use.
+
+Tag: missing-manifest
+Severity: minor
+Certainty: possible
+Info: The jar file contains .class files but no manifest. This may
+ indicate a build misconfiguration.
+
+Tag: codeless-jar
+Severity: normal
+Certainty: certain
+Info: The jar file contains a manifest but no code. This probably indicates
+ that something went wrong at build-time.
+
+Tag: incompatible-java-bytecode-format
+Severity: normal
+Certainty: possible
+Info: The package contains Java class files with a minimum requirement on the
+ listed Java version.  This Java version is not supported by the default JVM
+ in Debian and is therefore likely to be a mistake.
+Ref: #673276
+
+Tag: unknown-java-class-version
+Severity: normal
+Certainty: certain
+Info: The package contains a Jar file with Java class files compiled for an
+ unknown Java version.  Most likely the class file is corrupt or compiled
+ for a newer version of Java than Lintian knows about.  In the latter case,
+ please file a bug against Lintian.
+ .
+ The latest class version known by Lintian is Java9 (Major version 53).
+
+Tag: zip-parse-error
+Severity: normal
+Certainty: certain
+Info: The package contains a Jar file, but Lintian is unable to parse it.
+ It is possible that the Jar file is corrupt.
+
+Tag: bad-jar-name
+Severity: normal
+Certainty: certain
+Info: The package ships the specified "public" Jar file under
+ <tt>/usr/share/java/</tt>, but the name does not correspond to Java policy
+ guidelines. This can cause tools in the Debian Java toolchain to fail.
+Ref: java-policy 2.4
+
+Tag: jar-contains-source
+Severity: normal
+Certainty: certain
+Info: The package ships the specified Jar file containing a
+ <tt>.java</tt> file alongside a corresponding <tt>.class</tt> file.
+ .
+ This wastes disk space as the source is always available via <tt>apt
+ source</tt>.
+ .
+ Please ensure that the specified <tt>.java</tt> files are not shipped in
+ the Jar file.
+Ref: java-policy 2.4
+
+Tag: source-contains-prebuilt-java-object
+Severity: pedantic
+Certainty: possible
+Info: The source tarball contains a prebuilt Java class file.  These are often
+ included by mistake when developers generate a tarball without cleaning
+ the source directory first.  If there is no sign this was intended,
+ consider reporting it as an upstream bug.

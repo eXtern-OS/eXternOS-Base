@@ -1,0 +1,912 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN" "dtd/kdedbx45.dtd" [
+  <!ENTITY kwallet5 "<application
+>KWallet</application
+>">
+  <!ENTITY kwalletmanager5 "<application
+>KWallet Manager</application
+>">
+  <!ENTITY package "kwallet5">
+  <!ENTITY kappname "&kwallet5;">
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Brazilian-Portuguese "INCLUDE">
+]>
+
+<book id="kwallet5" lang="&language;">
+<bookinfo>
+<title
+>Manual do &kwallet5;</title>
+
+<authorgroup>
+<author
+>&George.Staikos; &George.Staikos.mail; </author>
+<author
+>&Lauri.Watts; &Lauri.Watts.mail; </author>
+<othercredit role="developer"
+><firstname
+>George</firstname
+><surname
+>Staikos</surname
+> <affiliation
+><address
+>&George.Staikos.mail;</address
+></affiliation>
+<contrib
+>Desenvolvedor</contrib>
+</othercredit>
+<othercredit role="translator"
+><firstname
+>Marcus</firstname
+><surname
+>Gama</surname
+><affiliation
+><address
+><email
+>marcus.gama@gmail.com</email
+></address
+></affiliation
+><contrib
+>Tradução</contrib
+></othercredit
+><othercredit role="translator"
+><firstname
+>André Marcelo</firstname
+><surname
+>Alvarenga</surname
+><affiliation
+><address
+><email
+>alvarenga@kde.org</email
+></address
+></affiliation
+><contrib
+>Tradução</contrib
+></othercredit
+> 
+</authorgroup>
+
+<legalnotice
+>&FDLNotice;</legalnotice>
+
+<date
+>19/11/2013</date>
+<releaseinfo
+>2.0 (&kde; 4.12)</releaseinfo>
+
+<abstract>
+<para
+>O subsistema da carteira oferece uma forma conveniente e segura de gerenciar todas as suas senhas.</para>
+
+</abstract>
+
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>Kwallet</keyword>
+<keyword
+>senhas</keyword>
+<keyword
+>formulários</keyword>
+</keywordset>
+
+</bookinfo>
+
+<chapter id="introduction">
+<title
+>Introdução</title>
+
+<para
+>Os usuários de computadores possuem uma quantidade enorme de dados para gerenciar, sendo alguns deles importantes. Em particular, você normalmente terá várias senhas para gerenciar. Lembrar delas é difícil e escrevê-las em um papel ou arquivo de texto é inseguro.</para>
+
+<para
+>O &kwallet5; oferece uma forma segura para armazenar senhas e outras informações secretas, permitindo ao usuário lembrar apenas de uma senha em vez de várias senhas e credenciais diferentes. </para>
+
+<sect1 id="kwallet-create">
+
+<title
+>Criar uma carteira</title>
+
+<para
+>A carteira é um local para armazenamento de senhas. Normalmente é suficiente ter apenas uma carteira segura com uma senha mestre, mas se tiver uma grande coleção de senhas, ela poderá ser organizada em carteiras usando o &kwalletmanager5;.</para>
+
+<para
+>Existem três formas de criar uma nova carteira:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Use o item do menu <menuchoice
+><guimenu
+>Arquivo</guimenu
+><guimenuitem
+>Nova carteira</guimenuitem
+></menuchoice
+> no &kwalletmanager5;</para
+></listitem>
+
+<listitem
+><para
+>Use o botão <guibutton
+>Nova</guibutton
+> no módulo do &systemsettings; <guilabel
+>Carteira do KDE</guilabel
+></para
+></listitem>
+
+<listitem
+><para
+>Se ainda não foi criada uma carteira, consulte a seção <link linkend="kwallet-using"
+>Usando o &kwallet5;</link
+>. </para
+></listitem>
+</itemizedlist>
+
+<para
+>O &kwallet5; oferece duas formas diferentes para armazenar os seus dados:</para>
+
+<screenshot>
+<screeninfo
+>Selecionar a criptografia</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="wallet-encryption-selection.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Selecionar a criptografia</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<variablelist>
+
+<varlistentry>
+<term
+>Criptografia Blowfish</term>
+<listitem>
+<para
+>O &kwallet5; armazena estes dados importantes para você em um arquivo com criptografia forte, acessível por todos os aplicativos e protegido pela senha mestre que você definiu.</para>
+
+<screenshot>
+<screeninfo
+>Criar uma carteira criptografada com blowfish</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="first-open-request.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Criar uma carteira criptografada com blowfish</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Os dados são criptografados com o <ulink url="http://www.schneier.com/blowfish.html"
+>algoritmo de cifra simétrica por blocos Blowfish</ulink
+>, sendo a chave do algoritmo derivada do <ulink url="http://www.ietf.org/rfc/rfc3174.txt"
+>código de dispersão SHA-1</ulink
+> da senha, tendo um tamanho de chave de 156 bits (20 bytes). Os dados no arquivo da carteira são também codificados com o SHA-1 e verificados, antes de os dados serem decifrados e acessíveis pelos aplicativos. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+>Criptografia GPG</term>
+<listitem>
+<para
+>O GnuPG oferece alguns algoritmos de criptografia muito fortes e usa frases-secretas protegidas por chaves longas.</para>
+
+<screenshot>
+<screeninfo
+>Nenhuma chave GPG encontrada</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="error-nokey.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Nenhuma chave GPG encontrada</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+<para
+>As imagens acima mostram o caso em que não foi encontrada nenhuma chave GPG para criptografia no sistema. Use os aplicativos &kgpg; ou &kleopatra; para criar uma chave e tente novamente.</para>
+
+<para
+>Se foi encontrada uma chave GPG, você irá obter a caixa de diálogo seguinte, onde poderá selecionar uma chave para usar na sua nova carteira. </para>
+<screenshot>
+<screeninfo
+>Selecionar uma chave de criptografia</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="key-selection.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Selecionar uma chave de criptografia</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>O &kwallet5; irá agora usar o GPG ao armazenar as carteiras e ao abri-las. A caixa de diálogo da frase-senha só aparece uma vez. Mesmo que a carteira seja fechada após a abertura inicial, a próxima abertura irá ocorrer de forma silenciosa na mesma sessão do &kde;. </para>
+
+<para
+>A mesma sessão do &kde; poderá lidar simultaneamente com ambos os formatos de arquivo. O &kwallet5; irá detectar automaticamente o formato do arquivo e carregar a infraestrutura correta para lidar com ele.</para>
+
+<para
+>Para usar os seus dados importantes a partir da sua carteira clássica com a nova infraestrutura, siga estes passos:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Crie uma nova carteira baseada no GPG</para
+></listitem>
+<listitem
+><para
+>Carregue o &kwalletmanager5; usando o &krunner; (<keycombo
+>&Alt; <keycap
+>F2</keycap
+></keycombo
+>) ou outro lançador de aplicativos (menu), selecione a sua carteira antiga e depois escolha a opção <menuchoice
+><guimenu
+>Arquivo</guimenu
+> <guimenuitem
+>Exportar como XML</guimenuitem
+></menuchoice
+> para criar um arquivo &XML; com seus dados importantes. </para
+></listitem>
+<listitem
+><para
+>Selecione a nova carteira baseada em GPG e depois escolha a opção <menuchoice
+><guimenu
+>Arquivo</guimenu
+> <guimenuitem
+>Importação de XML</guimenuitem
+></menuchoice
+> e selecione o arquivo que acabou de salvar.</para>
+<para
+>Criptografe o arquivo &XML; para manter uma cópia de segurança.</para>
+</listitem>
+<listitem
+><para
+>Carregue a opção <menuchoice
+><guimenu
+>Arquivo</guimenu
+><guimenuitem
+>Importar carteira</guimenuitem
+></menuchoice
+>, mas só no caso de precisar selecionar o arquivo <filename class="extension"
+>.kwl</filename
+> correspondente a sua antiga carteira, localizada em <filename class="directory"
+>$<envar
+>KDEHOME</envar
+>/.local/share/kwallet</filename
+>. </para
+></listitem>
+<listitem
+><para
+>Entre nas &systemsettings; em <menuchoice
+><guimenu
+>Detalhes da conta</guimenu
+> <guimenuitem
+>Carteira do KDE</guimenuitem
+></menuchoice
+> e selecione a nova carteira baseada no GPG a partir da lista <guilabel
+>Selecione a carteira a ser usada por padrão</guilabel
+>. </para
+></listitem>
+</itemizedlist>
+
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+<tip>
+<para
+>O &kwallet5; suporta várias carteiras; assim, para as operações mais seguras, você deverá usar uma carteira para as senhas locais, outra para as senhas de rede e para os dados dos formulários. Você poderá configurar este comportamento no módulo do &kwallet5; no &systemsettings;, contudo a configuração padrão é guardar tudo numa carteira.</para>
+</tip>
+
+<para
+>Uma carteira está normalmente fechada, o que significa que você tem de indicar uma senha para abri-la. Logo que a carteira esteja aberta, o conteúdo poderá ser acessado.</para>
+</sect1>
+
+<sect1 id="kwallet-using">
+<title
+>Usando o &kwallet5;</title>
+
+<para
+>Se você visitar &eg; o sistema de registro de erros do &kde; e inserir os dados de autenticação pela primeira vez, irá aparecer uma janela que lhe permite armazenar a senha em uma carteira criptografada:</para>
+
+<screenshot>
+<screeninfo
+>Pedido de gravação da informação de autenticação</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="save-login-information.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Pedido de gravação da informação de autenticação</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Se quiser guardar esta informação, selecione <guibutton
+>Armazenar</guibutton
+> para seguir em frente. No caso de não ter criado até agora uma carteira, a janela seguinte lhe pedirá a infraestrutura de criptografia e criará uma carteira chamada 'kdewallet'. </para>
+
+<para
+>Da próxima vez que visitar a mesma página Web, o aplicativo pedirá para abrir a carteira. Insira a senha da carteira e clique no botão <guibutton
+>Abrir</guibutton
+>.</para
+> 
+
+<screenshot>
+<screeninfo
+>Pedido para abrir uma carteira</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="openwallet-request.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Pedido para abrir uma carteira</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Isto conecta o aplicativo à carteira, ativa-a de modo a ler os dados de autenticação da carteira e restaura a informação de autenticação para esta página Web. Logo que um aplicativo esteja conectado à carteira, poderá restaurar automaticamente a informação de autenticação guardada na carteira.</para>
+
+</sect1>
+
+</chapter>
+
+<chapter id="kwalletmanager5">
+<title
+>&kwalletmanager5;</title>
+
+<para
+>O &kwalletmanager5; serve um conjunto de funções. Em primeiro lugar, ele permite-lhe ver se alguma carteira está aberta, quais as carteiras que existem, e quais os aplicativos que estão usando uma determinada carteira. Você poderá desligar o acesso de um aplicativo a uma carteira a partir do &kwalletmanager5;.</para>
+
+<para
+>Você poderá também gerenciar as carteiras instaladas no sistema, criar e remover carteiras ou ainda manipular o seu conteúdo (modificar as chaves, ...).</para>
+
+<para
+>O aplicativo &kwalletmanager5; é lançada com a opção <menuchoice
+> <guimenu
+>Aplicativos</guimenu
+><guisubmenu
+>Sistema</guisubmenu
+> <guimenuitem
+>Ferramenta de Gerenciamento da Carteira</guimenuitem
+></menuchoice
+> do lançador de aplicativos. Alternativamente, inicie o &krunner; com o atalho <keycombo action="simul"
+>&Alt;<keycap
+>F2</keycap
+></keycombo
+> e insira <command
+>kwalletmanager</command
+>.</para>
+
+<para
+>Um ícone na área de notificação indica que a carteira está aberta: <mediaobject
+> <imageobject
+> <imagedata fileref="oxygen48-status-wallet-open.png"/> </imageobject
+> </mediaobject
+> Quando todas as carteiras estiverem fechadas, o ícone irá refletir isto, mostrando uma carteira fechada: <mediaobject
+> <imageobject>
+     <imagedata fileref="oxygen48-status-wallet-closed.png"/>
+  </imageobject>
+ </mediaobject
+> 
+
+</para>
+
+<para
+>Clique no ícone de carteira na área de notificação para mostrar a janela do &kwalletmanager5;.</para>
+<para>
+<screenshot>
+<screeninfo
+>Janela principal com uma carteira</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwalletmanager5.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Janela principal com uma carteira</phrase>
+</textobject>
+<caption
+><para
+>Janela principal com uma carteira</para
+></caption>
+</mediaobject>
+</screenshot>
+</para>
+
+<!--FIXME 
+How to get assistant "First Use"? kwalletwizardpageintro.ui
+Last code change with http://websvn.kde.org/?view=revision&revision=882694
+see also https://bugs.kde.org/show_bug.cgi?id=290309
+-->
+<sect1 id="kwalletmanager-wallet-window">
+<title
+>A Janela da Carteira</title>
+
+<para
+>Se tiver mais que uma carteira, todas as que estiverem disponíveis serão apresentadas como ícones. Os ícones refletem o seu status atual, ou seja, se estão abertas ou fechadas. </para>
+<para
+>Ao clicar em uma carteira na janela do &kwalletmanager5;, será mostrado o status e o conteúdo dessa carteira. Uma carteira poderá conter um número qualquer de pastas, o que permite a gravação de informações de senhas. Por padrão, uma carteira irá conter as pastas Dados de formulários e Senhas. </para>
+
+<screenshot>
+<screeninfo
+>Janela principal com duas carteiras</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-edit.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Janela principal com duas carteiras</phrase>
+</textobject>
+<caption
+><para
+>Janela principal com duas carteiras</para
+></caption>
+</mediaobject>
+</screenshot>
+<para
+>Use <guibutton
+>Abrir</guibutton
+> para mostrar o conteúdo de uma carteira fechada. Será solicitada a digitação da senha mestre.</para>
+
+<sect2>
+<title
+>Aba Conteúdo</title>
+
+<para
+>A aba <guilabel
+>Conteúdo</guilabel
+> possui três seções:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Uma campo de pesquisa para filtrar os itens da carteira atual</para
+></listitem>
+<listitem
+><para
+>A exibição em árvore das pastas incluídas na carteira. Clique nos ícones <guiicon
+>&gt;</guiicon
+> / <guiicon
+>v</guiicon
+> para expandir ou recolher a exibição em árvore.</para
+></listitem>
+<listitem
+><para
+>O conteúdo da pasta selecionada do lado direito. Por padrão, a senha e o valor estão ocultos. Para mostrar e editá-los, ative a opção <guilabel
+>Mostrar valores</guilabel
+> ou clique no botão <guilabel
+>Mostrar conteúdo</guilabel
+>. </para
+></listitem>
+</itemizedlist>
+
+<para
+>As pastas podem ser adicionadas ou excluídas com o menu de contexto e, ao selecionar uma pasta, será atualizada a lista de itens da pasta e a área do resumo. Selecionar um item da pasta irá atualizar o conteúdo do mesmo e permitirá que você edite esse item.</para>
+
+<para
+>Os itens podem também ser criados, renomeados ou excluídos através do menu de contexto para o conteúdo da pasta.</para>
+
+<para
+>Todas as pastas e itens poderão ser arrastados e soltos em outras carteiras ou pastas, respectivamente. Isto permite a um usuário empacotar facilmente uma nova carteira para transferi-la para outro ambiente. Por exemplo, a carteira nova poderá ser criada e copiada para um dispositivo de memória flash amovível. As senhas importantes poderiam ser transferidas para lá, para que você possa tê-las disponíveis em outras localizações.</para>
+
+<sect3 id="kwallet-import-export">
+<title
+>Importar e exportar</title>
+<para
+>Se quiser transferir as suas senhas para outro dispositivo ou computador, use as ações do menu <guimenu
+>Arquivo</guimenu
+>. Com a opção <guimenuitem
+>Salvar como</guimenuitem
+>, você poderá exportar carteiras para um arquivo <filename class="extension"
+>.kwl</filename
+> criptografado. Ao importar o arquivo <filename class="extension"
+>.kwl</filename
+> será necessário digitar a senha mestre da carteira. </para>
+<para
+>Alternativamente, um arquivo <filename class="extension"
+>.xml</filename
+> poderá ser usado para transferir uma carteira. Lembre-se de que nesse arquivo todas as senhas serão armazenadas em texto simples. </para>
+</sect3>
+
+<sect3 id="kwallet-adding-entries">
+<title
+>Adicionar itens manualmente</title>
+<para
+>Abra o menu de contexto com o &RMB;, clique em <guilabel
+>Mapas</guilabel
+> ou <guilabel
+>Senhas</guilabel
+> na árvore da <guilabel
+>Pasta</guilabel
+>. Selecione <guimenuitem
+>Novo</guimenuitem
+> e escolha um nome para o novo item.</para>
+<para
+>No painel de conteúdo da pasta, selecione <guilabel
+>Novo item</guilabel
+> do menu de contexto das abas <quote
+>Dados de formulário</quote
+> ou <quote
+>Senhas</quote
+>. Para senhas, clique no botão <guilabel
+>Mostrar conteúdo</guilabel
+> e digite a nova senha. Para mapas, você precisa adicionar uma <guilabel
+>Chave</guilabel
+> e um <guilabel
+>Valor</guilabel
+>. Clique no botão <guilabel
+>Salvar</guilabel
+> para armazenar os novos itens no arquivo de carteira criptografado. </para>
+</sect3>
+</sect2>
+
+<sect2>
+<title
+>Aba Aplicativos</title>
+<para>
+<screenshot>
+<screeninfo
+>Aba Aplicativos</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-applications.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Aba Aplicativos</phrase>
+</textobject>
+<caption
+><para
+>Aba Aplicativos</para
+></caption>
+</mediaobject>
+</screenshot>
+</para>
+<para
+>A primeira lista mostra todos os aplicativos conectados no momento à carteira selecionada. Use o botão do lado direito de cada item para desconectar o aplicativo.</para>
+
+<para
+>Na segunda lista, todos os aplicativos que estão autorizados a acessar à carteira são apresentados. Use o botão à direita de cada item da lista para revogar o acesso. </para>
+<!-- FIXME difference to remove the policy in kwallermanager settings dialog?-->
+</sect2>
+</sect1>
+
+</chapter>
+
+<chapter id="kwallet-kcontrol-module">
+<title
+>Configurando o &kwallet5;</title>
+
+<sect1 id="wallet-preferences">
+<title
+>Preferências da Carteira</title>
+
+<para
+>O &kwallet5; contém um pequeno painel de configuração com várias opções que lhe permitem ajustar o &kwallet5; de acordo com as suas preferências individuais. A configuração padrão do &kwallet5; é suficiente para a maioria dos usuários.</para>
+
+<para
+>Assinale a opção para ativar ou desativar totalmente o subsistema de carteiras do &kde;. Se esta opção estiver desmarcada, então o &kwallet5; ficará completamente desativado e nenhuma das outras opções fará qualquer efeito, nem sequer o &kwallet5; irá registrar qualquer informação ou oferecer-se para preencher os formulários para você.</para>
+
+<variablelist>
+<title
+><guilabel
+>Fechar a carteira</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Fechar quando não utilizada para:</guilabel
+></term>
+<listitem>
+<para
+>Fecha a carteira atual ao fim de algum período de inatividade. Se assinalar esta opção, defina o período no campo; o valor padrão é 10 minutos. Quando uma carteira estiver fechada, a senha é necessária para acessá-la novamente.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Fechar quando o protetor de tela iniciar</guilabel
+></term>
+<listitem>
+<para
+>Fecha a carteira assim que o protetor de tela iniciar. Quando uma carteira estiver fechada, a senha é necessária para acessá-la novamente.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Fechar quando o último aplicativo terminar de usá-la</guilabel
+></term>
+<listitem>
+<para
+>Fecha a carteira, assim que os aplicativos que a usam tiverem sido fechadas. Lembre-se que as suas carteiras só serão fechadas quando todos os aplicativos tiverem sido de fato fechados. Quando uma carteira estiver fechada, a senha é necessária para acessá-la novamente.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title
+><guilabel
+>Seleção Automática da Carteira</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Selecione a carteira a ser usada por padrão:</guilabel
+></term>
+<listitem>
+<para
+>Selecione a carteira a usar por padrão.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Carteira diferente para as senhas locais:</guilabel
+></term>
+<listitem>
+<para
+>Se assinalada, escolhe uma carteira diferente para as senhas locais.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title
+><guilabel
+>Gerenciador de Carteira</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Mostrar o gerenciador na área de notificação</guilabel
+></term>
+<listitem>
+<para
+>Ativa o gerenciador de carteiras para ter o seu ícone na área de notificação.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Ocultar o ícone da área de notificação ao fechar a última carteira</guilabel
+></term>
+<listitem>
+<para
+>Quando não estiver mais nenhuma carteira em uso, remove o ícone da carteira da área de notificação.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Finalmente, existe um botão chamado <guibutton
+>Lançar o Gerenciador da Carteira</guibutton
+>, e que faz precisamente isso.</para>
+<para
+>Este botão somente estará visível se o &kwalletmanager5; não estiver em execução</para>
+</sect1>
+
+<sect1 id="wallet-access-control">
+<title
+>Controle de Acesso</title>
+
+<para
+>Só existe uma opção nesta página:</para>
+
+<variablelist>
+<varlistentry>
+<term
+><guilabel
+>Avisar quando um aplicativo acessar uma carteira</guilabel
+></term>
+<listitem>
+<para
+>Perguntar quando um aplicativo acessar uma carteira.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>A seguir vem uma árvore dos controles de acesso às suas carteiras.</para>
+
+<para
+>Clique com o &LMB; no símbolo <guiicon
+>&gt;</guiicon
+> ao lado do nome de uma carteira para expandir a árvore. Você irá ver o nome de cada aplicativo que pediu acesso à carteira, bem como a política que definiu para ela. Você não poderá editar aqui as políticas ou adicioná-las, mas é possível remover um item se clicar com o &RMB; nele e escolher <guimenuitem
+>Apagar</guimenuitem
+> no menu de contexto que aparece, ou simplesmente selecionando-o e clicando na tecla <keysym
+>Delete</keysym
+>.</para>
+
+<para
+>Uma aplicação que tenha permissão de acesso a uma carteira consegue ver todas as senhas que estão nelas contidas.</para>
+
+<para
+>Se configurar por engano um aplicativo para não usar o &kwalletmanager5; do &kde;, exclua aqui a política para esse aplicativo.</para>
+<!-- FIXME difference to Revoke Authorization in kwallermanager?-->
+<para
+>Na próxima vez que iniciar esse aplicativo, você poderá definir uma nova política de acesso à carteira. </para>
+<screenshot>
+<screeninfo
+>Solicitação de acesso para abrir uma carteira</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="application-request-to-open-wallet.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Solicitação de acesso para abrir uma carteira</phrase>
+</textobject>
+<caption
+><para
+>Um aplicativo solicitando acesso a uma carteira</para
+></caption>
+</mediaobject>
+</screenshot>
+
+</sect1>
+<!-- ksecrets moved to playground in 4.9
+<sect1 id="ksecretsync-kcontrol-module">
+<title
+>&kde; Secret Sync</title>
+
+<para
+>KDE Secret Sync tool aims to help synchronize secrets, such as passwords 
+and login-in account information, between several devices running KDE. 
+It comes as a feature of the new KSecretsService infrastructure. For 
+more information about this infrastructure, please check the 
+<ulink url="http://techbase.kde.org/Projects/Utils/ksecretsservice"
+>KSecretsService page</ulink
+> 
+and also the 
+<ulink url="https://projects.kde.org/projects/kde/kdeutils/ksecrets"
+>project information page</ulink
+>. This tool is 
+currently under development.</para>
+
+<para
+>&kde; Secret Sync uses cryptography to securely exchange the secrets 
+between the devices. As such, it can be used over insecure connections, 
+such as the Internet.</para>
+-->
+<!-- not in gui 4.8.0
+<para
+>The operation is quite simple and it can follow one of the two scenarios:</para>
+<itemizedlist>
+<listitem
+><para
+>synchronize using a centralized resource</para
+></listitem>
+<listitem
+><para
+>peer-to-peer synchronization</para
+></listitem>
+</itemizedlist>
+
+<sect2 id="centralized-resource">
+<title
+>Using a centralized resource</title>
+<para
+>This operating mode requires full access to an IMAP server. The &kde; 
+Secret Sync tool creates an encrypted resource under the folder of your 
+choice then it updates it each time a local secret collection changes, 
+as notified by the KSecretsService infrastructure. This occurs each time 
+an application updates it's secret information. &kde; Secret Sync tool 
+periodically checks this central resource for modifications and when 
+updates are found, then they are pushed to the corresponding local 
+collection.</para>
+
+<para
+>This case requires permanent connection to an IMAP server. The &kde; 
+Secret Sync tool will hold sync operations during network outages. The 
+security level of this kind of operation depends of the security of the 
+IMAP server and the encrypting algorithm used to created the centralized 
+resource. On the other hand, storing the secrets on that centralized 
+resources can also be viewed as a backup.</para>
+</sect2>
+-->
+<!--
+<sect2 id="peer-to-peer-synchronization">
+<title
+>Peer-to-peer synchronization</title>
+<para
+>This operation mode does not require access to a centralized (IMAP) 
+server. A list of known computers is used instead. &kde; Secret Sync will 
+initiate secret exchange sessions with each of it's known computers over 
+a SSH tunnel. The local secret changes are propagated to the other known 
+computers as soon as they are detected.</para>
+
+<para
+>This case require a network connection between known devices. The &kde; 
+Secret Sync tool will hold sync operations with the devices that are not 
+available due to network outages. A naming service should be used for 
+devices that change IP address with each connection.</para>
+
+<para
+>On the <guilabel
+>General</guilabel
+> tab check <guilabel
+>Enable auto synchronization</guilabel
+> 
+and adjust the port your computer is listening for this service. Go to the 
+<guilabel
+>Computers</guilabel
+> tab and add all remote computer names and the 
+port numbers they are listening for synchronization of secrets.</para>
+</sect2>
+</sect1>
+-->
+</chapter>
+
+<chapter id="advanced-features">
+<title
+>Recursos Avançados</title>
+
+<para
+>As carteiras poderão ser arrastadas a partir da janela do &kwalletmanager5;. Isto permite-lhe arrastar a carteira para uma janela do navegador de arquivos, onde você poderá optar por copiar, mover ou criar uma ligação para a carteira, dependendo da sua vontade.</para>
+
+<para
+>Você poderá querer usar isto para salvar uma carteira para um dispositivo amovível, como um chaveiro USB, para que você possa levar as suas senhas consigo para o trabalho ou para férias e para conseguir continuar a ter um acesso fácil aos sites importantes.</para>
+
+<para
+>As versões futuras irão ter funções incorporadas para exportar ou copiar facilmente os dados para os dispositivos portáteis.</para>
+
+ <note>
+   <para
+>Você pode localizar informações sobre a estrutura interna do &kwallet5; e algumas referências úteis para o código, onde poderá encontrar respostas às perguntas sobre a estrutura dos registros de senhas e cifras aplicadas para manter as senhas confidenciais na <ulink url="http://techbase.kde.org/Projects/Utils/kwallet"
+>página do &kwallet5; na TechBase</ulink
+>. </para>
+ </note>
+
+</chapter>
+
+<chapter id="credits-and-license">
+<title
+>Créditos e licença</title>
+
+<para
+>&kwallet5; &copy; 2003 &George.Staikos;</para>
+<para
+>Documentação &copy; &Lauri.Watts; e &George.Staikos;</para>
+
+<para
+>Tradução de Marcus Gama <email
+>marcus.gama@gmail.com</email
+> e André Marcelo Alvarenga <email
+>alvarenga@kde.org</email
+></para
+> 
+&underFDL; &underGPL; </chapter>
+
+&documentation.index;
+
+</book>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+
+// vim:ts=2:sw=2:tw=78:noet
+-->

@@ -1,0 +1,99 @@
+Check-Script: gir
+Author: Simon McVittie <smcv@debian.org>
+Type: binary, source
+Info: Checks for GObject-Introspection mini-policy compliance
+Needs-Info: unpacked, bin-pkg-control
+
+Tag: gir-section-not-libdevel
+Severity: normal
+Certainty: certain
+Info: GObject-Introspection XML files
+ (<tt>/usr/share/gir-1.0/Foo-23.gir</tt>) must be made available in
+ a development package in the <tt>libdevel</tt> section of the archive.
+ This is normally the same <tt>libfoo-dev</tt> package that contains
+ other development files.
+Ref: /usr/share/doc/gobject-introspection/policy.txt
+
+Tag: gir-in-arch-all-package
+Severity: normal
+Certainty: certain
+Info: GObject-Introspection XML files
+ (<tt>/usr/share/gir-1.0/Foo-23.gir</tt>) must be made available in
+ an architecture-dependent package of the same source.
+Ref: /usr/share/doc/gobject-introspection/policy.txt
+
+Tag: gir-missing-typelib-dependency
+Severity: normal
+Certainty: possible
+Info: Development packages that contain GObject-Introspection XML files
+ (<tt>/usr/share/gir-1.0/Foo-23.gir</tt>) must depend on the package
+ containing the corresponding binary typelib, which is conventionally named
+ <tt>gir1.2-foo-23</tt>. The dependency must be strictly versioned
+ (for example <tt>gir1.2-foo-23 (= ${binary:Version})</tt> when using
+ debhelper).
+ .
+ If multiple typelibs are shipped in the same package, then that package
+ should have versioned <tt>Provides</tt> for the names that would have been
+ used for separate packages. In this case, Lintian does not emit this tag
+ when a group of binary packages from the same source is checked together.
+ .
+ For example, <tt>libgtk-3-dev</tt> contains <tt>Gtk-3.0.gir</tt>,
+ <tt>Gdk-3.0.gir</tt> and <tt>GdkX11-3.0.gir</tt>.
+ <tt>gir1.2-gtk-3.0</tt> contains all three corresponding typelibs,
+ so it is sufficient for <tt>libgtk-3-dev</tt> to depend on
+ <tt>gir1.2-gtk-3.0</tt>. Giving <tt>gir1.2-gtk-3.0</tt> <tt>Provides</tt>
+ entries for <tt>gir1.2-gdk-3.0 (= ${binary:Version})</tt>
+ and <tt>gir1.2-gdkx11-3.0 (= ${binary:Version})</tt> signals this
+ situation to Lintian.
+Ref: /usr/share/doc/gobject-introspection/policy.txt
+
+Tag: typelib-package-name-does-not-match
+Severity: normal
+Certainty: possible
+Info: GObject-Introspection binary typelibs (<tt>Foo-23.typelib</tt>)
+ should normally be made available in a package named gir1.2-foo-23.
+ .
+ If multiple typelibs are shipped in the same package, then that package
+ should have versioned <tt>Provides</tt> for the names that would have been
+ used for separate packages. This arrangement should only be used if the
+ included typelibs' versions are expected to remain the same at all times.
+ .
+ For example, <tt>gir1.2-gtk-3.0</tt> is named for the <tt>Gtk-3.0</tt>
+ typelib, but also contains the <tt>Gdk-3.0</tt> and <tt>GdkX11-3.0</tt>
+ typelibs. It should have versioned <tt>Provides</tt> entries for
+ <tt>gir1.2-gdk-3.0 (= ${binary:Version})</tt>
+ and <tt>gir1.2-gdkx11-3.0 (= ${binary:Version})</tt> to indicate this.
+Ref: /usr/share/doc/gobject-introspection/policy.txt
+
+Tag: typelib-section-not-introspection
+Severity: normal
+Certainty: certain
+Info: GObject-Introspection binary typelibs (<tt>Foo-23.typelib</tt>)
+ should be made available in a GObject-Introspection package
+ in the <tt>introspection</tt> section of the archive,
+ normally named <tt>gir1.2-foo-23</tt>.
+Ref: /usr/share/doc/gobject-introspection/policy.txt
+
+Tag: typelib-in-arch-all-package
+Severity: serious
+Certainty: certain
+Info: GObject-Introspection binary typelibs
+ (<tt>Foo-23.typelib</tt>) are architecture-dependent, therefore
+ they must appear in architecture-dependent packages.
+Ref: /usr/share/doc/gobject-introspection/policy.txt
+
+Tag: typelib-not-in-multiarch-directory
+Severity: wishlist
+Certainty: certain
+Info: Public GObject-Introspection binary typelibs
+ (<tt>Foo-23.typelib</tt>) should be installed in the multi-arch
+ directory <tt>/usr/lib/MULTIARCH-TUPLE/girepository-1.0</tt>.
+
+Tag: typelib-missing-gir-depends
+Severity: normal
+Certainty: certain
+Info: GObject-Introspection binary typelibs
+ (<tt>Foo-23.typelib</tt>) can depend on other typelibs. To generate
+ appropriate dependencies in the binary package, they must have
+ <tt>Depends: ${gir:Depends}</tt> in the control file.
+Ref: /usr/share/doc/gobject-introspection/policy.txt

@@ -1,0 +1,61 @@
+Check-Script: md5sums
+Author: Christian Schwarz <schwarz@debian.org>
+Abbrev: md5
+Type: binary
+Needs-Info: md5sums, bin-pkg-control, unpacked
+Info: This script checks if md5sum control files are valid, if they are
+ provided by a binary package.
+
+Tag: no-md5sums-control-file
+Severity: wishlist
+Certainty: certain
+Info: This package does not contain an md5sums control file.  This control
+ file listing the MD5 checksums of the contents of the package is not
+ required, but if present debsums can use it to verify that no files
+ shipped with your package have been modified.  Providing it is
+ recommended.
+ .
+ If you are using debhelper to create your package, just add a call to
+ <tt>dh_md5sums</tt> at the end of your binary-indep or binary-arch
+ target, right before <tt>dh_builddeb</tt>.
+
+Tag: malformed-md5sums-control-file
+Severity: important
+Certainty: certain
+Info: The indicated line of the md5sums control file for this package was
+ malformed.  Each line of an md5sums control file should contain an MD5
+ checksum, some whitespace, and then the path to the file corresponding to
+ that checksum.
+
+Tag: md5sum-mismatch
+Severity: important
+Certainty: certain
+Info: The md5sum listed for the file does not match the actual file
+ contents.
+ .
+ Usually, this error occurs during the package build process, if the
+ <tt>debian/tmp/</tt> directory is touched after <tt>dh_md5sums</tt>
+ is run.
+ .
+ Font files regenerated at post-install time by <tt>t1c2pfb</tt>
+ should be overridden.
+
+Tag: md5sums-lists-nonexistent-file
+Severity: important
+Certainty: certain
+Info: The md5sums control file lists a file which is not included in the
+ package.
+ .
+ Usually, this error occurs during the package build process, if the
+ <tt>debian/tmp/</tt> directory is touched after <tt>dh_md5sums</tt>
+ is run.
+
+Tag: file-missing-in-md5sums
+Severity: normal
+Certainty: certain
+Info: The package contains a file which isn't listed in the md5sums control
+ file.
+ .
+ Usually, this error occurs during the package build process, if the
+ <tt>debian/tmp/</tt> directory is touched after <tt>dh_md5sums</tt>
+ is run.

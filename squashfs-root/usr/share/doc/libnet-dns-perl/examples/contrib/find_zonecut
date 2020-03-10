@@ -1,0 +1,55 @@
+#!/usr/bin/perl
+$VERSION = (qw$LastChangedRevision: 1251 $)[1] || 0.01;
+
+=head1 NAME
+
+find_zonecut - Find zonecut for a domain name
+
+
+=head1 SYNOPSIS
+
+    find_zonecut name
+
+
+=head1 DESCRIPTION
+
+B<find_zonecut> returns the name of the closest delegation point
+to the specified domain name.
+
+=cut
+
+use strict;
+use Net::DNS;
+
+my $resolver = new Net::DNS::Resolver();
+
+print find_zonecut(shift), "\n";
+
+
+sub find_zonecut {			## Copyright (c)2014 Dick Franks
+	my $name  = shift;
+	my $reply = $resolver->send( "*.$name", 'NULL' ) || die $resolver->errorstring;
+	my ($cut) = map $_->name, $reply->authority;
+	return $cut || die "failed to find zone cut for $name";
+}
+
+__END__
+
+
+=head1 COPYRIGHT
+
+(c)2014  Dick Franks E<lt>rwfranks[...]acm.orgE<gt>
+
+All rights reserved.
+
+This program is free software; you may use or redistribute
+it under the same terms as Perl itself.
+
+FOR DEMONSTRATION PURPOSES ONLY, NO WARRANTY, NO SUPPORT
+
+=head1 SEE ALSO
+
+L<perl>, L<Net::DNS>
+
+=cut
+

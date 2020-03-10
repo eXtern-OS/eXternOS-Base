@@ -1,0 +1,50 @@
+#!/bin/sh
+# Build magicfilters for the pnm2ppa package.
+#
+# Copyright Public Domain
+# Written for Debian by Chad Walstrom <chewie@debian.org>
+
+set -e
+
+################################
+# Function: make the magicfilter
+make_filter(){
+	template=$1
+	shift
+	options=${@}
+
+	target=`echo "/etc/magicfilter/pnm2ppa${options}-filter"| 
+		sed -e 's/--/-/g' -e 's/ //'`
+
+	# Replace keyword strings in the file
+	sed -e "s,@OPTIONS@,${options}," ${template} > ${target}
+	chmod +x ${target}
+
+	# Old pbm2ppa legacy filter file linkage
+	ln -fs ${target} `echo ${target} | sed -e 's/pnm2ppa/pbm2ppa/'`
+}
+
+#################################
+# Check for template
+
+# If you're not root, you shouldn't be running this
+if [ `id -u` -ne 0 ] ; then
+	echo "You need root permissions to run this script." 1>&2
+	exit 1
+fi
+
+TEMPLATE=/usr/share/pnm2ppa/pnm2ppa-magicfilter.in
+test ! -f $TEMPLATE && exit $?
+
+# Make sure directory exists
+if [ ! -d /etc/magicfilter ] ; then
+	mkdir -p /etc/magicfilter || exit $?
+fi
+
+# Make a filter for each colormode and each quality of print
+make_filter $TEMPLATE
+make_filter $TEMPLATE --eco
+make_filter $TEMPLATE --bw
+make_filter $TEMPLATE --bw --eco
+
+# End of stupid hack

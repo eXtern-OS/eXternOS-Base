@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Profile</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#CLASS_METHODS'>CLASS METHODS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Profile - Profile parser for Lintian</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre> # Load the debian profile (if available)
+ my $profile = Lintian::Profile-&#62;new (&#39;debian&#39;);
+ # Load the debian profile using an explicit search path
+ $profile = Lintian::Profile-&#62;new (&#39;debian&#39;,
+    [&#39;/path/to/alt/root&#39;, $ENV{&#39;LINTIAN_ROOT&#39;}]);
+ # Load the &#34;default&#34; profile for the current vendor
+ $profile = Lintian::Profile-&#62;new;
+ foreach my $tag ($profile-&#62;tags) {
+     print &#34;Enabled tag: $tag\n&#34;;
+ }
+ # ...</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Lintian::Profile handles finding, parsing and implementation of Lintian Profiles as well as loading the relevant Lintian checks.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS_METHODS"
+>CLASS METHODS</a></h1>
+
+<dl>
+<dt><a name="Lintian::Profile-&#62;new_([$profname[,_$ipath[,_$extra]]])"
+>Lintian::Profile-&#62;new ([$profname[, $ipath[, $extra]]])</a></dt>
+
+<dd>
+<p>Creates a new profile from the profile. $profname is the name of the profile and $ipath is a list reference containing the path to one (or more) Lintian &#34;roots&#34;.</p>
+
+<p>If $profname is <code>undef</code>, the default vendor will be loaded based on Dpkg::Vendor::get_current_vendor.</p>
+
+<p>If $ipath is not given, a default one will be used.</p>
+
+<dt><a name="$prof-&#62;profile_list"
+>$prof-&#62;profile_list</a></dt>
+
+<dd>
+<p>Returns a list ref of the (normalized) names of the profile and its parents. The last element of the list is the name of the profile itself, the second last is its parent and so on.</p>
+
+<p>Note: This list reference and its contents should not be modified.</p>
+
+<dt><a name="$prof-&#62;name"
+>$prof-&#62;name</a></dt>
+
+<dd>
+<p>Returns the name of the profile, which may differ from the name used to create this instance of the profile (e.g. due to symlinks).</p>
+
+<dt><a name="$prof-&#62;tags([$known])"
+>$prof-&#62;tags([$known])</a></dt>
+
+<dd>
+<p>Returns the list of tags in this profile. If $known is given and it is a truth value, the list of known tags is returned. Otherwise only the enabled tags will be returned.</p>
+
+<p>Note: The contents of this list should not be modified.</p>
+
+<dt><a name="$prof-&#62;scripts_([$known])"
+>$prof-&#62;scripts ([$known])</a></dt>
+
+<dd>
+<p>Returns the list of Check-Scripts in this profile. If $known is given and it is a truth value, the list of known Check-Scripts is returned. Otherwise only checks with an enabled tag will be enabled.</p>
+
+<dt><a name="$prof-&#62;is_overridable_($tag)"
+>$prof-&#62;is_overridable ($tag)</a></dt>
+
+<dd>
+<p>Returns a false value if the tag has been marked as &#34;non-overridable&#34;. Otherwise it returns a truth value.</p>
+
+<dt><a name="$prof-&#62;get_tag_($tag[,_$known])"
+>$prof-&#62;get_tag ($tag[, $known])</a></dt>
+
+<dd>
+<p>Returns the Lintian::Tag::Info for $tag if it is enabled for the profile (or just a &#34;known tag&#34; if $known is given and a truth value). Otherwise it returns undef.</p>
+
+<dt><a name="$prof-&#62;get_script_($script[,_$known])"
+>$prof-&#62;get_script ($script[, $known])</a></dt>
+
+<dd>
+<p>Returns the Lintian::CheckScript for $script if it is enabled for the profile (or just a &#34;known script&#34; if $known is given and a truth value). Otherwise it returns undef.</p>
+
+<p>Note: A script is enabled as long as at least one of the tags it provides are enabled.</p>
+
+<dt><a name="$prof-&#62;enable_tags_(@tags)"
+>$prof-&#62;enable_tags (@tags)</a></dt>
+
+<dd>
+<p>Enables all tags named in @tags. Croaks if an unknown tag is found.</p>
+
+<dt><a name="$prof-&#62;disable_tags_(@tags)"
+>$prof-&#62;disable_tags (@tags)</a></dt>
+
+<dd>
+<p>Disable all tags named in @tags. Croaks if an unknown tag is found.</p>
+
+<dt><a name="$prof-&#62;include_path_([$path])"
+>$prof-&#62;include_path ([$path])</a></dt>
+
+<dd>
+<p>Returns an array of paths to the (partial) Lintian roots, which are used by this profile. The paths are ordered from &#34;highest&#34; to &#34;lowest&#34; priority (i.e. items in the earlier paths should shadow those in later ones).</p>
+
+<p>If $path is given, the array will contain the paths to the path in these roots denoted by $path.</p>
+
+<p>Paths returned are not guaranteed to exists.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Niels Thykier &#60;niels@thykier.net&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1)</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

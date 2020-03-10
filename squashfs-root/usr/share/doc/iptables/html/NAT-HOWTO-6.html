@@ -1,0 +1,233 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.72">
+ <TITLE>Linux 2.4 NAT HOWTO: Saying How To Mangle The Packets</TITLE>
+ <LINK HREF="NAT-HOWTO-7.html" REL=next>
+ <LINK HREF="NAT-HOWTO-5.html" REL=previous>
+ <LINK HREF="NAT-HOWTO.html#toc6" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="NAT-HOWTO-7.html">Next</A>
+<A HREF="NAT-HOWTO-5.html">Previous</A>
+<A HREF="NAT-HOWTO.html#toc6">Contents</A>
+<HR>
+<H2><A NAME="s6">6.</A> <A HREF="NAT-HOWTO.html#toc6">Saying How To Mangle The Packets</A></H2>
+
+<P>So now we know how to select the packets we want to mangle.  To
+complete our rule, we need to tell the kernel exactly what we want it
+to do to the packets.</P>
+
+<H2><A NAME="ss6.1">6.1</A> <A HREF="NAT-HOWTO.html#toc6.1">Source NAT</A>
+</H2>
+
+<P>You want to do Source NAT; change the source address of connections
+to something different.  This is done in the POSTROUTING chain, just
+before it is finally sent out; this is an important detail, since it
+means that anything else on the Linux box itself (routing, packet
+filtering) will see the packet unchanged.  It also means that the `-o'
+(outgoing interface) option can be used.</P>
+
+<P>Source NAT is specified using `-j SNAT', and the `--to-source'
+option specifies an IP address, a range of IP addresses, and an
+optional port or range of ports (for UDP and TCP protocols only).</P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+## Change source addresses to 1.2.3.4.
+# iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to 1.2.3.4
+
+## Change source addresses to 1.2.3.4, 1.2.3.5 or 1.2.3.6
+# iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to 1.2.3.4-1.2.3.6
+
+## Change source addresses to 1.2.3.4, ports 1-1023
+# iptables -t nat -A POSTROUTING -p tcp -o eth0 -j SNAT --to 1.2.3.4:1-1023
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+
+<H3>Masquerading</H3>
+
+<P>There is a specialized case of Source NAT called masquerading: it
+should only be used for dynamically-assigned IP addresses, such as
+standard dialups (for static IP addresses, use SNAT above).</P>
+
+<P>You don't need to put in the source address explicitly with
+masquerading: it will use the source address of the interface the
+packet is going out from.  But more importantly, if the link goes
+down, the connections (which are now lost anyway) are forgotten,
+meaning fewer glitches when connection comes back up with a new IP
+address.</P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+## Masquerade everything out ppp0.
+# iptables -t nat -A POSTROUTING -o ppp0 -j MASQUERADE
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+
+<H2><A NAME="ss6.2">6.2</A> <A HREF="NAT-HOWTO.html#toc6.2">Destination NAT</A>
+</H2>
+
+<P>This is done in the PREROUTING chain, just as the packet comes in;
+this means that anything else on the Linux box itself (routing, packet
+filtering) will see the packet going to its `real' destination.  It
+also means that the `-i' (incoming interface) option can be used.</P>
+
+<P>Destination NAT is specified using `-j DNAT', and the
+`--to-destination' option specifies an IP address, a range of IP
+addresses, and an optional port or range of ports (for UDP and TCP
+protocols only).</P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+## Change destination addresses to 5.6.7.8
+# iptables -t nat -A PREROUTING -i eth0 -j DNAT --to 5.6.7.8
+
+## Change destination addresses to 5.6.7.8, 5.6.7.9 or 5.6.7.10.
+# iptables -t nat -A PREROUTING -i eth0 -j DNAT --to 5.6.7.8-5.6.7.10
+
+## Change destination addresses of web traffic to 5.6.7.8, port 8080.
+# iptables -t nat -A PREROUTING -p tcp --dport 80 -i eth0 \
+        -j DNAT --to 5.6.7.8:8080
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+
+<H3>Redirection</H3>
+
+<P>There is a specialized case of Destination NAT called redirection:
+it is a simple convenience which is exactly equivalent to doing DNAT
+to the address of the incoming interface.</P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+## Send incoming port-80 web traffic to our squid (transparent) proxy
+# iptables -t nat -A PREROUTING -i eth1 -p tcp --dport 80 \
+        -j REDIRECT --to-port 3128
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+<P>Note that squid needs to be configured to know it's a transparent proxy!</P>
+
+<H2><A NAME="ss6.3">6.3</A> <A HREF="NAT-HOWTO.html#toc6.3">Mappings In Depth</A>
+</H2>
+
+<P>There are some subtleties to NAT which most people will never have
+to deal with.  They are documented here for the curious.</P>
+
+<H3>Selection Of Multiple Addresses in a Range</H3>
+
+<P>If a range of IP addresses is given, the IP address to use is
+chosen based on the least currently used IP for connections the
+machine knows about.  This gives primitive load-balancing.</P>
+
+<H3>Creating Null NAT Mappings</H3>
+
+<P>You can use the `-j ACCEPT' target to let a connection through
+without any NAT taking place.</P>
+
+<H3>Standard NAT Behavior</H3>
+
+<P>The default behavior is to alter the connection as little as
+possible, within the constraints of the rule given by the user.  This
+means we won't remap ports unless we have to.</P>
+
+<H3>Implicit Source Port Mapping</H3>
+
+<P>Even when no NAT is requested for a connection, source port
+translation may occur implicitly, if another connection has been
+mapped over the new one.  Consider the case of masquerading, which
+is rather common:</P>
+<P>
+<OL>
+<LI> A web connection is established by a box 192.1.1.1 from port
+1024 to www.netscape.com port 80.
+</LI>
+<LI> This is masqueraded by the masquerading box to use its source
+IP address (1.2.3.4).
+</LI>
+<LI> The masquerading box tries to make a web connection to
+www.netscape.com port 80 from 1.2.3.4 (its external interface
+address) port 1024.
+</LI>
+<LI> The NAT code will alter the source port of the second
+connection to 1025, so that the two don't clash.</LI>
+</OL>
+</P>
+
+<P>When this implicit source mapping occurs, ports are divided into
+three classes:
+<UL>
+<LI> Ports below 512</LI>
+<LI> Ports between 512 and 1023</LI>
+<LI> Ports 1024 and above.</LI>
+</UL>
+</P>
+<P>A port will never be implicitly mapped into a different class.</P>
+
+<H3>What Happens When NAT Fails</H3>
+
+<P>If there is no way to uniquely map a connection as the user
+requests, it will be dropped.  This also applies to packets which
+could not be classified as part of any connection, because they are
+malformed, or the box is out of memory, etc.</P>
+
+<H3>Multiple Mappings, Overlap and Clashes</H3>
+
+<P>You can have NAT rules which map packets onto the same range; the
+NAT code is clever enough to avoid clashes.  Hence having two rules
+which map the source address 192.168.1.1 and 192.168.1.2 respectively
+onto 1.2.3.4 is fine.</P>
+
+<P>Furthermore, you can map over real, used IP addresses, as long as
+those addresses pass through the mapping box as well.  So if you have
+an assigned network (1.2.3.0/24), but have one internal network using
+those addresses and one using the Private Internet Addresses
+192.168.1.0/24, you can simply NAT the 192.168.1.0/24 source addresses
+onto the 1.2.3.0 network, without fear of clashing:</P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+# iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o eth1 \
+        -j SNAT --to 1.2.3.0/24
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+
+<P>The same logic applies to addresses used by the NAT box itself:
+this is how masquerading works (by sharing the interface address
+between masqueraded packets and `real' packets coming from the box
+itself).</P>
+
+<P>Moreover, you can map the same packets onto many different targets,
+and they will be shared.  For example, if you don't want to map
+anything over 1.2.3.5, you could do:</P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+# iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o eth1 \
+        -j SNAT --to 1.2.3.0-1.2.3.4 --to 1.2.3.6-1.2.3.254
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+
+<H3>Altering the Destination of Locally-Generated Connections</H3>
+
+<P>The NAT code allows you to insert DNAT rules in the OUTPUT chain,
+but this is not fully supported in 2.4 (it can be, but it requires a
+new configuration option, some testing, and a fair bit of coding, so
+unless someone contracts Rusty to write it, I wouldn't expect it
+soon).</P>
+
+<P>The current limitation is that you can only change the destination
+to the local machine (e.g. `j DNAT --to 127.0.0.1'), not to any other
+machine, otherwise the replies won't be translated correctly.</P>
+
+<HR>
+<A HREF="NAT-HOWTO-7.html">Next</A>
+<A HREF="NAT-HOWTO-5.html">Previous</A>
+<A HREF="NAT-HOWTO.html#toc6">Contents</A>
+</BODY>
+</HTML>

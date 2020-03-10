@@ -1,0 +1,848 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>X11R6 Sample Implementation Frame Work</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1" /><style xmlns="" type="text/css">/*
+ * Copyright (c) 2011 Gaetan Nadon
+ * Copyright (c) 2010, Oracle and/or its affiliates. All rights reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice (including the next
+ * paragraph) shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ */
+
+/*
+ * Shared stylesheet for X.Org documentation translated to HTML format
+ * http://www.sagehill.net/docbookxsl/UsingCSS.html
+ * http://www.w3schools.com/css/default.asp
+ * https://addons.mozilla.org/en-US/firefox/addon/web-developer/developers
+ * https://addons.mozilla.org/en-US/firefox/addon/font-finder/
+ */
+
+/*
+ * The sans-serif fonts are considered more legible on a computer screen
+ * http://dry.sailingissues.com/linux-equivalents-verdana-arial.html
+ *
+ */
+body {
+  font-family: "Bitstream Vera Sans", "DejaVu Sans", Tahoma, Geneva, Arial, Sans-serif;
+  /* In support of using "em" font size unit, the w3c recommended method */
+  font-size: 100%;
+}
+
+/*
+ * Selection: all elements requiring mono spaced fonts.
+ *
+ * The family names attempt to match the proportionally spaced font
+ * family names such that the same font name is used for both.
+ * We'd like to use Bitstream, for example, in both proportionally and
+ * mono spaced font text.
+ */
+.command,
+.errorcode,
+.errorname,
+.errortype,
+.filename,
+.funcsynopsis,
+.function,
+.parameter,
+.programlisting,
+.property,
+.screen,
+.structname,
+.symbol,
+.synopsis,
+.type
+{
+  font-family:  "Bitstream Vera Sans Mono", "DejaVu Sans Mono", Courier, "Liberation Mono", Monospace;
+}
+
+/*
+ * Books have a title page, a preface, some chapters and appendices,
+ * a glossary, an index and a bibliography, in that order.
+ *
+ * An Article has no preface and no chapters. It has sections, appendices,
+ * a glossary, an index and a bibliography.
+ */
+
+/*
+ * Selection: book main title and subtitle
+ */
+div.book>div.titlepage h1.title,
+div.book>div.titlepage h2.subtitle {
+  text-align: center;
+}
+
+/*
+ * Selection: article main title and subtitle
+ */
+div.article>div.titlepage h2.title,
+div.article>div.titlepage h3.subtitle,
+div.article>div.sect1>div.titlepage h2.title,
+div.article>div.section>div.titlepage h2.title {
+  text-align: center;
+}
+
+/*
+ * Selection: various types of authors and collaborators, individuals or corporate
+ *
+ * These authors are not always contained inside an authorgroup.
+ * They can be contained inside a lot of different parent types where they might
+ * not be centered.
+ * Reducing the margin at the bottom makes a visual separation between authors
+ * We specify here the ones on the title page, others may be added based on merit.
+ */
+div.titlepage .authorgroup,
+div.titlepage .author,
+div.titlepage .collab,
+div.titlepage .corpauthor,
+div.titlepage .corpcredit,
+div.titlepage .editor,
+div.titlepage .othercredit {
+  text-align: center;
+  margin-bottom: 0.25em;
+}
+
+/*
+ * Selection: the affiliation of various types of authors and collaborators,
+ * individuals or corporate.
+ */
+div.titlepage .affiliation {
+  text-align: center;
+}
+
+/*
+ * Selection: product release information (X Version 11, Release 7)
+ *
+ * The releaseinfo element can be contained inside a lot of different parent
+ * types where it might not be centered.
+ * We specify here the one on the title page, others may be added based on merit.
+ */
+div.titlepage p.releaseinfo {
+  font-weight: bold;
+  text-align: center;
+}
+
+/*
+ * Selection: publishing date
+ */
+div.titlepage .pubdate {
+  text-align: center;
+}
+
+/*
+ * The legal notices are displayed in smaller sized fonts
+ * Justification is only supported in IE and therefore not requested.
+ *
+ */
+.legalnotice {
+  font-size: small;
+  font-style: italic;
+}
+
+/*
+ * For documentation having multiple licenses, the copyright and legalnotice
+ * elements sequence cannot instantiated multiple times.
+ * The copyright notice and license text are therefore coded inside a legalnotice
+ * element. The role attribute on the paragraph is used to allow styling of the
+ * copyright notice text which should not be italicized.
+ */
+p.multiLicensing {
+  font-style: normal;
+  font-size: medium;
+}
+
+/*
+ * Selection: book or article main ToC title
+ * A paragraph is generated for the title rather than a level 2 heading.
+ * We do not want to select chapters sub table of contents, only the main one
+ */
+div.book>div.toc>p,
+div.article>div.toc>p {
+  font-size: 1.5em;
+  text-align: center;
+}
+
+/*
+ * Selection: major sections of a book or an article
+ *
+ * Unlike books, articles do not have a titlepage element for appendix.
+ * Using the selector "div.titlepage h2.title" would be too general.
+ */
+div.book>div.preface>div.titlepage h2.title,
+div.book>div.chapter>div.titlepage h2.title,
+div.article>div.sect1>div.titlepage h2.title,
+div.article>div.section>div.titlepage h2.title,
+div.book>div.appendix>div.titlepage h2.title,
+div.article>div.appendix h2.title,
+div.glossary>div.titlepage h2.title,
+div.index>div.titlepage h2.title,
+div.bibliography>div.titlepage h2.title {
+   /* Add a border top over the major parts, just like printed books */
+   /* The Gray color is already used for the ruler over the main ToC. */
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: Gray;
+  /* Put some space between the border and the title */
+  padding-top: 0.2em;
+  text-align: center;
+}
+
+/*
+ * A Screen is a verbatim environment for displaying text that the user might
+ * see on a computer terminal. It is often used to display the results of a command.
+ *
+ * http://www.css3.info/preview/rounded-border/
+ */
+.screen {
+  background: #e0ffff;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #B0C4DE;
+  border-radius: 1.0em;
+  /* Browser's vendor properties prior to CSS 3 */
+  -moz-border-radius: 1.0em;
+  -webkit-border-radius: 1.0em;
+  -khtml-border-radius: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 1.0em;
+  padding: 0.5em;
+}
+
+/*
+ * Emphasis program listings with a light shade of gray similar to what
+ * DocBook XSL guide does: http://www.sagehill.net/docbookxsl/ProgramListings.html
+ * Found many C API docs on the web using like shades of gray.
+ */
+.programlisting {
+  background: #F4F4F4;
+  border-width: 1px;
+  border-style: solid;
+  border-color: Gray;
+  padding: 0.5em;
+}
+
+/*
+ * Emphasis functions synopsis using a darker shade of gray.
+ * Add a border such that it stands out more.
+ * Set the padding so the text does not touch the border.
+ */
+.funcsynopsis, .synopsis {
+  background: #e6e6fa;
+  border-width: 1px;
+  border-style: solid;
+  border-color: Gray;
+  clear: both;
+  margin: 0.5em;
+  padding: 0.25em;
+}
+
+/*
+ * Selection: paragraphs inside synopsis
+ *
+ * Removes the default browser margin, let the container set the padding.
+ * Paragraphs are not always used in synopsis
+ */
+.funcsynopsis p,
+.synopsis p {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Selection: variable lists, informal tables and tables
+ *
+ * Note the parameter name "variablelist.as.table" in xorg-xhtml.xsl
+ * A table with rows and columns is constructed inside div.variablelist
+ *
+ * Set the left margin so it is indented to the right
+ * Display informal tables with single line borders
+ */
+table {
+  margin-left: 0.5em;
+  border-collapse: collapse;
+}
+
+/*
+ * Selection: paragraphs inside tables
+ *
+ * Removes the default browser margin, let the container set the padding.
+ * Paragraphs are not always used in tables
+ */
+td p {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Add some space between the left and right column.
+ * The vertical alignment helps the reader associate a term
+ * with a multi-line definition.
+ */
+td, th {
+  padding-left: 1.0em;
+  padding-right: 1.0em;
+  vertical-align: top;
+}
+
+.warning {
+  border: 1px solid red;
+  background: #FFFF66;
+  padding-left: 0.5em;
+}
+</style></head><body><div class="book"><div class="titlepage"><div><div><h1 class="title"><a id="framework"></a>X11R6 Sample Implementation Frame Work</h1></div><div><div class="authorgroup"><div class="othercredit"><h3 class="othercredit"><span class="firstname">Katsuhisa</span> <span class="surname">Yano</span></h3><div class="affiliation"><span class="orgname">TOSHIBA Corporation<br /></span></div></div><div class="othercredit"><h3 class="othercredit"><span class="firstname">Yoshio</span> <span class="surname">Horiuchi</span></h3><div class="affiliation"><span class="orgname">IBM Japan<br /></span></div></div></div></div><div><p class="releaseinfo">X Version 11, Release 7.7</p></div><div><p class="copyright">Copyright © 1994 TOSHIBA Corporation, IBM Corporation</p></div><div><div class="legalnotice"><a id="idm20"></a><p>
+Permission to use, copy, modify, and distribute this documentation for any purpose and without fee is hereby granted,
+provided that the above copyright notice and this permission notice appear in all copies. TOSHIBA Corporation and
+IBM Corporation make no representations about the suitability for any purpose of the information in this document.
+This documentation is provided as is without express or implied warranty.
+</p><p class="multiLicensing">Copyright © 1994 X Consortium</p><p>
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files
+(the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to permit
+persons to whom the Software is furnished to do so, subject to the following
+conditions:
+</p><p>
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+</p><p>
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN
+NO EVENT SHALL THE X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+</p><p>
+Except as contained in this notice, the name of X Consortium shall not
+be used in advertising or otherwise to promote the sale, use or other dealings
+in this Software without prior written authorization from X Consortium.
+</p><p>X Window System is a trademark of The Open Group.</p></div></div></div><hr /></div><div class="toc"><p><strong>Table of Contents</strong></p><dl class="toc"><dt><span class="chapter"><a href="#Framework">1. Framework</a></span></dt><dd><dl><dt><span class="sect1"><a href="#Preface">Preface</a></span></dt><dt><span class="sect1"><a href="#Objective">Objective</a></span></dt><dt><span class="sect1"><a href="#Locale_Object_Binding_Functions">Locale Object Binding Functions</a></span></dt><dt><span class="sect1"><a href="#Locale_Method_Interface">Locale Method Interface</a></span></dt><dt><span class="sect1"><a href="#Locale_Method_Functions">Locale Method Functions</a></span></dt><dt><span class="sect1"><a href="#Charset_functions">Charset functions</a></span></dt><dt><span class="sect1"><a href="#Converter_Functions">Converter Functions</a></span></dt><dt><span class="sect1"><a href="#X_Locale_Database_functions">X Locale Database functions</a></span></dt><dt><span class="sect1"><a href="#Utility_Functions">Utility Functions</a></span></dt></dl></dd></dl></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="Framework"></a>Chapter 1. Framework</h1></div></div></div><div class="toc"><p><strong>Table of Contents</strong></p><dl class="toc"><dt><span class="sect1"><a href="#Preface">Preface</a></span></dt><dt><span class="sect1"><a href="#Objective">Objective</a></span></dt><dt><span class="sect1"><a href="#Locale_Object_Binding_Functions">Locale Object Binding Functions</a></span></dt><dt><span class="sect1"><a href="#Locale_Method_Interface">Locale Method Interface</a></span></dt><dt><span class="sect1"><a href="#Locale_Method_Functions">Locale Method Functions</a></span></dt><dt><span class="sect1"><a href="#Charset_functions">Charset functions</a></span></dt><dt><span class="sect1"><a href="#Converter_Functions">Converter Functions</a></span></dt><dt><span class="sect1"><a href="#X_Locale_Database_functions">X Locale Database functions</a></span></dt><dt><span class="sect1"><a href="#Utility_Functions">Utility Functions</a></span></dt></dl></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Preface"></a>Preface</h2></div></div></div><p>
+This document proposes to define the structures, methods and their
+signatures that are expected to be common to all locale dependent
+functions within the Xlib sample implementation.  The following
+illustration (Fig.1)  is proposed to outline the separating of
+the components within the sample implementation.
+</p><p>
+Preface drawing.
+</p><div class="mediaobject"><a id="framework_locale_service_api_proposal"></a><table border="0" summary="manufactured viewport for HTML img" style="cellpadding: 0; cellspacing: 0;" width="540"><tr style="height: 530px"><td><object type="image/svg+xml" data="framework.svg" width="560" height="550"></object></td></tr></table><div class="caption">Frame work of Locale Service API Proposal</div></div><p>
+Generally speaking, the internationalized portion of Xlib (Locale
+Dependent X, LDX) consists of three objects;
+locale (LC) , input method (IM) and output method (OM).
+The LC provides a set of information that depends on user's language
+environment.  The IM manages text inputing, and the OM manages text
+drawing.  Both IM and OM highly depend on LC data.
+</p><p>
+In X11R5, there are two sample implementations, Ximp and Xsi, for
+Xlib internationalization.  But in both implementations, IM and OM
+actually refer the private extension of LC.  It breaks coexistence
+of these two sample implementations.  For example, if a user creates
+a new OM for special purpose as a part of Ximp, it will not work with
+Xsi.
+</p><p>
+As a solution of this problem, we propose to define the standard
+APIs between these three objects, and define the structure that are
+common to these objects.
+</p></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Objective"></a>Objective</h2></div></div></div><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>
+Explain the current X11R6 sample implementation
+    </p></li><li class="listitem"><p>
+Document the common set of locale dependent interfaces
+    </p></li><li class="listitem"><p>
+Provide more flexible pluggable layer
+    </p></li></ul></div></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Locale_Object_Binding_Functions"></a>Locale Object Binding Functions</h2></div></div></div><p>
+This chapter describes functions related locale object binding for
+implementing the pluggable layer.
+</p><p>
+A locale loader is an entry point for locale object, which
+instantiates XLCd object and binds locale methods with specified
+locale name. The behavior of loader is implementation dependent.
+And, what kind of loaders are available is also implementation
+dependent.
+</p><p>
+
+The loader is called in
+<code class="function">_XOpenLC, </code>
+but caller of
+<a class="xref" href="#_XOpenLC"><code class="function"> _XOpenLC</code></a>
+does not need to care about its inside.  For example, if the loader is
+implemented with dynamic load functions, and the dynamic module is
+expected to be unloaded when the corresponding XLCd is freed,
+close methods of XLCdMethods should handle unloading.
+</p><p>
+<span class="bold"><strong>Initializing a locale loader list</strong></span>
+</p><p>void _XlcInitLoader</p><p>
+The
+<code class="function">_XlcInitLoader</code>
+function initializes the locale loader list with vendor specific
+manner.  Each loader is registered with calling
+<code class="function">_XlcAddLoader.</code>
+The number of loaders and their order in the loader list is
+implementation dependent.
+</p><p>
+<span class="bold"><strong>Add a loader</strong></span>
+</p><div class="literallayout"><p><br />
+typedef XLCd (*XLCdLoadProc)(<span class="emphasis"><em>name</em></span>);<br />
+      char <span class="emphasis"><em>*name</em></span>;<br />
+<br />
+typedef int XlcPosition;<br />
+<br />
+#define   XlcHead<br />
+#define   XlcTail<br />
+</p></div><div class="funcsynopsis"><a id="_XlcAddLoader"></a><p><code class="funcdef">Bool <strong class="fsfunc"> _XlcAddLoader</strong>(</code>XLCdLoadProc<var class="pdparam"> proc</var>, XlcPosition<var class="pdparam"> position</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_XlcAddLoader"><code class="function"> _XlcAddLoader</code></a>
+function registers the specified locale loader "<span class="emphasis"><em>proc</em></span>" to the
+internal loader list.  The position specifies that the loader
+"<span class="emphasis"><em>proc</em></span>" should be placed in the top of the loader list(XlcHead)
+or last(XlcTail).
+</p><p>
+The object loader is called from the top of the loader list in order,
+when calling time.
+</p><p>
+<code class="function">Remove a loader</code>
+</p><div class="funcsynopsis"><a id="_XlcRemoveLoader"></a><p><code class="funcdef">void <strong class="fsfunc"> _XlcRemoveLoader</strong>(</code>XLCdLoadProc<var class="pdparam"> proc</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_XlcRemoveLoader"><code class="function"> _XlcRemoveLoader</code></a>
+function removes the locale loader specified by "<span class="emphasis"><em>proc</em></span>" from the
+loader list.
+</p><p>
+Current implementation provides following locale loaders;
+</p><div class="literallayout"><p><br />
+<code class="function">_XlcDefaultLoader</code><br />
+<code class="function">_XlcGenericLoader</code><br />
+<code class="function">_XlcUtfLoader</code><br />
+<code class="function">_XaixOsDynamicLoad</code><br />
+</p></div></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Locale_Method_Interface"></a>Locale Method Interface</h2></div></div></div><p>
+This chapter describes the locale method API, which is a set of
+accessible functions from both IM and OM parts.
+The locale method API provides the functionalities;  obtaining locale
+dependent information, handling charset, converting text, etc.
+</p><p>
+As a result of using these APIs instead of accessing vender private
+extension of the locale object, we can keep locale, IM and OM
+independently each other.
+</p></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Locale_Method_Functions"></a>Locale Method Functions</h2></div></div></div><p>
+<code class="function">Open a Locale Method</code>
+</p><div class="funcsynopsis"><a id="_XOpenLC"></a><p><code class="funcdef">XLCd <strong class="fsfunc"> _XOpenLC</strong>(</code>char<var class="pdparam"> *name</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_XOpenLC"><code class="function"> _XOpenLC</code></a>
+function opens a locale method which corresponds to the
+specified locale name.
+<a class="xref" href="#_XOpenLC"><code class="function"> _XOpenLC</code></a>
+calls a locale object loader, which is registered via
+<code class="function">_XlcAddLoader into the internal loader list.  If the called loader </code>
+is valid and successfully opens a locale,
+<a class="xref" href="#_XOpenLC"><code class="function"> _XOpenLC</code></a>
+returns the XLCd.  If the loader is invalid or failed to open a locale,
+<a class="xref" href="#_XOpenLC"><code class="function"> _XOpenLC</code></a>
+calls the next loader.  If all registered loaders cannot open a locale,
+<a class="xref" href="#_XOpenLC"><code class="function"> _XOpenLC</code></a>
+returns NULL.
+</p><p>XLCd _XlcCurrentLC</p><p>
+The
+<code class="function">_XlcCurrentLC</code>
+function returns an XLCd that are bound to current locale.
+</p><p>
+<span class="bold"><strong>Close a Locale Method</strong></span>
+</p><div class="funcsynopsis"><a id="_XCloseLC"></a><p><code class="funcdef">void <strong class="fsfunc"> _XCloseLC</strong>(</code>XLCd<var class="pdparam"> lcd</var><code>)</code>;</p></div><p>
+
+The
+<a class="xref" href="#_XCloseLC"><code class="function"> _XCloseLC</code></a>
+function close a locale method the specified lcd.
+</p><p>
+<span class="bold"><strong>Obtain Locale Method values</strong></span>
+</p><div class="funcsynopsis"><a id="_XGetLCValues"></a><p><code class="funcdef">char *<strong class="fsfunc">_XGetLCValues</strong>(</code>XLCd<var class="pdparam"> lcd</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_XGetLCValues"><code class="function">_XGetLCValues</code></a>
+function returns NULL if no error occurred; otherwise, it returns the
+name of the first argument that could not be obtained.
+The following values are defined as standard arguments. Other values
+are implementation dependent.
+</p><div class="informaltable"><table class="informaltable" border="1"><colgroup><col align="left" class="c1" /><col align="left" class="c2" /><col align="left" class="c3" /></colgroup><thead><tr><th align="left">Name</th><th align="left">Type</th><th align="left">Description</th></tr></thead><tbody><tr><td align="left">XlcNCodeset</td><td align="left">char*</td><td align="left">codeset part of locale name</td></tr><tr><td align="left">XlcNDefaultString</td><td align="left">char*</td><td align="left">XDefaultString()</td></tr><tr><td align="left">XlcNEncodingName</td><td align="left">char*</td><td align="left">encoding name</td></tr><tr><td align="left">XlcNLanguage</td><td align="left">char*</td><td align="left">language part of locale name</td></tr><tr><td align="left">XlcNMbCurMax</td><td align="left">int</td><td align="left">ANSI C MB_CUR_MAX</td></tr><tr><td align="left">XlcNStateDependentEncoding</td><td align="left">Bool</td><td align="left">is state-dependent encoding or not</td></tr><tr><td align="left">XlcNTerritory</td><td align="left">char*</td><td align="left">territory part of locale name</td></tr></tbody></table></div></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Charset_functions"></a>Charset functions</h2></div></div></div><p>
+The XlcCharSet is an identifier which represents a subset of characters
+(character set) in the locale object.
+</p><pre class="literallayout">
+typedef enum {
+      XlcUnknown, XlcC0, XlcGL, XlcC1, XlcGR, XlcGLGR, XlcOther
+} XlcSide;
+
+typedef struct _XlcCharSetRec *XlcCharSet;
+
+typedef struct {
+      char *name;
+      XPointer value;
+} XlcArg, *XlcArgList;
+
+typedef char* (*XlcGetCSValuesProc)(<span class="emphasis"><em>charset</em></span>, <span class="emphasis"><em>args</em></span>, <span class="emphasis"><em>num_args</em></span>);
+      XlcCharSet <span class="emphasis"><em>charset</em></span>;
+      XlcArgList <span class="emphasis"><em>args</em></span>;
+      int <span class="emphasis"><em>num_args</em></span>;
+
+typedef struct _XlcCharSetRec {
+      char *name;
+      XrmQuark xrm_name;
+      char *encoding_name;
+      XrmQuark xrm_encoding_name;
+      XlcSide side;
+      int char_size;
+      int set_size;
+      char *ct_sequence;
+      XlcGetCSValuesProc get_values;
+} XlcCharSetRec;
+</pre><p>
+<span class="bold"><strong>Get an XlcCharSet</strong></span>
+</p><div class="funcsynopsis"><a id="_XlcGetCharSet"></a><p><code class="funcdef">XlcCharSet <strong class="fsfunc"> _XlcGetCharSet</strong>(</code>char<var class="pdparam"> *name</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_XlcGetCharSet"><code class="function"> _XlcGetCharSet</code></a>
+function gets an XlcCharSet which corresponds to the charset name
+specified by "<span class="emphasis"><em>name</em></span>".
+<a class="xref" href="#_XlcGetCharSet"><code class="function"> _XlcGetCharSet</code></a>
+returns NULL, if no XlcCharSet bound to specified "<span class="emphasis"><em>name</em></span>".
+</p><p>
+The following character sets are pre-registered.
+</p><div class="informaltable"><table class="informaltable" border="1"><colgroup><col align="left" class="c1" /><col align="left" class="c2" /></colgroup><thead><tr><th align="left">Name</th><th align="left">Description</th></tr></thead><tbody><tr><td align="left">ISO8859-1:GL</td><td align="left">7-bit ASCII graphics (ANSI X3.4-1968),</td></tr><tr><td align="left"> </td><td align="left">Left half of ISO 8859 sets</td></tr><tr><td align="left">JISX0201.1976-0:GL</td><td align="left">Left half of JIS X0201-1976 (reaffirmed 1984),</td></tr><tr><td align="left"> </td><td align="left">8-Bit Alphanumeric-Katakana Code</td></tr><tr><td align="left">ISO8859-1:GR</td><td align="left">Right half of ISO 8859-1, Latin alphabet No. 1</td></tr><tr><td align="left">ISO8859-2:GR</td><td align="left">Right half of ISO 8859-2, Latin alphabet No. 2</td></tr><tr><td align="left">ISO8859-3:GR</td><td align="left">Right half of ISO 8859-3, Latin alphabet No. 3</td></tr><tr><td align="left">ISO8859-4:GR</td><td align="left">Right half of ISO 8859-4, Latin alphabet No. 4</td></tr><tr><td align="left">ISO8859-7:GR</td><td align="left">Right half of ISO 8859-7, Latin/Greek alphabet</td></tr><tr><td align="left">ISO8859-6:GR</td><td align="left">Right half of ISO 8859-6, Latin/Arabic alphabet</td></tr><tr><td align="left">ISO8859-8:GR</td><td align="left">Right half of ISO 8859-8, Latin/Hebrew alphabet</td></tr><tr><td align="left">ISO8859-5:GR</td><td align="left">Right half of ISO 8859-5, Latin/Cyrillic alphabet</td></tr><tr><td align="left">ISO8859-9:GR</td><td align="left">Right half of ISO 8859-9, Latin alphabet No. 5</td></tr><tr><td align="left">JISX0201.1976-0:GR</td><td align="left">Right half of JIS X0201-1976 (reaffirmed 1984),</td></tr><tr><td align="left"> </td><td align="left">8-Bit Alphanumeric-Katakana Code</td></tr><tr><td align="left">GB2312.1980-0:GL</td><td align="left">GB2312-1980, China (PRC) Hanzi defined as GL</td></tr><tr><td align="left">GB2312.1980-0:GR</td><td align="left">GB2312-1980, China (PRC) Hanzi defined as GR</td></tr><tr><td align="left">JISX0208.1983-0:GL</td><td align="left">JIS X0208-1983, Japanese Graphic Character Set</td></tr><tr><td align="left"> </td><td align="left">defined as GL</td></tr><tr><td align="left">JISX0208.1983-0:GR</td><td align="left">JIS X0208-1983, Japanese Graphic Character Set</td></tr><tr><td align="left"> </td><td align="left">defined as GR</td></tr><tr><td align="left">KSC5601.1987-0:GL</td><td align="left">KS C5601-1987, Korean Graphic Character Set</td></tr><tr><td align="left"> </td><td align="left">defined as GL</td></tr><tr><td align="left">KSC5601.1987-0:GR</td><td align="left">KS C5601-1987, Korean Graphic Character Set</td></tr><tr><td align="left"> </td><td align="left">defined as GR</td></tr><tr><td align="left">JISX0212.1990-0:GL</td><td align="left">JIS X0212-1990, Japanese Graphic Character Set</td></tr><tr><td align="left"> </td><td align="left">defined as GL</td></tr><tr><td align="left">JISX0212.1990-0:GR</td><td align="left">JIS X0212-1990, Japanese Graphic Character Set</td></tr><tr><td align="left"> </td><td align="left">defined as GR</td></tr></tbody></table></div><p>
+<span class="bold"><strong>Add an XlcCharSet</strong></span>
+</p><div class="funcsynopsis"><a id="_XlcAddCharSet"></a><p><code class="funcdef">Bool <strong class="fsfunc"> _XlcAddCharSet</strong>(</code>XlcCharSet<var class="pdparam"> charset</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_XlcAddCharSet"><code class="function"> _XlcAddCharSet</code></a>
+function registers XlcCharSet specified by "<span class="emphasis"><em>charset</em></span>".
+</p><p>
+
+
+<code class="function">Obtain Character Set values</code>
+</p><div class="funcsynopsis"><a id="_XlcGetCSValues"></a><p><code class="funcdef">char * <strong class="fsfunc"> _XlcGetCSValues</strong>(</code>XlcCharSet<var class="pdparam"> charset</var>, <var class="pdparam"> ...</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_XlcGetCSValues"><code class="function"> _XlcGetCSValues</code></a>
+function returns NULL if no error occurred;
+otherwise, it returns the name of the first argument that could not
+be obtained.  The following values are defined as standard arguments.
+Other values are implementation dependent.
+</p><div class="informaltable"><table class="informaltable" border="1"><colgroup><col align="left" class="c1" /><col align="left" class="c2" /><col align="left" class="c3" /></colgroup><thead><tr><th align="left">Name</th><th align="left">Type</th><th align="left">Description</th></tr></thead><tbody><tr><td align="left">XlcNName</td><td align="left">char*</td><td align="left">charset name</td></tr><tr><td align="left">XlcNEncodingName</td><td align="left">char*</td><td align="left">XLFD CharSet Registry and Encoding</td></tr><tr><td align="left">XlcNSide</td><td align="left">XlcSide</td><td align="left">charset side (GL, GR, ...)</td></tr><tr><td align="left">XlcNCharSize</td><td align="left">int</td><td align="left">number of octets per character</td></tr><tr><td align="left">XlcNSetSize</td><td align="left">int</td><td align="left">number of character sets</td></tr><tr><td align="left">XlcNControlSequence</td><td align="left">char*</td><td align="left">control sequence of Compound Text</td></tr></tbody></table></div></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Converter_Functions"></a>Converter Functions</h2></div></div></div><p>
+We provide a set of the common converter APIs, that are independent
+from both of source and destination text type.
+</p><pre class="literallayout">
+typedef struct _XlcConvRec *XlcConv;
+
+typedef void (*XlcCloseConverterProc)(<span class="emphasis"><em>conv</em></span>);
+      XlcConv <span class="emphasis"><em>conv</em></span>;
+
+typedef int (*XlcConvertProc)(<span class="emphasis"><em>conv</em></span>, <span class="emphasis"><em>from</em></span>, <span class="emphasis"><em>from_left</em></span>, <span class="emphasis"><em>to</em></span>, <span class="emphasis"><em>to_left</em></span>, <span class="emphasis"><em>args</em></span>, <span class="emphasis"><em>num_args</em></span>);
+      XlcConv <span class="emphasis"><em>conv</em></span>;
+      XPointer <span class="emphasis"><em>*from</em></span>;
+      int <span class="emphasis"><em>*from_left</em></span>;
+      XPointer <span class="emphasis"><em>*to</em></span>;
+      int <span class="emphasis"><em>*to_left</em></span>;
+      XPointer <span class="emphasis"><em>*args</em></span>;
+      int <span class="emphasis"><em>num_args</em></span>;
+
+typedef void (*XlcResetConverterProc)(<span class="emphasis"><em>conv</em></span>);
+      XlcConv <span class="emphasis"><em>conv</em></span>;
+
+typedef struct _XlcConvMethodsRec {
+      XlcCloseConverterProc close;
+      XlcConvertProc convert;
+      XlcResetConverterProc reset;
+} XlcConvMethodsRec, *XlcConvMethods;
+
+typedef struct _XlcConvRec {
+    XlcConvMethods methods;
+    XPointer state;
+} XlcConvRec;
+</pre><p>
+<code class="function">Open a converter</code>
+</p><div class="funcsynopsis"><a id="_XlcOpenConverter"></a><p><code class="funcdef">XlcConv <strong class="fsfunc"> _XlcOpenConverter</strong>(</code>XLCd<var class="pdparam"> from_lcd</var>, char<var class="pdparam"> *from_type</var>, XLCd<var class="pdparam"> to_lcd</var>, char<var class="pdparam"> *to_type</var><code>)</code>;</p></div><p>
+<a class="xref" href="#_XlcOpenConverter"><code class="function"> _XlcOpenConverter</code></a>
+function opens the converter which converts a text from specified
+"<span class="emphasis"><em>from_type</em></span>" to specified "<span class="emphasis"><em>to_type</em></span>" encoding.  If the
+function cannot find proper converter or cannot open a corresponding
+converter, it returns NULL.  Otherwise, it returns the conversion
+descriptor.
+</p><p>
+The following types are pre-defined. Other types are implementation
+dependent.
+</p><div class="informaltable"><table class="informaltable" border="1"><colgroup><col align="left" class="c1" /><col align="left" class="c2" /><col align="left" class="c3" /><col align="left" class="c4" /></colgroup><thead><tr><th align="left">Name</th><th align="left">Type</th><th align="left">Description</th><th align="left">Arguments</th></tr></thead><tbody><tr><td align="left">XlcNMultiByte</td><td align="left">char *</td><td align="left">multibyte</td><td align="left">-</td></tr><tr><td align="left">XlcNWideChar</td><td align="left">wchar_t *</td><td align="left">wide character</td><td align="left">-</td></tr><tr><td align="left">XlcNCompoundText</td><td align="left">char *</td><td align="left">COMPOUND_TEXT</td><td align="left">-</td></tr><tr><td align="left">XlcNString</td><td align="left">char *</td><td align="left">STRING</td><td align="left">-</td></tr><tr><td align="left">XlcNCharSet</td><td align="left">char *</td><td align="left">per charset</td><td align="left">XlcCharSet</td></tr><tr><td align="left">XlcNChar</td><td align="left">char *</td><td align="left">per character</td><td align="left">XlcCharSet</td></tr></tbody></table></div><p>
+<span class="bold"><strong>Close a converter</strong></span>
+</p><div class="funcsynopsis"><a id="_XlcCloseConverter"></a><p><code class="funcdef">void <strong class="fsfunc"> _XlcCloseConverter</strong>(</code>XlcConv<var class="pdparam"> conv</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_XlcCloseConverter"><code class="function"> _XlcCloseConverter</code></a>
+function closes the specified converter "<span class="emphasis"><em>conv</em></span>".
+</p><p>
+<span class="bold"><strong>Code conversion</strong></span>
+</p><div class="funcsynopsis"><a id="_XlcConvert"></a><p><code class="funcdef">int <strong class="fsfunc"> _XlcConvert</strong>(</code>XlcConv<var class="pdparam"> conv</var>, XPointer<var class="pdparam"> *from</var>, int<var class="pdparam"> *from_left</var>, XPointer<var class="pdparam"> *to</var>, int<var class="pdparam"> *to_left</var>, XPointer<var class="pdparam"> *args</var>, int<var class="pdparam"> num_args</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_XlcConvert"><code class="function"> _XlcConvert</code></a>
+function converts a sequence of characters from one type, in the array
+specified by "<span class="emphasis"><em>from</em></span>", into a sequence of corresponding characters
+in another type, in the array specified by "<span class="emphasis"><em>to</em></span>".  The types are
+those specified in the
+<code class="function">_XlcOpenConverter() </code>
+call that returned the conversion descriptor, "<span class="emphasis"><em>conv</em></span>".
+The arguments "<span class="emphasis"><em>from</em></span>", "<span class="emphasis"><em>from_left</em></span>", "<span class="emphasis"><em>to</em></span>" and
+"<span class="emphasis"><em>to_left</em></span>" have the same specification of XPG4 iconv function.
+</p><p>
+For state-dependent encodings, the conversion descriptor "<span class="emphasis"><em>conv</em></span>"
+is placed into its initial shift state by a call for which "<span class="emphasis"><em>from</em></span>"
+is a NULL pointer, or for which "<span class="emphasis"><em>from</em></span>" points to a null pointer.
+</p><p>
+The following 2 converters prepared by locale returns appropriate
+charset (XlcCharSet) in an area pointed by args[0].
+</p><div class="informaltable"><table class="informaltable" border="1"><colgroup><col align="left" class="c1" /><col align="left" class="c2" /><col align="left" class="c3" /></colgroup><thead><tr><th align="left">From</th><th align="left">To</th><th align="left">Description</th></tr></thead><tbody><tr><td align="left">XlcNMultiByte</td><td align="left">XlcNCharSet</td><td align="left">Segmentation (Decomposing)</td></tr><tr><td align="left">XlcNWideChar</td><td align="left">XlcNCharSet</td><td align="left">Segmentation (Decomposing)</td></tr></tbody></table></div><p>
+The conversion, from XlcNMultiByte/XlcNWideChar to XlcNCharSet,
+extracts a segment which has same charset encoding characters.
+More than one segment cannot be converted in a call.
+</p><p>
+<span class="bold"><strong>Reset a converter</strong></span>
+</p><div class="funcsynopsis"><a id="_XlcResetConverter"></a><p><code class="funcdef">void <strong class="fsfunc"> _XlcResetConverter</strong>(</code>XlcConv<var class="pdparam"> conv</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_XlcResetConverter"><code class="function"> _XlcResetConverter</code></a>
+function reset the specified converter "<span class="emphasis"><em>conv</em></span>".
+</p><p>
+<span class="bold"><strong>Register a converter</strong></span>
+</p><pre class="literallayout">
+typedef XlcConv (*XlcOpenConverterProc)(<span class="emphasis"><em>from_lcd</em></span>, <span class="emphasis"><em>from_type</em></span>, <span class="emphasis"><em>to_lcd</em></span>, <span class="emphasis"><em>to_type</em></span>);
+      XLCd <span class="emphasis"><em>from_lcd</em></span>;
+      char <span class="emphasis"><em>*from_type</em></span>;
+      XLCd <span class="emphasis"><em>to_lcd</em></span>;
+      char <span class="emphasis"><em>*to_type</em></span>;
+</pre><div class="funcsynopsis"><a id="_XlcSetConverter"></a><p><code class="funcdef">Bool <strong class="fsfunc"> _XlcSetConverter</strong>(</code>XLCd<var class="pdparam"> from_lcd</var>, char<var class="pdparam"> *from</var>, XLCd<var class="pdparam"> to_lcd</var>, char<var class="pdparam"> *to</var>, XlcOpenConverterProc<var class="pdparam"> converter</var><code>)</code>;</p></div><p>
+The <code class="function">XlcSetConverter</code> function registers a converter which convert
+from "<span class="emphasis"><em>from_type</em></span>" to "<span class="emphasis"><em>to_type</em></span>" into the converter list
+(in the specified XLCd).
+</p></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="X_Locale_Database_functions"></a>X Locale Database functions</h2></div></div></div><p>
+X Locale Database contains the subset of user's environment that
+depends on language.  The following APIs are provided for accessing
+X Locale Database and other locale relative files.
+</p><p>
+For more detail about  X Locale Database, please refer
+X Locale Database Definition document.
+</p><p>
+<span class="bold"><strong>Get a resource from database</strong></span>
+</p><div class="funcsynopsis"><a id="_XlcGetResource"></a><p><code class="funcdef">void <strong class="fsfunc"> _XlcGetResource</strong>(</code>XLCd<var class="pdparam"> lcd</var>, char<var class="pdparam"> *category</var>, char<var class="pdparam"> *class</var>, char<var class="pdparam"> ***value</var>, int<var class="pdparam"> *count</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_XlcGetResource"><code class="function"> _XlcGetResource</code></a>
+function obtains a locale dependent data which is associated with the
+locale of specified "<span class="emphasis"><em>lcd</em></span>".
+The locale data is provided by system locale or by X Locale Database
+file, and what kind of data is available is implementation dependent.
+</p><p>
+The specified "<span class="emphasis"><em>category</em></span>" and "<span class="emphasis"><em>class</em></span>" are used for
+finding out the objective locale data.
+</p><p>
+The returned  value is returned in value argument in string list form,
+and the returned count shows the number of strings in the value.
+</p><p>
+The returned value is owned by locale method, and should not be modified
+or freed by caller.
+</p><p>
+<span class="bold"><strong>Get a locale relative file name</strong></span>
+</p><div class="funcsynopsis"><a id="_XlcFileName"></a><p><code class="funcdef">char *<strong class="fsfunc">_XlcFileName</strong>(</code>XLCd<var class="pdparam"> lcd</var>, char<var class="pdparam"> *category</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_XlcFileName"><code class="function">_XlcFileName</code></a>
+functions returns a file name which is bound to the specified "<span class="emphasis"><em>lcd</em></span>"
+and "<span class="emphasis"><em>category</em></span>", as a null-terminated string.  If no file name can
+be found, or there is no readable file for the found file name,
+<a class="xref" href="#_XlcFileName"><code class="function">_XlcFileName</code></a>
+returns NULL.  The returned file name should be freed by caller.
+</p><p>
+The rule for searching a file name is implementation dependent.
+In current implementation,
+<a class="xref" href="#_XlcFileName"><code class="function">_XlcFileName</code></a>
+uses "{category}.dir" file as mapping table, which has pairs of
+strings, a full locale name and a corresponding file name.
+</p></div><div class="sect1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Utility_Functions"></a>Utility Functions</h2></div></div></div><p>
+<span class="bold"><strong>Compare Latin-1 strings</strong></span>
+</p><div class="funcsynopsis"><a id="_XlcCompareISOLatin1"></a><p><code class="funcdef">int <strong class="fsfunc"> _XlcCompareISOLatin1</strong>(</code>char*str1,<var class="pdparam"> *str2</var><code>)</code>;</p></div><div class="funcsynopsis"><a id="_XlcNCompareISOLatin1"></a><p><code class="funcdef">int <strong class="fsfunc"> _XlcNCompareISOLatin1</strong>(</code>char*str1,<var class="pdparam"> *str2</var>, int<var class="pdparam"> len</var><code>)</code>;</p></div><p>
+The
+<code class="function">_XlcCompareIsoLatin1 </code>
+function to compares two ISO-8859-1 strings.  Bytes representing ASCII lower
+case letters are converted to upper case before making the comparison.
+The value returned is an integer less than, equal to, or greater than
+zero, depending on whether "<span class="emphasis"><em>str1</em></span>" is lexicographicly less than,
+equal to, or greater than "<span class="emphasis"><em>str2</em></span>".
+</p><p>
+The
+<code class="function">_XlcNCompareIsoLatin1</code>
+function is identical to
+<code class="function">_XlcCompareISOLatin1,</code>
+except that at most "<span class="emphasis"><em>len</em></span>" bytes are compared.
+</p><p>
+<span class="bold"><strong>Resource Utility</strong></span>
+</p><div class="funcsynopsis"><a id="XlcNumber"></a><p><code class="funcdef">int <strong class="fsfunc"> XlcNumber</strong>(</code>ArrayType<var class="pdparam"> array</var><code>)</code>;</p></div><p>
+Similar to XtNumber.
+</p><div class="funcsynopsis"><a id="_XlcCopyFromArg"></a><p><code class="funcdef">void <strong class="fsfunc"> _XlcCopyFromArg</strong>(</code>char<var class="pdparam"> *src</var>, char<var class="pdparam"> *dst</var>, int<var class="pdparam"> size</var><code>)</code>;</p></div><div class="funcsynopsis"><a id="_XlcCopyToArg"></a><p><code class="funcdef">void <strong class="fsfunc"> _XlcCopyToArg</strong>(</code>char<var class="pdparam"> *src</var>, char<var class="pdparam"> **dst</var>, int<var class="pdparam"> size</var><code>)</code>;</p></div><p>
+Similar to
+<code class="function">_XtCopyFromArg </code>
+and
+<code class="function">_XtCopyToArg.</code>
+</p><div class="funcsynopsis"><a id="_XlcCountVaList"></a><p><code class="funcdef">void <strong class="fsfunc"> _XlcCountVaList</strong>(</code>va_list<var class="pdparam"> var</var>, int<var class="pdparam"> *count_ret</var><code>)</code>;</p></div><p>
+Similar to
+<code class="function">_XtCountVaList.</code>
+</p><div class="funcsynopsis"><a id="_XlcVaToArgList"></a><p><code class="funcdef">void <strong class="fsfunc"> _XlcVaToArgList</strong>(</code>va_list<var class="pdparam"> var</var>, int<var class="pdparam"> count</var>, XlcArgList<var class="pdparam"> *args_ret</var><code>)</code>;</p></div><p>
+Similar to
+<code class="function">_XtVaToArgList.</code>
+</p><pre class="literallayout">
+typedef struct _XlcResource {
+      char *name;
+      XrmQuark xrm_name;
+      int size;
+      int offset;
+      unsigned long mask;
+} XlcResource, *XlcResourceList;
+</pre><pre class="literallayout">
+#define    XlcCreateMask   (1L&lt;&lt;0)
+#define    XlcDefaultMask  (1L&lt;&lt;1)
+#define    XlcGetMask      (1L&lt;&lt;2)
+#define    XlcSetMask      (1L&lt;&lt;3)
+#define    XlcIgnoreMask   (1L&lt;&lt;4)
+</pre><div class="funcsynopsis"><a id="_XlcCompileResourceList"></a><p><code class="funcdef">void <strong class="fsfunc"> _XlcCompileResourceList</strong>(</code>XlcResourceList<var class="pdparam"> resources</var>, int<var class="pdparam"> num_resources</var><code>)</code>;</p></div><p>
+Similar to
+<code class="function">_XtCompileResourceList.</code>
+</p><div class="funcsynopsis"><a id="_XlcGetValues"></a><p><code class="funcdef">char * <strong class="fsfunc"> _XlcGetValues</strong>(</code>XPointer<var class="pdparam"> base</var>, XlcResourceList<var class="pdparam"> resources</var>, int<var class="pdparam"> num_resources</var>, XlcArgList<var class="pdparam"> args</var>, int<var class="pdparam"> num_args</var>, unsignedlong<var class="pdparam"> mask</var><code>)</code>;</p></div><p>
+Similar to XtGetSubvalues.
+</p><div class="funcsynopsis"><a id="_XlcSetValues"></a><p><code class="funcdef">char * <strong class="fsfunc"> _XlcSetValues</strong>(</code>XPointer<var class="pdparam"> base</var>, XlcResourceList<var class="pdparam"> resources</var>, int<var class="pdparam"> num_resources</var>, XlcArgList<var class="pdparam"> args</var>, int<var class="pdparam"> num_args</var>, unsignedlong<var class="pdparam"> mask</var><code>)</code>;</p></div><p>
+Similar to XtSetSubvalues.
+</p><p>
+<span class="bold"><strong>ANSI C Compatible Functions</strong></span>
+</p><p>
+The following are ANSI C/MSE Compatible Functions for non-ANSI C environment.
+</p><div class="funcsynopsis"><a id="_Xmblen"></a><p><code class="funcdef">int <strong class="fsfunc"> _Xmblen</strong>(</code>char<var class="pdparam"> *str</var>, int<var class="pdparam"> len</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_Xmblen"><code class="function"> _Xmblen</code></a>
+function returns the number of characters pointed to by "<span class="emphasis"><em>str</em></span>".
+Only "<span class="emphasis"><em>len</em></span>" bytes in "<span class="emphasis"><em>str</em></span>" are used in determining the
+character count returned.  "<span class="emphasis"><em>Str</em></span>" may point at characters from
+any valid codeset in the current locale.
+</p><p>
+The call
+<a class="xref" href="#_Xmblen"><code class="function"> _Xmblen</code></a>
+is equivalent to
+_Xmbtowc(_Xmbtowc((<span class="emphasis"><em>wchar_t*</em></span>)NULL, <span class="emphasis"><em>str</em></span>, <span class="emphasis"><em>len</em></span>))
+</p><div class="funcsynopsis"><a id="_Xmbtowc"></a><p><code class="funcdef">int <strong class="fsfunc"> _Xmbtowc</strong>(</code>wchar_t<var class="pdparam"> *wstr</var>, char<var class="pdparam"> *str</var>, int<var class="pdparam"> len</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_Xmbtowc"><code class="function"> _Xmbtowc</code></a>
+function converts the character(s) pointed to by "<span class="emphasis"><em>str</em></span>"
+to their wide character representation(s) pointed to by "<span class="emphasis"><em>wstr</em></span>".
+"<span class="emphasis"><em>Len</em></span>" is the number of bytes in "<span class="emphasis"><em>str</em></span>" to be converted.
+The return value is the number of characters converted.
+</p><p>
+The call
+<a class="xref" href="#_Xmbtowc"><code class="function"> _Xmbtowc</code></a>
+is equivalent to
+_Xlcmbtowc((XLCd)NULL, <span class="emphasis"><em>wstr</em></span>, <span class="emphasis"><em>str</em></span>, <span class="emphasis"><em>len</em></span>)
+</p><div class="funcsynopsis"><a id="_Xlcmbtowc"></a><p><code class="funcdef">int <strong class="fsfunc"> _Xlcmbtowc</strong>(</code>XLCd<var class="pdparam"> lcd</var>, wchar_t<var class="pdparam"> *wstr</var>, char<var class="pdparam"> *str</var>, int<var class="pdparam"> len</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_Xlcmbtowc"><code class="function"> _Xlcmbtowc</code></a>
+function is identical to
+<code class="function">_Xmbtowc, </code>
+except that it requires the "<span class="emphasis"><em>lcd</em></span>" argument.  If "<span class="emphasis"><em>lcd</em></span>"
+is (XLCd) NULL,
+<code class="function">_Xlcmbtowc, </code>
+calls
+<code class="function">_XlcCurrentLC </code>
+to determine the current locale.
+</p><div class="funcsynopsis"><a id="_Xwctomb"></a><p><code class="funcdef">int <strong class="fsfunc"> _Xwctomb</strong>(</code>char<var class="pdparam"> *str</var>, wchar_t<var class="pdparam"> wc</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_Xwctomb"><code class="function"> _Xwctomb</code></a>
+function converts a single wide character pointed to by "<span class="emphasis"><em>wc</em></span>" to
+its multibyte representation pointed to by "<span class="emphasis"><em>str</em></span>".
+On success, the return value is 1.
+</p><p>
+The call
+<a class="xref" href="#_Xwctomb"><code class="function"> _Xwctomb</code></a>
+is equivalent to
+_Xlcwctomb((XLCd)NULL, <span class="emphasis"><em>str</em></span>, <span class="emphasis"><em>wstr</em></span>)
+</p><div class="funcsynopsis"><a id="_Xlcwctomb"></a><p><code class="funcdef">int <strong class="fsfunc"> _Xlcwctomb</strong>(</code>XLCd<var class="pdparam"> lcd</var>, char<var class="pdparam"> *str</var>, wchar_t<var class="pdparam"> wc</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_Xlcwctomb"><code class="function"> _Xlcwctomb</code></a>
+function is identical to _Xwctomb, except that it requires the
+"<span class="emphasis"><em>lcd</em></span>" argument.  If "<span class="emphasis"><em>lcd</em></span>" is (XLCd) NULL,
+<code class="function">_Xlcwctomb, </code>
+calls
+<code class="function">_XlcCurrentLC </code>
+to determine the current locale.
+</p><div class="funcsynopsis"><a id="_Xmbstowcs"></a><p><code class="funcdef">int <strong class="fsfunc"> _Xmbstowcs</strong>(</code>wchar_t<var class="pdparam"> *wstr</var>, char<var class="pdparam"> *str</var>, int<var class="pdparam"> len</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_Xmbstowcs"><code class="function"> _Xmbstowcs</code></a>
+function converts the NULL-terminated string pointed to by "<span class="emphasis"><em>str</em></span>"
+to its wide character string representation pointed to by "<span class="emphasis"><em>wstr</em></span>".
+"<span class="emphasis"><em>Len</em></span>" is the number of characters in "<span class="emphasis"><em>str</em></span>" to be converted.
+</p><p>
+The call
+<a class="xref" href="#_Xmbstowcs"><code class="function"> _Xmbstowcs</code></a>
+is equivalent to
+_Xlcmbstowcs((XLCd)NULL, <span class="emphasis"><em>wstr</em></span>, <span class="emphasis"><em>str</em></span>, <span class="emphasis"><em>len</em></span>)
+</p><div class="funcsynopsis"><a id="_Xlcmbstowcs"></a><p><code class="funcdef">int <strong class="fsfunc"> _Xlcmbstowcs</strong>(</code>XLCd<var class="pdparam"> lcd</var>, wchar_t<var class="pdparam"> *wstr</var>, char<var class="pdparam"> *str</var>, int<var class="pdparam"> len</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_Xlcmbstowcs"><code class="function"> _Xlcmbstowcs</code></a>
+function is identical to _Xmbstowcs, except that it requires the
+"<span class="emphasis"><em>lcd</em></span>" argument.  If "<span class="emphasis"><em>lcd</em></span>" is (XLCd) NULL,
+<code class="function">_Xlcmbstowcs, </code>
+calls
+<code class="function">_XlcCurrentLC</code>
+to determine the current locale.
+</p><div class="funcsynopsis"><a id="_Xwcstombs"></a><p><code class="funcdef">int <strong class="fsfunc"> _Xwcstombs</strong>(</code>char<var class="pdparam"> *str</var>, wchar_t<var class="pdparam"> *wstr</var>, int<var class="pdparam"> len</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_Xwcstombs"><code class="function"> _Xwcstombs</code></a>
+function converts the (wchar_t) NULL terminated wide character string
+pointed to by "<span class="emphasis"><em>wstr</em></span>" to the NULL terminated multibyte string
+pointed to by "<span class="emphasis"><em>str</em></span>".
+</p><p>
+The call
+<a class="xref" href="#_Xwcstombs"><code class="function"> _Xwcstombs</code></a>
+is equivalent to
+_Xlcwcstombs((XLCd)NULL, <span class="emphasis"><em>str</em></span>, <span class="emphasis"><em>wstr</em></span>, <span class="emphasis"><em>len</em></span>)
+</p><div class="funcsynopsis"><a id="_Xlcwcstombs"></a><p><code class="funcdef">int <strong class="fsfunc"> _Xlcwcstombs</strong>(</code>XLCd<var class="pdparam"> lcd</var>, char<var class="pdparam"> *str</var>, wchar_t<var class="pdparam"> *wstr</var>, int<var class="pdparam"> len</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_Xlcwcstombs"><code class="function"> _Xlcwcstombs</code></a>
+function is identical to _Xwcstombs, except that it requires the
+"<span class="emphasis"><em>lcd</em></span>" argument.  If "<span class="emphasis"><em>lcd</em></span>" is (XLCd) NULL,
+<code class="function">_Xlcwcstombs, </code>
+calls
+<code class="function">_XlcCurrentLC </code>
+to determine the current locale.
+</p><div class="funcsynopsis"><a id="_Xwcslen"></a><p><code class="funcdef">int <strong class="fsfunc"> _Xwcslen</strong>(</code>wchar_t<var class="pdparam"> *wstr</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_Xwcslen"><code class="function"> _Xwcslen</code></a>
+function returns the count of wide characters in the (wchar_t) NULL
+terminated wide character string pointed to by "<span class="emphasis"><em>wstr</em></span>".
+</p><div class="funcsynopsis"><a id="_Xwcscpy"></a><p><code class="funcdef">wchar_t *<strong class="fsfunc"> _Xwcscpy</strong>(</code>wchar_t<var class="pdparam"> *wstr1</var>, wchar_t<var class="pdparam"> *wstr2</var><code>)</code>;</p></div><div class="funcsynopsis"><a id="_Xwcsncpy"></a><p><code class="funcdef">wchar_t * <strong class="fsfunc"> _Xwcsncpy</strong>(</code>wchar_t<var class="pdparam"> *wstr1</var>, wchar_t<var class="pdparam"> *wstr2</var>, int<var class="pdparam"> len</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_Xwcscpy"><code class="function"> _Xwcscpy</code></a>
+function copies the (wchar_t) NULL terminated wide character string
+pointed to by "<span class="emphasis"><em>wstr2</em></span>" to the object pointed at by "<span class="emphasis"><em>wstr1</em></span>".
+"<span class="emphasis"><em>Wstr1</em></span>" is (wchar_t) NULL terminated.  The return value is a
+pointer to "<span class="emphasis"><em>wstr1</em></span>".
+</p><p>
+The
+<a class="xref" href="#_Xwcsncpy"><code class="function"> _Xwcsncpy</code></a>
+function is identical to
+<code class="function">_Xwcscpy, </code>
+except that it copies "<span class="emphasis"><em>len</em></span>" wide characters from the object
+pointed to by "<span class="emphasis"><em>wstr2</em></span>" to the object pointed to "<span class="emphasis"><em>wstr1</em></span>".
+</p><div class="funcsynopsis"><a id="_Xwcscmp"></a><p><code class="funcdef">int <strong class="fsfunc"> _Xwcscmp</strong>(</code>wchar_t*wstr1,<var class="pdparam"> *wstr2</var><code>)</code>;</p></div><div class="funcsynopsis"><a id="_Xwcsncmp"></a><p><code class="funcdef">int <strong class="fsfunc"> _Xwcsncmp</strong>(</code>wchar_t*wstr1,<var class="pdparam"> *wstr2</var>, int<var class="pdparam"> len</var><code>)</code>;</p></div><p>
+The
+<a class="xref" href="#_Xwcscmp"><code class="function"> _Xwcscmp</code></a>
+function  compares two (wchar_t) NULL terminated wide character strings.
+The value returned is an integer less than, equal to, or greater than zero,
+depending on whether "<span class="emphasis"><em>wstr1</em></span>" is lexicographicly less then, equal to,
+or greater than "<span class="emphasis"><em>str2</em></span>".
+</p><p>
+The
+<a class="xref" href="#_Xwcsncmp"><code class="function"> _Xwcsncmp</code></a>
+function is identical to
+<code class="function">_XlcCompareISOLatin1, </code>
+except that at most "<span class="emphasis"><em>len</em></span>" wide characters are compared.
+</p></div></div></div></body></html>

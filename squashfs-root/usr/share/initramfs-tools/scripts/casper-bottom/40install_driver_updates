@@ -1,0 +1,48 @@
+#! /bin/sh
+
+PREREQ=""
+DESCRIPTION="Installing driver updates..."
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+
+if [ ! -d /tmp/driver-updates ]; then
+	exit 0
+fi
+
+log_begin_msg "$DESCRIPTION"
+
+install_dir=/var/cache/driver-updates
+
+mkdir "/root$install_dir"
+cp -a /tmp/driver-updates/*.deb "/root$install_dir/"
+
+# We cannot leave packages in a bad state. So if the install fails, remove
+# it. This will get caught in casper.log.
+for deb in "/root$install_dir"/*; do
+	[ -f "$deb" ] || continue
+	debbase="${deb##*/}"
+	DEBIAN_HAS_FRONTEND= DEBCONF_REDIR= \
+	DEBIAN_FRONTEND=noninteractive \
+	chroot /root dpkg -i "$install_dir/$debbase"
+	ret=$?
+	if [ $ret != 0 ]; then
+		DEBIAN_HAS_FRONTEND= DEBCONF_REDIR= \
+		DEBIAN_FRONTEND=noninteractive \
+		chroot /root dpkg -P "${debbase%%_*}"
+	fi
+done
+
+log_end_msg

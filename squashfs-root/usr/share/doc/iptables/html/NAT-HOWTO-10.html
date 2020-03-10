@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.72">
+ <TITLE>Linux 2.4 NAT HOWTO: Destination NAT Onto the Same Network</TITLE>
+ <LINK HREF="NAT-HOWTO-11.html" REL=next>
+ <LINK HREF="NAT-HOWTO-9.html" REL=previous>
+ <LINK HREF="NAT-HOWTO.html#toc10" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="NAT-HOWTO-11.html">Next</A>
+<A HREF="NAT-HOWTO-9.html">Previous</A>
+<A HREF="NAT-HOWTO.html#toc10">Contents</A>
+<HR>
+<H2><A NAME="s10">10.</A> <A HREF="NAT-HOWTO.html#toc10">Destination NAT Onto the Same Network</A></H2>
+
+<P>If you are doing port forwarding back onto the same network, you
+need to make sure that both future packets and reply packets pass
+through the NAT box (so they can be altered).  The NAT code will now
+(since 2.4.0-test6), block the outgoing ICMP redirect which is
+produced when the NAT'ed packet heads out the same interface it came
+in on, but the receiving server will still try to reply directly to
+the client (which won't recognize the reply).</P>
+
+<P>The classic case is that internal staff try to access your `public'
+web server, which is actually DNAT'ed from the public address
+(1.2.3.4) to an internal machine (192.168.1.1), like so:</P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+# iptables -t nat -A PREROUTING -d 1.2.3.4 \
+        -p tcp --dport 80 -j DNAT --to 192.168.1.1
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+
+<P>One way is to run an internal DNS server which knows the real
+(internal) IP address of your public web site, and forward all other
+requests to an external DNS server.  This means that the logging on
+your web server will show the internal IP addresses correctly.</P>
+
+<P>The other way is to have the NAT box also map the source IP address
+to its own for these connections, fooling the server into replying
+through it.  In this example, we would do the following (assuming the
+internal IP address of the NAT box is 192.168.1.250):</P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+# iptables -t nat -A POSTROUTING -d 192.168.1.1 -s 192.168.1.0/24 \
+        -p tcp --dport 80 -j SNAT --to 192.168.1.250
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+<P>Because the <B>PREROUTING</B> rule gets run first, the packets will
+already be destined for the internal web server: we can tell which
+ones are internally sourced by the source IP addresses.</P>
+
+<HR>
+<A HREF="NAT-HOWTO-11.html">Next</A>
+<A HREF="NAT-HOWTO-9.html">Previous</A>
+<A HREF="NAT-HOWTO.html#toc10">Contents</A>
+</BODY>
+</HTML>

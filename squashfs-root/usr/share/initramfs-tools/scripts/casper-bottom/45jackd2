@@ -1,0 +1,33 @@
+#!/bin/sh
+
+PREREQ=""
+DESCRIPTION="Configuring jackd2..."
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+
+log_begin_msg "$DESCRIPTION"
+
+if fgrep -qs jackd/tweak_rt_limits /tmp/casper-preseed.log; then
+	# So far this has only been set in casper's environment.  Copy it
+	# over to the master files early so that dpkg-reconfigure in /root
+	# can see it.
+	fgrep jackd/tweak_rt_limits /tmp/casper-preseed.log | \
+		chroot /root debconf-set-selections
+
+	casper-reconfigure /root jackd2
+fi
+
+log_end_msg

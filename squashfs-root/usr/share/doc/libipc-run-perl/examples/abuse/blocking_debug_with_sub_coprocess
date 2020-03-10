@@ -1,0 +1,50 @@
+#!/usr/bin/perl -w
+
+## Submitted by Blair Zajac <blair@orcaware.com>
+
+## Tests blocking when piping though a &sub coprocess.
+## Fixed, now in test suite.
+
+$| = 1;
+
+use strict;
+use Carp;
+use Symbol;
+use IPC::Run 0.44 qw(start);
+
+print "My pid is $$\n";
+
+my $out_fd = gensym;
+open( $out_fd, ">ZZZ.test" )
+  or die "$0: open: $!\n";
+
+my $queue = '';
+
+my @commands = (
+    [ [ 'cat', '-' ], \$queue, '|' ],
+    [ ['cat'], '|' ],
+    [ \&double, '>', $out_fd ]
+);
+
+my $harness = start 'debug' => 10, map { @$_ } @commands;
+$harness
+  or die "$0: harness\n";
+
+close($out_fd)
+  or die "$0: cannot close: $!\n";
+
+for ( 1 .. 100 ) {
+    $queue .= rand(100) . "\n";
+    $harness->pump;
+}
+$harness->finish
+  or die "$0: finish\n";
+
+exit 0;
+
+sub double {
+    while (<STDIN>) {
+        s/\s+$//;
+        print "$_ $_\n";
+    }
+}

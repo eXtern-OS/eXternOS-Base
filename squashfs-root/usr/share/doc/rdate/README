@@ -1,0 +1,47 @@
+Package: OpenRdate
+
+TOC:
+	0. Quick Instructions
+	1. Motivations for OpenRdate
+	2. Changes
+	3. Attributions and Copywrite
+
+=====================================
+
+0. Quick Instructions
+
+Ok, so you don't want to read the INSTALL file.  So, in a nutshell:
+
+	configure
+	make
+	make install
+
+NOTE: 'make install' has to be executed as root or by means of sudo -- unless you're dumb enough to only login as root.
+
+--------------------------------------
+
+1. Motivations for OpenRdate
+
+I came over to Linux from OpenBSD.  With that sort of background, it wasn't too hard to get around Linux.  The only thing which bugged me was the lack of a proper 'rdate'.  There was a dodgy little utility called 'netdate', but this didn't work on my, primarily, OpenBSD system.  So, I asked, why isn't there rdate.  Well, there is one (http://freshmeat.net/projects/rdate/), but it's only half the rdate I was used to on OpenBSD.  It only hit the RFC 868 side-of-the-house, and I wanted the full monty (as it were :) ).  Therefore, I did this little project.  It'll hit and set the time on the machine both from RFC 868 time-servers (on the inetd's time port 37) and RFC 2030 protocol SNTP/NTP servers (on ntpd's port 123).  As an added bonus, I also got to port an OpenBSD app to the outside world.
+
+---------------------------------------
+
+2. Changes
+
+The changes/additions to the files of the original OpenBSD rdate have been minimal.  Only two files have had to be changed (due to the excellent *BSD coders):
+
+rdate.c - Added a check and inclusion of 'config.h' and changed an #ifndef from NO_UTIL to #ifdef HAVE_UTIL_H
+ntp.c - Added a check for __GLIBC__ and made a definition for SA_LEN (which Linux doesn't define for their sockaddr).
+
+Other than that, not much had to be changed or added.  I thought I had a problem with getaddrinfo(), but that was only due to, as we said in the Army, 'vapor lock on the brain'.
+
+----------------------------------------
+
+3. Attributions and Copywrite
+
+I've tried to put the proper attributions for the code for openrdate in the AUTHORS file.  If I've missed you, let me know.  The license of this software is, as shown in the parts and pieces of this project, BSD.  Hopefully, I've covered all the different types of BSD-licenses used in the code in the COPYING file, but, once again, tell me if I missed one or another.
+
+Finally, I'd like to thank the coders, bug-hunters, and users of OpenBSD.  You all run a tightship, and it's been a pleasure to work with some of your code.
+
+David Snyder
+dasnyderx at yahoo dot com

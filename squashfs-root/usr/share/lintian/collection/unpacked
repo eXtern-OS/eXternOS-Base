@@ -1,0 +1,240 @@
+#!/usr/bin/perl
+# unpacked -- lintian collector/unpack script
+#
+
+# Copyright (C) 1998 Christian Schwarz and Richard Braakman
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, you can find it on the World Wide
+# Web at http://www.gnu.org/copyleft/gpl.html, or write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+
+package Lintian::coll::unpacked;
+
+no lib '.';
+
+use strict;
+use warnings;
+use autodie;
+
+# Read up to 40kB at the time.  This happens to be 4096 "tar records"
+# (with a block-size of 512 and a block factor of 20, which appears to
+# be the default).  When we do full reads and writes of READ_SIZE (the
+# OS willing), the receiving end will never be with an incomplete
+# record.
+use constant READ_SIZE => 4096 * 1024 * 10;
+
+use lib "$ENV{'LINTIAN_ROOT'}/lib";
+use Lintian::Command qw(spawn reap);
+use Lintian::Util qw(check_path delete_dir internal_error run_cmd pipe_tee);
+
+sub collect {
+    my ($pkg, $type, $dir) = @_;
+
+    if (-d "$dir/unpacked/") {
+        delete_dir("$dir/unpacked/")
+          or internal_error("failed to remove unpacked directory of $pkg");
+    }
+    for my $file (qw(index index.gz index-errors unpacked-errors)) {
+        unlink("$dir/$file") if -e "$dir/$file";
+    }
+    # If we are asked to only remove the files stop right here
+    if ($type =~ m/^remove-/) {
+        return;
+    }
+
+    if ($type eq 'source') {
+        if (can_use_dpkg_source()) {
+            # Ignore STDOUT of the child process because older versions of
+            # dpkg-source print things out even with -q.
+            my $opts = { out => '/dev/null', err => "$dir/unpacked-errors" };
+            my @args = ('-q', '--no-check');
+            print "N: Using dpkg-source to unpack $pkg\n"
+              if $ENV{'LINTIAN_DEBUG'};
+            unless (
+                spawn(
+                    $opts,
+                    ['dpkg-source', @args, '-x', "$dir/dsc", "$dir/unpacked"])
+              ) {
+                dump_errors("$dir/unpacked-errors");
+                internal_error('dpkg-source -x failed with status ',
+                    $opts->{harness}->result);
+            }
+        } else {
+            print "N: Using libdpkg-perl to unpack $pkg\n"
+              if $ENV{'LINTIAN_DEBUG'};
+            libdpkg_unpack_dsc("$dir/dsc", "$dir/unpacked");
+        }
+
+        # chdir for index_src
+        chdir("$dir/unpacked");
+        spawn(
+            { fail => 'error', out => "$dir/index.gz" },
+            [
+                'find', '(',  '-type', 'l',
+                # If symlink
+                '-printf', '%M 0/0 %s %AY-%Am-%Ad %AH:%AM %p -> %l\0',
+                '-true',             # elif dir [needs trailing slash]
+                ')', '-o', '(',  '-type', 'd',
+                '-printf', '%M 0/0 %s %AY-%Am-%Ad %AH:%AM %p/\0', '-true',
+                # else (not dir and not symlink)
+                ')', '-o', '-printf', '%M 0/0 %s %AY-%Am-%Ad %AH:%AM %p\0'
+            ],
+            # Link targets can have newlines in them.  A lesson learned by
+            # clasp (#765311) - We must also escape backslashes.  That would
+            # be the \x59 values (used to avoid a mass of backslashes).
+            '|',
+            ['perl', '-l', '-0', '-pe', 's/\x5c/\x5c\x5c/g; s/\n/\\\n/g;'],
+            # Sort and compress
+            '|',
+            ['sort', '-k', '6'],
+            '|',
+            ['gzip', '-9nc']);
+
+        # fix permissions
+        run_cmd('chmod', '-R', 'u+rwX,o+rX,o-w', "$dir/unpacked");
+
+    } else {
+        mkdir("$dir/unpacked", 0777);
+
+        extract_and_index_deb($dir);
+
+        # fix permissions
+        run_cmd('chmod', '-R', 'u+rwX,go-w', "$dir/unpacked");
+    }
+
+    # Remove the error file if it is empty
+    unlink("$dir/unpacked-errors") if -z "$dir/unpacked-errors";
+
+    return;
+}
+
+sub dump_errors {
+    my ($file) = @_;
+    open(my $fd, '<', $file);
+    while (my $line = <$fd>) {
+        print STDERR $line;
+    }
+    close($fd);
+    return;
+}
+
+sub libdpkg_unpack_dsc {
+    my ($dsc, $target) = @_;
+    my $opt = {'quiet' => 1};
+    require Dpkg::Source::Package;
+    open(STDOUT, '>', '/dev/null');
+    # Create the object that does everything
+    my $srcpkg = Dpkg::Source::Package->new(filename => $dsc, options => $opt);
+
+    $srcpkg->check_checksums;
+
+    # Unpack the source package (delegated to Dpkg::Source::Package::*)
+    $srcpkg->extract($target);
+    return 1;
+}
+
+sub can_use_dpkg_source{
+    my $test = $ENV{LINTIAN_TEST_FEATURE};
+    return 0 if defined $test && $test =~ m/unpack-libdpkg-perl/;
+    return check_path('dpkg-source');
+}
+
+sub extract_and_index_deb {
+    my ($dir) = @_;
+    my @sort_gzip = (['sort', '-k', '6'], '|', ['gzip', '-9nc']);
+    my (@jobs, @out_fds, $err);
+    open(my $tar_in, '-|', 'dpkg-deb', '--fsys-tarfile', "$dir/deb");
+
+    # Extraction
+    push(
+        @jobs,
+        {
+            'fail' => 'error',
+            '_pipeline' => [[
+                    'tar', '--no-same-owner', '--no-same-permissions', '-mxf',
+                    '-', '-C', "$dir/unpacked"
+                ]
+            ],
+            'pipe_in' => FileHandle->new,
+            'err' => "$dir/unpacked-errors",
+        });
+    # Index (named-owner)
+    push(
+        @jobs,
+        {
+            '_pipeline' => [
+                ['tar', '--utc', '--full-time', '-stvf', '-'], '|',
+                @sort_gzip, '&'
+            ],
+            'fail' => 'error',
+            'pipe_in' => FileHandle->new,
+            'out' => "$dir/index.gz",
+            'err' => "$dir/index-errors",
+        });
+    # Index (numeric-owner)
+    push(
+        @jobs,
+        {
+            '_pipeline' =>[[
+                    'tar', '--utc', '--full-time', '--numeric-owner', '-stvf',
+                    '-'
+                ],
+                '|',
+                @sort_gzip,
+                '&'
+            ],
+            'fail' => 'error',
+            'pipe_in' => FileHandle->new,
+            'out' => "$dir/index-owner-id.gz",
+            'err' => '/dev/null'
+        });
+    for my $job (@jobs) {
+        spawn($job, @{$job->{'_pipeline'}});
+        my $out_fd = $job->{'pipe_in'};
+        $out_fd->blocking(1);
+        push(@out_fds, $out_fd);
+    }
+
+    eval {pipe_tee($tar_in, \@out_fds, { 'chunk_size' => READ_SIZE});};
+    $err = $@;
+    eval {
+        close($tar_in);
+        for my $fd (@out_fds) {
+            close($fd);
+        }
+        reap(@jobs);
+    };
+    $err ||= $@;
+    if ($err) {
+        eval {dump_errors("$dir/unpack-errors");};
+        die $err;
+    }
+
+    # Remove error files, if they are empty
+    unlink("$dir/index-errors") if -z "$dir/index-errors";
+    unlink("$dir/unpack-errors") if -z "$dir/unpack-errors";
+
+    return;
+}
+
+collect(@ARGV) if $0 =~ m,(?:^|/)unpacked$,;
+
+1;
+
+# Local Variables:
+# indent-tabs-mode: nil
+# cperl-indent-level: 4
+# End:
+# vim: syntax=perl sw=4 sts=4 sr et

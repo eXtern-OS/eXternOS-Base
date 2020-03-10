@@ -1,0 +1,703 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- Created by GNU Texinfo 6.3, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>Measuring Program Resource Use</title>
+
+<meta name="description" content="Measuring Program Resource Use">
+<meta name="keywords" content="Measuring Program Resource Use">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="#Top" rel="start" title="Top">
+<link href="#Concept-index" rel="index" title="Concept index">
+<link href="#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="dir.html#Top" rel="up" title="(dir)">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.indentedblock {margin-right: 0em}
+blockquote.smallindentedblock {margin-right: 0em; font-size: smaller}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style: oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nolinebreak {white-space: nowrap}
+span.roman {font-family: initial; font-weight: normal}
+span.sansserif {font-family: sans-serif; font-weight: normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en">
+<h1 class="settitle" align="center">Measuring Program Resource Use</h1>
+
+
+
+
+
+
+<a name="SEC_Contents"></a>
+<h2 class="contents-heading">Table of Contents</h2>
+
+<div class="contents">
+
+<ul class="no-bullet">
+  <li><a name="toc-Measuring-Program-Resource-Use" href="#Resource-Measurement">1 Measuring Program Resource Use</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Setting-the-Output-Format" href="#Setting-Format">1.1 Setting the Output Format</a></li>
+    <li><a name="toc-The-Format-String" href="#Format-String">1.2 The Format String</a>
+    <ul class="no-bullet">
+      <li><a name="toc-Time-Resources-1" href="#Time-Resources">1.2.1 Time Resources</a></li>
+      <li><a name="toc-Memory-Resources-1" href="#Memory-Resources">1.2.2 Memory Resources</a></li>
+      <li><a name="toc-I_002fO-Resources-1" href="#I_002fO-Resources">1.2.3 I/O Resources</a></li>
+      <li><a name="toc-Command-Info-1" href="#Command-Info">1.2.4 Command Info</a></li>
+    </ul></li>
+    <li><a name="toc-Redirecting-Output" href="#Redirecting">1.3 Redirecting Output</a></li>
+    <li><a name="toc-Examples-1" href="#Examples">1.4 Examples</a></li>
+    <li><a name="toc-Accuracy-1" href="#Accuracy">1.5 Accuracy</a></li>
+    <li><a name="toc-Running-the-time-Command" href="#Invoking-time">1.6 Running the <code>time</code> Command</a></li>
+  </ul></li>
+  <li><a name="toc-Concept-index-1" href="#Concept-index">Concept index</a></li>
+</ul>
+</div>
+
+
+<a name="Top"></a>
+<div class="header">
+<p>
+Next: <a href="#Resource-Measurement" accesskey="n" rel="next">Resource Measurement</a>, Up: <a href="dir.html#Top" accesskey="u" rel="up">(dir)</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Concept-index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="The-GNU-time-Command"></a>
+<h1 class="top">The GNU <code>time</code> Command</h1>
+
+
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#Resource-Measurement" accesskey="1">Resource Measurement</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Measuring program resource use.
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Concept-index" accesskey="2">Concept index</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Index of concepts.
+</td></tr>
+</table>
+
+<hr>
+<a name="Resource-Measurement"></a>
+<div class="header">
+<p>
+Next: <a href="#Concept-index" accesskey="n" rel="next">Concept index</a>, Previous: <a href="#Top" accesskey="p" rel="prev">Top</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Concept-index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Measuring-Program-Resource-Use"></a>
+<h2 class="chapter">1 Measuring Program Resource Use</h2>
+<a name="index-time-invocation"></a>
+<a name="index-time"></a>
+<a name="index-measurement"></a>
+
+<p>The <code>time</code> command runs another program, then displays information
+about the resources used by that program, collected by the system while
+the program was running.  You can select which information is reported
+and the format in which it is shown (see <a href="#Setting-Format">Setting Format</a>), or have
+<code>time</code> save the information in a file instead of displaying it on the
+screen (see <a href="#Redirecting">Redirecting</a>).
+</p>
+<p>The resources that <code>time</code> can report on fall into the general
+categories of time, memory, and I/O and IPC calls.  Some systems do not
+provide much information about program resource use; <code>time</code>
+reports unavailable information as zero values (see <a href="#Accuracy">Accuracy</a>).
+</p>
+<p>The format of the <code>time</code> command is:
+</p>
+<div class="example">
+<pre class="example">time <span class="roman">[</span>option&hellip;<span class="roman">]</span> <var>command</var> <span class="roman">[</span><var>arg</var>&hellip;<span class="roman">]</span>
+</pre></div>
+
+<a name="index-resource-specifiers"></a>
+<p><code>time</code> runs the program <var>command</var>, with any given arguments
+<var>arg</var>&hellip;.  When <var>command</var> finishes, <code>time</code> displays
+information about resources used by <var>command</var>.
+</p>
+<p>Here is an example of using <code>time</code> to measure the time and other
+resources used by running the program <code>grep</code>:
+</p>
+<div class="example">
+<pre class="example">eg$ time grep nobody /etc/aliases
+nobody:/dev/null
+etc-files:nobody
+misc-group:nobody
+0.07user 0.50system 0:06.69elapsed 8%CPU (0avgtext+489avgdata 324maxresident)k
+46inputs+7outputs (43major+251minor)pagefaults 0swaps
+</pre></div>
+
+<p>Mail suggestions and bug reports for GNU <code>time</code> to
+<code>bug-gnu-utils@gnu.org</code>.  Please include the version of
+<code>time</code>, which you can get by running &lsquo;<samp>time --version</samp>&rsquo;, and the
+operating system and C compiler you used.
+</p>
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#Setting-Format" accesskey="1">Setting Format</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Selecting the information reported by <code>time</code>.
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Format-String" accesskey="2">Format String</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">The information <code>time</code> can report.
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Redirecting" accesskey="3">Redirecting</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Writing the information to a file.
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Examples" accesskey="4">Examples</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Examples of using <code>time</code>.
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Accuracy" accesskey="5">Accuracy</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Limitations on the accuracy of <code>time</code> output.
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Invoking-time" accesskey="6">Invoking time</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Summary of the options to the <code>time</code> command.
+</td></tr>
+</table>
+
+<hr>
+<a name="Setting-Format"></a>
+<div class="header">
+<p>
+Next: <a href="#Format-String" accesskey="n" rel="next">Format String</a>, Up: <a href="#Resource-Measurement" accesskey="u" rel="up">Resource Measurement</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Concept-index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Setting-the-Output-Format"></a>
+<h3 class="section">1.1 Setting the Output Format</h3>
+
+<p><code>time</code> uses a <em>format string</em> to determine which information to
+display about the resources used by the command it runs.  See <a href="#Format-String">Format String</a>, for the interpretation of the format string contents.
+</p>
+<p>You can specify a format string with the command line options listed
+below.  If no format is specified on the command line, but the
+<code>TIME</code> environment variable is set, its value is used as the format
+string.  Otherwise, the default format built into <code>time</code> is used:
+</p>
+<div class="example">
+<pre class="example">%Uuser %Ssystem %Eelapsed %PCPU (%Xtext+%Ddata %Mmax)k
+%Iinputs+%Ooutputs (%Fmajor+%Rminor)pagefaults %Wswaps
+</pre></div>
+
+<p>The command line options to set the format are:
+</p>
+<dl compact="compact">
+<dt><code>-f <var>format</var></code></dt>
+<dt><code>--format=<var>format</var></code></dt>
+<dd><p>Use <var>format</var> as the format string.
+</p>
+</dd>
+<dt><code>-p</code></dt>
+<dt><code>--portability</code></dt>
+<dd><p>Use the following format string:
+</p>
+<div class="example">
+<pre class="example">real %e
+user %U
+sys %S
+</pre></div>
+ 
+<p>The default output format of time differs widely between
+implementations.  This option (in its short form -p) is supported by all
+POSIX-compliant &rsquo;time&rsquo; implementations to retrieve basic information in
+the described format.
+</p>
+</dd>
+<dt><code>-q</code></dt>
+<dt><code>--quiet</code></dt>
+<dd><p>Suppress non-zero error code from the executed program.
+</p>
+</dd>
+<dt><code>-v</code></dt>
+<dt><code>--verbose</code></dt>
+<dd><a name="index-verbose-format"></a>
+<p>Use the built-in verbose format, which displays each available piece of
+information on the program&rsquo;s resource use on its own line, with an
+English description of its meaning.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Format-String"></a>
+<div class="header">
+<p>
+Next: <a href="#Redirecting" accesskey="n" rel="next">Redirecting</a>, Previous: <a href="#Setting-Format" accesskey="p" rel="prev">Setting Format</a>, Up: <a href="#Resource-Measurement" accesskey="u" rel="up">Resource Measurement</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Concept-index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="The-Format-String"></a>
+<h3 class="section">1.2 The Format String</h3>
+
+<a name="index-format"></a>
+<p>The <em>format string</em> controls the contents of the <code>time</code> output.
+It consists of <em>resource specifiers</em> and <em>escapes</em>, interspersed
+with plain text.
+</p>
+<p>A backslash introduces an <em>escape</em>, which is translated
+into a single printing character upon output.  The valid escapes are
+listed below.  An invalid escape is output as a question mark followed
+by a backslash.
+</p>
+<dl compact="compact">
+<dt><code>\t</code></dt>
+<dd><p>a tab character
+</p>
+</dd>
+<dt><code>\n</code></dt>
+<dd><p>a newline
+</p>
+</dd>
+<dt><code>\\</code></dt>
+<dd><p>a literal backslash
+</p></dd>
+</dl>
+
+<p><code>time</code> always prints a newline after printing the resource use
+information, so normally format strings do not end with a newline
+character (or &lsquo;<samp>\n</samp>&rsquo;).
+</p>
+<p>A resource specifier consists of a percent sign followed by another
+character.  An invalid resource specifier is output as a question mark
+followed by the invalid character.  Use &lsquo;<samp>%%</samp>&rsquo; to output a literal
+percent sign.
+</p>
+<p>The resource specifiers, which are a superset of those recognized by the
+<code>tcsh</code> builtin <code>time</code> command, are listed below.  Not all
+resources are measured by all versions of Unix, so some of the values
+might be reported as zero (see <a href="#Accuracy">Accuracy</a>).
+</p>
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#Time-Resources" accesskey="1">Time Resources</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Memory-Resources" accesskey="2">Memory Resources</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#I_002fO-Resources" accesskey="3">I/O Resources</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Command-Info" accesskey="4">Command Info</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+</table>
+
+<hr>
+<a name="Time-Resources"></a>
+<div class="header">
+<p>
+Next: <a href="#Memory-Resources" accesskey="n" rel="next">Memory Resources</a>, Up: <a href="#Format-String" accesskey="u" rel="up">Format String</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Concept-index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Time-Resources-1"></a>
+<h4 class="subsection">1.2.1 Time Resources</h4>
+
+<dl compact="compact">
+<dt><code>E</code></dt>
+<dd><p>Elapsed real (wall clock) time used by the process, in
+[hours:]minutes:seconds.
+</p>
+</dd>
+<dt><code>e</code></dt>
+<dd><p>Elapsed real (wall clock) time used by the process, in
+seconds.
+</p>
+</dd>
+<dt><code>S</code></dt>
+<dd><p>Total number of CPU-seconds used by the system on behalf of the process
+(in kernel mode), in seconds.
+</p>
+</dd>
+<dt><code>U</code></dt>
+<dd><p>Total number of CPU-seconds that the process used directly (in user
+mode), in seconds.
+</p>
+</dd>
+<dt><code>P</code></dt>
+<dd><p>Percentage of the CPU that this job got.  This is just user + system
+times divied by the total running time.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Memory-Resources"></a>
+<div class="header">
+<p>
+Next: <a href="#I_002fO-Resources" accesskey="n" rel="next">I/O Resources</a>, Previous: <a href="#Time-Resources" accesskey="p" rel="prev">Time Resources</a>, Up: <a href="#Format-String" accesskey="u" rel="up">Format String</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Concept-index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Memory-Resources-1"></a>
+<h4 class="subsection">1.2.2 Memory Resources</h4>
+
+<dl compact="compact">
+<dt><code>M</code></dt>
+<dd><p>Maximum resident set size of the process during its lifetime, in
+Kilobytes.
+</p>
+</dd>
+<dt><code>t</code></dt>
+<dd><p>Average resident set size of the process, in Kilobytes.
+</p>
+</dd>
+<dt><code>K</code></dt>
+<dd><p>Average total (data+stack+text) memory use of the process, in Kilobytes.
+</p>
+</dd>
+<dt><code>D</code></dt>
+<dd><p>Average size of the process&rsquo;s unshared data area, in Kilobytes.
+</p>
+</dd>
+<dt><code>p</code></dt>
+<dd><p>Average size of the process&rsquo;s unshared stack, in Kilobytes.
+</p>
+</dd>
+<dt><code>X</code></dt>
+<dd><p>Average size of the process&rsquo;s shared text, in Kilobytes.
+</p>
+</dd>
+<dt><code>Z</code></dt>
+<dd><p>System&rsquo;s page size, in bytes.  This is a per-system constant, but
+varies between systems.
+</p></dd>
+</dl>
+
+<hr>
+<a name="I_002fO-Resources"></a>
+<div class="header">
+<p>
+Next: <a href="#Command-Info" accesskey="n" rel="next">Command Info</a>, Previous: <a href="#Memory-Resources" accesskey="p" rel="prev">Memory Resources</a>, Up: <a href="#Format-String" accesskey="u" rel="up">Format String</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Concept-index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="I_002fO-Resources-1"></a>
+<h4 class="subsection">1.2.3 I/O Resources</h4>
+
+<dl compact="compact">
+<dt><code>F</code></dt>
+<dd><p>Number of major, or I/O-requiring, page faults that occurred while the
+process was running.  These are faults where the page has actually
+migrated out of primary memory.
+</p>
+</dd>
+<dt><code>R</code></dt>
+<dd><p>Number of minor, or recoverable, page faults.  These are pages that are
+not valid (so they fault) but which have not yet been claimed by other
+virtual pages.  Thus the data in the page is still valid but the system
+tables must be updated.
+</p>
+</dd>
+<dt><code>W</code></dt>
+<dd><p>Number of times the process was swapped out of main memory.
+</p>
+</dd>
+<dt><code>c</code></dt>
+<dd><p>Number of times the process was context-switched involuntarily (because
+the time slice expired).
+</p>
+</dd>
+<dt><code>w</code></dt>
+<dd><p>Number of times that the program was context-switched voluntarily, for
+instance while waiting for an I/O operation to complete.
+</p>
+</dd>
+<dt><code>I</code></dt>
+<dd><p>Number of file system inputs by the process.
+</p>
+</dd>
+<dt><code>O</code></dt>
+<dd><p>Number of file system outputs by the process.
+</p>
+</dd>
+<dt><code>r</code></dt>
+<dd><p>Number of socket messages received by the process.
+</p>
+</dd>
+<dt><code>s</code></dt>
+<dd><p>Number of socket messages sent by the process.
+</p>
+</dd>
+<dt><code>k</code></dt>
+<dd><p>Number of signals delivered to the process.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Command-Info"></a>
+<div class="header">
+<p>
+Previous: <a href="#I_002fO-Resources" accesskey="p" rel="prev">I/O Resources</a>, Up: <a href="#Format-String" accesskey="u" rel="up">Format String</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Concept-index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Command-Info-1"></a>
+<h4 class="subsection">1.2.4 Command Info</h4>
+
+<dl compact="compact">
+<dt><code>C</code></dt>
+<dd><p>Name and command line arguments of the command being timed.
+</p>
+</dd>
+<dt><code>x</code></dt>
+<dd><p>Exit status of the command.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Redirecting"></a>
+<div class="header">
+<p>
+Next: <a href="#Examples" accesskey="n" rel="next">Examples</a>, Previous: <a href="#Format-String" accesskey="p" rel="prev">Format String</a>, Up: <a href="#Resource-Measurement" accesskey="u" rel="up">Resource Measurement</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Concept-index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Redirecting-Output"></a>
+<h3 class="section">1.3 Redirecting Output</h3>
+
+<p>By default, <code>time</code> writes the resource use statistics to the
+standard error stream.  The options below make it write the statistics
+to a file instead.  Doing this can be useful if the program you&rsquo;re
+running writes to the standard error or you&rsquo;re running <code>time</code>
+noninteractively or in the background.
+</p>
+<dl compact="compact">
+<dt><code>-o <var>file</var></code></dt>
+<dt><code>--output=<var>file</var></code></dt>
+<dd><p>Write the resource use statistics to <var>file</var>.  By default, this
+<em>overwrites</em> the file, destroying the file&rsquo;s previous contents.
+</p>
+</dd>
+<dt><code>-a</code></dt>
+<dt><code>--append</code></dt>
+<dd><p><em>Append</em> the resource use information to the output file instead
+of overwriting it.  This option is only useful with the &lsquo;<samp>-o</samp>&rsquo; or
+&lsquo;<samp>--output</samp>&rsquo; option.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Examples"></a>
+<div class="header">
+<p>
+Next: <a href="#Accuracy" accesskey="n" rel="next">Accuracy</a>, Previous: <a href="#Redirecting" accesskey="p" rel="prev">Redirecting</a>, Up: <a href="#Resource-Measurement" accesskey="u" rel="up">Resource Measurement</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Concept-index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Examples-1"></a>
+<h3 class="section">1.4 Examples</h3>
+
+<p>Run the command &lsquo;<samp>wc /etc/hosts</samp>&rsquo; and show the default information:
+</p>
+<div class="example">
+<pre class="example">eg$ time wc /etc/hosts
+      35     111    1134 /etc/hosts
+0.00user 0.01system 0:00.04elapsed 25%CPU (0avgtext+0avgdata 0maxresident)k
+1inputs+1outputs (0major+0minor)pagefaults 0swaps
+</pre></div>
+
+<p>Run the command &lsquo;<samp>ls -Fs</samp>&rsquo; and show just the user, system, and
+wall-clock time:
+</p>
+<div class="example">
+<pre class="example">eg$ time -f &quot;\t%E real,\t%U user,\t%S sys&quot; ls -Fs
+total 16
+1 account/      1 db/           1 mail/         1 run/
+1 backups/      1 emacs/        1 msgs/         1 rwho/
+1 crash/        1 games/        1 preserve/     1 spool/
+1 cron/         1 log/          1 quotas/       1 tmp/
+        0:00.03 real,   0.00 user,      0.01 sys
+</pre></div>
+
+<p>Edit the file <samp>.bashrc</samp> and have <code>time</code> append the elapsed time
+and number of signals to the file <samp>log</samp>, reading the format string
+from the environment variable <code>TIME</code>:
+</p>
+<div class="example">
+<pre class="example">eg$ export TIME=&quot;\t%E,\t%k&quot; #<span class="roman"> If using bash or ksh</span>
+eg$ setenv TIME &quot;\t%E,\t%k&quot; #<span class="roman"> If using csh or tcsh</span>
+eg$ time -a -o log emacs .bashrc
+eg$ cat log
+        0:16.55,        726
+</pre></div>
+
+<p>Run the command &lsquo;<samp>sleep 4</samp>&rsquo; and show all of the information about it
+verbosely:
+</p>
+<div class="example">
+<pre class="example">eg$ time -v sleep 4
+        Command being timed: &quot;sleep 4&quot;
+        User time (seconds): 0.00
+        System time (seconds): 0.05
+        Percent of CPU this job got: 1%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 0:04.26
+        Average shared text size (kbytes): 36
+        Average unshared data size (kbytes): 24
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 60
+        Maximum resident set size (kbytes): 32
+        Average resident set size (kbytes): 24
+        Major (requiring I/O) page faults: 3
+        Minor (reclaiming a frame) page faults: 0
+        Voluntary context switches: 11
+        Involuntary context switches: 0
+        Swaps: 0
+        File system inputs: 3
+        File system outputs: 1
+        Socket messages sent: 0
+        Socket messages received: 0
+        Signals delivered: 1
+        Page size (bytes): 4096
+        Exit status: 0
+</pre></div>
+
+<hr>
+<a name="Accuracy"></a>
+<div class="header">
+<p>
+Next: <a href="#Invoking-time" accesskey="n" rel="next">Invoking time</a>, Previous: <a href="#Examples" accesskey="p" rel="prev">Examples</a>, Up: <a href="#Resource-Measurement" accesskey="u" rel="up">Resource Measurement</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Concept-index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Accuracy-1"></a>
+<h3 class="section">1.5 Accuracy</h3>
+<a name="index-error-_0028in-measurement_0029"></a>
+
+<p>The elapsed time is not collected atomically with the execution of the
+program; as a result, in bizarre circumstances (if the <code>time</code>
+command gets stopped or swapped out in between when the program being
+timed exits and when <code>time</code> calculates how long it took to run), it
+could be much larger than the actual execution time.
+</p>
+<p>When the running time of a command is very nearly zero, some values
+(e.g., the percentage of CPU used) may be reported as either zero (which
+is wrong) or a question mark.
+</p>
+<p>Most information shown by <code>time</code> is derived from the <code>wait3</code>
+system call.  The numbers are only as good as those returned by
+<code>wait3</code>.  Many systems do not measure all of the resources that
+<code>time</code> can report on; those resources are reported as zero.  The
+systems that measure most or all of the resources are based on 4.2 or
+4.3BSD.  Later BSD releases use different memory management code that
+measures fewer resources.
+</p>
+<p>On systems that do not have a <code>wait3</code> call that returns status
+information, the <code>times</code> system call is used instead.  It provides
+much less information than <code>wait3</code>, so on those systems <code>time</code>
+reports most of the resources as zero.
+</p>
+<p>The &lsquo;<samp>%I</samp>&rsquo; and &lsquo;<samp>%O</samp>&rsquo; values are allegedly only &ldquo;real&rdquo; input
+and output and do not include those supplied by caching devices.  The
+meaning of &ldquo;real&rdquo; I/O reported by &lsquo;<samp>%I</samp>&rsquo; and &lsquo;<samp>%O</samp>&rsquo; may be
+muddled for workstations, especially diskless ones.
+</p>
+<hr>
+<a name="Invoking-time"></a>
+<div class="header">
+<p>
+Previous: <a href="#Accuracy" accesskey="p" rel="prev">Accuracy</a>, Up: <a href="#Resource-Measurement" accesskey="u" rel="up">Resource Measurement</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Concept-index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Running-the-time-Command"></a>
+<h3 class="section">1.6 Running the <code>time</code> Command</h3>
+
+<p>The format of the <code>time</code> command is:
+</p>
+<div class="example">
+<pre class="example">time <span class="roman">[</span>option&hellip;<span class="roman">]</span> <var>command</var> <span class="roman">[</span><var>arg</var>&hellip;<span class="roman">]</span>
+</pre></div>
+
+<a name="index-resources"></a>
+<p><code>time</code> runs the program <var>command</var>, with any given arguments
+<var>arg</var>&hellip;.  When <var>command</var> finishes, <code>time</code> displays
+information about resources used by <var>command</var> (on the standard error
+output, by default).  If <var>command</var> exits with non-zero status or is
+terminated by a signal, <code>time</code> displays a warning message and the
+exit status or signal number.
+</p>
+<p>Options to <code>time</code> must appear on the command line before
+<var>command</var>.  Anything on the command line after <var>command</var> is
+passed as arguments to <var>command</var>.
+</p>
+<dl compact="compact">
+<dt><code>-o <var>file</var></code></dt>
+<dt><code>--output=<var>file</var></code></dt>
+<dd><p>Write the resource use statistics to <var>file</var>.
+</p>
+</dd>
+<dt><code>-a</code></dt>
+<dt><code>--append</code></dt>
+<dd><p><em>Append</em> the resource use information to the output file instead
+of overwriting it.
+</p>
+</dd>
+<dt><code>-f <var>format</var></code></dt>
+<dt><code>--format=<var>format</var></code></dt>
+<dd><p>Use <var>format</var> as the format string.
+</p>
+</dd>
+<dt><code>--help</code></dt>
+<dd><p>Print a summary of the command line options to <code>time</code> and exit.
+</p>
+</dd>
+<dt><code>-p</code></dt>
+<dt><code>--portability</code></dt>
+<dd><p>Use the POSIX format.
+</p>
+</dd>
+<dt><code>-v</code></dt>
+<dt><code>--verbose</code></dt>
+<dd><a name="index-verbose-option"></a>
+<p>Use the built-in verbose format.
+</p>
+</dd>
+<dt><code>-V</code></dt>
+<dt><code>--version</code></dt>
+<dd><a name="index-version-number"></a>
+<p>Print the version number of <code>time</code> and exit.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Concept-index"></a>
+<div class="header">
+<p>
+Previous: <a href="#Resource-Measurement" accesskey="p" rel="prev">Resource Measurement</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Concept-index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Concept-index-1"></a>
+<h2 class="unnumbered">Concept index</h2>
+
+<table><tr><th valign="top">Jump to: &nbsp; </th><td><a class="summary-letter" href="#Concept-index_cp_letter-E"><b>E</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Concept-index_cp_letter-F"><b>F</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Concept-index_cp_letter-R"><b>R</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Concept-index_cp_letter-T"><b>T</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Concept-index_cp_letter-V"><b>V</b></a>
+ &nbsp; 
+</td></tr></table>
+<table class="index-cp" border="0">
+<tr><td></td><th align="left">Index Entry</th><td>&nbsp;</td><th align="left"> Section</th></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Concept-index_cp_letter-E">E</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-error-_0028in-measurement_0029">error (in measurement)</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Accuracy">Accuracy</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Concept-index_cp_letter-F">F</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-format">format</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Format-String">Format String</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Concept-index_cp_letter-R">R</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-resource-specifiers">resource specifiers</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Resource-Measurement">Resource Measurement</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-resources">resources</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Invoking-time">Invoking time</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Concept-index_cp_letter-T">T</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-time-invocation">time invocation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Resource-Measurement">Resource Measurement</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Concept-index_cp_letter-V">V</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-verbose-format">verbose format</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Setting-Format">Setting Format</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-verbose-option">verbose option</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Invoking-time">Invoking time</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-version-number">version number</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Invoking-time">Invoking time</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+</table>
+<table><tr><th valign="top">Jump to: &nbsp; </th><td><a class="summary-letter" href="#Concept-index_cp_letter-E"><b>E</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Concept-index_cp_letter-F"><b>F</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Concept-index_cp_letter-R"><b>R</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Concept-index_cp_letter-T"><b>T</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Concept-index_cp_letter-V"><b>V</b></a>
+ &nbsp; 
+</td></tr></table>
+
+<hr>
+
+
+
+</body>
+</html>

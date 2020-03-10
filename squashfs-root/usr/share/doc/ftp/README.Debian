@@ -1,0 +1,21 @@
+Modified use of SYST requests
+-----------------------------
+
+The legacy mode, be it with 'auto-login' or not, was to
+issue immediately a SYST request to the server, expecting
+information as to the 8-bit capabilities of the host.
+
+Since some FTP servers still are built to reject such early
+requests, until a valid user had been established with the
+client side, the old behaviour caused annoying error response.
+These could even disturb the use of intermediary proxy servers.
+
+As of package 'ftp_0.17-25' this behaviour has been intention-
+ally changed, sending SYST only with auto-login, or when issuing
+the commands 'user' and 'system'.  A code analysis could uncover
+no ill effects of this step.  Keep in mind that other FTP client
+software continue the legacy mode, such as OpenBSD, while yet
+others have removed it, like FreeBSD.  Still others issue a SYST
+request, but suppress any returned reject message.  The client
+available as 'inetutils-ftp' shows this latter behaviour.
+

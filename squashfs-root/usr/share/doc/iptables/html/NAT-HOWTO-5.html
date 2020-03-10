@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.72">
+ <TITLE>Linux 2.4 NAT HOWTO: Controlling What To NAT</TITLE>
+ <LINK HREF="NAT-HOWTO-6.html" REL=next>
+ <LINK HREF="NAT-HOWTO-4.html" REL=previous>
+ <LINK HREF="NAT-HOWTO.html#toc5" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="NAT-HOWTO-6.html">Next</A>
+<A HREF="NAT-HOWTO-4.html">Previous</A>
+<A HREF="NAT-HOWTO.html#toc5">Contents</A>
+<HR>
+<H2><A NAME="s5">5.</A> <A HREF="NAT-HOWTO.html#toc5">Controlling What To NAT</A></H2>
+
+<P>You need to create NAT rules which tell the kernel what connections
+to change, and how to change them.  To do this, we use the very
+versatile <CODE>iptables</CODE> tool, and tell it to alter the NAT table by
+specifying the `-t nat' option.</P>
+
+<P>The table of NAT rules contains three lists called `chains': each
+rule is examined in order until one matches.  The two chains are
+called PREROUTING (for Destination NAT, as packets first come in), and
+POSTROUTING (for Source NAT, as packets leave).  The third (OUTPUT)
+will be ignored here.</P>
+
+<P>The following diagram would illustrate it quite well if I had any
+artistic talent:</P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+      _____                                     _____
+     /     \                                   /     \
+   PREROUTING -->[Routing ]----------------->POSTROUTING----->
+     \D-NAT/     [Decision]                    \S-NAT/
+                     |                            ^
+                     |                            |
+                     |                            |
+                     |                            |
+                     |                            |
+                     |                            |
+                     |                            |
+                     --------> Local Process ------
+</PRE>
+</CODE></BLOCKQUOTE>
+</P>
+<P>At each of the points above, when a packet passes we look up what
+connection it is associated with.  If it's a new connection, we look
+up the corresponding chain in the NAT table to see what to do with it.
+The answer it gives will apply to all future packets on that
+connection.</P>
+
+<H2><A NAME="ss5.1">5.1</A> <A HREF="NAT-HOWTO.html#toc5.1">Simple Selection using iptables</A>
+</H2>
+
+<P><CODE>iptables</CODE> takes a number of standard options as listed
+below.  All the double-dash options can be abbreviated, as long as
+<CODE>iptables</CODE> can still tell them apart from the other possible
+options.  If your kernel has iptables support as a module, you'll need
+to load the ip_tables.o module first: `insmod ip_tables'.</P>
+
+<P>The most important option here is the table selection option, `-t'.
+For all NAT operations, you will want to use `-t nat' for the NAT
+table.  The second most important option to use is `-A' to append a
+new rule at the end of the chain (e.g. `-A POSTROUTING'), or `-I' to
+insert one at the beginning (e.g. `-I PREROUTING').</P>
+
+<P>You can specify the source (`-s' or `--source') and destination
+(`-d' or `--destination') of the packets you want to NAT.  These
+options can be followed by a single IP address (e.g. 192.168.1.1), a
+name (e.g. www.gnumonks.org), or a network address
+(e.g. 192.168.1.0/24 or 192.168.1.0/255.255.255.0).</P>
+
+<P>You can specify the incoming (`-i' or `--in-interface') or outgoing
+(`-o' or `--out-interface') interface to match, but which you can
+specify depends on which chain you are putting the rule into: at
+PREROUTING you can only select incoming interface, and at POSTROUTING
+you can only select outgoing interface.  If you use the
+wrong one, <CODE>iptables</CODE> will give an error.</P>
+
+<H2><A NAME="ss5.2">5.2</A> <A HREF="NAT-HOWTO.html#toc5.2">Finer Points Of Selecting What Packets To Mangle</A>
+</H2>
+
+<P>I said above that you can specify a source and destination address.
+If you omit the source address option, then any source address will
+do.  If you omit the destination address option, then any destination
+address will do.</P>
+
+<P>You can also indicate a specific protocol (`-p' or `--protocol'),
+such as TCP or UDP; only packets of this protocol will match the rule.
+The main reason for doing this is that specifying a protocol of tcp or
+udp then allows extra options: specifically the `--source-port' and
+`--destination-port' options (abbreviated as `--sport' and `--dport').</P>
+
+<P>These options allow you to specify that only packets with a certain
+source and destination port will match the rule.  This is useful for
+redirecting web requests (TCP port 80 or 8080) and leaving other
+packets alone.</P>
+
+<P>These options must follow the `-p' option (which has a side-effect
+of loading the shared library extension for that protocol).  You can
+use port numbers, or a name from the /etc/services file.</P>
+
+<P>All the different qualities you can select a packet by are detailed
+in painful detail in the manual page (<CODE>man iptables</CODE>).</P>
+
+<HR>
+<A HREF="NAT-HOWTO-6.html">Next</A>
+<A HREF="NAT-HOWTO-4.html">Previous</A>
+<A HREF="NAT-HOWTO.html#toc5">Contents</A>
+</BODY>
+</HTML>

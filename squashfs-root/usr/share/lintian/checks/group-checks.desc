@@ -1,0 +1,63 @@
+Check-Script: group-checks
+Author: Niels Thykier <niels@thykier.net>
+Abbrev: gchck
+# This is a source check, so we only run it once per group
+Type: source
+Needs-Info: unpacked
+Info: This script checks for some issues that may appear in packages
+ built from the same source.  This includes intra-source circular
+ dependencies and intra-source priority checks.
+
+Tag: intra-source-package-circular-dependency
+Severity: normal
+Certainty: certain
+Info: The listed packages from the same source circularly depend
+ (or pre-depend) on each other.  This makes it difficult for tools
+ to properly handle install/upgrade sequences.  Furthermore this
+ complicates automated removal of unused packages.
+ .
+ If possible, consider removing or reducing one of the depends.
+ .
+ Note: This check is limited to packages created from the same
+ source package.  Full circular dependencies between binaries from
+ different source packages is beyond the scope of Lintian.
+Ref: policy 7.2
+
+Tag: binaries-have-file-conflict
+Severity: normal
+Certainty: possible
+Experimental: no
+Info: The binaries appears to have overlapping files without proper
+ conflicts relation.
+ .
+ Note the check is completely based on the file index for the
+ packages.  Possible known false-positives include dpkg-diverts in
+ maintainer scripts.
+
+Tag: dependency-is-not-multi-archified
+Severity: normal
+Certainty: possible
+Info: The package is Multi-Arch "same", but it depends on a package that
+ is neither Multi-Arch "same" nor "foreign".
+Ref: https://wiki.ubuntu.com/MultiarchSpec
+
+Tag: debug-package-for-multi-arch-same-pkg-not-coinstallable
+Severity: minor
+Certainty: possible
+Info: The debug package appear to be containing debug symbols for a
+ "Multi-Arch: same" package, but the debug package itself is not
+ "Multi-Arch: same".  If so, it is not possible to have the debug
+ symbols for all architecture variants of the binaries available
+ at the same time.
+ .
+ Making a debug package co-installable with itself is very trivial,
+ when installing the debug symbols beneath:
+   <tt>/usr/lib/debug/.build-id/&lt;XX&gt;/&lt;rest-id&gt;.debug</tt>
+ .
+ dh_strip does this in debhelper compat 9.  Otherwise, the expected
+ location of the debug symbols of a given ELF binary can be determined
+ by using:
+ .
+  readelf -n &lt;binary-elf&gt; | \
+      perl -ne 'print if s,^\s*Build ID:\s*(\S\S)(\S+),/usr/lib/debug/.build-id/$1/$2.debug,'
+

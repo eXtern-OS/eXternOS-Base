@@ -1,0 +1,1193 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Python Library and Extension FAQ</title>
+<meta name="date" content="2005-12-16" />
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 7614 2013-02-21 15:55:51Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title, .code .error {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math, pre.code {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+pre.code .ln { color: grey; } /* line numbers */
+pre.code, code { background-color: #eeeeee }
+pre.code .comment, code .comment { color: #5C6576 }
+pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
+pre.code .literal.string, code .literal.string { color: #0C5404 }
+pre.code .name.builtin, code .name.builtin { color: #352B84 }
+pre.code .deleted, code .deleted { background-color: #DEB0A1}
+pre.code .inserted, code .inserted { background-color: #A3D289}
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+/* "booktabs" style (no vertical lines) */
+table.docutils.booktabs {
+  border: 0px;
+  border-top: 2px solid;
+  border-bottom: 2px solid;
+  border-collapse: collapse;
+}
+table.docutils.booktabs * {
+  border: 0px;
+}
+table.docutils.booktabs th {
+  border-bottom: thin solid;
+  text-align: left;
+}
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="python-library-and-extension-faq">
+<h1 class="title">Python Library and Extension FAQ</h1>
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr><th class="docinfo-name">Date:</th>
+<td>2005-12-16</td></tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>8684</td></tr>
+<tr class="field"><th class="docinfo-name">Web site:</th><td class="field-body"><a class="reference external" href="http://www.python.org/">http://www.python.org/</a></td>
+</tr>
+</tbody>
+</table>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="auto-toc simple">
+<li><a class="reference internal" href="#general-library-questions" id="id3">1&nbsp;&nbsp;&nbsp;General Library Questions</a><ul class="auto-toc">
+<li><a class="reference internal" href="#how-do-i-find-a-module-or-application-to-perform-task-x" id="id4">1.1&nbsp;&nbsp;&nbsp;How do I find a module or application to perform task X?</a></li>
+<li><a class="reference internal" href="#where-is-the-math-py-socket-py-regex-py-etc-source-file" id="id5">1.2&nbsp;&nbsp;&nbsp;Where is the math.py (socket.py, regex.py, etc.) source file?</a></li>
+<li><a class="reference internal" href="#how-do-i-make-a-python-script-executable-on-unix" id="id6">1.3&nbsp;&nbsp;&nbsp;How do I make a Python script executable on Unix?</a></li>
+<li><a class="reference internal" href="#is-there-a-curses-termcap-package-for-python" id="id7">1.4&nbsp;&nbsp;&nbsp;Is there a curses/termcap package for Python?</a></li>
+<li><a class="reference internal" href="#is-there-an-equivalent-to-c-s-onexit-in-python" id="id8">1.5&nbsp;&nbsp;&nbsp;Is there an equivalent to C's onexit() in Python?</a></li>
+<li><a class="reference internal" href="#why-don-t-my-signal-handlers-work" id="id9">1.6&nbsp;&nbsp;&nbsp;Why don't my signal handlers work?</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#common-tasks" id="id10">2&nbsp;&nbsp;&nbsp;Common tasks</a><ul class="auto-toc">
+<li><a class="reference internal" href="#how-do-i-test-a-python-program-or-component" id="id11">2.1&nbsp;&nbsp;&nbsp;How do I test a Python program or component?</a></li>
+<li><a class="reference internal" href="#how-do-i-create-documentation-from-doc-strings" id="id12">2.2&nbsp;&nbsp;&nbsp;How do I create documentation from doc strings?</a></li>
+<li><a class="reference internal" href="#how-do-i-get-a-single-keypress-at-a-time" id="id13">2.3&nbsp;&nbsp;&nbsp;How do I get a single keypress at a time?</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#threads" id="id14">3&nbsp;&nbsp;&nbsp;Threads</a><ul class="auto-toc">
+<li><a class="reference internal" href="#how-do-i-program-using-threads" id="id15">3.1&nbsp;&nbsp;&nbsp;How do I program using threads?</a></li>
+<li><a class="reference internal" href="#none-of-my-threads-seem-to-run-why" id="id16">3.2&nbsp;&nbsp;&nbsp;None of my threads seem to run: why?</a></li>
+<li><a class="reference internal" href="#how-do-i-parcel-out-work-among-a-bunch-of-worker-threads" id="id17">3.3&nbsp;&nbsp;&nbsp;How do I parcel out work among a bunch of worker threads?</a></li>
+<li><a class="reference internal" href="#what-kinds-of-global-value-mutation-are-thread-safe" id="id18">3.4&nbsp;&nbsp;&nbsp;What kinds of global value mutation are thread-safe?</a></li>
+<li><a class="reference internal" href="#can-t-we-get-rid-of-the-global-interpreter-lock" id="id19">3.5&nbsp;&nbsp;&nbsp;Can't we get rid of the Global Interpreter Lock?</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#input-and-output" id="id20">4&nbsp;&nbsp;&nbsp;Input and Output</a><ul class="auto-toc">
+<li><a class="reference internal" href="#how-do-i-delete-a-file-and-other-file-questions" id="id21">4.1&nbsp;&nbsp;&nbsp;How do I delete a file? (And other file questions...)</a></li>
+<li><a class="reference internal" href="#how-do-i-copy-a-file" id="id22">4.2&nbsp;&nbsp;&nbsp;How do I copy a file?</a></li>
+<li><a class="reference internal" href="#how-do-i-read-or-write-binary-data" id="id23">4.3&nbsp;&nbsp;&nbsp;How do I read (or write) binary data?</a></li>
+<li><a class="reference internal" href="#i-can-t-seem-to-use-os-read-on-a-pipe-created-with-os-popen-why" id="id24">4.4&nbsp;&nbsp;&nbsp;I can't seem to use os.read() on a pipe created with os.popen(); why?</a></li>
+<li><a class="reference internal" href="#how-do-i-run-a-subprocess-with-pipes-connected-to-both-input-and-output" id="id25">4.5&nbsp;&nbsp;&nbsp;How do I run a subprocess with pipes connected to both input and output?</a></li>
+<li><a class="reference internal" href="#how-do-i-access-the-serial-rs232-port" id="id26">4.6&nbsp;&nbsp;&nbsp;How do I access the serial (RS232) port?</a></li>
+<li><a class="reference internal" href="#why-doesn-t-closing-sys-stdout-stdin-stderr-really-close-it" id="id27">4.7&nbsp;&nbsp;&nbsp;Why doesn't closing sys.stdout (stdin, stderr) really close it?</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#network-internet-programming" id="id28">5&nbsp;&nbsp;&nbsp;Network/Internet Programming</a><ul class="auto-toc">
+<li><a class="reference internal" href="#what-www-tools-are-there-for-python" id="id29">5.1&nbsp;&nbsp;&nbsp;What WWW tools are there for Python?</a></li>
+<li><a class="reference internal" href="#how-can-i-mimic-cgi-form-submission-method-post" id="id30">5.2&nbsp;&nbsp;&nbsp;How can I mimic CGI form submission (METHOD=POST)?</a></li>
+<li><a class="reference internal" href="#what-module-should-i-use-to-help-with-generating-html" id="id31">5.3&nbsp;&nbsp;&nbsp;What module should I use to help with generating HTML?</a></li>
+<li><a class="reference internal" href="#how-do-i-send-mail-from-a-python-script" id="id32">5.4&nbsp;&nbsp;&nbsp;How do I send mail from a Python script?</a></li>
+<li><a class="reference internal" href="#how-do-i-avoid-blocking-in-the-connect-method-of-a-socket" id="id33">5.5&nbsp;&nbsp;&nbsp;How do I avoid blocking in the connect() method of a socket?</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#databases" id="id34">6&nbsp;&nbsp;&nbsp;Databases</a><ul class="auto-toc">
+<li><a class="reference internal" href="#are-there-any-interfaces-to-database-packages-in-python" id="id35">6.1&nbsp;&nbsp;&nbsp;Are there any interfaces to database packages in Python?</a></li>
+<li><a class="reference internal" href="#how-do-you-implement-persistent-objects-in-python" id="id36">6.2&nbsp;&nbsp;&nbsp;How do you implement persistent objects in Python?</a></li>
+<li><a class="reference internal" href="#why-is-cpickle-so-slow" id="id37">6.3&nbsp;&nbsp;&nbsp;Why is cPickle so slow?</a></li>
+<li><a class="reference internal" href="#if-my-program-crashes-with-a-bsddb-or-anydbm-database-open-it-gets-corrupted-how-come" id="id38">6.4&nbsp;&nbsp;&nbsp;If my program crashes with a bsddb (or anydbm) database open, it gets corrupted. How come?</a></li>
+<li><a class="reference internal" href="#i-tried-to-open-berkeley-db-file-but-bsddb-produces-bsddb-error-22-invalid-argument-help-how-can-i-restore-my-data" id="id39">6.5&nbsp;&nbsp;&nbsp;I tried to open Berkeley DB file, but bsddb produces bsddb.error: (22, 'Invalid argument'). Help! How can I restore my data?</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#mathematics-and-numerics" id="id40">7&nbsp;&nbsp;&nbsp;Mathematics and Numerics</a><ul class="auto-toc">
+<li><a class="reference internal" href="#how-do-i-generate-random-numbers-in-python" id="id41">7.1&nbsp;&nbsp;&nbsp;How do I generate random numbers in Python?</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="general-library-questions">
+<h1><a class="toc-backref" href="#id3">1&nbsp;&nbsp;&nbsp;General Library Questions</a></h1>
+<div class="section" id="how-do-i-find-a-module-or-application-to-perform-task-x">
+<h2><a class="toc-backref" href="#id4">1.1&nbsp;&nbsp;&nbsp;How do I find a module or application to perform task X?</a></h2>
+<p>Check <a class="reference external" href="http://www.python.org/doc/lib/">the Library Reference</a> to see
+if there's a relevant standard library module.  (Eventually you'll
+learn what's in the standard library and will able to skip this step.)</p>
+<p>Search the <a class="reference external" href="http://cheeseshop.python.org/pypi">Python Package Index</a>.</p>
+<p>Next, check the <a class="reference external" href="http://www.vex.net/parnassus/">Vaults of Parnassus</a>,
+an older index of packages.</p>
+<p>Finally, try <a class="reference external" href="http://www.google.com">Google</a> or other Web search
+engine.  Searching for &quot;Python&quot; plus a keyword or two for your topic
+of interest will usually find something helpful.</p>
+</div>
+<div class="section" id="where-is-the-math-py-socket-py-regex-py-etc-source-file">
+<h2><a class="toc-backref" href="#id5">1.2&nbsp;&nbsp;&nbsp;Where is the math.py (socket.py, regex.py, etc.) source file?</a></h2>
+<p>If you can't find a source file for a module it may be a builtin
+or dynamically loaded module implemented in C, C++ or other
+compiled language.  In this case you may not have the source
+file or it may be something like mathmodule.c, somewhere in
+a C source directory (not on the Python Path).</p>
+<p>There are (at least) three kinds of modules in Python:</p>
+<ol class="arabic">
+<li><p class="first">modules written in Python (.py);</p>
+</li>
+<li><p class="first">modules written in C and dynamically loaded (.dll, .pyd, .so, .sl, etc);</p>
+</li>
+<li><p class="first">modules written in C and linked with the interpreter; to get a list
+of these, type:</p>
+<pre class="literal-block">
+import sys
+print sys.builtin_module_names
+</pre>
+</li>
+</ol>
+</div>
+<div class="section" id="how-do-i-make-a-python-script-executable-on-unix">
+<h2><a class="toc-backref" href="#id6">1.3&nbsp;&nbsp;&nbsp;How do I make a Python script executable on Unix?</a></h2>
+<p>You need to do two things: the script file's mode must be executable
+and the first line must begin with <tt class="docutils literal">#!</tt>  followed by the path of
+the Python interpreter.</p>
+<p>The first is done by executing <tt class="docutils literal">chmod +x scriptfile</tt> or perhaps
+<tt class="docutils literal">chmod 755 scriptfile</tt>.</p>
+<p>The second can be done in a number of ways.  The most straightforward
+way is to write</p>
+<pre class="literal-block">
+#!/usr/local/bin/python
+</pre>
+<p>as the very first line of your file, using the pathname for where the
+Python interpreter is installed on your platform.</p>
+<p>If you would like the script to be independent of where the Python
+interpreter lives, you can use the &quot;env&quot; program.  Almost all
+Unix variants support the following, assuming the python interpreter
+is in a directory on the user's $PATH:</p>
+<pre class="literal-block">
+#! /usr/bin/env python
+</pre>
+<p><em>Don't</em> do this for CGI scripts.  The $PATH variable for
+CGI scripts is often very minimal, so you need to use the actual
+absolute pathname of the interpreter.</p>
+<p>Occasionally, a user's environment is so full that the /usr/bin/env
+program fails; or there's no env program at all.
+In that case, you can try the following hack (due to Alex Rezinsky):</p>
+<pre class="literal-block">
+#! /bin/sh
+&quot;&quot;&quot;:&quot;
+exec python $0 ${1+&quot;$&#64;&quot;}
+&quot;&quot;&quot;
+</pre>
+<p>The minor disadvantage is that this defines the script's __doc__ string.
+However, you can fix that by adding</p>
+<pre class="literal-block">
+__doc__ = &quot;&quot;&quot;...Whatever...&quot;&quot;&quot;
+</pre>
+</div>
+<div class="section" id="is-there-a-curses-termcap-package-for-python">
+<h2><a class="toc-backref" href="#id7">1.4&nbsp;&nbsp;&nbsp;Is there a curses/termcap package for Python?</a></h2>
+<p>For Unix variants: The standard Python source distribution comes with
+a curses module in the Modules/ subdirectory, though it's not compiled
+by default (note that this is not available in the Windows
+distribution -- there is no curses module for Windows).</p>
+<p>The curses module supports basic curses features as well as many
+additional functions from ncurses and SYSV curses such as colour,
+alternative character set support, pads, and mouse support. This means
+the module isn't compatible with operating systems that only
+have BSD curses, but there don't seem to be any currently maintained
+OSes that fall into this category.</p>
+<p>For Windows: use <a class="reference external" href="http://effbot.org/zone/console-index.htm">the consolelib module</a>.</p>
+</div>
+<div class="section" id="is-there-an-equivalent-to-c-s-onexit-in-python">
+<h2><a class="toc-backref" href="#id8">1.5&nbsp;&nbsp;&nbsp;Is there an equivalent to C's onexit() in Python?</a></h2>
+<p><a class="reference external" href="http://www.python.org/doc/lib/module-atexit.html">The atexit module</a> provides a
+register function that is similar to C's onexit.</p>
+</div>
+<div class="section" id="why-don-t-my-signal-handlers-work">
+<h2><a class="toc-backref" href="#id9">1.6&nbsp;&nbsp;&nbsp;Why don't my signal handlers work?</a></h2>
+<p>The most common problem is that the signal handler is declared
+with the wrong argument list.  It is called as</p>
+<pre class="literal-block">
+handler(signum, frame)
+</pre>
+<p>so it should be declared with two arguments:</p>
+<pre class="literal-block">
+def handler(signum, frame):
+    ...
+</pre>
+</div>
+</div>
+<div class="section" id="common-tasks">
+<h1><a class="toc-backref" href="#id10">2&nbsp;&nbsp;&nbsp;Common tasks</a></h1>
+<div class="section" id="how-do-i-test-a-python-program-or-component">
+<h2><a class="toc-backref" href="#id11">2.1&nbsp;&nbsp;&nbsp;How do I test a Python program or component?</a></h2>
+<p>Python comes with two testing frameworks.  The <a class="reference external" href="http://www.python.org/doc/lib/module-doctest.html">doctest module</a> finds examples
+in the docstrings for a module and runs them, comparing the output
+with the expected output given in the docstring.</p>
+<p>The <a class="reference external" href="http://www.python.org/doc/lib/module-unittest.html">unittest module</a> is a fancier
+testing framework modelled on Java and Smalltalk testing frameworks.</p>
+<p>For testing, it helps to write the program so that it may be easily
+tested by using good modular design.  Your program should have almost
+all functionality encapsulated in either functions or class methods --
+and this sometimes has the surprising and delightful effect of making
+the program run faster (because local variable accesses are faster
+than global accesses).  Furthermore the program should avoid depending
+on mutating global variables, since this makes testing much more
+difficult to do.</p>
+<p>The &quot;global main logic&quot; of your program may be as simple
+as</p>
+<pre class="literal-block">
+if __name__==&quot;__main__&quot;:
+     main_logic()
+</pre>
+<p>at the bottom of the main module of your program.</p>
+<p>Once your program is organized as a tractable collection
+of functions and class behaviours you should write test
+functions that exercise the behaviours.  A test suite
+can be associated with each module which automates
+a sequence of tests.  This sounds like a lot of work, but
+since Python is so terse and flexible it's surprisingly easy.
+You can make coding much more pleasant and fun by
+writing your test functions in parallel with the &quot;production
+code&quot;, since this makes it easy to find bugs and even
+design flaws earlier.</p>
+<p>&quot;Support modules&quot; that are not intended to be the main module of a
+program may include a self-test of the module.</p>
+<pre class="literal-block">
+if __name__ == &quot;__main__&quot;:
+   self_test()
+</pre>
+<p>Even programs that interact with complex external interfaces may be
+tested when the external interfaces are unavailable by using &quot;fake&quot;
+interfaces implemented in Python.</p>
+</div>
+<div class="section" id="how-do-i-create-documentation-from-doc-strings">
+<h2><a class="toc-backref" href="#id12">2.2&nbsp;&nbsp;&nbsp;How do I create documentation from doc strings?</a></h2>
+<p>The <a class="reference external" href="http://www.python.org/doc/lib/module-pydoc.html">pydoc module</a>
+can create HTML from the doc strings in your Python source code.  An
+alternative is <a class="reference external" href="http://starship.python.net/crew/danilo/pythondoc/">pythondoc</a>.</p>
+</div>
+<div class="section" id="how-do-i-get-a-single-keypress-at-a-time">
+<h2><a class="toc-backref" href="#id13">2.3&nbsp;&nbsp;&nbsp;How do I get a single keypress at a time?</a></h2>
+<p>For Unix variants:There are several solutions.
+It's straightforward to do this using curses, but curses is a
+fairly large module to learn.  Here's a solution without curses:</p>
+<pre class="literal-block">
+import termios, fcntl, sys, os
+fd = sys.stdin.fileno()
+
+oldterm = termios.tcgetattr(fd)
+newattr = termios.tcgetattr(fd)
+newattr[3] = newattr[3] &amp; ~termios.ICANON &amp; ~termios.ECHO
+termios.tcsetattr(fd, termios.TCSANOW, newattr)
+
+oldflags = fcntl.fcntl(fd, fcntl.F_GETFL)
+fcntl.fcntl(fd, fcntl.F_SETFL, oldflags | os.O_NONBLOCK)
+
+try:
+    while 1:
+        try:
+            c = sys.stdin.read(1)
+            print &quot;Got character&quot;, `c`
+        except IOError: pass
+finally:
+    termios.tcsetattr(fd, termios.TCSAFLUSH, oldterm)
+    fcntl.fcntl(fd, fcntl.F_SETFL, oldflags)
+</pre>
+<p>You need the <tt class="docutils literal">termios</tt> and the <tt class="docutils literal">fcntl</tt> module for any of this to work,
+and I've only tried it on Linux, though it should work elsewhere.
+In this code, characters are read and printed one at a time.</p>
+<p><tt class="docutils literal">termios.tcsetattr()</tt> turns off stdin's echoing and disables canonical
+mode.  <tt class="docutils literal">fcntl.fnctl()</tt> is used to obtain stdin's file descriptor flags
+and modify them for non-blocking mode.  Since reading stdin when it is
+empty results in an <tt class="docutils literal">IOError</tt>, this error is caught and ignored.</p>
+</div>
+</div>
+<div class="section" id="threads">
+<h1><a class="toc-backref" href="#id14">3&nbsp;&nbsp;&nbsp;Threads</a></h1>
+<div class="section" id="how-do-i-program-using-threads">
+<h2><a class="toc-backref" href="#id15">3.1&nbsp;&nbsp;&nbsp;How do I program using threads?</a></h2>
+<p>Be sure to use <a class="reference external" href="http://www.python.org/doc/lib/module-threading.html">the threading module</a> and not the
+<tt class="docutils literal">thread</tt> module.  The <tt class="docutils literal">threading</tt> module builds convenient
+abstractions on top of the low-level primitives provided by the
+<tt class="docutils literal">thread</tt> module.</p>
+<p>Aahz has a set of slides from his threading tutorial that are helpful;
+see <a class="reference external" href="http://starship.python.net/crew/aahz/OSCON2001/">http://starship.python.net/crew/aahz/OSCON2001/</a>.</p>
+</div>
+<div class="section" id="none-of-my-threads-seem-to-run-why">
+<h2><a class="toc-backref" href="#id16">3.2&nbsp;&nbsp;&nbsp;None of my threads seem to run: why?</a></h2>
+<p>As soon as the main thread exits, all threads are killed.  Your main
+thread is running too quickly, giving the threads no time to do any work.</p>
+<p>A simple fix is to add a sleep to the end of the program
+that's long enough for all the threads to finish:</p>
+<pre class="literal-block">
+import threading, time
+
+def thread_task(name, n):
+    for i in range(n): print name, i
+
+for i in range(10):
+    T = threading.Thread(target=thread_task, args=(str(i), i))
+    T.start()
+
+time.sleep(10) # &lt;----------------------------!
+</pre>
+<p>But now (on many platforms) the threads don't run in parallel,
+but appear to run sequentially, one at a time!  The reason is
+that the OS thread scheduler doesn't start a new thread until
+the previous thread is blocked.</p>
+<p>A simple fix is to add a tiny sleep to the start of the run
+function:</p>
+<pre class="literal-block">
+def thread_task(name, n):
+    time.sleep(0.001) # &lt;---------------------!
+    for i in range(n): print name, i
+
+for i in range(10):
+    T = threading.Thread(target=thread_task, args=(str(i), i))
+    T.start()
+
+time.sleep(10)
+</pre>
+<p>Instead of trying to guess how long a <tt class="docutils literal">time.sleep()</tt> delay will be
+enough, it's better to use some kind of semaphore mechanism.  One idea
+is to use the <a class="reference external" href="http://www.python.org/doc/lib/module-Queue.html">Queue module</a> to create a queue
+object, let each thread append a token to the queue when it finishes,
+and let the main thread read as many tokens from the queue as there
+are threads.</p>
+</div>
+<div class="section" id="how-do-i-parcel-out-work-among-a-bunch-of-worker-threads">
+<h2><a class="toc-backref" href="#id17">3.3&nbsp;&nbsp;&nbsp;How do I parcel out work among a bunch of worker threads?</a></h2>
+<p>Use the <a class="reference external" href="http://www.python.org/doc/lib/module-Queue.html">Queue module</a> to create a queue
+containing a list of jobs.  The <tt class="docutils literal">Queue</tt> class maintains a list of
+objects with <tt class="docutils literal">.put(obj)</tt> to add an item to the queue and <tt class="docutils literal">.get()</tt>
+to return an item.  The class will take care of the locking necessary
+to ensure that each job is handed out exactly once.</p>
+<p>Here's a trivial example:</p>
+<pre class="literal-block">
+import threading, Queue, time
+
+# The worker thread gets jobs off the queue.  When the queue is empty, it
+# assumes there will be no more work and exits.
+# (Realistically workers will run until terminated.)
+def worker ():
+    print 'Running worker'
+    time.sleep(0.1)
+    while True:
+        try:
+            arg = q.get(block=False)
+        except Queue.Empty:
+            print 'Worker', threading.currentThread(),
+            print 'queue empty'
+            break
+        else:
+            print 'Worker', threading.currentThread(),
+            print 'running with argument', arg
+            time.sleep(0.5)
+
+# Create queue
+q = Queue.Queue()
+
+# Start a pool of 5 workers
+for i in range(5):
+    t = threading.Thread(target=worker, name='worker %i' % (i+1))
+    t.start()
+
+# Begin adding work to the queue
+for i in range(50):
+    q.put(i)
+
+# Give threads time to run
+print 'Main thread sleeping'
+time.sleep(5)
+</pre>
+<p>When run, this will produce the following output:</p>
+<blockquote>
+Running worker
+Running worker
+Running worker
+Running worker
+Running worker
+Main thread sleeping
+Worker &lt;Thread(worker 1, started)&gt; running with argument 0
+Worker &lt;Thread(worker 2, started)&gt; running with argument 1
+Worker &lt;Thread(worker 3, started)&gt; running with argument 2
+Worker &lt;Thread(worker 4, started)&gt; running with argument 3
+Worker &lt;Thread(worker 5, started)&gt; running with argument 4
+Worker &lt;Thread(worker 1, started)&gt; running with argument 5
+...</blockquote>
+<p>Consult the module's documentation for more details; the <tt class="docutils literal">Queue</tt>
+class provides a featureful interface.</p>
+</div>
+<div class="section" id="what-kinds-of-global-value-mutation-are-thread-safe">
+<h2><a class="toc-backref" href="#id18">3.4&nbsp;&nbsp;&nbsp;What kinds of global value mutation are thread-safe?</a></h2>
+<p>A global interpreter lock (GIL) is used internally to ensure that only
+one thread runs in the Python VM at a time.  In general, Python offers
+to switch among threads only between bytecode instructions; how
+frequently it switches can be set via <tt class="docutils literal">sys.setcheckinterval()</tt>.
+Each bytecode instruction and therefore all the C implementation code
+reached from each instruction is therefore atomic from the point of view of a Python program.</p>
+<p>In theory, this means an exact accounting requires an exact
+understanding of the PVM bytecode implementation.  In practice, it
+means that operations on shared variables of builtin data types (ints,
+lists, dicts, etc) that &quot;look atomic&quot; really are.</p>
+<p>For example, the following operations are all atomic (L, L1, L2 are lists, D, D1, D2 are dicts, x, y
+are objects, i, j are ints):</p>
+<pre class="literal-block">
+L.append(x)
+L1.extend(L2)
+x = L[i]
+x = L.pop()
+L1[i:j] = L2
+L.sort()
+x = y
+x.field = y
+D[x] = y
+D1.update(D2)
+D.keys()
+</pre>
+<p>These aren't:</p>
+<pre class="literal-block">
+i = i+1
+L.append(L[-1])
+L[i] = L[j]
+D[x] = D[x] + 1
+</pre>
+<p>Operations that replace other objects may invoke those other
+objects' <tt class="docutils literal">__del__</tt> method when their reference count reaches zero, and
+that can affect things.  This is especially true for the mass updates
+to dictionaries and lists.  When in doubt, use a mutex!</p>
+</div>
+<div class="section" id="can-t-we-get-rid-of-the-global-interpreter-lock">
+<h2><a class="toc-backref" href="#id19">3.5&nbsp;&nbsp;&nbsp;Can't we get rid of the Global Interpreter Lock?</a></h2>
+<p>The Global Interpreter Lock (GIL) is often seen as a hindrance to
+Python's deployment on high-end multiprocessor server machines,
+because a multi-threaded Python program effectively only uses one CPU,
+due to the insistence that (almost) all Python code can only run while
+the GIL is held.</p>
+<p>Back in the days of Python 1.5, Greg Stein actually implemented a
+comprehensive patch set (the &quot;free threading&quot; patches) that removed
+the GIL and replaced it with fine-grained locking.  Unfortunately, even
+on Windows (where locks are very efficient) this ran ordinary Python
+code about twice as slow as the interpreter using the GIL.  On Linux
+the performance loss was even worse because pthread locks aren't as
+efficient.</p>
+<p>Since then, the idea of getting rid of the GIL has occasionally come
+up but nobody has found a way to deal with the expected slowdown, and
+users who don't use threads would not be happy if their code ran at
+half at the speed.  Greg's free threading patch set has not been kept
+up-to-date for later Python versions.</p>
+<p>This doesn't mean that you can't make good use of Python on multi-CPU
+machines!  You just have to be creative with dividing the work up
+between multiple <em>processes</em> rather than multiple <em>threads</em>.
+Judicious use of C extensions will also help; if you use a C extension
+to perform a time-consuming task, the extension can release the GIL
+while the thread of execution is in the C code and allow other threads
+to get some work done.</p>
+<p>It has been suggested that the GIL should be a per-interpreter-state
+lock rather than truly global; interpreters then wouldn't be able to
+share objects.  Unfortunately, this isn't likely to happen either.  It
+would be a tremendous amount of work, because many object
+implementations currently have global state.  For example, small
+integers and short strings are cached; these caches would have to be
+moved to the interpreter state.  Other object types have their own
+free list; these free lists would have to be moved to the interpreter
+state.  And so on.</p>
+<p>And I doubt that it can even be done in finite time, because the same
+problem exists for 3rd party extensions.  It is likely that 3rd party
+extensions are being written at a faster rate than you can convert
+them to store all their global state in the interpreter state.</p>
+<p>And finally, once you have multiple interpreters not sharing any
+state, what have you gained over running each interpreter
+in a separate process?</p>
+</div>
+</div>
+<div class="section" id="input-and-output">
+<h1><a class="toc-backref" href="#id20">4&nbsp;&nbsp;&nbsp;Input and Output</a></h1>
+<div class="section" id="how-do-i-delete-a-file-and-other-file-questions">
+<h2><a class="toc-backref" href="#id21">4.1&nbsp;&nbsp;&nbsp;How do I delete a file? (And other file questions...)</a></h2>
+<p>Use <tt class="docutils literal">os.remove(filename)</tt> or <tt class="docutils literal">os.unlink(filename)</tt>; for
+documentation, see <a class="reference external" href="http://www.python.org/doc/lib/module-posix.html">the POSIX module</a>.  The two
+functions are identical; <tt class="docutils literal">unlink()</tt> is simply the name of the Unix
+system call for this function.</p>
+<p>To remove a directory, use <tt class="docutils literal">os.rmdir()</tt>; use <tt class="docutils literal">os.mkdir()</tt> to
+create one.  <tt class="docutils literal">os.makedirs(path)</tt> will create any intermediate
+directories in <tt class="docutils literal">path</tt> that don't exist. <tt class="docutils literal">os.removedirs(path)</tt> will
+remove intermediate directories as long as they're empty; if you want
+to delete an entire directory tree and its contents, use
+<tt class="docutils literal">shutil.rmtree()</tt>.</p>
+<p>To rename a file, use <tt class="docutils literal">os.rename(old_path, new_path)</tt>.</p>
+<p>To truncate a file, open it using <tt class="docutils literal">f = open(filename, <span class="pre">&quot;r+&quot;)</span></tt>, and use
+<tt class="docutils literal">f.truncate(offset)</tt>; offset defaults to the current seek position.
+There's also <tt class="docutils literal">`os.ftruncate(fd, offset)</tt> for files opened with <tt class="docutils literal">os.open()</tt>,
+where <tt class="docutils literal">fd</tt> is the file descriptor (a small integer).</p>
+<p>The <tt class="docutils literal">shutil</tt> module also contains a number of functions to work on files
+including <tt class="docutils literal">copyfile</tt>, <tt class="docutils literal">copytree</tt>, and <tt class="docutils literal">rmtree</tt>.</p>
+</div>
+<div class="section" id="how-do-i-copy-a-file">
+<h2><a class="toc-backref" href="#id22">4.2&nbsp;&nbsp;&nbsp;How do I copy a file?</a></h2>
+<p>The <tt class="docutils literal">shutil</tt> module contains a <tt class="docutils literal">copyfile()</tt> function.  Note that
+on MacOS 9 it doesn't copy the resource fork and Finder info.</p>
+</div>
+<div class="section" id="how-do-i-read-or-write-binary-data">
+<h2><a class="toc-backref" href="#id23">4.3&nbsp;&nbsp;&nbsp;How do I read (or write) binary data?</a></h2>
+<p>or complex data formats, it's best to use <a class="reference external" href="http://www.python.org/doc/lib/module-struct.html">the struct module</a>.  It allows you
+to take a string containing binary data (usually numbers) and convert
+it to Python objects; and vice versa.</p>
+<p>For example, the following code reads two 2-byte integers
+and one 4-byte integer in big-endian format from a file:</p>
+<pre class="literal-block">
+import struct
+
+f = open(filename, &quot;rb&quot;)  # Open in binary mode for portability
+s = f.read(8)
+x, y, z = struct.unpack(&quot;&gt;hhl&quot;, s)
+</pre>
+<p>The '&gt;' in the format string forces big-endian data; the letter
+'h' reads one &quot;short integer&quot; (2 bytes), and 'l' reads one
+&quot;long integer&quot; (4 bytes) from the string.</p>
+<p>For data that is more regular (e.g. a homogeneous list of ints or
+thefloats), you can also use <a class="reference external" href="http://www.python.org/doc/lib/module-array.html">the array module</a>.</p>
+</div>
+<div class="section" id="i-can-t-seem-to-use-os-read-on-a-pipe-created-with-os-popen-why">
+<h2><a class="toc-backref" href="#id24">4.4&nbsp;&nbsp;&nbsp;I can't seem to use os.read() on a pipe created with os.popen(); why?</a></h2>
+<p><tt class="docutils literal">os.read()</tt> is a low-level function which takes a file descriptor, a
+small integer representing the opened file.  <tt class="docutils literal">os.popen()</tt> creates a
+high-level file object, the same type returned by the builtin
+<tt class="docutils literal">open()</tt> function.  Thus, to read n bytes from a pipe p created with
+<tt class="docutils literal">os.popen()</tt>, you need to use <tt class="docutils literal">p.read(n)</tt>.</p>
+</div>
+<div class="section" id="how-do-i-run-a-subprocess-with-pipes-connected-to-both-input-and-output">
+<h2><a class="toc-backref" href="#id25">4.5&nbsp;&nbsp;&nbsp;How do I run a subprocess with pipes connected to both input and output?</a></h2>
+<p>Use <a class="reference external" href="http://www.python.org/doc/lib/module-popen2.html">the popen2 module</a>.  For example:</p>
+<pre class="literal-block">
+import popen2
+fromchild, tochild = popen2.popen2(&quot;command&quot;)
+tochild.write(&quot;input\n&quot;)
+tochild.flush()
+output = fromchild.readline()
+</pre>
+<p>Warning: in general it is unwise to do this because you can easily
+cause a deadlock where your process is blocked waiting for output from
+the child while the child is blocked waiting for input from you.  This
+can be caused because the parent expects the child to output more text
+than it does, or it can be caused by data being stuck in stdio buffers
+due to lack of flushing.  The Python parent can of course explicitly
+flush the data it sends to the child before it reads any output, but
+if the child is a naive C program it may have been written to never
+explicitly flush its output, even if it is interactive, since flushing
+is normally automatic.</p>
+<p>Note that a deadlock is also possible if you use <tt class="docutils literal">popen3</tt> to read
+stdout and stderr. If one of the two is too large for the internal
+buffer (increasing the buffer size does not help) and you <tt class="docutils literal">read()</tt>
+the other one first, there is a deadlock, too.</p>
+<p>Note on a bug in popen2: unless your program calls <tt class="docutils literal">wait()</tt>
+or <tt class="docutils literal">waitpid()</tt>, finished child processes are never removed,
+and eventually calls to popen2 will fail because of a limit on
+the number of child processes.  Calling <tt class="docutils literal">os.waitpid</tt> with the
+<tt class="docutils literal">os.WNOHANG</tt> option can prevent this; a good place to insert such
+a call would be before calling <tt class="docutils literal">popen2</tt> again.</p>
+<p>In many cases, all you really need is to run some data through a
+command and get the result back.  Unless the amount of data is very
+large, the easiest way to do this is to write it to a temporary file
+and run the command with that temporary file as input.  The <a class="reference external" href="http://www.python.org/doc/lib/module-tempfile.html">standard
+module tempfile</a>
+exports a <tt class="docutils literal">mktemp()</tt> function  to generate unique temporary file names.</p>
+<pre class="literal-block">
+import tempfile
+import os
+class Popen3:
+   &quot;&quot;&quot;
+   This is a deadlock-safe version of popen that returns
+   an object with errorlevel, out (a string) and err (a string).
+   (capturestderr may not work under windows.)
+   Example: print Popen3('grep spam','\n\nhere spam\n\n').out
+   &quot;&quot;&quot;
+   def __init__(self,command,input=None,capturestderr=None):
+       outfile=tempfile.mktemp()
+       command=&quot;( %s ) &gt; %s&quot; % (command,outfile)
+       if input:
+           infile=tempfile.mktemp()
+           open(infile,&quot;w&quot;).write(input)
+           command=command+&quot; &lt;&quot;+infile
+       if capturestderr:
+           errfile=tempfile.mktemp()
+           command=command+&quot; 2&gt;&quot;+errfile
+       self.errorlevel=os.system(command) &gt;&gt; 8
+       self.out=open(outfile,&quot;r&quot;).read()
+       os.remove(outfile)
+       if input:
+           os.remove(infile)
+       if capturestderr:
+           self.err=open(errfile,&quot;r&quot;).read()
+           os.remove(errfile)
+</pre>
+<p>Note that many interactive programs (e.g. vi) don't work well with
+pipes substituted for standard input and output.  You will have to use
+pseudo ttys (&quot;ptys&quot;) instead of pipes. Or you can use a Python
+interface to Don Libes' &quot;expect&quot; library.  A Python extension that
+interfaces to expect is called &quot;expy&quot; and available from
+<a class="reference external" href="http://expectpy.sourceforge.net">http://expectpy.sourceforge.net</a>.  A pure Python solution that works
+like expect is ` pexpect &lt;<a class="reference external" href="http://pexpect.sourceforge.net">http://pexpect.sourceforge.net</a>&gt;`_.</p>
+</div>
+<div class="section" id="how-do-i-access-the-serial-rs232-port">
+<h2><a class="toc-backref" href="#id26">4.6&nbsp;&nbsp;&nbsp;How do I access the serial (RS232) port?</a></h2>
+<p>For Win32, POSIX (Linux, BSD, etc.), Jython:</p>
+<blockquote>
+<a class="reference external" href="http://pyserial.sourceforge.net">http://pyserial.sourceforge.net</a></blockquote>
+<p>For Unix, see a Usenet post by Mitch Chapman:</p>
+<blockquote>
+<a class="reference external" href="http://groups.google.com/groups?selm=34A04430.CF9&#64;ohioee.com">http://groups.google.com/groups?selm=34A04430.CF9&#64;ohioee.com</a></blockquote>
+</div>
+<div class="section" id="why-doesn-t-closing-sys-stdout-stdin-stderr-really-close-it">
+<h2><a class="toc-backref" href="#id27">4.7&nbsp;&nbsp;&nbsp;Why doesn't closing sys.stdout (stdin, stderr) really close it?</a></h2>
+<p>Python file objects are a high-level layer of abstraction on top of C
+streams, which in turn are a medium-level layer of abstraction on top
+of (among other things) low-level C file descriptors.</p>
+<p>For most file objects you create in Python via the builtin <tt class="docutils literal">file</tt>
+constructor, <tt class="docutils literal">f.close()</tt> marks the Python file object as being closed
+from Python's point of view, and also arranges to close the underlying
+C stream.  This also happens automatically in f's destructor, when f
+becomes garbage.</p>
+<p>But stdin, stdout and stderr are treated specially by Python, because
+of the special status also given to them by C.  Running
+<tt class="docutils literal">sys.stdout.close()</tt> marks the Python-level file object as being
+closed, but does <em>not</em> close the associated C stream.</p>
+<p>To close the underlying C stream for one of these three, you should
+first be sure that's what you really want to do (e.g., you may confuse
+extension modules trying to do I/O).  If it is, use
+os.close:</p>
+<pre class="literal-block">
+os.close(0)   # close C's stdin stream
+os.close(1)   # close C's stdout stream
+os.close(2)   # close C's stderr stream
+</pre>
+</div>
+</div>
+<div class="section" id="network-internet-programming">
+<h1><a class="toc-backref" href="#id28">5&nbsp;&nbsp;&nbsp;Network/Internet Programming</a></h1>
+<div class="section" id="what-www-tools-are-there-for-python">
+<h2><a class="toc-backref" href="#id29">5.1&nbsp;&nbsp;&nbsp;What WWW tools are there for Python?</a></h2>
+<p>See the chapters titled <a class="reference external" href="http://www.python.org/doc/lib/internet.html">&quot;Internet Protocols and Support&quot;</a> and <a class="reference external" href="http://www.python.org/doc/lib/netdata.html">&quot;Internet Data
+Handling&quot;</a> in the
+Library Reference Manual. Python has many modules that will help you
+build server-side and client-side web systems.</p>
+<p>A summary of available frameworks is maintained by Paul Boddie at
+<a class="reference external" href="http://www.python.org/cgi-bin/moinmoin/WebProgramming">http://www.python.org/cgi-bin/moinmoin/WebProgramming</a> .</p>
+<p>Cameron Laird maintains a useful set of pages about Python web technologies at
+<a class="reference external" href="http://phaseit.net/claird/comp.lang.python/web_python.html">http://phaseit.net/claird/comp.lang.python/web_python.html</a>.</p>
+<p>The <a class="reference external" href="http://www.python.org/topics/web/">Web Programming topic guide</a>
+also points to many useful resources.</p>
+</div>
+<div class="section" id="how-can-i-mimic-cgi-form-submission-method-post">
+<h2><a class="toc-backref" href="#id30">5.2&nbsp;&nbsp;&nbsp;How can I mimic CGI form submission (METHOD=POST)?</a></h2>
+<p>I would like to retrieve web pages that are the result of POSTing a
+form. Is there existing code that would let me do this easily?</p>
+<p>Yes. Here's a simple example that uses httplib:</p>
+<pre class="literal-block">
+#!/usr/local/bin/python
+
+import httplib, sys, time
+
+### build the query string
+qs = &quot;First=Josephine&amp;MI=Q&amp;Last=Public&quot;
+
+### connect and send the server a path
+httpobj = httplib.HTTP('www.some-server.out-there', 80)
+httpobj.putrequest('POST', '/cgi-bin/some-cgi-script')
+### now generate the rest of the HTTP headers...
+httpobj.putheader('Accept', '*/*')
+httpobj.putheader('Connection', 'Keep-Alive')
+httpobj.putheader('Content-type', 'application/x-www-form-urlencoded')
+httpobj.putheader('Content-length', '%d' % len(qs))
+httpobj.endheaders()
+httpobj.send(qs)
+### find out what the server said in response...
+reply, msg, hdrs = httpobj.getreply()
+if reply != 200:
+    sys.stdout.write(httpobj.getfile().read())
+</pre>
+<p>Note that in general for URL-encoded POST operations,  query
+strings must be quoted by using <tt class="docutils literal">urllib.quote()</tt>.  For example to send name=&quot;Guy
+Steele, Jr.&quot;:</p>
+<pre class="literal-block">
+&gt;&gt;&gt; from urllib import quote
+&gt;&gt;&gt; x = quote(&quot;Guy Steele, Jr.&quot;)
+&gt;&gt;&gt; x
+'Guy%20Steele,%20Jr.'
+&gt;&gt;&gt; query_string = &quot;name=&quot;+x
+&gt;&gt;&gt; query_string
+'name=Guy%20Steele,%20Jr.'
+</pre>
+</div>
+<div class="section" id="what-module-should-i-use-to-help-with-generating-html">
+<h2><a class="toc-backref" href="#id31">5.3&nbsp;&nbsp;&nbsp;What module should I use to help with generating HTML?</a></h2>
+<p>There are many different modules available:</p>
+<ul class="simple">
+<li>HTMLgen is a class library of objects corresponding to all the HTML
+3.2 markup tags. It's used when you are writing in Python and wish
+to synthesize HTML pages for generating a web or for CGI forms, etc.</li>
+<li>DocumentTemplate and Zope Page Templates are two different systems that are
+part of Zope.</li>
+<li>Quixote's PTL uses Python syntax to assemble strings of text.</li>
+</ul>
+<p>Consult the <a class="reference external" href="http://www.python.org/topics/web/">Web Programming topic guide</a> for more links.</p>
+</div>
+<div class="section" id="how-do-i-send-mail-from-a-python-script">
+<h2><a class="toc-backref" href="#id32">5.4&nbsp;&nbsp;&nbsp;How do I send mail from a Python script?</a></h2>
+<p>Use <a class="reference external" href="http://www.python.org/doc/lib/module-smtplib.html">the standard library module smtplib</a>.</p>
+<p>Here's a very simple interactive mail sender that uses it.  This
+method will work on any host that supports an SMTP listener.</p>
+<pre class="literal-block">
+import sys, smtplib
+
+fromaddr = raw_input(&quot;From: &quot;)
+toaddrs  = raw_input(&quot;To: &quot;).split(',')
+print &quot;Enter message, end with ^D:&quot;
+msg = ''
+while 1:
+    line = sys.stdin.readline()
+    if not line:
+        break
+    msg = msg + line
+
+# The actual mail send
+server = smtplib.SMTP('localhost')
+server.sendmail(fromaddr, toaddrs, msg)
+server.quit()
+</pre>
+<p>A Unix-only alternative uses sendmail.  The location of the
+sendmail program varies between systems; sometimes it is
+<tt class="docutils literal">/usr/lib/sendmail</tt>, sometime <tt class="docutils literal">/usr/sbin/sendmail</tt>.  The sendmail
+manual page will help you out.  Here's some sample code:</p>
+<pre class="literal-block">
+SENDMAIL = &quot;/usr/sbin/sendmail&quot; # sendmail location
+import os
+p = os.popen(&quot;%s -t -i&quot; % SENDMAIL, &quot;w&quot;)
+p.write(&quot;To: receiver&#64;example.com\n&quot;)
+p.write(&quot;Subject: test\n&quot;)
+p.write(&quot;\n&quot;) # blank line separating headers from body
+p.write(&quot;Some text\n&quot;)
+p.write(&quot;some more text\n&quot;)
+sts = p.close()
+if sts != 0:
+    print &quot;Sendmail exit status&quot;, sts
+</pre>
+</div>
+<div class="section" id="how-do-i-avoid-blocking-in-the-connect-method-of-a-socket">
+<h2><a class="toc-backref" href="#id33">5.5&nbsp;&nbsp;&nbsp;How do I avoid blocking in the connect() method of a socket?</a></h2>
+<p>The select module is commonly used to help with asynchronous
+I/O on sockets.</p>
+<p>To prevent the TCP connect from blocking, you can set the socket to
+non-blocking mode.  Then when you do the <tt class="docutils literal">connect()</tt>, you will
+either connect immediately (unlikely) or get an exception that
+contains the error number as <tt class="docutils literal">.errno</tt>.  <tt class="docutils literal">errno.EINPROGRESS</tt>
+indicates that the connection is in progress, but hasn't finished yet.
+Different OSes will return different values, so you're going to have
+to check what's returned on your system.</p>
+<p>You can use the <tt class="docutils literal">connect_ex()</tt> method to avoid creating an
+exception.  It will just return the errno value.  To poll, you can
+call <tt class="docutils literal">connect_ex()</tt> again later -- 0 or <tt class="docutils literal">errno.EISCONN</tt> indicate
+that you're connected -- or you can pass this socket to select to
+check if it's writeable.</p>
+</div>
+</div>
+<div class="section" id="databases">
+<h1><a class="toc-backref" href="#id34">6&nbsp;&nbsp;&nbsp;Databases</a></h1>
+<div class="section" id="are-there-any-interfaces-to-database-packages-in-python">
+<h2><a class="toc-backref" href="#id35">6.1&nbsp;&nbsp;&nbsp;Are there any interfaces to database packages in Python?</a></h2>
+<p>Yes.</p>
+<p>Python 2.3 includes the <tt class="docutils literal">bsddb</tt> package which provides an interface
+to the <a class="reference external" href="http://www.python.org/doc/lib/module-bsddb.html">BerkeleyDB</a> library.
+Interfaces to disk-based hashes such as <a class="reference external" href="http://www.python.org/doc/lib/module-dbm.html">DBM</a> and <a class="reference external" href="http://www.python.org/doc/lib/module-gdbm.html">GDBM</a> are also included
+with standard Python.</p>
+<p>Support for most relational databases is available.  See the <a class="reference external" href="http://www.python.org/topics/database">Database
+Topic Guide</a> for details.</p>
+</div>
+<div class="section" id="how-do-you-implement-persistent-objects-in-python">
+<h2><a class="toc-backref" href="#id36">6.2&nbsp;&nbsp;&nbsp;How do you implement persistent objects in Python?</a></h2>
+<p>The <a class="reference external" href="http://www.python.org/doc/lib/module-pickle.html">pickle library module</a> solves this in a
+very general way (though you still can't store things like open files,
+sockets or windows), and the <a class="reference external" href="http://www.python.org/doc/lib/module-shelve.html">shelve library module</a> uses pickle and
+(g)dbm to create persistent mappings containing arbitrary Python
+objects.  For better performance, you can use
+<a class="reference external" href="http://www.python.org/doc/lib/module-cPickle.html">the cPickle module</a>.</p>
+<p>A more awkward way of doing things is to use pickle's little sister,
+marshal.  <a class="reference external" href="http://www.python.org/doc/lib/module-marshal.html">The marshal module</a> provides very
+fast ways to store noncircular basic Python types to files and
+strings, and back again.  Although marshal does not do fancy things
+like store instances or handle shared references properly, it does run
+extremely fast.  For example loading a half megabyte of data may take
+less than a third of a second.  This often beats doing something more
+complex and general such as using gdbm with pickle/shelve.</p>
+</div>
+<div class="section" id="why-is-cpickle-so-slow">
+<h2><a class="toc-backref" href="#id37">6.3&nbsp;&nbsp;&nbsp;Why is cPickle so slow?</a></h2>
+<p>The default format used by the pickle module is a slow one that
+results in readable pickles.  Making it the default, but it would
+break backward compatibility:</p>
+<pre class="literal-block">
+largeString = 'z' * (100 * 1024)
+myPickle = cPickle.dumps(largeString, protocol=1)
+</pre>
+</div>
+<div class="section" id="if-my-program-crashes-with-a-bsddb-or-anydbm-database-open-it-gets-corrupted-how-come">
+<h2><a class="toc-backref" href="#id38">6.4&nbsp;&nbsp;&nbsp;If my program crashes with a bsddb (or anydbm) database open, it gets corrupted. How come?</a></h2>
+<p>Databases opened for write access with the bsddb module (and often by
+the anydbm module, since it will preferentially use bsddb) must
+explicitly be closed using the <tt class="docutils literal">.close()</tt> method of the database.  The
+underlying library caches database contents which need to be
+converted to on-disk form and written.</p>
+<p>If you have initialized a new bsddb database but not written anything to
+it before the program crashes, you will often wind up with a zero-length
+file and encounter an exception the next time the file is opened.</p>
+</div>
+<div class="section" id="i-tried-to-open-berkeley-db-file-but-bsddb-produces-bsddb-error-22-invalid-argument-help-how-can-i-restore-my-data">
+<h2><a class="toc-backref" href="#id39">6.5&nbsp;&nbsp;&nbsp;I tried to open Berkeley DB file, but bsddb produces bsddb.error: (22, 'Invalid argument'). Help! How can I restore my data?</a></h2>
+<p>Don't panic! Your data is probably intact. The most frequent cause
+for the error is that you tried to open an earlier Berkeley DB file
+with a later version of the Berkeley DB library.</p>
+<p>Many Linux systems now have all three versions of Berkeley DB
+available.  If you are migrating from version 1 to a newer version use
+db_dump185 to dump a plain text version of the database.
+If you are migrating from version 2 to version 3 use db2_dump to create
+a plain text version of the database.  In either case, use db_load to
+create a new native database for the latest version installed on your
+computer.  If you have version 3 of Berkeley DB installed, you should
+be able to use db2_load to create a native version 2 database.</p>
+<p>You should move away from Berkeley DB version 1 files because
+the hash file code contains known bugs that can corrupt your data.</p>
+</div>
+</div>
+<div class="section" id="mathematics-and-numerics">
+<h1><a class="toc-backref" href="#id40">7&nbsp;&nbsp;&nbsp;Mathematics and Numerics</a></h1>
+<div class="section" id="how-do-i-generate-random-numbers-in-python">
+<h2><a class="toc-backref" href="#id41">7.1&nbsp;&nbsp;&nbsp;How do I generate random numbers in Python?</a></h2>
+<p>The <a class="reference external" href="http://www.python.org/doc/lib/module-random.html">standard module random</a> implements a random number
+generator.  Usage is simple:</p>
+<pre class="literal-block">
+import random
+random.random()
+</pre>
+<p>This returns a random floating point number in the range [0, 1).</p>
+<p>There are also many other specialized generators in this module, such
+as:</p>
+<ul class="simple">
+<li><tt class="docutils literal">randrange(a, b)</tt> chooses an integer in the range [a, b).</li>
+<li><tt class="docutils literal">uniform(a, b)</tt> chooses a floating point number in the range [a, b).</li>
+<li><tt class="docutils literal">normalvariate(mean, sdev)</tt> samples the normal (Gaussian) distribution.</li>
+</ul>
+<p>Some higher-level functions operate on sequences directly, such as:</p>
+<ul class="simple">
+<li><tt class="docutils literal">choice(S)</tt> chooses random element from a given sequence</li>
+<li><tt class="docutils literal">shuffle(L)</tt> shuffles a list in-place, i.e. permutes it randomly</li>
+</ul>
+<p>There's also a <tt class="docutils literal">Random</tt> class you can instantiate
+to create independent multiple random number generators.</p>
+</div>
+</div>
+</div>
+</body>
+</html>

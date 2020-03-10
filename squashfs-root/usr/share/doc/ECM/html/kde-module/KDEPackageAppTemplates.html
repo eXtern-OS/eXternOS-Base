@@ -1,0 +1,158 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>KDETemplateGenerator &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ecm-modules(7)" href="../manual/ecm-modules.7.html" />
+    <link rel="prev" title="KDEInstallDirs" href="KDEInstallDirs.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../manual/ecm-modules.7.html" title="ecm-modules(7)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="KDEInstallDirs.html" title="KDEInstallDirs"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-kde-modules.7.html" accesskey="U">ecm-kde-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="kdetemplategenerator">
+<span id="kde-module:KDEPackageAppTemplates"></span><h1>KDETemplateGenerator<a class="headerlink" href="#kdetemplategenerator" title="Permalink to this headline">¶</a></h1>
+<p>Packages KApptemplate/KDevelop compatible application templates</p>
+<p>This module provides a functionality to package in a tarball and
+install project templates compatible with the format used by
+KApptemplate and KDevelop. Useful for providing minimal examples
+for the usage of the KDE Frameworks.</p>
+<p>This module provides the following function:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kde_package_app_templates</span><span class="p">(</span><span class="n">TEMPLATES</span> <span class="o">&lt;</span><span class="n">template</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">template</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]</span>
+                          <span class="n">INSTALL_DIR</span> <span class="o">&lt;</span><span class="n">directory</span><span class="o">&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>INSTALL_DIR is the directory to install the template package to.
+In most cases you will want to use the variable KDE_INSTALL_KTEMPLATESDIR
+from <a class="reference internal" href="KDEInstallDirs.html#kde-module:KDEInstallDirs" title="KDEInstallDirs"><code class="xref ecm ecm-kde-module docutils literal"><span class="pre">KDEInstallDirs</span></code></a>.</p>
+<p>TEMPLATES lists subdirectories containing template files;
+each <code class="docutils literal"><span class="pre">&lt;template&gt;</span></code> directory will be packaged into a file named
+<code class="docutils literal"><span class="pre">&lt;template&gt;.tar.bz2</span></code> and installed to the appropriate location.</p>
+<p>The template is a minimal source tree of an application as if it was
+an application project by itself, with names (file names or text inside)
+the text files replaced by the following placeholders when needed:</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">%{PROJECTDIRNAME}</span></code></dt>
+<dd>name of generated project base folder ex: %{APPNAMELC} for KAppTemplate</dd>
+<dt><code class="docutils literal"><span class="pre">%{APPNAME}</span></code></dt>
+<dd>project name as entered by user ex: MyKApp</dd>
+<dt><code class="docutils literal"><span class="pre">%{APPNAMELC}</span></code></dt>
+<dd>project name in lower case ex: mykapp</dd>
+<dt><code class="docutils literal"><span class="pre">%{APPNAMEUC}</span></code></dt>
+<dd>project name in upper case ex: MYKAPP</dd>
+<dt><code class="docutils literal"><span class="pre">%{CPP_TEMPLATE}</span></code></dt>
+<dd>license header for cpp file</dd>
+<dt><code class="docutils literal"><span class="pre">%{H_TEMPLATE}</span></code></dt>
+<dd>license header for h file</dd>
+<dt><code class="docutils literal"><span class="pre">%{AUTHOR}</span></code></dt>
+<dd>author name ex: George Ignacious</dd>
+<dt><code class="docutils literal"><span class="pre">%{EMAIL}</span></code></dt>
+<dd>author email ex: <a class="reference external" href="mailto:foo&#37;&#52;&#48;bar&#46;org">foo<span>&#64;</span>bar<span>&#46;</span>org</a></dd>
+<dt><code class="docutils literal"><span class="pre">%{VERSION}</span></code></dt>
+<dd>project version ex: 0.1</dd>
+</dl>
+<p>Deprecated:</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">%{dest}</span></code></dt>
+<dd>path of generated project base folder, used in .kdevtemplate with the ShowFilesAfterGeneration entry
+KDevelop &gt;= 5.1.1 supports relative paths with that entry, making this placeholder obsolete</dd>
+</dl>
+<p>Multiple templates can be passed at once.</p>
+<p>Since 5.18</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="KDEInstallDirs.html"
+                        title="previous chapter">KDEInstallDirs</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../manual/ecm-modules.7.html"
+                        title="next chapter">ecm-modules(7)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/kde-module/KDEPackageAppTemplates.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../manual/ecm-modules.7.html" title="ecm-modules(7)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="KDEInstallDirs.html" title="KDEInstallDirs"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-kde-modules.7.html" >ecm-kde-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

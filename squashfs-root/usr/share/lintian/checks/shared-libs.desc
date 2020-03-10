@@ -1,0 +1,449 @@
+Check-Script: shared-libs
+Author: Christian Schwarz <schwarz@debian.org>
+Abbrev: shl
+Type: binary, udeb
+Needs-Info: unpacked, file-info, objdump-info, bin-pkg-control
+Info: This script checks if a binary package conforms to shared library policy.
+
+Tag: shlib-with-executable-bit
+Severity: important
+Certainty: certain
+Info: Shared libraries should be mode 0644.
+Ref: policy 8.1
+
+Tag: shlib-with-bad-permissions
+Severity: normal
+Certainty: certain
+Info: Shared libraries should be mode 0644.
+Ref: policy 8.1
+
+Tag: shlib-with-non-pic-code
+Severity: serious
+Certainty: possible
+Ref: policy 10.2
+Info: The listed shared libraries contain object code that was compiled 
+ without -fPIC. All object code in shared libraries should be recompiled
+ separately from the static libraries with the -fPIC option. 
+ .
+ Another common mistake that causes this problem is linking with 
+ <tt>gcc -Wl,-shared</tt> instead of <tt>gcc -shared</tt>.
+ .
+ In some cases, exceptions to this rule are warranted. If this is such a
+ case, follow the procedure outlined in Policy and then please document
+ the exception by adding a Lintian override to this package.
+ .
+ To check whether a shared library has this problem, run <tt>readelf
+ -d</tt> on the shared library.  If a tag of type TEXTREL is present, the
+ shared library contains non-PIC code.
+
+Tag: shlib-without-versioned-soname
+Severity: normal
+Certainty: possible
+Ref: policy 10.2, policy 8.6
+Info: The listed shared library in a public library directory has an
+ SONAME that does not contain any versioning information, either after the
+ <tt>.so</tt> or before it and set off by a hyphen.  It cannot therefore
+ be represented in the shlibs system, and if linked by binaries its
+ interface cannot safely change.  There is no backward-compatible way to
+ migrate programs linked against it to a new ABI.
+ .
+ Normally, this means the shared library is a private library for a
+ particular application and is not meant for general use.  Policy
+ recommends that such libraries be installed in a subdirectory of
+ <tt>/usr/lib</tt> rather than in a public shared library directory.
+ .
+ To view the SONAME of a shared library, run <tt>readelf -d</tt> on the
+ shared library and look for the tag of type SONAME.
+ .
+ There are some special stub libraries or special-purpose shared objects
+ for which an ABI version is not meaningful.  If this is one of those
+ cases, please add an override.
+
+Tag: ldconfig-symlink-missing-for-shlib
+Severity: important
+Certainty: certain
+Info: The package should not only include the shared library itself, but also
+ the symbolic link which ldconfig would produce. (This is necessary, so 
+ that the link gets removed by dpkg automatically when the package
+ gets removed.)  If the symlink is in the package, check that the SONAME of the
+ library matches the info in the shlibs file.
+Ref: policy 8.1
+
+Tag: dev-pkg-without-shlib-symlink
+Severity: normal
+Certainty: certain
+Info: A "-dev" package is supposed to install a "libsomething.so" symbolic
+ link referencing the corresponding shared library. Notice how the link name
+ doesn't include the version number -- this is because such a link is used
+ by the linker when other programs are built against this shared library.
+ .
+ The symlink is generally expected in the same directory as the library
+ itself.  The major exception to this rule is if the library is installed
+ in (or beneath) <tt>/lib</tt>, where the symlink must be installed in the
+ same dir beneath <tt>/usr</tt>.
+ .
+ Example: If the library is installed in <tt>/lib/i386-linux-gnu/libXYZ.so.V</tt>,
+ the symlink is expected at <tt>/usr/lib/i386-linux-gnu/libXYZ.so</tt>.
+ .
+ Implementation detail: This tag is emitted for the library package and not
+ the "-dev" package.
+Ref: policy 8.4
+
+Tag: non-dev-pkg-with-shlib-symlink
+Severity: normal
+Certainty: possible
+Info: Although this package is not a "-dev" package, it installs a
+ "libsomething.so" symbolic link referencing the corresponding shared
+ library. When the link doesn't include the version number, it is used by
+ the linker when other programs are built against this shared library.
+ .
+ Shared libraries are supposed to place such symbolic links in their
+ respective "-dev" packages, so it is a bug to include it with the main
+ library package.
+ .
+ However, if this is a small package which includes the runtime and the
+ development libraries, this is not a bug. In the latter case, please
+ override this warning.
+Ref: policy 8.4
+
+Tag: maintscript-calls-ldconfig
+Severity: normal
+Certainty: certain
+Info: The given maintainer script calls ldconfig.  However, explicit
+ calls in maintainer scripts should be replaced by a dpkg trigger.
+ .
+ Please replace the "ldconfig" call with an <tt>activate-noawait
+ ldconfig</tt> trigger.  With debhelper it is usually sufficient
+ to simply add that line to <tt>debian/&lt;package&gt;.triggers</tt>.
+ .
+ If you use debhelper, this warning will appear if the package was
+ compiled with debhelper before 9.20151004.  Assuming all ldconfig
+ invocations have been added by debhelper, this warning will
+ disappear once the package is rebuilt with a newer version of
+ debhelper.
+Ref: https://lists.debian.org/debian-devel/2015/08/msg00412.html
+
+Tag: no-shlibs-control-file
+Severity: serious
+Certainty: possible
+Info: Although the package includes a shared library, the package does not
+ have a shlibs control file. If this is intentional, please override this
+ error.
+Ref: policy 8.6
+
+Tag: pkg-has-shlibs-control-file-but-no-actual-shared-libs
+Severity: important
+Certainty: certain
+Info: Although the package does not include any shared libraries, it does
+ have a shlibs control file. If you did include a shared library, check that
+ the SONAME of the library is set and that it matches the contents of the
+ shlibs file.
+ .
+ SONAMEs are set with something like <tt>gcc -Wl,-soname,libfoo.so.0</tt>,
+ where 0 is the major version of the library. If your package uses libtool,
+ then libtool invoked with the right options should be doing this.
+ .
+ Note this is sometimes triggered for packages with a private shared
+ library due to a bug in Debhelper.
+Ref: #204975, #633853
+
+Tag: duplicate-entry-in-shlibs-control-file
+Severity: important
+Certainty: certain
+Info: The shlibs control file contains a duplicate entry.
+
+Tag: shlib-missing-in-control-file
+Severity: important
+Certainty: possible
+Info: The package contains a shared library that is not listed in the
+ shlibs control file. If this is intentional, please override this error.
+Ref: policy 8.6
+
+Tag: unused-shlib-entry-in-control-file
+Severity: normal
+Certainty: certain
+Info: The shlibs control file contains an entry for a shared library that
+ is not installed by this package.
+Ref: policy 8.6
+
+Tag: shlibs-declares-dependency-on-other-package
+Severity: normal
+Certainty: possible
+Info: This package declares in its shlibs control file either a dependency
+ on some other package not listed in the Provides of this package or on a
+ version of this package that the package version doesn't satisfy.
+ .
+ Packages should normally only list in their shlibs control file the
+ shared libraries included in that package, and therefore the dependencies
+ listed there should normally be satisfied by either the package itself or
+ one of its Provides.
+ .
+ In unusual circumstances where it's necessary to declare more complex
+ dependencies in the shlibs control file, please add a Lintian override
+ for this warning.
+Ref: policy 8.6
+
+Tag: ldconfig-symlink-referencing-wrong-file
+Severity: important
+Certainty: certain
+Info: The symbolic link references the wrong file. (It should reference
+ the shared library.)
+Ref: policy 8.1
+
+Tag: ldconfig-symlink-is-not-a-symlink
+Severity: important
+Certainty: certain
+Info: The package installs a file with the name, ldconfig would use for
+ the symbolic link to reference the shared library.
+Ref: policy 8.1
+
+Tag: package-has-unnecessary-activation-of-ldconfig-trigger
+Severity: minor
+Certainty: certain
+Info: The package activates the ldconfig trigger even though no shared
+ libraries are installed in a directory controlled by the dynamic
+ library loader.
+ .
+ Note this may be triggered by a bug in debhelper, that causes it to
+ auto-generate an ldconfig trigger for packages that do not need it.
+Ref: policy 8.1.1, #204975
+
+Tag: udeb-postinst-must-not-call-ldconfig
+Severity: important
+Certainty: certain
+Info: The udeb invokes ldconfig on install, which is an error in udebs.
+ .
+ ldconfig is not available and not needed in debian-installer.
+ .
+ Note that this tag may (despite what the name suggests) be issued if
+ the udeb uses a dpkg trigger to invoke ldconfig.
+
+Tag: package-must-activate-ldconfig-trigger
+Severity: serious
+Certainty: certain
+Info: The package installs shared libraries in a directory controlled by
+ the dynamic library loader. Therefore, the package must trigger libc's
+ "ldconfig" trigger to ensure the ldconfig cache is updated.
+ .
+ If the package is using debhelper, <tt>dh_makeshlibs</tt> should
+ automatically discover this and add the trigger itself.
+ Otherwise, please add <tt>activate-noawait ldconfig</tt> to the
+ <tt>triggers</tt> file in the control member.
+ .
+ Note this tag may trigger for packages built with debhelper before
+ version 9.20151004.  In such case, a simple rebuild will often be
+ sufficient to fix this issue.
+Ref: policy 8.1.1, https://lists.debian.org/debian-devel/2015/08/msg00412.html
+
+Tag: sharedobject-in-library-directory-missing-soname
+Severity: important
+Certainty: possible
+Info: A shared object was identified in a library directory (a directory
+ in the standard linker path) which doesn't have a SONAME.  This is
+ usually an error.
+ .
+ SONAMEs are set with something like <tt>gcc -Wl,-soname,libfoo.so.0</tt>,
+ where 0 is the major version of the library. If your package uses libtool,
+ then libtool invoked with the right options should be doing this.
+ .
+ To view the SONAME of a shared library, run <tt>readelf -d</tt> on the
+ shared library and look for the tag of type SONAME.
+
+Tag: shlib-without-PT_GNU_STACK-section
+Severity: important
+Certainty: certain
+Info: The listed shared library lacks a PT_GNU_STACK section. This forces
+ the dynamic linker to make the stack executable.
+ .
+ The shared lib is linked either with a non-GNU linker or a linker which is
+ very old. This problem can be fixed with a rebuild.
+ .
+ To see whether a shared library has this section, run <tt>readelf -l</tt>
+ on it and look for a program header of type GNU_STACK.
+
+Tag: shlib-with-executable-stack
+Severity: normal
+Certainty: possible
+Info: The listed shared library declares the stack as executable.
+ .
+ Executable stack is usually an error as it is only needed if the code
+ contains GCC trampolines or similar constructs which uses code on the
+ stack. One possible source for false positives are object files built
+ from assembler files which don't define a proper .note.GNU-stack
+ section.
+ .
+ To see the permissions on the stack, run <tt>readelf -l</tt> on the
+ shared library and look for the program header of type GNU_STACK.  In the
+ flag column, there should not be an E flag set.
+
+Tag: symbols-file-contains-current-version-with-debian-revision
+Severity: important
+Certainty: certain
+Info: Debian revisions should be stripped from versions in symbols files.
+ Not doing so leads to dependencies unsatisfiable by backports (1.0-1~bpo
+ &lt;&lt; 1.0-1 while 1.0-1~bpo &gt;= 1.0).  If the Debian revision can't
+ be stripped because the symbol really appeared between two specific
+ Debian revisions, you should postfix the version with a single "~"
+ (example: 1.0-3~ if the symbol appeared in 1.0-3).
+ .
+ This problem normally means that the symbols were added automatically by
+ dpkg-gensymbols.  dpkg-gensymbols uses the full version number for the
+ dependency associated to any new symbol that it detects.  The maintainer
+ must update the <tt>debian/&lt;package&gt;.symbols</tt> file by adding
+ the new symbols with the corresponding upstream version.
+
+Tag: symbols-file-contains-debian-revision
+Severity: normal
+Certainty: certain
+Info: Debian revisions should be stripped from versions in symbols files.
+ Not doing so leads to dependencies unsatisfiable by backports (1.0-1~bpo
+ &lt;&lt; 1.0-1 while 1.0-1~bpo &gt;= 1.0).  If the Debian revision can't
+ be stripped because the symbol really appeared between two specific
+ Debian revisions, you should postfix the version with a single "~"
+ (example: 1.0-3~ if the symbol appeared in 1.0-3).
+Ref: dpkg-gensymbols(1), https://wiki.debian.org/UsingSymbolsFiles
+
+Tag: syntax-error-in-symbols-file
+Severity: important
+Certainty: certain
+Info: The symbols file contains an entry that does not follow the syntax
+ rules for symbols files.
+ .
+ This may be due to the entry appearing out of sequence.
+Ref: deb-symbols(5)
+
+Tag: duplicate-entry-in-symbols-control-file
+Severity: important
+Certainty: certain
+Info: The symbols control file contains a duplicate entry.
+
+Tag: no-symbols-control-file
+Severity: wishlist
+Certainty: certain
+Info: Although the package includes a shared library, the package does not
+ have a symbols control file.
+ .
+ dpkg can use symbols files in order to generate more accurate library
+ dependencies for applications, based on the symbols from the library that
+ are actually used by the application.
+Ref: dpkg-gensymbols(1), https://wiki.debian.org/UsingSymbolsFiles
+
+Tag: pkg-has-symbols-control-file-but-no-shared-libs
+Severity: important
+Certainty: certain
+Info: Although the package does not include any shared libraries, it does
+ have a symbols control file. If you did include a shared library, check that
+ the SONAME of the library is set and that it matches the contents of the
+ symbols file.
+ .
+ SONAMEs are set with something like <tt>gcc -Wl,-soname,libfoo.so.0</tt>,
+ where 0 is the major version of the library. If your package uses libtool,
+ then libtool invoked with the right options should be doing this.
+
+Tag: shlib-missing-in-symbols-control-file
+Severity: normal
+Certainty: possible
+Info: The package contains a shared library that is not listed in the
+ symbols control file. This may not be a problem if, for example,
+ the library is a C++ library.
+
+Tag: unused-shlib-entry-in-symbols-control-file
+Severity: normal
+Certainty: certain
+Info: The symbols control file contains an entry for a shared library that
+ is not installed by this package.
+
+Tag: symbols-declares-dependency-on-other-package
+Severity: normal
+Certainty: possible
+Info: This package declares in its symbols control file a dependency on
+ some other package (and not one listed in the Provides of this package).
+ .
+ Packages should normally only list in their symbols control file the
+ shared libraries included in that package, and therefore the dependencies
+ listed there should normally be satisfied by either the package itself or
+ one of its Provides.
+ .
+ In unusual circumstances where it's necessary to declare more complex
+ dependencies in the symbols control file, please add a Lintian override
+ for this warning.
+Ref: policy 8.6
+
+Tag: invalid-template-id-in-symbols-file
+Severity: important
+Certainty: certain
+Info: The symbol definition refers to an alternative dependency template
+ which is not defined for the library containing the symbol.
+ .
+ The first alternative dependency template for a library the id number
+ of 1, with the ids of subsequent alternative templates increasing in
+ sequence.
+
+Tag: unknown-meta-field-in-symbols-file
+Severity: important
+Certainty: certain
+Info: The symbols control file contains an unknown meta-information field.
+ .
+ A list of currently supported fields may be found in deb-symbols(5).
+Ref: deb-symbols(5)
+
+Tag: symbols-declared-but-not-shlib
+Severity: important
+Certainty: certain
+Info: The symbols control file contains dependency and symbol information
+ for a shared library which is not listed in the shlibs control file.
+
+Tag: shlib-calls-exit
+Severity: wishlist
+Certainty: possible
+Experimental: yes
+Info: The listed shared library calls the C library exit() or _exit()
+ functions.
+ .
+ In the case of an error, the library should instead return an appropriate
+ error code to the calling program which can then determine how to handle
+ the error, including performing any required clean-up.
+ .
+ In most cases, removing the call should be discussed with upstream,
+ particularly as it may produce an ABI change.
+
+Tag: incorrect-libdir-in-la-file
+Severity: important
+Certainty: possible
+Info: The given .la file points to a libdir other than the path where it is
+ installed.  This can be caused by resetting <tt>prefix</tt> at make install
+ time instead of using <tt>DESTDIR</tt>.  The incorrect path will cause
+ packages linking to this library using libtool to build incorrectly (adding
+ incorrect paths to RPATH, for example).
+
+Tag: non-empty-dependency_libs-in-la-file
+Severity: serious
+Certainty: certain
+Info: The dependency_libs field in the .la file has not been cleared.  It has
+ long been a release goal to get rid of unneeded .la files and clearing the
+ dependency_libs field from the rest of them.
+ .
+ A non-empty dependency_libs field will also stall the Multi-Arch
+ conversion.
+ .
+ The .la file in itself may be useful, if the library is loaded dynamically
+ via libltdl.
+Ref: https://wiki.debian.org/ReleaseGoals/LAFileRemoval,
+     https://lists.debian.org/debian-devel/2011/05/msg01003.html,
+     https://lists.debian.org/debian-devel/2011/05/msg01146.html
+
+Tag: shlib-in-multi-arch-foreign-package
+Severity: serious
+Certainty: certain
+Ref: https://wiki.ubuntu.com/MultiarchSpec
+Info: The package is marked as Multi-Arch: foreign, but it includes a shared
+ library in a public library directory.
+
+Tag: shlibs-uses-obsolete-relation
+Ref: policy 7.1
+Severity: normal
+Certainty: certain
+Info: The forms "&lt;" and "&gt;" mean "&lt;=" and "&gt;=", not "&lt;&lt;"
+ and "&gt;&gt;" as one might expect.  For that reason these forms are
+ obsolete, and should not be used in new packages.  Use the longer forms
+ instead.

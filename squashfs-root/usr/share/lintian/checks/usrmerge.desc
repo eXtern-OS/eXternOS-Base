@@ -1,0 +1,32 @@
+Check-Script: usrmerge
+Author: Marco d'Itri <md@linux.it>
+Abbrev: usr
+Type: binary
+Needs-Info: unpacked
+Info: This script checks for files with the same name installed in / and /usr.
+
+Tag: file-in-root-and-usr
+Severity: important
+Certainty: certain
+Info: The package ships two files with the same name installed both in
+ /{bin,sbin,lib*}/ and /usr/{bin,sbin,lib*}/.
+ This is incompatible with the merged /usr directories scheme.
+ .
+ Packages with conflicting files must remove one of them if possible or
+ make it a symlink to the other and manage the links in the maintainer
+ scripts.
+Ref: https://wiki.debian.org/UsrMerge,
+     https://anonscm.debian.org/cgit/users/md/usrmerge.git/plain/debian/README.Debian
+
+Tag: library-in-root-and-usr
+Severity: important
+Certainty: certain
+Info: The package ships two files with the same name installed both in
+ /lib*/ and /usr/lib*/ (or their subdirectories).
+ This is not useful and is incompatible with the merged /usr directories
+ scheme.
+ .
+ Shared library files, both static and dynamic, must be installed in
+ the correct directories as documented in Policy 8.1.
+Ref: https://wiki.debian.org/UsrMerge,
+     policy 8.1

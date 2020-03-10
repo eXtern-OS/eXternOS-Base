@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Collect::Group</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#CLASS_METHODS'>CLASS METHODS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Collect::Group - Lintian interface to group data collection</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre> my $group = Lintian::ProcessableGroup-&#62;new (&#39;lintian_2.5.0_i386.changes&#39;);
+ my $ginfo = Lintian::Collect::Group-&#62;new ($group);
+ 
+ foreach my $bin ($group-&#62;get_binary_processables) {
+    my $pkg_name = $bin-&#62;pkg_name;
+    foreach my $dirdep ($ginfo-&#62;direct_dependencies ($bin)) {
+        print &#34;$pkg_name (pre-)depends on $dirdep (which is also in this group)\n&#34;;
+    }
+ }</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Lintian::Collect::Group is a &#34;group&#34; variant of the Lintian::Collect modules. It attempts to expose a similar interface as these and provide useful information about the processable group (or members of it).</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS_METHODS"
+>CLASS METHODS</a></h1>
+
+<dl>
+<dt><a name="Lintian::Collect::Group-&#62;new_($group)"
+>Lintian::Collect::Group-&#62;new ($group)</a></dt>
+
+<dd>
+<p>Creates a new object to provide information about <a href="../../Lintian/ProcessableGroup.html" class="podlinkpod"
+>$group</a>.</p>
+
+<dt><a name="direct_dependencies_(PROC)"
+>direct_dependencies (PROC)</a></dt>
+
+<dd>
+<p>If PROC is a part of the underlying processable group, this method returns a listref containing all the direct dependencies of PROC. If PROC is not a part of the group, this returns undef.</p>
+
+<p>Note: Only strong dependencies (Pre-Depends and Depends) are considered.</p>
+
+<p>Note: Self-dependencies (if any) are <i>not</i> included in the result.</p>
+
+<dt><a name="$ginfo-&#62;type"
+>$ginfo-&#62;type</a></dt>
+
+<dd>
+<p>Return the type of this collect object (which is the string &#39;group&#39;).</p>
+
+<dt><a name="spelling_exceptions"
+>spelling_exceptions</a></dt>
+
+<dd>
+<p>Returns a hashref of words, which the spell checker should ignore. These words are generally based on the package names in the group to avoid false-positive &#34;spelling error&#34; when packages have &#34;fun&#34; names.</p>
+
+<p>Example: Package alot-doc (#687464)</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Niels Thykier &#60;niels@thykier.net&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1), Lintian::Collect::Binary(3), Lintian::Collect::Changes(3), Lintian::Collect::Source(3)</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

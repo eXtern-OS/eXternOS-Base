@@ -1,0 +1,293 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Command</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#spawn(%24opts%2C_%40cmds)'>spawn($opts, @cmds)</a>
+    <li class='indexItem indexItem2'><a href='#reap(%24opts%5B%2C_%24opts%5B%2C...%5D%5D)'>reap($opts[, $opts[,...]])</a>
+    <li class='indexItem indexItem2'><a href='#kill(%24opts%5B%2C_%24opts%5B%2C_...%5D%5D)'>kill($opts[, $opts[, ...]])</a>
+    <li class='indexItem indexItem2'><a href='#done(%24opts)'>done($opts)</a>
+    <li class='indexItem indexItem2'><a href='#safe_qx(%5B%24opts%2C%5D_%40cmds)'>safe_qx([$opts,] @cmds)</a>
+  </ul>
+  <li class='indexItem indexItem1'><a href='#EXPORTS'>EXPORTS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Command - Utilities to execute other commands from lintian code</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre>    use Lintian::Command qw(spawn);
+
+    # simplest possible call
+    my $success = spawn({}, [&#39;command&#39;]);
+
+    # catch output
+    my $opts = {};
+    $success = spawn($opts, [&#39;command&#39;]);
+    if ($success) {
+        print &#34;STDOUT: $opts-&#62;{out}\n&#34;;
+        print &#34;STDERR: $opts-&#62;{err}\n&#34;;
+    }
+
+    # from file to file
+    $opts = { in =&#62; &#39;infile.txt&#39;, out =&#62; &#39;outfile.txt&#39; };
+    $success = spawn($opts, [&#39;command&#39;]);
+
+    # piping
+    $success = spawn({}, [&#39;command&#39;], &#34;|&#34;, [&#39;othercommand&#39;]);</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Lintian::Command is a thin wrapper around IPC::Run, that catches exception and implements a useful default behaviour for input and output redirection.</p>
+
+<p>Lintian::Command provides a function spawn() which is a wrapper around IPC::Run::run() resp. IPC::Run::start() (depending on whether a pipe is requested). To wait for finished child processes, it also provides the reap() function as a wrapper around IPC::Run::finish().</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="spawn($opts,_@cmds)"
+><code>spawn($opts, @cmds)</code></a></h2>
+
+<p>The @cmds array is given to IPC::Run::run() (or ::start()) unaltered, but should only be used for commands and piping symbols (i.e. all of the elements should be either an array reference, a code reference, &#39;|&#39;, or &#39;&#38;&#39;). I/O redirection is handled via the $opts hash reference. If you need more fine grained control than that, you should just use IPC::Run directly.</p>
+
+<p>$opts is a hash reference which can be used to set options and to retrieve the status and output of the command executed.</p>
+
+<p>The following hash keys can be set to alter the behaviour of spawn():</p>
+
+<dl>
+<dt><a name="in"
+>in</a></dt>
+
+<dd>
+<p>STDIN for the first forked child. Defaults to <code>\undef</code>.</p>
+
+<p>CAVEAT: Due to #301774, passing a SCALAR ref as STDIN for the child leaks memory. The leak is plugged for the <code>\undef</code> case in spawn, but other scalar refs may still be leaked.</p>
+
+<dt><a name="pipe_in"
+>pipe_in</a></dt>
+
+<dd>
+<p>Use a pipe for STDIN and start the process in the background. You will need to close the pipe after use and call $opts-&#62;{harness}-&#62;finish in order for the started process to end properly.</p>
+
+<dt><a name="out"
+>out</a></dt>
+
+<dd>
+<p>STDOUT of the last forked child. Will be set to a newly created scalar reference by default which can be used to retrieve the output after the call.</p>
+
+<p>Can be &#39;&#38;N&#39; (e.g. &#38;2) to redirect it to (numeric) file descriptor.</p>
+
+<dt><a name="out_append"
+>out_append</a></dt>
+
+<dd>
+<p>STDOUT of all forked children, cannot be used with out and should only be used with files. Unlike out, this appends the output to the file instead of truncating the file.</p>
+
+<dt><a name="pipe_out"
+>pipe_out</a></dt>
+
+<dd>
+<p>Use a pipe for STDOUT and start the process in the background. You will need to call $opts-&#62;{harness}-&#62;finish in order for the started process to end properly.</p>
+
+<dt><a name="err"
+>err</a></dt>
+
+<dd>
+<p>STDERR of all forked children. Defaults to STDERR of the parent.</p>
+
+<p>Can be &#39;&#38;N&#39; (e.g. &#38;1) to redirect it to (numeric) file descriptor.</p>
+
+<dt><a name="err_append"
+>err_append</a></dt>
+
+<dd>
+<p>STDERR of all forked children, cannot be used with err and should only be used with files. Unlike err, this appends the output to the file instead of truncating the file.</p>
+
+<dt><a name="pipe_err"
+>pipe_err</a></dt>
+
+<dd>
+<p>Use a pipe for STDERR and start the process in the background. You will need to call $opts-&#62;{harness}-&#62;finish in order for the started process to end properly.</p>
+
+<dt><a name="fail"
+>fail</a></dt>
+
+<dd>
+<p>Configures the behaviour in case of errors. The default is &#39;exception&#39;, which will cause spawn() to die in case of exceptions thrown by IPC::Run. If set to &#39;error&#39; instead, it will also die if the command exits with a non-zero error code. If exceptions should be handled by the caller, setting it to &#39;never&#39; will cause it to store the exception in the <code>exception</code> key instead.</p>
+
+<dt><a name="child_before_exec"
+>child_before_exec</a></dt>
+
+<dd>
+<p>Run the given subroutine in each of the children before they run &#34;exec&#34;.</p>
+
+<p>This is passed to <a href="../IPC/Run.html#harness" class="podlinkpod"
+>&#34;harness&#34; in IPC::Run</a> as the <i>init</i> keyword.</p>
+</dd>
+</dl>
+
+<p>The following additional keys will be set during the execution of spawn():</p>
+
+<dl>
+<dt><a name="harness"
+>harness</a></dt>
+
+<dd>
+<p>Will contain the IPC::Run object used for the call which can be used to query the exit values of the forked programs (E.g. with results() and full_results()) and to wait for processes started in the background.</p>
+
+<dt><a name="exception"
+>exception</a></dt>
+
+<dd>
+<p>If an exception is raised during the execution of the commands, and if <code>fail</code> is set to &#39;never&#39;, the exception will be caught and stored under this key.</p>
+
+<dt><a name="success"
+>success</a></dt>
+
+<dd>
+<p>Will contain the return value of spawn().</p>
+</dd>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="reap($opts[,_$opts[,...]])"
+><code>reap($opts[, $opts[,...]])</code></a></h2>
+
+<p>If you used one of the <code>pipe_*</code> options to spawn() or used the shell-style &#34;&#38;&#34; operator to send the process to the background, you will need to wait for your child processes to finish. For this you can use the reap() function, which you can call with the $opts hash reference you gave to spawn() and which will do the right thing. Multiple $opts can be passed.</p>
+
+<p>Note however that this function will not close any of the pipes for you, so you probably want to do that first before calling this function.</p>
+
+<p>The following keys of the $opts hash have roughly the same function as for spawn():</p>
+
+<dl>
+<dt><a name="harness"
+>harness</a></dt>
+
+<dd>
+<dt><a name="fail"
+>fail</a></dt>
+
+<dd>
+<dt><a name="success"
+>success</a></dt>
+
+<dd>
+<dt><a name="exception"
+>exception</a></dt>
+</dl>
+
+<p>All other keys are probably just ignored.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="kill($opts[,_$opts[,_...]])"
+><code>kill($opts[, $opts[, ...]])</code></a></h2>
+
+<p>This is a simple wrapper around the kill_kill function. It doesn&#39;t allow any customisation, but takes an $opts hash ref and SIGKILLs the process two seconds after SIGTERM is sent. If multiple hash refs are passed it executes kill_kill on each of them. The return status is the ORed value of all the executions of kill_kill.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="done($opts)"
+><code>done($opts)</code></a></h2>
+
+<p>Check if a process and its children are done. This is useful when one wants to know whether reap() can be called without blocking waiting for the process. It takes a single hash reference as returned by spawn.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="safe_qx([$opts,]_@cmds)"
+><code>safe_qx([$opts,] @cmds)</code></a></h2>
+
+<p>Variant of spawn that emulates the <code>qx()</code> operator by returning the captured output.</p>
+
+<p>It takes the same arguments as <code>spawn</code> and they have the same basic semantics with the following exceptions:</p>
+
+<dl>
+<dt><a name="The_initial_$opts_is_optional."
+>The initial $opts is optional.</a></dt>
+
+<dd>
+<dt><a name="If_only_a_single_command_is_to_be_run,_the_surrounding_list_reference_can_be_omitted_(see_the_examples_below)."
+>If only a single command is to be run, the surrounding list reference can be omitted (see the examples below).</a></dt>
+</dl>
+
+<p>If $opts is given, caller must ensure that the output is captured as a scalar reference in <code>$opts-</code>{out}&#62; (possibly by omitting the &#34;out&#34; and &#34;out_append&#34; keys).</p>
+
+<p>Furthermore, the commands should not be backgrounded, so they cannot use &#39;&#38;&#39; nor (e.g. <code>$opts-</code>{pipe_in}&#62;).</p>
+
+<p>If needed <code>$?</code> will be set after the call like for <code>qx()</code>.</p>
+
+<p>Examples:</p>
+
+<pre>  # Capture the output of a simple command
+  # - Both are eqv.
+  safe_qx(&#39;grep&#39;, &#39;some-pattern&#39;, &#39;path/to/file&#39;);
+  safe_qx([&#39;grep&#39;, &#39;some-pattern&#39;, &#39;path/to/file&#39;]);
+
+  # Capture the output of some pipeline
+  safe_qx([&#39;grep&#39;, &#39;some-pattern&#39;, &#39;path/to/file&#39;], &#39;|&#39;,
+          [&#39;head&#39;, &#39;-n1&#39;])
+
+  # Call nproc and capture stdout and stderr interleaved
+  safe_qx({ &#39;err&#39; =&#62; &#39;&#38;1&#39;}, &#39;nproc&#39;)
+
+  #  WRONG: Runs grep with 5 arguments including a literal &#34;|&#34; and
+  # &#34;-n1&#34;, which will generally fail with bad arguments.
+  safe_qx(&#39;grep&#39;, &#39;some-pattern&#39;, &#39;path/to/file&#39;, &#39;|&#39;,
+          &#39;head&#39;, &#39;-n1&#39;)</pre>
+
+<p>Possible known issue: It might not possible to discard stdout and capture stderr instead.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="EXPORTS"
+>EXPORTS</a></h1>
+
+<p>Lintian::Command exports nothing by default, but you can export the spawn() and reap() functions.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Frank Lichtenheld &#60;djpig@debian.org&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1), IPC::Run</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

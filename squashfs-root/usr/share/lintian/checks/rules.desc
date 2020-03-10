@@ -1,0 +1,393 @@
+Check-Script: rules
+Author: Russ Allbery <rra@debian.org>
+Type: source
+Needs-Info: unpacked
+Info: Check targets and actions in debian/rules.
+Abbrev: rul
+
+Tag: debian-rules-is-symlink
+Severity: normal
+Certainty: certain
+Info: The file <tt>debian/rules</tt> is a symlink instead of a regular
+ file. This is unnecessary and makes package checking and manipulation
+ more difficult. If the rules file should be available in the source
+ package under multiple names, make <tt>debian/rules</tt> the real
+ file and the other names symlinks to it.
+ .
+ This problem may have prevented Lintian from performing other checks,
+ leading to undetected changelog errors.
+
+Tag: debian-rules-not-a-makefile
+Severity: serious
+Certainty: certain
+Ref: policy 4.9
+Info: The <tt>debian/rules</tt> file for this package does not appear to
+ be a makefile or does not start with the required line.
+ <tt>debian/rules</tt> must be a valid makefile and must have
+ "<tt>#!/usr/bin/make -f</tt>" as its first line.
+
+Tag: debian-rules-missing-required-target
+Severity: serious
+Certainty: certain
+Ref: policy 4.9
+Info: The <tt>debian/rules</tt> file for this package does not provide one
+ of the required targets.  All of build, binary, binary-arch,
+ binary-indep, and clean must be provided, even if they don't do anything
+ for this package.
+
+Tag: debian-rules-missing-recommended-target
+Severity: normal
+Certainty: certain
+Ref: policy 4.9
+Info: The <tt>debian/rules</tt> file for this package does not provide
+ one of the recommended targets.  All of build-arch and build-indep
+ should be provided, even if they don't do anything for this package.
+ If this package does not currently split building of architecture
+ dependent and independent packages, the following rules may be added
+ to fall back to the build target:
+ .
+   build-arch: build
+   build-indep: build
+ .
+ Note that the following form is recommended however:
+ .
+   build: build-arch build-indep
+   build-arch: build-stamp
+   build-indep: build-stamp
+   build-stamp:
+   	build here
+ .
+ These targets will be required by policy in the future, so should be
+ added to prevent future breakage.
+
+Tag: debian-rules-uses-deprecated-makefile
+Severity: normal
+Certainty: certain
+Info: The <tt>debian/rules</tt> file for this package appears to
+ include a Makefile that has been deprecated.  Please refer to the
+ documentation of the providing package for a replacement (if any).
+
+Tag: debian-rules-should-not-use-pwd
+Severity: normal
+Certainty: certain
+Info: The <tt>debian/rules</tt> file for this package appears to use the
+ variable $(PWD) to refer to the current directory.  This variable is not
+ set by GNU make and therefore will have whatever value it has in the
+ environment, which may not be the actual current directory.  Some ways of
+ building Debian packages (such as through sudo) will clear the PWD
+ environment variable.
+ .
+ Instead of $(PWD), use $(CURDIR), which is set by GNU make, ignores the
+ environment, and is guaranteed to always be set.
+
+Tag: debian-rules-ignores-make-clean-error
+Severity: normal
+Certainty: certain
+Info: A rule in the <tt>debian/rules</tt> file for this package calls the
+ package's clean or distclean target with a line like:
+ .
+  -$(MAKE) distclean
+ or
+  $(MAKE) -i distclean
+ .
+ The leading "-" or the option -i tells make to ignore all errors.
+ Normally this is done for packages using Autoconf since Makefile may not
+ exist.  However, this line ignores all other error messages, not just
+ the missing Makefile error.  It's better to use:
+ .
+  [ ! -f Makefile ] || $(MAKE) distclean
+ .
+ so that other error messages from the clean or distclean rule will still
+ be caught (or just remove the "-" if the package uses a static makefile).
+
+Tag: debian-rules-should-not-use-DEB_BUILD_OPTS
+Severity: normal
+Certainty: certain
+Info: The standard environment variable for build options is
+ DEB_BUILD_OPTIONS.  Usually, referring to DEB_BUILD_OPTS is a mistake and
+ DEB_BUILD_OPTIONS was intended instead.
+
+Tag: debian-rules-should-not-use-DH_EXTRA_ADDONS
+Severity: normal
+Certainty: certain
+Info: The DH_EXTRA_ADDONS variable is designed for local or downstream build
+ use and not for use in debian/rules
+ .
+ dh(1)'s <tt>--with</tt> should be used instead.
+
+Tag: debian-rules-should-not-automatically-update-control
+Severity: serious
+Certainty: possible
+Info: DEB_AUTO_UPDATE_DEBIAN_CONTROL appears to be set to <tt>yes</tt> in
+ the <tt>debian/rules</tt> file.  This activates a feature of CDBS which
+ may not be used in packages uploaded to the Debian archive.
+Ref: https://ftp-master.debian.org/REJECT-FAQ.html
+
+Tag: debian-rules-sets-DH_COMPAT
+Severity: normal
+Certainty: certain
+Ref: debhelper(7)
+Info: As of debhelper version 4, the DH_COMPAT environment variable is
+ only to be used for temporarily overriding <tt>debian/compat</tt>.  Any
+ line in <tt>debian/rules</tt> that sets it globally should be deleted and
+ a separate <tt>debian/compat</tt> file created if needed.
+
+Tag: debian-rules-sets-DEB_BUILD_OPTIONS
+Severity: normal
+Certainty: certain
+Ref: dpkg-buildflags(1)
+Info: The <tt>debian/rules</tt> file sets the DEB_BUILD_OPTIONS variable,
+ which will override any user-specified build profile.
+ .
+ Please replace with DH_BUILD_MAINT_OPTIONS.
+
+Tag: binary-arch-rules-but-pkg-is-arch-indep
+Severity: normal
+Certainty: certain
+Info: It looks like you try to run code in the binary-arch target of 
+ <tt>debian/rules</tt>, even though your package is architecture-
+ independent.
+
+Tag: debian-rules-calls-debhelper-in-odd-order
+Severity: normal
+Certainty: certain
+Info: One of the targets in the <tt>debian/rules</tt> file for this
+ package calls debhelper programs in an odd order.  Normally,
+ dh_makeshlibs should be run before dh_shlibdeps or dh_installdeb, and
+ dh_shlibdeps should be run before dh_gencontrol.  dh_builddeb should be
+ the last debhelper action when building the package, after any of the
+ other programs mentioned.  Calling these programs in the wrong order may
+ cause incorrect or missing package files and metadata.
+
+Tag: missing-build-dependency
+Severity: serious
+Certainty: possible
+Ref: policy 4.2
+Info: The package doesn't specify a build dependency on a package that is
+ used in <tt>debian/rules</tt>.
+ .
+ Lintian intentionally does not take into account transitive dependencies.
+ Even if the package build-depends on some package that in turn
+ depends on the needed package, an explicit build dependency should
+ be added.  Otherwise, a latent bug is created that will appear without
+ warning if the other package is ever updated to change its dependencies.
+ Even if this seems unlikely, please always add explicit build
+ dependencies on every non-essential, non-build-essential package that is
+ used directly during the build.
+
+Tag: missing-python-build-dependency
+Severity: important
+Certainty: certain
+Ref: policy 4.2
+Info: The package appears to use Python as part of its build process in
+ <tt>debian/rules</tt> but doesn't depend on Python.
+ .
+ Normally, packages that use Python as part of the build process should
+ build-depend on one of python, python-all, python-dev, or python-all-dev
+ depending on whether they support multiple versions of Python and whether
+ they're building modules or only using Python as part of the package
+ build process.  Packages that depend on a specific version of Python may
+ build-depend on the appropriate pythonX.Y or pythonX.Y-dev package
+ instead.
+
+Tag: clean-should-be-satisfied-by-build-depends
+Severity: important
+Certainty: certain
+Ref: policy 7.7
+Info: The specified package is required to run the clean target of
+ <tt>debian/rules</tt> and therefore must be listed in Build-Depends, not
+ Build-Depends-Indep, even if no architecture-dependent packages are
+ built.
+
+Tag: debian-rules-makemaker-prefix-is-deprecated
+Severity: normal
+Certainty: possible
+Ref: perl-policy 4.3
+Info: The package appears to use an <tt>ExtUtils::MakeMaker</tt>
+ (Makefile.PL) build system and sets the temporary installation path by
+ overriding <tt>PREFIX</tt> when calling <tt>make install</tt>.  This only
+ works because of a Debian-specific change to <tt>ExtUtils::MakeMaker</tt>
+ that the maintainers of the Debian perl package intend to remove.
+ .
+ The correct way to set the installation directory is with DESTDIR.
+ Setting PREFIX should not be necessary at all.
+ .
+ For example, the line
+   make install PREFIX=$(TMP)/usr          # WRONG
+ should be replaced with
+   make install DESTDIR=$(TMP)             # RIGHT
+
+Tag: debian-rules-should-not-use-or-modify-user-only-variable
+Severity: normal
+Certainty: possible
+Ref: #631786
+Info: The rules file appears to be reading or modifying a variable not
+ intended for use by package maintainers.
+ .
+ The special variables <tt>DEB_*FLAGS_{SET,APPEND}</tt> can be used by
+ users who want to re-compile Debian packages with special (or
+ non-standard) build flags.
+ .
+ Please use the <tt>DEB_*FLAGS_MAINT_{SET,APPEND}</tt> flags instead.
+
+Tag: debian-rules-should-not-use-underscore-variable
+Severity: normal
+Certainty: possible
+Ref: policy 4.9
+Info: The rules file use the make variable $(_).
+ .
+ According to Policy 4.9, 'invoking either of <tt>make -f debian/rules
+ &lt;...&gt;</tt> or <tt>./debian/rules
+ &lt;args...&gt;</tt>' must result in identical behavior'.
+ One way to inadvertently violate this policy is to use the $_ variable.
+ .
+ If the rules file uses $(dir $(_)) to discover the directory containing
+ the source package (presumably in order to implement the get-orig-source
+ target), please replace it by $(dir $(firstword $(MAKEFILE_LIST))).
+
+Tag: debian-rules-parses-dpkg-parsechangelog
+Severity: wishlist
+Certainty: possible
+Info: The rules file appears to be parsing the output of dpkg-parsechangelog to
+ determine the current package version name, version, or timestamp, etc.
+ .
+ Since dpkg 1.16.1, this could be replaced by including the
+ /usr/share/dpkg/pkg-info.mk Makefile library and using the
+ DEB_{SOURCE,VERSION} or SOURCE_DATE_EPOCH variables.
+ .
+ Using this library is not only cleaner and more efficient, it handles many
+ corner-cases such as binNMUs, epoch versions, etc.
+
+Tag: debian-rules-sets-dpkg-architecture-variable
+Severity: normal
+Certainty: certain
+Ref: dpkg-architecture(1)
+Info: The <tt>debian/rules</tt> file sets one or more
+ <tt>dpkg-architecture</tt> variables such as <tt>DEB_BUILD_ARCH</tt>.
+ .
+ These variables are pre-initialized in the environment when running under
+ <tt>dpkg-buildpackage</tt> - avoiding these assignments can reduce package
+ build time.
+ .
+ Please use:
+ .
+   include /usr/share/dpkg/architecture.mk
+ .
+ instead, or replace the assignment operator with <tt>?=</tt>.
+
+Tag: debian-rules-should-not-set-CFLAGS-from-noopt
+Severity: normal
+Certainty: certain
+Ref: dpkg-buildflags(1)
+Info: The <tt>debian/rules</tt> file for this package appears to set
+ <tt>CFLAGS</tt> if the value of <tt>DEB_BUILD_OPTIONS</tt> contains
+ <tt>noopt</tt>.
+ .
+ This has been obsoleted in favour of <tt>dpkg-buildflags</tt>.
+
+Tag: override_dh_clean-does-not-call-dh_clean
+Severity: normal
+Certainty: certain
+Info: The <tt>debian/rules</tt> file for this package has an
+ <tt>override_dh_clean</tt> target that does not reference <tt>dh_clean</tt>.
+ .
+ This can result in packages not cleaning up properly via <tt>debian/rules
+ clean</tt>.
+ .
+ Please add a call to <tt>dh_clean</tt>.
+Ref: #884419, #884815
+
+Tag: override_dh_fixperms-does-not-call-dh_fixperms
+Severity: normal
+Certainty: certain
+Info: The <tt>debian/rules</tt> file for this package has an
+ <tt>override_dh_fixperms</tt> target that does not reference
+ <tt>dh_fixperms</tt>.
+ .
+ This can result in packages inheriting the <tt>umask(2)</tt> of the build
+ process, rendering the package unreproducible.
+ .
+ Please add a call to <tt>dh_fixperms</tt>.
+Ref: #885909
+
+Tag: xz-compression-level-too-high
+Severity: normal
+Certainty: certain
+Info: The <tt>debian/rules</tt> file for this package has a call to
+ <tt>dh_builddeb(1)</tt> that specifies an overly eager xz(1) compression
+ level.
+ .
+ Whilst higher levels might reduce the size of big files, it has the side
+ effect of consuming a lot of memory during both compression and
+ extraction.
+ .
+ This can not only also waste time unnecessarily, it can cause packages to
+ FTBFS or even fail to install in resource-constrained environments or
+ architectures.
+ .
+ Please remove the call and let dpkg-deb(1) select suitable defaults.
+Ref: #829100, dpkg-deb(1)
+
+
+Tag: debian-rules-is-dh_make-template
+Severity: important
+Certainty: certain
+Info: The debian/rules file appears to be an unmodified or insufficiently
+ modified copy of the dh_make template.
+ .
+ Please double-check the rules file.
+
+Tag: override_dh_auto_test-does-not-check-DEB_BUILD_OPTIONS
+Severity: wishlist
+Certainty: wild-guess
+Experimental: yes
+Info: The <tt>debian/rules</tt> file for this package has an
+ <tt>override_dh_auto_test</tt> target that does not appear to
+ check <tt>DEB_BUILD_OPTIONS</tt> against <tt>nocheck</tt>.
+ .
+ As this check is not automatically performed by debhelper(1), the
+ specified testsuite is run regardless of another maintainer using
+ the <tt>nocheck</tt> build profile.
+ .
+ Please add a check such as:
+ .
+  override_dh_auto_test:
+  ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+          ./run-upstream-testsuite
+  endif
+ .
+ Lintian will ignore comments and other lines such as:
+ .
+  # Disabled
+  : Disabled
+  echo "Disabled"
+  mkdir foo/
+  ENV=var dh_auto_test -- ARG=value
+Ref: policy 4.9.1, https://wiki.debian.org/BuildProfileSpec#Registered_profile_names
+
+Tag: unnecessary-source-date-epoch-assignment
+Severity: wishlist
+Certainty: certain
+Info: There is an assignment to a <tt>SOURCE_DATE_EPOCH</tt> variable in the
+ <tt>debian/rules</tt> file.
+ .
+ As of dpkg 1.18.8, this is no longer necessary as dpkg exports this
+ variable if it is not already set. However, you can also include
+ <tt>/usr/share/dpkg/pkg-info.mk</tt> or <tt>/usr/share/dpkg/default.pk</tt>
+ to ensure it is exported.
+
+Tag: debian-rules-contains-unnecessary-get-orig-source-target
+Severity: wishlist
+Certainty: possible
+Info: This package's <tt>debian/rules</tt> file contains a
+ <tt>get-orig-source</tt> target that appears to be unnecessary. For
+ example, the package might simply contain a single call to uscan(1).
+ .
+ Such calls are not ideal; maintainers should be able to call uscan with
+ their own choice of options and they additionally encourage the
+ proliferation of boilerplate code across the archive.
+ .
+ Since Debian Policy 4.1.4, packages are encouraged to migrate to uscan
+ and a <tt>Files-Excluded</tt> header in the <tt>debian/copyright</tt>
+ file.
+Ref: uscan(1)

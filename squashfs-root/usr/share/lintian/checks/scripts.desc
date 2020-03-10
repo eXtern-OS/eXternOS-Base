@@ -1,0 +1,854 @@
+Check-Script: scripts
+Author: Richard Braakman <dark@xs4all.nl>
+Abbrev: scr
+Type: binary
+Info: This script checks the #! lines of scripts in a package.
+Needs-Info: unpacked, file-info, changelog-file, scripts, bin-pkg-control
+
+Tag: script-without-interpreter
+Severity: important
+Certainty: certain
+Info: This file starts with the #! sequence that identifies scripts, but
+ it does not name an interpreter.
+
+Tag: example-script-without-interpreter
+Severity: wishlist
+Certainty: certain
+Info: This example file starts with the #! sequence that identifies
+ scripts, but it does not name an interpreter.
+
+Tag: executable-not-elf-or-script
+Severity: normal
+Certainty: certain
+Info: This executable file is not an ELF format binary, and does not start
+ with the #! sequence that marks interpreted scripts.  It might be a sh
+ script that fails to name /bin/sh as its shell, or it may be incorrectly
+ marked as executable.  Sometimes upstream files developed on Windows are
+ marked unnecessarily as executable on other systems.
+ .
+ If you are using debhelper to build your package, running dh_fixperms will
+ often correct this problem for you.
+Ref: policy 10.4
+
+Tag: script-not-executable
+Severity: normal
+Certainty: certain
+Info: This file starts with the #! sequence that marks interpreted scripts,
+ but it is not executable.
+
+Tag: interpreter-not-absolute
+Severity: normal
+Certainty: certain
+Info: This script uses a relative path to locate its interpreter.
+ This path will be taken relative to the caller's current directory, not
+ the script's, so it is not likely to be what was intended.
+
+Tag: example-interpreter-not-absolute
+Severity: wishlist
+Certainty: certain
+Info: This example script uses a relative path to locate its interpreter.
+ This path will be taken relative to the caller's current directory, not
+ the script's, so a user will probably not be able to run the example
+ without modification.  This tag can also be caused by script headers like
+ <tt>#!@BASH@</tt>, which usually mean that the examples were copied out
+ of the source tree before proper Autoconf path substitution.
+
+Tag: unusual-interpreter
+Severity: normal
+Certainty: possible
+Info: This package contains a script for an interpreter that is not shipped
+ in the package and is not known to Lintian.  It is possible that there is
+ a typo or the interpreter is not executable.  If not, please file a
+ wishlist bug against Lintian, so it can be added to the list of known
+ interpreters.
+
+Tag: example-unusual-interpreter
+Severity: pedantic
+Certainty: possible
+Info: This package contains an example script for an interpreter that
+ is not shipped in the package and is not known to Lintian.  It is
+ possible that there is a typo or the interpreter is not executable.
+ If not, please file a wishlist bug against Lintian, so it can be
+ added to the list of known interpreters.
+
+Tag: php-script-with-unusual-interpreter
+Severity: normal
+Certainty: possible
+Info: This package contains a php script using an unusual interpreter in the
+ shebang line.  The recommended shebang line is either <tt>#!/usr/bin/php</tt>
+ or <tt>#!/usr/bin/env php</tt> without any version number.
+
+Tag: script-uses-bin-env
+Severity: normal
+Certainty: certain
+Info: This script uses /bin/env as its interpreter (used to find the
+ actual interpreter on the user's path).  There is no /bin/env on Debian
+ systems; env is instead installed as /usr/bin/env.  Usually, the path to
+ env in the script should be changed.
+
+Tag: example-script-uses-bin-env
+Severity: wishlist
+Certainty: certain
+Info: This example script uses /bin/env as its interpreter (used to find
+ the actual interpreter on the user's path).  There is no /bin/env on
+ Debian systems; env is instead installed as /usr/bin/env.  Usually, the
+ path to env in the script should be changed.
+
+Tag: forbidden-config-interpreter
+Severity: important
+Certainty: certain
+Info: This package contains a <tt>config</tt> script for pre-configuring
+ the package.  During pre-configuration, however, only essential packages
+ are guaranteed to be installed, so you cannot use a non-essential
+ interpreter.
+
+Tag: forbidden-postrm-interpreter
+Severity: serious
+Certainty: certain
+Info: This package contains a <tt>postrm</tt> maintainer script that uses
+ an interpreter that isn't essential.  The <tt>purge</tt> action of
+ <tt>postrm</tt> can only rely on essential packages, which means the
+ interpreter used by <tt>postrm</tt> must be one of the essential ones
+ (<tt>sh</tt>, <tt>bash</tt>, or <tt>perl</tt>).
+Ref: policy 7.2
+
+Tag: unusual-control-interpreter
+Severity: minor
+Certainty: certain
+Info: This package contains a control script for an interpreter that is
+ not normally used for control scripts.  This is permissible but not
+ recommended.  It makes it harder for other developers to understand your
+ package.
+
+Tag: unknown-control-interpreter
+Severity: important
+Certainty: possible
+Info: This package contains a maintainer script that uses an interpreter
+ that the Lintian maintainers have not heard of.  This is usually a typo
+ for a common interpreter.  If not, please file a wishlist bug on Lintian
+ so that the Lintian maintainers can add this interpreter to their list.
+
+Tag: interpreter-in-usr-local
+Severity: important
+Certainty: certain
+Info: This package contains a script that looks for an interpreter in a
+ directory in /usr/local.  Since Debian does not install anything in
+ /usr/local, this is the wrong place to look.
+
+Tag: example-interpreter-in-usr-local
+Severity: pedantic
+Certainty: certain
+Info: This package contains an example script that looks for an
+ interpreter in a directory in /usr/local.  Since Debian does not install
+ anything in /usr/local, the example script would probably need
+ modifications before a user could run it.
+
+Tag: control-interpreter-in-usr-local
+Severity: serious
+Certainty: certain
+Info: A control script for this package references an interpreter in a
+ directory in <tt>/usr/local</tt>.  Control scripts must use interpreters
+ provided by Debian packages, and Debian packages do not install anything
+ in <tt>/usr/local</tt>.
+
+Tag: preinst-interpreter-without-predepends
+Severity: serious
+Certainty: certain
+Info: The package contains a <tt>preinst</tt> maintainer script that uses
+ an unusual and non-essential interpreter but does not declare a
+ pre-dependency on the package that provides this interpreter.
+ .
+ <tt>preinst</tt> scripts should be written using only essential
+ interpreters to avoid additional dependency complexity.  Please do not
+ add a pre-dependency without following the policy for doing so (Policy
+ section 3.5).
+Ref: policy 7.2
+
+Tag: control-interpreter-without-depends
+Severity: serious
+Certainty: possible
+Info: The package contains a maintainer script that uses an unusual and
+ non-essential interpreter but does not declare a dependency on the
+ package that provides this interpreter.
+Ref: policy 7.2
+
+Tag: missing-dep-for-interpreter
+Severity: important
+Certainty: possible
+Info: You used an interpreter for a script that is not in an essential
+ package.  In most cases, you will need to add a Dependency on the
+ package that contains the interpreter.  If the dependency is already
+ present, please file a bug against Lintian with the details of your
+ package so that its database can be updated.
+ .
+ In some cases a weaker relationship, such as Suggests or Recommends, will
+ be more appropriate.
+
+Tag: csh-considered-harmful
+Severity: normal
+Certainty: certain
+Info: The Debian policy for scripts explicitly warns against using csh
+ and tcsh as scripting languages.
+Ref: policy 10.4
+
+Tag: wrong-path-for-interpreter
+Severity: important
+Certainty: certain
+Info: The interpreter you used is installed at another location on Debian
+ systems.
+
+Tag: example-wrong-path-for-interpreter
+Severity: wishlist
+Certainty: certain
+Info: The interpreter used by this example script is installed at another
+ location on Debian systems.  Normally the path should be updated to match
+ the Debian location.
+
+Tag: gawk-script-but-no-gawk-dep
+Severity: important
+Certainty: certain
+Info: Packages that use gawk scripts must depend on the gawk package.
+ If they don't need gawk-specific features, and can just as easily work
+ with mawk, then they should be awk scripts instead.
+ .
+ In some cases a weaker relationship, such as Suggests or Recommends, will
+ be more appropriate.
+
+Tag: mawk-script-but-no-mawk-dep
+Severity: important
+Certainty: certain
+Info: Packages that use mawk scripts must depend on the mawk package.
+ If they don't need mawk-specific features, and can just as easily work
+ with gawk, then they should be awk scripts instead.
+ .
+ In some cases a weaker relationship, such as Suggests or Recommends, will
+ be more appropriate.
+
+Tag: php-script-but-no-php-cli-dep
+Severity: important
+Certainty: certain
+Info: Packages with PHP scripts must depend on the php-cli package.
+ Note that a dependency on a php-cgi package (such as php-cgi or php7.0-cgi)
+ is needlessly strict and forces the user to install a package that isn't
+ needed.
+ .
+ In some cases a weaker relationship, such as Suggests or Recommends, will
+ be more appropriate.
+
+Tag: python-script-but-no-python-dep
+Severity: important
+Certainty: certain
+Info: Packages with Python scripts should depend on the package
+ <tt>python</tt>.  Those with scripts that specify a specific version of
+ Python must depend, recommend or suggest on that version of Python
+ (exactly).
+ .
+ For example, if a script in the package uses <tt>#!/usr/bin/python</tt>,
+ the package needs a dependency on <tt>python</tt>.  If a script uses
+ <tt>#!/usr/bin/python2.6</tt>, the package needs a dependency on
+ <tt>python2.6</tt>.  A dependency on <tt>python (>= 2.6)</tt> is not
+ correct, since later versions of Python may not provide the
+ <tt>/usr/bin/python2.6</tt> binary.
+ .
+ If you are using debhelper, adding <tt>${python3:Depends}</tt> or
+ <tt>${python:Depends}</tt> to the Depends field and ensuring dh_python2 or
+ dh_python3 are run during the build should take care of adding the correct
+ dependency.
+ .
+ In some cases a weaker relationship, such as Suggests or Recommends, will
+ be more appropriate.
+
+Tag: ruby-script-but-no-ruby-dep
+Severity: important
+Certainty: certain
+Info: Packages with Ruby scripts must depend on a valid Ruby interpreter.
+ Those that have Ruby scripts that run under a specific version of Ruby need a
+ dependency on the equivalent version of Ruby.
+ .
+ If a script in the package uses <tt>#!/usr/bin/ruby</tt>, the package needs a
+ dependency on "ruby | ruby-interpreter". This allows users to choose which
+ interpreter to use by default. If the package is intended to be used with a
+ specific Ruby version, its scripts should use that version directly, such
+ as <tt>#!/usr/bin/ruby1.8</tt>
+ .
+ If a script uses <tt>#!/usr/bin/ruby1.9</tt>, then the package needs a
+ dependency on "ruby1.9".
+ .
+ In some cases a weaker relationship, such as Suggests or Recommends, will
+ be more appropriate.
+
+Tag: wish-script-but-no-wish-dep
+Severity: important
+Certainty: certain
+Info: Packages that include wish scripts must depend on the virtual
+ package wish or, if they require a specific version of wish or tk, that
+ version of tk.
+ .
+ In some cases a weaker relationship, such as Suggests or Recommends, will
+ be more appropriate.
+
+Tag: tclsh-script-but-no-tclsh-dep
+Severity: important
+Certainty: certain
+Info: Packages that include tclsh scripts must depend on the virtual
+ package tclsh or, if they require a specific version of tcl, that
+ version of tcl.
+ .
+ In some cases a weaker relationship, such as Suggests or Recommends, will
+ be more appropriate.
+
+Tag: shell-script-fails-syntax-check
+Severity: important
+Certainty: possible
+Info: Running this shell script with the shell's -n option set fails,
+ which means that the script has syntax errors.  The most common cause of
+ this problem is a script expecting <tt>/bin/sh</tt> to be bash checked on
+ a system using dash as <tt>/bin/sh</tt>.
+ .
+ Run e.g. <tt>sh -n yourscript</tt> to see the errors yourself.
+ .
+ Note this can have false-positives, for an example with bash scripts
+ using "extglob".
+
+Tag: example-shell-script-fails-syntax-check
+Severity: pedantic
+Certainty: possible
+Info: Running this shell script with the shell's -n option set fails,
+ which means that the script has syntax errors.  The most common cause of
+ this problem is a script expecting <tt>/bin/sh</tt> to be bash checked on
+ a system using dash as <tt>/bin/sh</tt>.
+ .
+ Run e.g. <tt>sh -n yourscript</tt> to see the errors yourself.
+ .
+ Note this can have false-positives, for an example with bash scripts
+ using "extglob".
+
+Tag: maintainer-shell-script-fails-syntax-check
+Severity: serious
+Certainty: certain
+Info: Running this shell script with the shell's -n option set fails,
+ which means that the script has syntax errors. This will likely make
+ the package uninstallable.
+ .
+ Run e.g. <tt>sh -n yourscript</tt> to see the errors yourself.
+
+Tag: possibly-insecure-handling-of-tmp-files-in-maintainer-script
+Severity: normal
+Certainty: possible
+Info: The maintainer script seems to access a file in <tt>/tmp</tt> or
+ some other temporary directory. Since creating temporary files in a
+ world-writable directory is very dangerous, this is likely to be a
+ security bug. Use the <tt>tempfile</tt> or <tt>mktemp</tt> utilities to
+ create temporary files in these directories.
+Ref: policy 10.4
+
+Tag: killall-is-dangerous
+Severity: normal
+Certainty: possible
+Info: The maintainer script seems to call <tt>killall</tt>.  Since this
+ utility kills processes by name, it may well end up killing unrelated
+ processes.  Most uses of <tt>killall</tt> should use <tt>invoke-rc.d</tt>
+ instead.
+
+Tag: mknod-in-maintainer-script
+Severity: serious
+Certainty: certain
+Ref: policy 10.6
+Info: Maintainer scripts must not create device files directly.  They
+ should call <tt>MAKEDEV</tt> instead.
+ .
+ If <tt>mknod</tt> is being used to create a FIFO (named pipe), use
+ <tt>mkfifo</tt> instead to avoid triggering this tag.
+
+Tag: maintainer-script-should-not-use-start-stop-daemon
+Severity: normal
+Certainty: certain
+Info: The maintainer script seems to call <tt>start-stop-daemon</tt>
+ directly.  Long-running daemons should be started and stopped via init
+ scripts using <tt>invoke-rc.d</tt> rather than directly in maintainer
+ scripts.
+Ref: policy 9.3.3.2
+
+Tag: trailing-slash-for-dpkg-maintscript-helper-symlink_to_dir
+Severity: serious
+Certainty: certain
+Info: The maintainer script seems to call dpkg-maintscript-helper
+ symlink_to_dir with a trailing slash for pathname. This renders the
+ package uninstallable.
+Ref: dpkg-maintscript-helper(1)
+
+Tag: missing-call-to-dpkg-maintscript-helper
+Severity: serious
+Certainty: certain
+Info: The maintainer script is missing a call to the specified
+ dpkg-maintscript-helper command which requires coordinated actions from
+ several maintainer scripts.
+Ref: dpkg-maintscript-helper(1)
+
+Tag: maintainer-script-removes-device-files
+Severity: serious
+Certainty: certain
+Ref: policy 10.6
+Info: Maintainer scripts must not remove device files.  This is left to
+ the system administrator.
+
+Tag: read-in-maintainer-script
+Severity: serious
+Certainty: possible
+Ref: policy 3.9.1 
+Info: This maintainer script appears to use read to get information from
+ the user.  Prompting in maintainer scripts must be done by communicating
+ through a program such as debconf which conforms to the Debian
+ Configuration management specification, version 2 or higher.
+ .
+ This check can have false positives if read is used in a block with a
+ redirection, in a function run in a pipe, or in other ways where
+ standard input is provided in inobvious ways.  If this is the case, please
+ add an override for this tag.
+
+Tag: possible-bashism-in-maintainer-script
+Severity: normal
+Certainty: possible
+Ref: policy 10.4
+Info: This script is marked as running under <tt>/bin/sh</tt>, but it seems
+ to use a feature found in bash but not in the SUSv3 or POSIX shell
+ specification.
+ .
+ Examples:
+  '==' in a test, it should use '=' instead
+  'read' without a variable in the argument
+  'function' to define a function
+  'source' instead of '.'
+  '. command args', passing arguments to commands via 'source' is not supported
+  '{foo,bar}' instead of 'foo bar'
+  '[[ test ]]' instead of '[ test ]' (requires a Korn shell)
+  'type' instead of 'which' or 'command -v'
+
+Tag: maintainer-script-needs-depends-on-update-inetd
+Severity: normal
+Certainty: certain
+Info: This script calls update-inetd, but the package does not depend or
+ pre-depend on inet-superserver, any of the providers of inet-superserver
+ which provide it, or update-inetd.
+ .
+ update-inetd has been moved from netbase into a separate package, so a
+ dependency on netbase should be updated to depend on "openbsd-inetd |
+ inet-superserver".
+
+Tag: maintainer-script-needs-depends-on-adduser
+Severity: normal
+Certainty: certain
+Info: This script calls adduser, but the package does not depend or
+ pre-depend on the adduser package.
+
+Tag: maintainer-script-needs-depends-on-gconf2
+Severity: normal
+Certainty: certain
+Info: This script calls gconf-schemas, which comes from the gconf2 package,
+ but does not depend or pre-depend on gconf2.  If you are using dh_gconf,
+ add a dependency on ${misc:Depends} and dh_gconf will take care of this
+ for you.
+
+Tag: maintainer-script-needs-depends-on-ucf
+Severity: normal
+Certainty: certain
+Info: This script calls ucf, but the package does not depend or pre-depend
+ on the ucf package.
+
+Tag: maintainer-script-needs-depends-on-xml-core
+Severity: normal
+Certainty: certain
+Info: This script calls update-xmlcatalog, which comes from the xml-core
+ package, but does not depend or pre-depend on xml-core.  Packages that call
+ update-xmlcatalog need to depend on xml-core.  If you are using
+ dh_installxmlcatalogs, add a dependency on ${misc:Depends} and
+ dh_installxmlcatalogs will take care of this for you.
+
+Tag: maintainer-script-should-not-use-update-alternatives-remove
+Severity: normal
+Certainty: certain
+Info: <tt>update-alternatives --remove &lt;alternative&gt; foo</tt> is
+ called in the postrm.  This can be dangerous because at the time the
+ postrm is executed foo has already been deleted and update-alternatives
+ will ignore it while constructing its list of available alternatives.
+ Then, if the /etc/alternatives symlink points at foo, update-alternatives
+ won't recognize it and will mark the symlink as something site-specific.
+ As such, the symlink will no longer be updated automatically and will be
+ left dangling until <tt>update-alternatives --auto
+ &lt;alternative&gt;</tt> is run by hand.
+ .
+ <tt>update-alternatives --remove</tt> should be called in the prerm
+ instead.
+Ref: policy 6*, update-alternatives(8)
+
+Tag: maintainer-script-should-not-use-update-alternatives-set
+Severity: normal
+Certainty: certain
+Info: The maintainer script calls <tt>update-alternatives --set
+ &lt;alternative&gt; foo</tt> or <tt>update-alternatives --config
+ &lt;alternative&gt;</tt> or <tt>update-alternatives --set-selections</tt>.
+ .
+ This makes it impossible to distinguish between an alternative that's
+ manually set because the user set it and one that's manually set because
+ the package set it.
+Ref: update-alternatives(8)
+
+Tag: maintainer-script-should-not-use-deprecated-chown-usage
+Severity: normal
+Certainty: certain
+Info: <tt>chown user.group</tt> is called in one of the maintainer
+ scripts.  The correct syntax is <tt>chown user:group</tt>. Using "." as a
+ separator is still supported by the GNU tools, but it will fail as soon
+ as a system uses the "." in user or group names.
+Ref: chown(1)
+
+Tag: maintainer-script-should-not-hide-init-failure
+Severity: normal
+Certainty: certain
+Info: This script calls invoke-rc.d to run an init script but then, if the
+ init script fails, exits successfully (using || exit 0).  If the init
+ script fails, the maintainer script should probably fail.
+ .
+ The most likely cause of this problem is that the package was built with
+ a debhelper version suffering from Bug#337664 that inserted incorrect
+ invoke-rc.d code in the generated maintainer script. The package needs to
+ be reuploaded (could be bin-NMUd, no source changes needed).
+
+Tag: maintainer-script-calls-init-script-directly
+Severity: serious
+Certainty: certain
+Info: This script apparently runs an init script directly rather than
+ using invoke-rc.d.  The use of invoke-rc.d to invoke the /etc/init.d/*
+ initscripts instead of calling them directly is required.  Maintainer
+ scripts may call the init script directly only if invoke-rc.d is not
+ available.
+Ref: policy 9.3.3.2
+
+Tag: maintainer-script-should-not-use-gconftool
+Severity: normal
+Certainty: possible
+Info: This script apparently runs gconftool or gconftool-2.  It should
+ probably be calling gconf-schemas or update-gconf-defaults instead.
+
+Tag: maintainer-script-should-not-use-fc-cache
+Severity: normal
+Certainty: possible
+Info: This script apparently runs fc-cache.  Updating of the fontconfig
+ cache files is now handled automatically by triggers, so running fc-cache
+ from maintainer scripts is no longer necessary.
+
+Tag: install-info-used-in-maintainer-script
+Severity: serious
+Certainty: possible
+Info: This script apparently runs <tt>install-info</tt>.  Updating the
+ <tt>/usr/share/info/dir</tt> file is now handled automatically by
+ triggers, so running <tt>install-info</tt> from maintainer scripts is no
+ longer necessary.
+ .
+ If debhelper generated the maintainer script fragment, rebuilding the
+ package with debhelper 7.2.17 or later will fix this problem.
+
+Tag: maintainer-script-should-not-use-dpkg-status-directly
+Severity: important
+Certainty: certain
+Info: The file /var/lib/dpkg/status is internal to dpkg, may disappear or
+ change formats, and is not always a correct and complete record of
+ installed packages while dpkg is running.  Maintainer scripts should use
+ dpkg-query instead.  For the most common case of retrieving conffile
+ information, use:
+ .
+  dpkg-query -W -f='${Conffiles}' &lt;package&gt;
+ .
+ instead.
+Ref: https://wiki.debian.org/DpkgConffileHandling
+
+Tag: maintainer-script-should-not-modify-netbase-managed-file
+Severity: serious
+Certainty: certain
+Info: The maintainer script modifies at least one of the files
+ <tt>/etc/services</tt>, <tt>/etc/protocols</tt>, and <tt>/etc/rpc</tt>,
+ which are managed by the netbase package. Instead of doing this, please
+ file a wishlist bug against netbase to have an appropriate entry added.
+Ref: policy 11.2
+
+Tag: maintainer-script-modifies-inetd-conf
+Severity: serious
+Certainty: certain
+Info: The maintainer script modifies <tt>/etc/inetd.conf</tt> directly.
+ This file must not be modified directly; instead, use the
+ <tt>update-inetd</tt> script or the <tt>DebianNet.pm</tt> Perl module.
+Ref: policy 11.2
+
+Tag: maintainer-script-should-not-modify-ld-so-conf
+Severity: important
+Certainty: possible
+Info: This package appears to modify <tt>/etc/ld.so.conf</tt> and does not
+ appear to be part of libc.  Packages installing shared libraries in
+ non-standard locations were previously permitted to modify
+ /etc/ld.so.conf to add the non-standard path, but this permission was
+ removed in Policy 3.8.3.
+ .
+ Packages containing shared libraries should either install them into
+ <tt>/usr/lib</tt> or should require binaries built against them to set
+ RPATH to find the library at run-time.  Installing libraries in a
+ different directory and modifying the run-time linker path is equivalent
+ to installing them into <tt>/usr/lib</tt> except now conflicting library
+ packages may cause random segfaults and difficult-to-debug problems
+ instead of conflicts in the package manager.
+
+Tag: maintainer-script-should-not-use-install-sgmlcatalog
+Severity: important
+Certainty: certain
+Info: The maintainer script apparently runs install-sgmlcatalog.
+ install-sgmlcatalog is deprecated and should only have been used
+ in postinst or prerm to remove the entries from earlier packages.
+ Given how long ago this transition was, consider removing it
+ entirely.
+
+Tag: maintainer-script-should-not-use-service
+Severity: important
+Certainty: certain
+Experimental: yes
+Info: The maintainer script apparently runs the service command. This
+ command is reserved for local administrators and must never be used
+ by a Debian package.
+ .
+ Please replace with calls to <tt>update-rc.d(8)</tt> and
+ <tt>invoke-rc.d(8)</tt>. If your package installs this service, this
+ can be automated using <tt>dh_installinit(1)</tt> or
+ <tt>dh_installsystemd(1)</tt>.
+Ref: policy 9.3.3
+
+Tag: maintainer-script-should-not-use-adduser-system-without-home
+Severity: serious
+Certainty: certain
+Info:  The maintainer script apparently runs 'adduser --system'
+ but hardcodes a path under '/home' for the '--home' option or
+ does not use the '--home' option.
+ .
+ The FHS says: /home is a fairly standard concept, but it
+ is clearly a site-specific filesystem. The setup will differ
+ from host to host. Therefore, no program should rely on this
+ location.
+ .
+ Note that passing --no-create-home alone does not solve the issue
+ because home field of passwd file point to a non existing
+ /home subdirectory. Please use
+ <tt>adduser --no-create-home --home /nonexistent</tt> instead.
+Ref: fhs homeuserhomedirectories, adduser(8)
+
+Tag: maintainer-script-may-use-dir_to_symlink_helper
+Severity: serious
+Certainty: possible
+Experimental: yes
+Info: The maintainer script apparently change a directory to a symlink
+ not using dir_to_symlink command of dpkg-maintscript-helper, that take
+ great care to avoid a lot of problems.
+ .
+ Please use the dpkg-maintscript-helper dir_to_symlink command.
+Ref: dpkg-maintscript-helper(1)
+
+Tag: maintainer-script-empty
+Severity: minor
+Certainty: certain
+Info: The maintainer script doesn't seem to contain any code other than
+ comments and boilerplate (set -e, exit statements, and the case statement
+ to parse options).  While this is harmless in most cases, it is probably
+ not what you wanted, may mean the package will leave unnecessary files
+ behind until purged, and may even lead to problems in rare situations
+ where dpkg would fail if no maintainer script was present.
+ .
+ If the package currently doesn't need to do anything in this maintainer
+ script, it shouldn't be included in the package.
+
+Tag: maintainer-script-ignores-errors
+Severity: normal
+Certainty: certain
+Ref: policy 10.4
+Info: The maintainer script doesn't seem to set the <tt>-e</tt> flag which
+ ensures that the script's execution is aborted when any executed command
+ fails.
+
+Tag: maintainer-script-without-set-e
+Severity: pedantic
+Certainty: certain
+Ref: policy 10.4
+Info: The maintainer script passes <tt>-e</tt> to the shell on the
+ <tt>#!</tt> line rather than using <tt>set -e</tt> in the body of the
+ script.  This is fine for normal operation, but if the script is run by
+ hand with <tt>sh /path/to/script</tt> (common in debugging), <tt>-e</tt>
+ will not be in effect.  It's therefore better to use <tt>set -e</tt> in
+ the body of the script.
+
+Tag: command-with-path-in-maintainer-script
+Severity: normal
+Certainty: certain
+Info: The indicated program run in a maintainer script has a prepended
+ path.  Programs called from maintainer scripts normally should not have a
+ path prepended.  dpkg ensures that the PATH is set to a reasonable value,
+ and prepending a path may prevent the local administrator from using a
+ replacement version of a command for some local reason.
+ .
+ If the path is used to test a program for existence, please use <tt>if
+ which $program > /dev/null; then …</tt>.
+ .
+ If you intend to override this tag, please make sure that you are in
+ control of the installation path of the according program and that
+ you won't forget to change this maintainer script, too, if you ever
+ move that program around.
+Ref: policy 6.1, devref 6.4, #769845, #807695,
+ https://lists.debian.org/debian-devel/2014/11/msg00044.html
+
+Tag: package-uses-local-diversion
+Severity: serious
+Certainty: certain
+Ref: policy 3.9
+Info: The maintainer script calls dpkg-divert with <tt>--local</tt> or
+ without <tt>--package</tt>.  This option is reserved for local
+ administrators and must never be used by a Debian package.
+
+Tag: diversion-for-unknown-file
+Severity: important
+Certainty: certain
+Info: The maintainer script adds a diversion for a file that is not
+ provided by this package.
+
+Tag: orphaned-diversion
+Severity: important
+Certainty: certain
+Info: A diversion was added for the file, but not removed. This means
+ your package doesn't restore the previous state after removal.
+
+Tag: remove-of-unknown-diversion
+Severity: important
+Certainty: certain
+Info: The maintainer script removes a diversion that it didn't add.  If
+ you're cleaning up unnecessary diversions from older versions of the
+ package, remove them in <tt>preinst</tt> or <tt>postinst</tt> instead of
+ waiting for <tt>postrm</tt> to do it.
+
+Tag: script-uses-perl4-libs-without-dep
+Severity: normal
+Certainty: possible
+Info: This package includes perl scripts using obsoleted perl 4-era
+ libraries. These libraries have been deprecated in perl in 5.14, and
+ are likely to be removed from the core in perl 5.16. Please either
+ remove references to these libraries, or add a dependency on
+ <tt>libperl4-corelibs-perl | perl (&lt;&lt; 5.12.3-7)</tt> to this package.
+
+Tag: maintainer-script-has-unexpanded-debhelper-token
+Severity: normal
+Certainty: possible
+Info: Lintian has detected the presence of a #DEBHELPER# token in the
+ listed maintainer/control script.  By default, dh_installdeb will remove
+ the token when it makes a substitution in a script.
+ .
+ Please note that dh_installdeb does <i>not</i> substitute the #DEBHELPER#
+ token in udebs.
+
+Tag: debhelper-autoscript-in-maintainer-scripts
+Severity: classification
+Certainty: possible
+Info: The maintainer scripts of the package contain one or more
+ auto-generated shell snippets inserted by the listed debhelper tool.
+
+Tag: unconditional-use-of-dpkg-statoverride
+Severity: normal
+Certainty: possible
+Info: The maintainer script appears to use <tt>dpkg-statoverride --add</tt>
+ without a prior call to <tt>dpkg-statoverride --list</tt> to check the
+ current status.
+Ref: policy 10.9.1
+
+Tag: elf-maintainer-script
+Severity: classification
+Certainty: certain
+Info: The maintainer script is an ELF binary.
+
+Tag: maintainer-script-interpreter
+Severity: classification
+Certainty: certain
+Info: Interpreter used in maintainer script or ELF
+
+Tag: script-needs-depends-on-sensible-utils
+Severity: important
+Certainty: possible
+Info: The listed script uses one or more of the binaries in
+ <tt>sensible-utils</tt> but is missing a dependency for this package.
+ .
+ As part of the transition to split <tt>sensible-utils</tt> and
+ <tt>debianutils</tt>, the remaining <tt>Depends</tt> from
+ <tt>debianutils</tt> was removed in version 4.8.2.
+ .
+ In most cases, you will need to add a <tt>Depends</tt> on
+ <tt>sensible-utils</tt>.
+
+Tag: script-uses-deprecated-nodejs-location
+Severity: normal
+Certainty: possible
+Info: You used <tt>/usr/bin/nodejs</tt> or <tt>/usr/bin/env nodejs</tt> as an
+ interpreter for a script.
+ .
+ The <tt>/usr/bin/node</tt> binary was previously provided by
+ <tt>ax25-node</tt> and packages were required to use <tt>/usr/bin/nodejs</tt>
+ instead. <tt>ax25-node</tt> has since been removed from the archive and the
+ <tt>nodejs</tt> package now ships the <tt>/usr/bin/node</tt> binary to match
+ the rest of the Node.js ecosystem.
+ .
+ Please update your package to use the <tt>node</tt> variant.
+Ref: #614907, #862051
+
+Tag: example-script-uses-deprecated-nodejs-location
+Severity: normal
+Certainty: possible
+Info: You used <tt>/usr/bin/nodejs</tt> or <tt>/usr/bin/env nodejs</tt> as an
+ interpreter for an example script.
+ .
+ The <tt>/usr/bin/node</tt> binary was previously provided by
+ <tt>ax25-node</tt> and packages were required to use <tt>/usr/bin/nodejs</tt>
+ instead.  <tt>ax25-node</tt> has since been removed from the archive and the
+ <tt>nodejs</tt> package now ships the <tt>/usr/bin/node</tt> binary to match
+ the rest of the Node.js ecosystem.
+ .
+ Please update your package to use the <tt>node</tt> variant.
+Ref: #614907, #862051
+
+Tag: maintainer-script-should-not-use-recursive-chown-or-chmod
+Severity: normal
+Certainty: certain
+Info: The maintainer script appears to call <tt>chmod</tt> or
+ <tt>chown</tt> with an <tt>--recursive</tt> or <tt>-R</tt> argument.
+ .
+ This is vulnerable to hardlink attacks on mainline, non-Debian kernels
+ that do not have <tt>fs.protected_hardlinks=1</tt>,
+ .
+ This arises through altering permissions or ownership within a directory
+ that may be owned by a non-privileged user - such a user can link to
+ files that they do not own such as <tt>/etc/shadow</tt> or files
+ within <tt>/var/lib/dpkg/</tt>. The promiscuous <tt>chown</tt> or
+ <tt>chmod</tt> would convert the ownership or permissions of these
+ files so that they are manipulable by the non-privileged user.
+ .
+ Ways to avoid this problem include:
+ .
+  - If your package uses a static uid, please perform the <tt>chown</tt> at
+    package build time instead of installation time.
+  - Use a non-recursive call instead, ensuring that you do not change
+    ownership of files that are in user-controlled directories.
+  - Use <tt>runuser(1)</tt> to perform any initialization work as the
+    user you were previously <tt>chown</tt>ing to.
+Ref: #889060, #889488, runuser(1)
+
+Tag: udevadm-called-without-guard
+Severity: normal
+Certainty: possible
+Info: The specified maintainer script uses <tt>set -e</tt> but seems to
+ call <tt>udevadm(8)</tt> without a conditional guard.
+ .
+ <tt>udevadm</tt> can exist but be non-functional (such as inside a
+ chroot) and thus can result in package installation or upgrade failure
+ if the call fails.
+ .
+ Please guard the return code of the call via wrapping it in a suitable
+ <tt>if</tt> construct or by appending <tt>|| true</tt>.
+Ref: #890224, udevadm(8)

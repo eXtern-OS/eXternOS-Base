@@ -1,0 +1,46 @@
+#!/bin/sh
+
+set -e
+
+PREREQ="cryptroot"
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case $1 in
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+# Hooks for loading gnupg software and symmetrically encrypted key into
+# the initramfs
+
+# Check whether cryptroot hook has installed decrypt_gnupg script
+if [ ! -x ${DESTDIR}/lib/cryptsetup/scripts/decrypt_gnupg ] ; then
+    exit 0
+fi
+
+# Install cryptroot key files into initramfs
+grep -E '(.*,)?keyscript=([^,]*\/)?decrypt_gnupg(,.*)?$' "${DESTDIR}/conf/conf.d/cryptroot" | \
+sed -r '/(.*,)?key=([^,]*)(,.*)?$/ s//\2/; t n; s/.*//; :n' | \
+while read key; do
+	if [ -z "$key" ]; then
+		echo "$0: Missing key file in ${DESTDIR}/conf/conf.d/cryptroot" >&2
+		cat "${DESTDIR}/conf/conf.d/cryptroot" >&2
+		exit 1
+	fi
+	echo "WARNING: gpg-encrypted key $key is copied to initramfs" >&2
+	mkdir -p "${DESTDIR}/$(dirname ${key})"
+	cp -f "$key" "${DESTDIR}/${key}"
+done
+
+# Install gnupg software
+copy_exec /usr/bin/gpg
+
+exit 0

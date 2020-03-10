@@ -1,0 +1,59 @@
+fftw3 for DEBIAN
+----------------------
+
+Some of the changes made for version 3 of FFTW necessitated changes to the API,
+so you will need to make (minor) changes when moving existing programs to this
+version. See the documentation (in package fftw3-doc) for details.
+
+In fftw2 separate packages included optimizations for SIMD
+instructions. In fftw3 all such optimizations (x86 and powerpc) are
+included in the regular libraries. The routines should automatically
+detect the capabilities of your processor. Also, the package contains
+three different precision versions (single and double as before, plus
+a new long double version).
+
+The -dev version of a package contains the headers and a statically
+linked copy of the libraries. You need to install this if you intend
+to compile a program which uses fftw. Be careful when compiling
+against the static libs as the library linker (ld) looks for shared
+libraries first. Some people prefer to use static libraries as there
+can be a speed advantage (3-30%) on register starved architectures
+(like x86 machines).
+
+The package also contains a threaded version of fftw.
+Using the threaded version is almost identical to using the non-
+threaded version, but the function calls are renamed and you
+need to call a special function first to handle some housekeeping.
+See the documentation for details.
+
+To top it all off, you can call fftw from fortran. See the docs at
+/usr/share/doc/fftw3-doc/html/Calling-FFTW-from-Fortran.html
+(needs package fftw-doc installed).
+
+Checking the fftw library for correctness
+-----------------------------------------
+A 'make check' is run during the Debian build. This runs a number of tests
+on the library but does not test all aspects of fftw.
+
+Some users may want to run more complete checks on the library.
+Unfortunately, it is difficult to compile or run the checks outside
+the source so a precompiled binary is not included with the package.
+To enable users to check the library for correctness, the
+instructions for compiling the source are included here:
+   apt-get source fftw3       (you need a deb-src line in /etc/apt/sources.list)
+   cd fftw3-3.0
+Run the configure line from debian/rules appropriate for your architecture and
+the precision you would like to test. For example, to run the double precision
+tests on an x86 machine you would run:
+   ./configure --prefix=/usr --enable-shared --enable-threads --enable-sse2
+Then compile the source and go into the tests directory:
+   make
+   cd tests
+You are now ready to run the tests. You can run individual tests yourself or
+you can run the automated tests. For details on running tests yourself, read
+the README file. There are three choices for the automated tests:
+   make check                 (takes a few minutes)
+   make bigcheck              (takes hours to run)
+   make paranoid-check        (you tell me how long it takes)
+
+James A. Treacy <treacy@debian.org>, Thu, 24 Apr 2003 21:42:20 -0500

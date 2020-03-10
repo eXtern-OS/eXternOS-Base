@@ -1,0 +1,205 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      type="topic" style="task"
+      id="nautilus-connect">
+
+  <info>
+    <link type="guide" xref="files#more-file-tasks"/>
+    <link type="guide" xref="sharing"/>
+
+    <revision pkgversion="3.6.0" date="2012-10-06" status="review"/>
+    <revision pkgversion="3.12" date="2014-03-23" status="candidate"/>
+    <revision pkgversion="3.14" date="2014-10-12" status="candidate"/>
+    <revision pkgversion="3.18" date="2015-09-29" status="candidate"/>
+
+    <credit type="author">
+      <name>Shaun McCance</name>
+      <email>shaunm@gnome.org</email>
+    </credit>
+    <credit type="editor">
+      <name>Michael Hill</name>
+      <email>mdhillca@gmail.com</email>
+    </credit>
+    <credit type="editor">
+      <name>David King</name>
+      <email>amigadave@amigadave.com</email>
+    </credit>
+
+    <include href="legal.xml" xmlns="http://www.w3.org/2001/XInclude"/>
+
+    <desc>View and edit files on another computer over FTP, SSH, Windows
+    shares, or WebDAV.</desc>
+
+  </info>
+
+<title>Browse files on a server or network share</title>
+
+<comment>
+  <cite date="2015-09-28">shaunm</cite>
+  <p>We can now get network shares for the 'Files' service in GOA
+  providers like Google and ownCloud. Put a note in here mentioning
+  that you can use that instead for certain services. Maybe link to
+  <link xref="accounts-which-application"/>?</p>
+</comment>
+
+<p>You can connect to a server or network share to browse and
+view files on that server, exactly as if they were on your
+own computer. This is a convenient way to download or upload
+files on the internet, or to share files with other people on
+your local network.</p>
+
+<p>To browse files over the network, open the <app>Files</app>
+application from the <gui>Activities</gui> overview, and click
+<gui>Other Locations</gui> in the sidebar. The file manager
+will find any computers on your local area network that advertize
+their ability to serve files. If you want to connect to a server
+on the internet, or if you do not see the computer you’re looking
+for, you can manually connect to a server by typing in its
+internet/network address.</p>
+
+<steps>
+  <title>Connect to a file server</title>
+  <item><p>In the file manager, click <gui>Other Locations</gui> in the
+   sidebar.</p>
+  </item>
+  <item><p>In <gui>Connect to Server</gui>, enter the address of the server, in
+  the form of a
+   <link xref="#urls">URL</link>. Details on supported URLs are
+   <link xref="#types">listed below</link>.</p>
+  <note>
+    <p>If you have connected to the server before, you can click on it in the
+    <gui>Recent Servers</gui> list.</p>
+  </note>
+  </item>
+  <item>
+    <p>Click <gui>Connect</gui>. The files on the server will be shown. You
+    can browse the files just as you would for those on your own computer. The
+    server will also be added to the sidebar so you can access it quickly in
+    the future.</p>
+  </item>
+</steps>
+
+<section id="urls">
+ <title>Writing URLs</title>
+
+<p>A <em>URL</em>, or <em>uniform resource locator</em>, is a form of address
+ that refers to a location or file on a network. The address is formatted like this:</p>
+  <example>
+    <p><sys>scheme://servername.example.com/folder</sys></p>
+  </example>
+<p>The <em>scheme</em> specifies the protocol or type of server. The
+  <em>example.com</em> portion of the address is called the <em>domain name</em>.
+  If a username is required, it is inserted before the server name:</p>
+  <example>
+    <p><sys>scheme://username@servername.example.com/folder</sys></p>
+  </example>
+<p>Some schemes require the port number to be specified. Insert it after the domain name:</p>
+  <example>
+    <p><sys>scheme://servername.example.com:port/folder</sys></p>
+  </example>
+<p>Below are specific examples for the various server types that are supported.</p>
+</section>
+
+<section id="types">
+ <title>Types of servers</title>
+
+<p>You can connect to different types of servers. Some servers are public,
+   and allow anybody to connect. Other servers require you to log in with a
+   username and password.</p>
+<p>You may not have permissions to perform certain actions on files on a server.
+  For example, on public FTP sites, you will probably not be able to delete
+  files.</p>
+<p>The URL you enter depends on the protocol that the
+  server uses to export its file shares.</p>
+<terms>
+<item>
+  <title>SSH</title>
+  <p>If you have a <em>secure shell</em> account on a server, you
+  can connect using this method. Many web hosts provide SSH accounts
+  to members so they can securely upload files. SSH servers always
+  require you to log in.</p>
+  <p>A typical SSH URL looks like this:</p>
+  <example>
+    <p><sys>ssh://username@servername.example.com/folder</sys></p>
+  </example>
+
+  <comment><cite>shaunm</cite><p>We should have a topics on encryption
+  keys, possibly rolling the seahorse help into gnome-help. Then link
+  from here.</p></comment>
+
+  <p>When using SSH, all the data you send (including your password)
+  is encrypted so that other users on your network can’t see it.</p>
+</item>
+<item>
+  <title>FTP (with login)</title>
+  <p>FTP is a popular way to exchange files on the Internet.
+  Because data is not encrypted over FTP, many servers now provide
+  access through SSH. Some servers, however, still allow or require
+  you to use FTP to upload or download files. FTP sites with logins
+  will usually allow you to delete and upload files.</p>
+  <p>A typical FTP URL looks like this:</p>
+  <example>
+    <p><sys>ftp://username@ftp.example.com/path/</sys></p>
+  </example>
+</item>
+<item>
+  <title>Public FTP</title>
+  <p>Sites that allow you to download files will sometimes provide
+  public or anonymous FTP access. These servers do not require a
+  username and password, and will usually not allow you to delete
+  or upload files.</p>
+  <p>A typical anonymous FTP URL looks like this:</p>
+  <example>
+    <p><sys>ftp://ftp.example.com/path/</sys></p>
+  </example>
+  <p>Some anonymous FTP sites require you to log in with a
+  public username and password, or with a public username using
+  your email address as the password. For these servers, use the
+  <gui>FTP (with login)</gui> method, and use the credentials
+  specified by the FTP site.</p>
+</item>
+<item>
+  <title>Windows share</title>
+  <p>Windows computers use a proprietary protocol to share files over a local
+  area network. Computers on a Windows network are sometimes grouped into
+  <em>domains</em> for organization and to better control access. If you have
+  the right permissions on the remote computer, you can connect to a Windows
+  share from the file manager.</p>
+  <p>A typical Windows share URL looks like this:</p>
+  <example>
+    <p><sys>smb://servername/Share</sys></p>
+  </example>
+</item>
+<item>
+  <title>WebDAV and Secure WebDAV</title>
+  <p>Based on the HTTP protocol used on the web, WebDAV is sometimes used to
+  share files on a local network and to store files on the internet. If the
+  server you’re connecting to supports secure connections, you should choose
+  this option. Secure WebDAV uses strong SSL encryption, so that other users
+  can’t see your password.</p>
+  <p>A WebDAV URL looks like this:</p>
+  <example>
+    <p><sys>dav://example.hostname.com/path</sys></p>
+  </example>
+  <comment>
+    <cite date="2012-02-19">shaunm</cite>
+    <p>Also used by gnome-user-share, but we're not talking about that
+    in gnome-help for 3.0. Hopefully it will be better integrated in 3.2,
+    and we can discuss it better in the help. If that happens, link from
+    here.</p>
+  </comment>
+</item>
+<item>
+  <title>NFS share</title>
+  <p>UNIX computers traditionally use the Network File System protocol to
+  share files over a local network. With NFS, security is based on the UID of
+  the user accessing the share, so no authentication credentials are
+  needed when connecting.</p>
+  <p>A typical NFS share URL looks like this:</p>
+  <example>
+    <p><sys>nfs://servername/path</sys></p>
+  </example>
+</item>
+</terms>
+</section>
+
+</page>

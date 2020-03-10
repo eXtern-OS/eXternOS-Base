@@ -1,0 +1,59 @@
+#!/usr/bin/python3
+#
+# Collect information about an iwlwifi firmware error dump.
+#
+# Copyright (c) 2014 Canonical Ltd.
+# Author: Seth Forshee <seth.forshee@canonical.com>
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.  See http://www.gnu.org/copyleft/gpl.html for
+# the full text of the license.
+
+import os, sys, re
+import apport, apport.fileutils
+from apport.hookutils import command_output
+
+if len(sys.argv) != 2:
+    sys.exit(1)
+
+phy = os.path.basename(sys.argv[1])
+sysfs_path = '/sys/kernel/debug/ieee80211/' + phy + '/iwlwifi/iwlmvm/fw_error_dump'
+if not os.path.exists(sysfs_path):
+    sys.exit(1)
+
+pr = apport.Report('KernelCrash')
+pr.add_package(apport.packaging.get_kernel_package())
+pr['Title'] = 'iwlwifi firmware error'
+pr.add_os_info()
+
+# Get iwl firmware version and error code from dmesg
+dmesg = command_output(['dmesg'])
+regex = re.compile('^.*iwlwifi [0-9a-fA-F:]{10}\.[0-9a-fA-F]: Loaded firmware version: ([0-9\.]+).*\\n.*iwlwifi [0-9a-fA-F:]{10}\.[0-9a-fA-F]: (0x[0-9A-F]{8} \| [A-Z_]+)', re.MULTILINE)
+m = regex.findall(dmesg)
+if m:
+    v = m[len(m) - 1]
+    fw_version = v[0]
+    error_code = v[1]
+
+    pr['IwlFwVersion'] = fw_version
+    pr['IwlErrorCode'] = error_code
+    pr['DuplicateSignature'] = 'iwlwifi:' + fw_version + ':' + error_code
+    pr['Title'] += ': ' + error_code
+
+# Get iwl firmware dump file from debugfs
+try:
+    with open(sysfs_path, 'rb') as f:
+        pr['IwlFwDump'] = f.read()
+        # Firmware dump could contain sensitive information
+        pr['LaunchpadPrivate'] = 'yes'
+        pr['LaunchpadSubscribe'] = 'canonical-kernel-team'
+except IOError:
+    pass
+
+try:
+    with apport.fileutils.make_report_file(pr) as f:
+        pr.write(f)
+except IOError as e:
+    apport.fatal('Cannot create report: ' + str(e))

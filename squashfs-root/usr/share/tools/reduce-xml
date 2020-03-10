@@ -1,0 +1,327 @@
+#!/usr/bin/python
+#
+# Cuts out all the cruft for the udeb packages.
+
+import sys
+import os
+import string
+import re
+import traceback
+import getopt
+import xml.dom
+import xml.dom.minidom
+
+try:
+    True
+except:
+    True = 1
+    False = 0
+
+config = { "filelist": [],
+           "outfile": "-",
+           "outtype": "device",
+           "includebus": [],
+           "excludebus": [],
+           "classspec": [],
+           "classversion": "",
+           "modlistfile": "",
+           "debug": False
+         }
+
+toplevel_nodes = { "device": "device_list",
+                   "vendor": "vendor_list"
+                 }
+
+class UsageError(RuntimeError):
+    pass
+
+def compare_versions(x, y):
+    x_pieces = string.split(x, ".")
+    y_pieces = string.split(y, ".")
+    index = 0
+    while index < len(x_pieces) and index < len(y_pieces):
+        if int(x_pieces[index]) != int(y_pieces[index]):
+            return cmp(int(x_pieces[index]), int(y_pieces[index]))
+        index = index + 1
+
+    return cmp(len(x_pieces), len(y_pieces))
+
+def check_version(set_spec, version):
+    if string.find(set_spec, "inf") != -1:
+        pass
+
+    include_left = (set_spec[0] == "[")
+    include_right = (set_spec[-1] == "]")
+    (left_version, right_version) = re.split(r',\s*', set_spec[1:-1])
+
+    if left_version == "inf":
+        left_compare = -1
+    else:
+        left_compare = compare_versions(left_version, version)
+    if right_version == "inf":
+        right_compare = 1
+    else:
+        right_compare = compare_versions(version, right_version)
+
+    if left_compare < 0 and right_compare < 0:
+        return True
+    if left_compare == 0 and include_left:
+        return True
+    if right_compare == 0 and include_right:
+        return True
+
+    return False
+
+def get_busclass(device_node, busclass_docs):
+    if not device_node.attributes.has_key("busclass"):
+        return None
+
+    device_id = device_node.attributes["busclass"].value
+    for doc in busclass_docs:
+        for node in doc.documentElement.childNodes:
+            if node.nodeType != xml.dom.Node.ELEMENT_NODE:
+                continue
+
+            id = node.attributes["id"].value
+            if id == device_id:
+                return node.attributes["name"].value
+
+    return None
+
+def find_spec(spec, node):
+    try:
+        (spec_name, spec_rest) = string.split(spec, ":", 1)
+    except:
+        spec_name = spec
+        spec_rest = None
+
+    node_name = node.attributes["class"]
+    if node_name is None:
+        return False
+
+    node_name = node_name.value
+    if node_name == spec_name:
+        if spec_rest is None:
+            return True
+        elif spec_rest[0] in string.digits:
+            spec_version = spec_rest
+            try:
+                node_version_spec = node.attributes["version"]
+            except KeyError:
+                return True
+
+            return check_version(node_version_spec.value, spec_version)
+        else:
+            for child_node in node.childNodes:
+                if child_node.nodeType != xml.dom.Node.ELEMENT_NODE:
+                    continue
+                if find_spec(spec_rest, child_node):
+                    return True
+            return False
+    else:
+        return False
+
+def usage(f):
+    f.write("need usage statement\n")
+
+def main():
+    global config
+    global toplevel_nodes
+
+    try:
+
+        # Parse options
+
+        (options, args) = getopt.getopt(sys.argv[1:], "di:o:",
+                                        ["input-file=", "output-file=",
+                                         "output-type=",
+                                         "include-bus=",
+                                         "exclude-bus=", "class-spec=",
+                                         "module-list=",
+                                         "debug"])
+        for option in options:
+            if option[0] in ("-i", "--input-file"):
+                config["filelist"].append(option[1])
+            elif option[0] in ("-o", "--output-file"):
+                config["outfile"] = option[1]
+            elif option[0] == "--output-type":
+                config["outtype"] = option[1]
+            elif option[0] == "--include-bus":
+                config["includebus"].extend(string.split(option[1], ","))
+            elif option[0] == "--exclude-bus":
+                config["excludebus"].extend(string.split(option[1], ","))
+            elif option[0] == "--class-spec":
+                config["classspec"].append(option[1])
+            elif option[0] == "--module-list":
+                config["modlistfile"] = option[1]
+            elif option[0] in ("-d", "--debug"):
+                config["debug"] = True
+            else:
+                raise UsageError, "invalid option: %s" % (option[0],)
+
+        # Sanity-check options
+
+        if len(config["filelist"]) == 0:
+            raise UsageError, "need input busclass, vendor, and device files"
+        if len(config["classspec"]) == 0:
+            raise UsageError, "need at least one class specification"
+
+        # Load module list information if present
+
+        modlist = []
+        if config["modlistfile"] and os.path.exists(config["modlistfile"]):
+            modlistfile = open(config["modlistfile"])
+            for line in modlistfile:
+                modlist.append(string.strip(line))
+            modlistfile.close()
+
+        # Load files
+
+        bus_info = {}
+        for fn in config["filelist"]:
+            try:
+                document = xml.dom.minidom.parse(fn)
+                bus_id = document.documentElement.attributes["bus"].value
+            except:
+                sys.stderr.write("warning: couldn't parse %s, skipping.\n"
+                                 % (fn,))
+                continue
+
+            if not bus_info.has_key(bus_id):
+                bus_info[bus_id] = { "busclass": [],
+                                     "vendor": [],
+                                     "device": [] }
+            data_type = document.documentElement.tagName[:-5]
+            try:
+                bus_info[bus_id][data_type].append(document)
+            except:
+                sys.stderr.write("warning: invalid file %s, continuing.\n"
+                                 % (fn,))
+
+        # Sanity-check file information
+
+        if len(bus_info.keys()) != 1:
+            raise RuntimeError, \
+                  "one and only one bus type can be used at a time"
+        bus_data = bus_info[bus_info.keys()[0]]
+        for bus_type in ("busclass", "device"):
+            if len(bus_data[bus_type]) == 0:
+                raise RuntimeError, \
+                      "required data for bus %s missing, aborting" \
+                      % (bus_type,)
+
+        # Create output device document
+
+        outtype = config["outtype"]
+        out = bus_data[outtype][0].implementation.createDocument(None, toplevel_nodes[outtype], None)
+        out.documentElement.setAttribute("bus", bus_info.keys()[0])
+
+        # Iterate over the input device document, copying nodes we
+        # don't want to strip to the output document.
+
+        attr_list = []
+        for device_doc in bus_data["device"]:
+            for device_node in device_doc.documentElement.childNodes:
+                if device_node.nodeType != xml.dom.Node.ELEMENT_NODE:
+                    continue
+
+                is_approved_busclass = True
+                do_device_node = False
+                module_in_list = False
+                new_device_node = None
+                busclass = get_busclass(device_node, bus_data["busclass"])
+                if busclass is None or \
+                   busclass in config["excludebus"]:
+                    is_approved_busclass = False
+                if len(config["includebus"]) > 0 and \
+                   busclass not in config["includebus"]:
+                    is_approved_busclass = False
+
+                for data_node in device_node.childNodes:
+                    if data_node.nodeType != xml.dom.Node.ELEMENT_NODE:
+                        continue
+                    do_data_node = False
+                    for spec in config["classspec"]:
+                        if find_spec(spec, data_node):
+                            npath = ["module", "name"]
+                            nnode = data_node.childNodes[0]
+                            while len(npath) > 0 and nnode is not None:
+                                while nnode is not None and \
+                                        nnode.nodeType != \
+                                        xml.dom.Node.ELEMENT_NODE:
+                                    nnode = nnode.nextSibling
+                                if nnode is None:
+                                    continue
+                                if nnode.getAttribute("class") == npath[0]:
+                                    nnode = nnode.childNodes[0]
+                                    npath.pop(0)
+                                else:
+                                    nnode = nnode.nextSibling
+
+                            if nnode is not None:
+                                module_name = string.strip(nnode.nodeValue)
+                                if module_name in modlist:
+                                    module_in_list = True
+                                    break
+                                elif module_name not in ("ignore", "unknown"):
+                                    do_data_node = True
+                                    break
+
+                    if module_in_list or \
+                       (do_data_node and is_approved_busclass):
+                        do_device_node = True
+                        if outtype == "device":
+                            if new_device_node is None:
+                                new_device_node = device_node.cloneNode(False)
+                            new_data_node = data_node.cloneNode(False)
+                            for mod_node in data_node.childNodes:
+                                if mod_node.nodeType != xml.dom.Node.ELEMENT_NODE:
+                                    continue
+                                if mod_node.getAttribute("class") != "module":
+                                    continue
+                                new_mod_node = mod_node.cloneNode(True)
+                                new_data_node.appendChild(new_mod_node)
+                                break
+                            new_device_node.appendChild(new_data_node)
+
+                if do_device_node:
+                    if outtype == "device":
+                        out.documentElement.appendChild(new_device_node)
+                    else:
+                        attr_list.append(device_node.getAttribute(outtype))
+
+        # If we're reducing something besides the device list, create
+        # that reduced document here.
+
+        if outtype != "device":
+            for doc in bus_data[outtype]:
+                for node in doc.documentElement.childNodes:
+                    if node.nodeType != xml.dom.Node.ELEMENT_NODE:
+                        continue
+                    if node.getAttribute("id") in attr_list:
+                        new_node = node.cloneNode(True)
+                        out.documentElement.appendChild(new_node)
+
+        # Write the output document
+
+        if config["outfile"] == "-":
+            out_file = sys.stdout
+        else:
+            out_file = open(config["outfile"], "w")
+
+        out.writexml(out_file, encoding="UTF-8")
+
+    except UsageError, e:
+        sys.stderr.write(sys.argv[0] + ": " + str(e) + "\n")
+        if config["debug"]:
+            traceback.print_exc(None, sys.stderr)
+        usage(sys.stderr)
+        sys.exit(1)
+    except Exception, e:
+        sys.stderr.write(sys.argv[0] + ": " + str(e) + "\n")
+        if config["debug"]:
+            traceback.print_exc(None, sys.stderr)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

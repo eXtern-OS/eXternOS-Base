@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Check</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#FUNCTIONS'>FUNCTIONS</a>
+  <li class='indexItem indexItem1'><a href='#VARIABLES'>VARIABLES</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Check -- Lintian checks shared between multiple scripts</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre>    use Lintian::Check qw(check_maintainer);
+
+    my ($maintainer, $field) = (&#39;John Doe&#39;, &#39;uploader&#39;);
+    check_maintainer ($maintainer, $field);</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>This module provides functions to do some Lintian checks that need to be done in multiple places. There are certain low-level checks, such as validating a maintainer name and e-mail address or checking spelling, which apply in multiple situations and should be done in multiple checks scripts or in checks scripts and the Lintian front-end.</p>
+
+<p>The functions provided by this module issue tags directly, usually either taking the tag name to issue as an argument or dynamically constructing the tag name based on function parameters. The caller is responsible for ensuring that all tags are declared in the relevant *.desc file with proper descriptions and other metadata. The possible tags issued by each function are described in the documentation for that function.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="FUNCTIONS"
+>FUNCTIONS</a></h1>
+
+<dl>
+<dt><a name="check_maintainer(MAINTAINER,_FIELD)"
+>check_maintainer(MAINTAINER, FIELD)</a></dt>
+
+<dd>
+<p>Checks the maintainer name and address MAINTAINER for Policy compliance and other issues. FIELD is the context in which the maintainer name and address was seen and should be one of <code>maintainer</code> (the Maintainer field in a control file), <code>uploader</code> (the Uploaders field in a control file), or <code>changed-by</code> (the Changed-By field in a changes file).</p>
+
+<p>The following tags may be issued by this function. The string <code>%s</code> in the tags below will be replaced with the value of FIELD.</p>
+
+<dl>
+<dt><a name="%s-address-is-on-localhost"
+>%s-address-is-on-localhost</a></dt>
+
+<dd>
+<p>The e-mail address portion of MAINTAINER is at <code>localhost</code> or some other similar domain.</p>
+
+<p>= item %s-address-is-root-user</p>
+
+<p>The user (from email or username) of MAINTAINER is root.</p>
+
+<dt><a name="%s-address-causes-mail-loops-or-bounces"
+>%s-address-causes-mail-loops-or-bounces</a></dt>
+
+<dd>
+<p>The e-mail address portion of MAINTAINER or UPLOADER refers to the PTS e-mail addresses <code>package@packages.debian.org</code> or <code>package@packages.qa.debian.org</code>, or, alternatively refers to a mailing list which is known to bounce off-list mails sent by Debian role accounts.</p>
+
+<dt><a name="%s-address-looks-weird"
+>%s-address-looks-weird</a></dt>
+
+<dd>
+<p>MAINTAINER may be syntactically correct, but it isn&#39;t conventionally formatted. Currently this tag is only issued for missing whitespace between the name and the address.</p>
+
+<dt><a name="%s-address-malformed"
+>%s-address-malformed</a></dt>
+
+<dd>
+<p>MAINTAINER doesn&#39;t fit the basic syntax of a maintainer name and address as specified in Policy.</p>
+
+<dt><a name="%s-address-missing"
+>%s-address-missing</a></dt>
+
+<dd>
+<p>MAINTAINER does not contain an e-mail address in angle brackets (&#60;&#62;).</p>
+
+<dt><a name="%s-name-missing"
+>%s-name-missing</a></dt>
+
+<dd>
+<p>MAINTAINER does not contain a full name before the address, or the e-mail address was not in angle brackets.</p>
+
+<dt><a name="wrong-debian-qa-address-set-as-maintainer"
+>wrong-debian-qa-address-set-as-maintainer</a></dt>
+
+<dd>
+<p>MAINTAINER appears to be the Debian QA Group, but the e-mail address portion is wrong for orphaned packages. This tag is only issued for a FIELD of <code>maintainer</code>.</p>
+
+<dt><a name="wrong-debian-qa-group-name"
+>wrong-debian-qa-group-name</a></dt>
+
+<dd>
+<p>MAINTAINER appears to be the Debian QA Group, but the name portion is not <code>Debian QA Group</code>. This tag is only issued for a FIELD of <code>maintainer</code>.</p>
+</dd>
+</dl>
+
+<p>The last two tags are issued here rather than in a location more specific to checks of the Maintainer control field because they take advantage of the parsing done by the rest of the function.</p>
+
+<dt><a name="spelling_tag_emitter(TAGNAME[,_FILENAME])"
+>spelling_tag_emitter(TAGNAME[, FILENAME])</a></dt>
+
+<dd>
+<p>Create and return a subroutine that is useful for emitting lintian tags for spelling mistakes. The returned CODE ref can be passed to <a href="#check_spelling(TEXT%2C%5B_EXCEPTIONS%2C%5D_CODEREF)" class="podlinkpod"
+>&#34;check_spelling(TEXT,[ EXCEPTIONS,] CODEREF)&#34;</a> and will faithfully emit TAGNAME once for each unique spelling mistake.</p>
+
+<p>The optional extra parameter FILENAME is used to denote the file name, when this is not given from the tagname.</p>
+
+<dt><a name="check_spelling(TEXT,[_EXCEPTIONS,]_CODEREF)"
+>check_spelling(TEXT,[ EXCEPTIONS,] CODEREF)</a></dt>
+
+<dd>
+<p>Performs a spelling check of TEXT. Call CODEREF once for each unique misspelling with the following arguments:</p>
+
+<dl>
+<dt><a name="The_misspelled_word/phrase"
+>The misspelled word/phrase</a></dt>
+
+<dd>
+<dt><a name="The_correct_word/phrase"
+>The correct word/phrase</a></dt>
+</dl>
+
+<p>If EXCEPTIONS is given, it will be used as a hash ref of exceptions. Any lowercase word appearing as a key of this hash ref will never be considered a spelling mistake (exception being if it is a part of a multiword misspelling).</p>
+
+<p>Returns the number of spelling mistakes found in TEXT.</p>
+
+<dt><a name="check_spelling_picky(TEXT,_CODEREF)"
+>check_spelling_picky(TEXT, CODEREF)</a></dt>
+
+<dd>
+<p>Performs a spelling check of TEXT. Call CODEREF once for each unique misspelling with the following arguments:</p>
+
+<dl>
+<dt><a name="The_misspelled_word/phrase"
+>The misspelled word/phrase</a></dt>
+
+<dd>
+<dt><a name="The_correct_word/phrase"
+>The correct word/phrase</a></dt>
+</dl>
+
+<p>This method performs some pickier corrections - such as checking for common capitalization mistakes - which would are not included in check_spelling as they are not appropriate for some files, such as changelogs.</p>
+
+<p>Returns the number of spelling mistakes found in TEXT.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="VARIABLES"
+>VARIABLES</a></h1>
+
+<dl>
+<dt><a name="$known_shells_regex"
+>$known_shells_regex</a></dt>
+
+<dd>
+<p>Regular expression that matches names of any known shell.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Russ Allbery &#60;rra@debian.org&#62; for Lintian. Based on code from checks scripts by Marc Brockschmidt and Richard Braakman.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1)</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

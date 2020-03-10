@@ -1,0 +1,23 @@
+# start kinput2
+# vim: set sts=4 expandtab:
+
+# Since this is not so used, I only provide canna case only.
+# No one uses freewnn-jserver.
+
+if [ "$IM_CONFIG_PHASE" = 2 ]; then
+# start kinput2 daemon
+if [ -x /usr/bin/kinput2-canna ]; then
+    /usr/bin/kinput2-canna -xim &
+elif [ -x /usr/bin/kinput2-canna-wnn ]; then
+    /usr/bin/kinput2-canna-wnn -canna -xim &
+    # Alternatively, you can cusomize this as:
+    # /usr/bin/kinput2-canna-wnn -wnn -xim &
+fi
+fi
+
+if [ "$IM_CONFIG_PHASE" = 1 ]; then
+XMODIFIERS=@im=kinput2
+GTK_IM_MODULE=xim
+QT_IM_MODULE=xim
+CLUTTER_IM_MODULE=xim
+fi

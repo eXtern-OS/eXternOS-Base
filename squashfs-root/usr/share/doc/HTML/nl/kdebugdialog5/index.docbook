@@ -1,0 +1,210 @@
+<?xml version="1.0" ?>
+<!DOCTYPE article PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+"dtd/kdedbx45.dtd" [
+  <!ENTITY kdebugdialog5 "<application
+>KDebugDialog</application
+>">
+  <!ENTITY kappname "&kdebugdialog;">
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Dutch "INCLUDE"
+> <!-- change language only here -->
+  
+  
+]>
+
+<article id="kdebugdialog5" lang="&language;">
+<title
+>KDebugDialog</title>
+<articleinfo>
+<authorgroup>
+<author
+>&David.Faure; &David.Faure.mail;</author>
+&Freek.de.Kruijf; 
+</authorgroup>
+
+<date
+>2016-04-02</date>
+<releaseinfo
+>Frameworks 5.21</releaseinfo>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>KDebugdialog</keyword>
+<keyword
+>Debuggen</keyword>
+</keywordset>
+</articleinfo>
+
+
+<para
+>&kdebugdialog; is een dialoogvenster voor het beheren van diagnostische berichten tijdens het uitvoeren van een programma. Het heeft een eenvoudige en volledige modus.</para>
+<para
+>Om in staat te zijn wijzigingen te maken moet <guilabel
+>Alle debuguitvoer uitschakelen</guilabel
+> zijn gedeactiveerd.</para>
+
+<note>
+<para
+>Alleen voor toepassingen die de Frameworks bibliothek kdelibs4support gebruiken.</para>
+<para
+>kDebug() is achtergesteld in &kde; Frameworks 5, ten gunste van ingebouwde logging met categorieën van &Qt;, zie<ulink url="http://doc.qt.io/qt-5/qloggingcategory.html"
+>QLoggingCategory</ulink
+>. Gebruik het programma <ulink url="https://commits.kde.org/kdebugsettings"
+>kdebugsettings</ulink
+> om qCDebug in/uit te schakelen. </para>
+</note>
+
+<variablelist>
+<varlistentry>
+<term
+>Eenvoudige modus</term>
+<listitem>
+<para
+>Als u gewoon <command
+>kdebugdialog5</command
+> opstart, krijgt u een lijst van <quote
+>gebieden</quote
+> te zien die in- of uitgeschakeld kunnen worden. Een <function
+>kDebug(gebied)</function
+>-aanroep in de broncode zal alleen iets in de debuguitvoer tonen als het gebied ingeschakeld is.</para>
+
+<note
+><para
+>Let er op dat kWarning, kError en kFatal altijd verschijnen, ze worden <emphasis
+>niet</emphasis
+> beheerd door deze instelling. </para
+></note>
+
+<para
+>Voer een overeenkomende tekstreeks in in het <guilabel
+>Zoeken</guilabel
+>-veld aan de bovenkant van de lijst, dit stelt u in staat om de gebieden te filteren die getoond worden in de lijstweergave. Gebruik de knoppen onder de lijst om alle items te selecteren of te deselecteren in de weergave (de andere gebieden worden niet beïnvloed) of wijzig de debuguitvoer voor een enkel item met het keuzevakje ervoor. </para>
+
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+>Volledig modus</term>
+<listitem>
+<para
+>Als u <command
+>kdebugdialog5</command
+> <option
+> --fullmode</option
+> start, kunt u apart voor elk debugniveau instellen wat er gedaan moet worden met de diagnostische berichten van dat niveau en dit voor elk debuggebied. </para>
+
+<para
+>In deze volledige modus selecteert u allereerst het gewenste debuggebied uit de lijst links van de dialoog door het zoekvak bovenaan de lijst te gebruiken.</para>
+
+<para
+>U kunt per gebied en per debugniveau aangeven wat er met de debugberichten moet gebeuren.</para>
+
+<itemizedlist>
+<listitem
+><para
+><guilabel
+>Informatie</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Waarschuwing</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Fout</guilabel
+></para
+></listitem>
+<listitem
+><para
+><guilabel
+>Fatale fout</guilabel
+></para
+></listitem>
+</itemizedlist>
+
+<para
+>Voor elk debugniveau kunt u het volgende instellen:</para>
+
+<variablelist>
+<varlistentry>
+<term
+><guilabel
+>Uitvoer naar:</guilabel
+></term>
+<listitem>
+<para
+>In dit combovakje kunt u kiezen waar de berichten naar uitgevoerd moeten worden. De keuzes zijn: <quote
+>Bestand</quote
+>, <quote
+>Berichtveld</quote
+>, <quote
+>Shell</quote
+> (in feite: stderr) en <quote
+>syslog</quote
+>. Stuur geen fatale berichten naar de syslog tenzij u zelf de systeemadministrator bent. De standaard is <quote
+>Shell</quote
+>.</para
+> 
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Bestandsnaam:</guilabel
+></term>
+<listitem
+><para
+>Dit is alleen nuttig als u <quote
+>Bestand</quote
+> als uitvoermethode gekozen hebt en als u de naam van het bestand aangeeft (wat relatief aan de huidige map gezien wordt). De standaard is kdebug.dbg.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Daarnaast kunt u ook het keuzevakje <guilabel
+>Afbreken bij fatale fouten</guilabel
+> inschakelen. In dat geval breekt het programma af als een diagnostisch bericht met het niveau <computeroutput
+>KDEBUG_FATAL</computeroutput
+> ontstaat. Het programma breekt af met een SIGABRT nadat het bericht afgedrukt is.</para>
+
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Als u dit dialoogvenster met <guibutton
+>OK</guibutton
+> sluit, worden uw instellingen onmiddellijk toegepast en opgeslagen in <filename
+>$<envar
+>XDG_CONFIG_HOME</envar
+>/kdebugrc</filename
+> (standaard ~/.config/kdebugrc). Wanneer u op <guibutton
+>Annuleren</guibutton
+> klikt, zullen uw instellingen niet opgeslagen worden.</para>
+
+<para
+>Met dank aan Kalle Dalheimer voor de originele versie van &kdebugdialog;</para>
+
+&meld.fouten;&vertaling.freek; 
+
+&underFDL;
+
+</article>
+<!--
+Local Variables:
+mode: sgml
+sgml-omittag: nil
+sgml-general-insert-case: lower
+sgml-shorttag: t
+End:
+-->
+

@@ -1,0 +1,27 @@
+#!/bin/sh -e
+
+homedir=$1
+language=$2
+validated_language=
+
+[ -n "$language" -a -n "$homedir" ] || exit 1
+
+langtoolsdir=/usr/share/language-tools
+
+validated_language=$( $langtoolsdir/language-validate $language )
+
+if ! dpkg -l language-selector-gnome > /dev/null 2>&1; then
+    renewed_langlist=$validated_language
+elif [ $language = "${language%:*}" ]; then
+    renewed_langlist=$( $langtoolsdir/update-langlist $validated_language "$homedir" )
+else
+    # $language contains a priority list
+    renewed_langlist=$validated_language:${language#*:}
+fi
+
+locale_name=$( $langtoolsdir/language2locale $validated_language )
+
+( $langtoolsdir/save-to-pam-env "$homedir" $locale_name $renewed_langlist ) || exit 1
+
+echo $validated_language
+

@@ -1,0 +1,197 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Tutorial::TestSuite</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#Running_a_subset_of_the_tests'>Running a subset of the tests</a>
+    <li class='indexItem indexItem2'><a href='#Running_tests_under_coverage'>Running tests under coverage</a>
+    <ul   class='indexList indexList3'>
+      <li class='indexItem indexItem3'><a href='#Collecting_the_coverage_you_want_in_a_reasonable_time'>Collecting the coverage you want in a reasonable time</a>
+    </ul>
+  </ul>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Tutorial::TestSuite -- Quick intro to running the Lintian testsuite</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<p>This guide will quickly introduce you to running the Lintian test suite and some tricks.
+The Lintian test suite is fairly large and accordingly it can take a substantial amount of time to run.
+To speed up development,
+there are various options to limit the tests to run.</p>
+
+<p>If you are looking for a guide on how to write tests,
+please consult <a href="../../Lintian/Tutorial/WritingTests.html" class="podlinkpod"
+>Lintian::Tutorial::WritingTests</a>.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>The Lintian test suite is an extensive collection of various test cases.
+The test suite is divided into 4 &#34;sub-suites&#34;.
+The majority of tests are currently located in the &#34;tests&#34; sub-suite.</p>
+
+<p>To run the full suite in all its glory,
+simply invoke:</p>
+
+<pre> $ debian/rules runtests
+
+ OR
+
+ $ mkdir -p debian/test-out
+ $ t/runtests -k --dump-logs t debian/test-out</pre>
+
+<p>While writing a new tag (or check) you probably only want to run a particular (subset of the) test(s). See <a href="#Running_a_subset_of_the_tests" class="podlinkpod"
+>&#34;Running a subset of the tests&#34;</a> for the available options.</p>
+
+<p>When run via <i>debian/rules</i>, the test suite respects &#34;DEB_BUILD_OPTIONS=parallel=N&#34;. When using <i>t/runtests</i> directly, use <i>-jN</i> to choose the number of threads. Note that &#34;N&#34; denotes the amount of &#34;worker&#34; threads. The test runner will generally have 2 threads more than that. Also each &#34;worker&#34; will run lintian, which runs multiple unpacking jobs in parallel as well.</p>
+
+<p>In case you are wondering about the 2 extra threads in the test runner, the first of them is the &#34;coordinator&#34; thread (which will generally be waiting when the workers are active) and the second one is the &#34;output&#34; thread (which handles the fancy output).</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Running_a_subset_of_the_tests"
+>Running a subset of the tests</a></h2>
+
+<p>The following options are available:</p>
+
+<dl>
+<dt><a name="Running_a_single_test"
+>Running a single test</a></dt>
+
+<dd>
+<p>To run a single test by its name, use:</p>
+
+<pre> $ debian/rules runtests onlyrun=$name
+
+ OR
+
+ $ t/runtests --dump-logs t debian/test-out $name</pre>
+
+<dt><a name="Running_all_tests_for_a_check"
+>Running all tests for a check</a></dt>
+
+<dd>
+<p>To run all tests for a given check, use:</p>
+
+<pre> $ debian/rules runtests onlyrun=$check
+
+ OR
+
+ $ t/runtests --dump-logs -k t debian/test-out $check</pre>
+
+<p>$check must be the name of a check (it will test for checks/$check.desc) or &#34;legacy&#34;. This will run all tests that start with &#34;$check-&#34;.</p>
+
+<p>Note: The &#34;changes&#34; sub-suite in the new test suite does not support this.</p>
+
+<dt><a name="Running_all_tests_in_a_sub-suite"
+>Running all tests in a sub-suite</a></dt>
+
+<dd>
+<p>To run all tests in a given sub-suite, use:</p>
+
+<pre> $ debian/rules runtests onlyrun=suite:$suites
+
+ OR
+
+ $ t/runtests --dump-logs -k t debian/test-out suite:$suites</pre>
+
+<p>$suites is a comma-separated list of names of sub-suites to run.</p>
+
+<p>Note: this cannot be used to influence the order in which the sub-suites are run.</p>
+
+<dt><a name="Running_all_tests_designed_for_a_specific_tag"
+>Running all tests designed for a specific tag</a></dt>
+
+<dd>
+<p>To run all tests that have a &#34;Test-For&#34; or a &#34;Test-Against&#34; for a given tag, use:</p>
+
+<pre> $ debian/rules runtests onlyrun=tag:$tag
+
+ OR
+
+ $ t/runtests --dump-logs -k t debian/test-out tag:$tag</pre>
+</dd>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Running_tests_under_coverage"
+>Running tests under coverage</a></h2>
+
+<p>It is possible to run most of the tests under <a href="../../Devel/Cover.html" class="podlinkpod"
+>Devel::Cover</a>. This is done by passing <i>--coverage</i> to <i>t/runtests</i>. Example:</p>
+
+<pre>  $ t/runtests --coverage --dump-logs -j1 -k t debian/test-out</pre>
+
+<p>Please note that <a href="../../Devel/Cover.html" class="podlinkpod"
+>Devel::Cover</a> does not seem to handle multiple threads too well. You may see spurious warnings/errors if you run the tests with 2 or more active worker threads.</p>
+
+<p><b>Caveat</b> 1: Coverage for collections (i.e. programs in <i>collection/</i>) does not seem to work at the moment. Therefore, they often end up with (next to) zero coverage in the generated reports.</p>
+
+<p><b>Caveat</b> 2: <a href="../../Devel/Cover.html" class="podlinkpod"
+>Devel::Cover</a> sometimes changes the output of Lintian or tools called by Lintian. Obviously, this leads to test failures. Therefore, you may see weird test failures (or warnings) when running under coverage.</p>
+
+<h3><a class='u' href='#___top' title='click to go to top of document'
+name="Collecting_the_coverage_you_want_in_a_reasonable_time"
+>Collecting the coverage you want in a reasonable time</a></h3>
+
+<p>Collecting coverage is excruciatingly slow. This is not helped by the fact that it becomes unreliable when run under 2 or more threads.</p>
+
+<p>Fortunately, <a href="../../Devel/Cover.html" class="podlinkpod"
+>Devel::Cover</a> &#34;appends&#34; to its cover database. This allows you to &#34;slowly&#34; build up the coverage database over multiple runs. Example:</p>
+
+<pre>  $ t/runtests --coverage --dump-logs -j1 -k t debian/test-out suite:scripts
+  $ t/runtests --coverage --dump-logs -j1 -k t debian/test-out suite:debs
+  $ t/runtests --coverage --dump-logs -j1 -k t debian/test-out suite:source
+  ...</pre>
+
+<p>Or:</p>
+
+<pre>  $ t/runtests --coverage --dump-logs -j1 -k t debian/test-out $check
+  $ t/runtests --coverage --dump-logs -j1 -k t debian/test-out legacy</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p><a href="../../Lintian/Tutorial/WritingTests.html" class="podlinkpod"
+>Lintian::Tutorial::WritingTests</a></p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

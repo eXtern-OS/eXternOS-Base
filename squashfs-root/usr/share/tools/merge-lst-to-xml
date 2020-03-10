@@ -1,0 +1,274 @@
+#!/usr/bin/python
+
+import sys
+import optparse
+import string
+
+from xml.etree import ElementTree
+from xml.etree.ElementTree import XMLTreeBuilder
+
+class LstParser:
+    """Parser for discover 1 device lists.  Once initialized, the
+    object appears to be a mapping (indexed by vendor ID) of mappings
+    with a name key and a devices key.  The devices key contains a
+    sequence of mappings, each having an ID, name, class, and module key.
+    """
+
+    def __init__(self, path):
+        self.file = open(path)
+        self.vendors = {}
+        self.last_vendor = None
+
+    def _read_one_vendor(self):
+        """Read a single vendor, starting at the current file position.
+        """
+
+        retval = None
+        while True:
+            offset = self.file.tell()
+            line = self.file.readline()
+            if not line:
+                break
+            if line[0] not in string.whitespace:
+                (vid, name) = line.strip().split(None, 1)
+                self.vendors[vid] = offset
+                retval = self.last_vendor = vid
+                break
+
+        return retval
+
+    def _read_vendors(self, key=None):
+        """Read vendors until EOF or until the vendor with the given
+        key is read.
+        """
+        while True:
+            found = self._read_one_vendor()
+            if (key and found == key) or not found:
+                break
+
+    def _read_devices(self):
+        """Read and return the vendor and device information for the vendor
+        at the current file position.
+        """
+
+        retval = {}
+        (vid, vname) = self.file.readline().strip().split(None, 1)
+        retval["name"] = vname
+        retval["devices"] = []
+
+        while True:
+            line = self.file.readline()
+            if not line:
+                break
+            if line[0] not in string.whitespace:
+                break
+            (did, dclass, dmod, dname) = line.strip().split(None, 3)
+            retval["devices"].append({ "name": dname,
+                                       "id": did,
+                                       "class": dclass,
+                                       "module": dmod })
+
+        return retval
+
+    def __getitem__(self, key):
+        """For a given vendor key, return the vendor and device
+        information.
+        """
+
+        if not self.vendors.has_key(key):
+            if self.last_vendor:
+                self.file.seek(self.vendors[self.last_vendor])
+            self._read_vendors(key)
+
+        self.file.seek(self.vendors[key])
+        return self._read_devices()
+
+    def __iter__(self):
+        """Iterate over the entire file's worth of vendors,
+        returning the keys available.
+        """
+
+        read_vendors = self.vendors.keys()
+        for key in read_vendors:
+            yield key
+        if self.last_vendor:
+            self.file.seek(self.vendors[self.last_vendor])
+        while True:
+            key = self._read_one_vendor()
+            if key:
+                if key not in read_vendors:
+                    yield key
+            else:
+                break
+    iterkeys = __iter__
+
+    def has_key(self, key):
+        """Check that a vendor ID is represented in this file.
+        If we haven't read it already, look for it in the file.
+        """
+        if self.vendors.has_key(key):
+            return True
+
+        if self.last_vendor:
+            self.file.seek(self.vendors[self.last_vendor])
+        while True:
+            if self._read_one_vendor() == key:
+                return True
+
+        return False
+
+class TreeBuilderWithComments(XMLTreeBuilder):
+    """This class extends ElementTree's to
+    parse comments, which no builder in ElementTree seems able
+    to do by itself.
+    """
+
+    def __init__(self):
+        XMLTreeBuilder.__init__(self)
+        self._parser.CommentHandler = self._comment
+
+    def _comment(self, data):
+        """When a comment is encountered, handle it.
+        """
+        self._target.start(ElementTree.Comment, {})
+        self._target.data(data)
+        self._target.end(ElementTree.Comment)
+
+    def _end(self, tag):
+        elem = ElementTree.XMLTreeBuilder._end(self, tag)
+        self.end(elem)
+
+class ElementWriter:
+    """Write elements in similar fashion to ElementTree's
+    write method, but with control over the quote characters
+    and the sort order for attributes.
+    """
+
+    def __init__(self, f):
+        self.quotechar = "'"
+        self.sort_method = None
+
+        if hasattr(f, "write"):
+            self.file = f
+        else:
+            self.file = open(f, "w")
+
+    def xml_encode(self, string):
+        string = string.replace("&", "&amp;")
+        string = string.replace("<", "&lt;")
+        string = string.replace(">", "&gt;")
+        string = string.replace("'", "&apos;")
+	return string
+
+    def write(self, element):
+        if element.tag is ElementTree.Comment:
+            self.file.write("<!--%s-->" % (element.text,))
+        elif element.tag is ElementTree.ProcessingInstruction:
+            self.file.write("<?%s?>" % (element.text,))
+        else:
+            self.file.write("<" + element.tag)
+            if element.attrib:
+                keylist = element.keys()
+                keylist.sort(self.sort_method)
+                for key in keylist:
+                    element.attrib[key] = self.xml_encode(element.attrib[key])
+                    self.file.write(" %s=%s%s%s" % (key, self.quotechar,
+                                                    element.attrib[key],
+                                                    self.quotechar))
+            if element or element.text:
+                self.file.write(">")
+                if element.text:
+                    self.file.write(element.text)
+                for subnode in element:
+                    self.write(subnode)
+                self.file.write("</%s>" % (element.tag,))
+            else:
+                self.file.write("/>")
+        if element.tail:
+            self.file.write(element.tail)
+
+def sort_device_attrs(x, y):
+    """Keep track of the order of certain attributes in certain elements,
+    in an almost-vain hope of minimizing the number of gratuitous changes
+    made in the XML device list.
+    """
+    special_attrs = [ ["vendor", "model", "subvendor", "subdevice",
+                       "model_name", "subsystem_name", "busclass"],
+                      ["version", "class"] ]
+    for attrlist in special_attrs:
+        if x in attrlist and y in attrlist:
+            return attrlist.index(x) - attrlist.index(y)
+
+    return cmp(x, y)
+
+def gen_devices(f):
+    """Yield complete ElementTree device nodes.  Adapted from the
+    element generator example at:
+    http://online.effbot.org/2004_12_01_archive.htm#element-generator
+    """
+
+    if not hasattr(f, "read"):
+        f = open(f, "rb")
+
+    elements = []
+    parser = TreeBuilderWithComments()
+    parser.end = elements.append
+
+    while 1:
+        data = f.read(16384)
+        if not data:
+            break
+        parser.feed(data)
+        for e in elements:
+            if e.tag == "device":
+                yield e
+        del elements[:]
+
+    parser.close()
+    for e in elements:
+        if e.tag == "device":
+            yield e
+
+def main():
+    option_parser = optparse.OptionParser(option_list=[
+        optparse.make_option("-b", "--bus", action="store",
+                             dest="bustype", default="pci"),
+        optparse.make_option("-i", "--input", action="store", dest="infile"),
+        optparse.make_option("-o", "--output", action="store", dest="outfile"),
+        optparse.make_option("--lst-24", action="store", dest="lst_kernel24"),
+        optparse.make_option("--lst-26", action="store", dest="lst_kernel26")
+        ])
+    (options, args) = option_parser.parse_args()
+
+    if options.infile:
+        in_f = open(options.infile)
+    else:
+        in_f = sys.stdin
+
+    if options.outfile:
+        out_f = open(options.outfile)
+    else:
+        out_f = sys.stdout
+
+    kernel24_list = kernel26_list = None
+    if options.lst_kernel24:
+        kernel24_list = LstParser(options.lst_kernel24)
+    if options.lst_kernel26:
+        kernel26_list = LstParser(options.lst_kernel26)
+
+    out_f.write("""<?xml version='1.0' encoding='UTF-8'?>
+<device_list bus='%s'>
+  """ % (options.bustype,))
+
+    out_x = ElementWriter(out_f)
+    out_x.sort_method = sort_device_attrs
+
+    for device in gen_devices(in_f):
+        out_x.write(device)
+
+    out_f.write("</device_list>\n")
+    out_f.close()
+    in_f.close()
+
+if __name__ == "__main__":
+    main()

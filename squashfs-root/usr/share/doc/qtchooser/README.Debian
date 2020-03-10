@@ -1,0 +1,23 @@
+We currently patch qtchooser to make it look for configs
+in three additional directories:
+
+- /usr/share/qtchooser: holds qtx-triplet.conf configs.
+  They are installed by libqtcore with it's arch triplet. In this way apps can
+  call it's specific arch tools.
+
+- /usr/lib/$(DEB_HOST_MULTIARCH)/qtchooser: holds qtx.conf and default.conf for
+  the specific arch.
+
+- /usr/lib/$(DEB_HOST_MULTIARCH)/qt-default/qtchooser: holds a default.conf which
+  points to Qt4. In this way the Qt4 packages already in the archive should not
+  FTBFS when we introduce qtchooser in unstable. Exporting QT_SELECT=qt4 or
+  build-depending on qt4-default is recommended.
+
+
+= Bootstrapping qtchooser.
+
+qtchooser build-depends on qtbase5-dev, but qtchooser itself is needed
+in order to run qmake, so creating a circular build dependency.
+
+Actually qtchooser only needs Qt5 for building its tests. If you need to
+bootstrap it, build it with either stage1 or nocheck build profile.

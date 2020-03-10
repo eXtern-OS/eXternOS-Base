@@ -1,0 +1,82 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      type="topic" style="task"
+      id="lockdown-printing">
+     
+  <info>
+    <link type="guide" xref="user-settings#lockdown"/>
+    <link type="seealso" xref="dconf-lockdown" />
+    <revision pkgversion="3.11" date="2014-12-04" status="review"/>
+
+    <credit type="author copyright">
+      <name>Jana Svarova</name>
+      <email>jana.svarova@gmail.com</email>
+      <years>2014</years>
+    </credit>
+    <credit type="author copyright">
+      <name>Ekaterina Gerasimova</name>
+      <email>kittykat3756@gmail.com</email>
+      <years>2014</years>
+    </credit>
+
+    <include href="legal.xml" xmlns="http://www.w3.org/2001/XInclude"/>
+
+    <desc>Prevent the user from printing documents.</desc>
+  </info>
+
+  <title>Disable printing</title>
+
+  <p>You can disable the print dialog from being shown to users. This can be
+  useful if you are giving temporary access to a user or you do not want the
+  user to print to network printers.</p>
+
+  <note style="warning">
+    <p>This feature will only work in applications which support it! Not all
+    GNOME and third party applications have this feature enabled. These changes
+    will have no effect on applications which do not support this feature.</p>
+  </note>
+
+  <steps>
+    <title>Disable printing</title>
+    <include href="dconf-snippets.xml"
+             xpointer="xpointer(/*/*[@xml:id='dconf-profile-user'])"
+             xmlns="http://www.w3.org/2001/XInclude"/>
+    <include href="dconf-snippets.xml"
+             xpointer="xpointer(/*/*[@xml:id='dconf-profile-user-dir'])"
+             xmlns="http://www.w3.org/2001/XInclude"/>
+    <item>
+      <p>Create the key file
+      <file>/etc/dconf/db/local.d/00-printing</file> to provide
+      information for the <sys>local</sys> database.</p>
+      <listing>
+        <title><file>/etc/dconf/db/local.d/00-printing</file></title>
+<code>
+# Specify the dconf path
+[org/gnome/desktop/lockdown]
+ 
+# Prevent applications from printing
+disable-printing=true
+</code>
+     </listing>
+    </item>
+    <item>
+      <p>To prevent the user from overriding these settings, create the file
+      <file>/etc/dconf/db/local.d/locks/printing</file> with the following
+      content:</p>
+      <listing>
+        <title><file>/etc/dconf/db/local.db/locks/printing</file></title>
+<code>
+# Lock printing settings
+/org/gnome/desktop/lockdown/disable-printing
+</code>
+      </listing>
+    </item>
+    <include href="dconf-snippets.xml"
+             xpointer="xpointer(/*/*[@xml:id='dconf-update'])"
+             xmlns="http://www.w3.org/2001/XInclude"/>
+    <include href="dconf-snippets.xml"
+             xpointer="xpointer(/*/*[@xml:id='dconf-logoutin'])"
+             xmlns="http://www.w3.org/2001/XInclude"/>
+  </steps>
+
+</page>

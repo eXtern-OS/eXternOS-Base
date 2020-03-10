@@ -1,0 +1,863 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN" "dtd/kdedbx45.dtd" [
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Serbian "INCLUDE">
+]>
+
+<book id="kwallet5" lang="&language;">
+<bookinfo>
+<title
+>Приручник за К‑новчаник 5</title>
+
+<authorgroup>
+<author
+><personname
+><firstname
+>Џорџ</firstname
+> <surname
+>Стајкос</surname
+></personname
+> &George.Staikos.mail; </author>
+<author
+><personname
+><firstname
+>Лори</firstname
+> <surname
+>Вотс</surname
+></personname
+> &Lauri.Watts.mail; </author>
+<othercredit role="developer"
+><firstname
+>Џорџ</firstname
+> <surname
+>Стајкос</surname
+> <affiliation
+><address
+>&George.Staikos.mail;</address
+></affiliation>
+<contrib
+>програмер</contrib>
+</othercredit>
+<othercredit role="translator"
+><firstname
+>Драган</firstname
+><surname
+>Пантелић</surname
+><affiliation
+><address
+><email
+>falcon-10@gmx.de</email
+></address
+></affiliation
+><contrib
+>превод</contrib
+></othercredit
+> 
+</authorgroup>
+
+<legalnotice
+>&FDLNotice;</legalnotice>
+
+<date
+>5. 7. 2016.</date>
+<releaseinfo
+>Програми КДЕ‑а 16.04</releaseinfo>
+
+<abstract>
+<para
+>Подсистем новчаника пружа удобан и безбедан начин управљања свим вашим лозинкама.</para>
+
+</abstract>
+
+<keywordset>
+<keyword
+>КДЕ</keyword>
+<keyword
+>К‑новчаник</keyword>
+<keyword
+>лозинке</keyword>
+<keyword
+>формулари</keyword>
+</keywordset>
+
+</bookinfo>
+
+<chapter id="introduction">
+<title
+>Увод</title>
+
+<para
+>Корисници рачунара често управљају великом количином података, од којих су неки поверљиви. У овакве посебно спадају лозинке. Памтити лозинке је тешко, а записивати их на папир или у текстуални фајл небезбедно.</para>
+
+<para
+>К‑новчаник 5 пружа безбедан начин за складиштење лозинки и других тајних података, тако да корисник треба да памти само једну лозинку уместо бројних различитих лозинки и креденцијала. </para>
+
+<sect1 id="kwallet-create">
+
+<title
+>Затварање новчаника</title>
+
+<para
+>Новчаник је складиште лозинки. Обично је довољно имати само један новчаник обезбеђен главном лозинком, али вам Менаџер К‑новчаника 5 омогућава и да организујете велику збирку лозинки у више новчаника.</para>
+
+<para
+>За складиштење лозинки подразумевано се користи новчаник по имену <literal
+>kdewallet</literal
+>. Овај новчаник је обезбеђен вашом пријавном лозинком, и биће аутоматски отворен по пријави, ако је <literal
+>kwallet_pam</literal
+> инсталиран и правилно подешен. У појединим дистрибуцијама (нпр. Арч линукс) <literal
+>kwallet_pam</literal
+> није подразумевано инсталиран.</para>
+
+
+<para
+>Остали новчаници морају ручно да се отворе.</para>
+
+<para
+>Нов новчаник може да се направи на два начина:</para>
+
+<itemizedlist>
+<listitem
+><para
+>преко ставке менија <menuchoice
+><guimenu
+>Фајл</guimenu
+><guimenuitem
+>Нови новчаник</guimenuitem
+></menuchoice
+> у Менаџеру К‑новчаника 5;</para
+></listitem>
+
+<listitem
+><para
+>у Системским поставкама, помоћу дугмета <guibutton
+>Нови...</guibutton
+> у модулу <guilabel
+>К‑новчаник</guilabel
+>;</para
+></listitem>
+</itemizedlist>
+
+<para
+>Ако још нисте направили новчаник, погледајте одељак <link linkend="kwallet-using"
+>о коришћењу К‑новчаника 5</link
+>. </para>
+
+<para
+>К‑новчаник 5 може да складишти податке на два начина:</para>
+
+<screenshot>
+<screeninfo
+>Избор шифровања.</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="wallet-encryption-selection.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Избор шифровања.</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<variablelist>
+
+<varlistentry>
+<term
+>шифровање блоуфишом</term>
+<listitem>
+<para
+>К‑новчаник 5 уписује осетљиве податке у снажно шифрован фајл, доступан свим програмима, а заштићен главном лозинком коју задате.</para>
+
+<screenshot>
+<screeninfo
+>Стварање новчаника шифрованог блоуфишом.</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="first-open-request.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Стварање новчаника шифрованог блоуфишом.</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Подаци се шифрују <ulink url="http://www.schneier.com/blowfish.html"
+>симетричним блок‑шифрарским алгоритмом блоуфиш</ulink
+>. Кључ алгоритма изводи се из <ulink url="http://www.ietf.org/rfc/rfc3174.txt"
+>СХА‑1 дисперзије</ulink
+> лозинке, и дужине је 156 битова (20 бајтова). Подаци у новчанику такође се дисперзирају преко СХА‑1 и проверавају пре него што се дешифрују и проследе програму. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+>шифровање ГПГ‑ом</term>
+<listitem>
+<para
+>ГнуПГ поседује неке врло снажне шифрарске алгоритме, и користи лозинке за заштиту дугачких кључева.</para>
+
+<screenshot>
+<screeninfo
+>Нема ниједног ГПГ кључа.</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="error-nokey.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Нема ниједног ГПГ кључа.</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+<para
+>Горњи снимци екрана показују случај где ГПГ кључ способан за шифровање није нађен на систему. Употребите програм попут <application
+>КГПГ‑а</application
+> или <application
+>Клеопатре</application
+> да направите кључ, па покушајте поново.</para>
+
+<para
+>Када је ГПГ кључ нађен, добићете наредни дијалог, у коме можете изабрати кључ за потребе новог новчаника. </para>
+<screenshot>
+<screeninfo
+>Избор шифрарског кључа.</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="key-selection.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Избор шифрарског кључа.</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>После овога, К‑новчаник 5 ће користити ГПГ при складиштењу новчаника̂ и читању из њих. Дијалог за лозинку појављује се само једном. Када се новчаник затвори после првог отварања, наредна отварања унутар исте сесије одиграће се нечујно. </para>
+
+<para
+>Унутар једне сесије, могу се користити оба формата фајла. К‑новчаник 5 ће прозирно открити формат фајла и учитати одговарајућу позадину за његову обраду.</para>
+
+<para
+>За коришћење осетљивих података из класичног формата новчаника са новом позадином, испратите ове кораке:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Направите нови новчаник на основи ГПГ‑а</para
+></listitem>
+<listitem
+><para
+>Покрените Менаџер К‑новчаника 5, преко <application
+>К‑извођача</application
+> (<keycombo
+><keycap
+>Alt</keycap
+><keycap
+>F2</keycap
+></keycombo
+>) или другог покретача програма (менија), и изаберите стари новчаник. Затим идите на <menuchoice
+><guimenu
+>Фајл</guimenu
+> <guimenuitem
+>Извези шифровано</guimenuitem
+></menuchoice
+> да направите фајл архиве са осетљивим подацима. </para
+></listitem>
+<listitem
+><para
+>Изаберите нови новчаник на основи ГПГ‑а, а затим <menuchoice
+><guimenu
+>Фајл</guimenu
+> <guimenuitem
+>Увези шифровано</guimenuitem
+></menuchoice
+> да изаберете фајл који сте управо сачували.</para>
+</listitem>
+
+<listitem
+><para
+>Идите у Системским поставкама, <menuchoice
+><guimenu
+>Детаљи налога</guimenu
+> <guimenuitem
+>К‑новчаник</guimenuitem
+></menuchoice
+>, па изаберите новостворени новчаник на основи ГПГ‑а из листе <guilabel
+>Изаберите новчаник ће се подразумевано користити:</guilabel
+>. </para
+></listitem>
+</itemizedlist>
+
+<para
+>Алтернативно употребите <guimenuitem
+>Увези новчаник...</guimenuitem
+>, али тада морате да изаберете <filename class="extension"
+>.kwl</filename
+> фајл који одговара старом новчанику, а налази се у фасцикли <filename class="directory"
+>kwalletd</filename
+> у <userinput
+>qtpaths --paths GenericDataLocation</userinput
+>. </para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+<tip>
+<para
+>К‑новчаник 5 подржава вишеструке новчанике, те би ради највеће безбедности требало да користите један новчаник за локалне лозинке, а други за мрежне лозинке и податке формулара̂. Ово понашање можете подесити у модулу К‑новчаника 5 у Системским поставкама. Подразумевана поставка је ипак складиштење свега у једном новчанику по имену <literal
+>kdewallet</literal
+>.</para>
+</tip>
+
+<para
+>Новчаник је подразумевано затворен, што значи да морате задати лозинку да га отворите. Пошто се отвори, његовом садржају може приступити било који кориснички процес, што може бити безбедносни проблем.</para>
+</sect1>
+
+<sect1 id="kwallet-using">
+<title
+>Коришћење К‑новчаника 5</title>
+
+<para
+>Ако посетите нпр. КДЕ‑ов пратилац грешака и по први пут унесете пријавне податке, искочиће дијалог који вам нуди да складишти лозинку у шифровани новчаник:</para>
+
+<screenshot>
+<screeninfo
+>Захтев за уписивање пријавних података.</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="save-login-information.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Захтев за уписивање пријавних података.</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Ако желите да складиштите ове податке, кликните на <guibutton
+>Складишти</guibutton
+> да наставите. Ако још увек нисте направили новчаник, следећи дијалог вам тражи позадину за шифровање и ствара новчаник по имену <literal
+>kdewallet</literal
+>. </para>
+
+<para
+>Следећи пут када посетите исти веб сајт, програм добавља пријавне податке из отвореног новчаника и уписује их у формуларе.</para>
+
+<screenshot>
+<screeninfo
+>Аутоматски испуњени пријавни подаци.</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="prefilled-forms.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Аутоматски испуњени пријавни подаци.</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Ако је новчаник затворен, програм ће затражити да га отвори. Унесите лозинку за новчаник и кликните на дугме <guibutton
+>Отвори</guibutton
+>.</para>
+
+<screenshot>
+<screeninfo
+>Захтев за отварање новчаника.</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="openwallet-request.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Захтев за отварање новчаника.</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Ово повезује програм с новчаником, омогућавајући му да прочита пријавне податке из новчаника и пошаље их веб сајту. Пошто се програм повезао с новчаником, може аутоматски прочитати све пријавне податке из њега.</para>
+
+</sect1>
+
+</chapter>
+
+<chapter id="kwalletmanager5">
+<title
+>Менаџер К‑новчаника 5</title>
+
+<para
+>Менаџер К‑новчаника 5 има бројне функције. Пре свега, омогућава вам да видите да ли су неки новчаници отворени, који су то новчаници и који програми их користе. Кроз Менаџер К‑новчаника можете отказати приступ програма новчанику.</para>
+
+<para
+>Можете и управљати инсталираним новчаницима на систему, стварати и брисати новчанике, и манипулисати њиховим садржајем (мењати кључеве, итд.)</para>
+
+<para
+>Менаџер К‑новчаника 5 се покреће преко <menuchoice
+> <guimenu
+>Програми</guimenu
+><guisubmenu
+>Систем</guisubmenu
+> <guimenuitem
+>Алатка за управљање новчаницима</guimenuitem
+></menuchoice
+> у покретачу програма̂. Другачије, покрените <application
+>К‑извођач</application
+> пречицом <keycombo action="simul"
+><keycap
+>Alt</keycap
+><keycap
+>F2</keycap
+></keycombo
+>, па унесите <command
+>kwalletmanager5</command
+>.</para>
+
+<para
+>Кликните једном на иконицу новчаника у системској касети да позовете прозор Менаџера К‑новчаника 5.</para>
+<para>
+<screenshot>
+<screeninfo
+>Главни прозор са једним новчаником.</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwalletmanager.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Главни прозор са једним новчаником.</phrase>
+</textobject>
+<caption
+><para
+>Главни прозор са једним новчаником.</para
+></caption>
+</mediaobject>
+</screenshot>
+</para>
+
+<!--FIXME
+How to get assistant "First Use"? kwalletwizardpageintro.ui
+Last code change with http://websvn.kde.org/?view=revision&revision=882694
+see also https://bugs.kde.org/show_bug.cgi?id=290309
+-->
+<sect1 id="kwalletmanager-wallet-window">
+<title
+>Прозор новчаника</title>
+
+<para
+>Ако имате више од једног новчаника, сви доступни новчаници набројани су лево.</para>
+
+<para
+>Клик на новчаник у прозору Менаџера К‑новчаника 5 приказује стање тог новчаника и, ако је отворен, његов садржај. Новчаник може садржати више фасцикли, у којима се чувају подаци о лозинкама. Новчаник ће подразумевано имати фасцикле по имену <guilabel
+>Подаци формулара</guilabel
+> и <guilabel
+>Лозинке</guilabel
+>. </para>
+
+<screenshot>
+<screeninfo
+>Главни прозор са два новчаника.</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-edit.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Главни прозор са два новчаника.</phrase>
+</textobject>
+<caption
+><para
+>Главни прозор са два новчаника.</para
+></caption>
+</mediaobject>
+</screenshot>
+<para
+>Употребите <guibutton
+>Отвори...</guibutton
+> да прикажете садржај затвореног новчаника. Биће вам тражено да унесете главну лозинку.</para>
+
+<sect2>
+<title
+>Језичак <guilabel
+>Садржај</guilabel
+></title>
+
+<para
+>Језичак <guilabel
+>Садржај</guilabel
+> има три дела:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Поље претраге за филтрирање ставки у текућем новчанику.</para
+></listitem>
+<listitem
+><para
+>Приказ стабла фасцикли садржаних у новчанику. Кликтањем на иконице <guiicon
+>&gt;</guiicon
+> и <guiicon
+>-</guiicon
+> ширите и сажимате приказ стабла.</para
+></listitem>
+<listitem
+><para
+>Садржај фасцикле изабране на десној страни. Лозинка и вредност подразумевано су скривене. Да бисте их приказали, попуните <guilabel
+>Прикажи вредности</guilabel
+> или кликните на дугме <guilabel
+>Прикажи садржај</guilabel
+>. </para
+></listitem>
+</itemizedlist>
+
+<para
+>Фасцикле се могу додавати и брисати кроз контекстни мени, а избором једне од њих ажурира се списак уноса фасцикле и приказ сажетка. Избором уноса у фасцикли ажурира се окно садржаја уноса, тако да га можете уредити.</para>
+
+<para
+>Уноси се такође могу створити, обрисати и преименовати преко контекстног менија у садржају фасцикле.</para>
+
+<para
+>Фасцикле и уноси се могу превлачити у друге новчанике и фасцикле. Овако корисник може лако спаковати нови новчаник за пренос у друго окружење. На пример, нови новчаник би се могао створити или копирати на уклоњиви складишни уређај и важне лозинке пренети у њега, тако да вам буду доступне на другим локацијама.</para>
+
+<sect3 id="kwallet-import-export">
+<title
+>Увоз и извоз</title>
+<para
+>Ако желите да пренесете своје тајне на други рачунар, послужите се радњама из менија <guimenu
+>Фајл</guimenu
+>. Помоћу <guimenuitem
+>Извези шифровано</guimenuitem
+> новчаници се извозе у шифровани фајл архиве. При увозу оваквог фајла архиве, преко <guimenuitem
+>Увези шифровано</guimenuitem
+>, мораћете да унесете главну лозинку новчаника. </para>
+<para
+>Алтернативно, за пренос фајла може да се употреби <filename class="extension"
+>.xml</filename
+> фајл. Имајте на уму да су у таквом фајлу све тајне складиштене као обични текст. </para>
+</sect3>
+
+<sect3 id="kwallet-adding-entries">
+<title
+>Ручно додавање уноса</title>
+<para
+>Отворите контекстни мени десним кликом на <guilabel
+>мапе</guilabel
+> или <guilabel
+>лозинке</guilabel
+> приказу стабла фасцикли. Изаберите <guimenuitem
+>Нови...</guimenuitem
+> или <guimenuitem
+>Нова фасцикла...</guimenuitem
+> и унесите име нове ставке.</para>
+<para
+>У окну садржаја фасцикле, изаберите <guilabel
+>Нова фасцикла...</guilabel
+> из контекстног менија над <guilabel
+>мапе</guilabel
+> или <guilabel
+>лозинке</guilabel
+>. За лозинке, кликните на дугме <guilabel
+>Прикажи садржај</guilabel
+> да унесете нову. За мапе, треба да додате кључ и вредност. Кликните на дугме <guilabel
+>Сачувај</guilabel
+> да би се нови уноси ускладиштили у шифрованом фајлу новчаника. </para>
+</sect3>
+</sect2>
+
+<sect2>
+<title
+>Језичак <guilabel
+>Програми</guilabel
+></title>
+<para>
+<screenshot>
+<screeninfo
+>Језичак <guilabel
+>Програми</guilabel
+>.</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-applications.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Језичак <guilabel
+>Програми</guilabel
+>.</phrase>
+</textobject>
+<caption
+><para
+>Језичак <guilabel
+>Програми</guilabel
+>.</para
+></caption>
+</mediaobject>
+</screenshot>
+</para>
+<para
+>Први списак приказује све програме тренутно повезане на изабрани новчаник. Дугметом десно од сваког програма можете прекинути његову везу са новчаником.</para>
+
+<para
+>На другом списку дати су сви програми који су овлашћени за приступ новчанику. Употребите дугме десно од програма да му повучете овлашћење. </para>
+<!-- FIXME difference to remove the policy in kwallermanager settings dialog?-->
+</sect2>
+</sect1>
+
+</chapter>
+
+<chapter id="kwallet-kcontrol-module">
+<title
+>Подешавање К‑новчаника 5</title>
+
+<sect1 id="wallet-preferences">
+<title
+>Поставке новчаника</title>
+
+<para
+>К‑новчаник 5 садржи мали панел за подешавање, с неколико опција којима можете прилагодити К‑новчаник личном укусу. Највећем броју корисника одговараће подразумеване поставке.</para>
+
+<para
+>Овом кућицом можете потпуно укључити или искључити КДЕ‑ов подсистем новчаника. Пражњењем кућице К‑новчаник 5 се потпуно искључује. Тада ниједна друга опција више нема никаквог ефекта, К‑новчаник неће памтити никакве податке, нити нудити да попуњава формуларе уместо вас.</para>
+
+<variablelist>
+<title
+><guilabel
+>Затварање новчаника</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Затвори ако се не користи:</guilabel
+></term>
+<listitem>
+<para
+>Новчаник се затвара после периода неактивности. Ако укључите ову опцију, период задајете у пољу; подразумевани је 10 минута. Пошто се новчаник затвори, потребна је лозинка да би му се поново приступило.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Затвори када се покрене чувар екрана</guilabel
+></term>
+<listitem>
+<para
+>Новчаник се затвара чим се покрене чувар екрана. Пошто се новчаник затвори, потребна је лозинка да би му се поново приступило.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Затвори пошто програми престану да га користе</guilabel
+></term>
+<listitem>
+<para
+>Новчаник се затвара чим се заврши програм који га користи. Ако га користи више програма, новчаник ће бити затворен када сви они престану с радом. Пошто се новчаник затвори, потребна је лозинка да би му се поново приступило.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title
+><guilabel
+>Аутоматско бирање новчаника</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Изаберите новчаник ће се подразумевано користити:</guilabel
+></term>
+<listitem>
+<para
+>Изаберите који новчаник желите да користите као подразумевани. Имајте у виду да се само новчаник по имену <literal
+>kdewallet</literal
+> отвара аутоматски по пријављивању, ако су вам пријавна лозинка и лозинка новчаника исте. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Одвојени новчаник за локалне лозинке:</guilabel
+></term>
+<listitem>
+<para
+>Ако је укључено, за локалне лозинке се користи засебан новчаник.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title
+><guilabel
+>Менаџер новчаника</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Прикажи менаџер у системској касети</guilabel
+></term>
+<listitem>
+<para
+>Укључује менаџер новчаника и његову иконицу у системској касети.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Сакриј иконицу системске касете по затварању последњег новчаника</guilabel
+></term>
+<listitem>
+<para
+>Када се више не користи ниједан новчаник, нестаје иконица у системској касети.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Најзад, ту је дугме <guibutton
+>Покрени менаџер новчаника</guibutton
+> које ради управо то.</para>
+<para
+>Ово дугме је видљиво само када Менаџер К‑новчаника 5 није у погону.</para>
+</sect1>
+
+<sect1 id="wallet-access-control">
+<title
+>Управљање приступом</title>
+
+<para
+>На овој страници има само једна опција:</para>
+
+<variablelist>
+<varlistentry>
+<term
+><guilabel
+>Питај када програм приступи новчанику</guilabel
+></term>
+<listitem>
+<para
+>Сигнализира вам када програм добије приступ новчанику.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Затим, ту је приказ контрола приступа новчаницима у облику стабла.</para>
+
+<screenshot>
+<screeninfo
+>Управљање приступом.</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-access-control.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Управљање приступом.</phrase>
+</textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Кликните левим на симбол <guiicon
+>&gt;</guiicon
+> поред имена новчаника да проширите стабло. Видећете имена свих програма који су тражили приступ новчанику и смерницу коју сте за то поставили. Овде не можете уређивати смернице нити их додавати, али је могуће обрисати унос десним кликом на њега и избором <guimenuitem
+>Обриши</guimenuitem
+> из контекстног менија, или избором уноса и притиском тастера <keycap
+>Delete</keycap
+>.</para>
+
+<para
+>Програм коме се дозволи приступ новчанику добија приступ свим лозинкама складиштеним у њему.</para>
+
+<para
+>Ако сте ненамерно подесили неки програм да не користи К‑новчаник 5, овде можете обрисати ту смерницу.</para>
+<!-- FIXME difference to Revoke Authorization in kwallermanager?-->
+<para
+>На следећем покретању тог програма можете задати нову смерницу за приступ новчанику. </para>
+<screenshot>
+<screeninfo
+>Приступни захтев за отварање новчаника.</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="application-request-to-open-wallet.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Приступни захтев за отварање новчаника.</phrase>
+</textobject>
+<caption
+><para
+>Програм тражи приступ новчанику.</para
+></caption>
+</mediaobject>
+</screenshot>
+
+</sect1>
+
+</chapter>
+
+<chapter id="advanced-features">
+<title
+>Напредне могућности</title>
+
+<para
+>Новчаници се могу превлачити из прозора Менаџера К‑новчаника 5. Тако можете да превучете новчаник у прозор менаџера фајлова, па изабрати да ли ћете га копирати, преместити или повезати, по жељи.</para>
+
+<para
+>Овако можете и уписати новчаник на преносиви медијум, попут УСБ штапића, тако да можете лозинке понети са собом на посао или на одмор, како бисте и даље лако приступали важним сајтовима.</para>
+
+</chapter>
+
+<chapter id="credits-and-license">
+<title
+>Заслуге и лиценца</title>
+
+<para
+>К‑новчаник 5: © 2003, <personname
+><firstname
+>Џорџ</firstname
+> <surname
+>Стајкос</surname
+></personname
+>.</para>
+<para
+>Документација: © <personname
+><firstname
+>Лори</firstname
+> <surname
+>Вотс</surname
+></personname
+> и <personname
+><firstname
+>Џорџ</firstname
+> <surname
+>Стајкос</surname
+></personname
+>.</para>
+
+<para
+>Превео Драган Пантелић <email
+>falcon-10@gmx.de</email
+>.</para
+> 
+&underFDL; &underGPL; </chapter>
+
+&documentation.index;
+
+</book>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+
+// vim:ts=2:sw=2:tw=78:noet
+-->

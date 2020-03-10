@@ -1,0 +1,45 @@
+#! /bin/bash
+
+## Provided by Mkarcher at http://www.thinkwiki.org/wiki/Script_for_configuring_the_CS4239_sound_chip_in_PnP_mode
+## Modified by Daniel T Chen for Debian/Ubuntu, redistributable
+## under GPLv2 or later
+
+for dev in /sys/bus/pnp/devices/*
+do
+  grep CSC0100 $dev/id > /dev/null && WSSDEV=$dev
+  grep CSC0110 $dev/id > /dev/null && CTLDEV=$dev
+done
+
+echo activate > $WSSDEV/resources
+echo activate > $CTLDEV/resources
+
+{ read
+ read bla port1
+ read bla port2
+ read bla port3
+ read bla irq
+ read bla dma1
+ read bla dma2
+ # Hack: with PnPBIOS: ports are: port1: WSS, port2: OPL, port3: sb (unneeded)
+ #       with ACPI-PnP:ports are: port1: OPL, port2: sb, port3: WSS
+ # (ACPI bios seems to be wrong here, the PnP-card-code in snd-cs4236.c uses the
+ #  PnPBIOS port order)
+ # Detect port order using the fixed OPL port as reference
+ if [ ${port2%%-*} = 0x388 ]
+ then
+   # PnPBIOS: usual order
+   port=${port1%%-*}
+   oplport=${port2%%-*}
+ else
+   # ACPI: mixed-up order
+   port=${port3%%-*}
+   oplport=${port1%%-*}
+ fi
+ } < $WSSDEV/resources
+
+{ read
+ read bla port1
+ cport=${port1%%-*}
+} < $CTLDEV/resources
+
+modprobe snd-cs4236 port=$port cport=$cport fm_port=$oplport irq=$irq dma1=$dma1 dma2=$dma2 isapnp=0

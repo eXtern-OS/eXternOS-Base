@@ -1,0 +1,71 @@
+# start uim
+# vim: set sts=4 expandtab:
+
+if [ "$IM_CONFIG_PHASE" = 2 ]; then
+# start uim-xim daemon
+if [ -x /usr/bin/uim-xim ]; then
+    /usr/bin/uim-xim &
+fi
+# Starting GUI
+if [ -x /usr/bin/uim-toolbar ]; then
+    ( sleep 5 ; uim-toolbar ) &
+elif [ -x /usr/bin/uim-toolbar-gtk3 ]; then
+    ( sleep 5 ; uim-toolbar-gtk3 ) &
+elif [ -x /usr/bin/uim-toolbar-gtk ]; then
+    ( sleep 5 ; uim-toolbar-gtk ) &
+elif [ -x /usr/bin/uim-toolbar-qt4 ]; then
+    ( sleep 5 ; uim-toolbar-qt4 ) &
+elif [ -x /usr/bin/uim-toolbar-qt5 ]; then
+    ( sleep 5 ; uim-toolbar-qt5 ) &
+fi
+
+fi
+
+if [ "$IM_CONFIG_PHASE" = 1 ]; then
+# set variables for the plain XIM
+XMODIFIERS=@im=uim
+
+GTK_IM_MODULE=xim
+# use immodule only when available for both GTK 2.0 and 3.0
+IM_CONFIG_MARKER2=0
+for IM_CONFIG_MARKER in /usr/lib/*/gtk-2.0/*/immodules/im-uim.so \
+                        /usr/lib/gtk-2.0/*/immodules/im-uim.so ; do
+    if [ -e $IM_CONFIG_MARKER ]; then
+        IM_CONFIG_MARKER2=1
+        break
+    fi
+done
+
+IM_CONFIG_MARKER3=0
+for IM_CONFIG_MARKER in /usr/lib/*/gtk-3.0/*/immodules/im-uim.so \
+                        /usr/lib/gtk-3.0/*/immodules/im-uim.so ; do
+    if [ -e $IM_CONFIG_MARKER ]; then
+        IM_CONFIG_MARKER3=1
+        break
+    fi
+done
+if [ $IM_CONFIG_MARKER2 = 1 ] && [ $IM_CONFIG_MARKER3 = 1 ] ; then
+    GTK_IM_MODULE=uim
+fi
+
+QT4_IM_MODULE=xim
+# use immodule when available for Qt4
+for IM_CONFIG_MARKER in /usr/lib/*/qt4/plugins/inputmethods/libuiminputcontextplugin.so \
+                        /usr/lib/qt4/plugins/inputmethods/libuiminputcontextplugin.so ; do
+    if [ -e $IM_CONFIG_MARKER ]; then
+        QT4_IM_MODULE=uim
+        break
+    fi
+done
+QT_IM_MODULE=xim
+# use immodule when available for Qt5
+for IM_CONFIG_MARKER in /usr/lib/*/qt5/plugins/platforminputcontexts/libuimplatforminputcontextplugin.so ; do
+    if [ -e $IM_CONFIG_MARKER ]; then
+        QT_IM_MODULE=uim
+        break
+    fi
+done
+
+
+CLUTTER_IM_MODULE=xim
+fi

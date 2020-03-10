@@ -1,0 +1,17 @@
+kscreen for Debian
+------------------
+
+To switch to new screen management you have to disable the old one
+and the wacomtablet (Jan 2013: the wacomtablet break monitor hotplug)
+
+	qdbus org.kde.kded /kded org.kde.kded.unloadModule randrmonitor
+	qdbus org.kde.kded /kded org.kde.kded.unloadModule wacomtablet
+	qdbus org.kde.kded /kded org.kde.kded.setModuleAutoloading randrmonitor false
+	qdbus org.kde.kded /kded org.kde.kded.setModuleAutoloading wacomtablet false
+
+	qdbus org.kde.kded /kded org.kde.kded.unloadModule kscreen
+	qdbus org.kde.kded /kded org.kde.kded.setModuleAutoloading kscreen true
+	qdbus org.kde.kded /kded org.kde.kded.loadModule kscreen
+
+
+ -- Achim Bohnet <allee@kubuntu.org>  Wed, 09 Jan 2013 22:50:11 +0100

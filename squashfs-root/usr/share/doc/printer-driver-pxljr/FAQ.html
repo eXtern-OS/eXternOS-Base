@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>HP PXL Jetready Project FAQ</title>
+</head>
+<body>
+<a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=123386&amp;type=7" width="210" height="62" border="0" 
+alt="SourceForge.net Logo" /></a>
+<ul>
+  <li>What is this?</li>
+</ul>
+<div style="margin-left: 40px;">PXLJR (<a
+ href="http://sourceforge.net/projects/hp-pxl-jetready/">http://sourceforge.net/projects/hp-pxl-jetready/</a>)
+is an IJS-based driver for the HP
+JetReady 4.x protocol printer family (Color Laserjet
+3500 and 3550) under linux and other unix-like systems. This effort is
+not endorsed by nor affiliated with HP.<br>
+<br>
+It is licensed under the terms of GNU General Public License.<br>
+</div>
+<ul>
+  <li>Compiling and Run-time requirements?</li>
+</ul>
+<div style="margin-left: 40px;">About the same as HPIJS. PXLJR needs a
+C compiler rather than a C++ compiler,&nbsp; and also need&nbsp;
+automake/autoconf (this may be improved in later release). <br>
+</div>
+<ul>
+  <li>HPIJS/HPLIP also supports these two printers. Why are you
+"reinventing the wheel"?</li>
+</ul>
+<div style="margin-left: 40px;">HPIJS (<a
+ href="http://hpinkjet.sourceforge.net">http://hpinkjet.sourceforge.net</a>)
+provides 2 printing modes: one color and one gray, corresponding to the
+max-compression/worst-quality setting of the HP driver under Windows.
+There are two more settings for better quality in the Windows driver.
+PXLJR provides these two additional settings, so there are a total of 6
+printing modes. Also, the max-compression gray mode of PXLJR is 1.5 to 3
+times faster.<br>
+<br>
+One the other hand, PXLJR doesn't provide a full set of facilities like
+printer status report, etc. For other bells and whistles, please use
+HPLIP's toolbox instead. There is no conflict installing both HPIJS and
+PXLJR simultaneously.<br>
+</div>
+<ul>
+  <li>Why did you not improve HPIJS instead?</li>
+</ul>
+<div style="margin-left: 40px;">There are professional reasons that I
+need to maintain autonomy; on the other hand, the two addtional quality
+settings are already in the Windows driver. The HPIJS people can
+consult their Windows driver people and there is no need for me to
+contribute; the other improvement - the speed for the gray modes -
+would require substantial modification, and affects and changes code paths
+that I cannot test due to not have the other printers.<br>
+</div>
+<ul>
+  <li>Any other improvement I can do to my prints?</li>
+</ul>
+<div style="margin-left: 40px;">There is a file 'gs-gamma.ps' which
+changes the gamma curve and boasts the shadow details if one 
+prepends it to a print-job.<br>
+</div>
+<ul>
+  <li>Known problems, Limitations?</li>
+</ul>
+<div style="margin-left: 40px;">The right-hand border for PXLJR is
+about 0.5mm wider than HPIJS. I haven not been able to track it down,
+but the difference is only noticeable if one prints all the way to the
+edge of the printerable area, and compare side-by-side.<br>
+<br>
+Standard page size (A4, letter, envelope, etc) works, but custom
+arbitrary size only works on 32-bit small endian. (i.e. x86). HPIJS has
+a similiar and worse problem - and both will be resolved in the
+corresponding next releases.<br>
+"make install" installs too many unnecessary things, and does not
+install the ppd. Only really only need<br>
+to copy the ijs_pxljr into /usr/bin and the ppd into a CUPS specific
+place. <br>
+</div>
+<ul>
+  <li>Upcoming improvements?</li>
+</ul>
+<div style="margin-left: 40px;">Making dependence on libjpeg optional.<br>
+Make Multiple-copies option work. Currently if one wants X identical
+copies, one needs to send job X times.<br>
+Make the gamme curve change a more user-friendly option.<br>
+See if a 1-bit B/W version can go even faster.<br>
+</div>
+</body>
+</html>

@@ -1,0 +1,45 @@
+#!/usr/bin/perl -w
+use Mail::Internet;
+
+@mail = <>;
+
+$mail = Mail::Internet->new(\@mail);
+
+$mail->remove_sig;
+$mail->tidy_body;
+
+@reply = ();
+if(open(HDR,"$ENV{HOME}/.mailhdr")) {
+ @reply = <HDR>;
+ close(HDR);
+}
+
+$rply = Mail::Internet->new(\@reply);
+
+$subject = $mail->get('Subject');
+
+$rply->replace('To', "");
+$rply->replace('Cc', "");
+$rply->replace('Subject',$subject);
+
+$rply->body($body = $mail->body);
+
+unshift @{$body},"---------- Begin Included Message ----------\n";
+push    @{$body},"----------- End Included Message -----------\n";
+
+$file = "/tmp/reply.$$";
+
+open(FILE,">$file") || die "Cannot open $file:$!\n";
+
+$rply->print(\*FILE);
+
+close(FILE);
+
+$editor = $ENV{"EDITOR"} || "/usr/bin/nvi";
+
+warn "$editor :$!\n" if (system("$editor $file"));
+
+unlink($file,$file . '%');
+
+exit 0;
+

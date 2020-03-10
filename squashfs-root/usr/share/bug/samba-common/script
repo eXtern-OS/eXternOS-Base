@@ -1,0 +1,24 @@
+#!/bin/bash -e
+
+cat <<EOF
+
+I can automatically include various information about your samba configuration
+in your bug report. This information may help to diagnose your problem.
+
+EOF
+
+for config in /etc/samba/smb.conf /etc/samba/dhcp.conf ; do
+  if [ -f $config ]; then
+    yesno "May I include your $config configuration file? [Y/n] " yep
+    if [ "$REPLY" = "yep" ]; then
+      echo "* $config present, and attached" >&3
+      echo "-- BEGIN ATTACHMENTS --" >&3
+      echo "$config" >&3
+      echo "-- END ATTACHMENTS --" >&3
+    else
+      echo "* $config present, but not attached" >&3
+    fi
+  else
+    echo "* $config not present" >&3
+  fi
+done

@@ -1,0 +1,101 @@
+# start SCIM
+# vim: set sts=4 expandtab:
+
+if [ "$IM_CONFIG_PHASE" = 2 ]; then
+# start SCIM daemon
+/usr/bin/scim --daemon
+fi
+
+if [ "$IM_CONFIG_PHASE" = 1 ]; then
+# set variables for the plain XIM
+XMODIFIERS=@im=SCIM
+
+GTK_IM_MODULE=xim
+
+# use scim immodule only when available for both GTK 2.0 and 3.0
+IM_CONFIG_MARKER2=0
+for IM_CONFIG_MARKER in /usr/lib/*/gtk-2.0/*/immodules/im-scim.so \
+                        /usr/lib/gtk-2.0/*/immodules/im-scim.so ; do
+    if [ -e $IM_CONFIG_MARKER ]; then
+        IM_CONFIG_MARKER2=1
+        break
+    fi
+done
+
+IM_CONFIG_MARKER3=0
+for IM_CONFIG_MARKER in /usr/lib/*/gtk-3.0/*/immodules/im-scim.so \
+                        /usr/lib/gtk-3.0/*/immodules/im-scim.so ; do
+    if [ -e $IM_CONFIG_MARKER ]; then
+        IM_CONFIG_MARKER3=1
+        break
+    fi
+done
+
+if [ $IM_CONFIG_MARKER2 = 1 ] && [ $IM_CONFIG_MARKER3 = 1 ] ; then
+    GTK_IM_MODULE=scim
+fi
+
+# Backport support
+# use scim-bridge immodule only when available for both GTK 2.0 and 3.0
+IM_CONFIG_MARKER2=0
+for IM_CONFIG_MARKER in /usr/lib/*/gtk-2.0/*/immodules/im-scim-bridge.so \
+                        /usr/lib/gtk-2.0/*/immodules/im-scim-bridge.so ; do
+    if [ -e $IM_CONFIG_MARKER ]; then
+        IM_CONFIG_MARKER2=1
+        break
+    fi
+done
+
+IM_CONFIG_MARKER3=0
+for IM_CONFIG_MARKER in /usr/lib/*/gtk-3.0/*/immodules/im-scim-bridge.so \
+                        /usr/lib/gtk-3.0/*/immodules/im-scim-bridge.so ; do
+    if [ -e $IM_CONFIG_MARKER ]; then
+        IM_CONFIG_MARKER3=1
+        break
+    fi
+done
+if [ $IM_CONFIG_MARKER2 = 1 ] && [ $IM_CONFIG_MARKER3 = 1 ] ; then
+    GTK_IM_MODULE=scim-bridge
+fi
+
+QT_IM_MODULE=xim
+
+# Backport support
+# use immodule when available for Qt3
+for IM_CONFIG_MARKER in /usr/lib/*/qt3/plugins/inputmethods/libqscim.so \
+                        /usr/lib/qt3/plugins/inputmethods/libqscim.so ; do
+    if [ -e $IM_CONFIG_MARKER ]; then
+        QT_IM_MODULE=scim
+        break
+    fi
+done
+
+# use im-scim-bridge when available for Qt3
+for IM_CONFIG_MARKER in /usr/lib/*/qt3/plugins/inputmethods/im-scim-bridge.so \
+                        /usr/lib/qt3/plugins/inputmethods/im-scim-bridge.so ; do
+    if [ -e $IM_CONFIG_MARKER ]; then
+        QT_IM_MODULE=scim-bridge
+        break
+    fi
+done
+
+QT4_IM_MODULE=xim
+# use immodule when available for Qt4
+for IM_CONFIG_MARKER in /usr/lib/*/qt4/plugins/inputmethods/im-scim.so \
+                        /usr/lib/qt4/plugins/inputmethods/im-scim.so ; do
+    if [ -e $IM_CONFIG_MARKER ]; then
+        QT4_IM_MODULE=scim
+        break
+    fi
+done
+
+CLUTTER_IM_MODULE=xim
+# use immodule when available for clutter
+for IM_CONFIG_MARKER in /usr/lib/*/clutter-imcontext/immodules/im-scim.so \
+                        /usr/lib/clutter-imcontext/immodules/im-scim.so; do
+    if [ -e $IM_CONFIG_MARKER ]; then
+        CLUTTER_IM_MODULE=scim
+        break
+    fi
+done
+fi

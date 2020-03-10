@@ -1,0 +1,53 @@
+libieee1284 README
+------------------
+
+This library is intended to be used by applications that need to
+communicate with (or at least identify) devices that are attached via
+a parallel port.
+
+It currently works on Linux, OpenBSD (i386 only), FreeBSD/i386,
+Solaris/x86, and Cygwin.
+
+For Linux, there are some wrinkles in communicating with devices on 
+parallel ports:
+
+- Applications that want to harvest IEEE 1284 Device ID information
+  can look in /proc for it, but it is in a different location in 2.4
+  kernels than it was in 2.2 kernels, and is completely absent in 2.0
+  kernels.
+
+- Soon it will be in a different location again in 2.4.
+
+- All kernels allow ioperm/inb/outb-style I/O, but it requires root
+  privilege.  In addition, string I/O (such as outsb) is not available
+  on some architectures.
+
+- 2.4 kernels have /dev/parport[0,1,2,...] device nodes which
+  applications can use; applications don't need to be run as root, but
+  they obviously need appropriate permissions set on the device node
+  they want to use.
+
+- When capabilities catch on, /dev/port will be another alternative to
+  ioperm that doesn't require root privilege, although it does require
+  RAWIO capabilities.
+
+The aim of this library is to take all the worry about the above
+wrinkles from the application.  It will figure out which method is
+appropriate for the currently running kernel.  For instance, if the
+application wants to know the device ID of a device on a particular
+port, it will ask the library for the the device ID.  The library will
+then figure out if it's available via /proc (in any of the possible
+locations), and if not then it will try asking the device itself.  If
+/dev/parport0 isn't available for use, it will try ioperm; if that
+fails, it will try /dev/port.  And the application doesn't have to
+care.
+
+The interface is set out in the header file, ieee1284.h, and in the
+SGML document doc/interface.xml (which can be viewed in HTML format
+at <http://cyberelk.net/tim/libieee1284/interface/>).  If this doesn't
+do something that you think it should, or it does something in a way
+that doesn't make sense to you, please let me know so that I can fix
+it.  I need feedback on the interface to know whether it is working.
+
+--
+Tim Waugh <tim@cyberelk.net>

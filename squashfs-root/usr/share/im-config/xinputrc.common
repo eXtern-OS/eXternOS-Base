@@ -1,0 +1,111 @@
+# Common shell routine used by im-config
+# /usr/share/im-config/xinputrc.common
+# (C) Osamu Aoki <osamu@debian.org>, GPL-2+
+# vim: set sts=4 expandtab:
+#
+#############################################################
+# Common variabless used by im-config and its hook script
+#############################################################
+IM_CONFIG_VERSION=0.34-1ubuntu1.3
+IM_CONFIG_DATA=/usr/share/im-config/data
+IM_CONFIG_XINPUTRC_USR=$HOME/.xinputrc
+IM_CONFIG_XINPUTRC_SYS=/etc/X11/xinit/xinputrc
+IM_CONFIG_DEFAULT=/etc/default/im-config
+IM_CONFIG_VERBOSE=false
+. gettext.sh
+TEXTDOMAIN="im-config"
+export TEXTDOMAIN
+TEXTDOMAINDIR="/usr/share/locale/"
+export TEXTDOMAINDIR
+
+if [ -r $IM_CONFIG_DEFAULT ]; then
+    . $IM_CONFIG_DEFAULT
+fi
+IM_CONFIG_LC_CTYPE=$(locale | sed -nr 's/LC_CTYPE=\"?([a-zA-Z_]*).*/\1/p')
+IM_CONFIG_PREFERRED=$(echo "$IM_CONFIG_PREFERRED_RULE"| sed -rn "s/(^|.*:)${IM_CONFIG_LC_CTYPE},([^:]*)($|:.*$)/\2/p")
+#############################################################
+# Common functions used by im-config hook script (any mode)
+#############################################################
+# run selected input method script
+# run_im <config>
+run_im () {
+    IM_CONFIG_CODE="run_im"
+    if [ -r $IM_CONFIG_DATA/[012345678]?_$1.rc ]; then
+        . $IM_CONFIG_DATA/[012345678]?_$1.rc
+        IM_CONFIG_NAME=$1
+        if $IM_CONFIG_VERBOSE ; then
+            eval_gettext "I: Script for \$IM_CONFIG_NAME started at \$IM_CONFIG_CODE." >&2
+            echo >&2
+        fi
+    else
+        IM_CONFIG_NAME=$1
+        eval_gettext "E: Script for \$IM_CONFIG_NAME not found at \$IM_CONFIG_CODE." >&2
+        echo >&2
+    fi
+}
+#############################################################
+# Package status function used by im-config and auto mode
+#############################################################
+# package_status <packagename>
+# return TRUE if in properly installed
+package_status () {
+    PACKAGE_NAME="$1"
+    if [ "$( LANG=C dpkg-query -l "$PACKAGE_NAME" 2>/dev/null | \
+        sed -n '6s/\([^ ]*\) .*$/\1/p' )" = "ii" ]; then
+        # return TRUE
+        return 0
+    else
+        return 1
+    fi
+}
+#############################################################
+# Common functions used by auto mode
+#############################################################
+# name_im <full_path>
+name_im () {
+    local x
+    x=${1#$IM_CONFIG_DATA/??_}
+    x=${x%.rc}
+    x=${x%.conf}
+    echo -n $x
+}
+# avail_auto <config>
+#   configuration availability for auto mode
+#   define package_auto for 10-79*.conf
+avail_auto () {
+    if [ -r $IM_CONFIG_DATA/??_$1.conf ]; then
+        . $IM_CONFIG_DATA/??_$1.conf
+        package_auto
+    else
+        IM_CONFIG_CODE="avail_auto"
+        IM_CONFIG_NAME=$1
+        eval_gettext "E: Configuration for \$IM_CONFIG_NAME not found at \$IM_CONFIG_CODE." >&2
+        echo >&2
+        # return FALSE
+        return 1
+    fi
+}
+
+# autobase_im
+#   echo automatic IM configuration name (without considering locale)
+autobase_im () {
+# auto mode uses first available script in 10-79
+# 79 is for "none", i.e., no IM used
+    for IM_CONFIG_SCRIPT_PATH in $IM_CONFIG_DATA/[1234567]*.rc ; do
+        IM_CONFIG_SCRIPT=$(name_im $IM_CONFIG_SCRIPT_PATH)
+        if avail_auto $IM_CONFIG_SCRIPT ; then
+            echo -n "$IM_CONFIG_SCRIPT"
+            break
+        fi
+    done
+}
+
+# automatic_im
+#   echo automatic IM configuration name
+automatic_im () {
+    if [ "$IM_CONFIG_PREFERRED" != "" ] && avail_auto $IM_CONFIG_PREFERRED ; then
+        echo -n "$IM_CONFIG_PREFERRED"
+    else
+        autobase_im
+    fi
+}

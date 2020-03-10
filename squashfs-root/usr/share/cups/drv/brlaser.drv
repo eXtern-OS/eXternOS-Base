@@ -1,0 +1,143 @@
+// This file is part of the brlaser printer driver.
+//
+// Copyright 2013 Peter De Wachter
+//
+// brlaser is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+//
+// brlaser is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with brlaser.  If not, see <http://www.gnu.org/licenses/>.
+
+#define USING "using brlaser v4"
+
+// Include standard font and media definitions
+#include <font.defs>
+#include <media.defs>
+
+// List the fonts that are supported, in this case all standard fonts...
+Font *
+
+// Manufacturer and driver version.
+Manufacturer "Brother"
+Version "4"
+
+// Each filter provided by the driver...
+Filter application/vnd.cups-raster 33 rastertobrlaser
+
+// Supported resolutions.
+// The 1200dpi mode is weird: we need to send 1200x1200dpi raster
+// data, but Brother only advertises 1200x600dpi. I wonder what
+// is going on there.
+// The 300dpi mode is reportedly not supported on all printers, so
+// it's listed in individual printer blocks where we believe it works.
+// Resolution k 1 0 0 0 "300dpi/300 DPI"
+*Resolution k 1 0 0 0 "600dpi/600 DPI"
+Resolution k 1 0 0 0 "1200dpi/1200HQ"
+
+// Supported page sizes.
+HWMargins 8 8 8 16
+*MediaSize A4
+MediaSize A5
+MediaSize A6
+MediaSize B5
+MediaSize B6
+MediaSize EnvC5
+MediaSize EnvMonarch
+MediaSize EnvDL
+MediaSize Executive
+MediaSize Legal
+MediaSize Letter
+
+// Input trays. Numbers must match the filter source code.
+*InputSlot 0 "Auto/Auto-select"
+InputSlot 1 "Tray1/Tray 1"
+InputSlot 2 "Tray2/Tray 2"
+InputSlot 3 "Tray3/Tray 3"
+InputSlot 4 "MPTray/MP Tray"
+InputSlot 5 "Manual/Manual"
+
+// Media types.
+*MediaType 0 "PLAIN/Plain paper"
+MediaType 1 "THIN/Thin paper"
+MediaType 2 "THICK/Thick paper"
+MediaType 3 "THICKER/Thicker paper"
+MediaType 4 "BOND/Bond paper"
+MediaType 5 "TRANS/Transparencies"
+MediaType 6 "ENV/Envelopes"
+MediaType 7 "ENV-THICK/Thick envelopes"
+MediaType 8 "ENV-THIN/Thin envelopes"
+
+Option "brlaserEconomode/Toner save mode" Boolean AnySetup 10
+  *Choice False/Off "<</cupsInteger10 0>>setpagedevice"
+  Choice True/On "<</cupsInteger10 1>>setpagedevice"
+
+
+{
+  ModelName "DCP-1510"
+  Attribute "NickName" "" "Brother DCP-1510 series, $USING"
+  Attribute "1284DeviceID" "" "MFG:Brother;CMD:PJL,XL2HB;MDL:DCP-1510 series;CLS:PRINTER;CID:Brother Laser Type1;"
+  Resolution k 1 0 0 0 "300dpi/300 DPI"
+  PCFileName "br1510.ppd"
+}
+
+{
+  ModelName "DCP-7030"
+  Attribute "NickName" "" "Brother DCP-7030, $USING"
+  Attribute "1284DeviceID" "" "MFG:Brother;CMD:PJL,HBP;MDL:DCP-7030;CLS:PRINTER;"
+  Resolution k 1 0 0 0 "300dpi/300 DPI"
+  PCFileName "br7030.ppd"
+}
+
+{
+  ModelName "DCP-7040"
+  Attribute "NickName" "" "Brother DCP-7040, $USING"
+  Attribute "1284DeviceID" "" "MFG:Brother;CMD:PJL,HBP;MDL:DCP-7040;CLS:PRINTER;"
+  Resolution k 1 0 0 0 "300dpi/300 DPI"
+  PCFileName "br7040.ppd"
+}
+
+{
+  ModelName "DCP-7055"
+  Attribute "NickName" "" "Brother DCP-7055, $USING"
+  Attribute "1284DeviceID" "" "MFG:Brother;CMD:PJL,HBP;MDL:DCP-7055;CLS:PRINTER;CID:Brother Laser Type1;"
+  Resolution k 1 0 0 0 "300dpi/300 DPI"
+  PCFileName "br7055.ppd"
+}
+
+{
+  ModelName "DCP-7055W"
+  Attribute "NickName" "" "Brother DCP-7055W, $USING"
+  Attribute "1284DeviceID" "" "MFG:Brother;CMD:PJL,HBP;MDL:DCP-7055W;CLS:PRINTER;CID:Brother Laser Type1;"
+  Resolution k 1 0 0 0 "300dpi/300 DPI"
+  PCFileName "br7055w.ppd"
+}
+
+{
+  ModelName "DCP-7065DN"
+  Attribute "NickName" "" "Brother DCP-7065DN, $USING"
+  Attribute "1284DeviceID" "" "MFG:Brother;CMD:PJL,HBP;MDL:DCP-7065DN;CLS:PRINTER;CID:Brother Laser Type1;"
+  Duplex rotated
+  PCFileName "br7065dn.ppd"
+}
+
+{
+  ModelName "HL-L2300D"
+  Attribute "NickName" "" "Brother HL-L2300D, $USING"
+  Attribute "1284DeviceID" "" " MFG:Brother;CMD:PJL,HBP;MDL:HL-L2300D series;CLS:PRINTER;CID:Brother Laser Type1;"
+  Duplex rotated
+  PCFileName "brl2300d.ppd"
+}
+
+{
+  ModelName "MFC-7360N"
+  Attribute "NickName" "" "Brother MFC-7360N, $USING"
+  Attribute "1284DeviceID" "" "MFG:Brother;CMD:PJL,HBP;MDL:MFC-7360N;CLS:PRINTER;CID:Brother Laser Type1;"
+  PCFileName "br7360n.ppd"
+}

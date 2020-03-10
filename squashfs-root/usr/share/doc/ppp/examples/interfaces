@@ -1,0 +1,51 @@
+# copy one of these examples to /etc/network/interfaces
+
+# The VP, VC and encapsulation must match the ones used by your ISP, these
+# examples use 8.35 with LLC encapsulation and assume that ATM interface
+# 0 is the DSL modem.
+# br2684ctl and atmarp are part of the br2684ctl and atm-tools packages,
+# check the atmarp(8) and br2684ctl(8) man pages for details about the
+# command line options.
+
+
+# PPPoE
+# You need to create an appropriate /etc/ppp/peers/pppoe file, look at
+# /usr/share/doc/ppp/examples/peers-pppoe for an example and configure it
+# to use the nas0 interface.
+auto pppoe
+iface pppoe inet ppp
+	provider pppoe
+	pre-up br2684ctl -b -c 0 -a 0.8.35
+	pre-up ip link set up nas0
+	post-down kill $(cat /var/run/nas0.pid)
+
+
+# RFC 1483 bridged, with dynamically assigned address
+auto nas0
+iface nas0 inet dhcp
+	pre-up br2684ctl -b -c ${IFACE#nas} -a 0.8.35
+	post-down kill $(cat /var/run/$IFACE.pid)
+
+
+# RFC 1483 bridged, with statically assigned address
+auto nas0
+iface nas0 inet static
+        address 192.0.2.1
+        netmask 255.255.255.0
+	broadcast 192.0.2.255
+	gateway 192.0.2.254
+	pre-up br2684ctl -b -c ${IFACE#nas} -a 0.8.35
+	post-down kill $(cat /var/run/$IFACE.pid)
+
+
+# Classical IP over ATM (CLIP)
+# This assumes that atmarpd is already running.
+auto atm0
+iface atm0 inet static
+        address 192.0.2.1
+        netmask 255.255.255.0
+	broadcast 192.0.2.255
+	gateway 192.0.2.254
+	pre-up atmarp -c $IFACE
+	post-up atmarp -s 192.0.2.254 0.8.35
+

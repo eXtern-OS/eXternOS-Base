@@ -1,0 +1,314 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ECMAddQch &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ECMAddQtDesignerPlugin" href="ECMAddQtDesignerPlugin.html" />
+    <link rel="prev" title="ECMAddAppIcon" href="ECMAddAppIcon.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ECMAddQtDesignerPlugin.html" title="ECMAddQtDesignerPlugin"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ECMAddAppIcon.html" title="ECMAddAppIcon"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" accesskey="U">ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ecmaddqch">
+<span id="module:ECMAddQch"></span><h1>ECMAddQch<a class="headerlink" href="#ecmaddqch" title="Permalink to this headline">¶</a></h1>
+<p>This module provides the <code class="docutils literal"><span class="pre">ecm_add_qch</span></code> function for generating API
+documentation files in the QCH format, and the <code class="docutils literal"><span class="pre">ecm_install_qch_export</span></code>
+function for generating and installing exported CMake targets for such
+generated QCH files to enable builds of other software with generation of
+QCH files to create links into the given QCH files.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_add_qch</span><span class="p">(</span><span class="o">&lt;</span><span class="n">target_name</span><span class="o">&gt;</span>
+    <span class="n">NAME</span> <span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span>
+    <span class="n">VERSION</span> <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span>
+    <span class="n">QCH_INSTALL_DESTINATION</span> <span class="o">&lt;</span><span class="n">qchfile_install_path</span><span class="o">&gt;</span>
+    <span class="n">TAGFILE_INSTALL_DESTINATION</span> <span class="o">&lt;</span><span class="n">tagsfile_install_path</span><span class="o">&gt;</span>
+    <span class="p">[</span><span class="n">COMPONENT</span> <span class="o">&lt;</span><span class="n">component</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">BASE_NAME</span> <span class="o">&lt;</span><span class="n">basename</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">SOURCE_DIRS</span> <span class="o">&lt;</span><span class="nb">dir</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">dir2</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]]</span>
+    <span class="p">[</span><span class="n">SOURCES</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">file2</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]]</span>
+    <span class="o">|</span><span class="n">MD_MAINPAGE</span> <span class="o">&lt;</span><span class="n">md_file</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">INCLUDE_DIRS</span> <span class="o">&lt;</span><span class="n">incdir</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">incdir2</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]]</span>
+    <span class="p">[</span><span class="n">IMAGE_DIRS</span> <span class="o">&lt;</span><span class="n">idir</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">idir2</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]]</span>
+    <span class="p">[</span><span class="n">EXAMPLE_DIRS</span> <span class="o">&lt;</span><span class="n">edir</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">edir2</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]]</span>
+    <span class="p">[</span><span class="n">ORG_DOMAIN</span> <span class="o">&lt;</span><span class="n">domain</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">NAMESPACE</span> <span class="o">&lt;</span><span class="n">namespace</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">LINK_QCHS</span> <span class="o">&lt;</span><span class="n">qch</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">qch2</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]]</span>
+    <span class="p">[</span><span class="n">PREDEFINED_MACROS</span> <span class="o">&lt;</span><span class="n">macro</span><span class="p">[</span><span class="o">=</span><span class="n">content</span><span class="p">]</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">macro2</span><span class="p">[</span><span class="o">=</span><span class="n">content</span><span class="p">]</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]]</span>
+    <span class="p">[</span><span class="n">BLANK_MACROS</span> <span class="o">&lt;</span><span class="n">macro</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">macro2</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]]</span>
+    <span class="p">[</span><span class="n">CONFIG_TEMPLATE</span> <span class="o">&lt;</span><span class="n">configtemplate_file</span><span class="o">&gt;</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This macro adds a target called &lt;target_name&gt; for the creation of an API
+documentation manual in the QCH format from the given sources.
+It currently uses doxygen, future versions might optionally also allow other
+tools.
+Next to the QCH file the target will generate a corresponding doxygen tag
+file, which enables creating links from other documentation into the
+generated QCH file.</p>
+<p>It is recommended to make the use of this macro optional, by depending
+the call to <code class="docutils literal"><span class="pre">ecm_add_qch</span></code> on a CMake option being set, with a name like
+<code class="docutils literal"><span class="pre">BUILD_QCH</span></code> and being TRUE by default. This will allow the developers to
+saves resources on normal source development build cycles by setting this
+option to FALSE.</p>
+<p>The macro will set the target properties DOXYGEN_TAGFILE, QHP_NAMESPACE,
+QHP_NAMESPACE_VERSIONED, QHP_VIRTUALFOLDER and LINK_QCHS to the respective
+values, to allow other code access to them, e.g. the macro
+<code class="docutils literal"><span class="pre">ecm_install_qch_export</span></code>.
+To enable the use of the target &lt;target_name&gt; as item for LINK_QCHS
+in further <code class="docutils literal"><span class="pre">ecm_add_qch</span></code> calls in the current build,
+additionally a target property DOXYGEN_TAGFILE_BUILD is set, with the path
+of the created doxygen tag file in the build dir.
+If existing, <code class="docutils literal"><span class="pre">ecm_add_qch</span></code> will use this property instead of
+DOXYGEN_TAGFILE for access to the tags file.</p>
+<p>NAME specifies the name for the generated documentation.</p>
+<p>VERSION specifies the version of the library for which the documentation is
+created.</p>
+<p>BASE_NAME specifies the base name for the generated files.
+The default basename is <code class="docutils literal"><span class="pre">&lt;name&gt;</span></code>.</p>
+<p>SOURCE_DIRS specifies the dirs (incl. subdirs) with the source files for
+which the API documentation should be generated.  Dirs can be relative to
+the current source dir. Dependencies to the files in the dirs are not
+tracked currently, other than with the SOURCES argument. So do not use for
+sources generated during the build.
+Needs to be used when SOURCES or CONFIG_TEMPLATE are not used.</p>
+<p>SOURCES specifies the source files for which the API documentation should be
+generated.
+Needs to be used when SOURCE_DIRS or CONFIG_TEMPLATE are not used.</p>
+<p>MD_MAINPAGE specifies a file in Markdown format that should be used as main
+page. This page will overrule any <code class="docutils literal"><span class="pre">\mainpage</span></code> command in the included
+sources.</p>
+<p>INCLUDE_DIRS specifies the dirs which should be searched for included
+headers. Dirs can be relative to the current source dir. Since 5.63.</p>
+<p>IMAGE_DIRS specifies the dirs which contain images that are included in the
+documentation. Dirs can be relative to the current source dir.</p>
+<p>EXAMPLE_DIRS specifies the dirs which contain examples that are included in
+the documentation. Dirs can be relative to the current source dir.</p>
+<p>QCH_INSTALL_DESTINATION specifies where the generated QCH file will be
+installed.</p>
+<p>TAGFILE_INSTALL_DESTINATION specifies where the generated tag file will be
+installed.</p>
+<p>COMPONENT specifies the installation component name with which the install
+rules for the generated QCH file and tag file are associated.</p>
+<p>NAMESPACE can be used to set a custom namespace &lt;namespace&gt; of the generated
+QCH file. The namepspace is used as the unique id by QHelpEngine (cmp.
+<a class="reference external" href="https://doc.qt.io/qt-5/qthelpproject.html#namespace">https://doc.qt.io/qt-5/qthelpproject.html#namespace</a>).
+The default namespace is <code class="docutils literal"><span class="pre">&lt;domain&gt;.&lt;name&gt;</span></code>.
+Needs to be used when ORG_DOMAIN is not used.</p>
+<p>ORG_DOMAIN can be used to define the organization domain prefix for the
+default namespace of the generated QCH file.
+Needs to be used when NAMESPACE is not used.</p>
+<p>LINK_QCHS specifies a list of other QCH targets which should be used for
+creating references to API documentation of code in external libraries.
+For each target &lt;qch&gt; in the list these target properties are expected to be
+defined: DOXYGEN_TAGFILE, QHP_NAMESPACE and QHP_VIRTUALFOLDER.
+If any of these is not existing, &lt;qch&gt; will be ignored.
+Use the macro <code class="docutils literal"><span class="pre">ecm_install_qch_export</span></code> for exporting a target with these
+properties with the CMake config of a library.
+Any target &lt;qch&gt; can also be one created before in the same buildsystem by
+another call of <code class="docutils literal"><span class="pre">ecm_add_qch</span></code>.</p>
+<p>PREDEFINED_MACROS specifies a list of C/C++ macros which should be handled as
+given by the API dox generation tool.
+Examples are macros only defined in generated files, so whose
+definition might be not available to the tool.</p>
+<p>BLANK_MACROS specifies a list of C/C++ macro names which should be ignored by
+the API dox generation tool and handled as if they resolve to empty strings.
+Examples are export macros only defined in generated files, so whose
+definition might be not available to the tool.</p>
+<p>CONFIG_TEMPLATE specifies a custom cmake template file for the config file
+that is created to control the execution of the API dox generation tool.
+The following CMake variables need to be used:
+ECM_QCH_DOXYGEN_QHELPGENERATOR_EXECUTABLE,
+ECM_QCH_DOXYGEN_FILEPATH, ECM_QCH_DOXYGEN_TAGFILE.
+The following CMake variables can be used:
+ECM_QCH_DOXYGEN_PROJECTNAME, ECM_QCH_DOXYGEN_PROJECTVERSION,
+ECM_QCH_DOXYGEN_VIRTUALFOLDER, ECM_QCH_DOXYGEN_FULLNAMESPACE,
+ECM_QCH_DOXYGEN_TAGFILES,
+ECM_QCH_DOXYGEN_WARN_LOGFILE, ECM_QCH_DOXYGEN_QUIET.
+There is no guarantue that the other CMake variables currently used in the
+default config file template will also be present with the same semantics
+in future versions of this macro.</p>
+<p>VERBOSE tells the API dox generation tool to be more verbose about its
+activity.</p>
+<p>Example usage:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">ecm_add_qch</span><span class="p">(</span>
+    <span class="s">MyLib_QCH</span>
+    <span class="s">NAME</span> <span class="s">MyLib</span>
+    <span class="s">VERSION</span> <span class="s2">&quot;0.42.0&quot;</span>
+    <span class="s">ORG_DOMAIN</span> <span class="s">org.myorg</span>
+    <span class="s">SOURCE_DIRS</span>
+        <span class="s">src</span>
+    <span class="s">LINK_QCHS</span>
+        <span class="s">Qt5Core_QCH</span>
+        <span class="s">Qt5Xml_QCH</span>
+        <span class="s">Qt5Gui_QCH</span>
+        <span class="s">Qt5Widgets_QCH</span>
+    <span class="s">BLANK_MACROS</span>
+        <span class="s">MyLib_EXPORT</span>
+        <span class="s">MyLib_DEPRECATED</span>
+    <span class="s">TAGFILE_INSTALL_DESTINATION</span> <span class="o">${</span><span class="nv">CMAKE_INSTALL_PREFIX</span><span class="o">}</span><span class="s">/share/docs/tags</span>
+    <span class="s">QCH_INSTALL_DESTINATION</span> <span class="o">${</span><span class="nv">CMAKE_INSTALL_PREFIX</span><span class="o">}</span><span class="s">/share/docs/qch</span>
+    <span class="s">COMPONENT</span> <span class="s">Devel</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Example usage (with two QCH files, second linking first):</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">ecm_add_qch</span><span class="p">(</span>
+    <span class="s">MyLib_QCH</span>
+    <span class="s">NAME</span> <span class="s">MyLib</span>
+    <span class="s">VERSION</span> <span class="o">${</span><span class="nv">MyLib_VERSION</span><span class="o">}</span>
+    <span class="s">ORG_DOMAIN</span> <span class="s">org.myorg</span>
+    <span class="s">SOURCES</span> <span class="o">${</span><span class="nv">MyLib_PUBLIC_HEADERS</span><span class="o">}</span>
+    <span class="s">MD_MAINPAGE</span> <span class="s">src/mylib/README.md</span>
+    <span class="s">LINK_QCHS</span> <span class="s">Qt5Core_QCH</span>
+    <span class="s">TAGFILE_INSTALL_DESTINATION</span> <span class="o">${</span><span class="nv">CMAKE_INSTALL_PREFIX</span><span class="o">}</span><span class="s">/share/docs/tags</span>
+    <span class="s">QCH_INSTALL_DESTINATION</span> <span class="o">${</span><span class="nv">CMAKE_INSTALL_PREFIX</span><span class="o">}</span><span class="s">/share/docs/qch</span>
+    <span class="s">COMPONENT</span> <span class="s">Devel</span>
+<span class="p">)</span>
+<span class="nb">ecm_add_qch</span><span class="p">(</span>
+    <span class="s">MyOtherLib_QCH</span>
+    <span class="s">NAME</span> <span class="s">MyOtherLib</span>
+    <span class="s">VERSION</span> <span class="o">${</span><span class="nv">MyOtherLib_VERSION</span><span class="o">}</span>
+    <span class="s">ORG_DOMAIN</span> <span class="s">org.myorg</span>
+    <span class="s">SOURCES</span> <span class="o">${</span><span class="nv">MyOtherLib_PUBLIC_HEADERS</span><span class="o">}</span>
+    <span class="s">MD_MAINPAGE</span> <span class="s">src/myotherlib/README.md</span>
+    <span class="s">LINK_QCHS</span> <span class="s">Qt5Core_QCH</span> <span class="s">MyLib_QCH</span>
+    <span class="s">TAGFILE_INSTALL_DESTINATION</span> <span class="o">${</span><span class="nv">CMAKE_INSTALL_PREFIX</span><span class="o">}</span><span class="s">/share/docs/tags</span>
+    <span class="s">QCH_INSTALL_DESTINATION</span> <span class="o">${</span><span class="nv">CMAKE_INSTALL_PREFIX</span><span class="o">}</span><span class="s">/share/docs/qch</span>
+    <span class="s">COMPONENT</span> <span class="s">Devel</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_install_qch_export</span><span class="p">(</span>
+    <span class="n">TARGETS</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">name2</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]]</span>
+    <span class="n">FILE</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;</span>
+    <span class="n">DESTINATION</span> <span class="o">&lt;</span><span class="n">dest</span><span class="o">&gt;</span>
+    <span class="p">[</span><span class="n">COMPONENT</span> <span class="o">&lt;</span><span class="n">component</span><span class="o">&gt;</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This macro creates and installs a CMake file &lt;file&gt; which exports the given
+QCH targets &lt;name&gt; etc., so they can be picked up by CMake-based builds of
+other software that also generate QCH files (using <code class="docutils literal"><span class="pre">ecm_add_qch</span></code>) and
+which should include links to the QCH files created by the given targets.
+The installed CMake file &lt;file&gt; is expected to be included by the CMake
+config file created for the software the related QCH files are documenting.</p>
+<p>TARGETS specifies the QCH targets which should be exported. If a target does
+not exist or does not have all needed properties, a warning will be
+generated and the target skipped.
+This behaviour might change in future versions to result in a fail instead.</p>
+<p>FILE specifies the name of the created CMake file, typically with a .cmake
+extension.</p>
+<p>DESTINATION specifies the directory on disk to which the file will be
+installed. It usually is the same as the one where the CMake config files
+for this software are installed.</p>
+<p>COMPONENT specifies the installation component name with which the
+install rule is associated.</p>
+<p>Example usage:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">ecm_install_qch_export</span><span class="p">(</span>
+    <span class="s">TARGETS</span> <span class="s">MyLib_QCH</span>
+    <span class="s">FILE</span> <span class="s">MyLibQCHTargets.cmake</span>
+    <span class="s">DESTINATION</span> <span class="s2">&quot;${CMAKE_INSTALL_PREFIX}/lib/cmake/MyLib&quot;</span>
+    <span class="s">COMPONENT</span> <span class="s">Devel</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Since 5.36.0.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ECMAddAppIcon.html"
+                        title="previous chapter">ECMAddAppIcon</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ECMAddQtDesignerPlugin.html"
+                        title="next chapter">ECMAddQtDesignerPlugin</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/module/ECMAddQch.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ECMAddQtDesignerPlugin.html" title="ECMAddQtDesignerPlugin"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ECMAddAppIcon.html" title="ECMAddAppIcon"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" >ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

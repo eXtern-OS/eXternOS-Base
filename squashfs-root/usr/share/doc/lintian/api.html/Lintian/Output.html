@@ -1,0 +1,332 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Output</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#ACCESSORS'>ACCESSORS</a>
+  <li class='indexItem indexItem1'><a href='#CLASS%2FINSTANCE_METHODS'>CLASS/INSTANCE METHODS</a>
+  <li class='indexItem indexItem1'><a href='#INSTANCE_METHODS_FOR_CONTEXT-AWARE_OUTPUT'>INSTANCE METHODS FOR CONTEXT-AWARE OUTPUT</a>
+  <li class='indexItem indexItem1'><a href='#INSTANCE_METHODS_FOR_SUBCLASSING'>INSTANCE METHODS FOR SUBCLASSING</a>
+  <li class='indexItem indexItem1'><a href='#CLASS_METHODS'>CLASS METHODS</a>
+  <li class='indexItem indexItem1'><a href='#EXPORTS'>EXPORTS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Output - Lintian messaging handling</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre>    # non-OO
+    use Lintian::Output qw(:messages);
+
+    $Lintian::Output::GLOBAL-&#62;verbosity_level(1);
+
+    msg(&#34;Something interesting&#34;);
+    v_msg(&#34;Something less interesting&#34;);
+    debug_msg(3, &#34;Something very specific&#34;);
+
+    # OO
+    use Lintian::Output;
+
+    my $out = Lintian::Output-&#62;new;
+
+    $out-&#62;verbosity_level(-1);
+    $out-&#62;msg(&#34;Something interesting&#34;);
+    $out-&#62;v_msg(&#34;Something less interesting&#34;);
+    $out-&#62;debug_msg(3, &#34;Something very specific&#34;);</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Lintian::Output is used for all interaction between lintian and the user. It is designed to be easily extensible via subclassing.</p>
+
+<p>To simplify usage in the most common cases, many Lintian::Output methods can be used as class methods and will therefor automatically use the object $Lintian::Output::GLOBAL unless their first argument <code>isa(&#39;Lintian::Output&#39;)</code>.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="ACCESSORS"
+>ACCESSORS</a></h1>
+
+<p>The following fields define the behaviours of Lintian::Output.</p>
+
+<dl>
+<dt><a name="verbosity_level"
+>verbosity_level</a></dt>
+
+<dd>
+<p>Determine how verbose the output should be. &#34;0&#34; is the default value (tags and msg only), &#34;-1&#34; is quiet (tags only) and &#34;1&#34; is verbose (tags, msg and v_msg).</p>
+
+<dt><a name="debug"
+>debug</a></dt>
+
+<dd>
+<p>If set to a positive integer, will enable all debug messages issued with a level lower or equal to its value.</p>
+
+<dt><a name="color"
+>color</a></dt>
+
+<dd>
+<p>Can take the values &#34;never&#34;, &#34;always&#34;, &#34;auto&#34; or &#34;html&#34;.</p>
+
+<p>Whether to colorize tags based on their severity. The default is &#34;never&#34;, which never uses color. &#34;always&#34; will always use color, &#34;auto&#34; will use color only if the output is going to a terminal.</p>
+
+<p>&#34;html&#34; will output HTML &#60;span&#62; tags with a color style attribute (instead of ANSI color escape sequences).</p>
+
+<dt><a name="stdout"
+>stdout</a></dt>
+
+<dd>
+<p>I/O handle to use for output of messages and tags. Defaults to <code>\*STDOUT</code>.</p>
+
+<dt><a name="stderr"
+>stderr</a></dt>
+
+<dd>
+<p>I/O handle to use for warnings. Defaults to <code>\*STDERR</code>.</p>
+
+<dt><a name="showdescription"
+>showdescription</a></dt>
+
+<dd>
+<p>Whether to show the description of a tag when printing it.</p>
+
+<dt><a name="issuedtags"
+>issuedtags</a></dt>
+
+<dd>
+<p>Hash containing the names of tags which have been issued.</p>
+
+<dt><a name="tag_display_limit"
+>tag_display_limit</a></dt>
+
+<dd>
+<p>Get/Set the number of times a tag is emitted per processable.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS/INSTANCE_METHODS"
+>CLASS/INSTANCE METHODS</a></h1>
+
+<p>These methods can be used both with and without an object. If no object is given, they will fall back to the $Lintian::Output::GLOBAL object.</p>
+
+<dl>
+<dt><a name="msg(@args)"
+><code>msg(@args)</code></a></dt>
+
+<dd>
+<p>Will output the strings given in @args, one per line, each line prefixed with &#39;N: &#39;. Will do nothing if verbosity_level is less than 0.</p>
+
+<dt><a name="v_msg(@args)"
+><code>v_msg(@args)</code></a></dt>
+
+<dd>
+<p>Will output the strings given in @args, one per line, each line prefixed with &#39;N: &#39;. Will do nothing unless verbosity_level is greater than 0.</p>
+
+<dt><a name="debug_msg($level,_@args)"
+><code>debug_msg($level, @args)</code></a></dt>
+
+<dd>
+<p>$level should be a positive integer.</p>
+
+<p>Will output the strings given in @args, one per line, each line prefixed with &#39;N: &#39;. Will do nothing unless debug is set to a positive integer &#62;= $level.</p>
+
+<dt><a name="warning(@args)"
+><code>warning(@args)</code></a></dt>
+
+<dd>
+<p>Will output the strings given in @args on stderr, one per line, each line prefixed with &#39;warning: &#39;.</p>
+
+<dt><a name="perf_log(@args)"
+><code>perf_log(@args)</code></a></dt>
+
+<dd>
+<p>Like &#34;v_msg&#34;, except output is possibly sent to a dedicated log file.</p>
+
+<p>Will output the strings given in @args, one per line. The lines will not be prefixed. Will do nothing unless perf_debug is set to a positive integer.</p>
+
+<dt><a name="delimiter()"
+><code>delimiter()</code></a></dt>
+
+<dd>
+<p>Gives back a string that is usable for separating messages in the output. Note: This does not print anything, it just gives back the string, use with one of the methods above, e.g.</p>
+
+<pre> v_msg(&#39;foo&#39;, delimiter(), &#39;bar&#39;);</pre>
+
+<dt><a name="issued_tag($tag_name)"
+><code>issued_tag($tag_name)</code></a></dt>
+
+<dd>
+<p>Indicate that the named tag has been issued. Returns a boolean value indicating whether the tag had previously been issued by the object.</p>
+
+<dt><a name="string($lead,_@args)"
+><code>string($lead, @args)</code></a></dt>
+
+<dd>
+<p>TODO: Is this part of the public interface?</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="INSTANCE_METHODS_FOR_CONTEXT-AWARE_OUTPUT"
+>INSTANCE METHODS FOR CONTEXT-AWARE OUTPUT</a></h1>
+
+<p>The following methods are designed to be called at specific points during program execution and require very specific arguments. They can only be called as instance methods.</p>
+
+<dl>
+<dt><a name="print_tag($pkg_info,_$tag_info,_$extra,_$override)"
+><code>print_tag($pkg_info, $tag_info, $extra, $override)</code></a></dt>
+
+<dd>
+<p>Print a tag. The first two arguments are hash reference with the information about the package and the tag, $extra is the extra information for the tag (if any) as an array reference, and $override is either undef if the tag is not overridden or the <a href="../Lintian/Tag/Override.html" class="podlinkpod"
+>override</a> for this tag. Called from Lintian::Tags::tag().</p>
+
+<dt><a name="print_start_pkg($pkg_info)"
+><code>print_start_pkg($pkg_info)</code></a></dt>
+
+<dd>
+<p>Called before lintian starts to handle each package. The version in Lintian::Output uses v_msg() for output. Called from Tags::select_pkg().</p>
+
+<dt><a name="print_start_pkg($pkg_info)"
+><code>print_start_pkg($pkg_info)</code></a></dt>
+
+<dd>
+<p>Called after lintian is finished with a package. The version in Lintian::Output does nothing. Called from Lintian::Tags::file_start() and Lintian::Tags::file_end().</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="INSTANCE_METHODS_FOR_SUBCLASSING"
+>INSTANCE METHODS FOR SUBCLASSING</a></h1>
+
+<p>The following methods are only intended for subclassing and are only available as instance methods. The methods mentioned in <a href="#CLASS%2FINSTANCE_METHODS" class="podlinkpod"
+>&#34;CLASS/INSTANCE METHODS&#34;</a> usually only check whether they should do anything at all (according to the values of verbosity_level and debug) and then call one of the following methods to do the actual printing. Almost all of them finally call _print() to do that. This convoluted scheme is necessary to be able to use the methods above as class methods and still make the behaviour overridable in subclasses.</p>
+
+<dl>
+<dt><a name="_message(@args)"
+><code>_message(@args)</code></a></dt>
+
+<dd>
+<p>Called by msg(), v_msg(), and debug_msg() to print the message.</p>
+
+<dt><a name="_warning(@args)"
+><code>_warning(@args)</code></a></dt>
+
+<dd>
+<p>Called by warning() to print the warning.</p>
+
+<dt><a name="_print($stream,_$lead,_@args)"
+><code>_print($stream, $lead, @args)</code></a></dt>
+
+<dd>
+<p>Called by _message(), _warning(), and print_tag() to do the actual printing.</p>
+
+<p>If you override these three methods, you can change the calling convention for this method to pretty much whatever you want.</p>
+
+<p>The version in Lintian::Output prints the strings in @args, one per line, each line preceded by $lead to the I/O handle given in $stream.</p>
+
+<dt><a name="_delimiter()"
+><code>_delimiter()</code></a></dt>
+
+<dd>
+<p>Called by delimiter().</p>
+
+<dt><a name="_do_color()"
+><code>_do_color()</code></a></dt>
+
+<dd>
+<p>Called by print_tag() to determine whether to produce colored output.</p>
+
+<dt><a name="_quote_print($string)"
+><code>_quote_print($string)</code></a></dt>
+
+<dd>
+<p>Called to quote a string. By default it will replace all non-printables with &#34;?&#34;. Sub-classes can override it if they allow non-ascii printables etc.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS_METHODS"
+>CLASS METHODS</a></h1>
+
+<dl>
+<dt><a name="_global_or_object(@args)"
+><code>_global_or_object(@args)</code></a></dt>
+
+<dd>
+<p>If $args[0] is an object which satisfies <code>isa(&#39;Lintian::Output&#39;)</code> returns @args, otherwise returns <code>($Lintian::Output::GLOBAL, @_)</code>.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="EXPORTS"
+>EXPORTS</a></h1>
+
+<p>Lintian::Output exports nothing by default, but the following export tags are available:</p>
+
+<dl>
+<dt><a name=":messages"
+>:messages</a></dt>
+
+<dd>
+<p>Exports all the methods in <a href="#CLASS%2FINSTANCE_METHODS" class="podlinkpod"
+>&#34;CLASS/INSTANCE METHODS&#34;</a></p>
+
+<dt><a name=":util"
+>:util</a></dt>
+
+<dd>
+<p>Exports all the methods in <a href="#CLASS_METHODS" class="podlinkpod"
+>&#34;CLASS METHODS&#34;</a></p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Frank Lichtenheld &#60;djpig@debian.org&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1)</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

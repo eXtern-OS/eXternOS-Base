@@ -1,0 +1,63 @@
+#!/bin/sh
+
+# bail out if there's no "mail" command
+type mail >/dev/null 2>&1 || exit 0
+
+# Redirect all output to our mail command
+(
+	# We must be given a pid to look at
+	if [ -z "$1" ]; then
+		echo "$0 called with no arguments."
+		exit 1
+	fi
+
+	if [ ! -d "/proc/$1" ]; then
+		echo "$0: No such process: $1"
+		exit 1
+	fi
+
+	# Find out what binary we're debugging
+	BINARYNAME=`readlink "/proc/$1/exe"`
+
+	# Generic header for our email
+	echo "The Samba 'panic action' script, $0,"
+	echo "was called for PID $1 ($BINARYNAME)."
+	echo
+
+	echo "This means there was a problem with the program, such as a segfault."
+
+	if [ -z "$BINARYNAME" ]; then
+		echo "However, the executable could not be found for process $1."
+		echo "It may have died unexpectedly, or you may not have permission to debug"
+		echo "the process."
+		exit 1
+	fi
+
+	# No debugger
+	if [ ! -x /usr/bin/gdb ]; then
+		echo "However, gdb was not found on your system, so the error could not be"
+		echo "debugged.  Please install the gdb package so that debugging information"
+		echo "is available the next time such a problem occurs."
+		exit 1
+	fi
+
+	echo "Below is a backtrace for this process generated with gdb, which shows"
+	echo "the state of the program at the time the error occurred.  The Samba log"
+	echo "files may contain additional information about the problem."
+	echo 
+	echo "If the problem persists, you are encouraged to first install the"
+	echo "samba-dbg package, which contains the debugging symbols for the Samba"
+	echo "binaries.  Then submit the provided information as a bug report to"
+	if [ -x "`which lsb_release 2>/dev/null`" ] \
+	   && [ "`lsb_release -s -i`" = "Ubuntu" ]
+	then
+		echo "Ubuntu by visiting this link:"
+		echo "https://launchpad.net/ubuntu/+source/samba/+filebug"
+	else
+		echo "Debian.  For information about the procedure for submitting bug reports,"
+		echo "please see http://www.debian.org/Bugs/Reporting or the reportbug(1)"
+		echo "manual page."
+	fi
+	echo
+	gdb -x /etc/samba/gdbcommands -batch "$BINARYNAME" "$1"
+) | mail -s "Panic or segfault in Samba" root

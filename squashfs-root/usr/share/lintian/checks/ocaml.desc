@@ -1,0 +1,66 @@
+Check-Script: ocaml
+Author: Stephane Glondu <steph@glondu.net>
+Abbrev: ocaml
+Type: binary
+Info: This looks for common mistakes in OCaml binary packages.
+Needs-Info: ar-info, unpacked
+
+Tag: ocaml-dangling-cmxa
+Severity: serious
+Certainty: certain
+Info: This package provides a <tt>.cmxa</tt> library without its
+ implementation (<tt>.a</tt> static library).
+
+Tag: ocaml-dangling-cmx
+Severity: serious
+Certainty: certain
+Info: This package provides a <tt>.cmx</tt> module without its
+ implementation (<tt>.o</tt> object file which may be embedded in a
+ <tt>.a</tt> static library installed in the same directory).
+
+Tag: ocaml-dangling-cmxs
+Severity: normal
+Certainty: possible
+Info: This package seems to be a library package, and provides a native
+ plugin (<tt>.cmxs</tt>).  If the plugin is meant to be used as a library
+ for other plugins, it should be shipped as bytecode (<tt>.cma</tt> or
+ <tt>.cmo</tt>) as well.
+
+Tag: ocaml-dev-file-not-in-usr-lib-ocaml
+Severity: pedantic
+Certainty: possible
+Info: This development package installs OCaml development files
+ (<tt>.cmi</tt>, <tt>.cmx</tt> or <tt>.cmxa</tt>) outside
+ <tt>/usr/lib/ocaml</tt>.  Such files are used only by compilation and
+ should be in a subdirectory of OCaml standard library path.
+
+Tag: ocaml-stray-cmo
+Severity: minor
+Certainty: wild-guess
+Info: This package installs a <tt>.cma</tt> file and a <tt>.cmo</tt> file
+ with the same base name.  Most of the time, the module provided by the
+ <tt>.cmo</tt> file is  also linked in the <tt>.cma</tt> file, so the
+ <tt>.cmo</tt> file is useless.
+
+Tag: ocaml-dangling-cmi
+Severity: wishlist
+Certainty: possible
+Info: This package installs a compiled interface (<tt>.cmi</tt>) without
+ its text version (<tt>.mli</tt>).  The text version should also be
+ installed for documentation purpose.  If the module involved doesn't have
+ a <tt>.mli</tt>, its source code (<tt>.ml</tt>) should be installed
+ instead.
+
+Tag: ocaml-dev-file-in-nondev-package
+Severity: pedantic
+Certainty: possible
+Info: This package doesn't appear to be a development package, but
+ installs OCaml development files (<tt>.cmi</tt>, <tt>.cmx</tt> or
+ <tt>.cmxa</tt>).  These files should be moved to a development package.
+
+Tag: ocaml-meta-without-suggesting-findlib
+Severity: pedantic
+Certainty: certain
+Info: This development package installs a META file but doesn't depend on
+ ocaml-findlib.  Libraries with META file are easier to use with findlib.
+ The package should at least suggest ocaml-findlib.

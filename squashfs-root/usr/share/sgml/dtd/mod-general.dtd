@@ -1,0 +1,246 @@
+<!-- (C) International Organization for Standardization 1986
+     Permission to copy in any form is granted for use with
+     conforming SGML systems and applications as defined in
+     ISO 8879, provided this notice is included in all copies.
+-->
+<!--
+Public identifier:
+	"+//ISBN 82-7640-000//DTD General Document//EN"
+
+Note:
+    This DTD is a modified version of the public DTD known as
+	"ISO 8879:1986//DTD General Document//EN".
+    The modification concerns the titlep element, where the content
+    model contains "address" twice in the final OR group.  The first
+    "address" has been removed, as it was redundant and introduced
+    ambiguity to the content model for the titlep element.  Documents
+    which conform to the above mentioned DTD will conform to this DTD.
+
+Credits:
+    Jaap Akkerhuis <jaap@alice.att.com> discovered the ambiguity.
+    Wayne Wohler <WOHLER@BLDVM1.VNET.IBM.COM> provided the original
+    DTD.  Modification by Erik Naggum <erik@naggum.no>.
+
+Contact:
+    ISBN 82-7640 assigned to Naggum Software, Box 1570 Vika, 0118
+    OSLO, NORWAY.  Phone +47-295-0313.  E-mail: <books@naggum.no>.
+    This DTD will be provided free of charge, electronically, by means
+    of electronic mail or receiver-initiated file transfer, to those
+    who have legal access to the ISO document from which this is a
+    derived work.  This published material will _not_ be provided in
+    paper copy, except as required by law.
+-->
+<!-- Public document type definition.  Typical invocation:
+<!DOCTYPE general PUBLIC "+//ISBN 82-7640-000//DTD General Document//EN" [
+  <!ENTITY % ISOnum PUBLIC
+    "ISO 8879:1986//ENTITIES Numeric and Special Graphic//EN">
+  <!ENTITY % ISOpub PUBLIC
+    "ISO 8879:1986//ENTITIES Publishing//EN">
+  %ISOnum; %ISOpub;
+      (Parameter entities and additional elements can be defined here.)
+]>
+-->
+<!ENTITY % doctype "general" -- Document type generic identifier -->
+<!-- This is a document type definition for a "general" document.
+It contains the necessary elements for use in many applications, and is
+organized so that other elements can be added in the document type
+declaration subset. -->
+
+		  <!-- Entity Naming Conventions -->
+<!--
+		   Prefix = where used:
+     p.	 = in paragraphs (also in phrases if .ph suffix)
+     s.	 = in sections (i.e., among paragraphs)
+     ps. = in paragraphs and sections
+     i.	 = where allowed by inclusion exceptions
+     m.	 = content model or declared content
+     a.	 = attribute definition
+     NONE= specific use defined in models
+		 Suffix = allowed content:
+     .ph = elements whose content is %m.ph;
+     .d	 = elements whose content has same definition
+     NONE= elements with unique definitions
+-->
+			<!-- Element Tokens -->
+<!ENTITY % p.em.ph "hp1|hp2|hp3|hp0|cit" -- Emphasized phrases -->
+<!ENTITY % p.rf.ph "hdref|figref" -- Reference phrases -->
+<!ENTITY % p.rf.d  "fnref|liref" -- References (empty) -->
+<!ENTITY % p.zz.ph "q|(%p.em.ph;)|(%p.rf.ph;)|(%p.rf.d;)" -- All phrases -->
+<!ENTITY % ps.ul.d "ol|sl|ul|nl" -- Unit-item lists -->
+<!ENTITY % ps.list "%ps.ul.d;|dl|gl" -- All lists -->
+<!ENTITY % ps.elem "xmp|lq|lines|tbl|address|artwork" -- Other elements -->
+<!ENTITY % ps.zz   "(%ps.elem;)|(%ps.list;)" -- Para/sect subelements -->
+<!ENTITY % s.p.d   "p|note" -- Simple paragraphs -->
+<!ENTITY % s.top   "top1|top2|top3|top4" -- Topics -->
+<!ENTITY % s.zz	   "(%s.p.d;)|(%ps.zz;)|(%s.top;)" -- Section subelements -->
+<!ENTITY % i.float "fig|fn" -- Floating elements -->
+<!ENTITY % fm.d	   "abstract|preface" -- Front matter -->
+<!ENTITY % bm.d	   "glossary|bibliog" -- Back matter -->
+
+			 <!-- Model Groups -->
+<!ENTITY % m.ph	   "(#PCDATA|(%p.zz.ph;))*" -- Phrase model -->
+<!ENTITY % m.p	   "(#PCDATA|(%p.zz.ph;)|(%ps.zz;))*" -- Paragraph model -->
+<!ENTITY % m.pseq  "(p, ((%s.p.d;)|(%ps.zz;))*)" -- Paragraph sequence -->
+<!ENTITY % m.top   "(th?, p, (%s.zz;)*)" -- Topic model -->
+
+		      <!-- Document Structure -->
+<!--	  ELEMENTS    MIN  CONTENT (EXCEPTIONS) -->
+<!ELEMENT %doctype;   - -  (frontm?, body, appendix?, backm?) +(ix|%i.float;)>
+<!ELEMENT frontm      - O  (titlep, (%fm.d;|h1)*, toc?, figlist?)>
+<!ELEMENT body	      - O  (h0+|h1+)>
+<!ELEMENT appendix    - O  (h1+)>
+<!ELEMENT backm	      - O  ((%bm.d;|h1)*, index?)>
+<!ELEMENT (toc|figlist|index)	 -- Table of contents, figure list, --
+		      - O  EMPTY -- and index have generated content -->
+
+		     <!-- Title Page Elements -->
+<!--	  ELEMENTS    MIN  CONTENT (EXCEPTIONS) -->
+<!ELEMENT titlep      - O  (title & docnum? & date? & abstract? &
+			     (author|%s.zz;)*)>
+<!ELEMENT (docnum|date|author)
+		      - O  (#PCDATA) -- Document number, etc. -->
+<!ELEMENT title	      - O  (tline+) -- Document title -->
+<!ELEMENT tline	      O O  %m.ph; -- Title line -->
+
+		       <!-- Headed Sections -->
+<!--	  ELEMENTS    MIN  CONTENT (EXCEPTIONS) -->
+<!ELEMENT h0	      - O  (h0t, (%s.zz;)*, h1+) -- Part -->
+<!ELEMENT (h1|%bm.d;|%fm.d;)
+		      - O  (h1t, (%s.zz;)*, h2*) -- Chapter -->
+<!ELEMENT h2	      - O  (h2t, (%s.zz;)*, h3*) -- Section -->
+<!ELEMENT h3	      - O  (h3t, (%s.zz;)*, h4*) -- Subsection -->
+<!ELEMENT h4	      - O  (h4t, (%s.zz;)*) -- Sub-subsection -->
+<!ELEMENT  (h0t|h1t|h2t|h3t|h4t)
+		      O O  %m.ph;    -- Headed section titles -->
+
+		<!-- Topics (Captioned Subsections) -->
+<!--	  ELEMENTS    MIN  CONTENT (EXCEPTIONS) -->
+<!ELEMENT top1	      - O  %m.top; -(top1) -- Topic 1 -->
+<!ELEMENT top2	      - O  %m.top; -(top2) -- Topic 2 -->
+<!ELEMENT top3	      - O  %m.top; -(top3) -- Topic 3 -->
+<!ELEMENT top4	      - O  %m.top; -(top4) -- Topic 4 -->
+<!ELEMENT  th	      - O  %m.ph; -- Topic heading -->
+
+	      <!-- Elements in Sections or Paragraphs -->
+<!--	  ELEMENTS    MIN  CONTENT (EXCEPTIONS) -->
+<!ELEMENT address     - -  (aline+)>
+<!ELEMENT  aline      O O  %m.ph; -- Address line -->
+<!ELEMENT artwork     - O  EMPTY>
+<!ELEMENT dl	      - -  ((dthd+, ddhd)?, (dt+, dd)*)>
+<!ELEMENT  dt	      - O  %m.ph; -- Definition term -->
+<!ELEMENT  (dthd|ddhd)- O  (#PCDATA) -- Headings for dt and dd -->
+<!ELEMENT  dd	      - O  %m.pseq; -- Definition description -->
+<!ELEMENT gl	      - -  (gt, (gd|gdg))* -- Glossary list -->
+<!ELEMENT  gt	      - O  (#PCDATA) -- Glossary term -->
+<!ELEMENT  gdg	      - O  (gd+) -- Glossary definition group -->
+<!ELEMENT  gd	      - O  %m.pseq; -- Glossary definition -->
+<!ELEMENT (%ps.ul.d;) - -  (li*) -- Unit item lists -->
+<!ELEMENT  li	      - O  %m.pseq; -- List item -->
+<!ELEMENT lines	      O O  %m.pseq; -- Line elements -->
+<!ELEMENT (lq|xmp)    - -  %m.pseq; -(%i.float;) -- Long quote -->
+<!ELEMENT (%s.p.d;)   O O  %m.p; -- Paragraphs -->
+
+			    <!-- Table -->
+<!--	  ELEMENTS    MIN  CONTENT (EXCEPTIONS) -->
+<!ELEMENT tbl	      - -  (hr*, fr*, r+)>
+<!ELEMENT  hr	      - O  (h+) -- Heading row -->
+<!ELEMENT  fr	      - O  (f+) -- Footing row -->
+<!ELEMENT  r	      O O  (c+) -- Row (body of table) -->
+<!ELEMENT   c	      O O  %m.pseq; -- Cell in body row -->
+<!ELEMENT   (f|h)     O O  (#PCDATA) -- Cell in fr or hr -->
+
+			   <!-- Phrases -->
+<!--	  ELEMENTS    MIN  CONTENT (EXCEPTIONS) -->
+<!ELEMENT (%p.em.ph;) - -  %m.ph;  -- Emphasized phrases -->
+<!ELEMENT q	      - -  %m.ph;  -- Quotation -->
+<!ELEMENT (%p.rf.ph;) - O  %m.ph;  -- Reference phrases -->
+<!ELEMENT (%p.rf.d;)  - O  EMPTY   -- Generated references -->
+
+		    <!-- Includable Subelements -->
+<!--	  ELEMENTS    MIN  CONTENT (EXCEPTIONS) -->
+<!ELEMENT fig	      - -  (figbody, (figcap, figdesc?)?) -(%i.float;)>
+<!ELEMENT  figbody    O O  %m.pseq; -- Figure body -->
+<!ELEMENT  figcap     - O  %m.ph; -- Figure caption -->
+<!ELEMENT  figdesc    - O  %m.pseq; -- Figure description -->
+<!ELEMENT fn	      - -  %m.pseq; -(%i.float;) -- Footnote -->
+<!ELEMENT ix	      - O  (#PCDATA) -- Index entry -->
+
+		  <!-- Attribute Definition Lists -->
+<!-- As this document type definition is intended for basic SGML
+     documents, in which the LINK features are not supported, it was
+     necessary to include link attributes in the definitions.
+-->
+<!--	  ELEMENTS    NAME     VALUE	 DEFAULT -->
+<!ATTLIST %doctype;   security CDATA	 #IMPLIED
+		      status   CDATA	 ""
+		      version  CDATA	 #IMPLIED>
+<!ATTLIST title	      stitle   CDATA	 #IMPLIED>
+<!ATTLIST (h0|h1|h2|%bm.d;|%fm.d;)
+		      id       ID	 #IMPLIED
+		      stitle   CDATA	 #IMPLIED>
+<!ATTLIST (h3|h4)     id       ID	 #IMPLIED>
+<!ATTLIST artwork     sizex    NMTOKEN	 textsize
+	  -- Default is current text width in column. --
+		      sizey    NUTOKEN	 #REQUIRED
+	  -- (Sizes are specified in the units supported by the
+	     application in which this declaration appears;
+	     for sizex, the keyword "textsize" can be used
+	     to mean "the width at which previous text was set").
+	  -->
+<!ATTLIST gl	      compact  (compact) #IMPLIED
+		      termhi   NUMBER	 2>
+<!ATTLIST dl	      compact  (compact) #IMPLIED
+		      headhi   NUMBER	 2
+		      termhi   NUMBER	 2
+		      tsize    NUMBERS	 9
+	  -- The number of dt elements per dd must equal the
+	     number of numbers specified for tsize (here 1).
+	     The number of dthd elements must be the same.
+	  -->
+<!ATTLIST gd	      source   CDATA	 #IMPLIED>
+<!ATTLIST (%ps.ul.d;) compact  (compact) #IMPLIED>
+<!ATTLIST li	      id       ID	 #IMPLIED>
+<!ATTLIST xmp	      depth    NUTOKEN	 #IMPLIED
+		      keep     NMTOKEN	 all
+		      lines    (flow|lines) lines>
+<!ATTLIST tbl	      cols     NUMBERS	 #REQUIRED
+	  -- The number of c elements per r must equal
+	     the number of numbers specified for cols
+	     (similarly, the number of h per hr and f per fr).
+	  -->
+<!ATTLIST c	      heading  (h)	 #IMPLIED
+	  -- If h is specified, cell is row heading.
+	  -->
+<!ATTLIST (%p.rf.ph;) refid    IDREF	 #CONREF
+		      page     (yes|no)	 yes>
+<!ATTLIST fnref	      refid    IDREF	 #REQUIRED>
+<!ATTLIST liref	      refid    IDREF	 #REQUIRED
+		      page     (yes|no)	 yes>
+<!ATTLIST fig	      id       ID	 #IMPLIED
+		      frame    (box|rule|none)	   none
+		      place    (top|fixed|bottom)  top
+		      width    (column|page)	   page
+		      align    (left|center|right) center
+		      lines    (flow|lines)	   lines>
+<!ATTLIST ix	      id       ID	 #IMPLIED
+		      print    CDATA	 #IMPLIED
+		      see      CDATA	 #IMPLIED
+		      seeid    IDREF	 #IMPLIED>
+<!ATTLIST fn	      id       ID	 #IMPLIED>
+
+		<!-- Entities for Short References -->
+<!ENTITY   ptag	  STARTTAG "p"	   -- Paragraph start-tag -->
+<!ENTITY   qtag	  STARTTAG "q"	   -- Quoted phrase start-tag -->
+<!ENTITY   qetag  ENDTAG   "q"	   -- Quoted phrase end-tag -->
+<!ENTITY   endtag ENDTAG   ""	   -- Empty end-tag for any element -->
+
+<!SHORTREF docmap		      -- Map for general use --
+		  "&#RS;&#RE;" ptag   -- Blank line is <p> --
+		  '"'	       qtag   -- " is <q> -->
+<!USEMAP   docmap %doctype;>
+<!SHORTREF qmap			      -- Map for quoted phrases --
+		  '"'	       qetag  -- " is </q> -->
+<!USEMAP   qmap q>
+<!SHORTREF ixmap		      -- Map for index entries --
+		  "&#RE;"      endtag -- Record end is </> -->
+<!USEMAP   ixmap ix>

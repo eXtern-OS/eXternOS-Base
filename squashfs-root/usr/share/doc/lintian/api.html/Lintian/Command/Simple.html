@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Command::Simple</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#TODO'>TODO</a>
+  <li class='indexItem indexItem1'><a href='#NOTES'>NOTES</a>
+  <li class='indexItem indexItem1'><a href='#CAVEATS'>CAVEATS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Command::Simple - Run commands without pipes</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre>    use Lintian::Command::Simple qw(wait_any);
+
+    my %pid_info;
+    my $pid = fork() // die(&#34;fork: $!&#34;);
+    exec(&#39;do&#39;, &#39;something&#39;) if $pid == 0;
+    $pid_info{$pid} = &#34;A useful value associated with $pid&#34;;
+
+    my ($termiated_pid, $value) = wait_any(\%pid_info);
+    ...;</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Lintian::Command::Simple allows running commands with the capability of running them &#34;in the background&#34; (asynchronously.)</p>
+
+<p>Pipes are not handled at all, except for those handled internally by the shell. See &#39;perldoc -f exec&#39;s note about shell metacharacters. If you want to pipe to/from Perl, look at Lintian::Command instead.</p>
+
+<dl>
+<dt><a name="wait_any_(hashref[,_nohang])"
+>wait_any (hashref[, nohang])</a></dt>
+
+<dd>
+<p>When starting multiple processes asynchronously, it is common to wait until the first is done. While the CORE::wait() function is usually used for that very purpose, it does not provide the desired results when the processes were started via the OO interface.</p>
+
+<p>To help with this task, wait_any() can take a hash ref where the key of each entry is the pid of that command. There are no requirements for the value (which can be used for any application specific purpose).</p>
+
+<p>Under this mode, wait_any() waits until any child process is done. The key (and value) associated the pid of the reaped child will then be removed from the hashref. The exitcode of the child is available via <code>$?</code> as usual.</p>
+
+<p>The results and return value are undefined when under this mode wait_any() &#34;accidentally&#34; reaps a process not listed in the hashref.</p>
+
+<p>The return value in scalar context is value associated with the pid of the reaped processed. In list context, the pid and value are returned as a pair.</p>
+
+<p>Whenever waitpid() would return -1, wait_any() returns undef or a null value so that it is safe to:</p>
+
+<pre>    while($cmd = wait_any(\%hash)) { something; }</pre>
+
+<p>The same is true whenever the hash reference points to an empty hash.</p>
+
+<p>If <code>nohang</code> is also given, wait_any will attempt to reap any child process non-blockingly. If no child can be reaped, it will immediately return (like there were no more processes left) instead of waiting.</p>
+
+<dt><a name="kill_all(hashref[,_signal])"
+>kill_all(hashref[, signal])</a></dt>
+
+<dd>
+<p>In a similar way to wait_any(), it is possible to pass a hash reference to kill_all(). It will then kill all of the processes (default signal being &#34;TERM&#34;) followed by a reaping of the processes. All reaped processes (and their values) will be removed from the set.</p>
+
+<p>Any entries remaining in the hashref are processes that did not terminate (or did not terminate yet).</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="TODO"
+>TODO</a></h1>
+
+<p>Provide the necessary methods to modify the environment variables of the to-be-executed commands. This would let us drop <code>system_env</code> (from Lintian::Util) and make <code>run</code> more useful.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NOTES"
+>NOTES</a></h1>
+
+<p>Unless specified by prefixing the package name, every reference to a function/method in this documentation refers to the functions/methods provided by this package itself.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CAVEATS"
+>CAVEATS</a></h1>
+
+<p>Combining asynchronous jobs (e.g. via Lintian::Command) and calls to wait_any() can lead to unexpected results.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Raphael Geissert &#60;atomo64@gmail.com&#62; for Lintian.</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

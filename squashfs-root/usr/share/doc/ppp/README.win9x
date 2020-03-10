@@ -1,0 +1,35 @@
+Short guide on how to run a Win9x connection with PPPD to Debian Linux
+----------------------------------------------------------------------
+
+1. Do not mess around with the Win9x configuration.
+   Do not manually configure DNS, scripts etc.
+   Do not switch on the terminal windows.
+   Accept all defaults or better leave it as it was at installation.
+
+2. You need to have a getty program that supports automatic PPP protocol
+   detection, such as mgetty (versions >= 0.99).
+
+   Note: the mgetty shipped with Debian has to be set up to enable this
+   behaviour - look for "AutoPPP" in the login.config configuration file.
+
+3. Change the "ms-dns" lines in /etc/ppp/options, and review the complete
+   file for things you need to do.
+
+4. Make sure that your /etc/ppp/pap-secrets file is set up to allow users
+   mentioned in system passwords database (/etc/passwd) to establish PPP
+   connections using their normal password.
+
+   Note: the pap-secrets file shipped with Debian pppd is set up to enable
+   this by default.
+
+5. On the Win9x box, in Dial-Up Networking folder, create a new connection,
+   and enter the phone number. Prior to connecting, enter the username and
+   password.
+
+Win9x should connect to your Linux PPPD without problems and automatically
+configure IP addresses, the netmask and the DNS servers. You can immediately
+start Netscape, Internet Explorer or any other TCP/IP tools.
+
+-- Christoph Lameter <clameter@debian.org>, 27 September, 1996,
+   Josip Rodin <jrodin@jagor.srce.hr>, 27 November 1999,
+   Michael Beattie <mjb@debian.org>, 9 April 2001.

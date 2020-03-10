@@ -1,0 +1,205 @@
+Check-Script: watch-file
+Author: Patrick Schoenfeld <schoenfeld@in-medisa-res.com>
+Abbrev: watch
+Type: source
+Needs-Info: unpacked
+Info: Check debian/watch files in source packages.
+
+Tag: debian-watch-file-is-missing
+Severity: wishlist
+Certainty: certain
+Ref: policy 4.11, uscan(1)
+Info: This source package is not Debian-native but it does not have a
+ <tt>debian/watch</tt> file.  This file is used for automatic detection of
+ new upstream versions by the Debian External Health Status project and
+ other project infrastructure.  If this package is maintained upstream,
+ please consider adding a <tt>debian/watch</tt> file to detect new
+ releases.
+ .
+ If the package is not maintained upstream or if upstream uses a
+ distribution mechanism that cannot be meaningfully monitored by uscan
+ and the Debian External Health Status project, please consider adding a
+ <tt>debian/watch</tt> file containing only comments documenting the
+ situation.
+
+Tag: debian-watch-file-declares-multiple-versions
+Severity: normal
+Certainty: certain
+Ref: uscan(1)
+Info: The <tt>debian/watch</tt> file in this package contains multiple
+ lines starting with <tt>version=</tt>.  There should be only one version
+ declaration in a watch file, on the first non-comment line of the file.
+
+Tag: debian-watch-file-unknown-version
+Severity: normal
+Certainty: certain
+Ref: uscan(1)
+Info: The <tt>version=</tt> line in the <tt>debian/watch</tt> file in this
+ package declares an unknown version.  The currently known watch file
+ versions are 2, 3 and 4
+
+Tag: debian-watch-file-missing-version
+Severity: normal
+Certainty: certain
+Ref: uscan(1)
+Info: The <tt>debian/watch</tt> file in this package doesn't start a
+ <tt>version=</tt> line.  The first non-comment line of
+ <tt>debian/watch</tt> should be a <tt>version=</tt> declaration.  This
+ may mean that this is an old version one watch file that should be
+ updated to the current version.
+
+Tag: debian-watch-file-should-mangle-version
+Severity: normal
+Certainty: certain
+Ref: uscan(1), https://wiki.debian.org/DEHS
+Info: The version of this package contains <tt>dfsg</tt>, <tt>ds</tt>,
+ or <tt>debian</tt>, which normally indicates that the upstream source
+ has been repackaged to comply with the Debian Free Software Guidelines
+ (or similar reason), but there is no version mangling in the
+ <tt>debian/watch</tt> file.  Since the <tt>dfsg</tt> string is not
+ part of the upstream version, the <tt>debian/watch</tt> file should
+ use the dversionmangle option to remove the <tt>dfsg</tt> before
+ version number comparison.
+
+Tag: debian-watch-file-should-dversionmangle-not-uversionmangle
+Severity: wishlist
+Certainty: certain
+Ref: https://wiki.debian.org/DEHS
+Info: The version of this package contains <tt>dfsg</tt>, <tt>ds</tt>,
+ or <tt>debian</tt>, but a misleading upstream version mangling occurs in
+ the <tt>debian/watch</tt> file.  Since the <tt>dfsg</tt> string is not
+ part of the upstream version and its addition is Debian-specific, the
+ <tt>debian/watch</tt> file should use the dversionmangle option to
+ remove, instead of adding in uversionmangle, the <tt>dfsg</tt> before
+ comparing version numbers.
+
+Tag: debian-watch-file-should-uversionmangle-not-dversionmangle
+Severity: wishlist
+Certainty: certain
+Ref: https://wiki.debian.org/DEHS
+Info: The version of this package contains <tt>alpha</tt>, <tt>beta</tt>,
+ or <tt>rc</tt>, but a misleading Debian version mangling occurs in
+ the <tt>debian/watch</tt> file.  You should use the uversionmangle
+ option instead of dversionmangle so that the prerelease is sorted by
+ uscan before a possible future final release.
+
+Tag: debian-watch-file-in-native-package
+Severity: normal
+Certainty: certain
+Ref: https://wiki.debian.org/DEHS
+Info: The package ships a watch file although it is a Debian native
+ package.  DEHS does not process watch files in native packages based on
+ the reasoning that native packages do not have upstreams to check for new
+ releases.
+
+Tag: debian-watch-file-uses-deprecated-sf-redirector-method
+Severity: normal
+Certainty: certain
+Info: The watch file seems to be passing arguments to the redirector
+ other than a path. Calling the SourceForge redirector with parameters like
+ <tt>project</tt> prevents uscan from generating working URIs to the files
+ and thus has been deprecated and is no longer supported by the redirector.
+
+Tag: debian-watch-file-should-use-sf-redirector
+Severity: normal
+Certainty: certain
+Ref: uscan(1)
+Info: The watch file specifies a SourceForge page or download server
+ directly.  This is not recommended; SourceForge changes their download
+ servers and website periodically, requiring watch files to be modified
+ every time.  Instead, use the qa.debian.org redirector by using the magic
+ URL:
+ .
+   http://sf.net/&lt;project&gt;/&lt;tar-name&gt;-(.+)\.tar\.gz
+ .
+ replacing <tt>&lt;project&gt;</tt> with the name of the SourceForge
+ project and <tt>&lt;tar-name&gt;</tt> with the name of the tarball
+ distributed within that project.  Adjust the filename regex as necessary.
+
+Tag: debian-watch-file-uses-deprecated-githubredir
+Severity: important
+Certainty: certain
+Ref: https://lists.debian.org/debian-devel-announce/2014/10/msg00000.html
+Info: The watch file specifies a githubredir.debian.net URL, which is deprecated
+ Instead, use direct links to the tags page:
+ .
+  version=3
+  https://github.com/&lt;user&gt;/&lt;project&gt;/tags .*/(.*)\.tar\.gz
+ .
+ replacing <tt>&lt;user&gt;</tt> and <tt>&lt;project&gt;</tt> with the Github
+ username and project respectively.
+
+Tag: debian-watch-file-specifies-wrong-upstream-version
+Severity: normal
+Certainty: certain
+Ref: uscan(1)
+Info: The watch file specifies an upstream version which exactly matches
+ the version of a <tt>debian/changelog</tt> entry, this is not a
+ native package, and no version mangling is being done.  The version
+ field in a watch file should specify the expected upstream version, not
+ the version of the Debian package.  Any epochs and Debian revisions
+ should be removed first or mangled away.
+
+Tag: debian-watch-file-specifies-old-upstream-version
+Severity: normal
+Certainty: certain
+Info: The watch file specifies an upstream version number which matches
+ the upstream portion of an old <tt>debian/changelog</tt> entry, and the
+ current <tt>debian/changelog</tt> entry specifies a newer upstream
+ version.  The version number in the watch file is very likely to be
+ incorrect and probably should be replaced with the current expected
+ upstream version.  Otherwise, DEHS and similar projects will think the
+ package is out of date even when it may not be.
+
+Tag: debian-watch-does-not-check-gpg-signature
+Severity: pedantic
+Certainty: certain
+Ref: uscan(1)
+Info: This watch file does not include a means to verify
+ the upstream tarball using cryptographic signature.
+ .
+ If upstream distributions provide such signatures, please
+ use the pgpsigurlmangle options in this watch file's
+ opts= to generate the URL of an upstream GPG signature.
+ This signature is automatically downloaded and verified
+ against a keyring stored in debian/upstream/signing-key.asc.
+ .
+ Of course, not all upstreams provide such signatures, but
+ you could request them as a way of verifying that no third
+ party has modified the code against their wishes after the
+ release. Projects such as phpmyadmin, unrealircd, and
+ proftpd have suffered from this kind of attack.
+
+Tag: debian-watch-file-pubkey-file-is-missing
+Severity: important
+Certainty: certain
+Ref: uscan(1)
+Info: This watch file verifies a cryptographic signature but
+ the upstream public key is missing.
+ .
+ Please add upstream public keys in either
+ debian/upstream/signing-key.asc or
+ debian/upstream/signing-key.pgp.
+
+Tag: debian-watch-could-verify-download
+Severity: normal
+Certainty: certain
+Ref: uscan(1)
+Info: One or more upstream signing keys are present in the Debian package
+ but are not being used.
+ .
+ Please enable the cryptographic verification of downloads with the
+ "pgpsigurlmangle" option in your watch file or remove the key.
+
+Tag: debian-watch-contains-dh_make-template
+Severity: wishlist
+Certainty: certain
+Info: The watch file contains a standard template included by dh_make.
+ Please remove them once you have implemented the watch file.
+
+Tag: debian-watch-uses-insecure-uri
+Severity: wishlist
+Certainty: certain
+Info: The watch file uses an unencrypted transport protocol for the
+ URI. It is recommended to use a secure transport such as HTTPS for
+ anonymous read-only access.

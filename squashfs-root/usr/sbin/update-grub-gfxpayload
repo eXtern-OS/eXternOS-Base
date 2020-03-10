@@ -1,0 +1,16 @@
+#! /bin/sh
+set -e
+
+mkdir -p /boot/grub
+for x in /usr/share/grub-gfxpayload-lists/blacklist/*; do
+	case $x in
+	    *~|*/\#*\#|*.dpkg-*)
+		continue
+		;;
+	esac
+	[ -e "$x" ] || continue
+	cat "$x"
+done >/boot/grub/gfxblacklist.txt.new
+mv /boot/grub/gfxblacklist.txt.new /boot/grub/gfxblacklist.txt
+
+exit 0

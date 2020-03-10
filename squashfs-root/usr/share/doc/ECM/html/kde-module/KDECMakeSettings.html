@@ -1,0 +1,194 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>KDECMakeSettings &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="KDECompilerSettings" href="KDECompilerSettings.html" />
+    <link rel="prev" title="ecm-kde-modules(7)" href="../manual/ecm-kde-modules.7.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="KDECompilerSettings.html" title="KDECompilerSettings"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../manual/ecm-kde-modules.7.html" title="ecm-kde-modules(7)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-kde-modules.7.html" accesskey="U">ecm-kde-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="kdecmakesettings">
+<span id="kde-module:KDECMakeSettings"></span><h1>KDECMakeSettings<a class="headerlink" href="#kdecmakesettings" title="Permalink to this headline">¶</a></h1>
+<p>Changes various CMake settings to what the KDE community views as more
+sensible defaults.</p>
+<p>It is recommended to include this module with the NO_POLICY_SCOPE flag,
+otherwise you may get spurious warnings with some versions of CMake.</p>
+<p>It is split into three parts, which can be independently disabled if desired.</p>
+<div class="section" id="runtime-paths">
+<h2>Runtime Paths<a class="headerlink" href="#runtime-paths" title="Permalink to this headline">¶</a></h2>
+<p>The default runtime path (used on Unix systems to search for
+dynamically-linked libraries) is set to include the location that libraries
+will be installed to (as set in LIB_INSTALL_DIR or, if the former is not set,
+KDE_INSTALL_LIBDIR), and also the linker search path.</p>
+<p>Note that <code class="docutils literal"><span class="pre">LIB_INSTALL_DIR</span></code> or alternatively <code class="docutils literal"><span class="pre">KDE_INSTALL_LIBDIR</span></code> needs
+to be set before including this module.
+Typically, this is done by including the <a class="reference internal" href="KDEInstallDirs.html#kde-module:KDEInstallDirs" title="KDEInstallDirs"><code class="xref ecm ecm-kde-module docutils literal"><span class="pre">KDEInstallDirs</span></code></a> module.</p>
+<p>This section can be disabled by setting <code class="docutils literal"><span class="pre">KDE_SKIP_RPATH_SETTINGS</span></code> to TRUE
+before including this module.</p>
+</div>
+<div class="section" id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+<p>Testing is enabled by default, and an option (BUILD_TESTING) is provided for
+users to control this. See the CTest module documentation in the CMake manual
+for more details.</p>
+<p>This section can be disabled by setting <code class="docutils literal"><span class="pre">KDE_SKIP_TEST_SETTINGS</span></code> to TRUE
+before including this module.</p>
+</div>
+<div class="section" id="build-settings">
+<h2>Build Settings<a class="headerlink" href="#build-settings" title="Permalink to this headline">¶</a></h2>
+<p>Various CMake build defaults are altered, such as searching source and build
+directories for includes first, enabling automoc by default.</p>
+<p>When find_package(ECM 5.38) or higher is called, this also selects
+a layout for the build dir that helps running executables without installing:
+all executables are built into a toplevel “bin” dir, making it possible to find
+helper binaries, and to find uninstalled plugins (provided that you use
+kcoreaddons_add_plugin or set LIBRARY_OUTPUT_DIRECTORY as documented on
+<a class="reference external" href="https://community.kde.org/Guidelines_and_HOWTOs/Making_apps_run_uninstalled">https://community.kde.org/Guidelines_and_HOWTOs/Making_apps_run_uninstalled</a>).</p>
+<p>This section can be disabled by setting <code class="docutils literal"><span class="pre">KDE_SKIP_BUILD_SETTINGS</span></code> to TRUE
+before including this module.</p>
+<p>This section also provides an “uninstall” target that can be individually
+disabled by setting <code class="docutils literal"><span class="pre">KDE_SKIP_UNINSTALL_TARGET</span></code> to TRUE before including
+this module.</p>
+<p>By default on OS X, X11 and XCB related detections are disabled. However if
+the need would arise to use these technologies, the detection can be enabled
+by setting <code class="docutils literal"><span class="pre">APPLE_FORCE_X11</span></code> to <code class="docutils literal"><span class="pre">ON</span></code>.</p>
+<p>A warning is printed for the developer to know that the detection is disabled on OS X.
+This message can be turned off by setting <code class="docutils literal"><span class="pre">APPLE_SUPPRESS_X11_WARNING</span></code> to <code class="docutils literal"><span class="pre">ON</span></code>.</p>
+<p>Since pre-1.0.0.</p>
+<p><code class="docutils literal"><span class="pre">ENABLE_CLAZY</span></code> option is added (OFF by default) when clang is being used.
+Turning this option on will force clang to load the clazy plugins for richer
+warnings on Qt-related code.</p>
+<p>If clang is not being used, this won’t have an effect.
+See <a class="reference external" href="https://commits.kde.org/clazy?path=README.md">https://commits.kde.org/clazy?path=README.md</a></p>
+<p>Since 5.17.0</p>
+<ul class="simple">
+<li>Uninstall target functionality since 1.7.0.</li>
+<li><code class="docutils literal"><span class="pre">APPLE_FORCE_X11</span></code> option since 5.14.0 (detecting X11 was previously the default behavior)</li>
+<li><code class="docutils literal"><span class="pre">APPLE_SUPPRESS_X11_WARNING</span></code> option since 5.14.0</li>
+<li>CMAKE_AUTORCC enabled by default when supported by cmake (&gt;= 3.0) since 5.62.0</li>
+</ul>
+</div>
+<div class="section" id="translations">
+<h2>Translations<a class="headerlink" href="#translations" title="Permalink to this headline">¶</a></h2>
+<p>A fetch-translations target will be set up that will download translations
+for projects using l10n.kde.org.</p>
+<p><code class="docutils literal"><span class="pre">KDE_L10N_BRANCH</span></code> will be responsible for choosing which l10n branch to use
+for the translations.</p>
+<p><code class="docutils literal"><span class="pre">KDE_L10N_AUTO_TRANSLATIONS</span></code> (OFF by default) will indicate whether translations
+should be downloaded when building the project.</p>
+<p>Since 5.34.0</p>
+<p><code class="docutils literal"><span class="pre">KDE_L10N_SYNC_TRANSLATIONS</span></code> (OFF by default) will download the translations at configuration
+time instead of build time.</p>
+<p>Since 5.50.0</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">KDECMakeSettings</a><ul>
+<li><a class="reference internal" href="#runtime-paths">Runtime Paths</a></li>
+<li><a class="reference internal" href="#testing">Testing</a></li>
+<li><a class="reference internal" href="#build-settings">Build Settings</a></li>
+<li><a class="reference internal" href="#translations">Translations</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../manual/ecm-kde-modules.7.html"
+                        title="previous chapter">ecm-kde-modules(7)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="KDECompilerSettings.html"
+                        title="next chapter">KDECompilerSettings</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/kde-module/KDECMakeSettings.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="KDECompilerSettings.html" title="KDECompilerSettings"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../manual/ecm-kde-modules.7.html" title="ecm-kde-modules(7)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-kde-modules.7.html" >ecm-kde-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

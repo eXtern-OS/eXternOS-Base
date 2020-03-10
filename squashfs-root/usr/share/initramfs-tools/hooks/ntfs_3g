@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -e
+
+PREREQ="fuse"
+
+prereqs () {
+	echo "${PREREQ}"
+}
+
+case "${1}" in
+	prereqs)
+		prereqs
+		exit 0
+		;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+copy_exec /bin/ntfs-3g /bin
+
+ln -s /bin/ntfs-3g "${DESTDIR}/sbin/mount.ntfs-3g"
+ln -s /bin/ntfs-3g "${DESTDIR}/sbin/mount.ntfs"
+
+exit 0

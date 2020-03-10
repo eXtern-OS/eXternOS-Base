@@ -1,0 +1,93 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      type="guide" style="task"
+      id="dconf">
+
+  <info>
+    <link type="guide" xref="setup" />
+    <revision pkgversion="3.8" date="2013-08-08" status="incomplete"/>
+    <revision pkgversion="3.14" date="2014-06-17" status="incomplete"/>
+
+    <credit type="author copyright">
+      <name>Ekaterina Gerasimova</name>
+      <email>kittykat3756@gmail.com</email>
+      <years>2013</years>
+    </credit>
+    <credit type="collaborator">
+      <name>Ryan Lortie</name>
+      <email>desrt@desrt.ca</email>
+      <years>2013</years>
+    </credit>
+    <credit type="author copyright">
+      <name>Jim Campbell</name>
+      <email>jcampbell@gnome.org</email>
+      <years>2014</years>
+    </credit>
+
+    <include href="legal.xml" xmlns="http://www.w3.org/2001/XInclude"/>
+
+    <desc>What is <sys>dconf</sys>? How can it be used to edit configurations?</desc>
+  </info>
+
+  <title>Manage user and system settings with dconf</title>
+
+  <!-- TODO: improve wording throughout the page -->
+  <p><sys>dconf</sys> is one of the main configuration utilities in GNOME. Its
+  purpose is to help you set and manage GNOME system and application
+  settings.</p>
+
+  <p>To give you an idea of the power of <sys>dconf</sys> within GNOME, a
+  <sys>dconf</sys> key exists for most every setting that a user can click on
+  in the GNOME desktop or in any GNOME application. In addition to this, there
+  are some system and application settings that can’t even be changed from
+  within the user interface, but which <em>can</em> be changed by using
+  <sys>dconf</sys>.</p>
+
+  <p>As an administrator, this means that knowing how to use <sys>dconf</sys>
+  will help you to customize GNOME and GNOME-based applications to best suit
+  the needs of your particular environment.</p>
+
+  <!-- TODO: changes are written to the first database in the list, but
+       multiple databases can be writable. -->
+  <p>A <em>profile</em> is a list of configuration databases. The first
+  database in a profile is the write-to database and the remaining databases
+  are read-only. Each of the system databases is generated from a key file
+  directory. Each key file directory contains one or more key files. Each key
+  file contains at least one dconf path and one or more keys and the
+  corresponding values.</p>
+
+  <p>Key pairs which are set in a <sys>dconf</sys> <em>profile</em> will
+  override the default settings unless there is a problem with the value that
+  you have set.</p>
+
+  <!-- TODO: databases -->
+  <p></p>
+
+<section id="profile">
+  <!-- TODO: explain the profile syntax (maybe new page) -->
+  <title>Profiles</title>
+  <p>You will usually want your <sys>dconf</sys> profile to consist of a
+  <em>user database</em> and at least one system database. The profile must
+  list one database per line.</p>
+  <p>The first line in a profile is the database that changes are written to. It
+  is usually <code>user-db:<input>user</input></code>. <input>user</input> is
+  the name of the user database which can normally be found in
+  <file>~/.config/dconf</file>.</p>
+  <example>
+    <listing>
+      <title>Sample profile</title>
+      <code its:translate="no">user-db:user
+system-db:<input>local</input>
+system-db:<input>site</input></code>
+    </listing>
+  </example>
+  <!--TODO: explain local and site -->
+</section>
+
+<!--section id="key-file">
+  < TODO: link to dconf-keyfiles.page? >
+  <p></p>
+
+</section-->
+
+</page>

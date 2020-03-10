@@ -1,0 +1,110 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      type="topic" style="task"
+      id="desktop-background">
+
+  <info>
+    <link type="guide" xref="appearance" />
+    <revision pkgversion="3.11" date="2014-01-29" status="draft"/>
+    <revision pkgversion="3.14" date="2014-06-17" status="incomplete">
+      <desc>All prose and instructions are up to par. Extra info needs
+      to be provided on picture options, per comment below. --shaunm</desc>
+    </revision>
+
+    <credit type="author copyright">
+      <name>Matthias Clasen</name>
+      <email>matthias.clasen@gmail.com</email>
+      <years>2012</years>
+    </credit>
+    <credit type="editor">
+      <name>Jana Svarova</name>
+      <email>jana.svarova@gmail.com</email>
+      <years>2013</years>
+    </credit>
+    <credit type="editor">
+      <name>Petr Kovar</name>
+      <email>pknbe@volny.cz</email>
+      <years>2014</years>
+    </credit>
+    <credit type="editor">
+      <name>David King</name>
+      <email>davidk@gnome.org</email>
+      <years>2014</years>
+    </credit>
+    <credit type="editor">
+      <name>Ekaterina Gerasimova</name>
+      <email>kittykat3756@gmail.com</email>
+      <years>2014</years>
+    </credit>
+
+    <desc>Change the default desktop background for all users.</desc>
+  </info>
+
+  <title>Set custom background</title>
+
+  <p>You can change the default desktop background to one that you want to use.
+  For example, you may want to use a background with your company or university
+  logo instead of the default GNOME background.</p>
+
+  <steps>
+    <title>Set the default background</title>
+    <include href="dconf-snippets.xml"
+             xpointer="xpointer(/*/*[@xml:id='dconf-profile-user'])"
+             xmlns="http://www.w3.org/2001/XInclude"/>
+    <include href="dconf-snippets.xml"
+             xpointer="xpointer(/*/*[@xml:id='dconf-profile-user-dir'])"
+             xmlns="http://www.w3.org/2001/XInclude"/>
+    <item>
+      <p>Create the key file
+      <file>/etc/dconf/db/local.d/00-background</file> to provide
+      information for the <sys>local</sys> database.</p>
+      <listing>
+        <title><file>/etc/dconf/db/local.d/00-background</file></title>
+<code>
+# Specify the dconf path
+[org/gnome/desktop/background]
+
+# Specify the path to the desktop background image file
+picture-uri='file:///usr/local/share/backgrounds/wallpaper.jpg'
+
+# Specify one of the rendering options for the background image:
+picture-options='scaled'
+
+# Specify the left or top color when drawing gradients, or the solid color
+primary-color='000000'
+
+# Specify the right or bottom color when drawing gradients
+secondary-color='FFFFFF'
+</code>
+      </listing>
+      <comment>
+	<cite date="2014-06-18">shaunm</cite>
+	<p>Provide information about the different picture-options
+	values. Possibly also about when and how colors are used
+	and what the gradient does.</p>
+      </comment>
+    </item>
+    <item>
+      <p>To prevent the user from overriding these settings, create the file
+      <file>/etc/dconf/db/local.d/locks/background</file> with the following
+      content:</p>
+      <listing>
+        <title><file>/etc/dconf/db/local.d/locks/background</file></title>
+<code>
+# Lock desktop background settings
+/org/gnome/desktop/background/picture-uri
+/org/gnome/desktop/background/picture-options
+/org/gnome/desktop/background/primary-color
+/org/gnome/desktop/background/secondary-color
+</code>
+      </listing>
+    </item>
+    <include href="dconf-snippets.xml"
+             xpointer="xpointer(/*/*[@xml:id='dconf-update'])"
+             xmlns="http://www.w3.org/2001/XInclude"/>
+    <include href="dconf-snippets.xml"
+             xpointer="xpointer(/*/*[@xml:id='dconf-logoutin'])"
+             xmlns="http://www.w3.org/2001/XInclude"/>
+  </steps>
+
+</page>

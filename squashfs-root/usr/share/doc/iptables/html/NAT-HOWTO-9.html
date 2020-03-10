@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.72">
+ <TITLE>Linux 2.4 NAT HOWTO: Source NAT and Routing</TITLE>
+ <LINK HREF="NAT-HOWTO-10.html" REL=next>
+ <LINK HREF="NAT-HOWTO-8.html" REL=previous>
+ <LINK HREF="NAT-HOWTO.html#toc9" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="NAT-HOWTO-10.html">Next</A>
+<A HREF="NAT-HOWTO-8.html">Previous</A>
+<A HREF="NAT-HOWTO.html#toc9">Contents</A>
+<HR>
+<H2><A NAME="s9">9.</A> <A HREF="NAT-HOWTO.html#toc9">Source NAT and Routing</A></H2>
+
+<P>If you are doing SNAT, you will want to make sure that every
+machine the SNAT'ed packets goes to will send replies back to the NAT
+box.  For example, if you are mapping some outgoing packets onto the
+source address 1.2.3.4, then the outside router must know that it is
+to send reply packets (which will have <B>destination</B> 1.2.3.4)
+back to this box.  This can be done in the following ways:</P>
+<P>
+<OL>
+<LI> If you are doing SNAT onto the box's own address (for which
+routing and everything already works), you don't need to do
+anything.
+</LI>
+<LI> If you are doing SNAT onto an unused address on the local LAN
+(for example, you're mapping onto 1.2.3.99, a free IP on your
+1.2.3.0/24 network), your NAT box will need to respond to ARP
+requests for that address as well as its own: the easiest way
+to do this is create an IP alias, e.g.:
+<BLOCKQUOTE><CODE>
+<PRE>
+# ip address add 1.2.3.99 dev eth0
+</PRE>
+</CODE></BLOCKQUOTE>
+
+</LI>
+<LI> If you are doing SNAT onto a completely different address, you
+will have to ensure that the machines the SNAT packets will hit
+will route this address back to the NAT box.  This is already
+achieved if the NAT box is their default gateway, otherwise you
+will need to advertise a route (if running a routing protocol)
+or manually add routes to each machine involved.</LI>
+</OL>
+</P>
+
+<HR>
+<A HREF="NAT-HOWTO-10.html">Next</A>
+<A HREF="NAT-HOWTO-8.html">Previous</A>
+<A HREF="NAT-HOWTO.html#toc9">Contents</A>
+</BODY>
+</HTML>

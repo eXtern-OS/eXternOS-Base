@@ -1,0 +1,761 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Util</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#Debian_control_parsers'>Debian control parsers</a>
+  </ul>
+  <li class='indexItem indexItem1'><a href='#CONSTANTS'>CONSTANTS</a>
+  <li class='indexItem indexItem1'><a href='#VARIABLES'>VARIABLES</a>
+  <li class='indexItem indexItem1'><a href='#FUNCTIONS'>FUNCTIONS</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Util - Lintian utility functions</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre> use Lintian::Util qw(slurp_entire_file normalize_pkg_path);
+ 
+ my $text = slurp_entire_file(&#39;some-file&#39;);
+ if ($text =~ m/regex/) {
+    # ...
+ }
+
+ my $path = normalize_pkg_path(&#39;usr/bin/&#39;, &#39;../lib/git-core/git-pull&#39;);
+ if (defined $path) {
+    # ...
+ }
+ 
+ my (@paragraphs);
+ eval { @paragraphs = read_dpkg_control_utf8(&#39;some/debian/ctrl/file&#39;); };
+ if ($@) {
+    # syntax error etc.
+    die &#34;ctrl/file: $@&#34;;
+ }
+ 
+ foreach my $para (@paragraphs) {
+    my $value = $para-&#62;{&#39;some-field&#39;};
+    if (defined $value) {
+        # ...
+    }
+ }</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>This module contains a number of utility subs that are nice to have, but on their own did not warrant their own module.</p>
+
+<p>Most subs are imported only on request.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Debian_control_parsers"
+>Debian control parsers</a></h2>
+
+<p>At first glance, this module appears to contain several debian control parsers. In practise, there is only one real parser (<a href="#visit_dpkg_paragraph" class="podlinkpod"
+>&#34;visit_dpkg_paragraph&#34;</a>) - the rest are convenience functions around it.</p>
+
+<p>If you have very large files (e.g. Packages_amd64), you almost certainly want <a href="#visit_dpkg_paragraph" class="podlinkpod"
+>&#34;visit_dpkg_paragraph&#34;</a>. Otherwise, one of the convenience functions are probably what you are looking for.</p>
+
+<dl>
+<dt><a name="Use_&#34;get_deb_info&#34;_when"
+>Use <a href="#get_deb_info" class="podlinkpod"
+>&#34;get_deb_info&#34;</a> when</a></dt>
+
+<dd>
+<p>You have a <i>.deb</i> (or <i>.udeb</i>) file and you want the control file from it.</p>
+
+<dt><a name="Use_&#34;get_dsc_info&#34;_when"
+>Use <a href="#get_dsc_info" class="podlinkpod"
+>&#34;get_dsc_info&#34;</a> when</a></dt>
+
+<dd>
+<p>You have a <i>.dsc</i> (or <i>.changes</i>) file. Alternative, it is also useful if you have a control file and only care about the first paragraph.</p>
+
+<dt><a name="Use_&#34;read_dpkg_control_utf8&#34;_or_&#34;read_dpkg_control&#34;_when"
+>Use <a href="#read_dpkg_control_utf8" class="podlinkpod"
+>&#34;read_dpkg_control_utf8&#34;</a> or <a href="#read_dpkg_control" class="podlinkpod"
+>&#34;read_dpkg_control&#34;</a> when</a></dt>
+
+<dd>
+<p>You have a debian control file (such <i>debian/control</i>) and you want a number of paragraphs from it.</p>
+
+<dt><a name="Use_&#34;parse_dpkg_control&#34;_when"
+>Use <a href="#parse_dpkg_control" class="podlinkpod"
+>&#34;parse_dpkg_control&#34;</a> when</a></dt>
+
+<dd>
+<p>When you would have used <a href="#read_dpkg_control_utf8" class="podlinkpod"
+>&#34;read_dpkg_control_utf8&#34;</a>, except you have an open filehandle rather than a file name.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CONSTANTS"
+>CONSTANTS</a></h1>
+
+<p>The following constants can be passed to the Debian control file parser functions to alter their parsing flag.</p>
+
+<dl>
+<dt><a name="DCTRL_DEBCONF_TEMPLATE"
+>DCTRL_DEBCONF_TEMPLATE</a></dt>
+
+<dd>
+<p>The file should be parsed as debconf template. These have slightly syntax rules for whitespace in some cases.</p>
+
+<dt><a name="DCTRL_NO_COMMENTS"
+>DCTRL_NO_COMMENTS</a></dt>
+
+<dd>
+<p>The file do not allow comments. With this flag, any comment in the file is considered a syntax error.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="VARIABLES"
+>VARIABLES</a></h1>
+
+<dl>
+<dt><a name="$PKGNAME_REGEX"
+>$PKGNAME_REGEX</a></dt>
+
+<dd>
+<p>Regular expression that matches valid package names. The expression is not anchored and does not enforce any &#34;boundary&#34; characters.</p>
+
+<dt><a name="$PKGREPACK_REGEX"
+>$PKGREPACK_REGEX</a></dt>
+
+<dd>
+<p>Regular expression that matches &#34;repacked&#34; package names. The expression is not anchored and does not enforce any &#34;boundary&#34; characters.</p>
+
+<dt><a name="$PKGVERSION_REGEX"
+>$PKGVERSION_REGEX</a></dt>
+
+<dd>
+<p>Regular expression that matches valid package versions. The expression is not anchored and does not enforce any &#34;boundary&#34; characters.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="FUNCTIONS"
+>FUNCTIONS</a></h1>
+
+<dl>
+<dt><a name="parse_dpkg_control(HANDLE[,_FLAGS[,_LINES]])"
+>parse_dpkg_control(HANDLE[, FLAGS[, LINES]])</a></dt>
+
+<dd>
+<p>Reads a debian control file from HANDLE and returns a list of paragraphs in it. A paragraph is represented via a hashref, which maps (lower cased) field names to their values.</p>
+
+<p>FLAGS (if given) is a bitmask of the <i>DCTRL_*</i> constants. Please refer to <a href="#CONSTANTS" class="podlinkpod"
+>&#34;CONSTANTS&#34;</a> for the list of constants and their meaning. The default value for FLAGS is 0.</p>
+
+<p>If LINES is given, it should be a reference to an empty list. On return, LINES will be populated with a hashref for each paragraph (in the same order as the returned list). Each hashref will also have a special key &#34;<i>START-OF-PARAGRAPH</i>&#34; that gives the line number of the first field in that paragraph. These hashrefs will map the field name of the given paragraph to the line number where the field name appeared.</p>
+
+<p>This is a convenience sub around <a href="#visit_dpkg_paragraph" class="podlinkpod"
+>&#34;visit_dpkg_paragraph&#34;</a> and can therefore produce the same errors as it. Please see <a href="#visit_dpkg_paragraph" class="podlinkpod"
+>&#34;visit_dpkg_paragraph&#34;</a> for the finer semantics of how the control file is parsed.</p>
+
+<p>NB: parse_dpkg_control does <i>not</i> close the handle for the caller.</p>
+
+<dt><a name="visit_dpkg_paragraph_(CODE,_HANDLE[,_FLAGS])"
+>visit_dpkg_paragraph (CODE, HANDLE[, FLAGS])</a></dt>
+
+<dd>
+<p>Reads a debian control file from HANDLE and passes each paragraph to CODE. A paragraph is represented via a hashref, which maps (lower cased) field names to their values.</p>
+
+<p>FLAGS (if given) is a bitmask of the <i>DCTRL_*</i> constants. Please refer to <a href="#CONSTANTS" class="podlinkpod"
+>&#34;CONSTANTS&#34;</a> for the list of constants and their meaning. The default value for FLAGS is 0.</p>
+
+<p>If the file is empty (i.e. it contains no paragraphs), the method will contain an <i>empty</i> list. The deb822 contents may be inside a <i>signed</i> PGP message with a signature.</p>
+
+<p>visit_dpkg_paragraph will require the PGP headers to be correct (if present) and require that the entire file is covered by the signature. However, it will <i>not</i> validate the signature (in fact, the contents of the PGP SIGNATURE part can be empty). The signature should be validated separately.</p>
+
+<p>visit_dpkg_paragraph will pass paragraphs to CODE as they are completed. If CODE can process the paragraphs as they are seen, very large control files can be processed without keeping all the paragraphs in memory.</p>
+
+<p>As a consequence of how the file is parsed, CODE may be passed a number of (valid) paragraphs before parsing is stopped due to a syntax error.</p>
+
+<p>NB: visit_dpkg_paragraph does <i>not</i> close the handle for the caller.</p>
+
+<p>CODE is expected to be a callable reference (e.g. a sub) and will be invoked as the following:</p>
+
+<dl>
+<dt><a name="CODE-&#62;(PARA,_LINE_NUMBERS)"
+>CODE-&#62;(PARA, LINE_NUMBERS)</a></dt>
+
+<dd>
+<p>The first argument, PARA, is a hashref to the most recent paragraph parsed. The second argument, LINE_NUMBERS, is a hashref mapping each of the field names to the line number where the field name appeared. LINE_NUMBERS will also have a special key &#34;<i>START-OF-PARAGRAPH</i>&#34; that gives the line number of the first field in that paragraph.</p>
+
+<p>The return value of CODE is ignored.</p>
+
+<p>If the CODE invokes die (or similar) the error is propagated to the caller.</p>
+</dd>
+</dl>
+
+<p><i>On syntax errors</i>, visit_dpkg_paragraph will call die with the following string:</p>
+
+<pre>  &#34;syntax error at line %d: %s\n&#34;</pre>
+
+<p>Where %d is the line number of the issue and %s is one of:</p>
+
+<dl>
+<dt><a name="Duplicate_field_%s"
+>Duplicate field %s</a></dt>
+
+<dd>
+<p>The field appeared twice in the paragraph.</p>
+
+<dt><a name="Continuation_line_outside_a_paragraph_(maybe_line_%d_should_be_&#34;_.&#34;)"
+>Continuation line outside a paragraph (maybe line %d should be &#34; .&#34;)</a></dt>
+
+<dd>
+<p>A continuation line appears outside a paragraph - usually caused by an unintended empty line before it.</p>
+
+<dt><a name="Whitespace_line_not_allowed_(possibly_missing_a_&#34;.&#34;)"
+>Whitespace line not allowed (possibly missing a &#34;.&#34;)</a></dt>
+
+<dd>
+<p>An empty continuation line was found. This usually means that a period is missing to denote an &#34;empty line&#34; in (e.g.) the long description of a package.</p>
+
+<dt><a name="Cannot_parse_line_&#34;%s&#34;"
+>Cannot parse line &#34;%s&#34;</a></dt>
+
+<dd>
+<p>Generic error containing the text of the line that confused the parser. Note that all non-printables in %s will be replaced by underscores.</p>
+
+<dt><a name="Comments_are_not_allowed"
+>Comments are not allowed</a></dt>
+
+<dd>
+<p>A comment line appeared and FLAGS contained DCTRL_NO_COMMENTS.</p>
+
+<dt><a name="PGP_signature_seen_before_start_of_signed_message"
+>PGP signature seen before start of signed message</a></dt>
+
+<dd>
+<p>A &#34;BEGIN PGP SIGNATURE&#34; header is seen and a &#34;BEGIN PGP MESSAGE&#34; has not been seen yet.</p>
+
+<dt><a name="Two_PGP_signatures_(first_one_at_line_%d)"
+>Two PGP signatures (first one at line %d)</a></dt>
+
+<dd>
+<p>Two &#34;BEGIN PGP SIGNATURE&#34; headers are seen in the same file.</p>
+
+<dt><a name="Unexpected_%s_header"
+>Unexpected %s header</a></dt>
+
+<dd>
+<p>A valid PGP header appears (e.g. &#34;BEGIN PUBLIC KEY BLOCK&#34;).</p>
+
+<dt><a name="Malformed_PGP_header"
+>Malformed PGP header</a></dt>
+
+<dd>
+<p>An invalid or malformed PGP header appears.</p>
+
+<dt><a name="Expected_at_most_one_signed_message_(previous_at_line_%d)"
+>Expected at most one signed message (previous at line %d)</a></dt>
+
+<dd>
+<p>Two &#34;BEGIN PGP MESSAGE&#34; headers appears in the same message.</p>
+
+<dt><a name="End_of_file_but_expected_an_&#34;END_PGP_SIGNATURE&#34;_header"
+>End of file but expected an &#34;END PGP SIGNATURE&#34; header</a></dt>
+
+<dd>
+<p>The file ended after a &#34;BEGIN PGP SIGNATURE&#34; header without being followed by an &#34;END PGP SIGNATURE&#34;.</p>
+
+<dt><a name="PGP_MESSAGE_header_must_be_first_content_if_present"
+>PGP MESSAGE header must be first content if present</a></dt>
+
+<dd>
+<p>The file had content before PGP MESSAGE.</p>
+
+<dt><a name="Data_after_the_PGP_SIGNATURE"
+>Data after the PGP SIGNATURE</a></dt>
+
+<dd>
+<p>The file had data after the PGP SIGNATURE block ended.</p>
+
+<dt><a name="End_of_file_before_&#34;BEGIN_PGP_SIGNATURE&#34;"
+>End of file before &#34;BEGIN PGP SIGNATURE&#34;</a></dt>
+
+<dd>
+<p>The file had a &#34;BEGIN PGP MESSAGE&#34; header, but no signature was present.</p>
+</dd>
+</dl>
+
+<dt><a name="read_dpkg_control_utf8(FILE[,_FLAGS[,_LINES]])"
+>read_dpkg_control_utf8(FILE[, FLAGS[, LINES]])</a></dt>
+
+<dd>
+<dt><a name="read_dpkg_control(FILE[,_FLAGS[,_LINES]])"
+>read_dpkg_control(FILE[, FLAGS[, LINES]])</a></dt>
+
+<dd>
+<p>This is a convenience function to ease using <a href="#parse_dpkg_control" class="podlinkpod"
+>&#34;parse_dpkg_control&#34;</a> with paths to files (rather than open handles). The first argument must be the path to a FILE, which should be read as a debian control file. If the file is empty, an empty list is returned.</p>
+
+<p>Otherwise, this behaves like:</p>
+
+<pre> use autodie;
+ 
+ open(my $fd, &#39;&#60;:encoding(UTF-8)&#39;, FILE); # or &#39;&#60;&#39;
+ my @p = parse_dpkg_control($fd, FLAGS, LINES);
+ close($fd);
+ return @p;</pre>
+
+<p>This goes without saying that may fail with any of the messages that <a href="#parse_dpkg_control(HANDLE%5B%2C_FLAGS%5B%2C_LINES%5D%5D)" class="podlinkpod"
+>&#34;parse_dpkg_control(HANDLE[, FLAGS[, LINES]])&#34;</a> do. It can also emit autodie exceptions if open or close fails.</p>
+
+<dt><a name="get_deb_info(DEBFILE)"
+>get_deb_info(DEBFILE)</a></dt>
+
+<dd>
+<p>Extracts the control file from DEBFILE and returns it as a hashref.</p>
+
+<p>Basically, this is a fancy convenience for setting up an ar + tar pipe and passing said pipe to <a href="#parse_dpkg_control(HANDLE%5B%2C_FLAGS%5B%2C_LINES%5D%5D)" class="podlinkpod"
+>&#34;parse_dpkg_control(HANDLE[, FLAGS[, LINES]])&#34;</a>.</p>
+
+<p>DEBFILE must be an ar file containing a &#34;control.tar.gz&#34; member, which in turn should contain a &#34;control&#34; file. If the &#34;control&#34; file is empty this will return an empty list.</p>
+
+<p>Note: the control file is only expected to have a single paragraph and thus only the first is returned (in the unlikely case that there are more than one).</p>
+
+<p>This function may fail with any of the messages that <a href="#parse_dpkg_control" class="podlinkpod"
+>&#34;parse_dpkg_control&#34;</a> do. It can also emit:</p>
+
+<pre> &#34;cannot fork to unpack %s: %s\n&#34;</pre>
+
+<dt><a name="get_dsc_control_(DSCFILE)"
+>get_dsc_control (DSCFILE)</a></dt>
+
+<dd>
+<p>Convenience function for reading dsc files. It will read the DSCFILE using <a href="#read_dpkg_control(FILE%5B%2C_FLAGS%5B%2C_LINES%5D%5D)" class="podlinkpod"
+>&#34;read_dpkg_control(FILE[, FLAGS[, LINES]])&#34;</a> and then return the first paragraph. If the file has no paragraphs, <code>undef</code> is returned instead.</p>
+
+<p>Note: the control file is only expected to have a single paragraph and thus only the first is returned (in the unlikely case that there are more than one).</p>
+
+<p>This function may fail with any of the messages that <a href="#read_dpkg_control(FILE%5B%2C_FLAGS%5B%2C_LINES%5D%5D)" class="podlinkpod"
+>&#34;read_dpkg_control(FILE[, FLAGS[, LINES]])&#34;</a> do.</p>
+
+<dt><a name="slurp_entire_file_(FOH[,_NOCLOSE])"
+>slurp_entire_file (FOH[, NOCLOSE])</a></dt>
+
+<dd>
+<p>Reads the contents of FOH into memory and return it as a scalar. FOH can be either the path to a file or an open file handle.</p>
+
+<p>If it is a handle, the optional NOCLOSE parameter can be used to prevent the sub from closing the handle. The NOCLOSE parameter has no effect if FOH is not a handle.</p>
+
+<dt><a name="drain_pipe(FD)"
+>drain_pipe(FD)</a></dt>
+
+<dd>
+<p>Reads and discards any remaining contents from FD, which is assumed to be a pipe. This is mostly done to avoid having the &#34;write&#34;-end die with a SIGPIPE due to a &#34;broken pipe&#34; (which can happen if you just close the pipe).</p>
+
+<p>May cause an exception if there are issues reading from the pipe.</p>
+
+<p>Caveat: This will block until the pipe is closed from the &#34;write&#34;-end, so only use it with pipes where the &#34;write&#34;-end will eventually close their end by themselves (or something else will make them close it).</p>
+
+<dt><a name="get_file_digest(ALGO,_FILE)"
+>get_file_digest(ALGO, FILE)</a></dt>
+
+<dd>
+<p>Creates an ALGO digest object that is seeded with the contents of FILE. If you just want the hex digest, please use <a href="#get_file_checksum(ALGO%2C_FILE)" class="podlinkpod"
+>&#34;get_file_checksum(ALGO, FILE)&#34;</a> instead.</p>
+
+<p>ALGO can be &#39;md5&#39; or shaX, where X is any number supported by <a href="../Digest/SHA.html" class="podlinkpod"
+>Digest::SHA</a> (e.g. &#39;sha256&#39;).</p>
+
+<p>This sub is a convenience wrapper around Digest::{MD5,SHA}.</p>
+
+<dt><a name="get_file_checksum(ALGO,_FILE)"
+>get_file_checksum(ALGO, FILE)</a></dt>
+
+<dd>
+<p>Returns a hexadecimal string of the message digest checksum generated by the algorithm ALGO on FILE.</p>
+
+<p>ALGO can be &#39;md5&#39; or shaX, where X is any number supported by <a href="../Digest/SHA.html" class="podlinkpod"
+>Digest::SHA</a> (e.g. &#39;sha256&#39;).</p>
+
+<p>This sub is a convenience wrapper around Digest::{MD5,SHA}.</p>
+
+<dt><a name="is_string_utf8_encoded(STRING)"
+>is_string_utf8_encoded(STRING)</a></dt>
+
+<dd>
+<p>Returns a truth value if STRING can be decoded as valid UTF-8.</p>
+
+<dt><a name="file_is_encoded_in_non_utf8_(...)"
+>file_is_encoded_in_non_utf8 (...)</a></dt>
+
+<dd>
+<p>Undocumented</p>
+
+<dt><a name="do_fork()"
+>do_fork()</a></dt>
+
+<dd>
+<p>Overrides fork to reset signal handlers etc. in the child.</p>
+
+<dt><a name="system_env_(CMD)"
+>system_env (CMD)</a></dt>
+
+<dd>
+<p>Behaves like system (CMD) except that the environment of CMD is cleaned (as defined by <a href="#clean_env" class="podlinkpod"
+>&#34;clean_env&#34;</a>(1)).</p>
+
+<dt><a name="clean_env_([CLOC])"
+>clean_env ([CLOC])</a></dt>
+
+<dd>
+<p>Destructively cleans %ENV - removes all variables %ENV except a selected few whitelisted variables.</p>
+
+<p>The list of whitelisted %ENV variables are:</p>
+
+<pre> PATH
+ LC_ALL (*)
+ TMPDIR</pre>
+
+<p>(*) LC_ALL is a special case as clean_env will change its value to either &#34;C.UTF-8&#34; or &#34;C&#34; (if CLOC is given and a truth value).</p>
+
+<dt><a name="perm2oct(PERM)"
+>perm2oct(PERM)</a></dt>
+
+<dd>
+<p>Translates PERM to an octal permission. PERM should be a string describing the permissions as done by <i>tar t</i> or <i>ls -l</i>. That is, it should be a string like &#34;-rw-r--r--&#34;.</p>
+
+<p>If the string does not appear to be a valid permission, it will cause a trappable error.</p>
+
+<p>Examples:</p>
+
+<pre> # Good
+ perm2oct(&#39;-rw-r--r--&#39;) == 0644
+ perm2oct(&#39;-rwxr-xr-x&#39;) == 0755
+
+ # Bad
+ perm2oct(&#39;broken&#39;)      # too short to be recognised
+ perm2oct(&#39;-resurunet&#39;)  # contains unknown permissions</pre>
+
+<dt><a name="run_cmd([OPTS,_]COMMAND[,_ARGS...])"
+>run_cmd([OPTS, ]COMMAND[, ARGS...])</a></dt>
+
+<dd>
+<p>Executes the given <code>COMMAND</code> with the (optional) arguments <code>ARGS</code> and returns the status code as one would see it from a shell script. Shell features cannot be used.</p>
+
+<p>OPTS, if given, is a hash reference with zero or more of the following key-value pairs:</p>
+
+<dl>
+<dt><a name="chdir"
+>chdir</a></dt>
+
+<dd>
+<p>The child process with chdir to the given directory before executing the command.</p>
+
+<dt><a name="in"
+>in</a></dt>
+
+<dd>
+<p>The STDIN of the child process will be reopened and read from the filename denoted by the value of this key. By default, STDIN will reopened to read from /dev/null.</p>
+
+<dt><a name="out"
+>out</a></dt>
+
+<dd>
+<p>The STDOUT of the child process will be reopened and write to filename denoted by the value of this key. By default, STDOUT is discarded.</p>
+
+<dt><a name="update-env-vars"
+>update-env-vars</a></dt>
+
+<dd>
+<p>Each key/value pair defined in the hashref associated with <b>update-env-vars</b> will be updated in the child processes&#39;s environment. If a value is <code>undef</code>, then the corresponding environment variable will be removed (if set). Otherwise, the environment value will be set to that value.</p>
+</dd>
+</dl>
+
+<dt><a name="delete_dir_(ARGS)"
+>delete_dir (ARGS)</a></dt>
+
+<dd>
+<p>Convenient way of calling <i>rm -fr ARGS</i>.</p>
+
+<dt><a name="copy_dir_(ARGS)"
+>copy_dir (ARGS)</a></dt>
+
+<dd>
+<p>Convenient way of calling <i>cp -a ARGS</i>.</p>
+
+<dt><a name="gunzip_file_(IN,_OUT)"
+>gunzip_file (IN, OUT)</a></dt>
+
+<dd>
+<p>Decompresses contents of the file IN and stores the contents in the file OUT. IN is <i>not</i> removed by this call. On error, this function will cause a trappable error.</p>
+
+<dt><a name="open_gz_(FILE)"
+>open_gz (FILE)</a></dt>
+
+<dd>
+<p>Opens a handle that reads from the GZip compressed FILE.</p>
+
+<p>On failure, this sub emits a trappable error.</p>
+
+<p>Note: The handle may be a pipe from an external processes.</p>
+
+<dt><a name="touch_file(FILE)"
+>touch_file(FILE)</a></dt>
+
+<dd>
+<p>Updates the &#34;mtime&#34; of FILE. If FILE does not exist, it will be created.</p>
+
+<p>On failure, this sub will emit a trappable error.</p>
+
+<dt><a name="internal_error_(MSG[,_...])"
+>internal_error (MSG[, ...])</a></dt>
+
+<dd>
+<p>Use to signal an internal error. The argument(s) will used to print a diagnostic message to the user.</p>
+
+<p>If multiple arguments are given, they will be merged into a single string (by join (&#39; &#39;, @_)). If only one argument is given it will be stringified and used directly.</p>
+
+<dt><a name="fail_(MSG[,_...])"
+>fail (MSG[, ...])</a></dt>
+
+<dd>
+<p>Deprecated alias of &#34;internal_error&#34;.</p>
+
+<dt><a name="locate_helper_tool(TOOLNAME)"
+>locate_helper_tool(TOOLNAME)</a></dt>
+
+<dd>
+<p>Given the name of a helper tool, returns the path to it. The tool must be available in the &#34;helpers&#34; subdir of one of the &#34;lintian root&#34; directories used by Lintian.</p>
+
+<p>The tool name should follow the same rules as check names. Particularly, third-party checks should namespace their tools in the same way they namespace their checks. E.g. &#34;python/some-helper&#34;.</p>
+
+<p>If the tool cannot be found, this sub will cause a trappable error.</p>
+
+<dt><a name="strip_([LINE])"
+>strip ([LINE])</a></dt>
+
+<dd>
+<p>Strips whitespace from the beginning and the end of LINE and returns it. If LINE is omitted, <code>$_</code> will be used instead. Example</p>
+
+<pre> @lines = map { strip } &#60;$fd&#62;;</pre>
+
+<p>In void context, the input argument will be modified so it can be used as a replacement for chomp in some cases:</p>
+
+<pre>  while ( my $line = &#60;$fd&#62; ) {
+    strip ($line);
+    # $line no longer has any leading or trailing whitespace
+  }</pre>
+
+<p>Otherwise, a copy of the string is returned:</p>
+
+<pre>  while ( my $orig = &#60;$fd&#62; ) {
+    my $stripped = strip ($orig);
+    if ($stripped ne $orig) {
+        # $orig had leading or/and trailing whitespace
+    }
+  }</pre>
+
+<dt><a name="lstrip_([LINE])"
+>lstrip ([LINE])</a></dt>
+
+<dd>
+<p>Like <a href="#strip_(%5BLINE%5D)" class="podlinkpod"
+>strip</a> but only strip leading whitespace.</p>
+
+<dt><a name="rstrip_([LINE])"
+>rstrip ([LINE])</a></dt>
+
+<dd>
+<p>Like <a href="#strip_(%5BLINE%5D)" class="podlinkpod"
+>strip</a> but only strip trailing whitespace.</p>
+
+<dt><a name="check_path_(CMD)"
+>check_path (CMD)</a></dt>
+
+<dd>
+<p>Returns 1 if CMD can be found in PATH (i.e. $ENV{PATH}) and is executable. Otherwise, the function return 0.</p>
+
+<dt><a name="dequote_name(STR,_REMOVESLASH)"
+>dequote_name(STR, REMOVESLASH)</a></dt>
+
+<dd>
+<p>Strip an extra layer quoting in index file names and optionally remove an initial &#34;./&#34; if any.</p>
+
+<p>Remove initial ./ by default</p>
+
+<dt><a name="signal_number2name(NUM)"
+>signal_number2name(NUM)</a></dt>
+
+<dd>
+<p>Given a number, returns the name of the signal (without leading &#34;SIG&#34;). Example:</p>
+
+<pre>    signal_number2name(2) eq &#39;INT&#39;</pre>
+
+<dt><a name="normalize_pkg_path(PATH)"
+>normalize_pkg_path(PATH)</a></dt>
+
+<dd>
+<p>Normalize PATH by removing superfluous path segments. PATH is assumed to be relative the package root. Note that the result will never start nor end with a slash, even if PATH does.</p>
+
+<p>As the name suggests, this is a path &#34;normalization&#34; rather than a true path resolution (for that use Cwd::realpath). Particularly, it assumes none of the path segments are symlinks.</p>
+
+<p>normalize_pkg_path will return <code>q{}</code> (i.e. the empty string) if PATH is normalized to the root dir and <code>undef</code> if the path cannot be normalized without escaping the package root.</p>
+
+<p>Examples: normalize_pkg_path(&#39;usr/share/java/../../../usr/share/ant/file&#39;) eq &#39;usr/share/ant/file&#39; normalize_pkg_path(&#39;usr/..&#39;) eq q{};</p>
+
+<pre> The following will return C&#60;undef&#62;:
+  normalize_pkg_path(&#39;usr/bin/../../../../etc/passwd&#39;)</pre>
+
+<dt><a name="normalize_pkg_path(CURDIR,_LINK_TARGET)"
+>normalize_pkg_path(CURDIR, LINK_TARGET)</a></dt>
+
+<dd>
+<p>Normalize the path obtained by following a link with LINK_TARGET as its target from CURDIR as the current directory. CURDIR is assumed to be relative to the package root. Note that the result will never start nor end with a slash, even if CURDIR or DEST does.</p>
+
+<p>normalize_pkg_path will return <code>q{}</code> (i.e. the empty string) if the target is the root dir and <code>undef</code> if the path cannot be normalized without escaping the package root.</p>
+
+<p><b>CAVEAT</b>: This function is <i>not always sufficient</i> to test if it is safe to open a given symlink. Use <a href="../Lintian/Util.html#is_ancestor_of(PARENTDIR%2C_PATH)" class="podlinkpod"
+>is_ancestor_of</a> for that. If you must use this function, remember to check that the target is not a symlink (or if it is, that it can be resolved safely).</p>
+
+<p>Examples:</p>
+
+<pre>  normalize_pkg_path(&#39;usr/share/java&#39;, &#39;../ant/file&#39;) eq &#39;usr/share/ant/file&#39;
+  normalize_pkg_path(&#39;usr/share/java&#39;, &#39;../../../usr/share/ant/file&#39;)
+  normalize_pkg_path(&#39;usr/share/java&#39;, &#39;/usr/share/ant/file&#39;)
+    eq &#39;usr/share/ant/file&#39;
+  normalize_pkg_path(&#39;/usr/share/java&#39;, &#39;/&#39;) eq q{};
+  normalize_pkg_path(&#39;/&#39;, &#39;usr/..&#39;) eq q{};
+
+ The following will return C&#60;undef&#62;:
+  normalize_pkg_path(&#39;usr/bin&#39;, &#39;../../../../etc/passwd&#39;)
+  normalize_pkg_path(&#39;usr/bin&#39;, &#39;/../etc/passwd&#39;)</pre>
+
+<dt><a name="parse_boolean_(STR)"
+>parse_boolean (STR)</a></dt>
+
+<dd>
+<p>Attempt to parse STR as a boolean and return its value. If STR is not a valid/recognised boolean, the sub will invoke croak.</p>
+
+<p>The following values recognised (string checks are not case sensitive):</p>
+
+<dl>
+<dt><a name="The_integer_0_is_considered_false"
+>The integer 0 is considered false</a></dt>
+
+<dd>
+<dt><a name="Any_non-zero_integer_is_considered_true"
+>Any non-zero integer is considered true</a></dt>
+
+<dd>
+<dt><a name="&#34;true&#34;,_&#34;y&#34;_and_&#34;yes&#34;_are_considered_true"
+>&#34;true&#34;, &#34;y&#34; and &#34;yes&#34; are considered true</a></dt>
+
+<dd>
+<dt><a name="&#34;false&#34;,_&#34;n&#34;_and_&#34;no&#34;_are_considered_false"
+>&#34;false&#34;, &#34;n&#34; and &#34;no&#34; are considered false</a></dt>
+</dl>
+
+<dt><a name="is_ancestor_of(PARENTDIR,_PATH)"
+>is_ancestor_of(PARENTDIR, PATH)</a></dt>
+
+<dd>
+<p>Returns true if and only if PATH is PARENTDIR or a path stored somewhere within PARENTDIR (or its subdirs).</p>
+
+<p>This function will resolve the paths; any failure to resolve the path will cause a trappable error.</p>
+
+<dt><a name="pipe_tee(INHANDLE,_OUTHANDLES[,_OPTS])"
+>pipe_tee(INHANDLE, OUTHANDLES[, OPTS])</a></dt>
+
+<dd>
+<p>Read bytes from INHANDLE and copy them into all of the handles in the listref OUTHANDLES. The optional OPTS argument is a hashref of options, see below.</p>
+
+<p>The subroutine will continue to read from INHANDLE until it is exhausted or an error occurs (either during read or write). In case of errors, a trappable error will be raised. The handles are left open when the subroutine returns, caller must close them afterwards.</p>
+
+<p>Caller should ensure that handles are using &#34;blocking&#34; I/O. The subroutine will use <a href="../perlfunc.html#sysread" class="podlinkpod"
+>sysread</a> and <a href="../perlfunc.html#syswrite" class="podlinkpod"
+>syswrite</a> when reading and writing.</p>
+
+<p>OPTS, if given, may contain the following key-value pairs:</p>
+
+<dl>
+<dt><a name="chunk_size"
+>chunk_size</a></dt>
+
+<dd>
+<p>A suggested buffer size for read/write. If given, it will be to sysread as LENGTH argument when reading from INHANDLE.</p>
+</dd>
+</dl>
+
+<dt><a name="load_state_cache(STATE_DIR)"
+>load_state_cache(STATE_DIR)</a></dt>
+
+<dd>
+<p>[Reporting tools only] Load the state cache from STATE_DIR.</p>
+
+<dt><a name="save_state_cache(STATE_DIR,_STATE)"
+>save_state_cache(STATE_DIR, STATE)</a></dt>
+
+<dd>
+<p>[Reporting tools only] Save the STATE cache to STATE_DIR.</p>
+
+<dt><a name="find_backlog(LINTIAN_VERSION,_STATE)"
+>find_backlog(LINTIAN_VERSION, STATE)</a></dt>
+
+<dd>
+<p>[Reporting tools only] Given the current lintian version and the harness state, return a list of group ids that are part of the backlog. The list is sorted based on what version of Lintian processed the package.</p>
+
+<p>Note the result is by design not deterministic to reduce the risk of all large packages being in the same run (e.g. like gcc-5 + gcc-5-cross + gcc-6 + gcc-6-cross).</p>
+
+<dt><a name="untaint(VALUE)"
+>untaint(VALUE)</a></dt>
+
+<dd>
+<p>Untaint VALUE</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1)</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

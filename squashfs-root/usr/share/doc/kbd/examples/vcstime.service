@@ -1,0 +1,25 @@
+# How to use this file:
+# copy me to /etc/systemd/system/vcstime.service
+# systemctl daemon-reload
+# systemctl enable vcstime.service
+# systemctl start vcstime.service
+
+[Unit]
+Description=Show time in upper right hand corner of the console screen
+Documentation=man:vcstime(8)
+ConditionPathExists=/dev/vcsa
+
+[Service]
+ExecStart=/usr/sbin/vcstime
+Restart=on-failure
+# vcstime needs access to /dev/vcs* (this setting is already the default)
+#PrivateDevices=false
+# Other optional security enhancing settings that can be used.
+# (uncomment to enable extra hardening.)
+#PrivateNetwork=true
+#ProtectSystem=full
+#ProtectHome=true
+#PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

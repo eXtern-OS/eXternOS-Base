@@ -1,0 +1,266 @@
+
+/*
+ *      dell.drv                       (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Contains the Dell printers drivers
+ *
+ * $Id: dell.drv.in 310 2013-08-26 15:22:00Z tillkamppeter $
+ */
+
+Manufacturer "Dell"
+
+/*
+ *      version.defs                   (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Current PPDs version
+ *
+ * $Id: version.defs 298 2011-07-20 16:20:18Z tillkamppeter $
+ */
+
+
+#include <font.defs>
+
+// Font included in the printer ROM
+Font *
+
+
+Version "2.0.0"
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      spl2.defs                      (C) 2007, Aurélien Croc (AP²C)
+ * 
+ *
+ *
+ * $Id: spl2.defs 313 2013-08-26 15:42:25Z tillkamppeter $
+ */
+
+// Supported paper format
+HWMargins 10.75 15 10.75 15
+/*
+ *      spl2.defs                      (C) 2007, Aurélien Croc (AP²C)
+ * 
+ *
+ *
+ * $Id$
+ */
+#include <media.defs>
+
+#media "Oficio/Oficio - 216x340mm" 612 972
+
+// Supported paper format
+*MediaSize Letter
+MediaSize Legal
+MediaSize A4
+MediaSize Executive
+MediaSize Ledger
+MediaSize A3
+MediaSize Env10
+MediaSize Monarch
+MediaSize C5
+MediaSize DL
+MediaSize B4
+MediaSize B5
+MediaSize EnvISOB5
+// Not listed
+MediaSize Postcard
+MediaSize DoublePostcardRotated
+MediaSize A5
+MediaSize A6
+MediaSize B6
+// Custom
+MediaSize C6
+MediaSize Folio
+MediaSize EnvPersonal
+MediaSize Env9
+MediaSize Oficio
+
+// VariablePaperSize yes
+
+// Supported input slots
+*InputSlot 1 "Auto/Automatic Selection"
+InputSlot 2 "Manual/Manual Feed"
+
+
+
+
+//
+// Defining PJL variables
+//
+
+// Supported paper type
+Option "MediaType/Paper Type" PickOne AnySetup 10
+   *Choice "OFF/Use Printer Default" ""
+   Choice "NORMAL/Plain Paper" ""
+   Choice "THICK/Thick Paper" ""
+   Choice "THIN/Thin Paper" ""
+   Choice "BOND/Bond" ""
+   Choice "OHP/Transparency" ""
+   Choice "CARD/Card Stock" ""
+   Choice "LABEL/Label" ""
+   Choice "USED/Preprinted" ""
+   Choice "COLOR/Colored Paper" ""
+   Choice "ENV/Envelope" ""
+   Choice "COTTON/Cotton" ""
+   Choice "RECYCLED/Recycled" ""
+   Choice "ARCHIVE/Archive" ""
+
+Attribute QPDL BandSize "128"
+Attribute PJL BeginPJL "<1B>%-12345X"
+Attribute PJL EndPJL "<09><1B>%-12345X"
+
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      filter.defs                    (C) 2007, Aurélien Croc (AP²C)
+ * 
+ *
+ *
+ * $Id: filter.defs 298 2011-07-20 16:20:18Z tillkamppeter $
+ */
+/* Define a custom filter type. */
+DriverType custom
+Filter application/vnd.cups-raster 0 rastertoqpdl
+/* Filter application/vnd.cups-postscript 50 pstoqpdl */
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      altitude.defs                  (C) 2008, Aurélien Croc (AP²C)
+ * 
+ * Altitude
+ *
+ * $Id: altitude.defs 270 2010-07-29 11:53:22Z tillkamppeter $
+ */
+
+Option "Altitude/Air pressure" PickOne AnySetup 10
+	*Choice "LOW/High" ""
+	Choice "HIGH/Low" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+
+//
+// Specific black & white printer definition
+//
+{
+/*
+ *      monochrome-v1.defs             (C) 2007-2008, Aurélien Croc (AP²C)
+ * 
+ * Monochrome printers V. 1
+ *
+ * $Id: monochrome-v1.defs 240 2008-11-24 00:10:09Z ap2c $
+ */
+
+// Black & White support
+ColorDevice false
+*ColorModel Gray/Grayscale k chunky 13
+
+// Supported resolutions
+*Resolution k 1 0 0 0 "600dpi/600 DPI"
+
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      powersave.defs                 (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Power save
+ *
+ * $Id: powersave.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "PowerSave/Power Save" PickOne AnySetup 10
+    Choice "False/Off" ""
+    *Choice "5/5 Minutes" ""
+    Choice "10/10 Minutes" ""
+    Choice "15/15 Minutes" ""
+    Choice "30/30 Minutes" ""
+    Choice "45/45 Minutes" ""
+    Choice "60/1 Hour" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      tonerdensity.defs              (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Toner density
+ *
+ * $Id: tonerdensity.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "TonerDensity/Toner Density" PickOne AnySetup 10
+    Choice "1/Light" ""
+	*Choice "3/Medium" ""
+	Choice "5/Dark" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      tonersave.defs                 (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Toner save
+ *
+ * $Id: tonersave.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "EconoMode/Toner Save" PickOne AnySetup 10
+	*Choice "0/Use Printer Default" ""
+	Choice "ON/Save" ""
+    Choice "OFF/Standard" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      jamrecovery.defs               (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Jam recovery
+ *
+ * $Id: jamrecovery.defs 105 2007-11-16 02:20:18Z ap2c $
+ */
+
+Option "JamRecovery/Reprint When Jam" Boolean AnySetup 10
+	*Choice "False/Off" ""
+	Choice "True/On" ""
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+/*
+ *      manualduplex.defs              (C) 2007, Aurélien Croc (AP²C)
+ * 
+ * Manual duplex
+ *
+ * $Id: manualduplex.defs 183 2008-02-09 15:24:43Z ap2c $
+ */
+
+Duplex normal
+Attribute QPDL ManualDuplex "On"
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+
+
+    // QPDL Version 1
+    {
+        Attribute QPDL QPDLVersion "1"
+        Attribute General DocHeaderValues "<0><0><0>"
+
+        {
+            Resolution k 1 0 0 0 "300dpi/300 DPI"
+            {
+                ModelName "1100"
+                PCFileName "1100.ppd"
+            } {
+                ModelName "1110"
+                PCFileName "1110.ppd"
+            }
+        }
+    }
+}
+
+/* vim: set expandtab tabstop=4 shiftwidth=4 smarttab tw=80 enc=utf8: */
+

@@ -1,0 +1,190 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ECMFindModuleHelpers &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ECMGenerateExportHeader" href="ECMGenerateExportHeader.html" />
+    <link rel="prev" title="ECMEnableSanitizers" href="ECMEnableSanitizers.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ECMGenerateExportHeader.html" title="ECMGenerateExportHeader"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ECMEnableSanitizers.html" title="ECMEnableSanitizers"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" accesskey="U">ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ecmfindmodulehelpers">
+<span id="module:ECMFindModuleHelpers"></span><h1>ECMFindModuleHelpers<a class="headerlink" href="#ecmfindmodulehelpers" title="Permalink to this headline">¶</a></h1>
+<p>Helper macros for find modules: ecm_find_package_version_check(),
+ecm_find_package_parse_components() and
+ecm_find_package_handle_library_components().</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_find_package_version_check</span><span class="p">(</span><span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Prints warnings if the CMake version or the project’s required CMake version
+is older than that required by extra-cmake-modules.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_find_package_parse_components</span><span class="p">(</span><span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span>
+    <span class="n">RESULT_VAR</span> <span class="o">&lt;</span><span class="n">variable</span><span class="o">&gt;</span>
+    <span class="n">KNOWN_COMPONENTS</span> <span class="o">&lt;</span><span class="n">component1</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">component2</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]</span>
+    <span class="p">[</span><span class="n">SKIP_DEPENDENCY_HANDLING</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>This macro will populate &lt;variable&gt; with a list of components found in
+&lt;name&gt;_FIND_COMPONENTS, after checking that all those components are in the
+list of KNOWN_COMPONENTS; if there are any unknown components, it will print
+an error or warning (depending on the value of &lt;name&gt;_FIND_REQUIRED) and call
+return().</p>
+<p>The order of components in &lt;variable&gt; is guaranteed to match the order they
+are listed in the KNOWN_COMPONENTS argument.</p>
+<p>If SKIP_DEPENDENCY_HANDLING is not set, for each component the variable
+&lt;name&gt;_&lt;component&gt;_component_deps will be checked for dependent components.
+If &lt;component&gt; is listed in &lt;name&gt;_FIND_COMPONENTS, then all its (transitive)
+dependencies will also be added to &lt;variable&gt;.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_find_package_handle_library_components</span><span class="p">(</span><span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span>
+    <span class="n">COMPONENTS</span> <span class="o">&lt;</span><span class="n">component</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">component</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]</span>
+    <span class="p">[</span><span class="n">SKIP_DEPENDENCY_HANDLING</span><span class="p">])</span>
+    <span class="p">[</span><span class="n">SKIP_PKG_CONFIG</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Creates an imported library target for each component.  The operation of this
+macro depends on the presence of a number of CMake variables.</p>
+<p>The &lt;name&gt;_&lt;component&gt;_lib variable should contain the name of this library,
+and &lt;name&gt;_&lt;component&gt;_header variable should contain the name of a header
+file associated with it (whatever relative path is normally passed to
+‘#include’). &lt;name&gt;_&lt;component&gt;_header_subdir variable can be used to specify
+which subdirectory of the include path the headers will be found in.
+ecm_find_package_components() will then search for the library
+and include directory (creating appropriate cache variables) and create an
+imported library target named &lt;name&gt;::&lt;component&gt;.</p>
+<p>Additional variables can be used to provide additional information:</p>
+<p>If SKIP_PKG_CONFIG, the &lt;name&gt;_&lt;component&gt;_pkg_config variable is set, and
+pkg-config is found, the pkg-config module given by
+&lt;name&gt;_&lt;component&gt;_pkg_config will be searched for and used to help locate the
+library and header file.  It will also be used to set
+&lt;name&gt;_&lt;component&gt;_VERSION.</p>
+<p>Note that if version information is found via pkg-config,
+&lt;name&gt;_&lt;component&gt;_FIND_VERSION can be set to require a particular version
+for each component.</p>
+<p>If SKIP_DEPENDENCY_HANDLING is not set, the INTERFACE_LINK_LIBRARIES property
+of the imported target for &lt;component&gt; will be set to contain the imported
+targets for the components listed in &lt;name&gt;_&lt;component&gt;_component_deps.
+&lt;component&gt;_FOUND will also be set to false if any of the compoments in
+&lt;name&gt;_&lt;component&gt;_component_deps are not found.  This requires the components
+in &lt;name&gt;_&lt;component&gt;_component_deps to be listed before &lt;component&gt; in the
+COMPONENTS argument.</p>
+<p>The following variables will be set:</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">&lt;name&gt;_TARGETS</span></code></dt>
+<dd>the imported targets</dd>
+<dt><code class="docutils literal"><span class="pre">&lt;name&gt;_LIBRARIES</span></code></dt>
+<dd>the found libraries</dd>
+<dt><code class="docutils literal"><span class="pre">&lt;name&gt;_INCLUDE_DIRS</span></code></dt>
+<dd>the combined required include directories for the components</dd>
+<dt><code class="docutils literal"><span class="pre">&lt;name&gt;_DEFINITIONS</span></code></dt>
+<dd>the “other” CFLAGS provided by pkg-config, if any</dd>
+<dt><code class="docutils literal"><span class="pre">&lt;name&gt;_VERSION</span></code></dt>
+<dd>the value of <code class="docutils literal"><span class="pre">&lt;name&gt;_&lt;component&gt;_VERSION</span></code> for the first component that
+has this variable set (note that components are searched for in the order
+they are passed to the macro), although if it is already set, it will not
+be altered</dd>
+</dl>
+<p>Note that these variables are never cleared, so if
+ecm_find_package_handle_library_components() is called multiple times with
+different components (typically because of multiple find_package() calls) then
+<code class="docutils literal"><span class="pre">&lt;name&gt;_TARGETS</span></code>, for example, will contain all the targets found in any
+call (although no duplicates).</p>
+<p>Since pre-1.0.0.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ECMEnableSanitizers.html"
+                        title="previous chapter">ECMEnableSanitizers</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ECMGenerateExportHeader.html"
+                        title="next chapter">ECMGenerateExportHeader</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/module/ECMFindModuleHelpers.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ECMGenerateExportHeader.html" title="ECMGenerateExportHeader"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ECMEnableSanitizers.html" title="ECMEnableSanitizers"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" >ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

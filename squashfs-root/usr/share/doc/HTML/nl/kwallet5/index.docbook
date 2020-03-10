@@ -1,0 +1,786 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN" "dtd/kdedbx45.dtd" [
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Dutch "INCLUDE">
+]>
+
+<book id="kwallet5" lang="&language;">
+<bookinfo>
+<title
+>Het handboek van &kwallet5;</title>
+
+<authorgroup>
+<author
+>&George.Staikos; &George.Staikos.mail; </author>
+<author
+>&Lauri.Watts; &Lauri.Watts.mail; </author>
+<othercredit role="developer"
+><firstname
+>George</firstname
+><surname
+>Staikos</surname
+> <affiliation
+><address
+>&George.Staikos.mail;</address
+></affiliation>
+<contrib
+>Ontwikkelaar</contrib>
+</othercredit>
+&Rik.van.Achterberg;&Tom.Albers; 
+</authorgroup>
+
+<legalnotice
+>&FDLNotice;</legalnotice>
+
+<date
+>2016-07-05</date>
+<releaseinfo
+>Applications 16.04</releaseinfo>
+
+<abstract>
+<para
+>Het portefeuille subsysteem biedt een handige en veilige manier om al uw wachtwoorden te beheren.</para>
+
+</abstract>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>Kwallet</keyword>
+<keyword
+>wachtwoorden</keyword>
+<keyword
+>formulieren</keyword>
+</keywordset>
+
+</bookinfo>
+
+<chapter id="introduction">
+<title
+>Introductie</title>
+
+<para
+>Computergebruikers hebben een groot scala aan gegevens te beheren, waarvan sommige gegevens vertrouwelijk zijn. Persoonlijk zult u een aantal wachtwoorden te beheren hebben. Deze onthouden is moeilijk, ze opschrijven of in een tekstbestand opslaan is onveilig.</para>
+
+<para
+>&kwallet5; biedt een veilige manier om wachtwoorden en andere geheime informatie op te slaan, waarmee de gebruiker slechts één enkel wachtwoord hoeft te onthouden in plaats van talrijke verschillende wachtwoorden en credentials. </para>
+
+<sect1 id="kwallet-create">
+
+<title
+>Een portefeuille aanmaken</title>
+
+<para
+>Portefeuille is een opslag voor wachtwoorden. Het is gewoonlijk voldoende om slechts één portefeuille te hebben beveiligd met één hoofdwachtwoord maar u kunt uw grote verzameling wachtwoorden organiseren in portefeuilles met &kwalletmanager5;.</para>
+
+<para
+>Standaard zal een portefeuille genaamd <guilabel
+>kdewallet</guilabel
+> gebruikt worden om uw wachtwoorden op te slaan. Deze portefeuille is beveiligd door uw wachtwoord voor aanmelden en zal automatisch geopend worden bij aanmelden, als kwallet_pam is geïnstalleerd en juist geconfigureerd. Op bepaalde distributies (&eg; Archlinux) is kwallet_pam niet standaard geïnstalleerd</para>
+
+
+<para
+>Andere portefeuilles moeten handmatig worden geopend.</para>
+
+<para
+>Er zijn twee manieren om een nieuwe portefeuille aan te maken:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Gebruik het menu-item <menuchoice
+><guimenu
+>Bestand</guimenu
+><guimenuitem
+>Nieuwe portefeuille</guimenuitem
+></menuchoice
+> in de &kwalletmanager5;</para
+></listitem>
+
+<listitem
+><para
+>Gebruik de knop <guibutton
+>Nieuw</guibutton
+> in de module <guilabel
+>KDE portefeuille</guilabel
+> van in &systemsettings;</para
+></listitem>
+</itemizedlist>
+
+<para
+>Als u nog geen portefeuille hebt aangemaakt, zie sectie <link linkend="kwallet-using"
+>&kwallet5; gebruiken</link
+>. </para>
+
+<para
+>&kwallet5; biedt twee verschillende manieren om uw gegevens op te slaan:</para>
+
+<screenshot>
+<screeninfo
+>Versleuteling selecteren</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="wallet-encryption-selection.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Versleuteling selecteren</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<variablelist>
+
+<varlistentry>
+<term
+>Versleuteling met Blowfish</term>
+<listitem>
+<para
+>&kwallet5; bewaart al deze vertrouwelijke gegevens in een streng gecodeerd bestand dat toegankelijk is door alle applicaties, en beveiligd is met een hoofdwachtwoord.</para>
+
+<screenshot>
+<screeninfo
+>Een met blowfish versleutelde portefeuille aanmaken</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="first-open-request.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Een met blowfish versleutelde portefeuille aanmaken</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>De gegevens zijn versleuteld met het <ulink url="http://www.schneier.com/blowfish.html"
+>Blowfish symmetrische block-cipher algoritme</ulink
+>, de algoritmesleutel is afgeleid van de <ulink url="http://www.ietf.org/rfc/rfc3174.txt"
+>SHA-1 hash</ulink
+> van het wachtwoord, met een sleutellengte van 156 bits (20 bytes). De gegevens in het portefeuillebestand worden ook gehashd met SHA-1 en gecontroleerd alvorens de gegevens te ontcijferen en toegankelijk te maken door de programma's. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+>GPG versleuteling</term>
+<listitem>
+<para
+>GnuPG biedt enige zeer sterke versleutelingsalgorithmes en gebruikt lange met een wachtwoordzin beveiligde sleutels.</para>
+
+<screenshot>
+<screeninfo
+>Geen GPG-sleutel gevonden</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="error-nokey.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Geen GPG-sleutel gevonden</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+<para
+>De bovenstaande schermafdruk toont het geval waar een, voor versleuteling geschikte GPG-sleutel, niet op het systeem is gevonden. Gebruik een toepassing zoals &kgpg; of &kleopatra; om een sleutel aan te maken en probeer het opnieuw.</para>
+
+<para
+>Als er een GPG-sleutel is gevonden dan krijgt u de volgende dialoog waar u een sleutel kunt selecteren om voor uw nieuwe portefeuille te gebruiken. </para>
+<screenshot>
+<screeninfo
+>Een sleutel voor versleuteling selecteren</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="key-selection.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Een sleutel voor versleuteling selecteren</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>&kwallet5; zal nu GPG gebruiken bij het opslaan in portefeuilles en wanneer u ze opent. De dialoog voor de wachtwoordzin toont er slechts één. Zelfs als de portefeuille is gesloten na initieel openen, zal een volgende opening stil plaatsvinden gedurende dezelfde sessie. </para>
+
+<para
+>Dezelfde sessie kan tegelijk beide bestandsformaten behandelen. &kwallet5; zal transparent het bestandsformaat detecteren en de juiste backend laden om het te behandelen.</para>
+
+<para
+>Om uw gevoelige gegevens te gebruiken vanuit uw klassieke portefeuille met de nieuwe backend volgt u deze stappen:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Een nieuwe op GPG gebaseerde portefeuille aanmaken</para
+></listitem>
+<listitem
+><para
+>Start &kwalletmanager5; met &krunner; (<keycombo
+>&Alt; <keycap
+>F2</keycap
+></keycombo
+>) of een andere starter van toepassingen (menu) en selecteer uw oude portefeuille, kies dan <menuchoice
+><guimenu
+>Bestand</guimenu
+> <guimenuitem
+>Als versleuteld exporteren</guimenuitem
+></menuchoice
+> om een archiefbestand met uw gevoelige gegevens te maken. </para
+></listitem>
+<listitem
+><para
+>Selecteer de nieuwe op GPG gebaseerde portefeuille, kies daarna <menuchoice
+><guimenu
+>Bestand</guimenu
+> <guimenuitem
+>Versleuteld importeren</guimenuitem
+></menuchoice
+> en selecteer het bestand dat u zojuist had opgeslagen.</para>
+</listitem>
+
+<listitem
+><para
+>Ga naar &systemsettings; <menuchoice
+><guimenu
+>Accountdetails</guimenu
+> <guimenuitem
+>KDE-portefeuille</guimenuitem
+></menuchoice
+> en selecteer de nieuw gemaakte op GPG gebaseerde portefeuille uit het keuzevak <guilabel
+>Selecteer portefeuille om als standaard te gebruiken</guilabel
+>. </para
+></listitem>
+</itemizedlist>
+
+<para
+>Gebruik anders <guimenuitem
+>Een portefeuille importeren</guimenuitem
+> maar in dat geval moet u het <filename class="extension"
+>.kwl</filename
+> bestand overeenkomend met uw oude portefeuille selecteren, gelokaliseerd in de map <filename class="directory"
+>kwalletd</filename
+> in <userinput
+>qtpaths --paths GenericDataLocation</userinput
+>. </para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+<tip>
+<para
+>Voor de meest veilige werking zou u één portefeuille moeten hebben voor uw lokale wachtwoorden en een andere voor netwerkwachtwoorden en formuliergegevens. U kunt dit configureren in de &systemsettings;-module, van &kwallet5;, ook al is de standaardinstelling dat alles in één portefeuille wordt opgeslagen genaamd <guilabel
+>kdewallet</guilabel
+>.</para>
+</tip>
+
+<para
+>Een portefeuille is standaard gesloten, hetgeen betekent dat u een wachtwoord nodig hebt om deze te openen. Als de portefeuille eenmaal geopend is, kan de inhoud door elk gebruikersproces gelezen worden, dit kan dus een beveiligingsprobleem vormen.</para>
+</sect1>
+
+<sect1 id="kwallet-using">
+<title
+>&kwallet5; gebruiken</title>
+
+<para
+>Als u &eg; de &kde;-bugtracker bezoekt en de aanmeldgegevens voor de eerste keer invoert, dan verschijnt er een dialog die aanbiedt om het wachtwoord in een versleutelde  portefeuille op te slaan.</para>
+
+<screenshot>
+<screeninfo
+>Verzoek om aanmeldinformatie op te slaan</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="save-login-information.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Verzoek om aanmeldinformatie op te slaan</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Als u deze informatie op wilt slaan, selecteer dan <guibutton
+>Opslaan</guibutton
+> om door te gaan. In het geval dat u geen portefeuille hebt aangemaakt, dan vraagt de volgende dialoog om de backend voor versleuteling van de portefeuille en maakt een portefeuille aan met de naam kdewallet. </para>
+
+<para
+>De volgende keer dat u dezelfde website opnieuw bezoekt, zal de applicatie de aanmeldgegevens uit een open portefeuille ophalen en de formulieren vooraf invullen met deze geheime gegevens.</para>
+
+<screenshot>
+<screeninfo
+>Reeds ingevulde aanmeldinformatie</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="prefilled-forms.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Reeds ingevulde aanmeldinformatie</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Als de portefeuille gesloten is, zal de applicatie verzoeken om de portefeuille te openen. Voer het portefeuillewachtwoord in en klik op de knop <guibutton
+>Open</guibutton
+>.</para>
+
+<screenshot>
+<screeninfo
+>Verzoek om een portefeuille te openen</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="openwallet-request.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Verzoek om een portefeuille te openen</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Dit verbindt de applicatie met de portefeuille, stelt het in staat om de aanmeldgegevens uit de portefeuille te lezen en om de aanmeldinformatie voor deze website in te vullen. Als een applicatie eenmaal is verbonden met de portefeuille, dan kan het automatisch elke aanmeldinformatie die is opgeslagen in de portefeuille, invullen.</para>
+
+</sect1>
+
+</chapter>
+
+<chapter id="kwalletmanager5">
+<title
+>&kwalletmanager5;</title>
+
+<para
+>&kwalletmanager5; heeft twee functies. De eerste staat u toe om te te zien of er portefeuilles open zijn, welke dat zijn, en welke applicaties welke portefeuille gebruiken. U kunt een toepassing toegang tot een portefeuille ontnemen in de &kwalletmanager5;.</para>
+
+<para
+>U kunt ook bestaande portefeuilles beheren, bewerken, verwijderen en nieuwe portefeuilles aanmaken.</para>
+
+<para
+>De &kwalletmanager5;-applicatie wordt gestart met <menuchoice
+> <guimenu
+>Programma's</guimenu
+><guisubmenu
+>Systeem</guisubmenu
+> <guimenuitem
+>Portefeuillebeheer</guimenuitem
+></menuchoice
+> uit het applicatie-opstartprogramma. Alternatief kunt u &krunner; starten met de sneltoets <keycombo action="simul"
+>&Alt;<keycap
+>F2</keycap
+></keycombo
+> en <command
+>kwalletmanager</command
+> invoeren.</para>
+
+<para
+>Klik op het portefeuille pictogram in het systeemvak om een venster van &kwalletmanager5; te openen.</para>
+<para>
+<screenshot>
+<screeninfo
+>Hoofdvenster met één portefeuille</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwalletmanager.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Hoofdvenster met één portefeuille</phrase>
+</textobject>
+<caption
+><para
+>Hoofdvenster met één portefeuille</para
+></caption>
+</mediaobject>
+</screenshot>
+</para>
+
+<!--FIXME
+How to get assistant "First Use"? kwalletwizardpageintro.ui
+Last code change with http://websvn.kde.org/?view=revision&revision=882694
+see also https://bugs.kde.org/show_bug.cgi?id=290309
+-->
+<sect1 id="kwalletmanager-wallet-window">
+<title
+>Het portefeuillevenster</title>
+
+<para
+>Als u meer dan één portefeuille hebt dan worden alle portefeuilles links getoond.</para>
+
+<para
+>Klikken op een portefeuille in het venster van &kwalletmanager5; zal zijn status  en inhoud van een geopende portefeuille tonen. Een portefeuille kan een aantal mappen bevatten, die wachtwoordinformatie kunnen opslaan. Normaal gesproken heeft een portefeuille de mappen Formulierdata en Wachtwoorden. </para>
+
+<screenshot>
+<screeninfo
+>Hoofdvenster met twee portefeuilles</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-edit.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Hoofdvenster met twee portefeuilles</phrase>
+</textobject>
+<caption
+><para
+>Hoofdvenster met twee portefeuilles</para
+></caption>
+</mediaobject>
+</screenshot>
+<para
+>Gebruik <guibutton
+>Open</guibutton
+> om de inhoud van een gesloten portefeuille te tonen. U zult gevraagd worden het hoofdwachtwoord in te voeren.</para>
+
+<sect2>
+<title
+>Tabblad Inhoud</title>
+
+<para
+>Het tabblad <guilabel
+>Inhoud</guilabel
+> bevat drie secties:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Een zoekregel om de items in de huidige portefeuille te filteren</para
+></listitem>
+<listitem
+><para
+>De boomstructuur van de mappen in de portefeuille. Klik op de pictogrammen <guiicon
+>&gt;</guiicon
+> / <guiicon
+>v</guiicon
+> om de boomstructuur in of uit te vouwen.</para
+></listitem>
+<listitem
+><para
+>De inhoud van de geselecteerde map rechts. Standaard worden het wachtwoord en waarde verborgen. Om ze te tonen en te  bewerken activeer dan <guilabel
+>Waarden tonen</guilabel
+> of klik op de knop <guilabel
+>Inhoud tonen</guilabel
+>. </para
+></listitem>
+</itemizedlist>
+
+<para
+>Mappen kunnen aangemaakt of verwijderd worden via het contextmenu. Het selecteren van een map zal weergave van de inhoud bijwerken en u in staat stellen de inhoud te wijzigen.</para>
+
+<para
+>Items kunnen ook gemaakt, hernoemd of verwijderd worden door middel van het contextmenu van de mappen.</para>
+
+<para
+>Alle mappen en items kunnen respectievelijk naar andere portefeuilles of mappen gesleept worden. Hierdoor kan de gebruiker gemakkelijk een portefeuille verplaatsen naar een ander omgeving. Bijvoorbeeld, een portefeuille kan naar een verwijderbare flashgeheugendrager gekopieerd worden. Belangrijke wachtwoorden kunt u daar naartoe kopiëren, zodat u ze op verschillende locaties ter beschikking heeft.</para>
+
+<sect3 id="kwallet-import-export">
+<title
+>Import en export</title>
+<para
+>Als u uw geheimen naar een andere apparaat of computer over wilt brengen, gebruik dan de acties in het menu <guimenu
+>Bestand</guimenu
+>. Met <guimenuitem
+>Als versleuteld exporteren</guimenuitem
+> kunnen portefeuilles geëxporteerd worden in een versleuteld archiefbestand. Bij importeren van dit archiefbestand met <guimenuitem
+>Versleuteld importeren</guimenuitem
+> moet u het hoofdwachtwoord van de portefeuille gebruiken. </para>
+<para
+>Anders kan een <filename class="extension"
+>.xml</filename
+>-bestand gebruikt worden voor het overbrengen van een portefeuille. Bedenk wel dat alle geheimen als leesbare tekst in dit bestand staan. </para>
+</sect3>
+
+<sect3 id="kwallet-adding-entries">
+<title
+>Handmatig items toevoegen</title>
+<para
+>Open het contextmenu met de &RMB;, klik op <guilabel
+>Maps</guilabel
+> of <guilabel
+>Wachtwoorden</guilabel
+> in de boomweergave van <guilabel
+>Map</guilabel
+>. Selecteer <guimenuitem
+>Nieuwe map</guimenuitem
+> en kies een naam voor het nieuwe item.</para>
+<para
+>Kies in het paneel mapinhoud <guilabel
+>Nieuwe map</guilabel
+> uit het contextmenu van <quote
+>Formuliergegevens</quote
+> of <quote
+>Wachtwoorden</quote
+>. Voor wachtwoorden klik op de knop <guilabel
+>Inhoud tonen</guilabel
+>, voer het nieuwe wachtwoord in. Voor Maps moet u een <guilabel
+>Sleutel</guilabel
+> toevoegen en een <guilabel
+>Waarde</guilabel
+>. Klik op de knop <guilabel
+>Opslaan</guilabel
+> om de nieuwe items op te slaan in het versleutelde portefeuillebestand. </para>
+</sect3>
+</sect2>
+
+<sect2>
+<title
+>Tabblad Toepassingen</title>
+<para>
+<screenshot>
+<screeninfo
+>Tabblad Toepassingen</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-applications.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Tabblad Toepassingen</phrase>
+</textobject>
+<caption
+><para
+>Tabblad Toepassingen</para
+></caption>
+</mediaobject>
+</screenshot>
+</para>
+<para
+>De eerste lijst toont alle toepassingen die nu verbonden zijn met de geselecteerde portefeuille. Gebruik de knop rechts van elk item om de verbinding met de toepassing te verbreken.</para>
+
+<para
+>In de tweede lijst worden alle toepassingen getoond die geautoriseerd zijn voor toegang tot de portefeuille. Gebruik de knop rechts van elk item in de lijst om toegang in te trekken. </para>
+<!-- FIXME difference to remove the policy in kwallermanager settings dialog?-->
+</sect2>
+</sect1>
+
+</chapter>
+
+<chapter id="kwallet-kcontrol-module">
+<title
+>&kwallet5; instellen</title>
+
+<sect1 id="wallet-preferences">
+<title
+>Portefeuillevoorkeuren</title>
+
+<para
+>&kwallet5; bevat een klein instellingenvenster met verschillende instellingen waarmee u &kwallet5; kunt instellen naar uw eigen voorkeuren. De standaard instellingen van &kwallet5; zijn voldoende voor de meeste gebruikers.</para>
+
+<para
+>Kruis het hokje om het &kde;-portefeuillesysteem volledig aan of uit te zetten. Als het hokje leeg is, is &kwallet5; volledig uitgeschakeld, en zullen geen van de instellingen effect hebben. Ook zal &kwallet5; geen informatie meer verzamelen, en geen formulieren voor u aanvullen.</para>
+
+<variablelist>
+<title
+><guilabel
+>Portefeuille sluiten</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Sluiten indien inactief gedurende:</guilabel
+></term>
+<listitem>
+<para
+>Sluit de huidige portefeuille nadat deze een bepaalde periode niet werd gebruikt. Als u dit vakje activeert, stel dan de periode in in het vakje. Standaard is deze 10.  Wanneer de portefeuille gesloten is is het wachtwoord nodig om deze weer te openen.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Sluiten wanneer de schermbeveiliging actief wordt</guilabel
+></term>
+<listitem>
+<para
+>Sluit de portefeuille wanneer de schermbeveiliging actief wordt. Wanneer de portefeuille is gesloten is het wachtwoord nodig om deze weer te openen.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Sluiten zodra de portefeuille niet wordt gebruikt</guilabel
+></term>
+<listitem>
+<para
+>Sluit de portefeuille zodra de laatste toepassing die de portefeuille gebruikte wordt afgesloten. Dit betekent dat de portefeuilles pas gesloten worden als alle programma's die deze gebruikten zijn afgesloten. Wanneer de portefeuille is gesloten is het wachtwoord nodig om deze weer te openen.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title
+><guilabel
+>Automatische portefeuille selectie</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Selecteer de portefeuille die u standaard wilt gebruiken:</guilabel
+></term>
+<listitem>
+<para
+>Selecteer welke portefeuille u wilt gebruiken als standaard portefeuille. Bedenk dat alleen de portefeuille genaamd <guilabel
+>kdewallet</guilabel
+> automatisch geopend zal worden bij aanmelden, als deze portefeuille en uw wachtwoord voor aanmelden identiek zijn. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Andere portefeuille voor lokale wachtwoorden:</guilabel
+></term>
+<listitem>
+<para
+>Indien geactiveerd, kies dan een andere portefeuille voor lokale wachtwoorden:</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title
+><guilabel
+>Portefeuillebeheer</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Pictogram voor portefeuillebeheer in systeemvak tonen</guilabel
+></term>
+<listitem>
+<para
+>Schakel de portefeuillebeheerder in om het pictogram in het systeemvak te tonen.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Systeemvakpictogram verbergen bij sluiten laatste portefeuille</guilabel
+></term>
+<listitem>
+<para
+>Als er geen portefeuille meer in gebruik is, verwijder het pictogram uit het systeemvak.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Tenslotte, is er een knop gelabeld met <guibutton
+>Portefeuillebeheerder opstarten</guibutton
+>, die dat dan doet. </para>
+<para
+>Deze knop is alleen zichtbaar als &kwalletmanager5; niet actief is</para>
+</sect1>
+
+<sect1 id="wallet-access-control">
+<title
+>Toegangscontrole</title>
+
+<para
+>Er is maar één optie op deze pagina:</para>
+
+<variablelist>
+<varlistentry>
+<term
+><guilabel
+>Om bevestiging vragen bij toegang tot een portefeuille</guilabel
+></term>
+<listitem>
+<para
+>Laat u weten wanneer een applicatie toegang vraagt tot een portefeuille.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Daarnaast is er een boomweergave van de toegangscontrole voor de portefeuilles.</para>
+
+<screenshot>
+<screeninfo
+>Toegangscontrole</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-access-control.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Toegangscontrole</phrase>
+</textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Klik met de &LMB; op het <guiicon
+>&gt;</guiicon
+> symbool naast een portefeuille om deze uit te vouwen. U zult de naam zien van elke applicatie die ooit om deze portefeuille heeft gevraagd, en het beleid dat u voor deze applicatie hebt ingesteld. U kunt hier geen gedragslijnen veranderen of toevoegen, maar het is mogelijk om een item te verwijderden door met uw &RMB; erop te klikken en <guimenuitem
+>Verwijderen</guimenuitem
+> te kiezen of door op de <keycap
+>Delete</keycap
+> toets te drukken.</para>
+
+<para
+>Een programma dat toegang heeft tot een portefeuille heeft toegang tot alle wachtwoorden die erin zijn opgeslagen.</para>
+
+<para
+>Als u per ongeluk voor een toepassing hebt ingesteld geen gebruik te maken van de &kwallet5;, verwijder dan dat beleid voor deze toepassing hier.</para>
+<!-- FIXME difference to Revoke Authorization in kwallermanager?-->
+<para
+>Bij de volgende start van deze toepassing kunt u een nieuw beleid definiëren voor toegang tot de portefeuille. </para>
+<screenshot>
+<screeninfo
+>Toegangsverzoek om een portefeuille te openen</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="application-request-to-open-wallet.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Toegangsverzoek om een portefeuille te openen</phrase>
+</textobject>
+<caption
+><para
+>Een toepassing die toegang vraagt tot een portefeuille</para
+></caption>
+</mediaobject>
+</screenshot>
+
+</sect1>
+
+</chapter>
+
+<chapter id="advanced-features">
+<title
+>Geavanceerde functies</title>
+
+<para
+>Portefeuilles kunnen gesleept worden vanuit het &kwalletmanager5; venster. Zo kunt u een portefeuille naar een bestandsbeheerder slepen, waar u de portefeuille kunt kopiëren, verplaatsen of een link kunt maken.</para>
+
+<para
+>U kunt dit gebruiken om een portefeuille op te slaan op een draagbaar medium, zoals een USB sleutelhanger, zodat u uw wachtwoorden gemakkelijk kunt meenemen, bijvoorbeeld tijdens uw vakantie om zo toegang te krijgen tot belangrijke websites.</para>
+
+</chapter>
+
+<chapter id="credits-and-license">
+<title
+>Dankbetuigingen en licentie</title>
+
+<para
+>&kwallet5; &copy; 2003 &George.Staikos;</para>
+<para
+>Documentatie &copy; &Lauri.Watts; and &George.Staikos;</para>
+
+&vertaling.rik;&nagelezen.tom; &underFDL; &underGPL; </chapter>
+
+&documentation.index;
+
+</book>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+
+// vim:ts=2:sw=2:tw=78:noet
+-->

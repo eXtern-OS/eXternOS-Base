@@ -1,0 +1,119 @@
+#!/bin/sh
+# Copyright © 2013 Filippo Giunchedi <filippo@debian.org>
+# Copyright © 201-2016 Luciano Bello <luciano@debian.org>
+# This work is free. You can redistribute it and/or modify it under the
+# terms of the Do What The Fuck You Want To Public License, Version 2,
+# as published by Sam Hocevar.
+# See the LICENSE file for more details.
+
+BASEDIR=${BASEDIR:-/var/lib/ieee-data/}
+RUN_PARSERS=${RUN_PARSERS:-1}
+OLD="5"
+FORCE=false
+QUIET=false
+
+set -e
+
+files_to_get="http://standards.ieee.org/regauth/oui/oui.txt|oui.txt
+http://standards.ieee.org/develop/regauth/oui28/mam.txt|mam.txt
+http://standards.ieee.org/develop/regauth/oui36/oui36.txt|oui36.txt
+http://standards.ieee.org/regauth/oui/iab.txt|iab.txt
+http://standards-oui.ieee.org/oui/oui.csv|oui.csv
+http://standards-oui.ieee.org/oui28/mam.csv|mam.csv
+http://standards-oui.ieee.org/oui36/oui36.csv|oui36.csv
+http://standards-oui.ieee.org/iab/iab.csv|iab.csv"
+tmpf=$(tempfile -p "ieee-data_" --mode=0644)
+
+Die () {
+	$QUIET || echo $1 
+	exit 1
+}
+
+checkTXT () {
+	TXTOUI='OUI.*\s*Organization\s*.*\s*Organization\s*Address'
+	head -n 6 $1 | tr -d '\n' | grep -qe "$TXTOUI"
+	return $?
+}
+
+
+checkCSV () {
+	CSVOUI='Registry,Assignment,Organization Name,Organization Address'
+	head -n 1 $1 | grep -qe "$CSVOUI"
+	return $?
+}
+
+checkFileHead () {
+	$QUIET || echo "\tChecking header"
+	TXTOUI='OUI.*\s*Organization\s*.*\s*Organization\s*Address'
+	checkTXT $1 || checkCSV $1 || ( rm $1 && Die "The downloaded file looks corrupted." )
+}
+
+checkPerm() {
+	$QUIET || echo "\tChecking permissions on $1"
+	touch -a $1 || { Die "Touch on $1 exit with $?";}
+}
+
+goAndGet () {
+	$QUIET || echo "Updating $BASEDIR/$2"
+	checkPerm $BASEDIR/$2
+	$QUIET || echo "\tDownloading $1 to $BASEDIR/$2"
+	$dler $1 > $tmpf || { Die "$dler $1 exit with $?";}
+	checkFileHead $tmpf
+	$QUIET || echo "\tTemporary location $tmpf to be moved to $BASEDIR/$2"
+	mv -f $tmpf $BASEDIR/$2
+	$QUIET || echo "\t$BASEDIR/$2 updated."
+}
+
+while getopts ":fq" opt; do
+  case $opt in
+    f)
+      FORCE=true
+      ;;
+    q)
+      QUIET=true
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      ;;
+  esac
+done
+
+dler=""
+[ -x "$(which curl)" ] && dler="curl -sL"
+[ -x "$(which lwp-request)" ] && dler="lwp-request -m GET"
+[ -x "$(which wget)" ] && dler="wget -q -O-"
+
+if [ -z "$dler" ]; then
+	Die "Unable to find a suitable downloader, please install wget or curl or libwww-perl"
+fi
+
+cd $BASEDIR || { Die "can't cd to $BASEDIR"; }
+
+LASTUPDATE=$(cat $BASEDIR/.lastupdate)
+OLD_SECONDS=$(expr $OLD \* 86400)
+CURRENT=$(date +%s)
+AGE=$(expr $CURRENT - $LASTUPDATE)
+
+if [ $FORCE = false -a $AGE -le $OLD_SECONDS ]; then
+	Die "The files are kinda new yet (less than $OLD days old)"
+fi
+
+for i in $(echo $files_to_get)
+do                
+	OIFS=$IFS
+	IFS='|'
+	set -- $i 
+	IFS=$OIFS
+	goAndGet $1 $2
+done
+
+rm $BASEDIR/.lastupdate
+echo $CURRENT > $BASEDIR/.lastupdate
+
+if [ -x $(which run-parts) ] && [ -d update.d ] && [ $RUN_PARSERS -ne 0 ]; then
+	$QUIET || echo "\tRunning parsers from $BASEDIR/update.d"
+	run-parts -a "$BASEDIR" -a oui.txt update.d/
+	run-parts -a "$BASEDIR" -a iab.txt update.d/
+	run-parts -a "$BASEDIR" -a oui.cvs update.d/
+	run-parts -a "$BASEDIR" -a iab.cvs update.d/
+fi

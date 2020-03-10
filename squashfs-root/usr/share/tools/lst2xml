@@ -1,0 +1,371 @@
+#! /usr/bin/perl
+
+# lst2xml: Transform old (pci.lst) Discover data to new XML-based format
+
+# AUTHORS: Eric Gillespie <epg@progeny.com>
+#          John R. Daily <jdaily@progeny.com>
+#          Josh Bressers <bress@progeny.com>
+#
+# Copyright 2002 Progeny Linux Systems, Inc.
+# Copyright 2002 Hewlett-Packard Company
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE COPYRIGHT HOLDER(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+
+# $Progeny$
+
+use strict;
+use warnings;
+
+my %CLASSES = (
+        'isdn'=>'isdn',
+        'bridge'=>'bridge',
+        'ethernet'=>'network',
+        'unknown'=>'unknown',
+        'video'=>'video',
+        'ide'=>'ide',
+        'scsi'=>'scsi',
+        'usb'=>'usb',
+        'sound'=>'sound',
+        'modem'=>'modem',
+        'tvcard'=>'multimedia',
+        'joystick'=>'gameport',
+        'scanner'=>'scanner',
+        'printer'=>'printer',
+        'webcam'=>'webcam',
+        'floppy'=>'floppy',
+        'mouse'=>0       # We don't care about this in Discover
+        );
+
+my %PCI_CLASSES = (
+        'isdn'=>'0204',
+        'bridge'=>'0600',
+        'network'=>'0200',
+        'unknown'=>'0000',
+        'video'=>'0300',
+        'ide'=>'0101',
+        'scsi'=>'0100',
+        'usb'=>'0c03',
+        'sound'=>'0401',
+        'modem'=>'0703',
+        'multimedia'=>'0400', # Used to be 'tvcard'
+        'gameport'=>'0904' # Used to be 'joystick'
+        );
+
+my %PCMCIA_CLASSES = (
+        'isdn'=>'isdn',
+        'bridge'=>'bridge',
+        'network'=>'network',
+        'unknown'=>'unknown',
+        'video'=>'video',
+        'sound'=>'sound',
+        'modem'=>'modem',
+        'multimedia'=>'multimedia',
+        'gameport'=>'gameport'
+        );
+
+my %USB_CLASSES = (
+        'unknown'=>'0000',
+        'scanner'=>'ffff', # XXX ???
+        'printer'=>'0101',
+        'isdn'=>'1030',
+        'webcam'=>'ff00',
+        'network'=>'0206',
+        'modem'=>'0202',
+        'gameport'=>'0300',
+        'floppy'=>'0804'
+        );
+
+my %REMAP_CLASSES = (
+        'isdn'=>'broadband',
+        'bridge'=>'bridge',
+        'ethernet'=>'network',
+        'unknown'=>'miscellaneous',
+        'video'=>'display',
+        'ide'=>'bridge',
+        'scsi'=>'bridge',
+        'usb'=>'bridge',
+        'sound'=>'audio',
+        'modem'=>'modem',
+        'multimedia'=>'video',
+        'tvcard'=>'video',
+        'joystick'=>'bridge',
+        'gameport'=>'bridge',
+        'scanner'=>'imaging',
+        'printer'=>'printer',
+        'webcam'=>'video',
+        'floppy'=>'removabledisk',
+        'network'=>'network'
+        );
+
+sub encode_non_ascii {
+    my ($value) = @_;
+    my ($i, $newval, @chars);
+
+    @chars = unpack('C*', $value);
+
+    for($i = 0; $i < @chars; $i++) {
+        if ($chars[$i] > 127) {
+            $newval = sprintf("&#x%X;", $chars[$i]);
+
+            if ($i == 0) {
+                $value = $newval . substr($value, 1);
+            } elsif ($i == @chars - 1) {
+                $value = substr($value, 0, $i) . $newval;
+            } else {
+                $value = substr($value, 0, $i) . $newval .
+                    substr($value, $i+1);
+            }
+        }
+    }
+    return $value;
+}
+
+sub make_busclass {
+    my $bus = shift;
+    my $bus_upper = shift;
+    my $id;
+    my $class;
+    my $try;
+    my @keys;
+
+    if (not open(BUSCLASSFOO, ">${bus}-busclass.xml")) {
+        die("Could not open ${bus}-busclass.xml\n");
+    }
+
+    print(BUSCLASSFOO <<EOF);
+<?xml version='1.0' encoding='UTF-8'?>
+
+<busclass_list bus="$bus">
+EOF
+
+    $try  = '@keys = keys(%';
+    $try .= $bus_upper;
+    $try .= '_CLASSES);';
+    eval $try;
+
+    foreach $class (@keys) {
+        $try  = '$id = $';      # 'cperl-mode is sub-optimal
+            $try .= $bus_upper;
+        $try .= '_CLASSES{$class};';
+        eval $try;
+
+        print(BUSCLASSFOO "  <busclass id=\"" . $id .
+                "\" name=\'$REMAP_CLASSES{$class}\'/>\n");
+    }
+
+    print(BUSCLASSFOO "</busclass_list>\n");
+
+    close(BUSCLASSFOO);
+}
+
+unless (@ARGV) {
+    die "Need valid file as first argument\n";
+}
+
+MAIN: {
+    my @data;
+    my $busclass;
+    my $bus;
+    my $bus_upper;
+    my $class;
+    my $new_class;
+    my $class_name;
+    my $filename;
+    my $interface_type;
+    my $model_id;
+    my $module;
+    my $serverbin;
+    my $text;
+    my $try;
+    my $vendor;
+    my $vendor_id;
+
+    foreach $filename (@ARGV) {
+        if (not -e $filename) {
+            die "Need valid file as first argument\n";
+        }
+
+        if (not $filename =~ /\/?(\w+)\.lst/) {
+            die "Need file with name <foo>.lst, where <foo> is a type "
+                . "of hardware\n";
+        }
+
+        $bus = $1;
+        $bus_upper = $1;
+        $bus_upper =~ tr/a-z/A-Z/;
+
+        make_busclass($bus, $bus_upper);
+
+        if (not open(VENDORS, ">${bus}-vendor.xml")) {
+            die "Must be able to open ${bus}-vendor.xml "
+                . "for writing\n";
+        }
+
+        if (not open(HARDWARE, ">${bus}-device.xml")) {
+            die "Must be able to open ${bus}-device.xml "
+                . "for writing\n";
+        }
+
+        if (not open(LST, $filename)) {
+            die "Must be able to open $filename for reading\n";
+        }
+
+        print HARDWARE <<EOF;
+<?xml version='1.0' encoding='UTF-8'?>
+<device_list bus='$bus'>
+EOF
+
+        print VENDORS <<EOF;
+<?xml version='1.0' encoding='UTF-8'?>
+<vendor_list bus='$bus'>
+EOF
+
+        while(<LST>) {
+            $class = $model_id = $vendor_id = $class_name = $module =
+                $text = $serverbin = '';
+
+            s/&/&amp;/g;
+            s/</&lt;/g;
+            s/>/&gt;/g;
+            s/"/&quot;/g;
+            s/'/&apos;/g;
+
+#"cperl-mode is suboptimal
+
+            $_ = encode_non_ascii($_);
+
+            if (/^(\w+) (.*)$/) {
+                $vendor_id = $1;
+                $vendor = $2;
+
+                print(VENDORS "  <vendor id=\'$vendor_id\' name=\'$vendor\'/>\n");
+            } elsif (/^\s+\w/) {
+                s/^\s+//;
+                s/\s+$//;
+                @data = split(/\t+/);
+                if (@data != 4) {
+                    print(STDERR "Error: Wrong number of fields in $_\n");
+                    next;
+                }
+                $model_id = $data[0];
+                $class_name = $data[1];
+                $module = $data[2];
+                $text = $data[3];
+
+                if ($class_name eq 'pmc') {
+                    next;
+                }
+
+                $new_class = $CLASSES{$class_name};
+                if (not defined($new_class)) {
+                    die("Couldn't find $class_name in CLASSES\n");
+                }
+
+                if (not $new_class) {
+# A device we don't care about, such as mice
+                    next;
+                }
+
+                $try  = '$busclass = $'; # 'cperl-mode is sub-optimal
+                    $try .= $bus_upper;
+                $try .= '_CLASSES{$new_class};';
+                eval $try;
+
+                if (not defined($busclass)) {
+                    die("Couldn't find $new_class " .
+                        "in ${bus_upper}_CLASSES\n");
+                }
+
+                $vendor_id = substr($model_id, 0, 4);
+                $model_id = substr($model_id, 4);
+
+                if ($module =~ /:/) {
+                    @data = split(/:/, $module);
+                    $interface_type = "xfree86";
+                    $module = $data[1];
+
+                    if ($module =~ /(.*)\((.*)\)/) {
+                        $module = $2;
+                        $serverbin = $1;
+                    } else {
+                        $serverbin = $module;
+                        $module = '';
+                    }
+                } elsif ($module eq 'unknown' || $module eq 'ignore') {
+                    $interface_type = "";
+                } else {
+                    $interface_type = "linux";
+                }
+
+                print HARDWARE <<EOF;
+  <device model='$model_id' vendor='$vendor_id' model_name='$text'>
+EOF
+                if ($interface_type) {
+                    print HARDWARE <<EOF;
+    <data class='$interface_type'>
+EOF
+                }
+
+                if ($interface_type eq 'linux') {
+                    print HARDWARE <<EOF;
+      <data class='module'>
+        <data class='name'>$module</data>
+      </data>
+EOF
+                } elsif ($interface_type eq 'xfree86') {
+                    if ($serverbin eq 'XFree86')  {
+                        print HARDWARE <<EOF;
+      <data version='[4, inf)' class='server'>
+        <data class='name'>$serverbin</data>
+        <data class='device'>
+          <data class='driver'>$module</data>
+        </data>
+      </data>
+EOF
+                    } else {
+                        print HARDWARE <<EOF;
+      <data class='server' version="[3, 4)">
+        <data class='name'>$serverbin</data>
+      </data>
+EOF
+                    }
+                }
+
+                if ($interface_type) {
+                    print HARDWARE <<EOF;
+    </data>
+EOF
+                }
+                print HARDWARE <<EOF;
+  </device>
+EOF
+
+            }
+        }
+
+        print HARDWARE "</device_list>\n";
+        print VENDORS "</vendor_list>\n";
+
+        close(LST);
+        close(HARDWARE);
+        close(VENDORS);
+    }
+}
+
+# vim:set ai et sts=4 sw=4:

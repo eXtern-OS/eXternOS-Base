@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Collect</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#CLASS_METHODS'>CLASS METHODS</a>
+  <li class='indexItem indexItem1'><a href='#INSTANCE_METHODS'>INSTANCE METHODS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Collect - Lintian interface to package data collection</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre>    my ($name, $type, $dir) = (&#39;foobar&#39;, &#39;udeb&#39;, &#39;/some/abs/path&#39;);
+    my $collect = Lintian::Collect-&#62;new ($name, $type, $dir);
+    $name = $collect-&#62;name;
+    $type = $collect-&#62;type;</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Lintian::Collect provides the shared interface to package data used by source, binary and udeb packages and .changes files. It creates an object of the appropriate type and provides common functions used by the collection interface to all types of package.</p>
+
+<p>Usually instances should not be created directly (exceptions include collections), but instead be requested via the <a href="../Lintian/Lab/Entry.html#info" class="podlinkpod"
+>info</a> method in Lintian::Lab::Entry.</p>
+
+<p>This module is in its infancy. Most of Lintian still reads all data from files in the laboratory whenever that data is needed and generates that data via collect scripts. The goal is to eventually access all data via this module and its subclasses so that the module can cache data where appropriate and possibly retire collect scripts in favor of caching that data in memory.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS_METHODS"
+>CLASS METHODS</a></h1>
+
+<dl>
+<dt><a name="new_(PACKAGE,_TYPE,_BASEDIR[,_FIELDS]))"
+>new (PACKAGE, TYPE, BASEDIR[, FIELDS]))</a></dt>
+
+<dd>
+<p>Creates a new object appropriate to the package type. TYPE can be retrieved later with the <a href="#type" class="podlinkpod"
+>&#34;type&#34;</a> method. Croaks if given an unknown TYPE.</p>
+
+<p>PACKAGE is the name of the package and is stored in the collect object. It can be retrieved with the <a href="#name" class="podlinkpod"
+>&#34;name&#34;</a> method.</p>
+
+<p>BASEDIR is the base directory for the data and should be absolute.</p>
+
+<p>If FIELDS is given it is assumed to be the fields from the underlying control file. This is only used to avoid an unnecessary read operation (possibly incl. an ar | gzip pipeline) when the fields are already known.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="INSTANCE_METHODS"
+>INSTANCE METHODS</a></h1>
+
+<p>In addition to the instance methods documented here, see the documentation of <a href="../Lintian/Collect/Source.html" class="podlinkpod"
+>Lintian::Collect::Source</a>, <a href="../Lintian/Collect/Binary.html" class="podlinkpod"
+>Lintian::Collect::Binary</a> and <a href="../Lintian/Collect/Changes.html" class="podlinkpod"
+>Lintian::Collect::Changes</a> for instance methods specific to source and binary / udeb packages and .changes files.</p>
+
+<dl>
+<dt><a name="name"
+>name</a></dt>
+
+<dd>
+<p>Returns the name of the package.</p>
+
+<p>Needs-Info requirements for using <i>name</i>: none</p>
+
+<dt><a name="type"
+>type</a></dt>
+
+<dd>
+<p>Returns the type of the package.</p>
+
+<p>Needs-Info requirements for using <i>type</i>: none</p>
+
+<dt><a name="base_dir"
+>base_dir</a></dt>
+
+<dd>
+<p>Returns the base_dir where all the package information is stored.</p>
+
+<p>Needs-Info requirements for using <i>base_dir</i>: none</p>
+
+<dt><a name="lab_data_path_([ENTRY])"
+>lab_data_path ([ENTRY])</a></dt>
+
+<dd>
+<p>Return the path to the ENTRY in the lab. This is a convenience method around base_dir. If ENTRY is not given, this method behaves like base_dir.</p>
+
+<p>Needs-Info requirements for using <i>lab_data_path</i>: <a href="#base_dir" class="podlinkpod"
+>&#34;base_dir&#34;</a></p>
+
+<dt><a name="field_([FIELD[,_DEFAULT]])"
+>field ([FIELD[, DEFAULT]])</a></dt>
+
+<dd>
+<p>If FIELD is given, this method returns the value of the control field FIELD in the control file for the package. For a source package, this is the *.dsc file; for a binary package, this is the control file in the control section of the package.</p>
+
+<p>If FIELD is passed but not present, then this method will return DEFAULT (if given) or undef.</p>
+
+<p>Otherwise this will return a hash of fields, where the key is the field name (in all lowercase).</p>
+
+<p>Needs-Info requirements for using <i>field</i>: none</p>
+
+<dt><a name="is_non_free"
+>is_non_free</a></dt>
+
+<dd>
+<p>Returns a truth value if the package appears to be non-free (based on the section field; &#34;non-free/*&#34; and &#34;restricted/*&#34;)</p>
+
+<p>Needs-Info requirements for using <i>is_non_free</i>: <a href="#field_(%5BFIELD%5B%2C_DEFAULT%5D%5D)" class="podlinkpod"
+>&#34;field ([FIELD[, DEFAULT]])&#34;</a></p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Russ Allbery &#60;rra@debian.org&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1), <a href="../Lintian/Collect/Binary.html" class="podlinkpod"
+>Lintian::Collect::Binary</a>, <a href="../Lintian/Collect/Changes.html" class="podlinkpod"
+>Lintian::Collect::Changes</a>, <a href="../Lintian/Collect/Source.html" class="podlinkpod"
+>Lintian::Collect::Source</a></p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

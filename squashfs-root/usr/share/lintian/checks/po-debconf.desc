@@ -1,0 +1,165 @@
+Check-Script: po-debconf
+Author: Denis Barbier <barbier@linuxfr.org>
+Abbrev: pd
+Type: source
+Info: This looks for common mistakes in packages using po-debconf(7).
+Needs-Info: unpacked
+
+Tag: not-using-po-debconf
+Severity: serious
+Certainty: certain
+Info: This package seems to be using debconf templates, but it does not
+ use po-debconf to make translations possible (<tt>debian/po</tt> doesn't
+ exist).  Debian Policy requires that all packages using debconf use a
+ gettext-based translation system.  If this package uses one other than
+ po-debconf, please report this as a Lintian bug along with how to detect
+ that system.
+Ref: policy 3.9.1
+
+Tag: untranslatable-debconf-templates
+Severity: serious
+Certainty: possible
+Info: This package seems to be using debconf templates, but some
+ descriptions are not translatable.  You should prepend an underscore
+ before every translatable field, as described in po-debconf(7).  This
+ may mean that translators weren't properly warned about new strings.
+ .
+ Translators may be notified of changes using podebconf-report-po, for
+ example:
+ .
+  podebconf-report-po --call --withtranslators --deadline="+10 days" \
+  --languageteam
+ .
+ If the field is not intended for users to see, ensure the first line
+ of the description contains "for internal use".
+Ref: policy 3.9.1
+
+Tag: stray-translated-debconf-templates
+Severity: normal
+Certainty: certain
+Info: This package contains a file named *templates.XX or
+ *templates.XX_XX.  This was the naming convention for the translated
+ templates merged using debconf-mergetemplate.  Since the package is using
+ po-debconf, these files should be replaced by language-specific files in
+ the <tt>debian/po</tt> directory and should no longer be needed.
+
+Tag: missing-potfiles-in
+Severity: normal
+Certainty: certain
+Info: The required file <tt>POTFILES.in</tt> is missing from
+ <tt>debian/po</tt>.
+Ref: po-debconf(7)
+
+Tag: missing-file-from-potfiles-in
+Severity: normal
+Certainty: certain
+Info: A file listed in <tt>debian/po/POTFILES.in</tt> could not be found
+ in the source package.
+Ref: po-debconf(7)
+
+Tag: missing-templates-pot
+Severity: normal
+Certainty: certain
+Info: The required file <tt>templates.pot</tt> is missing from
+ <tt>debian/po</tt>.
+Ref: po-debconf(7)
+
+Tag: unknown-encoding-in-po-file
+Severity: normal
+Certainty: certain
+Info: Encoding must be declared in PO files. Otherwise, charset
+ conversions cannot be performed.
+
+Tag: invalid-po-file
+Severity: normal
+Certainty: certain
+Info: Errors were found in the listed PO file that will cause its content
+ to be discarded. Run <tt>msgfmt</tt> on the file to see the error
+ messages.
+
+Tag: debconf-translation-using-general-list
+Severity: normal
+Certainty: certain
+Info: This debconf translation is using the general debconf-i18n list as
+ the address in the Language-Team field.
+ .
+ The intended purpose of the Language-Team field is to be an additional
+ contact for new translation requests in addition to the previous
+ translator (as recorded in Last-Translator).  The field should therefore
+ point to a mailing list dedicated to the language of this PO file, not
+ the general list for translation discussions.
+
+Tag: misnamed-po-file
+Severity: normal
+Certainty: possible
+Info: The name of this PO file doesn't appear to be a valid language
+ code.  Any files in <tt>debian/po</tt> ending in <tt>.po</tt> will be
+ processed as translations by po2debconf for the language code equal to
+ the file name without the trailing <tt>.po</tt>.  If the file name does
+ not correctly reflect the language of the translation, the translation
+ will not be accessible to users of that language.
+ .
+ If this file isn't actually a PO file, rename it to something that
+ doesn't end in <tt>.po</tt> or move it to another directory so that
+ translation merging programs will not be confused.
+
+Tag: newer-debconf-templates
+Severity: normal
+Certainty: possible
+Info: debconf-updatepo has not been run since the last change to your
+ debconf templates.
+ .
+ You should run debconf-updatepo whenever debconf templates files are
+ changed so that translators can be warned that their files are
+ outdated.
+ .
+ This can be ensured by running debconf-updatepo in the 'clean' target
+ of <tt>debian/rules</tt>. PO files will then always be up-to-date when
+ building the source package.
+
+Tag: translated-default-field
+Severity: normal
+Certainty: possible
+Info: You should not mark as translatable "Default:" or "DefaultChoice:"
+ fields, unless explicitly needed (e.g. default country, default language,
+ etc.).  If this Default field really should be translated, you should
+ explain translators how they should translate it by using comments or
+ brackets.  For example:
+ .
+   # Translators: Default language name, but not translated
+   _Default: English
+ .
+ Or:
+ .
+   _Default: English[ Default language name, but not translated]
+ .
+ Note that in the first case, Lintian ignores the comment unless it
+ explicitly references translators and it is appears directly before
+ the field in question.
+Ref: po-debconf(7), #637881
+
+Tag: no-complete-debconf-translation
+Severity: wishlist
+Certainty: possible
+Info: Even though this package provides debconf translation support, there 
+ are no translations or none of the translations are complete.  This may
+ mean that translators weren't properly warned about new strings.
+ .
+ Translators may be notified of changes using podebconf-report-po, for
+ example:
+ .
+  podebconf-report-po --call --withtranslators --deadline="+10 days" \
+  --languageteam
+Ref: devref 6.5.2.2
+
+Tag: invalid-potfiles-in
+Severity: normal
+Certainty: certain
+Info: Errors were found in the <tt>debian/po/POTFILES.in</tt> file.
+ .
+ Please make sure that all strings marked for translation are in uniform
+ encoding (say UTF-8) then prepend the following line to POTFILES.in and
+ rerun intltool-update.
+ .
+  [encoding: UTF-8]
+Ref: #849912, #883653

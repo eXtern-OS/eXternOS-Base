@@ -1,0 +1,216 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Collect::Package</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#INSTANCE_METHODS'>INSTANCE METHODS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Collect::Package - Lintian base interface to binary and source package data collection</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre>    use autodie;
+    use Lintian::Collect;
+    
+    my ($name, $type, $dir) = (&#39;foobar&#39;, &#39;source&#39;, &#39;/path/to/lab-entry&#39;);
+    my $info = Lintian::Collect-&#62;new ($name, $type, $dir);
+    my $filename = &#34;etc/conf.d/$name.conf&#34;;
+    my $file = $info-&#62;index_resolved_path($filename);
+    if ($file and $file-&#62;is_open_ok) {
+        my $fd = $info-&#62;open;
+        # Use $fd ...
+        close($fd);
+    } elsif ($file) {
+        print &#34;$file is available, but is not a file or unsafe to open\n&#34;;
+    } else {
+        print &#34;$file is missing\n&#34;;
+    }</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Lintian::Collect::Package provides part of an interface to package data for source and binary packages. It implements data collection methods specific to all packages that can be unpacked (or can contain files)</p>
+
+<p>This module is in its infancy. Most of Lintian still reads all data from files in the laboratory whenever that data is needed and generates that data via collect scripts. The goal is to eventually access all data about source packages via this module so that the module can cache data where appropriate and possibly retire collect scripts in favor of caching that data in memory.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="INSTANCE_METHODS"
+>INSTANCE METHODS</a></h1>
+
+<p>In addition to the instance methods listed below, all instance methods documented in the <a href="../../Lintian/Collect.html" class="podlinkpod"
+>Lintian::Collect</a> module are also available.</p>
+
+<dl>
+<dt><a name="unpacked_([FILE])"
+>unpacked ([FILE])</a></dt>
+
+<dd>
+<p>Returns the path to the directory in which the package has been unpacked. FILE must be either a <a href="../../Lintian/Path.html" class="podlinkpod"
+>Lintian::Path</a> object (&#62;= 2.5.13~) or a string denoting the requested path. In the latter case, the path must be relative to the root of the package and should be normalized.</p>
+
+<p>It is not permitted for FILE to be <code>undef</code>. If the &#34;root&#34; dir is desired either invoke this method without any arguments at all, pass it the correct <a href="../../Lintian/Path.html" class="podlinkpod"
+>Lintian::Path</a> or the empty string.</p>
+
+<p>If FILE is not in the package, it returns the path to a non-existent file entry.</p>
+
+<p>The path returned is not guaranteed to be inside the Lintian Lab as the package may have been unpacked outside the Lab (e.g. as optimization).</p>
+
+<p>Caveat with symlinks: Package is extracted as is and the path returned by this method points to the extracted file object. If this is a symlink, it may &#34;escape the root&#34; and point to a file outside the lab (and a path traversal).</p>
+
+<p>The following code may be helpful in checking for path traversal:</p>
+
+<pre> use Lintian::Util qw(is_ancestor_of);
+
+ my $collect = ... ;
+ my $file = &#39;../../../etc/passwd&#39;;
+ my $uroot = $collect-&#62;unpacked;
+ my $ufile = $collect-&#62;unpacked($file);
+ # $uroot will exist, but $ufile might not.
+ if ( -e $ufile &#38;&#38; is_ancestor_of($uroot, $ufile)) {
+    # has not escaped $uroot
+    do_stuff($ufile);
+ } elsif ( -e $ufile) {
+    # escaped $uroot
+    die &#34;Possibly path traversal ($file)&#34;;
+ } else {
+    # Does not exists
+ }</pre>
+
+<p>Alternatively one can use normalize_pkg_path in <a href="../../Lintian/Util.html" class="podlinkpod"
+>Lintian::Util</a> or <a href="../../Lintian/Path.html#link_normalized" class="podlinkpod"
+>link_normalized</a>.</p>
+
+<p>To get a list of entries in the package or the file meta data of the entries (as <a href="../../Lintian/Path.html" class="podlinkpod"
+>path objects</a>), see <a href="#sorted_index" class="podlinkpod"
+>&#34;sorted_index&#34;</a> and <a href="#index_(FILE)" class="podlinkpod"
+>&#34;index (FILE)&#34;</a>.</p>
+
+<p>Needs-Info requirements for using <i>unpacked</i>: unpacked</p>
+
+<dt><a name="file_info_(FILE)"
+>file_info (FILE)</a></dt>
+
+<dd>
+<p>Returns the output of file(1) -e ascii for FILE (if it exists) or <code>undef</code>.</p>
+
+<p><b>CAVEAT</b>: As file(1) is passed &#34;-e ascii&#34;, all text files will be considered &#34;data&#34; rather than &#34;text&#34;, &#34;Java code&#34; etc.</p>
+
+<p>NB: The value may have been calibrated by Lintian. A notorious example is gzip files, where file(1) can be unreliable at times (see #620289)</p>
+
+<p>Needs-Info requirements for using <i>file_info</i>: file-info</p>
+
+<dt><a name="md5sums"
+>md5sums</a></dt>
+
+<dd>
+<p>Returns a hashref mapping a FILE to its md5sum. The md5sum is computed by Lintian during extraction and is not guaranteed to match the md5sum in the &#34;md5sums&#34; control file.</p>
+
+<p>Needs-Info requirements for using <i>md5sums</i>: md5sums</p>
+
+<dt><a name="index_(FILE)"
+>index (FILE)</a></dt>
+
+<dd>
+<p>Returns a <a href="../../Lintian/Path.html" class="podlinkpod"
+>path object</a> to FILE in the package. FILE must be relative to the root of the unpacked package and must be without leading slash (or &#34;./&#34;). If FILE is not in the package, it returns <code>undef</code>. If FILE is supposed to be a directory, it must be given with a trailing slash. Example:</p>
+
+<pre>  my $file = $info-&#62;index (&#34;usr/bin/lintian&#34;);
+  my $dir = $info-&#62;index (&#34;usr/bin/&#34;);</pre>
+
+<p>To get a list of entries in the package, see <a href="#sorted_index" class="podlinkpod"
+>&#34;sorted_index&#34;</a>. To actually access the underlying file (e.g. the contents), use <a href="#unpacked_(%5BFILE%5D)" class="podlinkpod"
+>&#34;unpacked ([FILE])&#34;</a>.</p>
+
+<p>Note that the &#34;root directory&#34; (denoted by the empty string) will always be present, even if the underlying tarball omits it.</p>
+
+<p>Needs-Info requirements for using <i>index</i>: unpacked</p>
+
+<dt><a name="sorted_index"
+>sorted_index</a></dt>
+
+<dd>
+<p>Returns a sorted array of file names listed in the package. The names will not have a leading slash (or &#34;./&#34;) and can be passed to <a href="#unpacked_(%5BFILE%5D)" class="podlinkpod"
+>&#34;unpacked ([FILE])&#34;</a> or <a href="#index_(FILE)" class="podlinkpod"
+>&#34;index (FILE)&#34;</a> as is.</p>
+
+<p>The array will not contain the entry for the &#34;root&#34; of the package.</p>
+
+<p>NB: For source packages, please see the <a href="../../Lintian/Collect/Source.html#index_(FILE)" class="podlinkpod"
+>&#34;index&#34;-caveat</a>.</p>
+
+<p>Needs-Info requirements for using <i>sorted_index</i>: <a href="#index_(FILE)" class="podlinkpod"
+>Same as index</a></p>
+
+<dt><a name="index_resolved_path(PATH)"
+>index_resolved_path(PATH)</a></dt>
+
+<dd>
+<p>Resolve PATH (relative to the root of the package) and return the <a href="../../Lintian/Path.html" class="podlinkpod"
+>entry</a> denoting the resolved path.</p>
+
+<p>The resolution is done using <a href="../../Lintian/Path.html#resolve_path(%5BPATH%5D)" class="podlinkpod"
+>resolve_path</a>.</p>
+
+<p>NB: For source packages, please see the <a href="../../Lintian/Collect/Source.html#index_(FILE)" class="podlinkpod"
+>&#34;index&#34;-caveat</a>.</p>
+
+<p>Needs-Info requirements for using <i>index_resolved_path</i>: <a href="#index_(FILE)" class="podlinkpod"
+>Same as index</a></p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Niels Thykier &#60;niels@thykier.net&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1), <a href="../../Lintian/Collect.html" class="podlinkpod"
+>Lintian::Collect</a>, <a href="../../Lintian/Collect/Binary.html" class="podlinkpod"
+>Lintian::Collect::Binary</a>, <a href="../../Lintian/Collect/Source.html" class="podlinkpod"
+>Lintian::Collect::Source</a></p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

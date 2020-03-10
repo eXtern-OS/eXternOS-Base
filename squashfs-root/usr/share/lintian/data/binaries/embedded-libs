@@ -1,0 +1,115 @@
+# Manually maintained table of embedded libraries.
+#
+# Basic syntax:
+#   key ||<regex>
+#   key || [options] ||<regex>
+#
+# Where [options] is space separated list of:
+#
+#  source=<src>
+#     - If present, it declares that this library is built from the
+#       source package <src>
+#     - If both "source" and "source-regex" are omitted, then
+#       Lintian will default to using "source" with a value equal
+#       to the key.
+#     - Cannot be used with "source-regex"
+#
+#  source-regex=<srcregex>
+#     - If present, it declares that this library is built from (or
+#       expected in binaries build from) any source package, which
+#       name matches <srcregex>.
+#     - Cannot be used with "source"
+#
+#  libname=<name>
+#     - Declares the "name" of the library.
+#     - If omitted, the key will be used.
+#
+# Note: Avoid unintended leading and trailing whitespace in <regex>
+# as Lintian will assume such whitespace is a part of the regex.
+# If possible, consider using \s or [ ] to mark intended trailing
+# whitespace.
+#
+# If <regex> contains the separator (||), then the "options" part is
+# not optional.
+#
+# Please keep it sorted by key.
+#
+
+bzip2     ||(?m)^This is a bug in bzip2
+curl      ||A libcurl function was given a bad argument
+expat     ||(?m)^requested feature requires XML_DTD support in Expat
+file      ||(?m)^could not find any (?:valid )?magic files
+freetype  ||HuaTianSongTi[?]
+ftgl      ||FTGlyphContainer
+gl2ps     ||\(C\) 1999-2009 C\. Geuzaine
+glee      ||Extension name exceeds 1023 characters\.
+glew      ||Missing GL version
+gmp       ||GNU MP: Cannot allocate memory
+heimdal   ||Heimdal (?:NTLMSSP|SPNEGO) Mechanism
+
+# not really an embedded lib but avoid duplication
+ieee-data ||(?i)(?:standards(?:-oui\.ieee\.org|\.ieee\.org/develop/regauth/oui)/oui\.txt|DR\. B\. STRUCK)
+
+lcms      ||cmsCreateTransform: intent mismatch
+lcms2     ||Unsupported number of channels for VCGT
+libavcodec  ||source-regex=(?:libav|ffmpeg)||insufficient thread locking around avcodec_open/close\(\)\n
+libavdevice ||source-regex=(?:libav|ffmpeg)||Soundcard does not support 16 bit sample format\n
+libavfilter ||source-regex=(?:libav|ffmpeg)||Buffer video frames, and make them accessible to the filterchain\.
+libavformat ||source-regex=(?:libav|ffmpeg)||Format detected only with low score of %d, misdetection possible!\n
+libavutil   ||source-regex=(?:libav|ffmpeg)||AVOption type %d of option %s not implemented yet\n
+libgd     ||source-regex=libgd2? ||gd-(?:png|jpeg:) error:
+libgadu     ||Gadu-Gadu Client Build
+libgxps     ||Invalid XPS File: cannot open fixedrepresentation
+libidn      ||(?m)^(?:Punycode failed|ISCSIprep$)
+libidn2-0   ||punycode conversion resulted in overflow
+libjpeg   ||source-regex=libjpeg.* ||(?m)^Caution: quantization tables are too coarse for baseline JPEG
+libjsoncpp ||A valid JSON document must be either an array or an object value\.
+liblivemedia||(?:Received incoming RTSP request:|LIVE555 Streaming Media v)
+libm      ||source-regex=e?glibc ||neg\*\*non-integral: DOMAIN error
+libmms    ||source-regex=(?:libmms|xine-lib)||failed to read new ASF header
+libmng    ||TERM misplaced during creation of MNG stream
+libmsn    ||The MSN server has terminated the connection with an unknown reason code\.
+libminiupnpc||source=miniupnpc||Miniupnpc Invalid Arguments
+libmikmod ||APUN \(APlayer\) and UNI \(MikMod\)
+libmysqlclient ||source-regex=(?:mysql|mariadb)(?:-\d.*)? ||MySQL client ran out of memory
+libpcap   ||(?:pcap_activate: The "any" device isn\'t supported|corrupted frame on kernel ring mac offset)
+libpng    ||source-regex=(?:libpng(?:1\.6)?)||(?m)^(?:Potential overflow in png_zalloc|gamma value does not match libpng estimate)
+libquicktime||quicktime_make_streamable: out of memory
+libraw    ||Unsupported file format or not RAW file
+libpostproc ||source-regex=(?:libav|libpostproc|ffmpeg)||using npp filters 0x%X/0x%X\n
+libsass     ||unknown internal error; please contact the LibSass maintainers
+libssh2     ||Invalid descriptor passed to libssh2_poll
+libssh      ||Error allocating memory for ssh_scp
+libswscale  ||source-regex=(?:libav|ffmpeg)||Exactly one scaler algorithm must be chosen[,\n]
+
+# Trailing whitespace was present when the file was created (see commit: 77fd246)
+libtheora ||Xiph.Org libtheora\s
+
+libupnp   ||source-regex=libupnp\d?||(?m)(?:SSDP_LIB: New Request Handler:Error|^mserv start: Error in IPv4 listen)
+libxml2   ||root and DTD name do not match
+libyaml   ||(?m)^did not find expected <stream-start>
+libytnef  ||Signature does not match\. Not TNEF\.
+ltdl      ||source=libtool ||(?m)^library already shutdown
+mbedtls   ||(?m)^(?:ASN1 - Actual length differs from expected length|SSL - The connection indicated an EOF)
+mpfr      ||source=mpfr4 ||MPFR: Can't allocate memory
+mpg123    ||Warning: Encountered more data after announced end of track
+ncurses   ||Not enough memory to create terminal structure
+nspr      ||(?m)^Unable to create nspr log file
+nss       ||(?m)^My Encrytion Test Data
+openjpeg  ||source-regex=openjpeg2?||(?:tcd_decode: incomplete bit?stream|Cannot handle box of less than 8 bytes)
+openssl   ||source-regex=openssl(?:\d+(?:\.\d+)?)?||You need to read the OpenSSL FAQ
+pcre3     ||this version of PCRE is not compiled with PCRE_UTF8 support
+poppler   ||source-regex=(?:poppler|xpdf)||(?:May not be a PDF file \(continuing anyway\)|PDF file is damaged - attempting to reconstruct xref table\.\.\.)
+srtp      ||srtp: in stream 0x%x:
+sqlite    ||source-regex=sqlite3? ||CREATE TABLE sqlite_master\(
+taglib    ||One of the size bytes in the id3v2 header was greater than the allowed 128
+t1lib     ||t1lib is copyright \(c\) Rainer Menzner
+tiff      ||source-regex=tiff\d* ||No space for PixarLog state block
+tinyxml   ||(?m)^(?:Error when TiXmlDocument added to document|Error null \(0\) or unexpected EOF found in input stream\.)
+
+# We exclude version strings starting with "4 " since that's a mark of the
+# Pascal implementation, which is not what this tag is designed to detect.
+# (The "4" is actually the string length (52 characters) in the Pascal
+# counted string format.)
+zlib      ||source-regex=(?:zlib|klibc|kfreebsd-kernel-di\w+) ||(?m)(?<!4 )(?:in|de)flate (?:\d[ \w.\-]{1,20}[\w.\-])
+

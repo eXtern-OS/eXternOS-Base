@@ -1,0 +1,815 @@
+
+<!--
+<?xml version="1.0" ?>
+<!DOCTYPE glossary PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+"customization/dtd/kdedbx45.dtd" [
+<!ENTITY % addindex "IGNORE">
+<!ENTITY % Italian "INCLUDE">
+<!ENTITY glossary-kdeprinting SYSTEM "kdeprintingglossary.docbook">
+
+]>
+<glossary id="glossary">
+-->
+        <glossdiv id="glossdiv-printing">
+                <title
+>Stampa</title>
+ 
+
+                <glossentry id="gloss-acl">
+                        <glossterm
+><acronym
+>ACL</acronym
+></glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;A&emend;ccess &emstart;C&emend;ontrol &emstart;L&emend;ist; ACL viene usato per il controllo d'accesso da parte di un dato utente (autenticato). Una documentazione base sull'ACL per la stampa è disponibile in &CUPS; questo che leggi verrà perfezionato in una prossima stesura. </para>
+                                <glossseealso otherterm="gloss-authentication"
+>Autenticazione</glossseealso>
+                        </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-appsocketprotocol">
+                        <glossterm
+>Protocollo AppSocket</glossterm>
+                        <glossdef
+><para
+>AppSocket è un protocollo per il trasferimento dei dati di stampa, chiamato spesso anche «Stampa diretta via TCP/IP». &Hewlett-Packard; vi ha apportato qualche piccola modifica e lo ha diffuso con grande successo sotto il marchio «&HP; JetDirect»...</para
+><glossseealso otherterm="gloss-hpjetdirectprotocol"
+>Protocollo &HP; JetDirect </glossseealso
+> <glossseealso otherterm="gloss-directtcpipprinting"
+>Stampa diretta via TCP/IP</glossseealso
+> </glossdef>
+                </glossentry>
+ 
+                <glossentry id="gloss-authentication">
+                        <glossterm
+>Autenticazione</glossterm>
+                        <glossdef
+><para
+>L'atto di provare l'identità di una determinata persona (attraverso un nome utente/password oppure attraverso un certificato) è spesso chiamato autenticazione. Una volta che sei autenticato, puoi ottenere o non ottenere l'accesso ad una risorsa richiesta, possibilmente in base alle ACL.</para>
+                                <glossseealso otherterm="gloss-acl"
+>ACL</glossseealso>
+                        </glossdef>
+                </glossentry>
+ 
+                <glossentry id="gloss-bidirectionalcommunication">
+                        <glossterm
+>Comunicazione bidirezionale</glossterm>
+                        <glossdef
+><para
+>Durante la stampa, un server o host può ricevere informazioni addizionali inviate dalla stampante (messaggi di stato &etc;), sia attraverso una richiesta sia automaticamente. AppSocket ( = &HP; JetDirect), &CUPS; ed IPP supportano la comunicazione bidirezionale, LPR/LPD e il sistema BSD non la supportano.</para
+><glossseealso otherterm="gloss-appsocketprotocol"
+>AppSocket Protocol</glossseealso
+> <glossseealso otherterm="gloss-cups"
+>&CUPS;</glossseealso
+> <glossseealso otherterm="gloss-directtcpipprinting"
+>Stampa diretta via TCP/IP</glossseealso
+> <glossseealso otherterm="gloss-hpjetdirectprotocol"
+>&HP; JetDirect</glossseealso
+> <glossseealso otherterm="gloss-ipp"
+>IPP</glossseealso
+> <glossseealso otherterm="gloss-lprlpd"
+>LPR/LPD</glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-bsdstyleprinting">
+                        <glossterm
+>Stampa stile-BSD</glossterm>
+                        <glossdef
+><para
+>Termine generico per alcune varianti del metodo di stampa tradizionale &UNIX;. La sua prima versione risale ai primi anni '70, su &UNIX; BSD, ed è stata formalizzata solo nel 1990 nel &linkstart;"https://www.ietf.org/rfc/rfc1179.txt"&linkmid;RFC 1179&linkend;.&newpara; All'epoca in cui fu progettata per la prima volta la stampa <quote
+>remota</quote
+> BSD, le stampanti erano dispositivi connessi ad un host direttamente o via porta seriale (all'epoca Internet contava a malapena 100 nodi!), le stampanti usavano carta perforata a modulo continuo, la cui alimentazione era a trattore, il testo ASCII veniva impresso sulla carta con un martellare continuo della testina di stampa, la carta partiva da uno scatolone sotto il tavolo per accumularsi dietro la stampante in un serpente a zig-zag senza fine. La stampa era «remota» in quanto un host nella stanza limitrofa inviava un file che richiedeva la stampa.&newpara;Com'è cambiata la tecnologia! Adesso le stampanti usano carta di vario formato, possiedono capacità computazionali per l'elaborazione delle pagine che vengono inviate, usano uno dei più potenti linguaggi di descrizione delle pagine (PDL), molte sono esse stesse dei nodi di rete, con processori, memorie, dischi fissi e un sistema operativo proprio, e sono connesse ad una rete con milioni di potenziali utenti...&newpara;Ciò dà ampia prova della flessibilità del concetto &UNIX; del processo di stampa, che lo ha reso affidabile anche con le più moderne condizioni. Ma qualcosa di nuovo si affaccia all'orizzonte: IPP. </para
+><glossseealso otherterm="gloss-ipp"
+>IPP</glossseealso
+> <glossseealso otherterm="gloss-cups"
+>&CUPS;</glossseealso
+> <glossseealso otherterm="gloss-lprlpd"
+>Stampa LPR/LPD</glossseealso
+> </glossdef>
+                </glossentry>
+ 
+                <glossentry id="gloss-cups">
+                        <glossterm
+>&CUPS;</glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;C&emend;ommon &emstart;U&emend;NIX &emstart;P&emend;rinting &emstart;S&emend;ystem; &CUPS; è il più moderno sistema di stampa per &UNIX; e Linux, fornisce inoltre servizi di stampa multipiattaforma a client &Microsoft; &Windows; ed Apple &MacOS;. Basato su IPP, supera tutti i problemi del vecchio sistema di stampa BSD fornendo autenticazione, crittografia e ACL, più molte altre funzionalità. Allo stesso tempo è sufficientemente compatibile all'indietro per fornire servizi a tutte le applicazioni che non siano ancora compatibili con IPP attraverso LPR/LPD (sistema BSD).&newpara;&CUPS; è in grado di controllare qualsiasi stampante &PostScript; utilizzando il file PPD (PostScript Printer Description, file di definizione della stampante PostScript), orientato inizialmente  solo alla stampa su &Microsoft; Windows NT. La stampa &kde; dà il massimo quando è basata su &CUPS;.&newpara;Maggiori informazioni sulla &linkstart;"https://www.cups.org"&linkmid;pagina Web di &CUPS;&linkend;.</para
+><glossseealso otherterm="gloss-acl"
+>ACL</glossseealso
+> <glossseealso otherterm="gloss-authentication"
+>Autenticazione</glossseealso
+> <glossseealso otherterm="gloss-bsdstyleprinting"
+>Stampa BSD-style </glossseealso
+> <glossseealso otherterm="gloss-ipp"
+>IPP</glossseealso
+> <glossseealso otherterm="gloss-lprlpd"
+>LPR/LPD</glossseealso
+> <glossseealso otherterm="gloss-ppd"
+>PPD</glossseealso
+> </glossdef>
+                </glossentry>
+
+ 
+                <glossentry id="gloss-cupsfaq">
+                        <glossterm
+><acronym
+>Domande ricorrenti su &CUPS;</acronym
+></glossterm>
+                        <glossdef
+><para
+>&linkstart;"https://www.cups.org/faq.html"&linkmid;Le domande ricorrenti su &CUPS;&linkend; sono una risorsa preziosa per rispondere alle numerose domande che l'utente novizio di &CUPS; può porsi. </para>
+                        </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-daemon">
+                        <glossterm
+><acronym
+>Demone</acronym
+></glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;D&emend;isk &emstart;a&emend;nd &emstart;e&emend;xecution &emstart;mon&emend;itor; I <quote
+>Demoni</quote
+> sono presenti in tutti i sistemi &UNIX; ed il loro obiettivo è l'esecuzione di task (processi) indipendenti dall'intervento dell'utente. I lettori che sono più familiari con &Microsoft; &Windows; potrebbero paragonare i demoni e i processi di cui sono responsabili con i <quote
+>servizi</quote
+>.&newpara;Un esempio di demone presente nella maggior parte dei sistemi &UNIX; è LPD (Line Printer Daemon). &CUPS; è ampiamente considerato il successore di LPD nel mondo &UNIX; e anch'esso è un demone. </para>
+                                <glossseealso otherterm="gloss-spooling"
+>Accodamento</glossseealso>
+                        </glossdef>
+                </glossentry>
+ 
+                <glossentry id="gloss-databaselinuxprinting">
+                        <glossterm
+>Banca dati, Linuxprinting.org</glossterm>
+                        <glossdef
+><para
+>Già parecchi anni fa, quando la stampa in Linux era ancora veramente difficile (alla maggior parte degli utenti era conosciuta solo la stampa da riga di comando e non erano disponibili opzioni di stampa specifiche per i dispositivi per effettuare i vari lavori), Grant Taylor, autore di <quote
+>Come stampare in Linux</quote
+>, ha raccolto nella sua banca dati la maggior parte delle informazioni disponibili sulle stampanti, driver, filtri.&newpara;Con il concetto emergente di &CUPS;, estendendo l'uso degli eventi PPD alle stampanti non PostScript, si è reso conto delle potenzialità della sua banca dati: se uno mette i diversi dati a disposizione (con un contenuto che può essere dedotto lungo le righe <quote
+>Quale dispositivo stampa con quale filtro Ghostscript o altro filtro?</quote
+>, <quote
+>E come?</quote
+> e <quote
+>Che opzioni da riga di comando sono disponibili?</quote
+>) in una file compatibile con PPD, può ottenere tutta la potenza di &CUPS; assieme al tradizionale <quote
+>driver</quote
+> di stampa.&newpara;Tutto questo si è sviluppato in un concetto più vasto, conosciuto come <quote
+>Foomatic</quote
+>. Foomatic estende le possibilità degli spooler diversi da &CUPS; (LPR/LPD, LPRng, LDQ, PPR) fino ad un certo livello (<quote
+>rubando</quote
+> certi concetti da &CUPS;). La banca dati Linuxprinting non è solo per utenti che utilizzano Linux e basta. Chi utilizza altri sistemi operativi basati su &UNIX; (come *BSD o &MacOS; X) possono comunque trovare lì informazioni e programmi di alta qualità. </para
+><glossseealso otherterm="gloss-foomatic"
+>Foomatic</glossseealso
+> <glossseealso otherterm="gloss-linuxprintingdatabase"
+>Banca dati Linuxprinting</glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-directtcpipprinting">
+                        <glossterm
+>Stampa diretta TCP/IP</glossterm>
+                        <glossdef
+><para
+>Questo è un metodo che usa spesso al porta TCP/IP 9100 per connettersi alla stampante. Funziona con moltissime stampanti di rete moderne e possiede alcuni vantaggi rispetto a LPR/LPD, è più veloce e fornisce alcune «informazioni di risposta» dalla stampante all'host che invia il lavoro.</para
+><glossseealso otherterm="gloss-appsocketprotocol"
+>Protocollo AppSocket</glossseealso
+> <glossseealso otherterm="gloss-hpjetdirectprotocol"
+>Protocollo &HP; JetDirect</glossseealso
+> </glossdef>
+                </glossentry>
+
+
+                <glossentry id="gloss-drivers">
+                        <glossterm
+>Driver, Driver di stampa</glossterm>
+                        <glossdef
+><para
+>Il termine «driver di stampa», usato nel significato che assume nella piattaforma &Microsoft; &Windows;, non è completamente utilizzabile in ambito Linux o &UNIX;. La funzionalità di «driver» è fornita in &UNIX; da diversi componenti modulari che funzionano assieme. Nel nucleo dei driver di stampa ci sono i «filtri». I filtri convertono i file di stampa da un formato di ingresso in un altro formato accettabile dalla stampante di destinazione. In molti casi i filtri possono essere interconnessi in un unico filtro «catena», dove solo il risultato dell'ultima conversione è inviato alla stampante. Il trasferimento reale dei dati di stampa al dispositivo è eseguito da un «motore». </para
+><glossseealso otherterm="gloss-filter"
+>Filtro</glossseealso
+> <glossseealso otherterm="gloss-ppd"
+>PPD</glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-encryption">
+                        <glossterm
+>Cifratura</glossterm>
+                        <glossdef
+><para
+>La cifratura di dati confidenziali è un aspetto importante se li trasferisci via Internet oppure all'interno di un'intranet.&newpara;La stampa attraverso i protocolli tradizionali non è assolutamente cifrata ed è molto facile colpire ed intercettare di nascosto i dati trasmessi lungo il cavo, per esempio in formato &PostScript; o PCL.&newpara;Quindi, nella progettazione di IPP, è stato previsto un sistema che consenta l'utilizzo semplice di un'estensione crittografica (che può essere costruita a partire dagli stessi concetti degli standard di crittografia del traffico HTTP: SSL e TLS).</para
+><glossseealso otherterm="gloss-authentication"
+>Autenticazione</glossseealso
+> <glossseealso otherterm="gloss-cups"
+>&CUPS;</glossseealso
+> <glossseealso otherterm="gloss-ipp"
+>IPP</glossseealso
+> <glossseealso otherterm="gloss-ssl"
+>SSL</glossseealso
+> <glossseealso otherterm="gloss-tls"
+>TLS</glossseealso
+> </glossdef>
+                </glossentry>
+
+
+                <glossentry id="gloss-epson">
+                        <glossterm
+><acronym
+>Epson</acronym
+></glossterm>
+                        <glossdef
+><para
+>Le stampanti Epson sono alcuni tra i modelli più supportati dai driver liberi, dato che il produttore non è stato necessariamente così segreto con le informazioni sui propri dispositivi e anzi ha reso disponibili agli sviluppatori documenti con le specifiche tecniche. La qualità di stampa eccellente raggiunta con Gimp-Print nella serie delle stampanti Stylus può essere attribuita appunto a questa apertura. </para>
+                        </glossdef>
+                </glossentry>
+
+
+                <glossentry id="gloss-escapesequence">
+                        <glossterm
+>Sequenze di escape</glossterm>
+                        <glossdef
+><para
+>Le prime stampanti costruite stampavano solo dati ASCII. Per iniziare una nuova riga o per espellere una pagina si includevano delle speciali sequenze di comandi, spesso contenenti un carattere ESC all'inizio o alla fine. &HP; ha evoluto questo concetto attraverso la serie delle varie edizioni dei linguaggi PCL fino ad oggi, in cui ha sviluppato un completo linguaggio di descrizione della pagina (PDL) a partire proprio da quelle umili origini. </para
+><glossseealso otherterm="gloss-pcl"
+>PCL</glossseealso
+> <glossseealso otherterm="gloss-pdl"
+>PDL</glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-escp">
+                        <glossterm
+><acronym
+>ESC/P</acronym
+></glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;E&emend;pson &emstart;S&emend;tandard &emstart;C&emend;odes for &emstart;P&emend;rinters. Dopo &PostScript; e PCL, il linguaggio Epson ESC/P è uno dei più conosciuti.</para
+><glossseealso otherterm="gloss-pcl"
+>PCL</glossseealso
+> <glossseealso otherterm="gloss-postscript"
+>&PostScript;</glossseealso
+> <glossseealso otherterm="gloss-hpgl"
+>hpgl</glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-filter">
+                        <glossterm
+>Filtro</glossterm>
+                        <glossdef
+><para
+>I filtri, in generale, sono programmi che prendono alcuni dati in ingresso, lavorano su di essi e li passano come dati in uscita.&newpara;I filtri possono cambiare o meno i dati. I filtri, nel contesto della stampa, sono programmi che convertono un file dato (destinato alla stampa, ma non adatto a causa del formato in cui si trova) in un formato stampabile. A volte devono essere costruite «catene di filtri» per raggiungere il risultato, incanalando i dati in uscita da un filtro come dati di ingresso del successivo. </para
+><glossseealso otherterm="gloss-ghostscript"
+>Ghostscript</glossseealso
+> <glossseealso otherterm="gloss-rip"
+>RIP</glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-foomatic">
+                        <glossterm
+>Foomatic</glossterm>
+                        <glossdef
+><para
+>Foomatic è stato inizialmente un nome che raccoglieva in sé diversi strumenti disponibili da &linkstart;"https://wiki.linuxfoundation.org/openprinting/database/foomatic"&linkmid;Linuxprinting.org&linkend;. Questi strumenti sono stati scritti per rendere più facile l'utilizzo agli utenti del tradizionale Ghostscript e degli altri filtri di stampa. Inoltre mirano a estendere le capacità dei filtri aggiungendo nuove opzioni dalla riga di comando o a spiegare i dati di esecuzione del driver.&newpara;Più recentemente, Foomatic ha puntato a diventare un sistema di «meta-accodamento» che permette la configurazione del sottosistema di stampa con una serie di comandi unificata (ma questo è molto più complicato dell'interfaccia di stampa di &kde;, che effettua un compito simile riguardo a diversi sottosistemi di stampa). </para>
+                        </glossdef>
+                </glossentry>
+
+               <glossentry id="gloss-ghostscript">
+                        <glossterm
+>Ghostscript</glossterm>
+                        <glossdef
+><para
+>Ghostscript è un programma interprete per il linguaggio &PostScript; e per PDF o per Raster Image Processor (RIP), originariamente sviluppato da L. Peter Deutsch. C'è sempre una versione <acronym
+>GPL</acronym
+> di Ghostscript disponibile per l'uso e la distribuzione liberi. Ghostscript è ampiamente usato nel mondo Linux e &UNIX; per la trasformazione di &PostScript; in dati raster adatti all'invio a dispositivi non-&PostScript;. Maggiori informazioni: &linkstart;"https://www.ghostscript.com/"&linkmid;Pagina Web di Ghostscript&linkend;</para
+><glossseealso otherterm="gloss-postscript"
+>&PostScript;</glossseealso
+> <glossseealso otherterm="gloss-rip"
+>RIP</glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-gimpprint">
+                        <glossterm
+>Gimp-Print</glossterm>
+                        <glossdef
+><para
+>Al contrario del nome, Gimp-Print non è più solo l'estensione da usare per stampare dal famoso programma Gimp. Il suo codice base può essere compilato in...&newpara;... una serie di PPD e filtri associati che si integrano facilmente in &CUPS; supportando circa 130 modelli diversi di stampante, facendo ottenere in molti casi stampe di qualità fotografica;&newpara;... un filtro Ghostscript che può essere usato con qualsiasi altro programma che necessiti di un software RIP;&newpara;... una libreria che può essere usata da altre applicazioni software che necessitano di funzioni di rasterizzazione.</para
+><glossseealso otherterm="gloss-lexmark"
+>Driver Lexmark</glossseealso
+> <glossseealso otherterm="gloss-rip"
+>RIP</glossseealso
+> <glossseealso otherterm="gloss-ghostscript"
+>Ghostscript</glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-hp">
+                        <glossterm
+><acronym
+>&HP;</acronym
+></glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;H&emend;ewlett-&emstart;P&emend;ackard, una delle prime aziende che ha distribuito i propri driver per Linux. Recentemente l'azienda ha rilasciato il pacchetto di driver «HPIJS» comprensivo di codice sorgente e sotto licenza libera. È la prima azienda produttrice di stampanti che lo fa. HPIJS supporta la maggior parte dei modelli recenti di HP InkJet e DeskJet. </para>
+                        </glossdef>
+                </glossentry>
+
+
+                <glossentry id="gloss-hpgl">
+                        <glossterm
+><acronym
+>&HP;/GL</acronym
+></glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;&HP;&emend; &emstart;G&emend;raphical &emstart;L&emend;anguage; un linguaggio di stampa &HP; usato principalmente nei plotter. Diversi programmi CAD (Computer Aided Design) salvano file &HP;/GL per la stampa.</para
+><glossseealso otherterm="gloss-escp"
+>ESC/P</glossseealso
+> <glossseealso otherterm="gloss-pcl"
+>PCL</glossseealso
+> <glossseealso otherterm="gloss-postscript"
+>&PostScript;</glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-hpjetdirectprotocol">
+                        <glossterm
+>Protocollo &HP; JetDirect</glossterm>
+                        <glossdef
+><para
+>Un termine coniato da &HP; per descrivere la loro implementazione del trasferimento dati di stampa alla stampante via protocolli chiamati diversamente «AppSocket» o «Stampa diretta TCP/IP».</para
+><glossseealso otherterm="gloss-appsocketprotocol"
+>Protocollo AppSocket Protocol</glossseealso
+> <glossseealso otherterm="gloss-directtcpipprinting"
+>Stampa diretta TCP/IP</glossseealso
+> </glossdef>
+                </glossentry>
+
+		<glossentry id="gloss-ietf">
+                        <glossterm
+><acronym
+>IETF</acronym
+></glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;I&emend;nternet &emstart;E&emend;ngineering &emstart;T&emend;ask &emstart;F&emend;orce; un consesso di esperti di software e hardware per Internet che discutono le nuove tecnologie di rete e molto spesso approdano a conclusioni viste da molti come standard. «TCP/IP» è l'esempio più famoso.&newpara;Gli standard IETF, così come le bozze, discussioni, idee e guide utili, sono pubblicati nella famosa serie di «RFC», che sono disponibili al pubblico e incluse nella maggior parte delle distribuzioni Linux e BSD.</para
+><glossseealso otherterm="gloss-ipp"
+>IPP</glossseealso
+> <glossseealso otherterm="gloss-pwg"
+>PWG</glossseealso
+> <glossseealso otherterm="gloss-rfc"
+>RFC</glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-ipp">
+                        <glossterm
+><acronym
+>IPP</acronym
+></glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;I&emend;nternet &emstart;P&emend;rinting &emstart;P&emend;rotocol; definito in una serie di RFC accettati da IETF come «proposta di standard»; è stato progettato da PWG. -- IPP rappresenta un concetto totalmente nuovo per la stampa in rete, ma utilizza un sistema conosciuto e testato per il trasferimento dei dati: HTTP 1.1! Non «reinventando la ruota», e basandosi su preesistenti e robusti standard di Internet, IPP è in grado di «riciclare» in modo semplice altri standard compatibili con HTTP:&newpara;sistemi di autenticazione Basic, Digest o con certificati;&newpara;cifratura dei dati tramite SSL o TLS;&newpara;LDAP per i servizi di directory (per pubblicare i dati sulle stampanti, le opzioni dei dispositivi, i driver, i costi, sulla rete; o per controllare le password durante l'autenticazione). </para
+><glossseealso otherterm="gloss-cups"
+>&CUPS;</glossseealso
+> <glossseealso otherterm="gloss-pwg"
+>PWG</glossseealso
+> <glossseealso otherterm="gloss-ietf"
+>IETF</glossseealso
+> <glossseealso otherterm="gloss-rfc"
+>RFC</glossseealso
+> <glossseealso otherterm="gloss-tls"
+>TLS</glossseealso
+> </glossdef>
+                </glossentry>
+
+
+                <glossentry id="gloss-lexmark">
+                        <glossterm
+><acronym
+>Lexmark</acronym
+></glossterm>
+                        <glossdef
+><para
+>è stata una delle prime società a distribuire  i driver di stampa per Linux dei propri modelli. In ogni caso, quei driver sono solo binari (nessun codice sorgente disponibile), e per questo motivo non possono essere integrati in altri progetti liberi di programmi di stampa. </para>
+                        </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-linuxprintingorg">
+                        <glossterm
+>Linuxprinting.org</glossterm>
+                        <glossdef
+><para
+>Linuxprinting.org = non solo per Linux; si possono trovare informazioni utili per la stampa per tutti i sistemi operativi di tipo &UNIX;, *BSD e Unix commerciali. Questo sito ospita l'interessante progetto Foomatic, che mira a sviluppare un sistema di «meta-coda di stampa e strumenti di configurazione dei driver» (in grado di configurare, attraverso un'interfaccia comune, differenti sottosistemi di stampa ed i relativi driver) con la possibilità di trasferire tutte le code, le stampanti e i file di configurazione senza problemi verso un altro spooler senza nuove configurazioni. -- Inoltre, sul sito viene mantenuto il database delle stampanti (Printing Database); una collezione  di driver e informazioni sulle periferiche che consente di trovare le informazioni più aggiornate sui modelli di stampante e generare dal sito i file di configurazione per ogni combinazione di spooler/driver/dispositivo di cui si conosca il funzionamento con Linux o un sottosistema di stampa &UNIX;. </para>
+                                <glossseealso otherterm="gloss-linuxprintingdatabase"
+>Banca dati Linuxprinting</glossseealso>
+                        </glossdef>
+                </glossentry>
+
+
+                <glossentry id="gloss-linuxprintingdatabase">
+                        <glossterm
+><acronym
+>Banca dati Linuxprinting.org</acronym
+></glossterm>
+                        <glossdef
+><para
+>&linkstart;"https://www.openprinting.org/printers"&linkmid;Banca dati&linkend; contenente stampanti e i driver ad esse adatti. Maggiori informazioni: &linkstart;"https://wiki.linuxfoundation.org/openprinting/database/indexfaq"&linkmid;Domande ricorrenti di Linuxprinting.org&linkend;</para>
+                                <glossseealso otherterm="gloss-foomatic"
+>Foomatic</glossseealso>
+                        </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-lprlpd">
+                        <glossterm
+>Stampa <acronym
+>LPR/LPD</acronym
+></glossterm>
+                        <glossdef
+><para
+>LPR: alcuni lo interpretano come &emstart;L&emend;ine &emstart;P&emend;rinting &emstart;R&emend;equest, altri come: &emstart;L&emend;ine &emstart;P&emend;rinter &emstart;R&emend;emote.</para>
+                                <glossseealso otherterm="gloss-bsdstyleprinting"
+>Stampa stile BSD</glossseealso>
+                        </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-mimetypes">
+                        <glossterm
+>Tipi &MIME;</glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;M&emend;ultipurpose (o Multimedia) &emstart;I&emend;nternet &emstart;M&emend;ail &emstart;E&emend;xtensions; i tipi &MIME; sono stati inizialmente usati per consentire la spedizione di dati binari (come allegati di posta contenenti immagini) su connessioni di posta che trasmettevano solamente caratteri ASCII: i dati dovevano essere pertanto codificati in una rappresentazione ASCII.&newpara;Più avanti questo concetto è stato esteso per descrivere un formato di dati in modo indipendente dalla piattaforma, ma al tempo stesso non ambiguo. Dal mondo &Windows; tutti conoscono l'estensione .doc dei i file &Microsoft; Word. Questa viene gestita in modo ambiguo sulla piattaforma &Windows;: l'estensione .doc viene usata per normali file di testo o per i file di Adobe Framemaker. E se un vero file Word viene rinominato con un'estensione differente non potrà essere più aperto dal programma.&newpara; I file tipizzati con &MIME; sono accompagnati da una stringa di riconoscimento che ne descrive il formato in base a &emstart;categoria_principale/sottocategoria&emend;. All'interno di IPP i file da stampare sono identificati tramite tipi &MIME;. I tipi &MIME; sono registrati tramite IANA (Internet Assigning Numbers &emstart;Association&emend;) in modo da rimanere univoci.&newpara;&CUPS; utilizza alcuni tipi &MIME; appositamente registrati, come &emstart;application/vnd.cups-raster&emend; (per il formato di immagine raster internamente usato da &CUPS;). </para
+><glossseealso otherterm="gloss-cups"
+>&CUPS;</glossseealso
+> <glossseealso otherterm="gloss-gimpprint"
+>Gimp-Print</glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-pcl">
+                        <glossterm
+><acronym
+>PCL</acronym
+></glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;P&emend;rinter &emstart;C&emend;ontrol &emstart;L&emend;anguage; sviluppato da &HP;. PCL partito nella versione 1 come un semplice insieme di comandi per la stampa ASCII; attualmente, nelle versioni PCL6 e PCL-X, è capace di stampare grafica e colore -- ma al di fuori del mondo di &Microsoft; &Windows; e &HP-UX; (Marchio &HP; di &UNIX;), non è usato comunemente...</para
+><glossseealso otherterm="gloss-escp"
+>ESC/P</glossseealso
+> <glossseealso otherterm="gloss-hpgl"
+>&HP;/GL</glossseealso
+> <glossseealso otherterm="gloss-pdl"
+>PDL</glossseealso
+> <glossseealso otherterm="gloss-postscript"
+>&PostScript;</glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-pdl">
+                        <glossterm
+><acronym
+>PDL</acronym
+></glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;P&emend;age &emstart;D&emend;escription &emstart;L&emend;anguage; PDL descrive, in modo astratto, la rappresentazione grafica di una pagina. - Prima del trasferimento al toner o che l'inchiostro sia posato sulla carta, un PDL deve essere prima «interpretato». In &UNIX;, il PDL più importante è &PostScript;. </para
+><glossseealso otherterm="gloss-escp"
+>ESC/P</glossseealso
+> <glossseealso otherterm="gloss-hpgl"
+>&HP;/GL</glossseealso
+> <glossseealso otherterm="gloss-pcl"
+>PCL</glossseealso
+> <glossseealso otherterm="gloss-postscript"
+>&PostScript;</glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-pixel">
+                        <glossterm
+>Pixel</glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;Pic&emend;ture &emstart;El&emend;ement; questo termine descrive la parte più piccola di un'immagine raster (sia stampata su carta che visualizzata su monitor a tubo catodico o LCD). Come qualunque rappresentazione grafica o di immagine su questi tipi di dispositivi di uscita è composta di pixel, i valori di «ppi» (pixel per inch, pixel per pollice) e &dpi; (dots per inch, punti per pollice) sono un parametro importante per la qualità complessiva e risoluzione di un'immagine.</para
+><glossseealso otherterm="gloss-filter"
+>Filtro</glossseealso
+> <glossseealso otherterm="gloss-ghostscript"
+>Ghostscript</glossseealso
+> <glossseealso otherterm="gloss-postscript"
+>&PostScript;</glossseealso
+> <glossseealso otherterm="gloss-raster"
+>Trama</glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-pjl">
+                        <glossterm
+><acronym
+>PJL</acronym
+></glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;P&emend;rint &emstart;J&emend;ob &emstart;L&emend;anguage; sviluppato da &HP; per controllare e per influire sulle impostazioni predefinite e specifiche per operazione di una stampante. Potrebbe essere usato non solo per le stampanti (PCL) di &HP;; anche molte stampanti &PostScript; e altre comprendono i comandi PJL inviati con un'operazione di stampa, o con un segnale separato.</para>
+                                <glossseealso otherterm="gloss-pcl"
+>PCL</glossseealso>
+                        </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-postscript">
+                        <glossterm
+>&PostScript;</glossterm>
+                        <glossdef
+><para
+>&PostScript; (spesso abbreviato con «PS») è l' standard de-facto nel mondo &UNIX; per la stampa di file. È stato sviluppato da Adobe e rilasciato sotto licenza ai produttori di stampanti e alle società produttrici di software. &newpara;Oltre alle specifiche &PostScript; pubblicate da Adobe, ci sono altre implementazioni di «terze parti» di programmi di creazione &PostScript; e interpretazione &PostScript; disponibili (uno dei più noti nel mondo del software libero è Ghostscript, un potente interprete PS). </para
+><glossseealso otherterm="gloss-escp"
+>ESC/P</glossseealso
+> <glossseealso otherterm="gloss-hpgl"
+>&HP;/GL</glossseealso
+> <glossseealso otherterm="gloss-pcl"
+>PCL</glossseealso
+> <glossseealso otherterm="gloss-ppd"
+>PPD</glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-ppd">
+                        <glossterm
+><acronym
+>PPD</acronym
+></glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;P&emend;ostScript &emstart;P&emend;rinter &emstart;D&emend;escription; I file PPD sono dei file ASCII contenenti tutte le informazioni sulle caratteristiche speciali di una stampante, oltre alle definizioni dei comandi (&PostScript; o PJL) da chiamare per una certa caratteristica (come la stampa fronte-retro).&newpara;Come si può capire dalla spiegazione dell'acronimo, i file PPD erano usati in origine solo per le stampanti &PostScript;. &CUPS; ha esteso il concetto di PPDF a tutti i tipi di stampante.&newpara;I file PPD per le stampanti &PostScript; sono messi a disposizione dai costruttori. Possono essere utilizzati con &CUPS; e con il sistema di stampa di &kde; per accedere a tutte le funzioni di ogni stampante &PostScript;. Gli sviluppatori di &kde; raccomandano l'utilizzo di file PPD sviluppati per &Microsoft; Windows NT.&newpara;Per i file PPD per le stampanti non &PostScript; &emstart;serve&emend; un «filtro» compagno per elaborare i file &PostScript; in un formato comprensibile per il dispositivo di stampa non &PostScript;. Queste coppie di PPD/filtri non sono (ancora) messi a disposizione dai costruttori delle stampanti. In seguito alla scelta degli sviluppatori di &CUPS; di utilizzare i file PPD, la comunità del software libero è stata in grado di sviluppare rapidamente il supporto per la maggior parte dei modelli di stampante utilizzati tramite file PPD e tradizionali filtri Ghostscript. Ma attenzione: la qualità di stampa varia da «alta qualità fotografica» (usando Gimp-Print con la maggior parte delle stampanti a getto d'inchiostro Epson) a «difficilmente leggibile» (usando i filtri Ghostscript adattati per Foomatic con modelli classificati come «paperweight» nel database di Linuxprinting.org). </para
+><glossseealso otherterm="gloss-cups"
+>&CUPS;</glossseealso
+> <glossseealso otherterm="gloss-linuxprintingorg"
+>Linuxprinting.org</glossseealso
+> <glossseealso otherterm="gloss-postscript"
+>&PostScript;</glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-printcap">
+                        <glossterm
+>printcap</glossterm>
+                        <glossdef
+><para
+>Nei sistemi di stampa in stile BSD, il file «printcap» contiene le informazioni di configurazione; il demone di stampa legge questo file per determinare le stampanti disponibili, quali filtri utilizzare per ognuna, dove è posizionata la cartella di accodamento, se ci sono banner da utilizzare, e così via. Alcune applicazioni utilizzano l'accesso in lettura al file printcap per ottenere i nomi delle stampanti disponibili. </para>
+                                <glossseealso otherterm="gloss-bsdstyleprinting"
+>Stampa stile BSD</glossseealso>
+                        </glossdef>
+                </glossentry>
+  
+
+                <glossentry id="gloss-printermib">
+                        <glossterm
+><acronym
+>MIB</acronym
+>-Stampante</glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;Printer&emend;-&emstart;M&emend;anagement &emstart;I&emend;nformation &emstart;B&emend;ase; il Printer-MIB definisce un insieme di parametri salvati nella stampante per l'accesso attraverso una rete. È utile se molte (in alcuni casi, letteralmente migliaia) stampanti di rete sono gestite centralmente con l'aiuto di SNMP (Simple Network Management Protocol).</para
+><glossseealso otherterm="gloss-pwg"
+>PWG</glossseealso
+> <glossseealso otherterm="gloss-snmp"
+>SNMP</glossseealso
+> </glossdef>
+                </glossentry>
+  
+                <glossentry id="gloss-pwg">
+                        <glossterm
+><acronym
+>PWG</acronym
+></glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;P&emend;rinter &emstart;W&emend;orking &emstart;G&emend;roup; il PWG è un gruppo separato di rappresentanti dell'industria delle stampanti che ha, negli anni passati, sviluppato diversi standard relativi alla stampa di rete. Questi sono stati successivamente accettati come standard RFC dall'IETF, come «Printer-MIB» e IPP.</para
+><glossseealso otherterm="gloss-postscript"
+>&PostScript;</glossseealso
+> <glossseealso otherterm="gloss-ipp"
+>IPP</glossseealso
+> <glossseealso otherterm="gloss-printermib"
+>MIB-Stampante</glossseealso
+> <glossseealso otherterm="gloss-snmp"
+>SNMP</glossseealso
+> </glossdef>
+                </glossentry>
+                <glossentry id="gloss-printerdatabase">
+                        <glossterm
+>Banca dati delle stampanti</glossterm>
+                        <glossdef
+><para
+>Una buona banca dati di driver di stampanti si può trovare a &linkstart;"https://www.openprinting.org/printers"&linkmid;https://www.openprinting.org/printers&linkend;.</para>
+                                <glossseealso otherterm="gloss-linuxprintingdatabase"
+>Banca dati Linuxprinting</glossseealso>
+                        </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-raster">
+                        <glossterm
+>Immagine a trama</glossterm>
+                        <glossdef
+><para
+>Ogni figura su un mezzo fisico è composta da una struttura discreta di punti di differenti colori e (eventualmente) dimensioni. Questa è chiamata «immagine raster».&newpara;Questa è l'opposto di una «immagine vettoriale» dove la grafica è descritta in termini di curve continue, ombre, forme e aree riempite, rappresentate da formule matematiche. Le immagini vettoriali normalmente hanno una dimensione più piccola quando sono rappresentate come file, e possono essere ridimensionate senza alcuna perdita di informazione e qualità --- ma non possono essere stampata direttamente, devono essere prima generate o convertite in raster alla risoluzione supportata dal dispositivo di uscita...&newpara;La conversione in formato raster viene effettuata da un Raster Image Processor (RIP, spesso il programma Ghostscript) o qualche altro filtro.</para
+><glossseealso otherterm="gloss-pixel"
+>Pixel</glossseealso
+> <glossseealso otherterm="gloss-ghostscript"
+>Ghostscript</glossseealso
+> <glossseealso otherterm="gloss-postscript"
+>&PostScript;</glossseealso
+> <glossseealso otherterm="gloss-filter"
+>Filtro</glossseealso
+> <glossseealso otherterm="gloss-rip"
+>RIP</glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-rip">
+                        <glossterm
+><acronym
+>RIP</acronym
+></glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;R&emend;aster &emstart;I&emend;mage &emstart;P&emend;rocess(or); se usato riguardo la stampa, «RIP» indica un sistema hardware o software che converte &PostScript; (o altri formati di stampa rappresentati tramite un PDL non raster) in un formato di file raster in modo tale che sia comprensibile per il motore di stampa della stampante. Le stampanti &PostScript; includono il proprio RIP PostScript.&newpara;Un RIP può o meno essere presente all'interno della stampante.&newpara;Per molti sistemi &UNIX;, Ghostscript è il software che mette a disposizione un «RIP via software» che gira sul computer e pre-elabora il &PostScript; o altri formati di dati perché possano essere spediti alla stampante (pertanto c'è un «fondo di verità» nel detto «Ghostscript trasforma la tua stampante in una sistema &PostScript;», che non è ovviamente corretto se interpretato in senso letterale).</para
+><glossseealso otherterm="gloss-filter"
+>Filtro</glossseealso
+> <glossseealso otherterm="gloss-ghostscript"
+>Ghostscript</glossseealso
+> <glossseealso otherterm="gloss-postscript"
+>&PostScript;</glossseealso
+> <glossseealso otherterm="gloss-pdl"
+>PDL</glossseealso
+> <glossseealso otherterm="gloss-raster"
+>Trama</glossseealso
+> </glossdef>
+                </glossentry>
+
+
+                <glossentry id="gloss-rlpr">
+                        <glossterm
+><acronym
+>RLPR</acronym
+> (LPR remoto)</glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;R&emend;emote &emstart;L&emend;ine &emstart;P&emend;rinting &emstart;R&emend;equest; è un sistema di stampa in stile BSD, che non necessita di privilegi di root per essere installato, e nessun «printcap» per funzionare: tutti i parametri possono essere specificati nella riga di comando.&newpara;RLPR risulta comodo per molti utenti di portatili che lavorano in ambienti molto dinamici. Questo perché può essere installato in concomitanza con ogni altro sottosistema di stampa, e fornisce un modo flessibile e rapido di installare una stampante per un accesso diretto attraverso LPR/LPD. </para>
+                                <glossseealso otherterm="gloss-printcap"
+>printcap</glossseealso>
+                        </glossdef>
+                </glossentry>
+
+ 
+                <glossentry id="gloss-snmp">
+                        <glossterm
+><acronym
+>SNMP</acronym
+></glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;S&emend;imple &emstart;N&emend;etwork &emstart;M&emend;anagement &emstart;P&emend;rotocol; SNMP è usato ampiamente per controllare tutti i tipi di nodi di rete (Host, Router, Switch, Gateway, Stampanti...) in remoto.</para
+><glossseealso otherterm="gloss-pwg"
+>PWG</glossseealso
+> <glossseealso otherterm="gloss-printermib"
+>MIB-Stampante</glossseealso
+> </glossdef>
+                </glossentry>
+
+	        <glossentry id="gloss-ssl">
+                        <glossterm
+>Crittografia <acronym
+>SSL(3)</acronym
+></glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;S&emend;ecure &emstart;S&emend;ocket &emstart;L&emend;ayer; <acronym
+>SSL</acronym
+> è un metodo proprietario di cifratura per il trasferimento di dati su HTTP sviluppato da Netscape. Sta per essere sostituito da uno standard IETF chiamato TLS. </para>
+                                <glossseealso otherterm="gloss-tls"
+><acronym
+>TLS</acronym
+></glossseealso>
+                        </glossdef>
+                </glossentry>
+
+
+	        <glossentry id="gloss-spooling">
+                        <glossterm
+><acronym
+>Accodamento</acronym
+></glossterm>
+                        <glossdef
+><para
+>In inglese si dice SPOOL, abbreviazione di &emstart;S&emend;ynchronous &emstart;P&emend;eripheral &emstart;O&emend;perations &emstart;O&emend;n&emstart;L&emend;ine. L'accodamento permette alle applicazioni di stampa (e agli utenti) di continuare il loro lavoro dato che il «lavoro di stampa» è preso in gestione da un <acronym
+>demone</acronym
+> di sistema che salva il file in una posizione temporanea in attesa che la stampante sia pronta a stampare. </para>
+                                <glossseealso otherterm="gloss-daemon"
+><acronym
+>Demone</acronym
+></glossseealso>
+                        </glossdef>
+                </glossentry>
+
+
+	        <glossentry id="gloss-tls">
+                        <glossterm
+>Crittografia <acronym
+>TLS</acronym
+></glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;T&emend;ransport &emstart;L&emend;ayer &emstart;S&emend;ecurity; <acronym
+>TLS</acronym
+> è uno standard di cifratura per il trasferimento di dati su HTTP 1.1; è definito nella RFC 2246; nonostante sia basato su SSL (sviluppato precedentemente da Netscape) non è completamente compatibile con esso. </para>
+                                <glossseealso otherterm="gloss-ssl"
+><acronym
+>SSL(3)</acronym
+></glossseealso>
+                        </glossdef>
+                </glossentry>
+
+
+	        <glossentry id="gloss-systemVstyleprinting">
+                        <glossterm
+>Stampa stile System V</glossterm>
+                        <glossdef
+><para
+>È il secondo tipo di stampa tradizionale di &UNIX; (in contrapposizione alla stampa in stile BSD). Utilizza un diverso insieme di comandi (lp, lpadmin,...) rispetto a BSD, ma non è completamente diverso. In ogni caso la differenza tra i due è abbastanza grande da renderli incompatibili, così che un client BSD non possa semplicemente stampare su un server di stampa in stile System V senza modifiche aggiuntive... IPP è stato pensato per risolvere questo inconveniente e altro. </para
+><glossseealso otherterm="gloss-bsdstyleprinting"
+><acronym
+>Stampa stile BSD</acronym
+></glossseealso
+> <glossseealso otherterm="gloss-ipp"
+><acronym
+>IPP</acronym
+></glossseealso
+> </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-turboprint">
+                        <glossterm
+>TurboPrint</glossterm>
+                        <glossdef
+><para
+>Il programma shareware fornisce una stampa di qualità fotografica per molte stampanti a getto d'inchiostro. È utile se non si riesce a trovare un driver per la propria stampante e può essere collegato sia a un sistema Ghostscript tradizionale che a un moderno sistema &CUPS;.</para>
+                                <glossseealso otherterm="gloss-gimpprint"
+>Gimp-Print</glossseealso>
+                        </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-xpp">
+                        <glossterm
+><acronym
+>XPP</acronym
+></glossterm>
+                        <glossdef
+><para
+>Abbreviazione di &emstart;X&emend; &emstart;P&emend;rinting &emstart;P&emend;anel; <acronym
+>XPP</acronym
+> è stato il primo comando grafico di stampa libero per &CUPS;, scritto da Till Kamppeter e per alcuni aspetti un modello per l'applicazione «kprinter» di &kde; 3.</para>
+                        </glossdef>
+                </glossentry>
+<!--
+                <glossentry id="gloss-1">
+                        <glossterm
+>xxxx</glossterm>
+                        <glossdef
+><para
+>.</para>
+                                <glossseealso otherterm="gloss-1"
+>xyz</glossseealso>
+                        </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-3">
+                        <glossterm
+>xxxx</glossterm>
+                        <glossdef
+><para
+>.</para>
+                                <glossseealso otherterm="gloss-1"
+>xyz</glossseealso>
+                        </glossdef>
+                </glossentry>
+
+                <glossentry id="gloss-4">
+                        <glossterm
+>xxxx</glossterm>
+                        <glossdef
+><para
+>.</para>
+                                <glossseealso otherterm="gloss-1"
+>xyz</glossseealso>
+                        </glossdef>
+                </glossentry>
+-->
+	</glossdiv>
+
+
+<!--
+</glossary>
+-->

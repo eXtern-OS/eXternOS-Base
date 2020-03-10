@@ -1,0 +1,69 @@
+Spice agent for Linux
+=====================
+
+The spice agent for Linux consists of 2 parts, a daemon spice-vdagentd and
+a per X-session process spice-vdagent. The daemon gets started in Spice guests
+through a Sys-V initscript or a systemd unit. The per X-session gets
+automatically started in desktop environments which honor /etc/xdg/autostart,
+and under gdm.
+
+The main daemon needs to know which X-session daemon is in the currently
+active X-session (think switch user functionality) for this console kit or
+systemd-logind (compile time option) is used. If no session info is
+available only one X-session agent is allowed.
+
+Features:
+* Client mouse mode (no need to grab mouse by client, no mouse lag)
+  this is handled by the daemon by feeding mouse events into the kernel
+  via uinput. This will only work if the active X-session is running a
+  spice-vdagent process so that its resolution can be determined.
+* Automatic adjustment of the X-session resolution to the client resolution
+* Support of copy and paste (text and images) between the active X-session
+  and the client. This supports both the primary selection and the clipboard.
+* Support for transfering files from the client to the agent
+* Full support for multiple displays using Xrandr, this requires a new
+  enough xorg-x11-drv-qxl driver, as well as a new enough host.
+* Limited support for multiple displays using Xinerama, prerequisites:
+  * A new enough Xorg-server. For Fedora atleast Fedora-17, for RHEL-6 atleast
+    xorg-x11-server-1.10.4-6.el6_2.3
+  * A vm configured with multiple qxl devices
+  * A guest running the latest spice-vdagent
+  Then connect to the vm with the multiple monitor client which you want to
+  use it with using: "spicec --full-screen=auto-config" (or the user portal
+  equivalent). At this point the agent will write out a:
+  /var/run/spice-vdagentd/xorg.conf.spice file. With all the necessary magic
+  to get Xinerama working. Move this file to /etc/X11/xorg.conf, then kill
+  Xorg so that it will get restarted and you should be good to go.
+* Limited support for setups with multiple Screens (multiple qxl devices each
+  mapped to their own screen), limitations:
+ -Max one monitor per Screen / qxl device
+ -All monitors / Screens must have the same resolution
+ -No client -> guest resolution syncing
+
+All vdagent communications on the guest side run over a single pipe which
+gets presented to the guest os as a virtio serial port.
+
+Under windows this virtio serial port has the following name:
+\\\\.\\Global\\com.redhat.spice.0
+
+Under Linux this virtio serial port has the following name:
+/dev/virtio-ports/com.redhat.spice.0
+
+To enable the virtio serial port you need to pass the following params on
+the qemu cmdline:
+
+For qemu < 0.14.0:
+-device spicevmc
+
+For qemu >= 0.14.0:
+-device virtio-serial-pci,id=virtio-serial0,max_ports=16,bus=pci.0,addr=0x5 \
+-chardev spicevmc,name=vdagent,id=vdagent \
+-device \
+virtserialport,nr=1,bus=virtio-serial0.0,chardev=vdagent,name=com.redhat.spice.0
+
+Enjoy,
+  Gerd & Hans
+
+--
+Gerd Hoffmann <kraxel@redhat.com>
+Hans de Goede <hdegoede@redhat.com>

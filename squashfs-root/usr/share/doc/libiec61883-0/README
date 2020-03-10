@@ -1,0 +1,55 @@
+libiec61883 README
+Copyright (C) 2004-2005 Kristian Hogsberg, Dan Dennedy, and Dan Maas.
+http://www.linux1394.org/
+
+Overview
+--------
+This library is an implementation of IEC 61883, part 1 (CIP, plug registers,
+and CMP), part 2 (DV-SD), part 4 (MPEG2-TS), and part 6 (AMDTP). Outside of
+IIDC, nearly all FireWire multimedia devices use IEC 61883 protocols.
+
+The libiec61883 library provides a higher level API for streaming DV,
+MPEG-2 and audio over Linux IEEE 1394. This includes both reception and
+transmission. It uses the new "rawiso" API of libraw1394, which transparently
+provides mmap-ed DMA for efficient data transfer. It also represents
+the third generation of I/O technology for Linux 1394 for these media types
+thereby removing the complexities of additional kernel modules, /dev nodes,
+and procfs. It also consolidates features for plug control registers and
+connection management that previously existed in experimental form in an
+unreleased version of libavc1394.
+
+
+Requirements
+------------
+Linux kernel 2.4.20 or newer
+libraw1394 1.2.0 or newer
+
+
+Documentation
+-------------
+Nearly everything is documented in the header file. The comments from the
+header can be extracted and formatted using the Linux kernel script, e.g.:
+
+/usr/src/linux/scripts/kernel-doc -man src/iec61883.h | nroff -man | less
+
+
+Pkg-Config
+----------
+The library comes with a pkg-config .pc file, so you can check for
+libiec61883 and its version in your configure script. For example, here is how
+to use the autoconf macro:
+
+PKG_CHECK_MODULES(LIBIEC61883, libiec61883 >= 1.0.0)
+
+This macro sets the variables LIBIEC61883_CFLAGS and LIBIEC61883_LIBS. You
+have to include those into your build variables so that the build process
+correctly links with libraw1394.
+
+
+Maintainer
+----------
+Maintainer of libiec61883 is currently Dan Dennedy. Send suggestions, bug
+reports and fixes to linux1394-devel@lists.sourceforge.net. See the file
+AUTHORS for a complete list of contributors to libiec61883.
+
+Visit http://www.linux1394.org/ for more information or to see what is new.

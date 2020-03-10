@@ -1,0 +1,597 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN" "dtd/kdedbx45.dtd" [
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % English "INCLUDE">
+]>
+
+<book id="kwallet5" lang="&language;">
+<bookinfo>
+<title>The &kwallet5; Handbook</title>
+
+<authorgroup>
+<author>
+&George.Staikos; &George.Staikos.mail;
+</author>
+<author>
+&Lauri.Watts; &Lauri.Watts.mail;
+</author>
+<othercredit role="developer">
+<firstname>George</firstname><surname>Staikos</surname>
+<affiliation><address>&George.Staikos.mail;</address></affiliation>
+<contrib>Developer</contrib>
+</othercredit>
+<!-- TRANS:ROLES_OF_TRANSLATORS -->
+</authorgroup>
+
+<legalnotice>&FDLNotice;</legalnotice>
+
+<date>2016-07-05</date>
+<releaseinfo>Applications 16.04</releaseinfo>
+
+<abstract>
+<para>
+The wallet subsystem provides a convenient and secure way to manage all your
+passwords.</para>
+
+</abstract>
+
+<keywordset>
+<keyword>KDE</keyword>
+<keyword>Kwallet</keyword>
+<keyword>passwords</keyword>
+<keyword>forms</keyword>
+</keywordset>
+
+</bookinfo>
+
+<chapter id="introduction">
+<title>Introduction</title>
+
+<para>Computer users have a very large amount of data to manage, some of
+which is sensitive.  In particular, you will typically have many passwords
+to manage.  Remembering them is difficult and writing them down on paper or in
+a text file is insecure.</para>
+
+<para>&kwallet5; provides a secure way to store passwords and other secret information,
+allowing the user to remember only a single password instead of numerous different passwords and credentials.
+</para>
+
+<sect1 id="kwallet-create">
+
+<title>Create a Wallet</title>
+
+<para>Wallet is a password storage. It is usually sufficient to have just one wallet secured by one master password but you can organize your large collection of passwords by wallets using &kwalletmanager5;.</para>
+
+<para>By default a wallet named <guilabel>kdewallet</guilabel> will be used to store your passwords.
+This wallet is secured by your login password and will automatically be opened at login,
+if kwallet_pam is installed and properly configured. On certain distros (&eg; Archlinux) kwallet_pam is not installed by default</para>
+
+
+<para>Other wallets have to be opened manually.</para>
+
+<para>There are two ways to create a new wallet:</para>
+
+<itemizedlist>
+<listitem><para>Use the menu item <menuchoice><guimenu>File</guimenu><guimenuitem>New
+Wallet</guimenuitem></menuchoice> in the &kwalletmanager5;</para></listitem>
+
+<listitem><para>Use the <guibutton>New</guibutton> button in the &systemsettings; module
+<guilabel>KDE Wallet</guilabel></para></listitem>
+</itemizedlist>
+
+<para>If you have not created a wallet yet, see section <link linkend="kwallet-using">Using &kwallet5;</link>.
+</para>
+
+<para>&kwallet5; offers two different ways to store your data:</para>
+
+<screenshot>
+<screeninfo>Select encryption</screeninfo>
+<mediaobject>
+<imageobject><imagedata fileref="wallet-encryption-selection.png" format="PNG"/></imageobject>
+<textobject><phrase>Select encryption</phrase></textobject>
+</mediaobject>
+</screenshot>
+
+<variablelist>
+
+<varlistentry>
+<term>Blowfish encryption</term>
+<listitem>
+<para>&kwallet5; saves this sensitive data for you in a strongly encrypted
+file, accessible by all applications, and protected with a master
+password that you define.</para>
+
+<screenshot>
+<screeninfo>Create a blowfish encrypted wallet</screeninfo>
+<mediaobject>
+<imageobject><imagedata fileref="first-open-request.png" format="PNG"/></imageobject>
+<textobject><phrase>Create a blowfish encrypted wallet</phrase></textobject>
+</mediaobject>
+</screenshot>
+
+<para>The data is encrypted with the
+<ulink url="http://www.schneier.com/blowfish.html">Blowfish symmetric block cipher algorithm</ulink>,
+the algorithm key is derived from the
+<ulink url="http://www.ietf.org/rfc/rfc3174.txt">SHA-1 hash</ulink>
+of the password, with a key length of 156 bits (20 bytes).
+The data into the wallet file is also hashed with SHA-1 and checked
+before the data is deciphered and accessible by the applications.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>GPG encryption</term>
+<listitem>
+<para>GnuPG offers some very strong encryption algorithms and uses passphrase protected long keys.</para>
+
+<screenshot>
+<screeninfo>No GPG key found</screeninfo>
+<mediaobject>
+<imageobject><imagedata fileref="error-nokey.png" format="PNG"/></imageobject>
+<textobject><phrase>No GPG key found</phrase></textobject>
+</mediaobject>
+</screenshot>
+<para>The screenshots above show the case where an encryption capable GPG key was not
+found on the system. Please use applications like &kgpg; or &kleopatra; to create a key and try again.</para>
+
+<para>If a GPG key was found you will get the next dialog where you can select a key to use for your new wallet.
+</para>
+<screenshot>
+<screeninfo>Select an encryption key</screeninfo>
+<mediaobject>
+<imageobject><imagedata fileref="key-selection.png" format="PNG"/></imageobject>
+<textobject><phrase>Select an encryption key</phrase></textobject>
+</mediaobject>
+</screenshot>
+
+<para>&kwallet5; will now use GPG when storing wallets and when opening them.
+The passphrase dialog only shows once. Even if the wallet is closed after initial open,
+subsequent opening will occur silently during the same session.
+</para>
+
+<para>
+The same session can handle simultaneously both file formats. &kwallet5; will transparently detect
+the file format and load the correct backend to handle it.</para>
+
+<para>
+To use your sensitive data from your classic wallet with the new backend follow these steps:</para>
+
+<itemizedlist>
+<listitem><para>Create a new GPG based wallet</para></listitem>
+<listitem><para>Launch &kwalletmanager5; using &krunner; (<keycombo>&Alt; <keycap>F2</keycap></keycombo>)
+or other application launcher (menu) and select your old wallet.
+Then choose <menuchoice><guimenu>File</guimenu>
+<guimenuitem>Export as encrypted</guimenuitem></menuchoice> to create an archive file with your sensitive data.
+</para></listitem>
+<listitem><para>Select the new GPG based wallet then choose <menuchoice><guimenu>File</guimenu>
+<guimenuitem>Import encrypted</guimenuitem></menuchoice> and select the file you just saved.</para>
+</listitem>
+
+<listitem><para>Go to &systemsettings; <menuchoice><guimenu>Account Details</guimenu> <guimenuitem>KDE
+Wallet</guimenuitem></menuchoice> and select the newly created GPG based wallet from the <guilabel>Select
+wallet to use as default</guilabel> combobox.
+</para></listitem>
+</itemizedlist>
+
+<para>Alternatively use <guimenuitem>Import a wallet</guimenuitem>
+but in that case you have to select the <filename class="extension">.kwl</filename> file corresponding
+to your old wallet, located in the folder <filename class="directory">kwalletd</filename>
+in <userinput>qtpaths --paths GenericDataLocation</userinput>.
+</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+<tip>
+<para>&kwallet5; supports multiple wallets, so
+for the most secure operation, you should use one wallet for local
+passwords, and another for network passwords and form data.  You can
+configure this behavior in the &kwallet5; &systemsettings; module, however
+the default setting is to store everything in one wallet named <guilabel>kdewallet</guilabel>.</para>
+</tip>
+
+<para>A wallet is by default closed, which means that you must supply
+a password to open it. Once the wallet is opened, the contents can
+be read by any user process, so this may be a security issue.</para>
+</sect1>
+
+<sect1 id="kwallet-using">
+<title>Using &kwallet5;</title>
+
+<para>If you visit &eg; the &kde; bugtracker and enter the login data for
+the first time, a dialog pops up offering to store the password in an
+encrypted wallet:</para>
+
+<screenshot>
+<screeninfo>Request to save login information</screeninfo>
+<mediaobject>
+<imageobject><imagedata fileref="save-login-information.png" format="PNG"/></imageobject>
+<textobject><phrase>Request to save login information</phrase></textobject>
+</mediaobject>
+</screenshot>
+
+<para>If you want to store this information, select <guibutton>Store</guibutton>
+to proceed. In case you did not create a wallet so far, the next dialog asks for
+the encryption backend and creates a wallet named kdewallet.
+</para>
+
+<para>Next time you visit the same website again, the application retrieves the login data
+from an open wallet and prefills the forms with these secrets.</para>
+
+<screenshot>
+<screeninfo>Prefilled login information</screeninfo>
+<mediaobject>
+<imageobject><imagedata fileref="prefilled-forms.png" format="PNG"/></imageobject>
+<textobject><phrase>Prefilled login information</phrase></textobject>
+</mediaobject>
+</screenshot>
+
+<para>If the wallet is closed the application requests to open the wallet.
+Enter the wallet password and click the <guibutton>Open</guibutton> button.</para>
+
+<screenshot>
+<screeninfo>Request to open a wallet</screeninfo>
+<mediaobject>
+<imageobject><imagedata fileref="openwallet-request.png" format="PNG"/></imageobject>
+<textobject><phrase>Request to open a wallet</phrase></textobject>
+</mediaobject>
+</screenshot>
+
+<para>This connects the application to the wallet, enables it to read the login data from the wallet
+and to restore the login information for this website. Once an application is connected to
+the wallet, it can automatically restore any login information stored in the wallet.</para>
+
+</sect1>
+
+</chapter>
+
+<chapter id="kwalletmanager5">
+<title>&kwalletmanager5;</title>
+
+<para>&kwalletmanager5; serves a number of functions.  Firstly it allows you to see if
+any wallets are open, which wallets those are, and which applications are
+using each wallet.  You can disconnect an application's access to a wallet
+from within the &kwalletmanager5;.</para>
+
+<para>You may also manage the wallets installed on the system, creating and
+deleting wallets and manipulating their contents (changing keys, ...).</para>
+
+<para>The &kwalletmanager5; application is launched with <menuchoice>
+<guimenu>Applications</guimenu><guisubmenu>System</guisubmenu>
+<guimenuitem>Wallet Management Tool</guimenuitem></menuchoice> from the
+application launcher.
+Alternatively start &krunner; with shortcut <keycombo
+action="simul">&Alt;<keycap>F2</keycap></keycombo> and enter
+<command>kwalletmanager5</command>.</para>
+
+<para>Click once on the system tray wallet icon to display the &kwalletmanager5;
+window.</para>
+<para>
+<screenshot>
+<screeninfo>Main window with one wallet</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwalletmanager.png"/>
+</imageobject>
+<textobject>
+<phrase>Main window with one wallet</phrase>
+</textobject>
+<caption><para>Main window with one wallet</para></caption>
+</mediaobject>
+</screenshot>
+</para>
+
+<!--FIXME
+How to get assistant "First Use"? kwalletwizardpageintro.ui
+Last code change with http://websvn.kde.org/?view=revision&revision=882694
+see also https://bugs.kde.org/show_bug.cgi?id=290309
+-->
+<sect1 id="kwalletmanager-wallet-window">
+<title>The Wallet Window</title>
+
+<para>If you have more than one wallet all available wallets are shown on the left.</para>
+
+<para>Clicking on a wallet in the &kwalletmanager5; window will display
+that wallet's status and the contents of an opened wallet. A wallet may contain any number
+of folders, which allow storing of password information. By default a wallet
+will contain folders named Form Data and Passwords.
+</para>
+
+<screenshot>
+<screeninfo>Main window with two wallets</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-edit.png"/>
+</imageobject>
+<textobject>
+<phrase>Main window with two wallets</phrase>
+</textobject>
+<caption><para>Main window with two wallets</para></caption>
+</mediaobject>
+</screenshot>
+<para>Use <guibutton>Open</guibutton> to display the content of a closed wallet.
+You will be requested to enter the master password.</para>
+
+<sect2>
+<title>Contents tab</title>
+
+<para>The <guilabel>Contents</guilabel> tab has three sections:</para>
+
+<itemizedlist>
+<listitem><para>A search line to filter the items of the current
+wallet</para></listitem>
+<listitem><para>The tree view of the folders contained in the wallet.
+Click the <guiicon>&gt;</guiicon> / <guiicon>v</guiicon> icons to expand or collapse
+the tree view.</para></listitem>
+<listitem><para>The contents of the selected folder entry at the right side.
+By default the password and value are hidden. To display and edit them enable
+<guilabel>Show values</guilabel> or click the <guilabel>Show Contents</guilabel> button.
+</para></listitem>
+</itemizedlist>
+
+<para>Folders may be added or deleted via the context menu, and selecting a folder will update
+the folder entry list and the summary display.  Selecting a folder entry
+will update the entry contents pane, and allow you to edit that
+entry.</para>
+
+<para>Entries may also be created, renamed or deleted via the context menu for the
+folder contents.</para>
+
+<para>All folders and entries may be dragged and dropped into other wallets
+or folders respectively.  This allows a user to easily package up a new
+wallet for transfer to another environment.  For instance, a new wallet
+could be created and copied onto a removable flash memory device.  Important
+passwords could be transferred there, so you have them available in other
+locations.</para>
+
+<sect3 id="kwallet-import-export">
+<title>Import and Export</title>
+<para>If you want to transfer your secrets to another device or computer use
+the actions in the <guimenu>File</guimenu> menu. With <guimenuitem>Export as encrypted</guimenuitem>
+wallets can be exported into an encrypted archive file.
+Importing this archive file with <guimenuitem>Import encrypted</guimenuitem>
+you have to provide the master password of the wallet.
+</para>
+<para>Alternatively a <filename class="extension">.xml</filename> file can be used for transferring
+a wallet. Keep in mind that all secrets are stored as plain text in this file.
+</para>
+</sect3>
+
+<sect3 id="kwallet-adding-entries">
+<title>Adding Entries Manually</title>
+<para>Open the context menu with the &RMB; click on <guilabel>Maps</guilabel> or
+<guilabel>Passwords</guilabel> in the <guilabel>Folder</guilabel> tree view.
+Select <guimenuitem>New</guimenuitem> or <guimenuitem>New Folder</guimenuitem> and choose a name for the new entry.</para>
+<para>In the folder contents pane select <guilabel>New Folder</guilabel> from
+the context menu of <quote>Form Data</quote> or <quote>Passwords</quote>.
+For passwords click the <guilabel>Show Contents</guilabel> button, enter the new password.
+For Maps you have to add a <guilabel>Key</guilabel> and a <guilabel>Value</guilabel>.
+Click the <guilabel>Save</guilabel> button to store the new entries in the encrypted
+wallet file.
+</para>
+</sect3>
+</sect2>
+
+<sect2>
+<title>Applications tab</title>
+<para>
+<screenshot>
+<screeninfo>Applications tab</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-applications.png"/>
+</imageobject>
+<textobject>
+<phrase>Applications tab</phrase>
+</textobject>
+<caption><para>Applications tab</para></caption>
+</mediaobject>
+</screenshot>
+</para>
+<para>The first list shows all applications currently connected to the selected wallet.
+Use the button at the right side of each entry to disconnect the application.</para>
+
+<para>In the second list all applications are displayed which are authorized to access the wallet.
+Use the button right of each entry in the list to revoke the access.
+</para>
+<!-- FIXME difference to remove the policy in kwallermanager settings dialog?-->
+</sect2>
+</sect1>
+
+</chapter>
+
+<chapter id="kwallet-kcontrol-module">
+<title>Configuring &kwallet5;</title>
+
+<sect1 id="wallet-preferences">
+<title>Wallet Preferences</title>
+
+<para>&kwallet5; contains a small configuration panel with several options
+that allow you to tune &kwallet5; to your personal preferences.  The
+default settings for &kwallet5; are sufficient for most users.</para>
+
+<para>Check the box to enable or disable the &kde; wallet subsystem
+entirely.  If this box is unchecked, then &kwallet5; is entirely disabled and
+none of the other options here have any effect, nor will &kwallet5; record
+any information, or offer to fill in forms for you.</para>
+
+<variablelist>
+<title><guilabel>Close Wallet</guilabel></title>
+<varlistentry>
+<term><guilabel>Close when unused for:</guilabel></term>
+<listitem>
+<para>Close the current wallet after a period of inactivity. If you check this
+option, set the period in the box, default is 10 minutes. When a wallet is
+closed, the password is needed to access it again.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><guilabel>Close when screensaver starts</guilabel></term>
+<listitem>
+<para>Close the wallet as soon as the screen saver starts. When a wallet is
+closed, the password is needed to access it again.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><guilabel>Close when last application stops using it</guilabel></term>
+<listitem>
+<para>Close the wallet as soon as applications that use it have stopped. Note
+that your wallets will only be closed when all the applications that use it have
+stopped. When a wallet is closed, the password is needed to access it
+again.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title><guilabel>Automatic Wallet Selection</guilabel></title>
+<varlistentry>
+<term><guilabel>Select wallet to use as default:</guilabel></term>
+<listitem>
+<para>Select which wallet you want to use as default wallet.
+Please keep in mind that only the wallet named <guilabel>kdewallet</guilabel>
+will be opened automatically at login, if this wallet and your login
+password are identical.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><guilabel>Different wallet for local passwords:</guilabel></term>
+<listitem>
+<para>If checked, choose a different wallet for local passwords.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title><guilabel>Wallet Manager</guilabel></title>
+<varlistentry>
+<term><guilabel>Show manager in system tray</guilabel></term>
+<listitem>
+<para>Enable the wallet manager to have its icon in the system tray.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><guilabel>Hide System tray icon when last wallet
+closes</guilabel></term>
+<listitem>
+<para>When there is no wallet in use anymore, remove the wallet icon from the
+system tray.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>Finally, there is a button labeled <guibutton>Launch Wallet
+Manager</guibutton>, which does precisely that.</para>
+<para>This button is only visible if &kwalletmanager5; is not running</para>
+</sect1>
+
+<sect1 id="wallet-access-control">
+<title>Access Control</title>
+
+<para>There is only one option on this page:</para>
+
+<variablelist>
+<varlistentry>
+<term><guilabel>Prompt when an application accesses a wallet</guilabel></term>
+<listitem>
+<para>Signal you when an application gains access to a wallet.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>Next there is a tree style view of the access controls for your wallets.</para>
+
+<screenshot>
+<screeninfo>Access Control</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-access-control.png"/>
+</imageobject>
+<textobject>
+<phrase>Access Control</phrase>
+</textobject>
+</mediaobject>
+</screenshot>
+
+<para>Click with the &LMB; on the <guiicon>&gt;</guiicon> symbol beside a wallet name to
+expand the tree. You will see the name of each application that has asked
+for access to the wallet, and the policy you set for it.  You cannot edit
+policies here, or add them, but it is possible to delete an entry by &RMB;
+clicking on it and choosing <guimenuitem>Delete</guimenuitem> from the
+context menu that appears, or by simply selecting it and pressing the
+<keysym>Del</keysym> key.</para>
+
+<para>An application that has been allowed access to a wallet is granted access to
+all passwords stored inside.</para>
+
+<para>If you erroneously configured an application not to use the &kwallet5;
+delete the policy for this application here.</para>
+<!-- FIXME difference to Revoke Authorization in kwallermanager?-->
+<para>
+On the next start of this application you can define a new policy for access to the wallet.
+</para>
+<screenshot>
+<screeninfo>Access request to open a wallet</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="application-request-to-open-wallet.png"/>
+</imageobject>
+<textobject>
+<phrase>Access request to open a wallet</phrase>
+</textobject>
+<caption><para>An application requesting access to a wallet</para></caption>
+</mediaobject>
+</screenshot>
+
+</sect1>
+
+</chapter>
+
+<chapter id="advanced-features">
+<title>Advanced Features</title>
+
+<para>Wallets can be dragged from the &kwalletmanager5; window.  This allows
+you to drag the wallet to a file browser window, where you can choose to
+copy, move, or link the wallet, as desired.</para>
+
+<para>You might use this to save a wallet to portable media, such as a
+USB keychain, so that you can take your passwords with you to work or
+on a vacation, and still have easy access to important sites.</para>
+
+</chapter>
+
+<chapter id="credits-and-license">
+<title>Credits and License</title>
+
+<para>&kwallet5; &copy; 2003 &George.Staikos;</para>
+<para>Documentation &copy; &Lauri.Watts; and &George.Staikos;</para>
+
+<!-- TRANS:CREDIT_FOR_TRANSLATORS -->
+
+&underFDL;
+&underGPL;
+
+</chapter>
+
+&documentation.index;
+
+</book>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+
+// vim:ts=2:sw=2:tw=78:noet
+-->

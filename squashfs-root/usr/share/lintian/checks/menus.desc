@@ -1,0 +1,333 @@
+Check-Script: menus
+Author: Christian Schwarz <schwarz@debian.org>
+Abbrev: men
+Type: binary
+Info: Check if a binary package conforms to policy with respect to
+ <b>menu</b> and <b>doc-base</b> files.
+Needs-Info: bin-pkg-control, unpacked
+
+Tag: maintainer-script-does-not-check-for-existence-of-updatemenus
+Severity: important
+Certainty: possible
+Info: The maintainer script calls the <tt>update-menus</tt> command without
+ checking for existence first. (The <tt>menu</tt> package which provides the
+ command is not marked as "essential" package.)
+ .
+ For example, use the following code in your maintainer script:
+  if [ -x /usr/bin/update-menus ] ; then update-menus ; fi
+
+Tag: maintainer-script-does-not-check-for-existence-of-installdocs
+Severity: important
+Certainty: possible
+Info: The maintainer script calls the <tt>install-docs</tt> command without
+ checking for existence first. (The <tt>doc-base</tt> package which provides
+ the command is not marked as "essential" package.)
+ .
+ For example, use the following code in your maintainer script:
+  if [ -x /usr/sbin/install-docs ]; then
+    /usr/sbin/install-docs -i /usr/share/doc-base/&lt;your-package&gt;
+  fi
+
+Tag: preinst-calls-updatemenus
+Severity: important
+Certainty: certain
+Info: The preinst script calls the <tt>update-menus</tt> command. Usually,
+ this command should be called from the <tt>postinst</tt> maintainer script.
+
+Tag: preinst-calls-installdocs
+Severity: important
+Certainty: certain
+Info: The preinst script calls the <tt>install-docs</tt> command. Usually,
+ this command should be called from the <tt>postinst</tt> maintainer script.
+
+Tag: prerm-calls-updatemenus
+Severity: important
+Certainty: certain
+Info: The prerm script calls the <tt>update-menus</tt> command. Usually,
+ this command should be called from the <tt>postrm</tt> maintainer script.
+
+Tag: postrm-calls-installdocs
+Severity: important
+Certainty: certain
+Info: The postrm script calls the <tt>install-docs</tt> command. Usually,
+ this command should be called from the <tt>prerm</tt> maintainer script.
+
+Tag: executable-menu-file
+Severity: normal
+Certainty: certain
+Info: Menu files should normally not be marked as executables. You only
+ need to do this if your package has to generate menu entries dynamically.
+
+Tag: menu-file-in-usr-lib
+Severity: normal
+Certainty: certain
+Info: As of menu, version 2.1.25, /usr/lib/menu as location for menu
+ files is deprecated (but still works perfectly). Menu files should
+ now be placed in /usr/share/menu instead. Only menu files that are
+ actually binary executables still need to go to /usr/lib/menu.
+Ref: menu 3.1
+
+Tag: executable-in-usr-share-docbase
+Severity: important
+Certainty: certain
+Info: Files in <tt>/usr/share/doc-base</tt> may not be marked as executables.
+
+Tag: postinst-does-not-call-updatemenus
+Severity: important
+Certainty: certain
+Info: Since the package installs a file in <tt>/etc/menu-methods</tt>,
+ <tt>/usr/share/menu</tt>, or <tt>/usr/lib/menu</tt>, the package should
+ probably call the <tt>update-menus</tt> command in it's <tt>postinst</tt>
+ script.
+ .
+ For example, use the following code in your maintainer script:
+  if [ -x /usr/bin/update-menus ] ; then update-menus ; fi
+Ref: menu 4.2
+
+Tag: postrm-does-not-call-updatemenus
+Severity: important
+Certainty: certain
+Info: Since the package installs a file in <tt>/etc/menu-methods</tt>,
+ <tt>/usr/share/menu</tt>, or <tt>/usr/lib/menu</tt>, the package should
+ probably call the <tt>update-menus</tt> command in it's <tt>postrm</tt>
+ script.
+ .
+ For example, use the following code in your maintainer script:
+  if [ -x /usr/bin/update-menus ] ; then update-menus ; fi
+Ref: menu 4.2
+
+Tag: postinst-has-useless-call-to-update-menus
+Severity: minor
+Certainty: certain
+Info: The <tt>postinst</tt> script calls the <tt>update-menus</tt> program
+ though no file is installed in <tt>/etc/menu-methods</tt>,
+ <tt>/usr/share/menu</tt>, or <tt>/usr/lib/menu</tt>.
+
+Tag: postrm-has-useless-call-to-update-menus
+Severity: minor
+Certainty: certain
+Info: The <tt>postrm</tt> script calls the <tt>update-menus</tt> program
+ though no file is installed in <tt>/etc/menu-methods</tt>,
+ <tt>/usr/share/menu</tt>, or <tt>/usr/lib/menu</tt>.
+
+Tag: postinst-has-useless-call-to-install-docs
+Severity: minor
+Certainty: certain
+Info: Explicitly calling <tt>install-docs</tt> in <tt>postinst</tt> is no
+ longer required since doc-base file processing is handled by triggers.
+ If the <tt>install-docs</tt> call was added by debhelper, rebuilding the
+ package with debhelper 7.2.3 or later will fix this problem.
+
+Tag: prerm-has-useless-call-to-install-docs
+Severity: minor
+Certainty: certain
+Info: Explicitly calling <tt>install-docs</tt> in <tt>prerm</tt> is no
+ longer required since doc-base file processing is handled by triggers.
+ If the <tt>install-docs</tt> call was added by debhelper, rebuilding the
+ package with debhelper 7.2.3 or later will fix this problem.
+
+Tag: bad-menu-file-name
+Severity: important
+Certainty: certain
+Info: The package installs a file <tt>/usr/lib/menu/menu</tt>, which is
+ already in use by the <tt>menu</tt> package itself.  The menu file should
+ be named after the package that installs it.
+
+Tag: doc-base-index-references-multiple-files
+Severity: important
+Certainty: certain
+Info: The Index field in a doc-base file should reference the single index
+ file for that document.  Any other files belonging to the same document
+ should be listed in the Files field.
+Ref: doc-base 2.3.2.2
+
+Tag: doc-base-file-references-missing-file
+Severity: important
+Certainty: certain
+Info: One of the files referenced in an Index or Files field in this
+ doc-base control file does not exist in the package.  The doc-base
+ control files should be installed by the package that provides the
+ documents they are registering.
+
+Tag: doc-base-file-unknown-format
+Severity: normal
+Certainty: certain
+Info: The Format field in this doc-base control file declares a format
+ that is not supported.  Recognized formats are "HTML", "Text", "PDF",
+ "PostScript", "Info", "DVI", and "DebianDoc-SGML" (case-insensitive).
+Ref: doc-base 2.3.2.2
+
+Tag: doc-base-file-no-format
+Severity: important
+Certainty: certain
+Info: A format section of this doc-base control file didn't specify a
+ format.  Each section after the first must specify a format.
+Ref: doc-base 2.3.2.2
+
+Tag: doc-base-file-no-format-section
+Severity: important
+Certainty: certain
+Info: This doc-base control file didn't specify any format
+ section.
+Ref: doc-base 2.3.2.2
+
+Tag: doc-base-file-no-index
+Severity: important
+Certainty: certain
+Info: Format sections in doc-base control files for HTML or Info documents
+ must contain an Index field specifying the starting document for the
+ documentation.  Even if the documentation is a single file, this field
+ must be present.
+Ref: doc-base 2.3.2.2
+
+Tag: doc-base-document-field-ends-in-whitespace
+Severity: important
+Certainty: certain
+Info: The Document field in a doc-base file should not end in whitespace.
+ doc-base (at least as of 0.8.5) cannot cope with such fields and
+ debhelper 5.0.57 or earlier may create files ending in whitespace when
+ installing such files.
+
+Tag: doc-base-document-field-not-in-first-line
+Severity: important
+Certainty: certain
+Info: The Document field in doc-base control file must be located at
+ first line of the file.  While unregistering documents, doc-base 0.8
+ and later parses only the first line of the control file for performance
+ reasons.
+Ref: doc-base 2.3.2.1
+
+Tag: doc-base-file-unknown-field
+Severity: important
+Certainty: certain
+Info: The doc-base control file contains field which is either unknown
+ or not valid for the section where was found.  Possible reasons for this
+ error are: a typo in field name, missing empty line between control file
+ sections, or an extra empty line separating sections.
+Ref: doc-base 2.3.2.1, doc-base 2.3.2.2
+
+Tag: doc-base-file-duplicated-field
+Severity: important
+Certainty: certain
+Info: The doc-base control file contains a duplicated field.
+
+Tag: doc-base-file-duplicated-format
+Severity: important
+Certainty: certain
+Info: The doc-base control file contains a duplicated format.  Doc-base
+ files must not register different documents in one control file.
+Ref: doc-base 2.3.2.2
+
+Tag: doc-base-file-lacks-required-field
+Severity: important
+Certainty: certain
+Info: The doc-base control file does not contain a required field for the
+ appropriate section.
+Ref: doc-base 2.3.2.1, doc-base 2.3.2.2
+
+Tag: doc-base-invalid-document-field
+Severity: important
+Certainty: certain
+Info: The Document field should consists only of letters (a-z), digits
+ (0-9), plus (+) or minus (-) signs, and dots (.).  In particular,
+ uppercase letters are not allowed.
+Ref: doc-base 2.2
+
+Tag: doc-base-abstract-field-is-template
+Severity: normal
+Certainty: possible
+Info: The Abstract field of doc-base contains a "manage online manuals"
+ phrase, which was copied verbatim from an example control file found in
+ section 2.3.1 of the Debian doc-base Manual.
+
+Tag: doc-base-abstract-might-contain-extra-leading-whitespace
+Severity: normal
+Certainty: possible
+Info: Continuation lines of the Abstract field of doc-base control file
+ should start with only one space unless they are meant to be displayed
+ verbatim by frontends.
+Ref: doc-base 2.3.2
+
+Tag: doc-base-abstract-field-separator-extra-whitespace
+Severity: normal
+Certainty: certain
+Info: Unnecessary spaces were found in the paragraph separator line of the
+ doc-base's Abstract field.  The separator line should consist of a single
+ space followed by a single dot.
+Ref: doc-base 2.3.2
+
+Tag: spelling-error-in-doc-base-title-field
+Severity: minor
+Certainty: certain
+Info: Lintian found a spelling or capitalization error in the Title field
+ of this doc-base control file.  Lintian has a list of common misspellings
+ that it looks for.  It does not have a dictionary like a spelling checker
+ does.
+
+Tag: spelling-error-in-doc-base-abstract-field
+Severity: minor
+Certainty: certain
+Info: Lintian found a spelling or capitalization error in the Abstract
+ field of this doc-base control file.  Lintian has a list of common
+ misspellings that looks for.  It does not have a dictionary like a
+ spelling checker does.
+
+Tag: doc-base-file-syntax-error
+Severity: important
+Certainty: certain
+Info: Lintian found a syntax error in the doc-base control file.
+Ref: doc-base 2.3.2.2
+
+Tag: doc-base-file-separator-extra-whitespace
+Severity: normal
+Certainty: certain
+Info: Unnecessary spaces were found in the doc-base file sections'
+ separator.  The section separator is an empty line and should not contain
+ any whitespace.
+Ref: doc-base 2.3.2
+
+Tag: doc-base-file-uses-obsolete-national-encoding
+Severity: important
+Certainty: certain
+Info: doc-base files must be valid UTF-8, an encoding of the Unicode
+ character set.
+ .
+ There are many ways to convert a doc-base file from an obsolete encoding
+ like ISO-8859-1.  You may, for example, use "iconv" like:
+ .
+  $ iconv -f ISO-8859-1 -t UTF-8 doc-base &gt; doc-base.new
+  $ mv doc-base.new doc-base
+Ref: doc-base 2.3.2
+
+Tag: doc-base-uses-applications-section
+Severity: normal
+Certainty: certain
+Info: The section indicated in this doc-base control file has a top-level
+ section of Apps or Applications. This section is only used in menu, not
+ in doc-base. Simply removing the <tt>Applications/</tt> part of the
+ section will lead to a valid doc-base section.
+Ref: doc-base 2.3.3
+
+Tag: doc-base-unknown-section
+Severity: normal
+Certainty: certain
+Info: The section indicated in this doc-base control file is not one of
+ the standard doc-base sections.  The doc-base sections are based on the
+ menu sections but are not exactly the same.
+Ref: doc-base 2.3.3, /usr/share/doc/doc-base/doc-base.html/index.html
+
+Tag: menu-method-should-include-menu-h
+Severity: important
+Certainty: certain
+Info: A menu-method file must include the menu.h configuration file
+ (using "!include menu.h").
+Ref: menu 5
+
+Tag: possible-documentation-but-no-doc-base-registration
+Severity: wishlist
+Certainty: possible
+Info: The package ships a <tt>.html</tt> or <tt>.pdf</tt> file under
+ <tt>/usr/share/doc/</tt>, which are usually documentation, but it does
+ not register anything in doc-base.  (Files under an <tt>examples</tt>
+ directory are excluded.)
+Ref: policy 9.10

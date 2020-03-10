@@ -1,0 +1,32 @@
+Check-Script: udev
+Author: Petter Reinholdtsen <pere@hungry.com>
+Type: binary
+Needs-Info: unpacked
+Info: This script checks the udev rules for problems.
+
+Tag: udev-rule-unreadable
+Severity: serious
+Certainty: certain
+Ref: https://wiki.debian.org/USB/GadgetSetup
+Info: The udev rule entry should be a file
+ The package contain a non-file in /lib/udev/rules.d/.  The directory
+ should only contain readable files.
+
+Tag: udev-rule-missing-uaccess
+Severity: normal
+Certainty: possible
+Ref: https://wiki.debian.org/USB/GadgetSetup
+Info: The package set up a device for user access without using the
+ uaccess tag.  Some udev rules get the same effect using other markers
+ enabling console user access using rules in
+ /lib/udev/rules.d/70-uaccess.rules.  Others should specify
+ TAG+="uaccess" in the udev rule.
+
+Tag: udev-rule-missing-subsystem
+Severity: normal
+Certainty: possible
+Ref: https://wiki.debian.org/USB/GadgetSetup
+Info: The package matches vendor/product IDs without specifying
+ subsystem.  The vendor/product IDs are subsystem specific.  Matching
+ rules using those should specify subsystem too, for example by using
+ SUBSYSTEM=="usb" at the start of the matching rule.

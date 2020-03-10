@@ -1,0 +1,838 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN" "dtd/kdedbx45.dtd" [
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Italian "INCLUDE">
+]>
+
+<book id="kwallet5" lang="&language;">
+<bookinfo>
+<title
+>Manuale di &kwallet5;</title>
+
+<authorgroup>
+<author
+>&George.Staikos; &George.Staikos.mail; </author>
+<author
+>&Lauri.Watts; &Lauri.Watts.mail; </author>
+<othercredit role="developer"
+><firstname
+>George</firstname
+><surname
+>Staikos</surname
+> <affiliation
+><address
+>&George.Staikos.mail;</address
+></affiliation>
+<contrib
+>Sviluppatore</contrib>
+</othercredit>
+<othercredit role="translator"
+><firstname
+>Vincenzo</firstname
+><surname
+>Reale</surname
+><affiliation
+><address
+><email
+>smart2128@baslug.org</email
+></address
+></affiliation
+><contrib
+>Traduzione della documentazione</contrib
+></othercredit
+><othercredit role="translator"
+><firstname
+>Nicola</firstname
+><surname
+>Ruggero</surname
+><affiliation
+><address
+><email
+>nicola@nxnt.org</email
+></address
+></affiliation
+><contrib
+>Traduzione della documentazione</contrib
+></othercredit
+><othercredit role="translator"
+><firstname
+>Federico</firstname
+><surname
+>Zenith</surname
+><affiliation
+><address
+><email
+>federico.zenith@member.fsf.org</email
+></address
+></affiliation
+><contrib
+>Traduzione della documentazione</contrib
+></othercredit
+> 
+</authorgroup>
+
+<legalnotice
+>&FDLNotice;</legalnotice>
+
+<date
+>05/07/2016</date>
+<releaseinfo
+>Applications 16.04</releaseinfo>
+
+<abstract>
+<para
+>Il sottosistema portafogli fornisce un modo comodo e sicuro di gestire tutte le tue password.</para>
+
+</abstract>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>Kwallet</keyword>
+<keyword
+>password</keyword>
+<keyword
+>moduli</keyword>
+</keywordset>
+
+</bookinfo>
+
+<chapter id="introduction">
+<title
+>Introduzione</title>
+
+<para
+>Gli utenti dei computer hanno grandi quantità di dati da gestire, alcuni dei quali sono sensibili. In particolare, si hanno spesso parecchie password da gestire. Ricordarle è difficile, scriverle su carta o su un file di testo non è sicuro.</para>
+
+<para
+>&kwallet5; fornisce un modo sicuro per memorizzare le password e altre informazioni segrete, permettendo all'utente di ricordare una sola password, invece di numerose password e credenziali diverse. </para>
+
+<sect1 id="kwallet-create">
+
+<title
+>Creare un portafogli</title>
+
+<para
+>Il portafogli è un archivio di password. Normalmente è sufficiente avere un solo portafogli protetto da una password principale, ma è possibile organizzare la propria collezione di password per portafogli utilizzando &kwalletmanager5;.</para>
+
+<para
+>In modo predefinito, un portafogli con nome <guilabel
+>kdewallet</guilabel
+> sarà utilizzato per archiviare le proprie password. Questo portafogli è protetto dalla password di accesso e sarà automaticamente aperto all'avvio della sessione, se kwallet_pam è installato e opportunamente configurato. Su alcune distribuzioni (&eg; Archlinux) kwallet_pam non è installato in modo predefinito.</para>
+
+
+<para
+>Gli altri portafogli devono essere aperti manualmente.</para>
+
+<para
+>Ci sono due modi di creare un nuovo portafogli:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Utilizzare la voce di menu <menuchoice
+><guimenu
+>File</guimenu
+><guimenuitem
+>Nuovo portafogli</guimenuitem
+></menuchoice
+> in &kwalletmanager5;</para
+></listitem>
+
+<listitem
+><para
+>Utilizzare il pulsante <guibutton
+>Nuovo</guibutton
+> nel modulo <guilabel
+>KDE Wallet</guilabel
+> di &systemsettings;</para
+></listitem>
+</itemizedlist>
+
+<para
+>Se non è stato creato ancora un portafogli, vedere la sezione <link linkend="kwallet-using"
+>Utilizzare &kwallet5;</link
+> . </para>
+
+<para
+>&kwallet5; offre due modi diversi per memorizzare i propri dati:</para>
+
+<screenshot>
+<screeninfo
+>Selezionare la cifratura</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="wallet-encryption-selection.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Selezionare la cifratura</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<variablelist>
+
+<varlistentry>
+<term
+>Cifratura Blowfish</term>
+<listitem>
+<para
+>&kwallet5; salva questi dati sensibili per conto tuo in un file a cifratura forte, accessibile da tutte le applicazioni, e protetto da una password principale che tu definisci.</para>
+
+<screenshot>
+<screeninfo
+>Crea un portafogli cifrato con blowfish</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="first-open-request.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Crea un portafogli cifrato con blowfish</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>I dati sono cifrati con l'<ulink url="http://www.schneier.com/blowfish.html"
+>algoritmo di cifratura simmetrica a blocchi Blowfish</ulink
+>, la chiave dell'algoritmo è derivata dall'<ulink url="http://www.ietf.org/rfc/rfc3174.txt"
+>hash SHA-1</ulink
+> della password, con una lunghezza di chiave di 156 bit (20 byte). I dati nel portafogli sono sottoposti ad hash SHA-1 e controllati prima che i dati vengano decifrati e resi disponibili alle applicazioni. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+>Cifratura GPG</term>
+<listitem>
+<para
+>GnuPG offre alcuni algoritmi di cifratura molto forti e utilizza chiavi lunghe protette da frase segreta.</para>
+
+<screenshot>
+<screeninfo
+>Nessuna chiave GPG trovata</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="error-nokey.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Nessuna chiave GPG trovata</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+<para
+>Le schermate sopra mostrano il caso in cui una chiave di cifratura GPG non sia stata trovata sul sistema. Utilizzare applicazioni come &kgpg; o &kleopatra; per creare una chiave e riprovare.</para>
+
+<para
+>Se è stata trovata una chiave GPG, si otterrà la seguente finestra in cui è possibile selezionare un chiave da utilizzare per il nuovo portafogli. </para>
+<screenshot>
+<screeninfo
+>Selezionare una chiave di cifratura</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="key-selection.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Selezionare una chiave di cifratura</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>&kwallet5; ora utilizzerà GPG quando si memorizzano i portafogli e durante la loro apertura. La finestra della frase segreta sarà mostrata solo una volta. Anche se il portafogli è chiuso dopo l'apertura iniziale, l'apertura seguente avverrà in silenzio durante la stessa sessione. </para>
+
+<para
+>La stessa sessione può gestire contemporaneamente entrambi i formati di file. &kwallet5; rileverà, in modo trasparente, il formato del file e caricherà il motore corretto per gestirlo.</para>
+
+<para
+>Per utilizzare i propri dati personali dal portafogli classico con il nuovo motore, seguire questi passi:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Crea un nuovo portafogli basato su GPG</para
+></listitem>
+<listitem
+><para
+>Avviare &kwalletmanager5; utilizzando &krunner; (<keycombo
+>&Alt;<keycap
+>F2</keycap
+></keycombo
+>) o un altro avviatore di applicazioni. Scegliere poi <menuchoice
+><guimenu
+>File</guimenu
+><guimenuitem
+>Esporta cifrato</guimenuitem
+></menuchoice
+> per creare un file archivio con i propri dati personali. </para
+></listitem>
+<listitem
+><para
+>Selezionare il nuovo portafogli basato su GPG quindi scegliere <menuchoice
+><guimenu
+>File</guimenu
+> <guimenuitem
+>Importa cifrato</guimenuitem
+></menuchoice
+> e selezionare il file appena salvato.</para>
+</listitem>
+
+<listitem
+><para
+>Aprire &systemsettings; <menuchoice
+><guimenu
+>Dettagli account</guimenu
+><guimenuitem
+>Portafogli di KDE</guimenuitem
+></menuchoice
+> e selezionare il portafogli basato su GPG appena creato dalla casella combinata <guilabel
+>Seleziona il portafogli da utilizzare come predefinito</guilabel
+>. </para
+></listitem>
+</itemizedlist>
+
+<para
+>In alternativa, utilizzare <guimenuitem
+>Importa un portafogli</guimenuitem
+>, ma in questo caso è necessario selezionare il file <filename class="extension"
+>.kwl</filename
+> corrispondente al proprio vecchio portafogli, che si trova in nella cartella <filename class="directory"
+>kwalletd</filename
+> in <userinput
+>qtpaths --paths GenericDataLocation</userinput
+>. </para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+<tip>
+<para
+>&kwallet5; supporta portafogli multipli. Per una maggior sicurezza, sarebbe bene utilizzare un portafogli per le password locali e un altro per le password di rete e i dati dei moduli. È possibile configurare questo comportamento nel modulo &kwallet5; di &systemsettings;, tuttavia l'impostazione predefinita è salvare tutto in un portafogli con nome <guilabel
+>kdewallet</guilabel
+>.</para>
+</tip>
+
+<para
+>Un portafoglio è sempre chiuso in maniera predefinita, ciò significa che devi fornire una password per aprirlo. Una volta che è aperto, il contenuto può essere letto da qualsiasi processo dell'utente, perciò potrebbe costituire un problema di sicurezza.</para>
+</sect1>
+
+<sect1 id="kwallet-using">
+<title
+>Usare &kwallet5;</title>
+
+<para
+>Se visiti &eg; il sito di gestione bug di &kde; e digiti i dati di accesso per la prima volta, una finestra di dialogo compare offrendoti si salvare la password in un portafogli cifrato:</para>
+
+<screenshot>
+<screeninfo
+>Richiesta di salvare la informazioni di accesso</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="save-login-information.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Richiesta di salvare le informazioni di accesso</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Se si desidera salvare questa informazione, selezionare <guibutton
+>Salva</guibutton
+> per continuare. Nel caso in cui non avessi creato ancora un portafogli, la finestra successiva chiede la password del portafogli e ne crea uno chiamato kwallet. </para>
+
+<para
+>La prossima volta che si visita nuovamente lo stesso sito, l'applicazione recuperare i dati di accesso da un portafogli aperto e compila i moduli con questi segreti.</para>
+
+<screenshot>
+<screeninfo
+>Informazioni di accesso pre-compilate</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="prefilled-forms.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Informazioni di accesso pre-compilate</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Se il portafogli è chiuso, l'applicazione richiede di aprire il portafogli. Digita la password del portafogli e fai clic su <guibutton
+>Apri</guibutton
+>.</para>
+
+<screenshot>
+<screeninfo
+>Richiesta di aprire un portafogli</screeninfo>
+<mediaobject>
+<imageobject
+><imagedata fileref="openwallet-request.png" format="PNG"/></imageobject>
+<textobject
+><phrase
+>Richiesta di aprire un portafogli</phrase
+></textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Questo collega l'applicazione al portafogli, abilita a leggere le informazioni di accesso contenute in esso e a riportarle nel sito web. una vola che l'applicazione si è connessa al portafogli puoi riportare automaticamente qualsiasi informazione d'accesso immagazzinata nel portafogli stesso.</para>
+
+</sect1>
+
+</chapter>
+
+<chapter id="kwalletmanager5">
+<title
+>&kwalletmanager5;</title>
+
+<para
+>&kwalletmanager5; è utile per varie funzioni. Primo, consente di vedere se ci sono portafogli aperti, quali sono, e quali applicazioni stanno usando ciascun portafogli. Puoi disconnettere l'accesso di un'applicazione a un portafogli da &kwalletmanager5;.</para>
+
+<para
+>Puoi anche gestire i portafogli installati nel sistema, creando ed eliminando i portafogli e manipolandone i contenuti (cambio delle chiavi, ...).</para>
+
+<para
+>L'applicazione &kwalletmanager5; è lanciata da <menuchoice
+> <guimenu
+>Applicazioni</guimenu
+><guisubmenu
+>Sistema</guisubmenu
+> <guimenuitem
+>Strumento di gestione portafogli</guimenuitem
+></menuchoice
+> nel lanciatore delle applicazioni. In alternativa avviare &krunner; con la scorciatoia <keycombo action="simul"
+>&Alt;<keycap
+>F2</keycap
+></keycombo
+> e digitare <command
+>kwalletmanager5</command
+>.</para>
+
+<para
+>Fai clic una sola volta sull'icona del portafogli nel vassoio di sistema per visualizzare la finestra di &kwalletmanager5;.</para>
+<para>
+<screenshot>
+<screeninfo
+>La finestra principale con un portafogli</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwalletmanager.png"/>
+</imageobject>
+<textobject>
+<phrase
+>La finestra principale con un portafogli</phrase>
+</textobject>
+<caption
+><para
+>La finestra principale con un portafogli</para
+></caption>
+</mediaobject>
+</screenshot>
+</para>
+
+<!--FIXME
+How to get assistant "First Use"? kwalletwizardpageintro.ui
+Last code change with http://websvn.kde.org/?view=revision&revision=882694
+see also https://bugs.kde.org/show_bug.cgi?id=290309
+-->
+<sect1 id="kwalletmanager-wallet-window">
+<title
+>La finestra del portafogli</title>
+
+<para
+>In presenza di più di un portafogli, tutti i portafogli disponibili sono mostrati come icona a sinistra.</para>
+
+<para
+>Facendo clic su un portafogli nella finestra di &kwalletmanager5; sarà visualizzato lo stato di un portafogli aperto e il suo contenuto. Un portafogli può contenere un qualsiasi numero di cartelle, che permettono di memorizzare le password. In modo predefinito, un portafogli contiene le cartelle chiamate Dati modulo e Password. </para>
+
+<screenshot>
+<screeninfo
+>La finestra principale con due portafogli</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-edit.png"/>
+</imageobject>
+<textobject>
+<phrase
+>La finestra principale con due portafogli</phrase>
+</textobject>
+<caption
+><para
+>Finestra principale con due portafogli</para
+></caption>
+</mediaobject>
+</screenshot>
+<para
+>Utilizzare <guibutton
+>Apri</guibutton
+> per visualizzare il contenuto di un portafogli chiuso. Vi sarà richiesto di inserire la password principale.</para>
+
+<sect2>
+<title
+>La scheda Contenuti</title>
+
+<para
+>La scheda <guilabel
+>Contenuti</guilabel
+> contiene tre sezioni:</para>
+
+<itemizedlist>
+<listitem
+><para
+>Una barra di ricerca per filtrare gli elementi nel portafogli corrente</para
+></listitem>
+<listitem
+><para
+>La vista ad albero delle cartelle contenute nel portafogli. Fare clic sui simboli <guiicon
+>&gt;</guiicon
+> / <guiicon
+>v</guiicon
+> per espandere o contrarre la vista ad albero.</para
+></listitem>
+<listitem
+><para
+>Il contenuto della voce di cartella selezionata sul lato destro. In modo predefinito, la password e il valore sono nascosti. Per visualizzare e modificarli abilitare <guilabel
+>Mostra valori</guilabel
+> oppure fare clic sul pulsante <guilabel
+>Mostra contenuti</guilabel
+>. </para
+></listitem>
+</itemizedlist>
+
+<para
+>Le cartelle possono essere aggiunte o eliminate attraverso il menu contestuale. La selezione di una cartella aggiornerà l'elenco delle voci della cartella e la visualizzazione del riepilogo. La selezione della voce di una cartella aggiornerà l'area dei contenuti della voce, e consentirà di modificare quella voce.</para>
+
+<para
+>Le voci possono anche essere create, rinominate o eliminate attraverso il menu contestuale dei contenuti delle cartelle.</para>
+
+<para
+>Tutte le cartelle e le voci possono essere trascinate rispettivamente in altri portafogli o cartelle. Ciò permette all'utente di preparare facilmente un nuovo portafogli da trasferire in un altro ambiente. Per esempio, un nuovo portafogli potrebbe essere creato e copiato in un dispositivo di memoria rimovibile. Le password importanti potrebbero essere spostate lì, in modo da averle a disposizione in altri luoghi.</para>
+
+<sect3 id="kwallet-import-export">
+<title
+>Importa ed esporta</title>
+<para
+>Se si desidera trasferire i segreti su un altro dispositivo o computer utilizzare le azioni nel menu <guimenu
+>File</guimenu
+>. Con <guimenuitem
+>Esporta cifrato</guimenuitem
+> i portafogli possono essere esportati in un file archivio cifrato. Importando questo file con <guimenuitem
+>Importa cifrato</guimenuitem
+>, è necessario fornire la password principale del portafogli. </para>
+<para
+>In alternativa, un file <filename class="extension"
+>.xml</filename
+> può essere utilizzato per trasferire un portafogli. Ricordati che tutti i segreti vengono memorizzati come testo semplice. </para>
+</sect3>
+
+<sect3 id="kwallet-adding-entries">
+<title
+>Aggiunta manuale delle voci</title>
+<para
+>Aprire il menu contestuale con il &RMB;, fare clic su <guilabel
+>Mappe</guilabel
+> o <guilabel
+>Password</guilabel
+> nella vista ad albero <guilabel
+>Cartella</guilabel
+>. Selezionare <guimenuitem
+>Nuovo</guimenuitem
+> o <guimenuitem
+>Nuova cartella</guimenuitem
+>e scegliere un nome per la nuova voce.</para>
+<para
+>Nel pannello dei contenuti della cartella, selezionare <guilabel
+>Nuova cartella</guilabel
+> dal menu contestuale di <quote
+>Modulo dati</quote
+> o <quote
+>Password</quote
+> . Per le password, fare clic sul pulsante <guilabel
+>Mostra contenuti</guilabel
+>, digitare la nuova password. Per Mappe si deve aggiungere una <guilabel
+>Chiave</guilabel
+> e un <guilabel
+>Valore</guilabel
+>. Fare clic sul pulsante <guilabel
+>Salva</guilabel
+> per memorizzare le nuove voci del file cifrato del portafogli. </para>
+</sect3>
+</sect2>
+
+<sect2>
+<title
+>La scheda Applicazioni</title>
+<para>
+<screenshot>
+<screeninfo
+>La scheda Applicazioni</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-applications.png"/>
+</imageobject>
+<textobject>
+<phrase
+>La scheda Applicazioni</phrase>
+</textobject>
+<caption
+><para
+>La scheda Applicazioni</para
+></caption>
+</mediaobject>
+</screenshot>
+</para>
+<para
+>Il primo elenco mostra tutte le applicazioni attualmente connesse al portafogli selezionato. Utilizzare il pulsante sul lato destro di ciascuna voce per disconnettere l'applicazione.</para>
+
+<para
+>Nel secondo elenco vengono visualizzate tutte le applicazioni che sono autorizzate ad accedere al portafogli. Utilizzare il pulsante a destra di ogni voce nell'elenco per revocare l'accesso. </para>
+<!-- FIXME difference to remove the policy in kwallermanager settings dialog?-->
+</sect2>
+</sect1>
+
+</chapter>
+
+<chapter id="kwallet-kcontrol-module">
+<title
+>Configurare &kwallet5;</title>
+
+<sect1 id="wallet-preferences">
+<title
+>Preferenze del portafogli</title>
+
+<para
+>&kwallet5; contiene un piccolo pannello di configurazione con diverse opzioni che consentono di adattare &kwallet5; alle proprie preferenze personali. Le impostazioni predefinite di &kwallet5; sono sufficienti per la maggior parte degli utenti.</para>
+
+<para
+>Marcare la casella per abilitare o disabilitare del tutto il sistema di portafogli di &kde;. Se questa casella non è marcata, &kwallet5; è disattivato completamente e nessuna delle altre opzioni avrà effetto, e &kwallet5; non registrerà alcuna informazione, né si offrirà di riempire i moduli.</para>
+
+<variablelist>
+<title
+><guilabel
+>Chiudi portafogli</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Chiudi quando inattivo per:</guilabel
+></term>
+<listitem>
+<para
+>Chiude il portafogli corrente dopo un certo periodo di inattività. Se attivi questa opzione, imposta il periodo nel riquadro. Il periodo predefinito è di 10 minuti. Quando un portafogli è chiuso, ti verrà richiesta la password per accedere di nuovo.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Chiudi quando parte il salvaschermo</guilabel
+></term>
+<listitem>
+<para
+>Chiude il portafogli appena parte il salvaschermo. Quando un portafogli è chiuso, ti verrà richiesta la password per accedere di nuovo.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Chiudi quando l'ultima applicazione smette di utilizzarlo</guilabel
+></term>
+<listitem>
+<para
+>Chiude il portafogli appena l'applicazione che lo usa si è fermata. Nota che i tuoi portafogli verranno chiusi solo quando tutte le applicazioni che li usano si sono fermate. Quando un portafogli è chiuso, ti verrà richiesta la password per accedere di nuovo.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title
+><guilabel
+>Selezione automatica del portafogli</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Seleziona il portafogli predefinito:</guilabel
+></term>
+<listitem>
+<para
+>Selezionare quale portafogli si desidera utilizzare come portafogli predefinito. Tenere presente che solo il portafogli con nome <guilabel
+>kdewallet</guilabel
+> sarà aperto automaticamente all'avvio, se questa portafogli e la password di accesso coincidono. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Portafogli differente per le password locali:</guilabel
+></term>
+<listitem>
+<para
+>Se selezionato, sceglie un portafogli differente per le password locali.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<variablelist>
+<title
+><guilabel
+>Gestione portafogli</guilabel
+></title>
+<varlistentry>
+<term
+><guilabel
+>Mostra il gestore nel vassoio di sistema</guilabel
+></term>
+<listitem>
+<para
+>Abilita il gestore portafogli ad avere la propria icona nel vassoio di sistema.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term
+><guilabel
+>Nascondi l'icona nel vassoio di sistema alla chiusura dell'ultimo portafogli</guilabel
+></term>
+<listitem>
+<para
+>Quando non ci sono più portafogli in uso, rimuove l'icona del portafogli dal vassoio di sistema.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Infine, c'è un pulsante chiamato <guibutton
+>Avvia il gestore dei portafogli</guibutton
+>, che fa esattamente quello.</para>
+<para
+>Questo pulsante è visibile solo se &kwalletmanager5; non è in esecuzione</para>
+</sect1>
+
+<sect1 id="wallet-access-control">
+<title
+>Controllo degli accessi</title>
+
+<para
+>C'è solo un'opzione in questa pagina:</para>
+
+<variablelist>
+<varlistentry>
+<term
+><guilabel
+>Avvisa quando un'applicazione accede a un portafogli</guilabel
+></term>
+<listitem>
+<para
+>Ti segnala quando un'applicazione ottiene l'accesso a un portafogli.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para
+>Poi c'è una vista ad albero del controllo di accesso dei tuoi portafogli.</para>
+
+<screenshot>
+<screeninfo
+>Controllo degli accessi</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="kwallet-access-control.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Controllo degli accessi</phrase>
+</textobject>
+</mediaobject>
+</screenshot>
+
+<para
+>Fai clic con il &LMB; sul simbolo <guiicon
+>&gt;</guiicon
+> di fianco al nome di un portafogli per espandere l'albero. Vedrai il nome di ogni applicazione che ha richiesto accesso al portafogli, e le regole che le hai impostato. Qui non puoi modificare le regole, né aggiungerne, ma è possibile eliminare una voce facendoci clic con il &RMB; e scegliendo <guimenuitem
+>Elimina</guimenuitem
+> dal menu contestuale che appare, o semplicemente selezionandola e premendo il tasto <keysym
+>Canc</keysym
+>.</para>
+
+<para
+>Un'applicazione alla quale è stato permesso di accedere al portafogli ed alle password contenute in esso.</para>
+
+<para
+>Se è stata erroneamente configurata un'applicazione per non utilizzare &kwallet5; eliminare qui la regola per l'applicazione.</para>
+<!-- FIXME difference to Revoke Authorization in kwallermanager?-->
+<para
+>Al successivo avvio di questa applicazione è possibile definire una nuova regola per l'accesso al portafogli. </para>
+<screenshot>
+<screeninfo
+>Richiesta di accesso per aprire un portafogli</screeninfo>
+<mediaobject>
+<imageobject>
+<imagedata fileref="application-request-to-open-wallet.png"/>
+</imageobject>
+<textobject>
+<phrase
+>Richiesta di accesso per aprire un portafogli</phrase>
+</textobject>
+<caption
+><para
+>Un'applicazione richiede l'accesso a un portafogli</para
+></caption>
+</mediaobject>
+</screenshot>
+
+</sect1>
+
+</chapter>
+
+<chapter id="advanced-features">
+<title
+>Funzionalità avanzate</title>
+
+<para
+>I portafogli possono essere trascinati dalla finestra di &kwalletmanager5;. Ciò consente di trascinare il portafogli nella finestra di un navigatore di file, dove è possibile scegliere di copiare, spostare o collegare il portafogli, come desiderato.</para>
+
+<para
+>Potresti usarlo per salvare un portafogli in un supporto portatile, come una chiave USB, in modo da poter portare le tue password con te al lavoro o in vacanza, e mantenere un accesso facile a siti importanti.</para>
+
+</chapter>
+
+<chapter id="credits-and-license">
+<title
+>Riconoscimenti e licenza</title>
+
+<para
+>&kwallet5; &copy; 2003 &George.Staikos;</para>
+<para
+>Documentazione &copy; &Lauri.Watts; e &George.Staikos;</para>
+
+<para
+>Nicola Ruggero<email
+>nicola@nxnt.org</email
+></para
+><para
+>Federico Zenith<email
+>federico.zenith@member.fsf.org</email
+></para
+> &underFDL; &underGPL; </chapter>
+
+&documentation.index;
+
+</book>
+
+<!--
+Local Variables:
+mode: sgml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+
+// vim:ts=2:sw=2:tw=78:noet
+-->

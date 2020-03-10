@@ -1,0 +1,162 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ECMPoQmTools &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ECMQMLModules" href="ECMQMLModules.html" />
+    <link rel="prev" title="ECMPackageConfigHelpers" href="ECMPackageConfigHelpers.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ECMQMLModules.html" title="ECMQMLModules"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ECMPackageConfigHelpers.html" title="ECMPackageConfigHelpers"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" accesskey="U">ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ecmpoqmtools">
+<span id="module:ECMPoQmTools"></span><h1>ECMPoQmTools<a class="headerlink" href="#ecmpoqmtools" title="Permalink to this headline">¶</a></h1>
+<p>This module provides the <code class="docutils literal"><span class="pre">ecm_process_po_files_as_qm</span></code> and
+<code class="docutils literal"><span class="pre">ecm_install_po_files_as_qm</span></code> functions for generating QTranslator (.qm)
+catalogs from Gettext (.po) catalogs, and the <code class="docutils literal"><span class="pre">ecm_create_qm_loader</span></code>
+function for generating the necessary code to load them in a Qt application
+or library.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_process_po_files_as_qm</span><span class="p">(</span><span class="o">&lt;</span><span class="n">lang</span><span class="o">&gt;</span> <span class="p">[</span><span class="n">ALL</span><span class="p">]</span>
+                           <span class="p">[</span><span class="n">INSTALL_DESTINATION</span> <span class="o">&lt;</span><span class="n">install_destination</span><span class="o">&gt;</span><span class="p">]</span>
+                           <span class="n">PO_FILES</span> <span class="o">&lt;</span><span class="n">pofile</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">pofile</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]])</span>
+</pre></div>
+</div>
+<p>Compile .po files into .qm files for the given language.</p>
+<p>If INSTALL_DESTINATION is given, the .qm files are installed in
+<code class="docutils literal"><span class="pre">&lt;install_destination&gt;/&lt;lang&gt;/LC_MESSAGES</span></code>. Typically,
+<code class="docutils literal"><span class="pre">&lt;install_destination&gt;</span></code> is set to <code class="docutils literal"><span class="pre">share/locale</span></code>.</p>
+<p><code class="docutils literal"><span class="pre">ecm_process_po_files_as_qm</span></code> creates a “translations” target. This target
+builds all .po files into .qm files.  If ALL is specified, these rules are
+added to the “all” target (and so the .qm files will be built by default).</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_create_qm_loader</span><span class="p">(</span><span class="o">&lt;</span><span class="n">source_files_var</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">catalog_name</span><span class="o">&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Generates C++ code which ensures translations are automatically loaded at
+startup. The generated files are appended to <code class="docutils literal"><span class="pre">&lt;source_files_var&gt;</span></code>.</p>
+<p>It assumes that the .qm file for the language code <code class="docutils literal"><span class="pre">&lt;lang&gt;</span></code> is installed as
+<code class="docutils literal"><span class="pre">&lt;sharedir&gt;/locale/&lt;lang&gt;/LC_MESSAGES/&lt;catalog_name&gt;.qm</span></code>, where
+<code class="docutils literal"><span class="pre">&lt;sharedir&gt;</span></code> is one of the directories given by the <code class="docutils literal"><span class="pre">GenericDataLocation</span></code>
+of <code class="docutils literal"><span class="pre">QStandardPaths</span></code>.</p>
+<p>Typical usage is like:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="p">(</span><span class="s">mylib_SRCS</span> <span class="s">foo.cpp</span> <span class="s">bar.cpp</span><span class="p">)</span>
+<span class="nb">ecm_create_qm_loader</span><span class="p">(</span><span class="s">mylib_SRCS</span> <span class="s">mylib</span><span class="p">)</span>
+<span class="nb">add_library</span><span class="p">(</span><span class="s">mylib</span> <span class="o">${</span><span class="nv">mylib_SRCS</span><span class="o">}</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_install_po_files_as_qm</span><span class="p">(</span><span class="o">&lt;</span><span class="n">podir</span><span class="o">&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Searches for .po files and installs them to the standard location.</p>
+<p>This is a convenience function which relies on all .po files being kept in
+<code class="docutils literal"><span class="pre">&lt;podir&gt;/&lt;lang&gt;/</span></code>, where <code class="docutils literal"><span class="pre">&lt;lang&gt;</span></code> is the language the .po files are
+written in.</p>
+<p>For example, given the following directory structure:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">po</span><span class="o">/</span>
+  <span class="n">fr</span><span class="o">/</span>
+    <span class="n">mylib</span><span class="o">.</span><span class="n">po</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">ecm_install_po_files_as_qm(po)</span></code> compiles <code class="docutils literal"><span class="pre">mylib.po</span></code> into <code class="docutils literal"><span class="pre">mylib.qm</span></code> and
+installs it in <code class="docutils literal"><span class="pre">&lt;install_destination&gt;/fr/LC_MESSAGES</span></code>.
+<code class="docutils literal"><span class="pre">&lt;install_destination&gt;</span></code> defaults to <code class="docutils literal"><span class="pre">${LOCALE_INSTALL_DIR}</span></code> if defined,
+otherwise it uses <code class="docutils literal"><span class="pre">${CMAKE_INSTALL_LOCALEDIR}</span></code> if that is defined, otherwise
+it uses <code class="docutils literal"><span class="pre">share/locale</span></code>.</p>
+<p>Since pre-1.0.0.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ECMPackageConfigHelpers.html"
+                        title="previous chapter">ECMPackageConfigHelpers</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ECMQMLModules.html"
+                        title="next chapter">ECMQMLModules</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/module/ECMPoQmTools.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ECMQMLModules.html" title="ECMQMLModules"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ECMPackageConfigHelpers.html" title="ECMPackageConfigHelpers"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" >ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

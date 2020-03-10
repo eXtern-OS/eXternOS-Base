@@ -1,0 +1,51 @@
+See documentation.
+Following are some common errors to watch out for:
+
+
+It doesn't work together with Storable::fd_retrieve|fd_store, see
+https://rt.cpan.org/Ticket/Display.html?id=23419.
+You need to use freeze/nfreeze/thaw and syswrite/sysread the data
+yourself. See the bug for examples how to do it.
+
+---------------------
+
+Note that a random number generator is required for the proper
+operation of this module.  Systems that have /dev/random or
+/dev/urandom are fine, but those that do not, like most versions
+of Solaris, will need to fetch one before installing IO::Socket::SSL.
+If you don't already have a favorite, try EGD (egd.sourceforge.net).
+
+---------------------
+
+Versions of perl-ldap below v0.26 do not work with this version
+of IO::Socket::SSL because they contain a workaround for old
+versions of IO::Socket::SSL that breaks new versions.
+
+---------------------
+
+One user mentioned that the following did not work as it should in
+IO::Socket::SSL, but worked in IO::Socket::INET:
+
+chomp($var = <$socket>);
+print ord(chop($var));    # Prints "10" for people using ASCII
+
+This is due to a bug in Perl that is fixed in 5.8.1.  If you need
+a workaround, try one of the following:
+
+chomp($var = $socket->getline());
+chomp($var = scalar <$socket>);
+chomp($var = $var = <$socket>);
+
+Any function that returns the value of <$socket> (in scalar context)
+unchanged will work.
+
+---------------------
+
+If you have 384-bit RSA keys you need to use Diffie Hellman Key Exchange.
+See the parameter SSL_dh_file or SSL_dh for how to use it and
+http://groups.google.de/group/mailing.openssl.users/msg/d60330cfa7a6034b
+for an explanation why you need it.
+
+-- 
+Steffen Ullrich (sullr at cpan.org)
+Peter Behroozi (behrooz at fas.harvard.edu)

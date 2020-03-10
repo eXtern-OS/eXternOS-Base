@@ -1,0 +1,45 @@
+#!/bin/sh
+
+PATH=/sbin:$PATH
+
+if which lspci > /dev/null 2>&1; then
+    echo lspci: >&3
+    LC_ALL=C lspci -nn >&3
+    printf "\n" >&3
+fi
+
+if which lsusb > /dev/null 2>&1; then
+    echo lsusb: >&3
+    (
+	LC_ALL=C lsusb
+    ) | sort >&3
+    printf "\n" >&3
+fi
+
+# XXX No idea how to do this with discover v2
+#echo discover: >&3
+#discover --format="%m:%V %M\n" all >&3
+
+if [ -d /sys/bus/pci/devices/ ] ; then
+    echo loaded modules: >&3
+    (
+	cd /sys/bus/pci/devices/
+	for address in * ; do
+	    if [ -d "$address/driver/module" ] ; then
+		module=`cd $address/driver/module ; pwd -P | xargs basename`
+		if grep -q "^$module " /proc/modules ; then
+		    address=$(echo $address |sed s/0000://)
+		    echo "`lspci -n -s $address | tail -n 1 | awk '{print $3}'` $module" >&3
+		fi
+	    fi
+	done
+    )
+    echo >&3
+fi
+
+
+# Report X settings
+if which debconf-get-selections > /dev/null 2>&1; then
+    echo X setting: >&3
+    debconf-get-selections | egrep xserver-.*/config/device/driver >&3
+fi

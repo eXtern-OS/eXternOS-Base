@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools">
+ <TITLE>BRLTTY Reference Manual: Operand Syntax</TITLE>
+ <LINK HREF="BRLTTY-13.html" REL=next>
+ <LINK HREF="BRLTTY-11.html" REL=previous>
+ <LINK HREF="BRLTTY.html#toc12" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="BRLTTY-13.html">Next</A>
+<A HREF="BRLTTY-11.html">Previous</A>
+<A HREF="BRLTTY.html#toc12">Contents</A>
+<HR>
+<H2><A NAME="s12">12.</A> <A HREF="BRLTTY.html#toc12">Operand Syntax</A></H2>
+
+
+
+<H2><A NAME="operand-driver"></A> <A NAME="ss12.1">12.1</A> <A HREF="BRLTTY.html#toc12.1">Driver Specification</A>
+</H2>
+
+<P>A braille display or speech synthesizer driver must be specified
+via its two-letter 
+<A HREF="BRLTTY-10.html#drivers">driver identification code</A>.</P>
+<P>A comma-delimited list of drivers may be specified.
+If this is done then autodetection is performed using each listed driver in sequence.
+You may need to experiment in order to determine the most reliable order
+since some drivers autodetect better than others.</P>
+<P>If the single word <CODE>auto</CODE> is specified then autodetection is performed
+using only those drivers which are known to be reliable for this purpose.</P>
+
+<H2><A NAME="operand-braille-device"></A> <A NAME="ss12.2">12.2</A> <A HREF="BRLTTY.html#toc12.2">Braille Device Specification</A>
+</H2>
+
+<P>The general form of a braille device specification
+(see the 
+<A HREF="BRLTTY-4.html#options-braille-device">-d</A> command line option,
+the 
+<A HREF="BRLTTY-4.html#configure-braille-device">braille-device</A> configuration file directive,
+and the 
+<A HREF="BRLTTY-3.html#build-braille-device">--with-braille-device</A> build option)
+is <CODE>qualifier:</CODE><EM>data</EM>.
+For backward compatibility with earlier releases,
+if the qualifier is omitted then <CODE>serial:</CODE> is assumed.</P>
+<P>The following device types are supported:
+<DL>
+<DT><B>Bluetooth</B><DD>
+<P>For a bluetooth device, specify <CODE>bluetooth:</CODE><EM>address</EM>.
+The address must be six two-digit hexadecimal numbers separated by colons,
+e.g. <CODE>01:23:45:67:89:AB</CODE>.</P>
+<DT><B>Serial</B><DD>
+<P>For a serial device, specify <CODE>serial:</CODE><EM>/path/to/device</EM>.
+The <CODE>serial:</CODE> qualifier is optional (for backward compatibility).
+If a relative path is given then it's anchored at <CODE>/dev</CODE>
+(the usual location where devices are defined on a Unix-like system).
+The following device specifications all refer
+to the first serial device on Linux:
+<UL>
+<LI><CODE>serial:/dev/ttyS0</CODE></LI>
+<LI><CODE>serial:ttyS0</CODE></LI>
+<LI><CODE>/dev/ttyS0</CODE></LI>
+<LI><CODE>ttyS0</CODE></LI>
+</UL>
+</P>
+<DT><B>USB</B><DD>
+<P>For a USB device, specify <CODE>usb:</CODE>.
+BRLTTY will search for the first USB device which
+matches the braille display driver being used.
+If this is inadequate,
+e.g. if you have more than one USB braille display which requires the same driver,
+then you can refine the device specification
+by appending the serial number of the display to it,
+e.g. <CODE>usb:12345</CODE>.
+N.B.: The "identification by serial number" feature
+doesn't work for some models because some manufacturers
+either don't set the USB serial number descriptor at all
+or do set it but not to a unique value.</P>
+</DL>
+</P>
+<P>A comma-delimited list of braille devices may be specified.
+If this is done then autodetection is performed on each listed device in sequence.
+This feature is particularly useful if you have
+a braille display with more than one interface,
+e.g. both a serial and a USB port.
+In this case it's usually better to list the USB port first,
+e.g. <CODE>usb:,serial:/dev/ttyS0</CODE>,
+since the former tends to autodetect more reliably than the latter.</P>
+
+<H2><A NAME="operand-pcm-device"></A> <A NAME="ss12.3">12.3</A> <A HREF="BRLTTY.html#toc12.3">PCM Device Specification</A>
+</H2>
+
+<P>In most cases the PCM device is
+the full path to an appropriate system device.
+Exceptions are:
+<DL>
+<DT><B>ALSA</B><DD>
+<P>The name of and arguments for the physical or logical device,
+i.e. <EM>name</EM>[<CODE>:</CODE><EM>argument</EM><CODE>,</CODE>...].</P>
+</DL>
+</P>
+<P>The default PCM device is:
+<BR><CENTER>
+<TABLE BORDER><TR><TD>
+Platform</TD><TD>Device</TD></TR><TR><TD>
+FreeBSD</TD><TD>/dev/dsp</TD></TR><TR><TD>
+Linux/ALSA</TD><TD>hw:0,0</TD></TR><TR><TD>
+Linux/OSS</TD><TD>/dev/dsp</TD></TR><TR><TD>
+NetBSD</TD><TD>/dev/audio</TD></TR><TR><TD>
+OpenBSD</TD><TD>/dev/audio</TD></TR><TR><TD>
+Qnx</TD><TD>preferred PCM output device</TD></TR><TR><TD>
+Solaris</TD><TD>/dev/audio</TD></TR><TR><TD>
+</TD></TR></TABLE>
+</CENTER><BR>
+</P>
+
+<H2><A NAME="operand-midi-device"></A> <A NAME="ss12.4">12.4</A> <A HREF="BRLTTY.html#toc12.4">MIDI Device Specification</A>
+</H2>
+
+<P>In most cases the MIDI device is
+the full path to an appropriate system device.
+Exceptions are:
+<DL>
+<DT><B>ALSA</B><DD>
+<P>The client and port separated by a colon,
+i.e. <EM>client</EM><CODE>:</CODE><EM>port</EM>.
+Each may be specified
+either as a number
+or as a case-sensitive substring of its name.</P>
+</DL>
+</P>
+<P>The default MIDI device is:
+<BR><CENTER>
+<TABLE BORDER><TR><TD>
+Platform</TD><TD>Device</TD></TR><TR><TD>
+Linux/ALSA</TD><TD>the first available MIDI output port</TD></TR><TR><TD>
+Linux/OSS</TD><TD>/dev/sequencer</TD></TR><TR><TD>
+</TD></TR></TABLE>
+</CENTER><BR>
+</P>
+
+<HR>
+<A HREF="BRLTTY-13.html">Next</A>
+<A HREF="BRLTTY-11.html">Previous</A>
+<A HREF="BRLTTY.html#toc12">Contents</A>
+</BODY>
+</HTML>

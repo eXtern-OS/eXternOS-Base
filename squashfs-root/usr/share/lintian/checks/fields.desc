@@ -1,0 +1,1499 @@
+Check-Script: fields
+Author: Marc 'HE' Brockschmidt <marc@marcbrockschmidt.de>
+Abbrev: fld
+Type: binary, udeb, source
+Needs-Info: unpacked
+Info: This script checks the syntax of the fields in package control files,
+ as described in the Policy Manual.
+
+Tag: unsupported-source-format
+Severity: serious
+Certainty: certain
+Info: This package uses a different source package format than "1.0",
+ "3.0 (quilt)" or "3.0 (native)". Other package formats are supported by
+ dpkg-source, but they are not allowed in the Debian archive.
+
+Tag: no-package-name
+Severity: serious
+Certainty: certain
+Info: The package does not have a "Package:" field in its control file.
+Ref: policy 5.3
+
+Tag: bad-package-name
+Severity: serious
+Certainty: certain
+Info: A package name should be at least two characters long, must consist
+ of the alphanumerics and "+" "-" and ".", and must start with an
+ alphanumeric character.
+Ref: policy 5.6.7
+
+Tag: package-not-lowercase
+Severity: serious
+Certainty: certain
+Info: New packages should not use uppercase characters in their names.
+Ref: policy 5.6.7
+
+Tag: bad-provided-package-name
+Severity: serious
+Certainty: certain
+Info: A package name should be at least two characters long, must consist
+ of the alphanumerics (lowercase characters only) and "+" "-" and ".", and
+ must start with an alphanumeric character.
+Ref: policy 5.6.7
+
+Tag: no-version-field
+Severity: serious
+Certainty: certain
+Info: The package does not have a "Version:" field in its control file.
+Ref: policy 5.3
+
+Tag: bad-version-number
+Severity: serious
+Certainty: certain
+Info: The version number fails one of the syntactic requirements of dpkg.
+Ref: policy 5.6.12
+
+Tag: debian-revision-not-well-formed
+Severity: normal
+Certainty: certain
+Info: The Debian version part (the part after the -) should consist of one
+ or two dot-separated parts: one for a regular maintainer release or two
+ for a source-NMU.
+Ref: devref 5.11.2, policy 5.6.12
+
+Tag: debian-revision-should-not-be-zero
+Severity: important
+Certainty: certain
+Info: The Debian version part (the part after the -) should start with one,
+ not with zero. This is to ensure that a correctly-done Maintainer Upload will
+ always have a higher version number than a Non-Maintainer upload: a NMU could
+ have been prepared which introduces this upstream version with
+ Debian-revision -0.1
+Ref: devref 5.11.2
+
+Tag: no-architecture-field
+Severity: serious
+Certainty: certain
+Info: The package does not have an "Architecture:" field in its control file.
+Ref: policy 5.3
+
+Tag: magic-arch-in-arch-list
+Severity: serious
+Certainty: certain
+Info: The special architecture value "any" only makes sense if it occurs
+ alone or (in a *.dsc file) together with "all".  The value "all" may
+ appear together with other architectures in a *.dsc file but must
+ occur alone if used in a binary package.
+Ref: policy 5.6.8, #626775
+
+Tag: unknown-architecture
+Severity: normal
+Certainty: possible
+Info: This package claims to be for an unknown architecture.  The
+ architecture should be one of the values supported by dpkg or one of the
+ special values "all" or "any".  The special value "source" is only used
+ in *.changes files and does not make sense in a binary package or a *.dsc
+ file.
+
+Tag: too-many-architectures
+Severity: serious
+Certainty: certain
+Info: A binary package should list exactly one architecture (the one it is
+ compiled for), or the special value "all" if it is architecture-independent.
+Ref: policy 5.6.8
+
+Tag: arch-wildcard-in-binary-package
+Severity: serious
+Certainty: certain
+Info: Architecture wildcards, including the special architecture value
+ "any", do not make sense in a binary package.  A binary package must
+ either be architecture-independent or built for a specific architecture.
+Ref: policy 5.6.8
+
+Tag: unknown-multi-arch-value
+Severity: serious
+Certainty: certain
+Info: The package has an unknown value in its Multi-Arch field.  The
+ value must be one of "no", "same", "foreign" or "allowed".
+
+Tag: illegal-multi-arch-value
+Severity: serious
+Certainty: certain
+Info: The package is architecture all and has the Multi-Arch same value.
+ .
+ This combination is not allowed by the Multi-Arch specification.
+Ref: https://wiki.ubuntu.com/MultiarchSpec
+
+Tag: font-package-not-multi-arch-foreign
+Severity: normal
+Certainty: certain
+Info: This package is architecture all and hence requires a Multi-Arch
+ foreign value.
+ .
+ An Architecture: all package to satisfy the dependencies of a
+ foreign-architecture package, it must be marked Multi-Arch: foreign
+ or Multi-Arch: allowed.
+Ref: https://wiki.ubuntu.com/MultiarchSpec#Dependencies_involving_Architecture:_all_packages
+
+Tag: aspell-package-not-arch-all
+Severity: normal
+Certainty: certain
+Info: This package appears to be an aspell dictionary package, but it is
+ not Architecture: all.  The binary hashes should be built at install-time
+ by calling aspell-autobuildhash, so the contents of the package should be
+ architecture-independent.
+Ref: aspell-autobuildhash(8)
+
+Tag: no-maintainer-field
+Severity: serious
+Certainty: certain
+Info: The package does not have a "Maintainer:" field in its control file.
+Ref: policy 5.3
+
+Tag: maintainer-name-missing
+Severity: serious
+Certainty: certain
+Info: The maintainer field seems to contain just an email address. It must
+ contain the package maintainer's name and email address.
+Ref: policy 5.6.2
+
+Tag: maintainer-address-missing
+Severity: serious
+Certainty: certain
+Info: The maintainer field must contain the package maintainer's name and
+ email address, with the name followed by the address inside angle
+ brackets (&lt; and &gt;).  The address seems to be missing.
+Ref: policy 5.6.2
+
+Tag: maintainer-address-malformed
+Severity: serious
+Certainty: certain
+Info: The maintainer field could not be parsed according to the rules in
+ the Policy Manual.
+Ref: policy 5.6.2
+
+Tag: maintainer-address-looks-weird
+Severity: normal
+Certainty: possible
+Info: The maintainer address does not have whitespace between the name
+ and the email address.
+
+Tag: maintainer-address-is-on-localhost
+Severity: serious
+Certainty: certain
+Info: The maintainer address includes localhost(.localdomain), which is
+ an invalid e-mail address.
+Ref: policy 5.6.2
+
+Tag: maintainer-address-is-root-user
+Severity: important
+Certainty: certain
+Info: The maintainer address includes root user, which is
+ invalid. This might indicate that the package
+ was not built in a sane environment.
+
+Tag: maintainer-address-causes-mail-loops-or-bounces
+Severity: serious
+Certainty: certain
+Info: The maintainer e-mail address either loops back to itself because
+ it is set to an address which is known to bounce mails.  Policy
+ states: The email address given in the Maintainer control field must
+ accept  mail from those role accounts in Debian used to send automated
+ mails  regarding the package. This includes non-spam mail from the bug-
+ tracking system.
+Ref: policy 3.3
+
+Tag: uploader-name-missing
+Severity: serious
+Certainty: certain
+Info: The uploader field seems to contain just an email address. It must
+ contain the package uploader's name and email address.
+Ref: policy 5.6.3
+
+Tag: uploader-address-malformed
+Severity: serious
+Certainty: certain
+Info: The uploader field could not be parsed according to the rules in
+ the Policy Manual.
+Ref: policy 5.6.3
+
+Tag: uploader-address-looks-weird
+Severity: normal
+Certainty: possible
+Info: The uploader address does not have whitespace between the name
+ and the email address.
+
+Tag: uploader-address-is-on-localhost
+Severity: serious
+Certainty: certain
+Info: The uploader address includes localhost(.localdomain), which is
+ an invalid e-mail address.
+Ref: policy 5.6.3
+
+Tag: uploader-address-is-root-user
+Severity: important
+Certainty: certain
+Info: The uploader address includes root user, which is
+ invalid. This might indicate that the package
+ was not built in a sane environment.
+
+Tag: uploader-address-causes-mail-loops-or-bounces
+Severity: serious
+Certainty: certain
+Info: The maintainer e-mail address either loops back to itself because
+ it is set to package@packages.debian.org or
+ package@packages.qa.debian.org  or references an email address
+ (typically a mailing list) which is  known to bounce mails. Policy
+ states: The email address given in the Maintainer control field must
+ accept  mail from those role accounts in Debian used to send automated
+ mails  regarding the package. This includes non-spam mail from the bug-
+ tracking system.
+Ref: policy 3.3
+
+Tag: wrong-debian-qa-address-set-as-maintainer
+Severity: important
+Certainty: certain
+Info: Orphaned packages should no longer have the address
+ &lt;debian-qa@lists.debian.org&gt; in the Maintainer field.
+ .
+ The correct Maintainer field for orphaned packages is
+ Debian QA Group &lt;packages@qa.debian.org&gt;.
+Ref: devref 5.9.4
+
+Tag: wrong-debian-qa-group-name
+Severity: important
+Certainty: certain
+Info: Orphaned packages should have "Debian QA Group
+ &lt;packages@qa.debian.org&gt;" in the maintainer field.
+Ref: devref 5.9.4
+
+Tag: no-human-maintainers
+Severity: serious
+Certainty: possible
+Info: The Maintainer address for this package is a mailing list and there
+ are no Uploaders listed.  Team-maintained packages must list the human
+ maintainers in the Uploaders field.
+Ref: policy 3.3, devref 5.12
+
+Tag: source-field-does-not-match-pkg-name
+Severity: serious
+Certainty: certain
+Info: The source package's filename is not the same as the name given
+ in its Source field.  The Source field should name the package.
+Ref: policy 5.6.1
+
+Tag: source-field-malformed
+Severity: serious
+Certainty: certain
+Info: In <tt>debian/control</tt> or a <tt>.dsc</tt> file, the Source field
+ must contain only the name of the source package.  In a binary package,
+ the Source field may also optionally contain the version number of the
+ corresponding source package in parentheses.
+ .
+ Source package names must consist only of lowercase letters, digits,
+ plus and minus signs, and periods.  They must be at least two characters
+ long and must start with an alphanumeric character.
+Ref: policy 5.6.1
+
+Tag: essential-in-source-package
+Severity: important
+Certainty: certain
+Info: This field should only appear in binary packages.
+Ref: policy 5.6.9
+
+Tag: essential-no-not-needed
+Severity: normal
+Certainty: certain
+Info: Having "Essential: no" is the same as not having the field at all,
+ so it just makes the Packages file longer with no benefit.
+Ref: policy 5.6.9
+
+Tag: unknown-essential-value
+Severity: important
+Certainty: certain
+Info: The only valid values for the Essential field are yes and no.
+Ref: policy 5.6.9
+
+Tag: no-section-field
+Severity: normal
+Certainty: certain
+Info: The package does not have a "Section:" field in its control file.
+ .
+ The field is mandatory for source packages and optional for binary
+ packages, which use the source package's value as default is nothing
+ else is specified.
+Ref: policy 5.3
+
+Tag: unknown-section
+Severity: normal
+Certainty: certain
+Info: The "Section:" field in this package's control file is not one of
+ the sections in use on the ftp archive.  Valid sections are currently
+ admin, comm, cli-mono, database, debug, devel, doc,
+ editors, electronics, embedded, fonts, games, gnome, gnu-r,
+ gnustep, graphics, hamradio, haskell, httpd, interpreters,
+ java, javascript, kde, libdevel, libs, lisp, localization, kernel, mail,
+ math, misc, net, news, ocaml, oldlibs, otherosfs, perl,
+ php, python, ruby, rust, science, shells, sound, tex, text,
+ utils, vcs, video, web, x11, xfce, zope.
+ .
+ The section name should be preceded by "non-free/" if the package
+ is in the non-free archive area, and by "contrib/" if the package
+ is in the contrib archive area.
+Ref: policy 2.4
+
+Tag: section-is-dh_make-template
+Severity: serious
+Certainty: certain
+Info: The "Section:" field in this package's control file is set to
+ unknown.  This is not a valid section, and usually means a dh_make
+ template control file was used and never modified to set the correct
+ section.
+Ref: policy 2.4
+
+Tag: wrong-section-for-udeb
+Severity: normal
+Certainty: certain
+Info: udeb packages should have "Section: debian-installer".
+
+Tag: no-priority-field
+Severity: normal
+Certainty: certain
+Info: The package does not have a "Priority:" field in its control file.
+ .
+ The Priority field can be included in a binary package by passing
+ the -ip or -isp flags to dpkg-gencontrol when building the package.
+ The field is optional in binary packages.
+Ref: policy 5.3
+
+Tag: unknown-priority
+Severity: important
+Certainty: certain
+Info: The "Priority:" field in this package's control file is not one of
+ the priorities defined in the Policy Manual.
+Ref: policy 2.5
+
+Tag: superfluous-clutter-in-homepage
+Severity: normal
+Certainty: certain
+Info: The "Homepage:" field in this package's control file contains
+ superfluous markup around the URL, like enclosing &lt; and &gt;.
+ This is unnecessary and needlessly complicates using this information.
+Ref: policy 5.6.23
+
+Tag: bad-homepage
+Severity: normal
+Certainty: certain
+Info: The "Homepage:" field in this package's control file does not
+ contain a valid absolute URL. Most probably you forgot to specify
+ the scheme (e.g. http).
+ .
+ This tag is also triggered if the scheme is not known by Lintian.
+ .
+ Please file a bug against Lintian, if this tag is triggered for a
+ valid homepage URL.
+
+Tag: no-homepage-field
+Severity: pedantic
+Certainty: possible
+Info: This non-native package lacks a <tt>Homepage</tt> field.  If the
+ package has an upstream home page that contains useful information or
+ resources for the end user, consider adding a <tt>Homepage</tt> control
+ field to <tt>debian/control</tt>.
+Ref: policy 5.6.23
+
+Tag: homepage-in-binary-package
+Severity: wishlist
+Certainty: possible
+Info: This non-native source package produces at least one binary package
+ with a <tt>Homepage</tt> field.  However, the source package itself has
+ no <tt>Homepage</tt> field.  Unfortunately, this results in some
+ source-based tools/services (e.g. the PTS) not linking to the homepage
+ of the upstream project.
+ .
+ If you move the <tt>Homepage</tt> field to the source paragraph in
+ <tt>debian/control</tt> then all binary packages from this source
+ will inherit the value by default.
+Ref: policy 5.6.23
+
+Tag: homepage-for-cpan-package-contains-version
+Severity: minor
+Certainty: certain
+Info: The Homepage field for this package points to CPAN and the URL
+ includes the version.  It's better to link to the unversioned CPAN page
+ so that the URL doesn't have to be updated for each new release.  For
+ example, use:
+ .
+   http://search.cpan.org/dist/HTML-Template/
+ .
+ or
+ .
+   https://metacpan.org/release/HTML-Template/
+ .
+ not:
+ .
+   http://search.cpan.org/~samtregar/HTML-Template-2.9/
+
+Tag: unknown-field-in-dsc
+Severity: minor
+Certainty: certain
+Info: See the Policy Manual for a list of the possible fields in
+ a source package control file.
+Ref: policy 5.4
+
+Tag: unknown-field-in-control
+Severity: minor
+Certainty: possible
+Info: See the Policy Manual for a list of the possible fields in
+ a binary package control file.
+ .
+ In udeb packages the fields pre-depends, conflicts, essential and
+ suggests are disallowed, but they can contain the new fields
+ subarchitecture and installer-menu-item.
+Ref: policy 5.3 
+
+Tag: multiline-field
+Severity: important
+Certainty: certain
+Info: Most control fields must have only a single line of data.
+Ref: policy 5.1
+
+Tag: alternates-not-allowed
+Severity: important
+Certainty: certain
+Info: Only the "Depends", "Recommends", "Suggests" and "Pre-Depends"
+ fields may specify alternate dependencies using the "|" symbol.
+Ref: policy 7.1
+
+Tag: invalid-versioned-provides
+Severity: important
+Certainty: certain
+Ref: policy 7.1, #761219
+Info: The package declares a provides relation with an invalid version
+ operator (e.g. "&gt;=").
+ .
+ If a provides is versioned, it must use "=".
+
+Tag: obsolete-relation-form
+Ref: policy 7.1
+Severity: normal
+Certainty: certain
+Info: The forms "&lt;" and "&gt;" mean "&lt;=" and "&gt;=", not "&lt;&lt;"
+ and "&gt;&gt;" as one might expect.  For that reason these forms are
+ obsolete, and should not be used in new packages.  Use the longer forms
+ instead.
+
+Tag: bad-version-in-relation
+Ref: policy 5.6.12
+Severity: important
+Certainty: certain
+Info: The version number used in this relationship does not match the
+ defined format of a version number.
+
+Tag: package-relation-with-self
+Severity: normal
+Certainty: possible
+Info: The package declares a relationship with itself.  This is not very
+ useful, except in the case of a package Conflicting with itself, if its
+ package name doubles as a virtual package.
+
+Tag: bad-relation
+Severity: serious
+Certainty: certain
+Info: The package declares a relationship that could not be parsed according
+ to the rules given in the Policy Manual.
+Ref: policy 7.1
+
+Tag: new-essential-package
+Severity: important
+Certainty: possible
+Info: This package has the Essential flag set.  New Essential packages
+ are sufficiently rare that it seems worth warning about.  They should
+ be discussed on debian-devel first.
+Ref: policy 3.8
+
+Tag: doc-package-depends-on-main-package
+Severity: normal
+Certainty: possible
+Info: The name of this package suggests that it is a documentation package.
+ It is usually not desirable for documentation packages to depend on the
+ packages they document, because users may want to install the docs before
+ they decide whether they want to install the package.  Also, documentation
+ packages are often architecture-independent, so on other architectures
+ the package on which it depends may not even exist.
+
+Tag: depends-on-obsolete-package
+Severity: important
+Certainty: possible
+Info: The package depends on a package that has been superseded.
+ If the superseded package is part of an ORed group, it should not be
+ the first package in the group.
+
+Tag: ored-depends-on-obsolete-package
+Severity: minor
+Certainty: possible
+Info: The package depends on an ORed group of packages which includes
+ a package that has been superseded.
+
+Tag: build-depends-on-obsolete-package
+Severity: normal
+Certainty: possible
+Info: The package build-depends on a package that has been superseded.
+ If the superseded package is part of an ORed group, it should not be
+ the first package in the group.
+
+Tag: ored-build-depends-on-obsolete-package
+Severity: minor
+Certainty: possible
+Info: The package build-depends on an ORed group of packages which includes
+ a package that has been superseded.
+
+Tag: depends-on-old-emacs
+Severity: normal
+Certainty: possible
+Info: The package lists an old version of Emacs as its first dependency.
+ It should probably be updated to support the current version of Emacs
+ in the archive and then list that version first in the list of Emacs
+ flavors it supports.
+ .
+ If the package intentionally only supports older versions of Emacs (if,
+ for example, it was included with later versions of Emacs), add a Lintian
+ override.
+
+Tag: depends-on-metapackage
+Severity: important
+Certainty: possible
+Info: This package is one of the packages that Lintian believes is a
+ metapackage: a package that exists for the convenience of users or
+ installers to install a set of related packages.  Packages that are not
+ themselves metapackages must not depend on metapackages, since this may
+ prevent the user from removing portions of the package set they don't
+ need.
+
+Tag: build-depends-on-metapackage
+Severity: important
+Certainty: certain
+Info: Packages must not build-depend on metapackages.
+ .
+ Metapackages such as xorg, xorg-dev, x-window-system,
+ x-window-system-dev and x-window-system-core exist only for the
+ benefit of users and should not be used in package build
+ dependencies.
+Ref: https://wiki.debian.org/Lintian/Tags/depends-on-metapackage
+
+Tag: depends-on-essential-package-without-using-version
+Severity: important
+Certainty: certain
+Ref: policy 3.5
+Info: The package declares a depends on an essential package, e.g. dpkg,
+ without using a versioned depends.  Packages do not need to depend on
+ essential packages; essential means that they will always be present.
+ The only reason to list an explicit dependency on an essential package
+ is if you need a particular version of that package, in which case the
+ version should be given in the dependency.
+
+Tag: build-depends-on-essential-package-without-using-version
+Severity: important
+Certainty: certain
+Ref: policy 4.2
+Info: The package declares a build-depends on an essential package, e.g. dpkg,
+ without using a versioned depends.  Packages do not need to build-depend on
+ essential packages; essential means that they will always be present.
+ The only reason to list an explicit dependency on an essential package
+ is if you need a particular version of that package, in which case the
+ version should be given in the dependency.
+
+Tag: build-depends-on-an-obsolete-java-package
+Severity: normal
+Certainty: certain
+Ref: java-policy 2.2
+Info: The package build-depends on an obsolete Java dependency.
+ It should build-depend on default-jdk instead.
+
+Tag: build-depends-on-non-build-package
+Severity: important
+Certainty: certain
+Info: The package declares a build dependency on a package that is not
+ appropriate for build dependencies, usually because it's only for
+ interactive use or cannot be correctly installed in a build environment.
+ See the description or documentation of the package for more
+ information.
+
+Tag: virtual-package-depends-without-real-package-depends
+Severity: normal
+Certainty: possible
+Info: The package declares a depends on a virtual package without listing a
+ real package as an alternative first.
+ .
+ If this package could ever be a build dependency, it should list a real
+ package as the first alternative to any virtual package in its Depends.
+ Otherwise, the build daemons will not be able to provide a consistent
+ build environment.
+ .
+ If it will never be a build dependency, this isn't necessary, but you may
+ want to consider doing so anyway if there is a real package providing
+ that virtual package that most users will want to use.
+
+Tag: invalid-arch-string-in-source-relation
+Severity: important
+Certainty: possible
+Ref: policy 5.6.8
+Info: The architecture string in the source relation includes an unknown
+ architecture.  This may be a typo, or it may be an architecture that dpkg
+ doesn't know about yet.  A common problem is incorrectly separating
+ architectures with a comma, such as <tt>[i386, m68k]</tt>.  Architectures
+ are separated by spaces; this should instead be <tt>[i386 m68k]</tt>.
+
+Tag: conflicting-negation-in-source-relation
+Severity: serious
+Certainty: certain
+Ref: policy 7.1
+Info: The architecture string in this source relation has some
+ negated architectures (prepended by <tt>!</tt>) and others that are not
+ negated.  This is not permitted by Policy.  Either all architectures must
+ be negated or none of them may be.
+
+Tag: invalid-profile-name-in-source-relation
+Severity: important
+Certainty: possible
+Info: The restriction formula in the source relation includes an unknown build
+ profile. The only allowed build profiles are
+ "cross",
+ "nobiarch",
+ "nocheck",
+ "nodoc",
+ "nogolang",
+ "nojava",
+ "noperl",
+ "nopython",
+ "noudeb",
+ "stage1",
+ "stage2"
+ and "pkg.<i>srcpkg</i>.<i>anything</i>".
+Ref: https://wiki.debian.org/BuildProfileSpec#Registered_profile_names
+
+Tag: build-depends-on-build-essential-package-without-using-version
+Severity: important
+Certainty: certain
+Ref: policy 4.2
+Info: The package declares a build-depends on a build essential package
+ without using a versioned depends.  Packages do not have to depend on any
+ package included in build-essential.  It is the responsibility of anyone
+ building packages to have all build-essential packages installed.  The
+ only reason for an explicit dependency on a package included in
+ build-essential is if a particular version of that package is required,
+ in which case the dependency should include the version.
+
+Tag: package-depends-on-an-x-font-package
+Severity: important
+Certainty: certain
+Info: Packages must not depend on X Window System font packages.
+ .
+ If one or more of the fonts so packaged are necessary for proper operation
+ of the package with which they are associated the font package may be
+ Recommended; if the fonts merely provide an enhancement, a Suggests
+ relationship may be used.
+Ref: policy 11.8.5
+
+Tag: build-depends-indep-without-arch-indep
+Severity: important
+Certainty: certain
+Ref: policy 7.7
+Info: The control file specifies source relations for architecture-independent
+ packages, but no architecture-independent packages are built.
+
+Tag: build-depends-arch-without-arch-dependent-binary
+Severity: important
+Certainty: certain
+Info: The control file specifies source relations for architecture-dependent
+ packages, but no architecture-dependent packages are built.
+
+Tag: build-conflicts-with-build-dependency
+Severity: important
+Certainty: certain
+Ref: policy 7.7
+Info: The package build-conflicts with a package that it also
+ build-depends on.
+
+Tag: package-has-a-duplicate-build-relation
+Severity: normal
+Certainty: possible
+Info: The package declares the given build relations on the same package
+ in either Build-Depends or Build-Depends-Indep, but the build relations
+ imply each other and are therefore redundant.
+
+Tag: build-depends-on-1-revision
+Severity: normal
+Certainty: possible
+Info: The package declares a build dependency on a version of a package
+ with a -1 Debian revision such as "libfoo (&gt;= 1.2-1)".  Such a
+ dependency will not be satisfied by a backport of libfoo 1.2-1 and
+ therefore makes backporting unnecessarily difficult.  Normally, the -1
+ version is unneeded and a dependency such as "libfoo (&gt;= 1.2)" would
+ be sufficient.  If there was an earlier -0.X version of libfoo that would
+ not satisfy the dependency, use "libfoo (&gt;= 1.2-1~)" instead.
+
+Tag: needlessly-depends-on-awk
+Severity: important
+Certainty: certain
+Info: The package seems to declare a relation on awk. awk is a virtual
+ package, but it is special since it's de facto essential. If you don't
+ need to depend on a specific version of awk (which wouldn't work anyway,
+ as dpkg doesn't support versioned provides), you should remove the
+ dependency on awk.
+
+Tag: package-depends-on-multiple-libstdc-versions
+Severity: important
+Certainty: possible
+Info: The package seems to declare several relations to a libstdc version.
+ This is not only sloppy but in the case of libraries, it may well break
+ the runtime execution of programs.
+
+Tag: package-depends-on-multiple-tcl-versions
+Severity: important
+Certainty: possible
+Info: The package seems to declare several relations to a tcl version.
+ This is not only sloppy but in the case of libraries, it may well break
+ the runtime execution of programs.
+
+Tag: package-depends-on-multiple-tclx-versions
+Severity: important
+Certainty: possible
+Info: The package seems to declare several relations to a tclx version.
+ This is not only sloppy but in the case of libraries, it may well break
+ the runtime execution of programs.
+
+Tag: package-depends-on-multiple-tk-versions
+Severity: important
+Certainty: possible
+Info: The package seems to declare several relations to a tk version.
+ This is not only sloppy but in the case of libraries, it may well break
+ the runtime execution of programs.
+
+Tag: package-depends-on-multiple-libpng-versions
+Severity: important
+Certainty: possible
+Info: The package seems to declare several relations to a libpng version.
+ This is not only sloppy but in the case of libraries, it may well break
+ the runtime execution of programs.
+
+Tag: depends-on-libdb1-compat
+Severity: important
+Certainty: certain
+Info: The package seems to declare a relation on libdb1-compat.
+ This library exists for compatibility with applications built against
+ glibc 2.0 or 2.1. There is intentionally no corresponding development
+ package. Do not link new applications against this library!
+
+Tag: depends-on-python-minimal
+Severity: important
+Certainty: certain
+Info: The python-minimal package (and versioned variants thereof) exists
+ only to possibly become an Essential package.  Depending on it is always
+ an error since it should never be installed without python.  If it
+ becomes Essential, there is no need to depend on it, and until then,
+ packages that require Python must depend on python.
+
+Tag: depends-exclusively-on-makedev
+Severity: normal
+Certainty: certain
+Info: This package depends on makedev without a udev alternative.  This
+ probably means that it doesn't have udev rules and relies on makedev to
+ create devices, which won't work if udev is installed and running.
+ Alternatively, it may mean that there are udev rules, but udev was not
+ added as an alternative to the makedev dependency.
+
+Tag: dbg-package-missing-depends
+Severity: normal
+Certainty: certain
+Info: The given binary package has a name of the form of "X-dbg", indicating it
+ contains detached debugging symbols for the package X.  If so, it should
+ depend on the corresponding package, generally with (= ${binary:Version})
+ since the debugging symbols are only useful with the binaries created by
+ the same build.
+ .
+ If this package provides debugging symbols for multiple other
+ packages, it should normally depend on all of those packages as
+ alternatives.  In other words, <tt>pkga (= ${binary:Version}) | pkgb (=
+ ${binary:Version})</tt> and so forth.
+
+Tag: conflicts-with-dependency
+Severity: important
+Certainty: certain
+Ref: policy 7.4
+Info: The package seems to conflict with one of its dependencies,
+ recommendations, or suggestions by listing it in Conflicts or Breaks.
+
+Tag: breaks-without-version
+Severity: normal
+Certainty: possible
+Ref: policy 7.3, policy 7.4, #605744
+Info: This package declares a Breaks relationship with another package
+ that has no version number.  Normally, Breaks should be used to indicate
+ an incompatibility with a specific version of another package, or with
+ all versions predating a fix.  If the two packages can never be installed
+ at the same time, Conflicts should normally be used instead.
+ .
+ Note this tag can also be issued, if a package has been split into two
+ completely new ones.  In this case, this package is missing a Replaces
+ on the old package.
+
+Tag: conflicts-with-version
+Severity: normal
+Certainty: wild-guess
+Ref: policy 7.4
+Info: An earlier-than version clause is normally an indication that Breaks
+ should be used instead of Conflicts.  Breaks is a weaker requirement that
+ provides the package manager more leeway to find a valid upgrade path.
+ Conflicts should only be used if two packages can never be unpacked at
+ the same time, or for some situations involving virtual packages (where a
+ version clause is not appropriate).  In particular, when moving files
+ between packages, use Breaks plus Replaces, not Conflicts plus Replaces.
+
+Tag: bad-menu-item
+Severity: important
+Certainty: certain
+Info: The field Installer-Menu-Item should only contain positive integer
+ values.
+
+Tag: redundant-origin-field
+Severity: normal
+Certainty: certain
+Info: You use the Origin field though the field value is the default (Debian).
+ In this case the field is redundant and should be removed.
+
+Tag: binary-nmu-debian-revision-in-source
+Severity: normal
+Certainty: certain
+Ref: devref 5.10.2.1
+Info: The version number of your source package ends in +b and a number or
+ has a Debian revision containing three parts.  These version numbers are
+ used by binary NMUs and should not be used as the source version.  (The
+ +b form is the current standard; the three-part version number now
+ obsolete.)
+
+Tag: dfsg-version-in-native-package
+Severity: normal
+Certainty: certain
+Info: The version number of this package contains "dfsg", but it's a
+ native package.  "dfsg" is conventionally used in the upstream version of
+ packages that are repackaged for Debian Free Software Guidelines
+ compliance reasons.  The convention doesn't make sense in native
+ packages.
+
+Tag: dfsg-version-with-period
+Severity: minor
+Certainty: possible
+Info: The version number of this package contains ".dfsg", probably in a
+ form like "1.2.dfsg1".  There is a subtle sorting problem with this
+ version method: 1.2.dfsg1 is considered a later version than 1.2.1.  If
+ upstream adds another level to its versioning, finding a good version
+ number for the next upstream release will be awkward.
+ .
+ Upstream may never do this, in which case this isn't a problem, but it's
+ normally better to use "+dfsg" instead (such as "1.2+dfsg1").  "+" sorts
+ before ".", so 1.2 &lt; 1.2+dfsg1 &lt; 1.2.1 as normally desired.
+
+Tag: dfsg-version-misspelled
+Severity: minor
+Certainty: certain
+Info: The version number of this package contains "dsfg".  You probably
+ meant "dfsg", the conventional marker for upstream packages that are
+ repackaged for Debian Free Software Guidelines compliance reasons.
+
+Tag: redundant-bugs-field
+Severity: normal
+Certainty: certain
+Info: You use the Bugs field though the field value is the default 
+ (debbugs://bugs.debian.org/). In this case the field is redundant and
+ should be removed.
+
+Tag: build-depends-on-build-essential
+Info: You depend on the build-essential package, which is only a
+ metapackage depending on build tools that have to be installed in all
+ build environments.
+Severity: important
+Certainty: certain
+Ref: policy 7.7
+
+Tag: depends-on-packaging-dev
+Info: You depend/recommend/build-depend on packaging-dev, which is
+ only a metapackage to install common packages needed for packaging.
+Severity: normal
+Certainty: certain
+
+Tag: malformed-python-version
+Severity: important
+Certainty: certain
+Ref: python-policy 3.4
+Info: The Python-Version control field is not in one of the valid
+ formats.  It should be in one of the following formats:
+ .
+     all
+     current
+     current, &gt;= X.Y
+     &gt;= X.Y
+     &gt;= A.B, &lt;&lt; X.Y
+     A.B, X.Y
+ .
+ (One or more specific versions may be listed with the last form.)  A.B
+ and X.Y should be Python versions.
+
+Tag: malformed-dm-upload-allowed
+Severity: important
+Certainty: certain
+Ref: https://www.debian.org/vote/2007/vote_003
+Info: The Dm-Upload-Allowed field in this package is set to something
+ other than "yes".  The only standardized value for this field in the
+ Debian GR is "yes" and other values (including capitalization variants)
+ may not work as expected.
+
+Tag: wrong-section-according-to-package-name
+Severity: wishlist
+Certainty: possible
+Info: This package has a name suggesting that it belongs to a section
+ other than the one it is currently categorized in.
+
+Tag: maintainer-also-in-uploaders
+Severity: minor
+Certainty: certain
+Info: The maintainer value also appears on the <tt>Uploaders</tt> field.
+ There were some reasons why this was useful when Uploaders support was
+ first introduced, but those have long-since been fixed and there is no
+ longer any need to list the maintainer in Uploaders.  The duplicate
+ information should probably be removed.
+
+Tag: duplicate-uploader
+Severity: minor
+Certainty: certain
+Info: The uploader appears more than once in the <tt>Uploaders</tt>
+ field.  The duplicate information should be removed.
+
+Tag: versioned-dependency-satisfied-by-perl
+Severity: normal
+Certainty: certain
+Info: This package declares an unnecessary versioned dependency
+ on a package that is also provided by one of the Perl core packages
+ (perl, perl-base, perl-modules) with at least the required version.
+ .
+ As versioned dependencies are not satisfied by provided packages,
+ this unnecessarily pulls in a separately packaged newer version
+ of the module.
+ .
+ The recommended way to express the dependency without needless
+ complications on backporting packages is to use alternative dependencies.
+ The perl package should be the preferred alternative and the
+ versioned dependency a secondary one.
+ .
+ Example: perl (&gt;= 5.10.0) | libmodule-build-perl (&gt;= 0.26)
+ .
+ An exception to this is when the dependency is only satisfied in a
+ version of perl in experimental. In this case, the dependency on perl
+ should come second.
+ .
+ Example: libextutils-parsexs-perl (&gt;= 2.210000) | perl (&gt;= 5.14)
+ .
+ Running <tt>cme fix dpkg -from control -filter Depends</tt> should be able
+ to update these dependencies.
+Ref: policy 7.5
+
+Tag: package-superseded-by-perl
+Severity: normal
+Certainty: certain
+Info: This package is also provided by one of the Perl core packages
+ (perl, perl-base, perl-modules), and the core version is at least
+ as new as this one.
+ .
+ The package should either be upgraded to a newer upstream version
+ or removed from the archive as unnecessary. In the removal case, any
+ versioned dependencies on this package must first be changed to include
+ the Perl core package (because versioned dependencies are not satisfied
+ by provided packages).
+ .
+ The recommended way to express the dependency without needless
+ complications on backporting packages is to use alternative dependencies.
+ The perl package should be the preferred alternative and the
+ versioned dependency a secondary one.
+ .
+ Example: perl (&gt;= 5.10.0) | libmodule-build-perl (&gt;= 0.26)
+ .
+ Running <tt>cme fix dpkg -from control -filter Depends</tt> should be able
+ to update these dependencies.
+Ref: policy 7.5
+
+Tag: vcs-field-uses-not-recommended-uri-format
+Severity: normal
+Certainty: possible
+Info: The VCS-* field uses a URI which doesn't match the recommended
+ format, but still looks valid. Examples for not recommended URI formats
+ are protocols that require authentication (like SSH). Instead where
+ possible you should provide a URI that is accessible for everyone
+ without authentication.
+ .
+ This renders debcheckout(1) unusable in these cases.
+
+Tag: vcs-field-uses-unknown-uri-format
+Severity: normal
+Certainty: possible
+Info: The VCS-* field uses an URI which doesn't match any known format.
+ You might have forgotten the protocol before the hostname.
+
+Tag: vcs-field-has-unexpected-spaces
+Severity: normal
+Certainty: possible
+Info: The VCS-* field contains more spaces than expected or spaces at
+ places where they were not expected. Where possible escape valid spaces
+ in URIs to avoid any ambiguity with respect to possible future additional
+ optional fields.
+
+Tag: vcs-field-not-canonical
+Severity: minor
+Certainty: possible
+Info: The VCS-* field contains an uncanonical URI. Please update to use
+ the current canonical URI instead. This reduces the network bandwidth used
+ and makes debcheckout work independent of the port forwarding and
+ redirections properly working.
+ .
+ The definition of canonical used here is the URIs announced by the Alioth
+ admins (see reference).
+ .
+ Note that this check is based on a list of known URIs.  Lintian did not
+ send an HTTP request to the URI to test this.  Should the canonical URI
+ have changed, please file a bug against Lintian so the check can be
+ updated accordingly.
+Ref: https://lists.debian.org/debian-devel-announce/2011/05/msg00009.html
+
+Tag: vcs-field-bitrotted
+Severity: normal
+Certainty: certain
+Info: The VCS-* field uses an address which no longer works.  Please
+ update it to use the current canonical URI instead.
+ .
+ Note that this check is based on a list of known URIs or/and
+ patterns.  Lintian did not send an HTTP request to the URI to test
+ this.  Should the URI actually work, please file a bug against
+ Lintian so the check can be updated accordingly.
+
+Tag: vcs-git-uses-invalid-user-uri
+Severity: normal
+Certainty: certain
+Info: The Vcs-Git field is pointing to a personal repository using
+ a git://(git|anonscm).debian.org/~$LOGIN/$PRJ.git style URI.  This is not
+ recommended since the repository this points is not automatically updated
+ when pushing to the personal repository.  The recommended URI for anonymous
+ access is https://anonscm.debian.org/git/users/$LOGIN/$PRJ.git.
+
+Tag: vcs-field-uses-insecure-uri
+Severity: wishlist
+Certainty: certain
+Info: The Vcs-* field uses an unencrypted transport protocol for the
+ URI.  It is recommended to use a secure transport such as HTTPS for
+ anonymous read-only access.
+ .
+ Note that you can often just exchange e.g. git:// with https:// for
+ repositories.  Though, in some cases (bzr's "lp:" or CVS's pserver) it
+ might not be possible to use an alternative url and still have a
+ working (anonymous read-only) repository.
+
+Tag: vcs-browser-links-to-empty-view
+Severity: normal
+Certainty: certain
+Info: The VCS-Browser links to an an empty view of the repository due to
+ it including a suffix such as <tt>?rev=0&sc=0</tt>.
+ .
+ You should remove this suffix from the field.
+
+Tag: lib-recommends-documentation
+Severity: normal
+Certainty: possible
+Info: The given package appears to be a library package, but it recommends
+ a documentation package.  Doing this can pull in unwanted (and often
+ large) documentation packages since recommends are installed by default
+ and library packages are pulled by applications that use them.  Users
+ usually only care about the library documentation if they're developing
+ against the library, not just using it, so the development package should
+ recommend the documentation instead.  If there is no development package
+ (for modules for scripting languages, for example), consider Suggests
+ instead of Recommends.
+
+Tag: build-depends-on-python-dev-with-no-arch-any
+Severity: minor
+Certainty: possible
+Info: The given package appears to have a Python development package
+ (python-dev, python-all-dev or pythonX.Y-dev) listed in its Build-Depends
+ or Build-Depends-Indep fields, but only "Architecture: all" packages are
+ built by this source package.  Python applications and modules do not
+ usually require those dev packages, so you should consider removing them
+ in favour of python, python-all or pythonX.Y.
+ .
+ If you are building a Python extension instead, you should have
+ development packages listed in Build-Depends, but normally there should
+ be at least one Architecture: any package.
+
+Tag: build-depends-on-specific-java-doc-package
+Severity: normal
+Certainty: certain
+Info: The given package declares a build dependency on either openjdk-
+ X-doc or classpath-doc instead of using default-jdk-doc. default-jdk-doc
+ provides a symlink to the API via /usr/share/default-jdk-doc/api.
+
+Tag: depends-on-specific-java-doc-package
+Severity: normal
+Certainty: certain
+Info: The package should use default-jdk-doc instead of classpath-doc
+ or openjdk-X-doc to ease transitions when the providing doc package
+ is replaced (e.g. openjdk-6-doc being replaced by openjdk-7-doc).
+
+Tag: needless-dependency-on-jre
+Severity: normal
+Certainty: possible
+Info: The package appear to be a Java library and depending on one
+ or more JRE/JDK packages. As of 05 Apr 2010, the Java Policy no
+ longer mandates that Java libraries depend on Java Runtimes.
+ .
+ If the library package ships executables along with the library,
+ then please consider making this an application package or move the
+ binaries to a (new) application package.
+ .
+ If there is otherwise a valid reason for this dependency, please override
+ the tag.
+Ref: https://lists.debian.org/debian-devel-changes/2010/04/msg00774.html,
+ #227587
+
+Tag: documentation-package-not-architecture-independent
+Severity: normal
+Certainty: certain
+Info: Documentation packages usually shouldn't carry anything that requires
+ recompiling on various architectures, in order to save space on mirrors.
+
+Tag: build-depends-on-versioned-berkeley-db
+Severity: normal
+Certainty: possible
+Info: The package build-depends on a versioned development package of
+ Berkeley DB (libdbX.Y-dev) instead of versionless package
+ (libdb-dev).  Unfortunately this prevents binNMUs when default
+ Berkeley DB version changes.
+ .
+ Unless the package absolutely have to depend on specific Berkeley DB
+ version, it should build-depends on libdb-dev. For more information
+ on the upgrade process, please see the references.
+ .
+ The package can usually be made Berkeley DB version agnostic by the
+ following steps:
+ .
+  1. note the version of Berkeley DB used to compile the package on build time
+  2. on first install copy the used version to active version
+  3. on upgrades compare the versions and if they differ do the upgrade procedure
+ .
+ If you are unsure you can contact Berkeley DB maintainer, who would be
+ glad to help.
+ .
+ Should the package have a legitimate reason for using the versioned development
+ package, please add an override.
+Ref: http://docs.oracle.com/cd/E17076_02/html/upgrading/upgrade_process.html
+
+Tag: transitional-package-should-be-oldlibs-optional
+Severity: normal
+Certainty: possible
+Ref: #645438, devref 6.7.7
+Info: The package appears to be a transitional package, but it is not
+ priority optional and in the oldlibs section.
+ .
+ Using oldlibs/optional assists package managers in handling the
+ transition package correctly.
+
+Tag: rc-version-greater-than-expected-version
+Severity: normal
+Certainty: possible
+Ref: policy 5.6.12
+Info: The package appears to be a release candidate or preview release, but
+ the version sorts higher than the expected final release.
+ .
+ Note this check is limited to new upstream releases of non-native packages.
+
+Tag: dm-upload-allowed-is-obsolete
+Severity: normal
+Certainty: certain
+Info: The implementation of the "Debian Maintainers" GR has changed
+ and the "DM-Upload-Allowed" field is now obsolete.
+ .
+ Instead these permissions are granted via "dak-commands" files.
+Ref: https://lists.debian.org/debian-devel-announce/2012/09/msg00008.html
+
+Tag: needless-suggest-recommend-libservlet-java
+Severity: normal
+Certainty: certain
+Info: Package should not suggest or recommend libservlet-java
+ Java servlets are only used in the context of a server (example: Tomcat or
+ Jetty). This server will have this dependency and will take care of the
+ loading of this package with the right libservlet.
+ .
+ Removing this dependency will fix this warning.
+ .
+ If there is otherwise a valid reason for this suggestion or recommendation,
+ please override the tag.
+
+# Imported from lintian4python (python/helpers)
+Tag: python-version-current-is-deprecated
+Severity: normal
+Certainty: certain
+Info: The use of "current" in the Python-Version field is deprecated.
+Ref: python-policy 3.4
+
+# Imported from pkg-perl-tools
+Tag: libmodule-build-perl-needs-to-be-in-build-depends
+Severity: serious
+Certainty: certain
+Experimental: yes
+Info: libmodule-build-perl needs to be in <tt>Build-Depends</tt>, not in
+ Build-Depends-Indep, since it's used in the clean target.
+
+# Imported from pkg-perl-tools
+Tag: libmodule-build-tiny-perl-needs-to-be-in-build-depends
+Severity: serious
+Certainty: certain
+Experimental: yes
+Info: libmodule-build-tiny-perl needs to be in <tt>Build-Depends</tt>, not
+ in Build-Depends-Indep, since it's used in the clean target.
+
+# Imported from pkg-perl-tools (named depends-on-perl-modules there)
+Tag: package-relation-with-perl-modules
+Severity: important
+Certainty: certain
+Info: No package should (build-) depend on 'perl-modules'. Instead, a
+ suitable dependency on 'perl' should be used. The existence of the
+ perl-modules package is an implementation detail of the perl
+ packaging.
+
+Tag: no-strong-digests-in-dsc
+Severity: serious
+Certainty: certain
+Info: This .dsc file contains no Checksum-Sha256 field and hence only
+ weak digests.
+ .
+ This issue will only show up for source packages built with
+ dpkg-source before 1.14.17 (March 2008) and hence will probably never
+ show up when you run Lintian locally but only on
+ https://lintian.debian.org/ for source packages in the archive.
+ .
+ Accordingly it can be fixed by simply rebuilding the source package
+ with a more recent dpkg-source version, i.e. by uploading a new
+ Debian release of the package.
+
+Tag: homepage-for-cran-package-not-canonical
+Severity: wishlist
+Certainty: certain
+Info: The Homepage field for this package points to an uncanonical CRAN URL.
+ Please update to use the current canonical URL instead. The canonical URL is
+ recommended for use in publications, etc., will always redirect to current
+ release version (or devel if package is not in release yet). For example, the
+ link for the package "foo" should be:
+ .
+  https://cran.r-project.org/package=foo
+ .
+ not:
+ .
+  https://cran.r-project.org/web/packages/foo/index.html
+
+Tag: homepage-for-bioconductor-package-not-canonical
+Severity: wishlist
+Certainty: certain
+Info: The Homepage field for this package points to an uncanonical Bioconductor URL.
+ Please update to use the current canonical URL instead. The canonical URL is
+ recommended for use in publications, etc., will always redirect to current
+ release version (or devel if package is not in release yet).  For example, the
+ link for the package "foo" should be:
+ .
+ https://bioconductor.org/packages/foo/
+ .
+ not:
+ .
+ https://www.bioconductor.org/packages/(release|devel|*)/bioc/html/foo.html
+
+Tag: invalid-value-in-built-using-field
+Severity: serious
+Certainty: certain
+Info: The Built-Using field contains invalid fields.
+ .
+ The Built-Using field must consist of simple <tt>source (=
+ version)</tt> clauses.  Notably, it must use a strictly equal in the
+ relation.
+ .
+ Only first issue is shown.
+Ref: policy 7.8
+
+Tag: priority-extra-is-replaced-by-priority-optional
+Severity: minor
+Certainty: certain
+Info: Since Debian Policy version 4.0.1, the priority <tt>extra</tt>
+ has been deprecated.
+ .
+ Please update <tt>debian/control</tt> and replace all instances of
+ <tt>Priority: extra</tt> with <tt>Priority: optional</tt>.
+Ref: policy 2.5
+
+Tag: empty-section-field
+Severity: normal
+Certainty: certain
+Info: The "Section:" field in this package's control file is empty.
+Ref: policy 2.4
+
+Tag: homepage-field-uses-insecure-uri
+Severity: pedantic
+Certainty: certain
+Info: The Homepage field uses an unencrypted transport protocol for the
+ URI.
+
+Tag: excessive-priority-for-library-package
+Severity: normal
+Certainty: possible
+Info: The given package appears to be a library package, but it has "Priority"
+ of "required", "important", or "standard".
+ .
+ In general, a library package should only get pulled in on a system because
+ some other package depends on it; no library package needs installation on a
+ system where nothing uses it.
+ .
+ Please update <tt>debian/control</tt> and downgrade the severity to, for
+ example, <tt>Priority: optional</tt>.
+
+Tag: vcs-fields-use-more-than-one-vcs
+Severity: wishlist
+Certainty: possible
+Info: The Vcs-* fields mix more than one version control system.
+
+Tag: bugs-field-does-not-refer-to-debian-infrastructure
+Severity: normal
+Certainty: possible
+Info: The <tt>debian/control</tt> file contains a Bugs field that does
+ not refer to Debian infrastructure. This is recognized by the string
+ ".debian.org".
+ .
+ This is likely to make reportbug(1) unable to report bugs.
+Ref: #740944
+
+Tag: orphaned-package-not-maintained-in-debian-infrastructure
+Severity: normal
+Certainty: certain
+Info:
+ This package is orphaned but the specified VCS field does not point to
+ an area within the *.debian.org infrastructure
+ . 
+ This prevents other developers and external contributors to collaborate
+ on its maintenance.
+ .
+ Please move the packaging to under the *.debian.org umbrella or update
+ the specified VCS field if it is otherwise wrong.
+
+Tag: vcs-deprecated-in-debian-infrastructure
+Severity: normal
+Certainty: certain
+Info: The specified Vcs-* field points to an area within the *.debian.org
+ infrastructure but refers to a version control system that has been
+ deprecated.
+ .
+ After 1st May 2018, Debian will not offer hosting for any version
+ control system other than Git and the Alioth service will become
+ read-only in May 2018. Packages should migrate to Git hosting on
+ .
+ For further information about salsa.debian.org, including how to add
+ HTTP redirects from alioth, please consult the Debian Wiki.
+Ref: https://lists.debian.org/debian-devel-announce/2017/08/msg00008.html,
+ https://wiki.debian.org/Salsa
+
+Tag: co-maintained-package-with-no-vcs-fields
+Severity: pedantic
+Certainty: possible
+Info: Based on the content of the maintainer and uploader fields this
+ package is co-maintained but there are no Vcs-* fields.
+ .
+ It is recommended that shared maintenance of packages are co-ordinated
+ via a revision control system.
+
+Tag: multi-arch-same-package-has-arch-specific-overrides
+Severity: normal
+Certainty: certain
+Info: The specified file contains architecture-specific Lintian overrides
+ but this package is declared as <tt>Multi-Arch: same</tt>.
+Ref: lintian 2.4.3, #787406
+
+Tag: binary-package-depends-on-toolchain-package
+Severity: normal
+Certainty: possible
+Info: This package specifies a binary dependency on a "toolchain" package
+ such as debhelper or cdbs. This is likely to be a mistake; these
+ packages are typically specified as build-dependencies instead.
+ .
+ If the package intentionally requires such a dependency, please add a
+ Lintian override with a justifying remark.
+
+Tag: unusual-documentation-package-name
+Severity: wishlist
+Certainty: certain
+Info: The specified package appears to be a documentation package
+ that ends with the string "-docs". It is recommended that such
+ packages use the more usual "-doc" suffix instead.
+ .
+ Please remove the superfluous trailing "s" from the package name.
+Ref: policy 12.3
+
+Tag: missing-vcs-browser-field
+Severity: wishlist
+Certainty: certain
+Info: A Vcs-* field in this package is pointing to a repository that
+ supports browsing of the repository via a web browser.
+ .
+ This is typically a nicer user-experience for developers and avoids
+ unnecessary and time-consuming clones of the repository.
+ .
+ Please add a suitable Vcs-Browser field to the package.
+
+Tag: default-mta-dependency-does-not-specify-mail-transport-agent
+Severity: normal
+Certainty: certain
+Info: This package has a relationship with the default-mta virtual
+ package but does not specify the mail-transport-agent as an
+ alternative.
+ .
+ default-mta and mail-transport-agent should only ever be in a set of
+ alternatives together, with default-mta listed first.
+ .
+ Please add a "or" dependency on mail-transport-agent after
+ default-mta.
+
+Tag: mail-transport-agent-dependency-does-not-specify-default-mta
+Severity: normal
+Certainty: certain
+Info: This package has a relationship with the mail-transport-agent
+ virtual package but does not specify the default-mta as an
+ alternative.
+ .
+ default-mta and mail-transport-agent should only ever be in a set of
+ alternatives together, with default-mta listed first.
+ .
+ Please add a "or" dependency on default-mta before
+ mail-transport-agent.
+
+Tag: default-mta-dependency-not-listed-first
+Severity: normal
+Certainty: certain
+Info: This package has a relationship with the mail-transport-agent
+ or default-mta packages but does not specify the default-mta as an
+ first option.
+ .
+ default-mta and mail-transport-agent should only ever be in a set of
+ alternatives together, with default-mta listed in the primary
+ position.
+ .
+ Please rearrange the dependencies such that default-mta is listed
+ first.
+
+Tag: depends-on-mail-transport-agent-without-alternatives
+Severity: normal
+Certainty: certain
+Info: This package has a relationship with a mail-transport-agent but
+ does not specify default-mta and mail-transport-agent as alternatives.
+ .
+ Please change the dependency to:
+ .
+  default-mta | pkgname | mail-transport-agent

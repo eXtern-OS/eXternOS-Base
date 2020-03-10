@@ -1,0 +1,12 @@
+# a list of forbidden constructs in debian/rules
+# format is 
+#   tag ~~ regex (\x\s)
+# Please sort by alphabetic sort of tags
+#
+debian-rules-should-not-automatically-update-control     ~~ ^\s*DEB_AUTO_UPDATE_DEBIAN_CONTROL\s*=\s*yes
+debian-rules-should-not-use-DEB_BUILD_OPTS               ~~ \$[\(\{]DEB_BUILD_OPTS[\)\}]
+debian-rules-should-not-use-DH_EXTRA_ADDONS              ~~ ^\s*DH_EXTRA_ADDONS\s*=\s*(?<info>.*)\n
+debian-rules-should-not-use-or-modify-user-only-variable ~~ \bDEB_[^_ \t]+FLAGS_(?:SET|APPEND)\b
+debian-rules-should-not-use-pwd                          ~~ \$[\(\{]PWD[\)\}]
+debian-rules-should-not-use-underscore-variable          ~~ \$[\(\{]_[\)\}]
+xz-compression-level-too-high                            ~~ (?<info>dh_builddeb\b.*--.*(?:-z\s*9.*-Z\s*xz|-Z\s*xz.*-z\s*9)\S*)

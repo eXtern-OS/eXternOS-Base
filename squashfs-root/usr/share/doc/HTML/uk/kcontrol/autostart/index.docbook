@@ -1,0 +1,326 @@
+<?xml version="1.0" ?>
+<!DOCTYPE article PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+"dtd/kdedbx45.dtd" [
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Ukrainian "INCLUDE">
+]>
+<article id="autostart" lang="&language;">
+<articleinfo>
+<title
+>Автозапуск</title>
+<authorgroup>
+<author
+>&Anne-Marie.Mahfouf;</author>
+<othercredit role="translator"
+><firstname
+>Юрій</firstname
+><surname
+>Чорноіван</surname
+><affiliation
+><address
+><email
+>yurchor@ukr.net</email
+></address
+></affiliation
+><contrib
+>Переклад українською</contrib
+></othercredit
+> 
+</authorgroup>
+
+<date
+>25 березня 2018 року</date>
+<releaseinfo
+>Плазма 5.12</releaseinfo>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>Системні параметри</keyword>
+<keyword
+>автозапуск</keyword>
+<keyword
+>стільничний файл</keyword>
+<keyword
+>файл скрипту</keyword>
+</keywordset>
+</articleinfo>
+
+<sect1 id="kcm_autostart">
+<title
+>Керування автоматичним запуском</title>
+
+<para
+>Цей модуль призначено для керування програмами, які запускатимуться разом зі вашою стільницею Плазми. Він надасть вам змогу додавати програми або скрипти, які автоматично запускатимуться під час запуску або завершення вашого сеансу Плазми і керувати вже створеними записами для автоматичного запуску.</para>
+
+<note
+><para
+>Будь ласка, майте на увазі, що зміни, виконані у цьому модулі, одразу ж набувають чинності.</para
+></note>
+
+<para
+>Програма виконує пошук у теках <filename
+>$HOME/.config/autostart/</filename
+>, <filename class="directory"
+>$HOME/.config/plasma-workspace/env</filename
+> та <filename class="directory"
+>$HOME/.config/plasma-workspace/shutdown</filename
+> на предмет виявлення програм і скриптів, які вже записано у цих теках для автоматичного запуску, а потім показує їх список. Це значно спрощує наступне керування цими програмами. </para>
+
+<note
+><para
+>Зауважте, що ви можете змінити адресу теки <filename class="directory"
+>Autostart</filename
+> на вкладці <menuchoice
+><guimenu
+>Програми</guimenu
+> <guimenuitem
+>Місця</guimenuitem
+></menuchoice
+> у категорії <guilabel
+>Персоналізація</guilabel
+> програми «Системні параметри», а отже, встановити теку, відмінну від <filename class="directory"
+>$HOME/.config/autostart</filename
+>.</para
+></note>
+
+<para
+>Будь ласка, ознайомтеся із розділами довідки <ulink url="help:/kcontrol/kcmsmserver"
+>Стільничний сеанс</ulink
+> та <ulink url="help:/kcontrol/kded"
+>Фонові служби</ulink
+>, щоб дізнатися більше про те, як налаштувати поведінку під час запуску вашого сеансу Плазми.</para>
+
+<para
+>У деяких програмах &kde; передбачено власні засоби керування автоматичним запуском. Зокрема ви можете увімкнути або вимкнути автоматичний запуск програми за допомогою діалогового вікна параметрів програми (&kalarm;) або слід скористатися пунктом меню <menuchoice
+><guimenu
+>Файл</guimenu
+><guimenuitem
+>Вийти</guimenuitem
+></menuchoice
+> (&konversation;, &kopete;), інакше програма працюватиме у системному лотку і перезапуститься під час наступного входу до стільничного середовища. </para>
+
+<sect2 id="migration">
+<title
+>Перехід з &kde;4</title>
+<para
+>Щоб перенести особисті параметри автозапуску із робочих просторів &kde; 4, виконайте такі дії:</para>
+<simplelist>
+<member
+>Скопіюйте файли desktop з <filename class="directory"
+>$HOME/.kde/Autostart</filename
+> до <filename class="directory"
+>$HOME/.config/autostart</filename
+></member>
+<member
+>Скопіюйте файли скриптів, що мають виконуватися перед запуском, з <filename class="directory"
+>$HOME/.kde/Autostart</filename
+> до <filename class="directory"
+>$HOME/.config/plasma-workspace/env</filename
+></member>
+<member
+>Скопіюйте файли скриптів, що мають виконуватися під час завершення роботи, з <filename class="directory"
+>$HOME/.kde/Autostart</filename
+> до <filename class="directory"
+>$HOME/.config/plasma-workspace/shutdown</filename
+></member>
+</simplelist>
+</sect2>
+
+<!--FIXME Disabling Autostart Files Provided By Your Distribution -> http://www.sharpley.org.uk/node/8 -->
+
+<sect2 id="current">
+<title
+>Показ файлів</title>
+<para
+>У головній частині модуля показано список програм, які завантажуються під час запуску Плазми, і скриптів, які запускаються під час запуску, завершення роботи і перед запуском Плазми.</para>
+
+<variablelist>
+<varlistentry
+><term
+><guilabel
+>Назва</guilabel
+></term>
+<listitem>
+<para
+>Цей стовпчик не можна змінювати. У ньому показано назву програми або скрипту, які ви бажаєте запустити разом з Плазмою. Цю назву буде видобуто з поля «Name» стільничного файла (.desktop) програми, для скрипту ж це буде просто його назва. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry
+><term
+><guilabel
+>Команда</guilabel
+></term>
+<listitem>
+<para
+>У цьому стовпчику наведено список команд, які слід виконати для запуску програми. Змінити команди для програми можна за допомогою кнопки <guibutton
+>Властивості</guibutton
+> або наведенням вказівника миші з наступним подвійним клацанням на рядку запису програми. Цю команду буде видобуто з ключа «Exec» стільничного файла програми (.desktop). </para>
+<para
+>Для скрипту командою буде назва файла з цим скриптом, її не можна змінити. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry
+><term
+><guilabel
+>Стан</guilabel
+></term>
+<listitem>
+<para
+>Цей параметр доступний для програм лише через стільничні файли. Якщо знято позначку із пункту <guilabel
+>Увімкнено</guilabel
+>, програма може знаходитися у теці <filename class="directory"
+>Autostart</filename
+>, але не буде виконуватися під час запуску Плзами. </para>
+<para
+>Зняття позначки із пункту <guilabel
+>Увімкнено</guilabel
+> робить стільничний файл схованим (встановлює відповідну його властивість) у теці <filename class="directory"
+>автозапуску</filename
+>. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry
+><term
+><guilabel
+>Момент виконання</guilabel
+></term>
+<listitem>
+<para
+>Програми (стільничні файли) можна запускати лише під час запуску стільниці. Скрипти можна виконувати під час <guilabel
+>Запуску</guilabel
+>, <guilabel
+>Завершення роботи</guilabel
+> або <guilabel
+>Перед запуском сеансу</guilabel
+>. Цей стовпчик надає вам змогу вказати, коли саме слід виконати скрипт. Запуск — це вхід до стільниці Плазми, завершення роботи — вихід зі стільниці Плазми, а перед запуском сеансу — перед запуском Плазми. </para>
+<para
+>Скрипти і стільничні файли, які слід виконати під час <guilabel
+>Запуску</guilabel
+> буде скопійовано повністю до теки <filename class="directory"
+>$HOME/.config/autostart</filename
+> або у цій теці буде створено символічні посилання на ці файли. Згодом ці файли та посилання буде використано для виконання відповідних програм і скриптів під час запуску Плазми. </para>
+<para
+>Скрипти, які слід виконати під час <guilabel
+>Завершення роботи</guilabel
+> буде або повністю скопійовано до теки <filename class="directory"
+>$HOME/.config/plasma-workspace/shutdown</filename
+>, або у цій теці буде створено символічні посилання на ці скрипти. Згодом ці файли та посилання буде використано для автоматичного запуску скриптів під час завершення роботи Плазми після виходу користувача зі стільничного середовища. </para>
+<para
+>Скрипти, які слід виконувати <guilabel
+>Перед запуском Плазми</guilabel
+> буде або повністю скопійовано до теки <filename class="directory"
+>$HOME/.config/plasma-workspace/env</filename
+>, або у цій теці буде створено символічні посилання на ці скрипти. Згодом ці файли та посилання буде використано для автоматичного виконання скриптів під час запуску Плазми (за цим пригляне скрипт <filename
+>startkde</filename
+>). </para>
+<note
+><para
+>У режимах <guilabel
+>Перед запуском сеансу</guilabel
+> і <guilabel
+>Завершення роботи</guilabel
+> Плазма зважатиме лише на скрипти, файли яких мають суфікс <filename class="extension"
+>sh</filename
+>. </para
+></note>
+</listitem>
+</varlistentry>
+</variablelist>
+</sect2>
+
+<sect2 id="actions">
+<title
+>Дії</title>
+<para
+>У нижній частині вікна розташовано декілька кнопок, які надають змогу змінити налаштування автоматичного запуску. За їх допомогою ви зможете додавати програми або скрипти, вилучати їх або змінювати їх параметри. </para>
+
+<variablelist>
+<varlistentry
+><term
+><guibutton
+>Додати програму</guibutton
+></term>
+<listitem>
+<para
+>Натискання цієї кнопки призведе до відкриття стандартного діалогового вікна <guilabel
+>Вибір програми</guilabel
+> і надасть вам змогу вибрати програму, яку ви бажаєте виконати. Після вибору програми натисніть кнопку <guibutton
+>Гаразд</guibutton
+>, щоб передати виконані вами зміни параметрів вказаній програмі. </para>
+<para
+>Ця дія призведе до копіювання стільничного файла до вашої теки <filename class="directory"
+>автозапуску</filename
+>. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry
+><term
+><guibutton
+>Додати скрипт</guibutton
+></term>
+<listitem>
+<para
+>За допомогою цієї кнопки можна відкрити діалогове вікно, де ви зможете вказати скрипт, який ви бажаєте додати. Якщо ви залишите позначку у полі <guilabel
+>Створити як символічне посилання</guilabel
+> (типово ця позначка присутня), скрипт буде додано у вигляді символічного посилання. Якщо ж ви знімете позначку, скрипт буде скопійовано у відповідну локальну теку повністю. </para>
+</listitem>
+</varlistentry>
+<varlistentry
+><term
+><guibutton
+>Вилучити</guibutton
+></term>
+<listitem>
+<para
+>Кнопка «Вилучити» надає вам змогу негайно вилучити стільничний файл програми, скрипт або символічне посилання з теки <filename class="directory"
+>автозапуску</filename
+>. </para>
+</listitem>
+</varlistentry>
+<varlistentry
+><term
+><guibutton
+>Властивості</guibutton
+></term>
+<listitem>
+<para
+>За допомогою цієї кнопки (буде увімкнено лише для програм, тобто файлів стільниці) можна змінити параметри програми або скрипту. Вона надає змогу змінювати загальні параметри, параметри дозволів, попереднього перегляду, якщо такий можливий, параметри пов’язані зі способом виклику програм. </para>
+</listitem>
+</varlistentry>
+<varlistentry
+><term
+><guibutton
+>Додатково</guibutton
+></term>
+<listitem>
+<para
+>Цю кнопку можна використовувати лише для програм (тобто, стільничних файлів). У діалоговому вікні, яке буде відкрито, ви маєте визначити, чи буде програму автоматично запущено лише з Плазми (а не з якимось іншим стільничним середовищем, яке ви могли встановити). Типово, програма запускатиметься у всіх можливих стільничних середовищах. Якщо ж поставити позначку у полі <guilabel
+>Автозапуск лише у Плазмі</guilabel
+>, програма автоматично запускатиметься лише зі стільничним середовищем Плазми. </para>
+<para
+>Насправді, ця дія встановлює значення «Plasma» для ключа «OnlyShowIn» у стільничному файлі програми. </para>
+</listitem>
+</varlistentry>
+</variablelist>
+</sect2>
+</sect1>
+</article>
+
+<!--
+Local Variables:
+mode: xml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+
+vim:tabstop=2:shiftwidth=2:expandtab
+kate: space-indent on; indent-width 2; tab-width 2; indent-mode none;
+-->

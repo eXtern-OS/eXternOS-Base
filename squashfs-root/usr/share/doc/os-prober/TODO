@@ -1,0 +1,24 @@
+This thing needs a regression test suite.
+
+The grub linux-boot-probe has these limitations:
+
+ - Does not handle grub present menus.
+ - Does not support things like (hd0,1)/path/to/file
+   although in the case of the kernel it will strip
+   off the drive specification, and look for the file in the current
+   partition.
+
+The lilo linux-boot-probe has these limitations:
+
+ - Doesn't map from devfs to normal if the lilo.conf uses devfs names
+   (valid?)
+
+linux-boot-prober:
+
+- Partition names in boot loader config may have changed during
+  the debian install, so cannot be trusted. Fix up root= lines,
+  etc.
+- To get to boot/, may need to parse fstab. But this can fail because
+  as noted above, drive names may have changed!
+- Maybe do some probing before partitioning and store info?
+  Or don't support adding partitions before existing /boot partitions.

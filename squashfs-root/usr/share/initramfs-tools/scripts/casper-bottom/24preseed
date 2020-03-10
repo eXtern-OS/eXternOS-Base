@@ -1,0 +1,116 @@
+#! /bin/sh
+
+PREREQ=""
+DESCRIPTION="Loading preseed file..."
+
+prereqs ()
+{
+	echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+. /scripts/casper-functions
+load_confmodule
+
+log_begin_msg "$DESCRIPTION"
+
+if [ -e /preseed.cfg ]; then
+	casper-set-selections /preseed.cfg
+fi
+
+network_started=
+
+start_network () {
+	[ -z "$network_started" ] || return
+	[ -z "$NETBOOT" ] || return
+
+	mount -n -o bind /sys /root/sys
+	mount -n -o bind /proc /root/proc
+	mount -n -o bind /dev /root/dev
+	mkdir -p /root/var/run/network
+	# Close inherited fd's to prevent debconf-communicate from
+	# continuing to run post-casper.
+	for device in /sys/class/net/*/device; do
+		name=$(basename ${device%*/device})
+		chroot /root dhclient $name 3>&- 4<&-
+	done
+
+	network_started=1
+}
+
+stop_network () {
+	[ "$network_started" ] || return
+
+	for device in /sys/class/net/*/device; do
+		name=$(basename ${device%*/device})
+		chroot /root ifconfig $name down
+	done
+	umount /root/sys
+	umount /root/proc
+	umount /root/dev
+}
+
+locations=
+for x in $(cat /proc/cmdline); do
+	case $x in
+		preseed/file=*)
+			locations="${x#preseed/file=} $locations"
+			;;
+		file=*)
+			locations="${x#file=} $locations"
+			;;
+		url=*)
+			url_location="${x#url=}"
+			start_network
+			chroot /root wget -P /tmp "$url_location"
+			locations="/tmp/$(basename "$url_location") $locations"
+			;;
+		*/*\?=*)
+			question="${x%%\?=*}"
+			value="${x#*\?=}"
+			casper-preseed /root "$question" "$value" false
+			;;
+		*/*=*)
+			question="${x%%=*}"
+			value="${x#*=}"
+			casper-preseed /root "$question" "$value"
+			;;
+		debian-installer/locale=*|locale=*)
+			value="${x#*=}"
+			value="$(grep "^$value" /root/usr/share/i18n/SUPPORTED | grep UTF-8 | sed -e 's, .*,,' -e q)"
+			casper-preseed /root debian-installer/locale "$value"
+			;;
+	esac
+done
+
+if [ "$locations" ]; then
+	for item in $locations; do
+		casper-set-selections "/root$item"
+	done
+fi
+
+if db_get preseed/early_command && [ "$RET" ]; then
+	EARLY="$RET"
+	if db_get preseed/allow-network && [ "$RET" = true ]; then
+		start_network
+	fi
+	DEBIAN_HAS_FRONTEND= DEBCONF_REDIR= \
+	DEBIAN_FRONTEND=noninteractive \
+	sh -c "$EARLY"
+fi
+
+stop_network
+
+# Clear out debconf database backup files to save memory.
+rm -f /root/var/cache/debconf/*.dat-old
+
+log_end_msg
+
+exit 0

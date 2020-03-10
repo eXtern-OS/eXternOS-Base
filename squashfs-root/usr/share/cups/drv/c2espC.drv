@@ -1,0 +1,231 @@
+//
+//
+//   Driver info file for  PPDs. For ESP Cxxx series and for Hero series
+//
+//   1 dec 2013: ShortNickName added to stop ppdc warnings. 
+//   NickName and ShortNickName changed to ModelName to help Ubuntu auto identify printers.
+//   It seems that the ShortNickName is used to build the database for system-config-printer?
+//   But if there is no ShortNickName, NickName is used instead?
+//   The first word of ShortNickName gets used for the maker in the database?
+//   ppdc still gives warnings when short nickname is >31 chars (ESP41 and ESP61)
+//   but it still builds the ppd files. I have not found a work around for this.
+
+// Include necessary files...
+#include <font.defs>
+#include <media.defs>
+
+// Common stuff for all drivers...
+Attribute "cupsVersion" "" "1.4"
+Attribute "FileSystem" "" "False"
+Attribute "LandscapeOrientation" "" "Plus90"
+Attribute "TTRasterizer" "" "Type42"
+
+Copyright "Copyright 2011-2013 by Paul Newall"
+
+Font *
+
+Version "1.6"
+
+// Kodak
+{
+  Manufacturer "Eastman Kodak Company" //was Eastman Kodak
+  DriverType custom
+  ManualCopies Yes
+  ColorDevice Yes
+  Throughput 8
+  Attribute "cupsSNMPSupplies" "" "False" // hope to stop the "may not be connected" message
+  VariablePaperSize Yes
+  MinSize 36 36
+  MaxSize 1080 86400
+
+    Filter application/vnd.cups-raster 50 /usr/lib/cups/filter/c2espC
+    Filter application/vnd.cups-command 50 /usr/lib/cups/filter/command2esp
+    Attribute "cupsCommands" "" "Clean PrintSelfTestPage PrintAlignmentPage ReportLevels"
+    ColorDevice Yes
+    Attribute DefaultColorSpace "" "CMY"
+//    HWMargins 14.03 14.25 14.03 14.25 //5mm all round
+    HWMargins 3 3 3 3 //1mm all round
+
+//    option "MediaSize" PickOne AnySetup 30
+    MediaSize Executive
+    MediaSize Letter
+    MediaSize Legal
+    *MediaSize A4
+    MediaSize A5
+    MediaSize A6
+    MediaSize 8x10
+    MediaSize Photo4x6 
+    MediaSize EnvISOB5
+    MediaSize EnvC5
+    MediaSize EnvDL
+    MediaSize Env10
+
+    option "Resolution" PickOne AnySetup 20
+    Choice 300x300dpi/300x300 "<</HWResolution[300 300]/cupsBitsPerColor 8>>setpagedevice"
+    *Choice 600x600dpi/600x600 "<</HWResolution[600 600]/cupsBitsPerColor 8>>setpagedevice"
+
+
+	//res/media dens gamma 3x3matrix 
+	ColorProfile 300x300dpi/- 1.0 1.0 
+		1.0 0.0 0.0 
+		0.0 1.0 0.0 
+		0.0 0.0 1.0 
+
+	ColorProfile 600x600dpi/- 1.0 1.0 //gamma 1.5 to 1.7 was good for dithered in ESP5250
+		1.0 0.0 0.0 
+		0.0 1.0 0.0 
+		0.0 0.0 1.0 
+
+    Attribute "marker-colors" "" "black magenta"
+
+    option "ColorModel" PickOne AnySetup 10
+//ColorModel name colorspace colororder compression
+//    Choice CMY/Color "<</cupsBitsPerColor 8/cupsRowCount 0/cupsRowFeed 0/cupsRowStep 0/cupsColorSpace 6/cupsColorOrder 0/cupsCompression 1>>setpagedevice"
+//     *Choice Gray/BlackAndWhite "<</cupsBitsPerColor 8/cupsRowCount 0/cupsRowFeed 0/cupsRowStep 0/cupsColorSpace 3/cupsColorOrder 0/cupsCompression 1>>setpagedevice"
+    ColorModel Gray/Grayscale k chunky 0
+    *ColorModel CMY/Color cmy chunky 0
+
+ // Kodak ESP C110 Series without duplex or photo tray
+  {
+    ModelName "Kodak ESP C110 Series AiO"
+    Attribute NickName "" "Kodak ESP C110 Series AiO" //The NickName is used in ubuntu to make the printer database
+    Attribute ShortNickName "" "Kodak ESP C110 Series AiO"
+    Attribute Product "" "(Kodak ESP C110 Series AiO)"
+    Attribute 1284DeviceID "" "MFG:Eastman Kodak Company;MDL:KODAK ESP C110 Series AiO;CMD:OPL V1.00;CLS:PRINTER;DES:AIO;VER:1.00;"
+    FileName "Kodak_ESP_C11x_Series.ppd"
+    PCFileName "KESPC11x.ppd"
+    ModelNumber C110
+  }
+
+ // Kodak ESP C310 Series without duplex or photo tray
+  {
+    ModelName "Kodak ESP C310 Series AiO"
+    Attribute NickName "" "Kodak ESP C310 Series AiO" //The NickName is used in ubuntu to make the printer database
+    Attribute ShortNickName "" "Kodak ESP C310 Series AiO"
+    Attribute Product "" "(Kodak ESP C310 Series AiO)"
+    Attribute 1284DeviceID "" "MFG:Eastman Kodak Company;MDL:KODAK ESP C310 Series AiO;CMD:OPL V1.00;CLS:PRINTER;DES:AIO;VER:1.00;"
+    FileName "Kodak_ESP_C31x_Series.ppd"
+    PCFileName "KESPC31x.ppd"
+    ModelNumber C310
+  }
+
+ // Kodak ESP Hero Series without duplex or photo tray
+  {
+    ModelName "KODAK HERO 3.1 AiO"
+    Attribute NickName "" "KODAK HERO 3.1 AiO" //The NickName is used in ubuntu to make the printer database
+    Attribute ShortNickName "" "KODAK HERO 3.1 AiO"
+    Attribute Product "" "(KODAK HERO 3.1 AiO)"
+    Attribute 1284DeviceID "" "MFG:Eastman Kodak Company;MDL:KODAK HERO 3.1 AiO;CMD:OPL V1.00;CLS:PRINTER;DES:AIO;VER:1.00;"
+    FileName "Kodak_Hero_3.1.ppd"
+    PCFileName "KHERO31.ppd"
+    ModelNumber Hero3.1
+  }
+
+ // Kodak ESP Hero Series with duplex and without photo tray
+  {
+    ModelName "KODAK HERO 5.1 AiO"
+    Attribute NickName "" "KODAK HERO 5.1 AiO" //The NickName is used in ubuntu to make the printer database
+    Attribute ShortNickName "" "KODAK HERO 5.1 AiO"
+    Attribute Product "" "(KODAK HERO 5.1 AiO)"
+    Attribute 1284DeviceID "" "MFG:Eastman Kodak Company;MDL:KODAK HERO 5.1 AiO;CMD:OPL V1.00;CLS:PRINTER;DES:AIO;VER:1.00;"
+    FileName "Kodak_Hero_5.1.ppd"
+    PCFileName "KHERO51.ppd"
+    ModelNumber Hero5.1
+    Duplex rotated
+  }
+
+ // Kodak ESP Hero Series with duplex and photo tray. 6.1, 7.1, 9.1
+  {
+    ModelName "KODAK HERO 6.1 AiO"
+    Attribute NickName "" "KODAK HERO 6.1 AiO" //The NickName is used in ubuntu to make the printer database
+    Attribute ShortNickName "" "KODAK HERO 6.1 AiO"
+    Attribute Product "" "(KODAK HERO 6.1 AiO)"
+    Attribute 1284DeviceID "" "MFG:Eastman Kodak Company;MDL:KODAK HERO 6.1 AiO;CMD:OPL V1.00;CLS:PRINTER;DES:AIO;VER:1.00;"
+    FileName "Kodak_Hero_6.1.ppd"
+    PCFileName "KHERO61.ppd"
+    ModelNumber Hero6.1
+    Duplex rotated
+    InputSlot 0 MainTray
+    InputSlot 1 PhotoTray
+  } 
+
+// Kodak ESP Hero Series with duplex and photo tray. 6.1, 7.1, 9.1
+  {
+    ModelName "KODAK HERO 7.1 AiO"
+    Attribute NickName "" "KODAK HERO 7.1 AiO" //The NickName is used in ubuntu to make the printer database
+    Attribute ShortNickName "" "KODAK HERO 7.1 AiO"
+    Attribute Product "" "(KODAK HERO 7.1 AiO)"
+    Attribute 1284DeviceID "" "MFG:Eastman Kodak Company;MDL:KODAK HERO 7.1 AiO;CMD:OPL V1.00;CLS:PRINTER;DES:AIO;VER:1.00;"
+    FileName "Kodak_Hero_7.1.ppd"
+    PCFileName "KHERO71.ppd"
+    ModelNumber Hero9.1
+    Duplex rotated
+    InputSlot 0 MainTray
+    InputSlot 1 PhotoTray
+  } 
+
+// Kodak ESP Hero Series with duplex and photo tray. 6.1, 7.1, 9.1
+  {
+    ModelName "KODAK HERO 9.1 AiO"
+    Attribute NickName "" "KODAK HERO 9.1 AiO" //The NickName is used in ubuntu to make the printer database
+    Attribute ShortNickName "" "KODAK HERO 9.1 AiO"
+    Attribute Product "" "(KODAK HERO 9.1 AiO)"
+    Attribute 1284DeviceID "" "MFG:Eastman Kodak Company;MDL:KODAK HERO 9.1 AiO;CMD:OPL V1.00;CLS:PRINTER;DES:AIO;VER:1.00;"
+    FileName "Kodak_Hero_9.1.ppd"
+    PCFileName "KHERO91.ppd"
+    ModelNumber Hero9.1
+    Duplex rotated
+    InputSlot 0 MainTray
+    InputSlot 1 PhotoTray
+  }
+
+ // Kodak ESP Series without duplex or photo tray
+  {
+    ModelName "KODAK ESP 1.2 AiO"
+    Attribute NickName "" "KODAK ESP 1.2 AiO" //The NickName is used in ubuntu to make the printer database
+    Attribute ShortNickName "" "KODAK ESP 1.2 AiO"
+    Attribute Product "" "(KODAK ESP 1.2 AiO)"
+    Attribute 1284DeviceID "" "MFG:Eastman Kodak Company;MDL:KODAK ESP 1.2 AiO;CMD:OPL V1.00;CLS:PRINTER;DES:AIO;VER:1.00;"
+    FileName "Kodak_ESP_1.2.ppd"
+    PCFileName "KESP12.ppd"
+    ModelNumber ESP1.2
+  }
+
+  // Kodak ESP Series without photo tray with duplex
+  {
+    ModelName "KODAK ESP 2.2 AiO"
+    Attribute NickName "" "KODAK ESP 2.2 AiO" //The NickName is used in ubuntu to make the printer database
+    Attribute ShortNickName "" "KODAK ESP 2.2 AiO"
+    Attribute Product "" "(KODAK ESP 2.2 AiO)"
+    Attribute 1284DeviceID "" "MFG:Eastman Kodak Company;MDL:KODAK ESP 2.2 AiO;CMD:OPL V1.00;CLS:PRINTER;DES:AIO;VER:1.00;"
+    FileName "Kodak_ESP_2.2.ppd"
+    PCFileName "KESP22.ppd"
+    ModelNumber ESP2.2
+  }
+
+ // Kodak ESP Series without duplex or photo tray
+  {
+    ModelName "KODAK ESP 3.2 AiO"
+    Attribute NickName "" "KODAK ESP 3.2 AiO" //The NickName is used in ubuntu to make the printer database
+    Attribute ShortNickName "" "KODAK ESP 3.2 AiO"
+    Attribute Product "" "(KODAK ESP 3.2 AiO)"
+    Attribute 1284DeviceID "" "MFG:Eastman Kodak Company;MDL:KODAK ESP 3.2 AiO;CMD:OPL V1.00;CLS:PRINTER;DES:AIO;VER:1.00;"
+    FileName "Kodak_ESP_3.2.ppd"
+    PCFileName "KESP32.ppd"
+    ModelNumber ESP3.2
+  }
+
+// Kodak ESP Series without photo tray with duplex
+  {
+    ModelName "KODAK ESP 4.2 AiO"
+    Attribute NickName "" "KODAK ESP 4.2 AiO" //The NickName is used in ubuntu to make the printer database
+    Attribute ShortNickName "" "KODAK ESP 4.2 AiO"
+    Attribute Product "" "(KODAK ESP 4.2 AiO)"
+    Attribute 1284DeviceID "" "MFG:Eastman Kodak Company;MDL:KODAK ESP 4.2 AiO;CMD:OPL V1.00;CLS:PRINTER;DES:AIO;VER:1.00;"
+    FileName "Kodak_ESP_4.2.ppd"
+    PCFileName "KESP42.ppd"
+    ModelNumber ESP4.2
+  }
+
+}
+

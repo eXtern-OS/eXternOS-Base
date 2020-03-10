@@ -1,0 +1,87 @@
+Apport crash detection/reporting
+================================
+
+Apport intercepts Program crashes, collects debugging information about the
+crash and the operating system environment, and sends it to bug trackers in a
+standardized form. It also offers the user to report a bug about a package,
+with again collecting as much information about it as possible.
+
+It currently supports
+
+ - Crashes from standard signals (SIGSEGV, SIGILL, etc.) through the kernel
+   coredump handler (in piping mode)
+ - Unhandled Python exceptions
+ - GTK, KDE, and command line user interfaces
+ - Packages can ship hooks for collecting specific data (such as
+   /var/log/Xorg.0.log for X.org, or modified gconf settings for GNOME
+   programs)
+ - apt/dpkg and rpm backend (in production use in Ubuntu and OpenSUSE)
+ - Reprocessing a core dump and debug symbols for post-mortem (and preferably
+   server-side) generation of fully symbolic stack traces (apport-retrace)
+ - Reporting bugs to Launchpad (more backends can be easily added)
+
+Please see https://wiki.ubuntu.com/Apport for more details and further links.
+The files in doc/ document particular details such as package hooks, crash
+database configuration, or the internal data format.
+
+Temporarily enabling apport
+===========================
+
+The automatic crash interception component of apport is disabled by default in
+stable releases for a number of reasons [1].  To enable it just for the current
+session, do
+
+  sudo service apport start force_start=1
+
+Then you can simply trigger the crash again, and Apport's dialog will show up
+with instructions to report a bug with traces. Apport will be automatically
+disabled on next start.
+
+If you are triaging bugs, this is the best way to get traces from bug reporters
+that didn't use Apport in the first place.
+
+To enable it permanently, do:
+
+  sudo nano /etc/default/apport
+
+and change enabled from "0" to "1".
+
+[1] https://wiki.ubuntu.com/Apport#How%20to%20enable%20apport
+
+Crash notification on servers
+=============================
+
+You can add
+
+if [ -x /usr/bin/apport-cli ]; then 
+    if groups | grep -qw admin && /usr/share/apport/apport-checkreports -s; then
+	cat <<-EOF
+	You have new problem reports waiting in /var/crash. 
+	To take a look at them, run "sudo apport-cli".
+
+	EOF
+    elif /usr/share/apport/apport-checkreports; then
+	cat <<-EOF
+	You have new problem reports waiting in /var/crash. 
+	To take a look at them, run "apport-cli".
+
+	EOF
+    fi
+fi
+
+to your ~/.bashrc to get automatic notification of problem reports.
+
+Contributing
+============
+
+Please visit Apport's Launchpad homepage for links to the source code revision
+control, the bug tracker, translations, downloads, etc.:
+
+  https://launchpad.net/apport
+
+The preferred mode of operation for Linux distribution packagers is to create
+their own branch from 'trunk' and add the distro specific packaging and patches
+to it. Please send patches which are applicable to trunk as merge requests or
+bug reports, so that (1) other distributions can benefit from them as well, and
+(2) you reduce the code delta to upstream.
+

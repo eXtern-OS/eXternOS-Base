@@ -1,0 +1,22 @@
+#!/bin/sh
+
+PREREQS="udev"
+
+prereqs() { echo "$PREREQS"; }
+
+case $1 in
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+copy_exec /sbin/kpartx /sbin
+copy_exec /sbin/dmsetup			/sbin
+copy_exec /lib/udev/dmsetup_env		/lib/udev
+copy_exec /lib/udev/kpartx_id		/lib/udev
+cp -p /lib/udev/rules.d/56-dm-parts.rules $DESTDIR/lib/udev/rules.d/
+cp -p /lib/udev/rules.d/68-del-part-nodes.rules $DESTDIR/lib/udev/rules.d/
+cp -p /lib/udev/rules.d/95-kpartx.rules $DESTDIR/lib/udev/rules.d/

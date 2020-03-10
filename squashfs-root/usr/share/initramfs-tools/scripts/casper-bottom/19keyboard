@@ -1,0 +1,237 @@
+#!/bin/sh
+
+PREREQ=""
+DESCRIPTION="Setting up console keyboard..."
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+
+log_begin_msg "$DESCRIPTION"
+
+kbd=us
+cslayout=
+csvariant=
+csmodel=
+
+for x in $(cat /proc/cmdline); do
+        case $x in
+                kbd-chooser/method=*)
+                        kbd=${x#kbd-chooser/method=}
+                        ;;
+                console-setup/layoutcode=*)
+                        cslayout=${x#console-setup/layoutcode=}
+                        ;;
+                console-setup/layoutcode\?=*)
+                        cslayout=${x#console-setup/layoutcode\?=}
+                        ;;
+                console-setup/variantcode=*)
+                        csvariant=${x#console-setup/variantcode=}
+                        ;;
+                console-setup/variantcode\?=*)
+                        csvariant=${x#console-setup/variantcode\?=}
+                        ;;
+                console-setup/modelcode=*)
+                        csmodel=${x#console-setup/modelcode=}
+                        ;;
+                console-setup/modelcode\?=*)
+                        csmodel=${x#console-setup/modelcode\?=}
+                        ;;
+                keyboard-configuration/layoutcode=*)
+                        cslayout=${x#keyboard-configuration/layoutcode=}
+                        ;;
+                keyboard-configuration/layoutcode\?=*)
+                        cslayout=${x#keyboard-configuration/layoutcode\?=}
+                        ;;
+                keyboard-configuration/variantcode=*)
+                        csvariant=${x#keyboard-configuration/variantcode=}
+                        ;;
+                keyboard-configuration/variantcode\?=*)
+                        csvariant=${x#keyboard-configuration/variantcode\?=}
+                        ;;
+                keyboard-configuration/modelcode=*)
+                        csmodel=${x#keyboard-configuration/modelcode=}
+                        ;;
+                keyboard-configuration/modelcode\?=*)
+                        csmodel=${x#keyboard-configuration/modelcode\?=}
+                        ;;
+        esac
+done
+
+# TODO: This is a horrible clone-and-hack from console-setup. We should
+# definitely be calling console-setup instead; however, that's too risky for
+# 8.04 since it will need careful installer testing and will probably be
+# slower.
+adjust_console_setup () {
+        if [ -z "$csmodel" ]; then
+                if [ "$cslayout" = br ]; then
+                        csmodel=abnt2
+                elif [ "$cslayout" = jp ]; then
+                        csmodel=jp106
+                fi
+        fi
+
+        latin=
+        case $cslayout in
+                jp)
+                        case $csvariant in
+                                ''|106|common|OADG109A|nicola_f_bs)
+                                        latin=yes
+                                        ;;
+                                *)
+                                        latin=no
+                                        cslayout=jp,jp
+                                        csvariant="106,$csvariant"
+                                        ;;
+                        esac
+                        ;;
+                lt)
+                        latin=no
+                        cslayout=lt,lt
+                        case $csvariant in
+                                us)
+                                        csvariant=us,
+                                        ;;
+                                *)
+                                        csvariant="$csvariant,us"
+                                        ;;
+                        esac
+                        ;;
+                me)
+                        case $csvariant in
+                                ''|basic|latin*)
+                                        latin=yes
+                                        ;;
+                                cyrillicyz)
+                                        latin=no
+                                        cslayout=me,me
+                                        csvariant="latinyz,$csvariant"
+                                        ;;
+                                cyrillicalternatequotes)
+                                        latin=no
+                                        cslayout=me,me
+                                        csvariant="latinalternatequotes,$csvariant"
+                                        ;;
+                                *)
+                                        latin=no
+                                        cslayout=me,me
+                                        csvariant="basic,$csvariant"
+                                        ;;
+                        esac
+                        ;;
+                rs)
+                        case $csvariant in
+                                ''|basic|latin*)
+                                        latin=yes
+                                        ;;
+                                yz)
+                                        latin=no
+                                        cslayout=rs,rs
+                                        csvariant="latinyz,$csvariant"
+                                        ;;
+                                alternatequotes)
+                                        latin=no
+                                        cslayout=rs,rs
+                                        csvariant="latinalternatequotes,$csvariant"
+                                        ;;
+                                *)
+                                        latin=no
+                                        cslayout=rs,rs
+                                        csvariant="latin,$csvariant"
+                                        ;;
+                        esac
+                        ;;
+                am|ara|ben|bd|bg|bt|by|deva|ge|gh|gr|guj|guru|il|in|ir|iku|kan|kh|la|lao|lk|mk|mm|mn|mv|mal|ori|pk|ru|scc|sy|syr|tel|th|tj|tam|ua|uz)
+                        latin=no
+                        cslayout="us,$cslayout"
+                        csvariant=",$csvariant"
+                        ;;
+                *)
+                        latin=yes
+        esac
+
+        if [ "$latin" = no ]; then
+                csoptions="${csoptions:+$csoptions,}grp:alt_shift_toggle"
+        fi
+        if [ "$cslayout" != us ] || [ "$csvariant" ]; then
+                csoptions="${csoptions:+$csoptions,}lv3:ralt_switch"
+        fi
+}
+
+PREFIX=
+CONFIGFILE=
+if [ -f /root/etc/default/keyboard ]; then
+        PREFIX=keyboard-configuration
+        CONFIGFILE=/etc/default/keyboard
+elif [ -f /root/etc/default/console-setup ]; then
+        PREFIX=console-setup
+        CONFIGFILE=/etc/default/console-setup
+fi
+
+# Make a temporary copy of the current file for later diff
+cp /root$CONFIGFILE /tmp/keyboard.orig
+
+# Reset the config for persistent medias
+if [ -f /cow$CONFIGFILE ]; then
+    echo "Resetting $CONFIGFILE"
+    cp /root/rofs$CONFIGFILE /root$CONFIGFILE
+fi
+
+if [ -x /root/bin/setupcon ] && [ "$PREFIX" ] && [ "$CONFIGFILE" ]; then
+        if [ "$cslayout" ]; then
+                csoptions=
+                adjust_console_setup
+
+                chroot /root sed -i "s/^XKBLAYOUT=.*/XKBLAYOUT=\"$cslayout\"/" \
+                        "$CONFIGFILE"
+                if [ "$csvariant" ]; then
+                        chroot /root sed -i "s/^XKBVARIANT=.*/XKBVARIANT=\"$csvariant\"/" \
+                                "$CONFIGFILE"
+                else
+                        casper-preseed /root "$PREFIX/variantcode" '' false
+                fi
+                if [ "$csmodel" ]; then
+                        chroot /root sed -i "s/^XKBMODEL=.*/XKBMODEL=\"$csmodel\"/" \
+                                "$CONFIGFILE"
+                else
+                        casper-preseed /root "$PREFIX/modelcode" '' false
+                fi
+                if [ "$csoptions" ]; then
+                        chroot /root sed -i "s/^XKBOPTIONS=.*/XKBOPTIONS=\"$csoptions\"/" \
+                                "$CONFIGFILE"
+                fi
+        else
+                casper-preseed /root "$PREFIX/layoutcode" '' false
+                casper-preseed /root "$PREFIX/variantcode" '' false
+                casper-preseed /root "$PREFIX/modelcode" '' false
+        fi
+        casper-preseed /root "$PREFIX/optionscode" '' false
+        # prefix remains console-setup even with keyboard-configuration
+        casper-preseed /root console-setup/codesetcode '' false
+else
+        chroot /root /usr/sbin/install-keymap $kbd
+        casper-preseed /root debian-installer/keymap "$kbd"
+fi
+
+if [ "$(cat /root$CONFIGFILE)" != "$(cat /tmp/keyboard.orig)" ]; then
+    # The keyboard settings have changed, gsettings needs to be flushed
+    if [ -f /root/home/$USERNAME/.config/dconf/user ]; then
+        chroot /root sudo -u $USERNAME dbus-launch --exit-with-session gsettings reset-recursively org.gnome.libgnomekbd.keyboard
+        mount -n -o bind /proc /root/proc
+        chroot /root killall dbus-launch
+        umount /root/proc
+    fi
+fi
+
+log_end_msg

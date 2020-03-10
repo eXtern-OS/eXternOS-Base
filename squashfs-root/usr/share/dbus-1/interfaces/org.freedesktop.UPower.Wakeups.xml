@@ -1,0 +1,131 @@
+<!DOCTYPE node PUBLIC
+"-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd" [
+  <!ENTITY ERROR_GENERAL "org.freedesktop.UPower.GeneralError">
+]>
+<node name="/" xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+  <interface name="org.freedesktop.UPower.Wakeups">
+    <doc:doc>
+      <doc:description>
+        <doc:para>
+          org.freedesktop.UPower.Wakeups is a DBus interface implemented
+          by UPower.
+          It allows applications to watch what applications and drivers are
+          causing the wakeups on the system.
+        </doc:para>
+      </doc:description>
+    </doc:doc>
+
+    <property name="HasCapability" type="b" access="read">
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            If the system has the ability to profile wakeups.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </property>
+
+    <!-- ************************************************************ -->
+    <method name="GetTotal">
+      <arg name="value" direction="out" type="u">
+        <doc:doc>
+          <doc:summary>
+            The number of wakeups per second.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Get the number of wakeups per second.
+          </doc:para>
+        </doc:description>
+        <doc:errors>
+          <doc:error name="&ERROR_GENERAL;">if an error occured while getting the latency</doc:error>
+        </doc:errors>
+      </doc:doc>
+    </method>
+
+    <!-- ************************************************************ -->
+    <signal name="TotalChanged">
+      <arg name="value" direction="out" type="u">
+        <doc:doc>
+          <doc:summary>
+            The number of wakeups per second.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            The number of wakeups per second has changed.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </signal>
+
+    <!-- ************************************************************ -->
+    <method name="GetData">
+      <arg name="data" direction="out" type="a(budss)">
+        <doc:doc>
+          <doc:summary>
+            The data of all the processes and drivers which contribute to the
+            wakeups on the system.
+            <doc:list>
+              <doc:item>
+                <doc:term>is_userspace</doc:term>
+                <doc:definition>
+                  If the wakeup is from userspace.
+                </doc:definition>
+              </doc:item>
+              <doc:item>
+                <doc:term>id</doc:term>
+                <doc:definition>
+                  The process ID of the application, or the IRQ for kernel drivers.
+                </doc:definition>
+              </doc:item>
+              <doc:item>
+                <doc:term>value</doc:term>
+                <doc:definition>
+                  The number of wakeups per second.
+                </doc:definition>
+              </doc:item>
+              <doc:item>
+                <doc:term>cmdline</doc:term>
+                <doc:definition>
+                  The command line for the application, or NULL for kernel drivers.
+                </doc:definition>
+              </doc:item>
+              <doc:item>
+                <doc:term>details</doc:term>
+                <doc:definition>
+                  The details about the wakeup.
+                </doc:definition>
+              </doc:item>
+            </doc:list>
+        </doc:summary></doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Gets all the wakeups from drivers and applications.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+
+    <!-- ************************************************************ -->
+    <signal name="DataChanged">
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            The wakeup data has changed.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </signal>
+
+  </interface>
+
+</node>

@@ -1,0 +1,155 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = prereqs ]; then
+  exit 0
+fi
+
+. /usr/share/initramfs-tools/hook-functions
+
+number=
+suffix=
+eval $(printf "%s" "$COMPCACHE_SIZE" | \
+       sed -nre 's/^ *([1-9][0-9]*) *([%KMGT]) *$/number="\1"; suffix="\2";/p')
+
+if [ -z "$number" ] || [ -z "$suffix" ]; then
+  exit 0
+fi
+
+if have_module zram; then
+  name=zram
+  manual_add_modules zram
+elif have_module ramzswap; then
+  name=ramzswap
+  manual_add_modules ramzswap
+elif have_module compcache; then
+  name=compcache
+  manual_add_modules compcache
+else
+  exit 0
+fi
+
+copy_exec /sbin/swapon
+copy_exec /sbin/mkswap
+copy_exec /usr/lib/initramfs-tools/bin/rzscontrol /sbin
+
+mem_total="\$(sed -nre 's/^MemTotal:\\s*([0-9]+) kB\$/\\1/p' /proc/meminfo)"
+
+case "$suffix" in
+%) kbytes="\$(($mem_total * $number / 100))" ;;
+K) kbytes=$(($number))                       ;;
+M) kbytes=$(($number * 1024))                ;;
+G) kbytes=$(($number * 1024 * 1024))         ;;
+T) kbytes=$(($number * 1024 * 1024 * 1024))  ;;
+esac
+
+cat >"$DESTDIR"/sbin/compcache-enable <<'EOF'
+#!/bin/sh
+if [ "$#" != 3 ]; then
+	echo "Usage: $0 <type> <size> <device>" 1>&2
+	exit 1
+fi
+type="$1"
+size="$2"
+device="$3"
+
+number=
+suffix=
+eval $(printf "%s" "$size" | \
+       sed -nre 's/^ *([1-9][0-9]*) *([%KMGT]) *$/number="\1"; suffix="\2";/p')
+
+mem_total="$(sed -nre 's/^MemTotal:\s*([0-9]+) kB$/\1/p' /proc/meminfo)"
+
+case "$suffix" in
+%) kbytes="$(($mem_total * $number / 100))" ;;
+K) kbytes=$(($number))                       ;;
+M) kbytes=$(($number * 1024))                ;;
+G) kbytes=$(($number * 1024 * 1024))         ;;
+T) kbytes=$(($number * 1024 * 1024 * 1024))  ;;
+esac
+bytes="$(($kbytes * 1024))"
+
+if [ "$type" = zram ]; then
+	echo "$bytes" >/sys/block/$device/disksize && \
+	/sbin/mkswap "/dev/$device" >/dev/null
+
+elif [ "$type" = ramzswap ]; then
+	/sbin/rzscontrol "/dev/$device" --disksize_kb="$kbytes" --init
+fi
+/sbin/swapon -p 100 "/dev/$device" 2>/dev/null
+
+exit 0
+EOF
+chmod 0755 "$DESTDIR"/sbin/compcache-enable
+
+mkdir -p "$DESTDIR"/etc/udev/rules.d
+if [ "$name" = zram ]; then
+  cat >"$DESTDIR"/etc/udev/rules.d/80-compcache.rules <<EOF
+KERNEL=="zram0", ACTION=="add", \\
+  RUN+="/sbin/compcache-enable zram $COMPCACHE_SIZE zram0"
+EOF
+elif [ "$name" = ramzswap ]; then
+  cat >"$DESTDIR"/etc/udev/rules.d/80-compcache.rules <<EOF
+KERNEL=="ramzswap0", ACTION=="add", \\
+  RUN+="/sbin/compcache-enable ramzswap $COMPCACHE_SIZE ramzswap0"
+EOF
+else
+  cat >"$DESTDIR"/etc/udev/rules.d/80-compcache.rules <<EOF
+KERNEL=="ramzswap0", ACTION=="add", \\
+  RUN+="/sbin/compcache-enable compcache $COMPCACHE_SIZE ramzswap0"
+EOF
+fi
+
+cat >"$DESTDIR"/scripts/init-top/compcache <<EOF
+#!/bin/sh
+
+PREREQ=""
+prereqs()
+{
+     echo "\$PREREQ"
+}
+
+case \$1 in
+prereqs)
+     prereqs
+     exit 0
+     ;;
+esac
+
+# find total amount of available ram
+TOTAL_RAM=\$( grep MemTotal /proc/meminfo |tr -d ': [A-Z][a-z]')
+
+# Do not use compcache on the liveCD if we have more than 512M
+if [ "\${BOOT}" = "casper" ]; then
+    if [ "\${TOTAL_RAM}" -gt 524288 ]; then
+        exit 0
+    fi
+fi
+
+for x in \$(cat /proc/cmdline); do
+        case \${x} in
+        nocompcache)
+                exit 0
+        ;;
+        esac
+done
+
+EOF
+
+if [ "$name" = zram ]; then
+  cat >>"$DESTDIR"/scripts/init-top/compcache <<EOF
+modprobe -q --ignore-install zram
+EOF
+elif [ "$name" = ramzswap ]; then
+  cat >>"$DESTDIR"/scripts/init-top/compcache <<EOF
+modprobe -q --ignore-install ramzswap
+EOF
+else
+  cat >>"$DESTDIR"/scripts/init-top/compcache <<EOF
+modprobe -q --ignore-install compcache compcache_size_kbytes="$kbytes"
+EOF
+fi
+
+chmod 0755 "$DESTDIR"/scripts/init-top/compcache
+
+# vim:set et sw=2 sts=2:

@@ -1,0 +1,91 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      type="topic" style="task"
+      id="extensions-lockdown">
+
+  <info>
+    <link type="guide" xref="software#extension" />
+    <link type="seealso" xref="extensions-enable" />
+    <link type="seealso" xref="extensions" />
+    <revision pkgversion="3.12" date="2014-06-17" status="review"/>
+
+    <credit type="author copyright">
+      <name>Petr Kovar</name>
+      <email>pknbe@volny.cz</email>
+      <years>2014</years>
+    </credit>
+
+    <include href="legal.xml" xmlns="http://www.w3.org/2001/XInclude"/>
+
+    <desc>Disallow the user to enable or disable GNOME Shell extensions.</desc>
+  </info>
+
+  <title>Lock down enabled extensions</title>
+  
+  <p>In GNOME Shell, you can prevent the user from enabling or disabling
+  extensions by locking down the
+  <code>org.gnome.shell.enabled-extensions</code> and
+  <code>org.gnome.shell.development-tools</code> keys. This allows you to
+  provide a set of extensions that the user has to use.</p>
+   
+  <p>Locking down the <code>org.gnome.shell.development-tools</code> key
+  ensures that the user cannot use GNOME Shell’s integrated debugger and
+  inspector tool (<app>Looking Glass</app>) to disable any mandatory
+  extensions.</p>
+   
+  <steps>
+    <title>Lock down the org.gnome.shell.enabled-extensions and
+    org.gnome.shell.development-tools keys</title>
+    <item>
+      <p>Create a <code>user</code> profile in
+      <file>/etc/dconf/profile/user</file>:</p>
+      <listing>
+        <code>
+user-db:user
+system-db:local
+</code>
+      </listing>
+    </item>
+    <item>
+      <p>Create a <code>local</code> database for machine-wide settings in
+      <file>/etc/dconf/db/local.d/00-extensions</file>:</p>
+      <listing>
+        <code>
+[org/gnome/shell]
+# List all extensions that you want to have enabled for all users
+enabled-extensions=['<input>myextension1@myname.example.com</input>', '<input>myextension2@myname.example.com</input>']
+# Disable access to Looking Glass
+development-tools=false
+</code>
+      </listing>
+      <p>The <code>enabled-extensions</code> key specifies the enabled
+      extensions using the extensions’ uuid
+      (<code>myextension1@myname.example.com</code> and
+      <code>myextension2@myname.example.com</code>).</p>
+      <p>The <code>development-tools</code> key is set to false to disable
+      access to Looking Glass.</p>
+    </item>
+    <item>
+      <p>Override the user’s setting and prevent the user from changing it in
+      <file>/etc/dconf/db/local.d/locks/extensions</file>:</p>
+      <listing>
+        <code>
+# Lock the list of enabled extensions
+/org/gnome/shell/enabled-extensions
+/org/gnome/shell/development-tools
+</code>
+</listing>
+    </item>
+    <include href="dconf-snippets.xml"
+      xpointer="xpointer(/*/*[@xml:id='dconf-update'])"
+      xmlns="http://www.w3.org/2001/XInclude"/>
+  </steps>
+  
+  <p>After locking down the <code>org.gnome.shell.enabled-extensions</code> and
+  <code>org.gnome.shell.development-tools</code> keys, any extensions installed
+  in <file>~/.local/share/gnome-shell/extensions</file> or
+  <file>/usr/share/gnome-shell/extensions</file> that are not listed in the
+  <code>org.gnome.shell.enabled-extensions</code> key will not be loaded by
+  GNOME Shell, thus preventing the user from using them.</p>
+
+</page>

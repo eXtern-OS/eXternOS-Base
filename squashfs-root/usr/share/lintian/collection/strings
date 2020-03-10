@@ -1,0 +1,118 @@
+#!/usr/bin/perl -w
+# strings -- lintian collection script
+
+# Copyright (C) 2009, 2010 Raphael Geissert <atomo64@gmail.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, you can find it on the World Wide
+# Web at http://www.gnu.org/copyleft/gpl.html, or write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+
+package Lintian::coll::strings;
+
+no lib '.';
+
+use strict;
+use warnings;
+use autodie;
+
+use FileHandle;
+
+use lib "$ENV{'LINTIAN_ROOT'}/lib";
+use Lintian::Collect;
+use Lintian::Command qw(spawn reap);
+use Lintian::Util qw(delete_dir internal_error locate_helper_tool run_cmd);
+
+my $helper = locate_helper_tool('coll/strings-helper');
+
+sub collect {
+    my ($pkg, $type, $dir) = @_;
+    my ($info, @manual, %opts);
+
+    if (-d "$dir/strings") {
+        delete_dir("$dir/strings") or internal_error("rmdir strings: $!");
+    }
+
+    # If we are asked to only remove the files stop right here
+    if ($type =~ m/^remove-/) {
+        return;
+    }
+
+    $info = Lintian::Collect->new($pkg, $type, $dir);
+
+    # The directory is required, even if it would be empty.
+    mkdir("$dir/strings");
+
+    chdir("$dir/unpacked");
+
+    my $open_strings_pipe = sub {
+        %opts = (
+            pipe_in => FileHandle->new,
+            fail => 'error'
+        );
+        spawn(\%opts, ['xargs', '-0r', 'strings', '-af', '--'],
+            '|', [$helper, "$dir/strings"]);
+        $opts{pipe_in}->blocking(1);
+    };
+
+    foreach my $bin ($info->sorted_index) {
+        my $filename = $bin->name;
+        my $finfo;
+        next if not $bin->is_file or $filename =~ m,^usr/lib/debug/,;
+        $finfo = $info->file_info($filename);
+        next unless $finfo =~ m/\bELF\b/o;
+
+        if ($bin =~ m/[:\n\r]/) {
+            # Do these "interesting cases" manual
+            push @manual, $filename;
+            next;
+        }
+        $open_strings_pipe->() unless %opts;
+        printf {$opts{pipe_in}} "%s\0", $filename;
+    }
+
+    if (%opts) {
+        close($opts{pipe_in});
+        reap(\%opts);
+    }
+
+    # Fall back to the safe but slower method for files with "special"
+    # names.
+    if (@manual) {
+        require File::Basename;
+        foreach my $file (@manual) {
+            my $strdir = $dir . '/strings/' . File::Basename::dirname($file);
+            # create the dir if needed.
+            unless (-d $strdir) {
+                run_cmd('mkdir', '-p', $strdir);
+            }
+            spawn(
+                {out => "$dir/strings/${file}.gz", fail => 'fail'},
+                ['strings', '-a', "$dir/unpacked/$file"],
+                '|', ['gzip', '-9nc']);
+        }
+    }
+
+    return;
+}
+
+collect(@ARGV) if $0 =~ m,(?:^|/)strings$,;
+
+1;
+
+# Local Variables:
+# indent-tabs-mode: nil
+# cperl-indent-level: 4
+# End:
+# vim: syntax=perl sw=4 sts=4 sr et

@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.72">
+ <TITLE>Linux 2.4 Packet Filtering HOWTO: How Packets Traverse The Filters</TITLE>
+ <LINK HREF="packet-filtering-HOWTO-7.html" REL=next>
+ <LINK HREF="packet-filtering-HOWTO-5.html" REL=previous>
+ <LINK HREF="packet-filtering-HOWTO.html#toc6" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="packet-filtering-HOWTO-7.html">Next</A>
+<A HREF="packet-filtering-HOWTO-5.html">Previous</A>
+<A HREF="packet-filtering-HOWTO.html#toc6">Contents</A>
+<HR>
+<H2><A NAME="s6">6.</A> <A HREF="packet-filtering-HOWTO.html#toc6">How Packets Traverse The Filters</A></H2>
+
+<P>The kernel starts with three lists of rules in the `filter' table;
+these lists are called <B>firewall chains</B> or just
+<B>chains</B>.  The three chains are called <B>INPUT</B>,
+<B>OUTPUT</B> and <B>FORWARD</B>.</P>
+
+<P>For ASCII-art fans, the chains are arranged like so: <B>(Note: this
+is a very different arrangement from the 2.0 and 2.2 kernels!)</B></P>
+<P>
+<PRE>
+                          _____
+Incoming                 /     \         Outgoing
+       -->[Routing ]--->|FORWARD|------->
+          [Decision]     \_____/        ^
+               |                        |
+               v                       ____
+              ___                     /    \
+             /   \                  |OUTPUT|
+            |INPUT|                  \____/
+             \___/                      ^
+               |                        |
+                ----> Local Process ----
+</PRE>
+</P>
+
+<P>The three circles represent the three chains mentioned above.  When
+a packet reaches a circle in the diagram, that chain is examined to
+decide the fate of the packet.  If the chain says to DROP the packet,
+it is killed there, but if the chain says to ACCEPT the packet, it
+continues traversing the diagram.</P>
+
+<P>A chain is a checklist of <B>rules</B>.  Each rule says `if the packet
+header looks like this, then here's what to do with the packet'.  If
+the rule doesn't match the packet, then the next rule in the chain is
+consulted.  Finally, if there are no more rules to consult, then the
+kernel looks at the chain <B>policy</B> to decide what to do.  In a
+security-conscious system, this policy usually tells the kernel to
+DROP the packet.</P>
+
+<P>
+<OL>
+<LI>When a packet comes in (say, through the Ethernet card) the kernel
+first looks at the destination of the packet: this is called
+`routing'.
+</LI>
+<LI>If it's destined for this box, the packet passes downwards
+in the diagram, to the INPUT chain.  If it passes this, any processes
+waiting for that packet will receive it.
+</LI>
+<LI>Otherwise, if the kernel does not have forwarding enabled, or it
+doesn't know how to forward the packet, the packet is dropped.  If
+forwarding is enabled, and the packet is destined for another network
+interface (if you have another one), then the packet goes rightwards
+on our diagram to the FORWARD chain.  If it is ACCEPTed, it will be
+sent out.
+</LI>
+<LI>Finally, a program running on the box can send network packets.
+These packets pass through the OUTPUT chain immediately: if it says
+ACCEPT, then the packet continues out to whatever interface it is
+destined for.</LI>
+</OL>
+</P>
+
+<HR>
+<A HREF="packet-filtering-HOWTO-7.html">Next</A>
+<A HREF="packet-filtering-HOWTO-5.html">Previous</A>
+<A HREF="packet-filtering-HOWTO.html#toc6">Contents</A>
+</BODY>
+</HTML>

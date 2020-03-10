@@ -1,0 +1,35 @@
+#!/bin/sh
+## ----------------------------------------------------------------------
+## debian/prerm: preremoval script for foo
+## ----------------------------------------------------------------------
+
+## ----------------------------------------------------------------------
+## Abort if any command returns an error value
+set -e
+
+## --------------------------------------------------------------
+## Remove XML catalog entries
+if [ "$1" = "remove" -o "$1" = "upgrade" ]
+then
+
+    update-xmlcatalog --verbose --add --root --type public \
+        --id "-//FOO//DTD FOO//EN"
+
+    update-xmlcatalog --verbose --add --root --type system \
+        --id "http://www.foo.org/foo/foo.dtd"
+
+    update-xmlcatalog --verbose --add --package foo --type public \
+        --id "-//FOO//DTD FOO//EN"
+
+    update-xmlcatalog --verbose --add --package foo --type system \
+        --id "http://www.foo.org/foo/foo.dtd"
+
+fi
+
+## ----------------------------------------------------------------------
+## Automatically added sections
+#DEBHELPER#
+
+exit 0
+
+## ----------------------------------------------------------------------

@@ -1,0 +1,39 @@
+pppoeconf for Debian
+====================
+
+This is pppoeconf, a tiny utility that makes configuration of DSL links more
+comfortable. In theory, it does the same things that anybody would do by hand,
+but avoids the usual human errors (like forgotten quotes).
+
+Since version 1.0.4, the pppoe plugin of pppd is used, along with the
+discovery utility provided by the pppd package and a script to enable MSS
+clamping in the kernel space. Previously (or even now if old ppp package is
+installed), the pppoe utility is used (also known as RP-PPPoE) which does the
+same jobs in an equal manner.
+
+NOTE: If you have been using a pppoeconf version between 1.0.4 and 1.0.13 and
+you have configured IP filters on your machine, you should reconfigure the
+interface or edit the iptables script /etc/ppp/ip-up.d/0clampmss and replace
+-A with -I there.  Otherwise, the MSS clamping rule will not be inserted in
+the correct location.
+
+
+Timeout waiting for PADO socket
+-------------------------------
+
+pppoeconf don't set lcp-echo-interval and lcp-echo-failure options (ppp
+default values are commented in ``/etc/ppp/peers/dsl-provider``).
+Don't forget to adjust this values for your connection (see
+``/etc/ppp/options`` file or pppd(8) to have more details).
+
+
+Persistent connections (i.e. start again if actual connection is down)
+----------------------------------------------------------------------
+
+pppoeconf don't set persist/maxfail/holdoff option. But they are commented
+in ``/etc/ppp/peers/dsl-provider`` and uncomment them if you want to have
+ppp persistent connections (see ``/etc/ppp/options`` file or pppd(8) to
+have more details).
+
+ -- Eduard Bloch <blade@debian.org>, Thu, 06 Jan 2005 19:50:41 +0100
+ -- Gregory Colpart <reg@evolix.fr>, Sun, 23 Jul 2006 02:09:03 +0200

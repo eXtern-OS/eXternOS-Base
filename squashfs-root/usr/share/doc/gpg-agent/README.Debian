@@ -1,0 +1,82 @@
+gpg-agent system integration
+============================
+
+Since 2.1.x, gpg and most related processes will auto-launch gpg-agent
+if needed.  These auto-launched processes will inherit whatever
+environment they started from, and they will not terminate
+automatically.
+
+systemd
+=======
+
+Since 2.1.17, users on machines with systemd will have their gpg-agent
+process launched automatically by systemd's user session, upon first
+access of any of the expected gpg-agent sockets (including the ssh
+socket).  systemd will also cleanly tear this process down at session
+logout.
+
+If dbus-user-session and pinentry-gnome3 packages are installed, then
+all user interaction with this systemd-managed gpg-agent process
+(e.g. prompting for passwords or confirmations, etc) will take place
+over the d-bus session, for better integration with graphical
+environments like GNOME.
+
+Users who don't want systemd to manage their gpg-agent in this way for
+all future sessions should do:
+
+    systemctl --user mask --now gpg-agent.service gpg-agent.socket gpg-agent-ssh.socket gpg-agent-extra.socket gpg-agent-browser.socket
+
+Doing this means that gpg-agent will fall back to its manual mode of
+operation.  (This decision can be reversed by the user with "unmask"
+instead of "mask")
+
+See systemctl(1) for more details about managing the gpg-agent*.socket
+units.
+
+ssh-agent emulation
+===================
+
+gpg-agent offers an ssh-agent emulation which can be achieved by
+setting the environment variable SSH_AUTH_SOCK to:
+
+    /run/user/$(id -u)/gnupg/S.gpg-agent.ssh
+
+(replace $(id -u) with the user's numeric user ID, of course). 
+
+But ssh doesn't have a way to tell ssh-agent how to prompt the user
+when necessary; the systemd-managed gpg-agent process will only know
+how to prompt the user if you have dbus-user-session and
+pinentry-gnome3 installed.  This is the recommended configuration for
+gpg-agent's ssh-agent emulation on desktop machines running systemd,
+and doesn't need any additional configuration.
+
+However, if dbus-user-session and pinentry-gnome3 are not in use, by
+default the systemd-managed gpg-agent will not know how to get
+feedback from the user when a request is first received by ssh.  You
+can give it a hint for all future ssh connections by running:
+
+    gpg-connect-agent updatestartuptty /bye
+
+You may wish to do this in the login scripts for your user session if
+you run systemd without dbus-user-session and pinentry-gnome3, and you
+plan to use gpg-agent's ssh-agent emulation.
+
+Manual gpg-agent startup and teardown
+=====================================
+
+Any user who wants to launch gpg-agent manually (e.g., to talk to it
+with a tool from outside the GnuPG suite) and is *not* using systemd
+should first ensure that it is launched with:
+
+    gpgconf --launch gpg-agent
+
+If gpg-agent is launched manually or automatically (but not supervised
+by systemd), you probably want to ensure that it terminates when your
+session ends with:
+
+    gpgconf --kill gpg-agent
+
+If you're not using systemd, you may wish to add this to your session
+logout scripts.
+
+ -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>, Mon, 23 Jan 2017 22:56:08 -0500

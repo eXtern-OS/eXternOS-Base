@@ -1,0 +1,37 @@
+#!/usr/bin/perl -w
+
+## Demonstration of using a scalar to queue input to a child process
+
+use strict;
+
+use IPC::Run qw( start timeout );
+
+die "usage: $0 <num>\n\nwhere <num> is a positive integer\n" unless @ARGV;
+my $i = shift;
+die "\$i must be > 0, not '$i'" unless $i =~ /^\d+$/ && $i > 0;
+
+my ( $in, $out );
+
+my $h = start ['bc'], \$in, \$out, timeout(5);
+
+$in = "a = i = $i ; i\n";
+
+while () {
+    $out = '';
+    $h->pump until $out =~ s/.*?(\d+)\n/$1/g;
+    print "bc said: $out\n";
+    if ( $out > $i ) {
+        print "result = $out\n";
+        $in = undef;
+        last;
+    }
+    elsif ( $out == '1' ) {
+        ## End of calculation loop, get bc to output the result
+        $in = "a\n";
+    }
+    else {
+        $in = "i = i - 1 ; a = a * i ; i\n";
+    }
+}
+
+$h->finish;

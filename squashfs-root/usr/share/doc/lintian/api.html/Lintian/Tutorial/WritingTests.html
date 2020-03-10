@@ -1,0 +1,536 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Tutorial::WritingTests</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#Scope_of_the_tutorial'>Scope of the tutorial</a>
+    <li class='indexItem indexItem2'><a href='#The_design_of_the_Lintian_test_suite'>The design of the Lintian test suite</a>
+    <li class='indexItem indexItem2'><a href='#The_basics_of_a_%22native%22_package_in_the_%22tests%22_suite'>The basics of a &#34;native&#34; package in the &#34;tests&#34; suite</a>
+    <ul   class='indexList indexList3'>
+      <li class='indexItem indexItem3'><a href='#The_desc_file_(mandatory)'>The desc file (mandatory)</a>
+      <li class='indexItem indexItem3'><a href='#The_%22tags%22_file_(mandatory%2C_but_may_be_empty)'>The &#34;tags&#34; file (mandatory, but may be empty)</a>
+      <li class='indexItem indexItem3'><a href='#The_%22debian%2F%22_directory_(optional%2C_but_usually_needed)'>The &#34;debian/&#34; directory (optional, but usually needed)</a>
+      <li class='indexItem indexItem3'><a href='#Running_the_test'>Running the test</a>
+    </ul>
+  </ul>
+  <li class='indexItem indexItem1'><a href='#REFERENCES_%2F_APPENDIX'>REFERENCES / APPENDIX</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#A_step-by-step_guide_of_how_a_test_case_works'>A step-by-step guide of how a test case works</a>
+    <ul   class='indexList indexList3'>
+      <li class='indexItem indexItem3'><a href='#A_test_in_the_%22tests%22_suite'>A test in the &#34;tests&#34; suite</a>
+      <li class='indexItem indexItem3'><a href='#A_test_in_the_%22debs%22_and_the_%22source%22_suite'>A test in the &#34;debs&#34; and the &#34;source&#34; suite</a>
+      <li class='indexItem indexItem3'><a href='#A_test_in_the_%22changes%22_suite'>A test in the &#34;changes&#34; suite</a>
+    </ul>
+    <li class='indexItem indexItem2'><a href='#The_full_layout_of_a_test_in_the_%22tests%22_suite'>The full layout of a test in the &#34;tests&#34; suite</a>
+  </ul>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Tutorial::WritingTests -- Short tutorial on writing tests</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<p>This document attempts to be a short / quick tutorial to the Lintian test suite from a test-writer&#39;s perspective.
+As such,
+it will only cover the standard type of tests (from the &#34;tests&#34; suite).</p>
+
+<p>The guide will involve writing a test for the &#34;deb/pkg-check&#34; check,
+which was documented in the <a href="../../Lintian/Tutorial/WritingChecks.html" class="podlinkpod"
+>Lintian::Tutorial::WritingChecks</a> tutorial.</p>
+
+<p>For running tests,
+please see <a href="../../Lintian/Tutorial/TestSuite.html" class="podlinkpod"
+>Lintian::Tutorial::TestSuite</a> instead.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>The Lintian test suite is divided into several parts.
+These are:</p>
+
+<dl>
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>scripts</p>
+
+<p>Small (Perl) &#34;prove&#34; tests.
+These assert that code style,
+data files and/or self-contained code units (i.e.
+unit tests) work as intended.
+They are <b>not</b> used for testing Lintian tags.</p>
+
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>changes / debs / source</p>
+
+<p>These suites are small test suites that test some particular tags for <i>.changes</i>,
+<i>.deb</i> or <i>.dsc</i> files.
+Typically,
+you will find the more exotic tags here,
+which require some special fiddling and cannot be built by a &#34;standard&#34; dh7 + dpkg build.</p>
+
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>tests</p>
+
+<p>This suite is the standard test suite for testing Lintian tags.</p>
+</dd>
+</dl>
+
+<p>With this in mind,
+let us move on to the scope.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Scope_of_the_tutorial"
+>Scope of the tutorial</a></h2>
+
+<p>The &#34;tests&#34; suite alone is fairly complex on its own.
+To keep things simple,
+the tutorial will limit itself to creating a &#34;native&#34; package with no special requirements in the &#34;tests&#34; suite.</p>
+
+<p>In particular,
+note that the tags <i>must not</i> be <i>pedantic</i> for this to work.
+If you followed the check writing tutorial and made the tags pedantic,
+please change them into &#34;I&#34;,
+&#34;W&#34; or &#34;E&#34; tags.</p>
+
+<p>Once the basics are covered,
+you should be better equipped to deal with the other (&#34;tag testing&#34;) suites or using other features of the &#34;tests&#34; suite (e.g.
+pedantic tags).</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="The_design_of_the_Lintian_test_suite"
+>The design of the Lintian test suite</a></h2>
+
+<p>The basic design of the Lintian test suite can be summed up as <i>less is more</i>.
+The Debian build system is changing all the time (albeit,
+slowly) and sometimes it deprecates or breaks existing features.</p>
+
+<p>With over 400 tests all featuring the same basic parts,
+the test suite features several tricks to keep up with the pace.
+It uses &#34;skeletons&#34; (template) directories to seed the package structures and template files to fill in the basic files (e.g.
+&#34;debian/control&#34; and &#34;debian/changelog&#34;).</p>
+
+<p>This means that when a new standards-version comes along,
+debhelper deprecates a feature or (more likely) Lintian adds a new tag,
+the majority of the tests can quickly be adapted with only a minor effort.</p>
+
+<p>Since pedantic tags tend to require additional effort to avoid,
+most Lintian tests do <b>not</b> run with pedantic tags enabled.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="The_basics_of_a_&#34;native&#34;_package_in_the_&#34;tests&#34;_suite"
+>The basics of a &#34;native&#34; package in the &#34;tests&#34; suite</a></h2>
+
+<p>For starters,
+you need 2 files and 1 directory,
+which will be placed in <i>t/tests/&#60;test-name&#62;</i>.</p>
+
+<h3><a class='u' href='#___top' title='click to go to top of document'
+name="The_desc_file_(mandatory)"
+>The desc file (mandatory)</a></h3>
+
+<p>This is the test description file.
+It is a deb822 file (i.e.
+same syntax as <i>debian/control</i>),
+which contains a number of fields.</p>
+
+<p>Let&#39;s start with the following template:</p>
+
+<pre> Testname: pkg-deb-check-general
+ Version: 1.0
+ Description: General test of the pkg/deb-check check
+ Test-For:
+  missing-multi-arch-field
+  missing-pre-depends-on-multiarch-support</pre>
+
+<p>This defines the name of the test, its sequence number (i.e. how early it should be run), the version of the <i>generated</i> package, a description and the tags you intend to test for.</p>
+
+<p>In case you were wondering why &#34;invalid-multi-arch-field&#34; is not listed, then it is because dpkg will not allow us to use an invalid Multi-Arch value. Therefore, that particular tag would have to be tested in the &#34;debs&#34; suite instead.</p>
+
+<p>Note that the value of the Testname field (as Source field), Version field and Description field (as the synopsis) <i>will</i> be used in the package. As such, they must obey the normal requirements for these purposes.</p>
+
+<p>Please keep the following conventions in mind:</p>
+
+<dl>
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>The Testname should be &#34;&#60;check-name&#62;-&#60;test-name&#62;&#34;</p>
+
+<p>Note that regular Lintian checks do <i>not</i> have a &#34;/&#34;, so the naming convention works slightly better there.</p>
+
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>The Version should always be &#34;1.0&#34; unless the test requires anything else.</p>
+
+<p>For non-native packages, the default would be &#34;1.0-1&#34;.</p>
+</dd>
+</dl>
+
+<h3><a class='u' href='#___top' title='click to go to top of document'
+name="The_&#34;tags&#34;_file_(mandatory,_but_may_be_empty)"
+>The &#34;tags&#34; file (mandatory, but may be empty)</a></h3>
+
+<p>This file contains the <i>sorted</i> &#34;expected&#34; output of lintian. Assuming all of the tags are &#34;I&#34; tags, the file should look something like:</p>
+
+<pre> I: pkg-deb-check-general-missing-ma: missing-multi-arch-field
+ I: pkg-deb-check-general-missing-pred: missing-pre-depends-on-multiarch-support</pre>
+
+<h3><a class='u' href='#___top' title='click to go to top of document'
+name="The_&#34;debian/&#34;_directory_(optional,_but_usually_needed)"
+>The &#34;debian/&#34; directory (optional, but usually needed)</a></h3>
+
+<p>The unpacked debian package in its full glory. Note that this means that the (e.g.) <i>debian/rules</i> file would be <i>t/tests/&#60;test-name&#62;/debian/debian/rules</i> (note the double &#34;debian/&#34;).</p>
+
+<p>The directory is seeded from <i>t/templates/tests/&#60;skeleton&#62;/</i>, where <i>skeleton</i> is the value of the &#34;Skeleton&#34; field from the &#34;desc&#34; file.</p>
+
+<p>For this test, you only need a specialized control file. This file could look something like:</p>
+
+<pre> Source: {$source}
+ Priority: extra
+ Section: {$section}
+ Maintainer: {$author}
+ Standards-Version: {$standards_version}
+ Build-Depends: {$build_depends}
+ 
+ Package: {$source}-missing-ma
+ Architecture: {$architecture}
+ Depends: $\{shlibs:Depends\}, $\{misc:Depends\}
+ Description: {$description} (invalid)
+  This is a test package designed to exercise some feature or tag of
+  Lintian.  It is part of the Lintian test suite and may do very odd
+  things.  It should not be installed like a regular package.  It may
+  be an empty package.
+  .
+  Missing M-A field.
+ 
+ Package: {$source}-missing-pred
+ Architecture: any
+ Depends: $\{shlibs:Depends\}, $\{misc:Depends\}
+ Multi-arch: same
+ Description: {$description} (pre-depends)
+  This is a test package designed to exercise some feature or tag of
+  Lintian.  It is part of the Lintian test suite and may do very odd
+  things.  It should not be installed like a regular package.  It may
+  be an empty package.
+  .
+  Missing Pre-Depends.</pre>
+
+<h3><a class='u' href='#___top' title='click to go to top of document'
+name="Running_the_test"
+>Running the test</a></h3>
+
+<p>At this point, the test is in fact ready to be executed. It can be run by using:</p>
+
+<pre> $ debian/rules runtests onlyrun=pkg-deb-check-general
+
+ OR
+
+ $ t/runtests --dump-logs t debian/test-out pkg-deb-check-general</pre>
+
+<p>However, it will not emit the correct tags unless pkg/deb-check is part of the debian/main lintian profile. If your check is a part of a different profile, add the &#34;Profile: &#60;name&#62;&#34; field to the &#34;desc&#34; file.</p>
+
+<p>With this, the tutorial is over. Below you will find some more resources that may be useful to your future test writing work.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="REFERENCES_/_APPENDIX"
+>REFERENCES / APPENDIX</a></h1>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="A_step-by-step_guide_of_how_a_test_case_works"
+>A step-by-step guide of how a test case works</a></h2>
+
+<p>Basically, the tag-testing test cases all involve building a package and running lintian on the result. The &#34;tests&#34; suite does a full build with dpkg-buildpackage, the other suites &#34;hand-craft&#34; only the type of artifacts they are named after (e.g. &#34;source&#34; produces only source packages).</p>
+
+<h3><a class='u' href='#___top' title='click to go to top of document'
+name="A_test_in_the_&#34;tests&#34;_suite"
+>A test in the &#34;tests&#34; suite</a></h3>
+
+<p>The basic process of a lintian test in the &#34;tests&#34; suite.</p>
+
+<ol>
+<li>Copy the &#34;upstream&#34; skeleton dir into the build dir (non-native only)</li>
+
+<li>Copy the &#34;upstream&#34; dir from the test into the build dir (if present, non-native only)</li>
+
+<li>Run the &#34;pre_upstream&#34; hook (if present, non-native only)</li>
+
+<li>Assemble the upstream tarball (non-native only)</li>
+
+<li>Copy the &#34;debian&#34; skeleton dir into the build dir</li>
+
+<li>Copy the &#34;debian&#34; directory from the test into the build dir (if present)</li>
+
+<li>Create debian/control and debian/changelog from &#34;<i>&#60;file&#62;</i>.in&#34; if they do not exist.</li>
+
+<li>Create an empty watch file (if missing, non-native only)</li>
+
+<li>Run the &#34;pre_build&#34; hook (if present)</li>
+
+<li>Run dpkg-buildpackage</li>
+
+<li>Run lintian on the build result</li>
+
+<li>Run the &#34;post_test&#34; hook (if present)</li>
+
+<li>Run the &#34;test_calibration&#34; hook (if present), which may produce a new &#34;expected output file&#34;.</li>
+
+<li>Compare the result with the expected output.</li>
+</ol>
+
+<p>Note that the majority of the steps are conditional on native/non-native packages or presence of hooks.</p>
+
+<h3><a class='u' href='#___top' title='click to go to top of document'
+name="A_test_in_the_&#34;debs&#34;_and_the_&#34;source&#34;_suite"
+>A test in the &#34;debs&#34; and the &#34;source&#34; suite</a></h3>
+
+<p>The &#34;debs&#34; and the &#34;source&#34; suite share the same basic steps, which are:</p>
+
+<ol>
+<li>Copy the skeleton dir into the build dir</li>
+
+<li>Copy the test directory files into the build dir</li>
+
+<li>Create changelog, control, and (debs-only) Makefile from &#34;<i>&#60;file&#62;</i>.in&#34; if they do not exist.</li>
+
+<li>Run make in the build dir</li>
+
+<li>Run lintian on the produced artifact (there must be exactly one)</li>
+
+<li>Compare the result with the expected output.</li>
+</ol>
+
+<h3><a class='u' href='#___top' title='click to go to top of document'
+name="A_test_in_the_&#34;changes&#34;_suite"
+>A test in the &#34;changes&#34; suite</a></h3>
+
+<p>The changes test is fairly simple as there is not much building. The steps are as the following:</p>
+
+<ol>
+<li>Find or compute the test artifact as the following:
+<dl>
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>If <i>&#60;test-dir&#62;/&#60;test-name&#62;.changes</i> exists, it is used as the artifact.</p>
+
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>Otherwise, copy <i>&#60;test-dir&#62;/&#60;test-name&#62;.changes.in</i> into the build dir and use it as a template to create <i>&#60;build-dir&#62;/&#60;test-name&#62;.changes</i>. The result is then used as the artifact to test.</p>
+</dd>
+</dl>
+</li>
+
+<li>Run lintian run on the artifact</li>
+
+<li>Compare the result with the expected output</li>
+</ol>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="The_full_layout_of_a_test_in_the_&#34;tests&#34;_suite"
+>The full layout of a test in the &#34;tests&#34; suite</a></h2>
+
+<p>Each test in the &#34;tests&#34; suite is placed in <i>t/tests/&#60;check&#62;-&#60;name&#62;</i>. In these you will find some of the following files:</p>
+
+<dl>
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>desc (mandatory)</p>
+
+<p>This is the test description file. It is a deb822 file (i.e. same syntax as <i>debian/control</i>), which contains a number of fields.</p>
+
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>tags (mandatory, but may be empty)</p>
+
+<p>This file contains the &#34;expected&#34; output of lintian.</p>
+
+<p>This is generally sorted, though a few tests rely on the order of the output. This can be controlled via the &#34;Sort&#34; field in the &#34;desc&#34; file.</p>
+
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>debian/ (optional, but usually what you need)</p>
+
+<p>The unpacked debian package. For &#34;native&#34; package tests, this is <i>also</i> the &#34;upstream&#34; part. For &#34;non-native&#34; package tests, this can be used to override files in the &#34;upstream&#34; part (rarely needed).</p>
+
+<p>The actual packaging files (e.g. <i>debian/rules</i>) would be in</p>
+
+<pre> I&#60;&#60; t/tests/&#60;test-name&#62;/debian/debian/rules &#62;&#62;</pre>
+
+<p>Note the double &#34;debian&#34;.</p>
+
+<p>This part is seeded from <i>t/templates/tests/&#60;skeleton&#62;/</i>, where <i>skeleton</i> is the value of the &#34;Skeleton&#34; field from the &#34;desc&#34; file.</p>
+
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>upstream/ (optional, rarely needed)</p>
+
+<p>This directory is the used to create the &#34;upstream&#34; tarball for &#34;non-native&#34; package tests. Since most tags are emitted for both &#34;native&#34; and &#34;non-native&#34; tests, it is simpler (and slightly faster) to use &#34;native&#34; packages for most tests.</p>
+
+<p>The files here should also be present with the same contents in the debian directory unless you&#39;re intentionally creating a diff. However, as normal with a Debian package, you can omit files entirely from the debian directory and the deletions will be ignored by dpkg-buildpackage.</p>
+
+<p>The directory will be seeded from <i>t/templates/tests/&#60;skeleton&#62;.upstream/</i>, where <i>skeleton</i> is the value of the &#34;Skeleton&#34; field from the &#34;desc&#34; file.</p>
+
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>post_test (optional, rarely needed)</p>
+
+<p>This script (if present) is a sed script that can be used to &#34;massage&#34; the output of lintian before comparing it with the &#34;expected output&#34;.</p>
+
+<p>The most common use for this script is to remove the architecture name, multi-arch path, drop hardening tags or exact standards-version number from tags output. Here are some examples files used:</p>
+
+<pre>  # Remove the exact standards version, so the tags file will not need
+  # to be updated with every new standards-version
+  s/\(current is ([0-9]+\.)+[0-9]\)/(current is CURRENT)/
+
+  # Drop all hardening tags (they can differ between architectures)
+  /: hardening-.*/ d
+
+  # Massage e.g. usr/lib/i386-linux-gnu/pkgconfig into a generic path
+  s, usr/lib/[^/]+/pkgconfig/, usr/lib/ARCH/pkgconfig/,</pre>
+
+<p>It may be useful for other cases where the output of Lintian may change on different systems.</p>
+
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>pre_build / pre_upstream (optional, special case usage)</p>
+
+<p>If present and executable, these scripts can be used to mess with the package directory and (what will become) the upstream tarball.</p>
+
+<p>Their common use case is to create files in the tarballs that cannot (or preferably should not) be included in the revision control system. Common cases include &#34;binary&#34;, &#34;minimized&#34; files or files with &#34;weird&#34; names such as backslashes or non UTF-8 characters.</p>
+
+<p>Both scripts receive a directory as first argument, which is the directory they should work on. For:</p>
+
+<dl>
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>pre_upstream</p>
+
+<p>The script will be run before the upstream tarball is compiled. The first argument is the directory that will be included in the upstream tarball.</p>
+
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>pre_build</p>
+
+<p>The script will be run before dpkg-buildpackage is invoked. The first argument is the directory of the unpacked debian source package.</p>
+</dd>
+</dl>
+
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>test_calibration (optional, special case usage)</p>
+
+<p>If present and executable, this script will be invoked <b>after</b> lintian <i>and</i> post_test (if present) have been run. The script can then modify the expected output <i>and</i> the actual output.</p>
+
+<p>This is useful for those extremely rare cases where post_test is insufficient to handle the requirements. So far, this has only been needed for the hardening checks, where the output differs between architectures.</p>
+
+<p>The script will be passed 3 arguments:</p>
+
+<dl>
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>Path to the &#34;expected output&#34; file (read-only)</p>
+
+<p>This is the &#34;tags&#34; file from the test suite and <b>must not</b> be modified.</p>
+
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>Path to the &#34;actual output&#34; file (read-write)</p>
+
+<p>This is the file as lintian and post_test created it.</p>
+
+<dt><a name="-"
+>-</a></dt>
+
+<dd>
+<p>Path to the &#34;calibrated expected output&#34; (create+write)</p>
+
+<p>This file does not exist and should be created by the script, if it wishes to change the &#34;expected output&#34;. If this file exists when the script terminates, this file will be used instead of the original &#34;expected output&#34; file.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>The READMEs in the suites: <i>t/tests/README</i>, <i>t/changes/README</i>, <i>t/debs/README</i> and <i>t/source/README</i>.</p>
+
+<p><a href="../../Lintian/Tutorial/WritingChecks.html" class="podlinkpod"
+>Lintian::Tutorial::WritingChecks</a>, <a href="../../Lintian/Tutorial/TestSuite.html" class="podlinkpod"
+>Lintian::Tutorial::TestSuite</a></p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

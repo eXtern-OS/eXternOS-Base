@@ -1,0 +1,432 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::Path</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#INSTANCE_METHODS'>INSTANCE METHODS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::Path - Lintian representation of a path entry in a package</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre>    my ($name, $type, $dir) = (&#39;lintian&#39;, &#39;source&#39;, &#39;/path/to/entry&#39;);
+    my $info = Lintian::Collect-&#62;new ($name, $type, $dir);
+    my $path = $info-&#62;index(&#39;bin/ls&#39;);
+    if ($path-&#62;is_file) {
+       # is file (or hardlink)
+       if ($path-&#62;is_hardlink) { }
+       if ($path-&#62;is_regular_file) { }
+    } elsif ($path-&#62;is_dir) {
+       # is dir
+       if ($path-&#62;owner eq &#39;root&#39;) { }
+       if ($path-&#62;group eq &#39;root&#39;) { }
+    } elsif ($path-&#62;is_symlink) {
+       my $normalized = $path-&#62;link_normalized;
+       if (defined($normalized)) {
+           my $more_info = $info-&#62;index($normalized);
+           if (defined($more_info)) {
+               # target exists in the package...
+           }
+       }
+    }</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="INSTANCE_METHODS"
+>INSTANCE METHODS</a></h1>
+
+<dl>
+<dt><a name="Lintian::Path-&#62;new_($data)"
+>Lintian::Path-&#62;new ($data)</a></dt>
+
+<dd>
+<p>Internal constructor (used by Lintian::Collect::Package).</p>
+
+<p>Argument is a hash containing the data read from the index file.</p>
+
+<dt><a name="name"
+>name</a></dt>
+
+<dd>
+<p>Returns the name of the file (relative to the package root).</p>
+
+<p>NB: It will never have any leading &#34;./&#34; (or &#34;/&#34;) in it.</p>
+
+<dt><a name="owner"
+>owner</a></dt>
+
+<dd>
+<p>Returns the owner of the path entry as a username.</p>
+
+<p>NB: If only numerical owner information is available in the package, this may return a numerical owner (except uid 0 is always mapped to &#34;root&#34;)</p>
+
+<dt><a name="group"
+>group</a></dt>
+
+<dd>
+<p>Returns the group of the path entry as a username.</p>
+
+<p>NB: If only numerical owner information is available in the package, this may return a numerical group (except gid 0 is always mapped to &#34;root&#34;)</p>
+
+<dt><a name="uid"
+>uid</a></dt>
+
+<dd>
+<p>Returns the uid of the owner of the path entry.</p>
+
+<p>NB: If the uid is not available, 0 will be returned. This usually happens if the numerical data is not collected (e.g. in source packages)</p>
+
+<dt><a name="gid"
+>gid</a></dt>
+
+<dd>
+<p>Returns the gid of the owner of the path entry.</p>
+
+<p>NB: If the gid is not available, 0 will be returned. This usually happens if the numerical data is not collected (e.g. in source packages)</p>
+
+<dt><a name="link"
+>link</a></dt>
+
+<dd>
+<p>If this is a link (i.e. is_symlink or is_hardlink returns a truth value), this method returns the target of the link.</p>
+
+<p>If this is not a link, then this returns undef.</p>
+
+<p>If the path is a symlink this method can be used to determine if the symlink is relative or absolute. This is <i>not</i> true for hardlinks, where the link target is always relative to the root.</p>
+
+<p>NB: Even for symlinks, a leading &#34;./&#34; will be stripped.</p>
+
+<dt><a name="size"
+>size</a></dt>
+
+<dd>
+<p>Returns the size of the path in bytes.</p>
+
+<p>NB: Only regular files can have a non-zero file size.</p>
+
+<dt><a name="date"
+>date</a></dt>
+
+<dd>
+<p>Return the modification date as YYYY-MM-DD.</p>
+
+<dt><a name="parent_dir"
+>parent_dir</a></dt>
+
+<dd>
+<p>Returns the parent directory entry of this entry as a <a href="../Lintian/Path.html" class="podlinkpod"
+>Lintian::Path</a>.</p>
+
+<p>NB: Returns <code>undef</code> for the &#34;root&#34; dir.</p>
+
+<dt><a name="dirname"
+>dirname</a></dt>
+
+<dd>
+<p>Returns the &#34;directory&#34; part of the name, similar to dirname(1) or File::Basename::dirname. The dirname will end with a trailing slash (except the &#34;root&#34; dir - see below).</p>
+
+<p>NB: Returns the empty string for the &#34;root&#34; dir.</p>
+
+<dt><a name="basename"
+>basename</a></dt>
+
+<dd>
+<p>Returns the &#34;filename&#34; part of the name, similar basename(1) or File::Basename::basename (without passing a suffix to strip in either case). For dirs, the basename will end with a trailing slash (except for the &#34;root&#34; dir - see below).</p>
+
+<p>NB: Returns the empty string for the &#34;root&#34; dir.</p>
+
+<dt><a name="faux"
+>faux</a></dt>
+
+<dd>
+<p>Returns a truth value if this entry absent in the package. This can happen if a package does not include all intermediate directories.</p>
+
+<dt><a name="operm"
+>operm</a></dt>
+
+<dd>
+<p>Returns the file permissions of this object in octal (e.g. 0644).</p>
+
+<p>NB: This is only well defined for file entries that are subject to permissions (e.g. files). Particularly, the value is not well defined for symlinks.</p>
+
+<dt><a name="children([RECURSIVE_MODE])"
+>children([RECURSIVE_MODE])</a></dt>
+
+<dd>
+<p>Returns a list of children (as Lintian::Path objects) of this entry. The list and its contents should not be modified.</p>
+
+<p>The optional RECURSIVE_MODE parameter can be used to control if and how descendants of this directory is selected. The following values are supported:</p>
+
+<dl>
+<dt><a name="direct"
+>direct</a></dt>
+
+<dd>
+<p>This is the default and only returns direct children of this directory. The entries are sorted by name.</p>
+
+<dt><a name="breadth-first"
+>breadth-first</a></dt>
+
+<dd>
+<p>Recursive into subdirectories and return the descendants in breadth-first order. Children of a given directory will be sorted by name.</p>
+</dd>
+</dl>
+
+<p>NB: Returns the empty list for non-dir entries.</p>
+
+<dt><a name="timestamp"
+>timestamp</a></dt>
+
+<dd>
+<p>Returns a Unix timestamp for the given path. This is a number of seconds since the start of Unix epoch in UTC.</p>
+
+<dt><a name="child(BASENAME)"
+>child(BASENAME)</a></dt>
+
+<dd>
+<p>Returns the child named BASENAME if it is a child of this directory. Otherwise, this method returns <code>undef</code>. Note if BASENAME has a trailing slash, the child entry must be a directory. If the child exist, but is not a directory, <code>undef</code> will be returned instead.</p>
+
+<p>For non-dirs, this method always returns <code>undef</code>.</p>
+
+<p>Example:</p>
+
+<pre>  $dir_entry-&#62;child(&#39;foo&#39;) =&#62; $entry OR undef
+
+  $dir_entry-&#62;child(&#39;foo/&#39;) =&#62; $dir_entry OR undef</pre>
+
+<dt><a name="is_symlink"
+>is_symlink</a></dt>
+
+<dd>
+<p>Returns a truth value if this entry is a symlink.</p>
+
+<dt><a name="is_hardlink"
+>is_hardlink</a></dt>
+
+<dd>
+<p>Returns a truth value if this entry is a hardlink to a regular file.</p>
+
+<p>NB: The target of a hardlink is always a regular file (and not a dir etc.).</p>
+
+<dt><a name="is_dir"
+>is_dir</a></dt>
+
+<dd>
+<p>Returns a truth value if this entry is a dir.</p>
+
+<p>NB: Unlike the &#34;-d $dir&#34; operator this will never return true for symlinks, even if the symlink points to a dir.</p>
+
+<dt><a name="is_file"
+>is_file</a></dt>
+
+<dd>
+<p>Returns a truth value if this entry is a regular file (or a hardlink to one).</p>
+
+<p>NB: Unlike the &#34;-f $file&#34; operator this will never return true for symlinks, even if the symlink points to a file (or hardlink).</p>
+
+<dt><a name="is_regular_file"
+>is_regular_file</a></dt>
+
+<dd>
+<p>Returns a truth value if this entry is a regular file.</p>
+
+<p>This is eqv. to $path-&#62;is_file and not $path-&#62;is_hardlink.</p>
+
+<p>NB: Unlike the &#34;-f $file&#34; operator this will never return true for symlinks, even if the symlink points to a file.</p>
+
+<dt><a name="link_normalized"
+>link_normalized</a></dt>
+
+<dd>
+<p>Returns the target of the link normalized against it&#39;s directory name. If the link cannot be normalized or normalized path might escape the package root, this method returns <code>undef</code>.</p>
+
+<p>NB: This method will return the empty string for links pointing to the root dir of the package.</p>
+
+<p>Only available on &#34;links&#34; (i.e. symlinks or hardlinks). On non-links this will croak.</p>
+
+<p><i>Symlinks only</i>: If you want the symlink target as a <a href="../Lintian/Path.html" class="podlinkpod"
+>Lintian::Path</a> object, use the <a href="#resolve_path(%5BPATH%5D)" class="podlinkpod"
+>resolve_path</a> method with no arguments instead.</p>
+
+<dt><a name="is_readable"
+>is_readable</a></dt>
+
+<dd>
+<p>Returns a truth value if the permission bits of this entry have at least one bit denoting readability set (bitmask 0444).</p>
+
+<dt><a name="is_writable"
+>is_writable</a></dt>
+
+<dd>
+<p>Returns a truth value if the permission bits of this entry have at least one bit denoting writability set (bitmask 0222).</p>
+
+<dt><a name="is_executable"
+>is_executable</a></dt>
+
+<dd>
+<p>Returns a truth value if the permission bits of this entry have at least one bit denoting executability set (bitmask 0111).</p>
+
+<dt><a name="file_info"
+>file_info</a></dt>
+
+<dd>
+<p>Return the data from <a href="http://man.he.net/man1/file" class="podlinkman"
+>file(1)</a> if it has been collected.</p>
+
+<p>Note this is only defined for files as Lintian only runs <a href="http://man.he.net/man1/file" class="podlinkman"
+>file(1)</a> on files.</p>
+
+<dt><a name="fs_path"
+>fs_path</a></dt>
+
+<dd>
+<p>Returns the path to this object on the file system, which must be a regular file, a hardlink or a directory.</p>
+
+<p>This method may fail if:</p>
+
+<ul>
+<li>The object is neither a directory or a file-like object (e.g. a named pipe).</li>
+
+<li>If the object is dangling symlink or the path traverses a symlink outside the package root.</li>
+</ul>
+
+<p>To test if this is safe to call, if the target is (supposed) to be a:</p>
+
+<ul>
+<li>file or hardlink then test with <a href="#is_open_ok" class="podlinkpod"
+>&#34;is_open_ok&#34;</a>.</li>
+
+<li>dir then assert <a href="#resolve_path(%5BPATH%5D)" class="podlinkpod"
+>resolve_path</a> returns a defined entry, for which <a href="#is_dir" class="podlinkpod"
+>&#34;is_dir&#34;</a> returns a truth value.</li>
+</ul>
+
+<dt><a name="is_open_ok"
+>is_open_ok</a></dt>
+
+<dd>
+<p>Returns a truth value if it is safe to attempt open a read handle to the underlying file object.</p>
+
+<p>Returns a truth value if the path may be opened.</p>
+
+<dt><a name="open([LAYER])"
+>open([LAYER])</a></dt>
+
+<dd>
+<p>Open and return a read handle to the file. It optionally accepts the LAYER argument. If given it should specify the layer/discipline to use when opening the file including the initial colon (e.g. &#39;:raw&#39;).</p>
+
+<p>Beyond regular issues with opening a file, this method may fail if:</p>
+
+<ul>
+<li>The object is not a file-like object (e.g. a directory or a named pipe).</li>
+
+<li>If the object is dangling symlink or the path traverses a symlink outside the package root.</li>
+</ul>
+
+<p>It is possible to test for these by using <a href="#is_open_ok" class="podlinkpod"
+>&#34;is_open_ok&#34;</a>.</p>
+
+<dt><a name="open_gz"
+>open_gz</a></dt>
+
+<dd>
+<p>Open a read handle to the file and decompress it as a GZip compressed file. This method may fail for the same reasons as <a href="#open(%5BLAYER%5D)" class="podlinkpod"
+>&#34;open([LAYER])&#34;</a>.</p>
+
+<p>The returned handle may be a pipe from an external process.</p>
+
+<dt><a name="file_contents"
+>file_contents</a></dt>
+
+<dd>
+<p>Return the file contents as a scalar.</p>
+
+<p>This method may fail for the same reasons as <a href="#open(%5BLAYER%5D)" class="podlinkpod"
+>&#34;open([LAYER])&#34;</a>.</p>
+
+<dt><a name="root_dir"
+>root_dir</a></dt>
+
+<dd>
+<p>Return the root dir entry of this the path entry.</p>
+
+<dt><a name="resolve_path([PATH])"
+>resolve_path([PATH])</a></dt>
+
+<dd>
+<p>Resolve PATH relative to this path entry.</p>
+
+<p>If PATH starts with a slash and the file hierarchy has a well-defined root directory, then PATH will instead be resolved relatively to the root dir. If the file hierarchy does not have a well-defined root dir (e.g. for source packages), this method will return <code>undef</code>.</p>
+
+<p>If PATH is omitted, then the entry is resolved and the target is returned if it is valid. Except for symlinks, all entries always resolve to themselves. NB: hardlinks also resolve as themselves.</p>
+
+<p>It is an error to attempt to resolve a PATH against a non-directory and non-symlink entry - as such resolution would always fail (i.e. foo/../bar is an invalid path unless foo is a directory or a symlink to a dir).</p>
+
+<p>The resolution takes symlinks into account and following them provided that the target path is valid (and can be followed safely). If the path is invalid or circular (symlinks), escapes the root directory or follows an unsafe symlink, the method returns <code>undef</code>. Otherwise, it returns the path entry that denotes the target path.</p>
+
+<p>If PATH contains at least one path segment and ends with a slash, then the resolved path will end in a directory (or fail). Otherwise, the resolved PATH can end in any entry <i>except</i> a symlink.</p>
+
+<p>Examples:</p>
+
+<pre>  $symlink_entry-&#62;resolve_path =&#62; $nonsymlink_entry OR undef
+
+  $x-&#62;resolve_path =&#62; $x
+
+  For directory or symlink entries (dol), you can also resolve a path:
+
+  $dol_entry-&#62;resolve_path(&#39;some/../where&#39;) =&#62; $nonsymlink_entry OR undef
+
+  # Note the trailing slash
+  $dol_entry-&#62;resolve_path(&#39;some/../where/&#39;) =&#62; $dir_entry OR undef</pre>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Niels Thykier &#60;niels@thykier.net&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1), Lintian::Collect(3), Lintian::Collect::Binary(3), Lintian::Collect::Source(3)</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

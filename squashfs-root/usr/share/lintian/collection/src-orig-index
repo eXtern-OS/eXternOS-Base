@@ -1,0 +1,234 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2012 Niels Thykier
+#   Based on coll/index which is: Copyright (C) 1998 Christian Schwarz
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, you can find it on the World Wide
+# Web at http://www.gnu.org/copyleft/gpl.html, or write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+
+package Lintian::coll::src_orig_index;
+
+no lib '.';
+
+use strict;
+use warnings;
+use autodie;
+
+# import perl libraries
+use lib "$ENV{'LINTIAN_ROOT'}/lib";
+use Cwd();
+use Lintian::Collect;
+use Lintian::Command qw(spawn reap);
+use Lintian::Processable::Package;
+use Lintian::Util qw(internal_error);
+
+sub collect {
+    my ($pkg, $type, $dir) = @_;
+    my $info = Lintian::Collect->new($pkg, $type, $dir);
+
+    if (-f "$dir/src-orig-index.gz") {
+        unlink("$dir/src-orig-index.gz");
+    }
+
+    # Nothing to do for native packages where the two indices are
+    # identical.
+    if ($info->native) {
+        link("$dir/index.gz", "$dir/src-orig-index.gz");
+        return;
+    }
+
+    index_orig($pkg, $dir, $info);
+
+    return;
+}
+
+# returns all (orig) tarballs.
+sub gather_tarballs {
+    my ($pkg, $dir, $info) = @_;
+    my $file = Cwd::realpath("$dir/dsc");
+    my $version;
+    my @tarballs;
+    my $base;
+    my $baserev;
+    my $proc;
+    internal_error(
+        "Cannot resolve \"dsc\" link for $pkg or it does not point to a file.")
+      unless $file and -e $file;
+
+    # Use Lintian::Processable::Package to determine source and
+    # version as it handles missing fields for us to some extent.
+
+    $proc = Lintian::Processable::Package->new($file, 'source');
+    #  Version handling is based on Dpkg::Version::parseversion.
+    $version = $proc->pkg_src_version;
+    if ($version =~ /:/) {
+        $version =~ s/^(?:\d+):(.+)/$1/
+          or internal_error("bad version number \"$version\"");
+    }
+    $baserev = $proc->pkg_src . '_' . $version;
+    $version =~ s/(.+)-(?:.*)$/$1/;
+    $base = $proc->pkg_src . '_' . $version;
+    for my $fs (split /\n/, $info->field('files', '')) {
+        $fs =~ s/^\s*//;
+        next if $fs eq '';
+        my @t = split /\s+/o, $fs;
+        next if $t[2] =~ m,/,;
+        # Look for $pkg_$version.orig(-$comp)?.tar.$ext (non-native)
+        #       or $pkg_$version.tar.$ext (native)
+        #  - This deliberately does not look for the debian packaging
+        #    even when this would be a tarball.
+        if ($t[2]
+            =~ /^(?:\Q$base\E\.orig(?:-(.*))?|\Q$baserev\E)\.tar\.(?:gz|bz2|lzma|xz)$/
+          ) {
+            push @tarballs, [$t[2], $1//''];
+        }
+    }
+    internal_error('could not find the source tarball') unless @tarballs;
+    return @tarballs;
+}
+
+# Creates an index of the orig tarballs the source package
+sub index_orig {
+    my ($pkg, $dir, $info) = @_;
+    my @tarballs = gather_tarballs($pkg, $dir, $info);
+    my @result;
+    foreach my $tardata (@tarballs) {
+        my ($tarball, $compname) = @$tardata;
+        my @index;
+        # Collect a list of the files in the source package.  tar
+        # currently doesn't automatically recognize LZMA / XZ, so we
+        # need to add the option where it's needed.  Change hard link
+        # status (h) to regular files and remove a leading ./ prefix
+        # on filenames while we're reading the tar output.  We
+        # intentionally don't parallelize this job because we need to
+        # use the output below.
+        my @tar_options = ('-tvf');
+        my $last = '';
+        my $collect;
+        if ($tarball =~ /\.(lzma|xz)\z/) {
+            unshift @tar_options, "--$1";
+        }
+        $collect = sub {
+            my @lines = map { split "\n" } @_;
+            if ($last ne '') {
+                $lines[0] = $last . $lines[0];
+            }
+            if ($_[-1] !~ /\n\z/) {
+                $last = pop @lines;
+            } else {
+                $last = '';
+            }
+            for my $line (@lines) {
+                $line =~ s/^h/-/;
+                if ($line and $line !~ m,^(?:\S+\s+){5}\./$,) {
+                    push @index, $line . "\n";
+                }
+            }
+        }; # End $collect = sub;
+        spawn({
+                fail => 'never',
+                out => $collect,
+                err_append => "$dir/orig-index-errors"
+            },
+            ['tar', @tar_options, "$dir/$tarball"]);
+        if ($last) {
+            internal_error(
+                "tar output (for $tarball from $pkg) does not end in a newline"
+            );
+        }
+        # We now need to see if all files in the tarball have a common
+        # prefix.  If so, we're going to strip that prefix off each
+        # file name.  We also remove lines that consist solely of the
+        # prefix.
+        my $prefix;
+        for my $line (@index) {
+            my ($filename) = ($line =~ /^(?:\S+\s+){5}(.*)/);
+            $filename =~ s,^\./+,,o;
+            my ($dirname) = ($filename =~ m,^([^/]+),);
+            if (    defined $dirname
+                and $dirname eq $filename
+                and not $line =~ m/^d/o) {
+                $prefix = '';
+            } elsif (defined $dirname) {
+                if (not defined $prefix) {
+                    $prefix = $dirname;
+                } elsif ($dirname ne $prefix) {
+                    $prefix = '';
+                }
+            } else {
+                $prefix = '';
+            }
+        }
+        # Ensure $prefix is defined - this may appear to be redundant, but
+        # no tarballs are present (happens if you wget rather than dget
+        # the .dsc file >.>)
+        $prefix //= '';
+
+        # If there is a common prefix and it is $compname, then we use that
+        # because that is where they will be extracted by unpacked.
+        if ($prefix ne $compname) {
+            # If there is a common prefix and it is not $compname
+            # then strip the prefix and add $compname (if any)
+            if ($prefix) {
+                @index = map {
+                    if (m,^((?:\S+\s+){5})(?:\./)?\Q$prefix\E(?:/+(.*+)?|\Z),){
+                        my ($data, $file) = ($1, $2);
+                        if ($file && $file !~ m,^(?:/++)?\Z,o){
+                            $file = "$compname/$file" if $compname;
+                            "$data$file\n";
+                        } else {
+                            ();
+                        }
+                    } else {
+                        ();
+                    }
+                } @index;
+            } elsif ($compname) {
+                # Prefix with the compname (because that is where they will be
+                # unpacked to.
+                @index = map {
+                    s{^((?:\S++\s++){5})(?:\./)?\Q$prefix\E(?:/+)?}
+                    {$1$compname/}r
+                } @index;
+            }
+        }
+        push @result, @index;
+    }
+    # Now that we have the file names we want, write them out sorted to the
+    # index file.
+    my %opts = (
+        out => "$dir/src-orig-index.gz",
+        fail => 'error',
+        pipe_in => FileHandle->new
+    );
+    spawn(\%opts, ['sort', '-k', '6'], '|', ['gzip', '-9nc']);
+    $opts{pipe_in}->blocking(1);
+    print {$opts{pipe_in}} @result;
+    close($opts{pipe_in});
+    reap(\%opts);
+
+    return;
+}
+
+collect(@ARGV) if $0 =~ m,(?:^|/)src-orig-index$,;
+
+1;
+
+# Local Variables:
+# indent-tabs-mode: nil
+# cperl-indent-level: 4
+# End:
+# vim: syntax=perl sw=4 sts=4 sr et

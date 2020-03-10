@@ -1,0 +1,23 @@
+Anacron for Debian
+------------------
+
+Anacron runs transparently to the system.  In other words, you should
+never be aware that anacron and not cron is actually running
+cron.{daily,weekly,monthly}.
+
+Anacron itself however is not a daemon, so it will either be called at
+startup, on APM power status change, or by cron.  Disabling those will
+result in some jobs not being executed on time.
+
+Anacron leaves messages in /var/log/syslog and /var/log/messages by
+default.
+
+By default, anacron does not run while on battery power.
+If you are using SysVinit, see /etc/default/anacron to change that.
+
+If you are using systemd and want to run anacron even when running on battery,
+you should create the following file with the specified content and then call
+"systemctl daemon-reload":
+    /etc/systemd/system/anacron.service.d/on-ac.conf:
+        [Unit]
+        ConditionACPower=

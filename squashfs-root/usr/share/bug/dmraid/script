@@ -1,0 +1,88 @@
+#!/bin/bash
+#
+# dmraid bug submission control script
+#
+# allows Debian's bug tools to include relevant information in bug reports.
+#
+# based on mdadm bug submission control script
+#
+set +eu
+
+if ! command -v yesno >/dev/null; then
+  if [ -r /usr/share/reportbug/handle_bugscript ]; then
+    exec /usr/share/reportbug/handle_bugscript ". $0" /dev/stdout
+  fi
+  yesno() {
+    read -n1 -p"$1" REPLY
+    case "$REPLY" in
+      [yY]) REPLY=yep;;
+      [nN]) REPLY=nop;;
+      ('') REPLY="$2";;
+    esac
+  }
+  exec 3>&1
+fi
+
+root=$(id -u)
+
+echo "--- dmraid -r -vvv output" >&3
+if ! [ "$root" = "0" ] ;then
+	echo "Only root can run dmraid -r -vvv, please type the root password"
+	su root -c "dmraid -r -vvv" >&3
+else
+	dmraid -r -vvv >&3
+fi
+
+echo >&3
+
+
+echo "--- dmraid -s -vv output" >&3
+if ! [ "$root" = "0" ] ;then
+	echo "Only root can run dmraid -s -vv, please type the root password"
+	su root -c "dmraid -s -vv" >&3
+else
+	dmraid -s -vv >&3
+fi
+echo >&3
+
+echo "--- /proc/partitions:" >&3
+cat /proc/partitions >&3 2>&3 || :
+echo >&3
+
+echo "--- initrd.img-$(uname -r):" >&3
+if [ -r /boot/initrd.img-$(uname -r) ]; then
+  zcat /boot/initrd.img-$(uname -r) 2>&3 | cpio -t 2>&3 | egrep '/md[a/]' >&3
+fi
+echo >&3
+
+if [ -r /proc/modules ]; then
+  echo "--- /proc/modules:" >&3
+  grep 'dm_' < /proc/modules >&3 || :
+  echo >&3
+fi
+
+if [ -r /proc/cmdline ]; then
+  echo "--- /proc/cmdline" >&3
+  cat /proc/cmdline >&3
+  echo >&3
+fi
+
+if [ -f /boot/grub/menu.lst ]; then
+  echo "--- grub:" >&3
+  if [ -r /boot/grub/menu.lst ]; then
+    grep '^[^#].*root=' /boot/grub/menu.lst >&3 || :
+  else
+    echo menu.lst file not readable. >&3
+  fi
+  echo >&3
+fi
+
+if [ -f /etc/lilo.conf ]; then
+  echo "--- lilo:" >&3
+  if [ -r /etc/lilo.conf ]; then
+    egrep '^([^#].*)?root=' /etc/lilo.conf >&3 || :
+  else
+    echo lilo.conf file not readable. >&3
+  fi
+  echo >&3
+fi

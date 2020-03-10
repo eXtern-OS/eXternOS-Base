@@ -1,0 +1,94 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      type="topic" style="task"
+      id="session-user">
+
+  <info>
+    <link type="guide" xref="sundry#session" />
+    <link type="guide" xref="login#management" />
+    <link type="seealso" xref="session-custom" />
+    <revision pkgversion="3.4.2" date="2012-12-01" status="draft"/>
+    <revision pkgversion="3.8" date="2013-08-06" status="review" />
+    <revision pkgversion="3.12" date="2014-06-17" status="review" />
+
+    <credit type="author copyright">
+      <name>minnie_eg</name>
+      <email>amany.elguindy@gmail.com</email>
+      <years>2012</years>
+    </credit>
+    <credit type="editor">
+      <name>Jana Svarova</name>
+      <email>jana.svarova@gmail.com</email>
+      <years>2013</years>
+    </credit>
+    <credit type="editor">
+      <name>Petr Kovar</name>
+      <email>pknbe@volny.cz</email>
+      <years>2014</years>
+    </credit>
+
+    <include href="legal.xml" xmlns="http://www.w3.org/2001/XInclude"/>
+
+    <desc>Specify the default session for a user.</desc>
+   </info>
+
+  <title>Configure a user default session</title>
+
+  <comment>
+    <cite date="2012-11-20"
+    href="mailto:amany.elguindy@gmail.com">minnie_eg</cite>
+    <p>This assumes the reader knows how to edit files as root user. By the
+    end of this page, the reader will be able to specify default sessions for
+    users.</p>
+  </comment>
+
+  <p>The default session is retrieved from a program called
+  <app>AccountsService</app>. <app>AccountsService</app> stores this information
+  in the <file>/var/lib/AccountsService/users/</file> directory.</p>
+
+<note style="note">
+  <p>In GNOME 2, the <file>.dmrc</file> file in the user home directory was used
+  to create default sessions. This <file>.dmrc</file> file is no longer used.</p>
+</note>
+
+  <steps>
+    <title>Specify a default session for a user</title>
+    <item>
+      <p>
+        Make sure that you have the <sys>gnome-session-xsession</sys>
+        package installed on your system.
+      </p>
+    </item>
+    <item>
+      <p>
+         Navigate to the <file>/usr/share/xsessions</file> directory
+         where you can find <file>.desktop</file> files for each of the
+         available sessions. Consult the contents of the
+         <file>.desktop</file> files to determine the session you want to
+         use.
+      </p>
+    </item>
+    <item>
+      <p>
+        To specify a default session for a user, update the user’s
+        <sys>account service</sys> in the
+        <file>/var/lib/AccountsService/users/<var>username</var></file>
+        file:
+      </p>
+<code>[User]
+Language=
+XSession=gnome-classic</code>
+       <p>
+         In this sample,
+         <link href="help:gnome-help/gnome-classic">GNOME Classic</link> has
+         been set as the default session, using the
+         <file>/usr/share/xsessions/gnome-classic.desktop</file> file.
+       </p>
+     </item>
+  </steps>
+
+  <p>After specifying a default session for the user, that session will be
+  used the next time the user logs in, unless the user selects a different
+  session from the login screen.</p>
+
+</page>

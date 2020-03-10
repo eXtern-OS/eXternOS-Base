@@ -1,0 +1,61 @@
+PerlIO::gzip version 0.19
+=========================
+
+A layer for the PerlIO system to transparently gzip/gunzip files.
+**DON'T** trust it with your data.
+
+YOU NEED PERL 5.8.0 or later.
+
+INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   echo I know that I am using this at my own risk
+   make install
+
+That echo statement is particularly important.
+
+DEPENDENCIES
+
+This module requires perl 5.8.0 or later compiler with PerlIO.
+(which is now the default), and the zlib compression library.
+
+BUGS
+
+Threads - Currenly this module isn't threadsafe as it can't clone an open layer.
+flush() doesn't really flush, just empty the buffer
+
+TODO
+
+Lots:
+
+Check that concatenating to files works. Add a way of reading multiple
+contactenated gzip files.
+Test more
+Add an open method so that things we don't like (read/write opens) are faulted
+early (ie before a file is created on disk) and so that we add "b" flag to
+the open for the layer below.
+Test more
+Rewrite flush to really flush, and write a PerlIOGzip_write() rather than
+rely on PerlIOBuf_write, which calls flush() to empty the buffer each time.
+Test more
+Cope with crlf systems. Should this layer turn off crlf on the layer below
+and turn it on on itself?
+Cope with utf8. Should the utf8 flag be hiked above us?
+Test more
+Worry about threads.
+Writing headers with fancy stuff (filename, comment, extra info, header crc)
+What to about the "TEXT" flag in the gzip header
+Test more
+
+
+COPYRIGHT AND LICENCE
+
+You may distribute this work under the terms of either the GNU General
+Public License or the Artistic License, as specified in perl's README
+file.
+
+Copyright © 2001-2004, 2006 Nicholas Clark

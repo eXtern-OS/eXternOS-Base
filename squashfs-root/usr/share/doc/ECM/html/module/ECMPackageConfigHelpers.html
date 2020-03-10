@@ -1,0 +1,154 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ECMPackageConfigHelpers &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ECMPoQmTools" href="ECMPoQmTools.html" />
+    <link rel="prev" title="ECMOptionalAddSubdirectory" href="ECMOptionalAddSubdirectory.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ECMPoQmTools.html" title="ECMPoQmTools"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ECMOptionalAddSubdirectory.html" title="ECMOptionalAddSubdirectory"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" accesskey="U">ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ecmpackageconfighelpers">
+<span id="module:ECMPackageConfigHelpers"></span><h1>ECMPackageConfigHelpers<a class="headerlink" href="#ecmpackageconfighelpers" title="Permalink to this headline">¶</a></h1>
+<p>Helper macros for generating CMake package config files.</p>
+<p><code class="docutils literal"><span class="pre">write_basic_package_version_file()</span></code> is the same as the one provided by the
+<a class="reference external" href="https://www.cmake.org/cmake/help/v2.8.12/cmake.html#module:CMakePackageConfigHelpers">CMakePackageConfigHelpers</a>
+module in CMake; see that module’s documentation for
+more information.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_configure_package_config_file</span><span class="p">(</span><span class="o">&lt;</span><span class="nb">input</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">output</span><span class="o">&gt;</span>
+    <span class="n">INSTALL_DESTINATION</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">&gt;</span>
+    <span class="p">[</span><span class="n">PATH_VARS</span> <span class="o">&lt;</span><span class="n">var1</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">var2</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]</span>
+    <span class="p">[</span><span class="n">NO_SET_AND_CHECK_MACRO</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">NO_CHECK_REQUIRED_COMPONENTS_MACRO</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>This behaves in the same way as configure_package_config_file() from CMake
+2.8.12, except that it adds an extra helper macro: find_dependency(). It is
+highly recommended that you read the <a class="reference external" href="https://www.cmake.org/cmake/help/v2.8.12/cmake.html#module:CMakePackageConfigHelpers">documentation for
+CMakePackageConfigHelpers</a>
+for more information, particularly with regard to the PATH_VARS argument.</p>
+<p>Note that there is no argument that will disable the find_dependency() macro;
+if you do not require this macro, you should use
+<code class="docutils literal"><span class="pre">configure_package_config_file</span></code> from the CMakePackageConfigHelpers module.</p>
+<p>CMake 3.0 includes a CMakeFindDependencyMacro module that provides the
+find_dependency() macro (which you can <code class="docutils literal"><span class="pre">include()</span></code> in your package config
+file), so this file is only useful for projects wishing to provide config
+files that will work with CMake 2.8.12.</p>
+<div class="section" id="additional-config-file-macros">
+<h2>Additional Config File Macros<a class="headerlink" href="#additional-config-file-macros" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">find_dependency</span><span class="p">(</span><span class="o">&lt;</span><span class="n">dep</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span> <span class="p">[</span><span class="n">EXACT</span><span class="p">]])</span>
+</pre></div>
+</div>
+<p>find_dependency() should be used instead of find_package() to find package
+dependencies.  It forwards the correct parameters for EXACT, QUIET and
+REQUIRED which were passed to the original find_package() call.  It also sets
+an informative diagnostic message if the dependency could not be found.</p>
+<p>Since pre-1.0.0.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ECMPackageConfigHelpers</a><ul>
+<li><a class="reference internal" href="#additional-config-file-macros">Additional Config File Macros</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ECMOptionalAddSubdirectory.html"
+                        title="previous chapter">ECMOptionalAddSubdirectory</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ECMPoQmTools.html"
+                        title="next chapter">ECMPoQmTools</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/module/ECMPackageConfigHelpers.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ECMPoQmTools.html" title="ECMPoQmTools"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ECMOptionalAddSubdirectory.html" title="ECMOptionalAddSubdirectory"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" >ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

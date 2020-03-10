@@ -1,0 +1,375 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><meta charset="UTF-8"><TITLE
+>Lintian Tags</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="Lintian User's Manual"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Getting started"
+HREF="chapter-2.html"><LINK
+REL="PREVIOUS"
+TITLE="Running lintian"
+HREF="section-2.2.html"><LINK
+REL="NEXT"
+TITLE="Overrides"
+HREF="section-2.4.html"></HEAD
+><BODY
+CLASS="sect1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Lintian User's Manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="section-2.2.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 2. Getting started</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="section-2.4.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="sect1"
+><H1
+CLASS="sect1"
+><A
+NAME="section-2.3"
+>2.3. Lintian Tags</A
+></H1
+><P
+>&#13;        Lintian uses a special format for all its error and warning
+        messages. With that it is very easy to write other programs
+        which run Lintian and interpret the displayed messages.
+      </P
+><P
+>&#13;        The first character of each line indicates the type of
+        message. Currently, the following types are supported:
+      </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Errors (E)</I
+></SPAN
+></DT
+><DD
+><P
+>&#13;              The displayed message indicates a policy violation or a
+              packaging error. For policy violations, Lintian will
+              cite the appropriate policy section when it is invoked
+              with the <CODE
+CLASS="option"
+>-i</CODE
+> option.
+            </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Warnings (W)</I
+></SPAN
+></DT
+><DD
+><P
+>&#13;              The displayed message might be a policy violation or packaging
+              error. A warning is usually an indication that the test is
+              known to sometimes produce false positive alarms, because either
+              the corresponding rule in policy has many exceptions or the test
+              uses some sort of heuristic to find errors.
+            </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Info (I)</I
+></SPAN
+></DT
+><DD
+><P
+>&#13;              The displayed message is meant to inform the maintainer
+              about a certain packaging aspect. Such messages do not
+              usually indicate errors, but might still be of interest
+              to the curious.  They are not displayed unless
+              the <CODE
+CLASS="option"
+>-I</CODE
+> option is set.
+            </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Notes (N)</I
+></SPAN
+></DT
+><DD
+><P
+>&#13;              The displayed message is a debugging message which
+              informs you about the current state of Lintian.
+            </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Experimental (X)</I
+></SPAN
+></DT
+><DD
+><P
+>&#13;              The displayed message is one of the types listed above,
+              but has been flagged as `experimental' by the Lintian
+              maintainers.  This means that the code that generates
+              this message is not as well tested as the rest of
+              Lintian, and might still give surprising results.  Feel
+              free to ignore Experimental messages that do not seem to
+              make sense, though of course bug reports are always
+              welcome.  They are not displayed unless
+              the <CODE
+CLASS="option"
+>-E</CODE
+> option is set.
+            </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Overridden (O)</I
+></SPAN
+></DT
+><DD
+><P
+>&#13;              The displayed message indicates a previous
+              <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Warning</I
+></SPAN
+>
+              or <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Error</I
+></SPAN
+> message which has been
+              <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>overridden</I
+></SPAN
+> (see below). They are
+              not displayed unless
+              the <CODE
+CLASS="option"
+>--show-overrides</CODE
+> option is set.
+            </P
+></DD
+><DT
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>Pedantic (P)</I
+></SPAN
+></DT
+><DD
+><P
+>&#13;              The displayed message indicates a message of Lintian at
+              its most pickiest and include checks for particular
+              Debian packaging styles, checks that are very frequently
+              wrong, and checks that many people disagree with.  They
+              are not displayed unless the <CODE
+CLASS="option"
+>--pedantic</CODE
+>
+              option is set.
+            </P
+></DD
+></DL
+></DIV
+><P
+>&#13;        The type indicator is followed by the name of the package and
+        for non-binary packages the type of the package.  Then comes
+        the <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>problem</I
+></SPAN
+> that was discovered, also
+        known as a <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>tag</I
+></SPAN
+> (for example,
+        <TT
+CLASS="literal"
+>old-fsf-address-in-copyright-file</TT
+>).
+      </P
+><P
+>&#13;        Depending on which tag has been reported, the line may contain
+        additional arguments which tell you, for example, which files
+        are involved.
+      </P
+><P
+>&#13;        If you do not understand what a certain tag is about, you can
+        specify the <CODE
+CLASS="option"
+>-i</CODE
+> option when calling Lintian to
+        get a detailed description of the reported tags:
+      </P
+><PRE
+CLASS="screen"
+>&#13;$ lintian -i libc5_5.4.38-1.deb
+W: libc5: old-fsf-address-in-copyright-file
+N:
+N:   The /usr/share/doc/&#60;pkg&#62;/copyright file refers to the old postal
+N:   address of the Free Software Foundation (FSF). The new address is:
+N:   
+N:     Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+N:     MA 02110-1301, USA.
+N:   
+N:   Severity: normal, Certainty: certain
+N:
+[...]
+$
+</PRE
+><P
+>&#13;        In some cases, the messages contain some additional text with a
+        leading hash character (<TT
+CLASS="literal"
+>#</TT
+>). This text should be ignored by any other
+        programs which interpret Lintian's output because it doesn't follow a
+        unique format between different messages and it's only meant as
+        additional information for the maintainer.
+      </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="section-2.2.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="section-2.4.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Running lintian</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="chapter-2.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Overrides</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>Lintian::CheckScript</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="blkmagw" type="text/css" href="../_blkmagw.css" media="all" >
+<link rel="alternate stylesheet" title="blkcynw" type="text/css" href="../_blkcynw.css" media="all" >
+<link rel="alternate stylesheet" title="whtprpk" type="text/css" href="../_whtprpk.css" media="all" >
+<link rel="alternate stylesheet" title="whtnavk" type="text/css" href="../_whtnavk.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnk" type="text/css" href="../_grygrnk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="blkgrng" type="text/css" href="../_blkgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+<link rel="alternate stylesheet" title="blkbluw" type="text/css" href="../_blkbluw.css" media="all" >
+<link rel="alternate stylesheet" title="whtpurk" type="text/css" href="../_whtpurk.css" media="all" >
+<link rel="alternate stylesheet" title="whtgrng" type="text/css" href="../_whtgrng.css" media="all" >
+<link rel="alternate stylesheet" title="grygrnw" type="text/css" href="../_grygrnw.css" media="all" >
+
+<script type="text/javascript" src="../_podly.js"></script>
+
+</head>
+<body class='pod'>
+
+<!-- start doc -->
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#CLASS_METHODS'>CLASS METHODS</a>
+  <li class='indexItem indexItem1'><a href='#AUTHOR'>AUTHOR</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Lintian::CheckScript - Check script meta data</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre> use Lintian::CheckScript;
+ 
+ my $cs = Lintian::CheckScript-&#62;new (&#34;$ENV{&#39;LINTIAN_ROOT&#39;}/checks/&#34;,
+                                     &#39;files&#39;);
+ my $name = $cs-&#62;name;
+ foreach my $tag ($cs-&#62;tags) {
+    # $ti is an instance of Lintian::Tag::Info
+    my $ti = $cs-&#62;get_tag ($tag);
+    print &#34;$tag is a part of the check $name\n&#34;;
+    # Do something with $ti / $tag
+ }
+ foreach my $needs ($cs-&#62;needs_info) {
+    print &#34;$name needs $needs\n&#34;;
+ }
+ if ($cs-&#62;is_check_type (&#39;binary&#39;) &#38;&#38; $cs-&#62;is_check_type (&#39;source&#39;)) {
+    # Check applies to binary pkgs AND source pkgs
+ }</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Instances of this class represents the data in the check &#34;.desc&#34; files. It allows access to the tags (as Lintian::Tag::Info) and the common meta data of the check (such as Needs-Info).</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS_METHODS"
+>CLASS METHODS</a></h1>
+
+<dl>
+<dt><a name="Lintian::CheckScript-&#62;new($basedir,_$checkname)"
+>Lintian::CheckScript-&#62;new($basedir, $checkname)</a></dt>
+
+<dd>
+<p>Parses the $file as a check desc file.</p>
+
+<dt><a name="$cs-&#62;name"
+>$cs-&#62;name</a></dt>
+
+<dd>
+<p>Returns the &#34;name&#34; of the check script. This is the value in the Check-Script field in the file.</p>
+
+<dt><a name="$cs-&#62;type"
+>$cs-&#62;type</a></dt>
+
+<dd>
+<p>Returns the value stored in the &#34;Type&#34; field of the file. For the purpose of testing if the check applies to a given package type, the <a href="#is_check_type" class="podlinkpod"
+>&#34;is_check_type&#34;</a> method can be used instead.</p>
+
+<p>Note in rare cases this may return undef. This is the case for the lintian.desc, where this field is simply not present.</p>
+
+<dt><a name="$cs-&#62;abbrev"
+>$cs-&#62;abbrev</a></dt>
+
+<dd>
+<p>Returns the value of the Abbrev field from the desc file.</p>
+
+<dt><a name="$cs-&#62;script_path"
+>$cs-&#62;script_path</a></dt>
+
+<dd>
+<p>Returns the (expected) path to the script implementing this check.</p>
+
+<dt><a name="needs_info"
+>needs_info</a></dt>
+
+<dd>
+<p>Returns a list of all items listed in the Needs-Info field. Neither the list nor its contents should be modified.</p>
+
+<dt><a name="$cs-&#62;is_check_type_($type)"
+>$cs-&#62;is_check_type ($type)</a></dt>
+
+<dd>
+<p>Returns a truth value if this check can be applied to a $type package.</p>
+
+<p>Note if $cs-&#62;type return undef, this will return a truth value for all inputs.</p>
+
+<dt><a name="$cs-&#62;get_tag_($tagname)"
+>$cs-&#62;get_tag ($tagname)</a></dt>
+
+<dd>
+<p>Return the <a href="../Lintian/Tag/Info.html" class="podlinkpod"
+>tag</a> or undef (if the tag is not in this check).</p>
+
+<dt><a name="$cs-&#62;tags"
+>$cs-&#62;tags</a></dt>
+
+<dd>
+<p>Returns the list of tag names in the check. The list nor its contents should be modified.</p>
+
+<dt><a name="$cs-&#62;load_check"
+>$cs-&#62;load_check</a></dt>
+
+<dd>
+<p>Attempts to load the check. On failure, the load error will be propagated to the caller. On success it returns normally.</p>
+
+<dt><a name="$cs-&#62;run_check_($proc,_$group)"
+>$cs-&#62;run_check ($proc, $group)</a></dt>
+
+<dd>
+<p>Run the check on <code>$proc</code>, which is in the <a href="../Lintian/ProcessableGroup.html" class="podlinkpod"
+>group</a> <code>$group</code>. <code>$proc</code> should be a <a href="../Lintian/Lab/Entry.html" class="podlinkpod"
+>lab entry</a> and must have the proper collections run on it prior to calling this method (See <a href="../Lintian/Unpacker.html" class="podlinkpod"
+>Lintian::Unpacker</a>).</p>
+
+<p>The method may error out if loading the check failed or if the check itself calls die/croak/fail/etc.</p>
+
+<p>Returns normally on success; the return value has no semantic meaning and is currently <code>undef</code>.</p>
+
+<p>NB: load_check can be used to determine if the check itself is loadable.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHOR"
+>AUTHOR</a></h1>
+
+<p>Originally written by Niels Thykier &#60;niels@thykier.net&#62; for Lintian.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p>lintian(1), Lintian::Profile(3), Lintian::Tag::Info(3)</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

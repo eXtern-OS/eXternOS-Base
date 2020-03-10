@@ -1,0 +1,67 @@
+Frequently Asked Questions
+--------------------------
+
+Why use man-db instead of man?
+==============================
+
+The man (currently http://primates.ximian.com/~flucifredi/man/) and man-db
+packages forked from a common code base in the mid-1990s.  The original goal
+of man-db was, as indicated by the name, to add database caching to manual
+page searches.  The increase in computer performance has considerably
+outpaced the growth of manual page collections, so some people now ask what
+the point is of using man-db rather than man.
+
+These days, the database is indeed not such an important difference between
+man-db and man, but there are several other areas where man-db does a
+significantly better job than man:
+
+  * Internationalisation
+
+    man uses the obsolete catgets system for translations of the messages
+    emitted by its programs, which cannot deal with the user using a
+    different output encoding (e.g. UTF-8) from that provided by the
+    translators.  man-db uses gettext, which is more correct and robust.
+
+    In order to support many cases of non-English manual pages, man requires
+    manual hardcoding of iconv pipelines (or similar) and *roff device names
+    in its configuration file, and cannot operate correctly in environments
+    involving a variety of encodings.  man-db handles all this out of the
+    box.
+
+  * Security and code quality
+
+    Security matters because both man and man-db can be installed setuid to
+    a special user, and also because man is sometimes used in semi-trusted
+    or untrusted contexts, such as from CGI scripts.
+
+    Both man and man-db spend a lot of time calling external programs, often
+    in pipelines.  man does so by assembling strings which it then feeds to
+    the shell; this approach is nowadays well-known to be fragile and prone
+    to security vulnerabilities.  man-db has been redesigned from top to
+    bottom to have safe and correct command execution, using a special
+    "libpipeline" library.
+
+  * Performance
+
+    Happily, dealing with manual pages is not normally a
+    performance-critical task these days; manual pages can normally be found
+    and rendered comfortably within expected interactive response times.
+    However, there are a few cases that are still more difficult, such as
+    'man -K' to perform a full-text search on all manual pages.  Neither man
+    nor man-db includes a proper full-text search engine, but there is
+    nevertheless a significant performance difference here: man-db performs
+    this search at least three times as quickly as man, and in some cases
+    much better than that.  (On the test system, man took five minutes to
+    search all manual pages, severely degrading interactive performance of
+    the rest of the system for that time; man-db took around 40 seconds.)
+
+  * Maintenance
+
+    At the time of writing (February 2012), man-db has had ten full releases
+    since the start of 2008 with substantial feature work, while man has had
+    one release with a few minor changes.
+
+I have great respect for the people who maintain man, but as a project it
+has fallen badly behind.  Rather than continuing to struggle along with
+complicated patch sets, those distributions that still use man would
+probably be better off switching to man-db.

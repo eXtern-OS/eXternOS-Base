@@ -1,0 +1,222 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>PPA Printer calibration for pnm2ppa</TITLE>
+
+
+</HEAD>
+<BODY>
+Next
+Previous
+Contents
+<HR>
+<H1>PPA Printer calibration for pnm2ppa</H1>
+
+<H2>The pnm2ppa project team 
+<A HREF="mailto:ppa-rpms@sourceforge.net">ppa-rpms@users.sourceforge.net</A></H2>v0.4, October 28,  2000
+<P><HR>
+<EM>Information and instructions
+for printer calibration using  pnm2ppa.
+<A HREF="http://sourceforge.net/projects/pnm2ppa">http://sourceforge.net/projects/pnm2ppa</A>
+(Updated for pnm2ppa-1.02 and later.)</EM>
+<HR>
+<P><B> Overview of Printer Calibration.</B>
+<P>There are three main tasks you may need to carry out to fine-tune
+your PPA printer:
+<UL>
+<LI>Adjust the x-offset and y-offset to <B>correctly center
+the printed page on the paper</B></LI>
+<LI>Adjust the relative offsets between black and colored ink
+printing - <B>this should be done each time you replace an ink
+cartridge</B>.</LI>
+<LI> Match the colors of printed images to some other output device
+- this is <B>color correction</B> and is
+described in 
+<A HREF="./COLOR.html">COLOR.html</A> (or COLOR.txt).</LI>
+</UL>
+<P>These instructions assume that you are already able to print postscript
+files with your PPA printer.   If your print filters
+are properly configured, something like &quot;<CODE>lpr test.ps</CODE>&quot; 
+will successfully invoke ghostscript and pnm2ppa
+to print the postscript file test.ps.   Alternatively, you may be using 
+shell scripts like &quot;lprbw&quot;, &quot;lprcolor&quot; 
+and &quot;lpreco&quot; supplied with the
+pnm2ppa source code, and modified by you for your defaults; you may also
+have defined special printing devices in <CODE>/etc/printcap</CODE>, e.g.
+a &quot;coloreco&quot; device so you print
+with  <CODE>lpr -P coloreco  test.ps</CODE>.    These details vary with
+the operating system and distribution you use.
+<P>
+<P><B> (1) Centering the printed page on the paper. </B>
+<P>This is done by adjusting the x-offset and y-offset parameters
+<B>xoffset</B> and <B>yoffset</B>
+in the <CODE>pnm2ppa</CODE> configuration file (usually
+<CODE>/etc/pnm2ppa.conf</CODE>).   The parameters are given in units of
+1/600 inch; increasing <CODE>xoffset</CODE>  moves the image
+to the right, and increasing <CODE>yoffset</CODE> moves it downwards.
+These offsets now have default values defined for each printer model,
+and you will probably not need to adjust them.
+Uncomment and make small adjustments to the default
+values for these in the configuration file, until the printout is satisfactory.
+(You can also  use the '-x' and '-y'
+command-line parameters.)    
+<P>
+<P>There are two ways to check the offsets.
+<UL>
+<LI>either <B>using the "<CODE>calibrate_ppa</CODE>" program.</B>  </LI>
+<LI>or   <B>printing a suitable test page</B>.
+</LI>
+</UL>
+<P>
+<P>The "<CODE>calibrate_ppa</CODE>" program  is a
+stand-alone program distributed with <CODE>pnm2ppa</CODE> which
+creates various test patterns in the raw
+pixmap  format accepted by pnm2ppa. (The three paper sizes,
+US Letter,  US Legal, and A4, are supported).
+If your paper size is A4, and your printer filter accepts
+the "<CODE>-l</CODE>" (direct output) option to <CODE>lpr</CODE>, 
+the command to run is:
+<BLOCKQUOTE><CODE>
+<PRE>
+ calibrate_ppa -s a4  --center  | pnm2ppa --bw  -i -  -o - | lpr -l
+</PRE>
+</CODE></BLOCKQUOTE>
+
+(Substitute "letter"  or "legal" for "a4" to change
+the papersize; if no paper size is specified, it is assumed to
+be <CODE>letter</CODE>.)   
+<P>
+<P>
+<P>If "<CODE>lpr -l</CODE>" is not valid, you need to know  which port your
+printer is attached to.   Assuming it is <CODE>/dev/lp0</CODE>, the above 
+command becomes
+<CODE> calibrate_ppa  -s a4 --center | pnm2ppa --bw  -i -  -o  /dev/lp0</CODE>.
+<P>
+<P>The pattern shows  distances from the edge of the printed page
+in units of 50 dots (1/12 inch), and diagonal lines that should
+point to the corners.  Change <CODE>xoffset</CODE> and <CODE>yoffset</CODE>
+in the configuration file (usually <CODE>/etc/pnm2ppa.conf</CODE>
+to center the pattern.    The configuration file is
+supplied with commented-out entries like
+<CODE>#xoffset 160</CODE> showing the default value.  Remove
+the &quot;<CODE>#</CODE>&quot; to activate the entry.
+<P>In Red Hat or Mandrake Linux distributions, a suitable test  page is 
+<CODE>/usr/lib/rhs/rhs-printfilters/testpage.ps</CODE>
+(US Letter paper) or
+<CODE>/usr/lib/rhs/rhs-printfilters/testpage-a4.ps</CODE>
+(A4 paper).   (If these are not available, similar test pages
+are supplied in the pnm2ppa source  distribution.)
+These pages have margins drawn at standard distances from the
+edges of the paper, and can also be used to check the centering,
+but are not as accurate
+<P>
+<P>
+<P>
+<P><B> (2) Calibrating the X and Y Color Head Offsets. </B>
+<P>The color ink offsets now have to be calibrated with respect to the black ink.
+Because the relative position of the two ink cartridges
+can move slightly,
+<B>this must be done whenever an ink cartridge is removed and replaced</B>.
+<P>To print an alignment calibration pattern on a4 paper, run
+<BLOCKQUOTE><CODE>
+<PRE>
+calibrate_ppa -s a4  --align | pnm2ppa --fd  -i - -o - | lpr -l
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>On the printed page, there are four  alignment patterns,
+corresponding to configuration file
+parameters  <B>ColOffsX</B>, <B>ColOffsY</B>, <B>colorshear</B>
+and <B>blackshear</B>.   The central alignment patterns,
+labelled &quot;0&quot; should be perfectly aligned.   If they are
+not, first
+correct the shearing patterns, (see below).
+Then identify the best-aligned  <B>ColOffsX</B>
+and <B>ColOffsY</B> patterns, and  add or subtract the 
+positive or negative number below the pattern from the value in
+the configuration file. 
+<P>Check the result  by printing the alignment test pattern:
+<BLOCKQUOTE><CODE>
+<PRE>
+calibrate_ppa  --test | pnm2ppa -fd  -i - -o - | lpr -l
+</PRE>
+</CODE></BLOCKQUOTE>
+
+The lines in the cross and square should be perfectly straight now.
+<P>The calibration can also be done by printing the test page 
+<CODE>test.ps</CODE> (found in the tarball
+<CODE>pnm2ppa-1.0.tar.gz</CODE>; or installed 
+with the <CODE>pnm2ppa</CODE> documentation. (This is often in 
+<CODE>/usr/doc/pnm2ppa*/</CODE>.)
+<P>On the printout you see several images:
+<UL>
+<LI>top left, you see a square with both black and colored items. 
+These should align correctly, or you have to change your settings.</LI>
+<LI>You see a large vertical bar, and also a horizontal bar.
+On the sides of the vertical  bar there are a blue and a green line. 
+These should align with the 0 mark.</LI>
+<LI> You also see a small vertical, and horizontal, bar, with a 
+red bar on its side.</LI>
+</UL>
+<P>If these items do NOT line up, you should take the following steps:
+<UL>
+<LI>(1) take for the large bar the number of the tickmark just smaller
+than the place where the green and blue lines point to. The minor
+tick marks are 25 points.</LI>
+<LI>(2) To this number, add the number of the tick mark at which a red tick
+mark exactly lines up. This might not work if the offsets are way off;
+in that case, apply the correction of step 1, and print again.</LI>
+<LI>(3) Add the horizontal offset to the value 
+of <B>ColOffsX</B>, and the vertical offset to 
+the value of <B>ColOffsY</B> in the configuration file.</LI>
+</UL>
+<P>Now you can print test.ps again to see whether this procedure worked.
+<P>
+<P><B>Shearing  adjustments</B>
+<P>If bidirectional printing causes &quot;shearing&quot; of vertical lines
+(horizontal offsets of those parts of the line printed
+by left-to-right print-head sweeps relative to those printed on
+right-to-left sweeps) you can make small adjustments (in 1/600 inch)
+units using the <B>blackshear</B> and <B>colorshear</B>
+parameters in the configuration file.  You can also suppress
+bidirectional printing with a  <B>unimode  1</B> 
+configuration file entry.
+<P>The third and fourth lines on the color head offset calibration page 
+(see above) correspond to color and black print head  shearing corrections. 
+If the central alignment patterns  (labeled &quot;0&quot;)
+are not aligned,  add  or subtract the  positive or negative number
+below the best-aligned pattern from the <CODE>colorshear</CODE>
+and <CODE>blackshear</CODE> values in the configuration file.
+<P><B>Cleaning the Print Heads</B>
+<P>You can use <CODE>calibrate_ppa</CODE> to clean the print heads by 
+printing patterns that exercise  all the ink nozzles:
+<BLOCKQUOTE><CODE>
+<PRE>
+calibrate_ppa  --clean | pnm2ppa -p   -i - -o - | lpr -l
+calibrate_ppa  --clean | pnm2ppa --bw  -i - -o - | lpr -l
+</PRE>
+</CODE></BLOCKQUOTE>
+
+The first of these commands prints a cleaning pattern
+with colored ink, the second uses black ink.
+<P>
+<P><B>Other  adjustments</B>
+<P>The parameter <B>blackness</B> adjusts the number of black ink
+drops printed per pixel.  It takes values 1, 2, 3, or 4 (2 is the
+default).  Other values, like 0, suppress black ink.
+<P>Inks can also be suppressed by configuration file
+entries 
+<CODE>black_ink 0</CODE>,
+<CODE>color_ink 0</CODE>,
+<CODE>cyan_ink 0</CODE>,
+<CODE>magenta_ink 0</CODE>,
+or <CODE>yellow_ink 0</CODE>.
+These  are mainly useful for debugging
+the printer driver.
+<P>
+<HR>
+Next
+Previous
+Contents
+</BODY>
+</HTML>

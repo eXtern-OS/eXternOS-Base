@@ -1,0 +1,86 @@
+#!/usr/bin/perl -w
+# diffstat -- lintian collection script for source packages
+
+# Copyright (C) 1998 Richard Braakman
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, you can find it on the World Wide
+# Web at http://www.gnu.org/copyleft/gpl.html, or write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+
+# This could be written more easily in shell script, but I'm trying
+# to keep everything as perl to cut down on the number of processes
+# that need to be started in a lintian scan.  Eventually all the
+# perl code will be perl modules, so only one perl interpreter
+# need be started.
+
+package Lintian::coll::diffstat;
+
+no lib '.';
+
+use strict;
+use warnings;
+use autodie;
+
+use lib "$ENV{'LINTIAN_ROOT'}/lib";
+use Lintian::Util qw(internal_error get_dsc_info gunzip_file);
+
+sub collect {
+    my ($pkg, undef, $dir) = @_;
+    my $data;
+    my $ver;
+
+    -f "$dir/dsc"
+      or internal_error('diffstat invoked with wrong dir argument');
+
+    $data = get_dsc_info("$dir/dsc");
+    $ver = $data->{'version'};
+
+    unlink("$dir/debian-patch")
+      if -e "$dir/debian-patch"
+      or -l "$dir/debian-patch";
+
+    $ver =~ s/^\d://; #Remove epoch for this
+
+    my $diff_file = "$dir/${pkg}_${ver}.diff.gz";
+    return unless (-f $diff_file);
+
+    gunzip_file($diff_file, "$dir/debian-patch");
+
+    open(my $out, '>', "$dir/diffstat");
+    # diffstat is noisy on stderr if its stdout is not a tty.
+    # Shut it up by redirecting stderr to /dev/null.
+    open(STDERR, '>', '/dev/null');
+    open(my $in, '-|', 'diffstat',  '-p1', "$dir/debian-patch");
+    # Copy all except last line to the STAT file
+    my $previous;
+    while (<$in>) {
+        print {$out} $previous if $previous;
+        $previous = $_;
+    }
+    close($out);
+    close($in);
+
+    return;
+}
+
+collect(@ARGV) if $0 =~ m,(?:^|/)diffstat$,;
+
+1;
+
+# Local Variables:
+# indent-tabs-mode: nil
+# cperl-indent-level: 4
+# End:
+# vim: syntax=perl sw=4 sts=4 sr et

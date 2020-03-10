@@ -1,0 +1,17 @@
+
+# false positive; radrealms.c verified to build with -D_FORTIFY_SOURCE=2
+ppp binary: hardening-no-fortify-functions usr/lib/pppd/2.4.7/radrealms.so
+
+# pppd-dns is a one-shot init script; status doesn't make sense
+ppp binary: init.d-script-does-not-implement-optional-option etc/init.d/pppd-dns status
+
+# makes new files owned by group dip so that world read can be safely removed
+ppp binary: non-standard-dir-perm etc/chatscripts/ 2750 != 0755
+ppp binary: non-standard-dir-perm etc/ppp/peers/ 2750 != 0755
+
+# Documentation on connecting win9x clients to a Linux PPP server
+ppp binary: package-contains-readme-for-other-platform-or-distro usr/share/doc/ppp/README.win9x
+
+# setuid root required to allow non-root (members of dip) to run ppp
+ppp binary: setuid-binary usr/sbin/pppd 4754 root/dip
+

@@ -1,0 +1,735 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- This manual documents version 1.4.1 of
+GNU dc, an arbitrary precision calculator.
+
+Copyright (C) 1984, 1994, 1997, 1998, 2000, 2005, 2006, 2008, 2013, 2016
+Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.2 or any later version published by the Free Software Foundation;
+with no Invariant Sections, with no Front-Cover Texts,
+and with no Back-Cover Texts.
+A copy of the license can be found at
+http://www.gnu.org/licenses/fdl.html . -->
+<!-- Created by GNU Texinfo 6.5, http://www.gnu.org/software/texinfo/ -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>dc, an arbitrary precision calculator</title>
+
+<meta name="description" content="dc, an arbitrary precision calculator">
+<meta name="keywords" content="dc, an arbitrary precision calculator">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<link href="#Top" rel="start" title="Top">
+<link href="#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="dir.html#Top" rel="up" title="(dir)">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.indentedblock {margin-right: 0em}
+blockquote.smallindentedblock {margin-right: 0em; font-size: smaller}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style: oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nolinebreak {white-space: nowrap}
+span.roman {font-family: initial; font-weight: normal}
+span.sansserif {font-family: sans-serif; font-weight: normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en">
+<h1 class="settitle" align="center">dc, an arbitrary precision calculator</h1>
+
+
+
+
+
+
+
+
+<a name="Top"></a>
+<div class="header">
+<p>
+Next: <a href="#Introduction" accesskey="n" rel="next">Introduction</a>, Up: <a href="dir.html#Top" accesskey="u" rel="up">(dir)</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="GNU-dc"></a>
+<h1 class="top">GNU dc</h1>
+<p>This manual documents version 1.4.1 of
+<small>GNU</small> <code>dc</code>, an arbitrary precision calculator.
+</p>
+<p>Copyright (C) 1984, 1994, 1997, 1998, 2000, 2005, 2006, 2008, 2013, 2016
+Free Software Foundation, Inc.
+</p>
+<blockquote>
+<p>Permission is granted to copy, distribute and/or modify this document
+under the terms of the <small>GNU</small> Free Documentation License,
+Version 1.2 or any later version published by the Free Software Foundation;
+with no Invariant Sections, with no Front-Cover Texts,
+and with no Back-Cover Texts.
+A copy of the license can be found at
+<a href="http://www.gnu.org/licenses/fdl.html">http://www.gnu.org/licenses/fdl.html</a> .
+</p></blockquote>
+
+
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#Introduction" accesskey="1">Introduction</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Introduction
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Invocation" accesskey="2">Invocation</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Invocation
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Printing-Commands" accesskey="3">Printing Commands</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Printing Commands
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Arithmetic" accesskey="4">Arithmetic</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Arithmetic
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Stack-Control" accesskey="5">Stack Control</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Stack Control
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Registers" accesskey="6">Registers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Registers
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Parameters" accesskey="7">Parameters</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Parameters
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Strings" accesskey="8">Strings</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Strings
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Status-Inquiry" accesskey="9">Status Inquiry</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Status Inquiry
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Miscellaneous">Miscellaneous</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Other commands
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Reporting-bugs">Reporting bugs</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Reporting bugs
+</td></tr>
+</table>
+
+<hr>
+<a name="Introduction"></a>
+<div class="header">
+<p>
+Next: <a href="#Invocation" accesskey="n" rel="next">Invocation</a>, Previous: <a href="#Top" accesskey="p" rel="prev">Top</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Introduction-1"></a>
+<h2 class="chapter">1 Introduction</h2>
+
+<p><code>dc</code> is a reverse-polish desk calculator
+which supports unlimited precision arithmetic.
+It also allows you to define and call macros.
+Normally <code>dc</code> reads from the standard input;
+if any command arguments are given to it, they are filenames,
+and <code>dc</code> reads and executes the contents of the files
+instead of reading from standard input.
+All normal output is to standard output;
+all error messages are written to standard error.
+</p>
+<p>To exit, use &lsquo;<samp>q</samp>&rsquo;.
+<kbd>C-c</kbd>
+(or whatever other keystroke your system uses to generate a <code>SIGINT</code>)
+does not exit;
+it is used to abort macros that are looping, etc.
+</p>
+<p>A reverse-polish calculator stores numbers on a stack.
+Entering a number pushes it on the stack.
+Arithmetic operations pop arguments off the stack and push the results.
+</p>
+<p>To enter a number in <code>dc</code>, type the digits (using upper
+case letters <code>A</code> through <code>F</code> as &quot;digits&quot; when working
+with input bases greater than ten),
+with an optional decimal point.
+Exponential notation is not supported.
+To enter a negative number, begin the number with &lsquo;<samp>_</samp>&rsquo;.
+&lsquo;<samp>-</samp>&rsquo; cannot be used for this, as it is a binary operator
+for subtraction instead.
+To enter two numbers in succession,
+separate them with spaces or newlines;
+these have no meaning as commands.
+</p>
+<hr>
+<a name="Invocation"></a>
+<div class="header">
+<p>
+Next: <a href="#Printing-Commands" accesskey="n" rel="next">Printing Commands</a>, Previous: <a href="#Introduction" accesskey="p" rel="prev">Introduction</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Invocation-1"></a>
+<h2 class="chapter">2 Invocation</h2>
+
+<p><code>dc</code> may be invoked with the following command-line options:
+</p><dl compact="compact">
+<dt>&lsquo;<samp>-e <var>expr</var></samp>&rsquo;</dt>
+<dt>&lsquo;<samp>--expression=<var>expr</var></samp>&rsquo;</dt>
+<dd><p>Evaluate <var>expr</var> as <code>dc</code> commands.
+</p>
+</dd>
+<dt>&lsquo;<samp>-f <var>file</var></samp>&rsquo;</dt>
+<dt>&lsquo;<samp>--file=<var>file</var></samp>&rsquo;</dt>
+<dd><p>Read and evaluate <code>dc</code> commands from <var>file</var>.
+</p>
+</dd>
+<dt>&lsquo;<samp>-h</samp>&rsquo;</dt>
+<dt>&lsquo;<samp>--help</samp>&rsquo;</dt>
+<dd><p>Print a usage message summarizing the command-line options, then exit.
+</p>
+</dd>
+<dt>&lsquo;<samp>-V</samp>&rsquo;</dt>
+<dt>&lsquo;<samp>--version</samp>&rsquo;</dt>
+<dd><p>Print the version information for this program, then exit.
+</p></dd>
+</dl>
+
+<p>If any command-line parameters remain after processing the options,
+these parameters are interpreted as additional <var>file</var>s whose
+contents are read and evaluated.
+A file name of <code>-</code> refers to the standard input stream.
+If no <code>-e</code> option was specified, and no files were specified,
+then the standard input will be read for commands to evaluate.
+</p>
+<hr>
+<a name="Printing-Commands"></a>
+<div class="header">
+<p>
+Next: <a href="#Arithmetic" accesskey="n" rel="next">Arithmetic</a>, Previous: <a href="#Invocation" accesskey="p" rel="prev">Invocation</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Printing-Commands-1"></a>
+<h2 class="chapter">3 Printing Commands</h2>
+
+<dl compact="compact">
+<dt>&lsquo;<samp>p</samp>&rsquo;</dt>
+<dd><p>Prints the value on the top of the stack,
+without altering the stack.
+A newline is printed after the value.
+</p>
+</dd>
+<dt>&lsquo;<samp>n</samp>&rsquo;</dt>
+<dd><p>Prints the value on the top of the stack, popping it off,
+and does not print a newline after.
+(This command is a <small>GNU</small> extension.)
+</p>
+</dd>
+<dt>&lsquo;<samp>P</samp>&rsquo;</dt>
+<dd><p>Pops off the value on top of the stack.
+If it it a string, it is simply printed without a trailing newline.
+Otherwise it is a number, and the integer portion of its absolute
+value is printed out as a &quot;base (UCHAR_MAX+1)&quot; byte stream.
+Assuming that (UCHAR_MAX+1) is 256
+(as it is on most machines with 8-bit bytes),
+the sequence
+<code>KSK0k1/ _1Ss[ls*]Sxd0&gt;x
+[256~Ssd0&lt;x]dsxx
+sx[q]Sq[Lsd0&gt;qaPlxx]dsxx
+sx0sqLqsxLxLK+k</code>
+could also accomplish this function.
+(Much of the complexity of the above native-dc code is due
+to the ~ computing the characters backwards,
+and the desire to ensure that all registers wind up back
+in their original states.)
+(Details of the behavior with a number are a <small>GNU</small> extension.
+Traditional <code>dc</code> happened to &quot;support&quot; similar functionality
+for a limited range of inputs as an accidental side-effect of its
+internal representation of numbers.)
+</p>
+</dd>
+<dt>&lsquo;<samp>f</samp>&rsquo;</dt>
+<dd><p>Prints the entire contents of the stack
+without altering anything.
+This is a good command to use if you are lost or want
+to figure out what the effect of some command has been.
+</p></dd>
+</dl>
+
+<p>All numeric output is split to fit within 70 columns, by default.
+When a number is broken up in this way, the split is indicated
+by a &quot;\&quot; at the end of the to-be-continued output lines.
+The column width at which output is split can be overridden
+by setting the <var>DC_LINE_LENGTH</var> environment variable to
+the desired width.
+A <var>DC_LINE_LENGTH</var> of 0 (zero) disables the line-split
+feature altogether.
+Invalid values of <var>DC_LINE_LENGTH</var> are silently ignored.
+(The <var>DC_LINE_LENGTH</var> variable is a <small>GNU</small> extension.)
+</p>
+<hr>
+<a name="Arithmetic"></a>
+<div class="header">
+<p>
+Next: <a href="#Stack-Control" accesskey="n" rel="next">Stack Control</a>, Previous: <a href="#Printing-Commands" accesskey="p" rel="prev">Printing Commands</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Arithmetic-1"></a>
+<h2 class="chapter">4 Arithmetic</h2>
+
+<dl compact="compact">
+<dt>&lsquo;<samp>+</samp>&rsquo;</dt>
+<dd><p>Pops two values off the stack, adds them, and pushes the result.
+The precision of the result is determined only
+by the values of the arguments, and is enough to be exact.
+</p>
+</dd>
+<dt>&lsquo;<samp>-</samp>&rsquo;</dt>
+<dd><p>Pops two values, subtracts the first one popped
+from the second one popped, and pushes the result.
+</p>
+</dd>
+<dt>&lsquo;<samp>*</samp>&rsquo;</dt>
+<dd><p>Pops two values, multiplies them, and pushes the result.
+The number of fraction digits in the result is the largest of
+the precision value,
+the number of fraction digits in the multiplier,
+or the number of fraction digits in the multiplicand;
+but in no event exceeding the number of digits required for
+an exact result.
+</p>
+</dd>
+<dt>&lsquo;<samp>/</samp>&rsquo;</dt>
+<dd><p>Pops two values, divides the second one popped
+from the first one popped, and pushes the result.
+The number of fraction digits is specified by the precision value.
+</p>
+</dd>
+<dt>&lsquo;<samp>%</samp>&rsquo;</dt>
+<dd><p>Pops two values,
+computes the remainder of the division that
+the &lsquo;<samp>/</samp>&rsquo; command would do,
+and pushes that.
+The value computed is the same as that computed by
+the sequence <code>Sd dld/ Ld*-</code> .
+</p>
+</dd>
+<dt>&lsquo;<samp>~</samp>&rsquo;</dt>
+<dd><p>Pops two values,
+divides the second one popped from the first one popped.
+The quotient is pushed first, and the remainder is pushed next.
+The number of fraction digits used in the division
+is specified by the precision value.
+(The sequence <code>SdSn lnld/ LnLd%</code> could also accomplish
+this function, with slightly different error checking.)
+(This command is a <small>GNU</small> extension.)
+</p>
+</dd>
+<dt>&lsquo;<samp>^</samp>&rsquo;</dt>
+<dd><p>Pops two values and exponentiates,
+using the first value popped as the exponent
+and the second popped as the base.
+The fraction part of the exponent is ignored.
+The precision value specifies the number of fraction
+digits in the result.
+</p>
+</dd>
+<dt>&lsquo;<samp>|</samp>&rsquo;</dt>
+<dd><p>Pops three values and computes a modular exponentiation.
+The first value popped is used as the reduction modulus;
+this value must be a non-zero number,
+and the result may not be accurate if the modulus
+is not an integer.
+The second popped is used as the exponent;
+this value must be a non-negative number,
+and any fractional part of this exponent will be ignored.
+The third value popped is the base which gets exponentiated,
+which should be an integer.
+For small integers this is like the sequence <code>Sm^Lm%</code>,
+but, unlike <code>^</code>,
+this command will work with arbitrarily large exponents.
+(This command is a <small>GNU</small> extension.)
+</p>
+</dd>
+<dt>&lsquo;<samp>v</samp>&rsquo;</dt>
+<dd><p>Pops one value, computes its square root, and pushes that.
+The maximum of the precision value and the precision of the argument
+is used to determine the number of fraction digits in the result.
+</p></dd>
+</dl>
+
+<p>Most arithmetic operations are affected by the <em>precision value</em>,
+which you can set with the &lsquo;<samp>k</samp>&rsquo; command.
+The default precision value is zero,
+which means that all arithmetic except for
+addition and subtraction produces integer results.
+</p>
+<hr>
+<a name="Stack-Control"></a>
+<div class="header">
+<p>
+Next: <a href="#Registers" accesskey="n" rel="next">Registers</a>, Previous: <a href="#Arithmetic" accesskey="p" rel="prev">Arithmetic</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Stack-Control-1"></a>
+<h2 class="chapter">5 Stack Control</h2>
+
+<dl compact="compact">
+<dt>&lsquo;<samp>c</samp>&rsquo;</dt>
+<dd><p>Clears the stack, rendering it empty.
+</p>
+</dd>
+<dt>&lsquo;<samp>d</samp>&rsquo;</dt>
+<dd><p>Duplicates the value on the top of the stack,
+pushing another copy of it.
+Thus, &lsquo;<samp>4d*p</samp>&rsquo; computes 4 squared and prints it.
+</p>
+</dd>
+<dt>&lsquo;<samp>r</samp>&rsquo;</dt>
+<dd><p>Reverses the order of (swaps) the top two values on the stack.
+(This can also be accomplished with the sequence <code>SaSbLaLb</code>.)
+(This command is a <small>GNU</small> extension.)
+</p>
+</dd>
+<dt>&lsquo;<samp>R</samp>&rsquo;</dt>
+<dd><p>Pops the top-of-stack as an integer <var>n</var>.
+Cyclically rotates the top <var>n</var> items on the updated stack.
+If <var>n</var> is positive,
+then the rotation direction will make the topmost
+element the second-from top;
+if <var>n</var> is negative,
+then the rotation will make the topmost element the
+<var>n</var>-th element from the top.
+If the stack depth is less than <var>n</var>
+then the entire stack is rotated (in the appropriate direction),
+without any error being reported.
+(This command is a <small>GNU</small> extension.)
+</p></dd>
+</dl>
+
+<hr>
+<a name="Registers"></a>
+<div class="header">
+<p>
+Next: <a href="#Parameters" accesskey="n" rel="next">Parameters</a>, Previous: <a href="#Stack-Control" accesskey="p" rel="prev">Stack Control</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Registers-1"></a>
+<h2 class="chapter">6 Registers</h2>
+
+<p><code>dc</code> provides at least 256 memory registers<a name="DOCF1" href="#FOOT1"><sup>1</sup></a>,
+each named by a single character.
+You can store a number in a register and retrieve it later.
+</p>
+<dl compact="compact">
+<dt>&lsquo;<samp>s<var>r</var></samp>&rsquo;</dt>
+<dd><p>Pop the value off the top of the stack and
+store it into register <var>r</var>.
+</p>
+</dd>
+<dt>&lsquo;<samp>l<var>r</var></samp>&rsquo;</dt>
+<dd><p>Copy the value in register <var>r</var>,
+and push it onto the stack.
+The value <code>0</code> is retrieved if the
+register is uninitialized or its stack has become empty.
+This does not alter the contents of <var>r</var>.
+</p>
+<p>Each register also contains its own stack.
+The current register value is the top of the register&rsquo;s stack.
+</p>
+</dd>
+<dt>&lsquo;<samp>S<var>r</var></samp>&rsquo;</dt>
+<dd><p>Pop the value off the top of the (main) stack and
+push it onto the stack of register <var>r</var>.
+The previous value of the register becomes inaccessible.
+</p>
+</dd>
+<dt>&lsquo;<samp>L<var>r</var></samp>&rsquo;</dt>
+<dd><p>Pop the value off the top of register <var>r</var>&rsquo;s stack
+and push it onto the main stack.
+The previous value in register <var>r</var>&rsquo;s stack, if any,
+is now accessible via the &lsquo;<samp>l<var>r</var></samp>&rsquo; command.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Parameters"></a>
+<div class="header">
+<p>
+Next: <a href="#Strings" accesskey="n" rel="next">Strings</a>, Previous: <a href="#Registers" accesskey="p" rel="prev">Registers</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Parameters-1"></a>
+<h2 class="chapter">7 Parameters</h2>
+
+<p><code>dc</code> has three parameters that control its operation:
+the precision, the input radix, and the output radix.
+The precision specifies the number of fraction digits
+to keep in the result of most arithmetic operations.
+The input radix controls the interpretation of numbers typed in;
+<em>all</em> numbers typed in use this radix.
+The output radix is used for printing numbers.
+</p>
+<p>The input and output radices are separate parameters;
+you can make them unequal, which can be useful or confusing.
+The input radix must be between 2 and 16 inclusive.
+The output radix must be at least 2.
+The precision must be zero or greater.
+The precision is always measured in decimal digits,
+regardless of the current input or output radix.
+</p>
+<dl compact="compact">
+<dt>&lsquo;<samp>i</samp>&rsquo;</dt>
+<dd><p>Pops the value off the top of the stack
+and uses it to set the input radix.
+</p>
+</dd>
+<dt>&lsquo;<samp>o</samp>&rsquo;</dt>
+<dd><p>Pops the value off the top of the stack
+and uses it to set the output radix.
+</p>
+</dd>
+<dt>&lsquo;<samp>k</samp>&rsquo;</dt>
+<dd><p>Pops the value off the top of the stack
+and uses it to set the precision.
+</p>
+</dd>
+<dt>&lsquo;<samp>I</samp>&rsquo;</dt>
+<dd><p>Pushes the current input radix on the stack.
+</p>
+</dd>
+<dt>&lsquo;<samp>O</samp>&rsquo;</dt>
+<dd><p>Pushes the current output radix on the stack.
+</p>
+</dd>
+<dt>&lsquo;<samp>K</samp>&rsquo;</dt>
+<dd><p>Pushes the current precision on the stack.
+</p>
+</dd>
+</dl>
+
+<hr>
+<a name="Strings"></a>
+<div class="header">
+<p>
+Next: <a href="#Status-Inquiry" accesskey="n" rel="next">Status Inquiry</a>, Previous: <a href="#Parameters" accesskey="p" rel="prev">Parameters</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Strings-1"></a>
+<h2 class="chapter">8 Strings</h2>
+
+<p><code>dc</code> has a limited ability
+to operate on strings as well as on numbers;
+the only things you can do with strings are print them
+and execute them as macros
+(which means that the contents of the string are processed
+as <code>dc</code> commands).
+Both registers and the stack can hold strings,
+and <code>dc</code> always knows whether any given object is
+a string or a number.
+Some commands such as arithmetic operations demand numbers
+as arguments and print errors if given strings.
+Other commands can accept either a number or a string;
+for example, the &lsquo;<samp>p</samp>&rsquo; command can accept either and prints the object
+according to its type.
+</p>
+<dl compact="compact">
+<dt>&lsquo;<samp>[<var>characters</var>]</samp>&rsquo;</dt>
+<dd><p>Makes a string containing <var>characters</var> and pushes it on the stack.
+For example, &lsquo;<samp>[foo]P</samp>&rsquo; prints the characters &lsquo;<samp>foo</samp>&rsquo;
+(with no newline).
+Note that all square brackets (&lsquo;<samp>[</samp>&rsquo;s and &lsquo;<samp>]</samp>&rsquo;s) must be balanced;
+there is no mechanism provided for handling unbalanced square brackets.
+</p>
+</dd>
+<dt>&lsquo;<samp>a</samp>&rsquo;</dt>
+<dd><p>The mnemonic for this is somewhat erroneous: asciify.
+The top-of-stack is popped.
+If it was a number, then the low-order byte of this number
+is converted into a 1-character string
+and pushed onto the stack.
+Otherwise the top-of-stack was a string,
+and the first character of that string is pushed back.
+(This command is a <small>GNU</small> extension.)
+</p>
+</dd>
+<dt>&lsquo;<samp>x</samp>&rsquo;</dt>
+<dd><p>Pops a value off the stack and executes it as a macro.
+Normally it should be a string;
+if it is a number, it is simply pushed back onto the stack.
+For example, &lsquo;<samp>[1p]x</samp>&rsquo; executes the macro &lsquo;<samp>1p</samp>&rsquo;,
+which pushes 1 on the stack and prints &lsquo;<samp>1</samp>&rsquo; on a separate line.
+</p>
+<p>Macros are most often stored in registers;
+&lsquo;<samp>[1p]sa</samp>&rsquo; stores a macro to print &lsquo;<samp>1</samp>&rsquo; into register &lsquo;<samp>a</samp>&rsquo;,
+and &lsquo;<samp>lax</samp>&rsquo; invokes the macro.
+</p>
+</dd>
+<dt>&lsquo;<samp>&gt;<var>r</var></samp>&rsquo;</dt>
+<dd><p>Pops two values off the stack and compares them
+assuming they are numbers,
+executing the contents of register <var>r</var> as a macro
+if the original top-of-stack is greater.
+Thus, &lsquo;<samp>1 2&gt;a</samp>&rsquo; will invoke register &lsquo;<samp>a</samp>&rsquo;&rsquo;s contents
+and &lsquo;<samp>2 1&gt;a</samp>&rsquo; will not.
+</p>
+</dd>
+<dt>&lsquo;<samp>!&gt;<var>r</var></samp>&rsquo;</dt>
+<dd><p>Similar but invokes the macro if the original top-of-stack is not greater
+(is less than or equal to) what was the second-to-top.
+</p>
+</dd>
+<dt>&lsquo;<samp>&lt;<var>r</var></samp>&rsquo;</dt>
+<dd><p>Similar but invokes the macro if the original top-of-stack is less.
+</p>
+</dd>
+<dt>&lsquo;<samp>!&lt;<var>r</var></samp>&rsquo;</dt>
+<dd><p>Similar but invokes the macro if the original top-of-stack is not less
+(is greater than or equal to) what was the second-to-top.
+</p>
+</dd>
+<dt>&lsquo;<samp>=<var>r</var></samp>&rsquo;</dt>
+<dd><p>Similar but invokes the macro if the two numbers popped are equal.
+</p>
+</dd>
+<dt>&lsquo;<samp>!=<var>r</var></samp>&rsquo;</dt>
+<dd><p>Similar but invokes the macro if the two numbers popped are not equal.
+</p>
+</dd>
+<dt>&lsquo;<samp>?</samp>&rsquo;</dt>
+<dd><p>Reads a line from the terminal and executes it.
+This command allows a macro to request input from the user.
+</p>
+</dd>
+<dt>&lsquo;<samp>q</samp>&rsquo;</dt>
+<dd><p>During the execution of a macro,
+this command exits from the macro and also from the macro which invoked it.
+If called from the top level,
+or from a macro which was called directly from the top level,
+the &lsquo;<samp>q</samp>&rsquo; command will cause <code>dc</code> to exit.
+</p>
+</dd>
+<dt>&lsquo;<samp>Q</samp>&rsquo;</dt>
+<dd><p>Pops a value off the stack and uses it as a count
+of levels of macro execution to be exited.
+Thus, &lsquo;<samp>3Q</samp>&rsquo; exits three levels.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Status-Inquiry"></a>
+<div class="header">
+<p>
+Next: <a href="#Miscellaneous" accesskey="n" rel="next">Miscellaneous</a>, Previous: <a href="#Strings" accesskey="p" rel="prev">Strings</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Status-Inquiry-1"></a>
+<h2 class="chapter">9 Status Inquiry</h2>
+
+<dl compact="compact">
+<dt>&lsquo;<samp>Z</samp>&rsquo;</dt>
+<dd><p>Pops a value off the stack,
+calculates the number of decimal digits it has
+(or number of characters, if it is a string)
+and pushes that number.
+</p>
+<p>Note that the digit count for a number does
+<em>not</em> include any leading zeros,
+even if those appear to the right of the radix point.
+This may seem a bit strange at first,
+but it is compatible with historical implementations of <code>dc</code>,
+and can be argued to be useful for computing the magnitude of a value:
+<code>dSaXLaZ-</code> will compute the power-of-ten multiplier
+which would be needed to shift the decimal point
+to be immediately before the leftmost non-zero digit.
+</p>
+</dd>
+<dt>&lsquo;<samp>X</samp>&rsquo;</dt>
+<dd><p>Pops a value off the stack,
+calculates the number of fraction digits it has,
+and pushes that number.
+For a string, the value pushed is
+0.
+</p>
+</dd>
+<dt>&lsquo;<samp>z</samp>&rsquo;</dt>
+<dd><p>Pushes the current stack depth:
+the number of objects on the stack
+before the execution of the &lsquo;<samp>z</samp>&rsquo; command.
+</p></dd>
+</dl>
+
+<hr>
+<a name="Miscellaneous"></a>
+<div class="header">
+<p>
+Next: <a href="#Reporting-bugs" accesskey="n" rel="next">Reporting bugs</a>, Previous: <a href="#Status-Inquiry" accesskey="p" rel="prev">Status Inquiry</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Miscellaneous-1"></a>
+<h2 class="chapter">10 Miscellaneous</h2>
+
+<dl compact="compact">
+<dt>&lsquo;<samp>!</samp>&rsquo;</dt>
+<dd><p>Will run the rest of the line as a system command.
+Note that parsing of the !&lt;, !=, and !&gt; commands take precedence,
+so if you want to run a command starting with &lt;, =, or &gt; you will
+need to add a space after the !.
+</p>
+</dd>
+<dt>&lsquo;<samp>#</samp>&rsquo;</dt>
+<dd><p>Will interpret the rest of the line as a comment.
+(This command is a <small>GNU</small> extension.)
+</p>
+</dd>
+<dt>&lsquo;<samp>:<var>r</var></samp>&rsquo;</dt>
+<dd><p>Will pop the top two values off of the stack.
+The old second-to-top value will be stored in the array <var>r</var>,
+indexed by the old top-of-stack value.
+</p>
+</dd>
+<dt>&lsquo;<samp>;<var>r</var></samp>&rsquo;</dt>
+<dd><p>Pops the top-of-stack and uses it as an index into
+the array <var>r</var>.
+The selected value is then pushed onto the stack.
+</p></dd>
+</dl>
+
+<p>Note that each stacked instance of a register has its own
+array associated with it.
+Thus &lsquo;<samp>1 <var>0:a</var> 0S<var>a</var> 2 <var>0:a</var> L<var>a</var> <var>0;a</var>p</samp>&rsquo;
+will print 1, because the 2 was stored in an instance of <var>0:a</var>
+that was later popped.
+</p>
+<hr>
+<a name="Reporting-bugs"></a>
+<div class="header">
+<p>
+Previous: <a href="#Miscellaneous" accesskey="p" rel="prev">Miscellaneous</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<a name="Reporting-bugs-1"></a>
+<h2 class="chapter">11 Reporting bugs</h2>
+
+<p>Email bug reports to <a href="mailto:bug-dc@gnu.org">bug-dc@gnu.org</a>.
+</p><a name="SEC_Contents"></a>
+<h2 class="contents-heading">Table of Contents</h2>
+
+<div class="contents">
+
+<ul class="no-bullet">
+  <li><a name="toc-Introduction-1" href="#Introduction">1 Introduction</a></li>
+  <li><a name="toc-Invocation-1" href="#Invocation">2 Invocation</a></li>
+  <li><a name="toc-Printing-Commands-1" href="#Printing-Commands">3 Printing Commands</a></li>
+  <li><a name="toc-Arithmetic-1" href="#Arithmetic">4 Arithmetic</a></li>
+  <li><a name="toc-Stack-Control-1" href="#Stack-Control">5 Stack Control</a></li>
+  <li><a name="toc-Registers-1" href="#Registers">6 Registers</a></li>
+  <li><a name="toc-Parameters-1" href="#Parameters">7 Parameters</a></li>
+  <li><a name="toc-Strings-1" href="#Strings">8 Strings</a></li>
+  <li><a name="toc-Status-Inquiry-1" href="#Status-Inquiry">9 Status Inquiry</a></li>
+  <li><a name="toc-Miscellaneous-1" href="#Miscellaneous">10 Miscellaneous</a></li>
+  <li><a name="toc-Reporting-bugs-1" href="#Reporting-bugs">11 Reporting bugs</a></li>
+</ul>
+</div>
+
+<div class="footnote">
+<hr>
+<h4 class="footnotes-heading">Footnotes</h4>
+
+<h3><a name="FOOT1" href="#DOCF1">(1)</a></h3>
+<p>The
+exact number of registers provided by <code>dc</code> depends
+on the range of an <code>unsigned char</code> in the C compiler
+used to create the <code>dc</code> executable.</p>
+</div>
+<hr>
+
+
+
+</body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE node PUBLIC
+ "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+ "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+
+<node name="/org/fedoraproject/Config/Printing"
+      xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+  <interface name="org.fedoraproject.Config.Printing">
+    <doc:doc>
+      <doc:description>
+	<doc:para>
+	  This interface is for configuring printing.
+	</doc:para>
+      </doc:description>
+    </doc:doc>
+
+    <method name="NewPrinterDialog">
+      <doc:doc>
+	<doc:description>
+	  <doc:para>
+	    Create a New Printer dialog object.
+	  </doc:para>
+	</doc:description>
+      </doc:doc>
+
+      <arg name="path" type="s" direction="out">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      Path of D-Bus object representing dialog.  This object
+	      supports the interface
+	      org.fedoraproject.Config.Printing.NewPrinterDialog.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+    </method>
+
+    <method name="PrinterPropertiesDialog">
+      <doc:doc>
+	<doc:description>
+	  <doc:para>
+	    Create a Printer Properties dialog object.
+	  </doc:para>
+	</doc:description>
+      </doc:doc>
+
+      <arg name="name" type="s" direction="in">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      Name of queue to create properties dialog for.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+
+      <arg name="path" type="s" direction="out">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      Path of D-Bus object representing dialog.  This object
+	      supports the interface
+	      org.fedoraproject.Config.Printing.PrinterPropertiesDialog.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+    </method>
+
+    <method name="JobApplet">
+      <doc:doc>
+	<doc:description>
+	  <doc:para>
+	    Create a new job applet if there is not already one running.
+	  </doc:para>
+	</doc:description>
+      </doc:doc>
+
+      <arg name="path" type="s" direction="out">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      Path of D-Bus object representing job applet.  This
+	      object supports the interface
+	      org.fedoraproject.Config.Printing.JobApplet.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+    </method>
+
+    <method name="GetBestDrivers">
+      <doc:doc>
+	<doc:description>
+	  <doc:para>
+	    Determine the best available drivers for a particular
+	    device.
+	  </doc:para>
+	</doc:description>
+      </doc:doc>
+
+      <arg name="device_id" type="s" direction="in">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      The IEEE 1284 Device ID of the device, if available.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+
+      <arg name="device_make_and_model" type="s" direction="in">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      The device-make-and-model string (for example, as
+	      reported by CUPS), if available.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+
+      <arg name="device_uri" type="s" direction="in">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      The device URI of the IPP device, if known.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+
+      <arg name="drivers" type="a(ss)" direction="out">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      A list of the best available drivers, and how good a fit
+	      they are; most preferred first.
+	    </doc:para>
+	    <doc:para>
+	      Each element of the list is a pair of (ppd-name,fit).
+	      The fit will be one of <doc:tt>exact-cmd</doc:tt>
+	      (strongest), <doc:tt>exact</doc:tt>,
+	      <doc:tt>close</doc:tt>, <doc:tt>generic</doc:tt>,
+	      <doc:tt>none</doc:tt> (weakest).
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+    </method>
+
+    <method name="MissingExecutables">
+      <doc:doc>
+	<doc:description>
+	  <doc:para>
+	    Determine whether a driver requires more packages to be
+	    installed.
+	  </doc:para>
+	</doc:description>
+      </doc:doc>
+
+      <arg name="ppd_filename" type="s" direction="in">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      The filename of the PPD to examine.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+
+      <arg name="missing_executables" type="as" direction="out">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      A list of missing executables required by the PPD.  They
+	      may not be full pathnames if not known.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+    </method>
+
+    <method name="GroupPhysicalDevices">
+      <doc:doc>
+	<doc:description>
+	  <doc:para>
+	    Identify groups of device URIs that belong to the same
+	    physical device.
+	  </doc:para>
+	</doc:description>
+      </doc:doc>
+
+      <arg name="devices" type="a{sa{ss}}" direction="in">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      A dictionary, indexed by device URI, of dictionaries of
+	      IPP attributes.  Attributes that may be used include
+	      <doc:tt>device-id</doc:tt>,
+	      <doc:tt>device-make-and-model</doc:tt>, and
+	      <doc:tt>device-class</doc:tt>.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+
+      <arg name="grouped_devices" type="aas" direction="out">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      A list of physical devices, each physical device
+	      represented by a list of device URIs referring to it.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+    </method>
+  </interface>
+
+  <interface name="org.fedoraproject.Config.Printing.NewPrinterDialog">
+    <doc:doc>
+      <doc:description>
+	<doc:para>
+	  This interface is for controlling the New Printer dialog.
+	</doc:para>
+      </doc:description>
+    </doc:doc>
+
+    <method name="NewPrinterFromDevice">
+      <doc:doc>
+	<doc:description>
+	  <doc:para>
+	    Present the dialog without asking which device to use.
+	  </doc:para>
+	</doc:description>
+      </doc:doc>
+
+      <arg name="xid" type="u" direction="in">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      The window X ID of the parent.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+
+      <arg name="device_uri" type="s" direction="in">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      The device URI to use.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+
+      <arg name="device_id" type="s" direction="in">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      The IEEE 1284 Device ID of the device.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+    </method>
+
+    <method name="DownloadDriverForDeviceID">
+      <doc:doc>
+	<doc:description>
+	  <doc:para>
+	    Search for downloadable drivers on OpenPrinting and present them for installation.
+	  </doc:para>
+	</doc:description>
+      </doc:doc>
+
+      <arg name="xid" type="u" direction="in">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      The window X ID of the parent.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+
+      <arg name="device_id" type="s" direction="in">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      The IEEE 1284 Device ID of the device.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+    </method>
+
+    <method name="ChangePPD">
+      <doc:doc>
+	<doc:description>
+	  <doc:para>
+	    Present the dialog for changing the PPD of a queue.
+	  </doc:para>
+	</doc:description>
+      </doc:doc>
+
+      <arg name="xid" type="u" direction="in">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      The window X ID of the parent.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+
+      <arg name="name" type="s" direction="in">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      The name of the queue to modify.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+
+      <arg name="device_id" type="s" direction="in">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      The IEEE 1284 Device ID of the device.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+    </method>
+
+    <signal name="DialogCanceled"/>
+
+    <signal name="PrinterAdded">
+      <arg name="name" type="s">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      The queue name for the printer that was added.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+    </signal>
+
+    <signal name="PrinterModified">
+      <arg name="name" type="s">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      The queue name for the printer that was modified.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+
+      <arg name="ppd_has_changed" type="b">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      Whether the printer is now using a different PPD.
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+    </signal>
+
+    <signal name="DriverDownloadChecked">
+      <arg name="name" type="s">
+	<doc:doc>
+	  <doc:summary>
+	    <doc:para>
+	      List of newly installed files, separated by "|".
+	    </doc:para>
+	  </doc:summary>
+	</doc:doc>
+      </arg>
+    </signal>
+  </interface>
+
+  <interface name="org.fedoraproject.Config.Printing.PrinterPropertiesDialog">
+    <doc:doc>
+      <doc:description>
+	<doc:para>
+	  This interface is for interacting with the printer properties
+	  dialog.
+	</doc:para>
+      </doc:description>
+    </doc:doc>
+
+    <method name="PrintTestPage">
+      <doc:doc>
+	<doc:description>
+	  <doc:para>
+	    Attempt to print a test page.
+	  </doc:para>
+	</doc:description>
+      </doc:doc>
+    </method>
+
+    <signal name="Finished"/>
+  </interface>
+
+  <interface name="org.fedoraproject.Config.Printing.JobApplet">
+    <doc:doc>
+      <doc:description>
+	<doc:para>
+	  This interface is for interacting with the job applet.
+	</doc:para>
+      </doc:description>
+    </doc:doc>
+
+    <method name="Quit">
+      <doc:doc>
+	<doc:description>
+	  <doc:para>
+	    Quit the job applet.
+	  </doc:para>
+	</doc:description>
+      </doc:doc>
+    </method>
+
+    <signal name="Finished"/>
+  </interface>
+</node>

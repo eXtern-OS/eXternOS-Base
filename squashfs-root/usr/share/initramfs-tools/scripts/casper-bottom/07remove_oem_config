@@ -1,0 +1,36 @@
+#!/bin/sh
+
+PREREQ=""
+DESCRIPTION="Removing oem-config if installed..."
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+load_confmodule
+
+# Reset oem-config/enable to false (for persistent installs)
+db_set oem-config/enable false
+
+# Only do this on ARM
+if ! uname -m | grep -q arm; then exit 0; fi
+
+log_begin_msg "$DESCRIPTION"
+
+# if oem-config is installed, we need to remove it to remove the desktop
+# file diversion, and to remove the OEM icons from showing up before we
+# install the image.
+
+chroot /root apt-get -y --purge remove oem-config </dev/null || true
+
+log_end_msg

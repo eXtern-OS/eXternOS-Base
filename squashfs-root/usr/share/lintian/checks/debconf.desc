@@ -1,0 +1,354 @@
+Check-Script: debconf
+Author: Colin Watson <cjwatson@debian.org>
+Abbrev: dc
+Type: binary, udeb, source
+Info: This looks for common mistakes in packages using debconf.
+Needs-Info: bin-pkg-control, unpacked, scripts
+
+Tag: missing-debconf-dependency
+Severity: normal
+Certainty: possible
+Info: Packages using debconf should depend on it, since debconf is not an
+ essential package.
+
+Tag: missing-debconf-dependency-for-preinst
+Severity: normal
+Certainty: possible
+Info: Packages using debconf in their preinst script must pre-depend
+ on debconf, with appropriate discussion on &debdev;.  Since debconf is
+ almost always already installed, this is normally better than depending
+ on it and falling back to a different configuration system.
+
+Tag: unknown-field-in-templates
+Severity: important
+Certainty: certain
+Info: Valid fields are currently "Template:", "Type:", "Choices:", "Default:",
+ and "Description:".
+Ref: debconf-spec 3.1, debconf-devel(7)
+
+Tag: no-template-name
+Severity: important
+Certainty: certain
+Info: The templates file contains a template without a "Template:" field.
+
+Tag: malformed-template-name
+Severity: important
+Certainty: certain
+Info: The "Template:" field should contain more than one component, each
+ separated by a slash ("/").  Each component may only consist of the
+ alphanumeric characters, "+", "-", and ".".
+
+Tag: no-template-type
+Severity: important
+Certainty: certain
+Info: The templates file contains a template without a "Type:" field.
+
+Tag: unknown-template-type
+Severity: important
+Certainty: certain
+Info: A "Type:" field in a templates file provided by this package uses an
+ unknown data type.  Valid types are currently "string", "boolean", "select",
+ "multiselect", "note", "text", and "password".
+
+Tag: empty-translated-choices
+Severity: important
+Certainty: possible
+Info: When the translation of a Choices: field is empty, the whole question
+ is skipped (and nothing is selected).  Please verify that the translation
+ you're using is valid.
+
+Tag: mismatch-translated-choices
+Severity: important
+Certainty: certain
+Info: A "Choices:" field is a comma separated list, and translated
+ "Choices:" fields must have the exact same number of elements.  One
+ of the translations does not follow this rule, you should contact the
+ translator and request for a new translation where elements of "Choices:"
+ fields have no embedded commas.
+ .
+ Cdebconf understands escaped commas in such fields, but packages
+ outside the scope of debian-installer must not have them until they are
+ also supported by debconf.
+
+Tag: select-without-choices
+Severity: important
+Certainty: certain
+Info: Templates using the "select" or "multiselect" data types must provide
+ a "Choices:" field listing the possible values of the template.
+Ref: debconf-spec 3.1, debconf-devel(7)
+
+Tag: boolean-template-has-bogus-default
+Severity: important
+Certainty: certain
+Info: The "boolean" type in a debconf template, can have only two values: true
+ and false.  The default has been set to something different.
+Ref: debconf-spec 3.1, debconf-devel(7)
+
+Tag: no-template-description
+Severity: important
+Certainty: certain
+Info: The templates file contains a template without a "Description:" field.
+Ref: debconf-spec 3, debconf-devel(7)
+
+Tag: duplicate-long-description-in-template
+Severity: minor
+Certainty: certain
+Info: The long description of one of the templates provided by this package
+ is a duplicate of the short description.  If you cannot provide a good
+ extended description, it is better to leave it blank.
+
+Tag: config-does-not-load-confmodule
+Severity: normal
+Certainty: certain
+Info: The config script must load one of the debconf libraries.
+
+Tag: postinst-uses-db-input
+Severity: normal
+Certainty: possible
+Info: It is generally not a good idea for postinst scripts to use debconf
+ commands like <tt>db_input</tt>.  Typically, they should restrict themselves
+ to <tt>db_get</tt> to request previously acquired information, and have the
+ config script do the actual prompting.
+
+Tag: postinst-does-not-load-confmodule
+Severity: normal
+Certainty: certain
+Info: Even if your postinst does not involve debconf, you currently need to
+ make sure it loads one of the debconf libraries.  This will be changed in
+ the future.
+
+Tag: loads-obsolete-confmodule
+Severity: normal
+Certainty: certain
+Info: The maintainer script uses an obsolete name for a debconf confmodule.
+ Shell scripts should source <tt>/usr/share/debconf/confmodule</tt>, while
+ Perl scripts should use <tt>Debconf::Client::ConfModule</tt>.
+Ref: debconf-devel(7)
+
+Tag: postrm-does-not-purge-debconf
+Severity: normal
+Certainty: certain
+Info: Packages using debconf should call <tt>db_purge</tt> or its equivalent
+ in their postrm.  If the package uses debhelper, dh_installdebconf(1) should
+ take care of this.
+
+Tag: isdefault-flag-is-deprecated
+Severity: normal
+Certainty: possible
+Info: The "isdefault" flag on debconf questions is deprecated as of debconf
+ 0.5.00, and has been replaced by "seen" with the inverse meaning.  From
+ debconf 0.5 onwards there should be very few reasons to use isdefault/seen
+ anyway, as backing up works much better now.  See
+ /usr/share/doc/debconf-doc/changelog.gz for more information.
+ .
+ The misuse of isdefault often leads to questions being asked twice in one
+ installation run, or, worse, on every upgrade.  Please test your package
+ carefully to make sure this does not happen.
+
+Tag: debconf-config-not-executable
+Severity: important
+Certainty: certain
+Info: The debconf "config" script in the package control area must be
+ executable.
+
+Tag: no-debconf-config
+Severity: important
+Certainty: possible
+Info: The package contains a "templates" file in its control area but has no
+ corresponding "config" script.  This is occasionally OK, but is usually an
+ error.
+
+Tag: no-debconf-templates
+Severity: normal
+Certainty: possible
+Info: The package contains a "config" script in its control area but has no
+ corresponding "templates" file.  This is occasionally OK, but is usually an
+ error.
+
+Tag: debconf-is-not-a-registry
+Severity: important
+Certainty: wild-guess
+Info: In the Unix tradition, Debian packages should have human-readable and
+ human-editable configuration files.  This package uses debconf commands
+ outside its maintainer scripts, which often indicates that it is taking
+ configuration information directly from the debconf database.  Typically,
+ packages should use debconf-supplied information to generate
+ configuration files, and -- to avoid losing configuration information on
+ upgrades -- should parse these configuration files in the <tt>config</tt>
+ script if it is necessary to ask the user for changes.
+ .
+ Some standalone programs may legitimately use debconf to prompt the user
+ for questions.  If you maintain a package containing such a program,
+ please install an override.  Other exceptions to this check include
+ configuration scripts called from the package's post-installation script.
+Ref: devref 6.5.1, debconf-devel(7)
+
+Tag: malformed-prompt-in-templates
+Severity: normal
+Certainty: certain
+Info: The short description of a select, multiselect, string and password
+ debconf template is a prompt and not a title.  Avoid question style
+ prompts ("IP Address?") in favour of "opened" prompts ("IP address:").
+ The use of colons is recommended.
+ .
+ If this template is only used internally by the package and not displayed
+ to the user, put "for internal use" in the short description.
+Ref: devref 6.5.4.2
+
+Tag: malformed-title-in-templates
+Severity: normal
+Certainty: certain
+Info: The short description of a note debconf template should be written
+ as a title and therefore should not end with a period, question mark,
+ colon, or semicolon.
+Ref: devref 6.5.4.2.4
+
+Tag: malformed-question-in-templates
+Severity: normal
+Certainty: certain
+Info: The short description of a boolean debconf template should be
+ phrased in the form of a question which should be kept short and should
+ generally end with a question mark.  Terse writing style is permitted and
+ even encouraged if the question is rather long.
+ .
+ If this template is only used internally by the package and not displayed
+ to the user, put "for internal use" in the short description.
+Ref: devref 6.5.4.2.2
+
+Tag: using-question-in-extended-description-in-templates
+Severity: normal
+Certainty: certain
+Info: The extended description of a debconf template should never include
+ a question.
+ .
+ If this template is only used internally by the package and not displayed
+ to the user, put "for internal use" in the short description.
+Ref: devref 6.5.3.2
+
+Tag: using-imperative-form-in-templates
+Severity: normal
+Certainty: certain
+Info: Do not use useless imperative constructions such as "Please choose...",
+ "Enter...".  The interface will make it obvious that the user needs to
+ choose or enter something.
+Ref: devref 6.5.4.2
+
+Tag: using-first-person-in-templates
+Severity: normal
+Certainty: possible
+Info: You should avoid the use of first person ("I will do this..." or
+ "We recommend...").  The computer is not a person and the Debconf
+ templates do not speak for the Debian developers.  You should use neutral
+ construction and often the passive form.
+ .
+ If this template is only used internally by the package and not displayed
+ to the user, put "for internal use" in the short description.
+Ref: devref 6.5.2.5
+
+Tag: making-assumptions-about-interfaces-in-templates
+Severity: normal
+Certainty: possible
+Info: Template text should not make reference to widgets belonging to
+ some debconf interfaces.  Sentences like "If you answer Yes..." have no
+ meaning for users of graphical interfaces which use checkboxes for
+ boolean questions.
+Ref: devref 6.5.2.4
+
+Tag: too-long-short-description-in-templates
+Severity: normal
+Certainty: certain
+Info: The short description should be kept short (50 characters or so) so
+ that it may be accommodated by most debconf interfaces.  Keeping it short
+ also helps translators, as usually translations tend to end up being
+ longer than the original.
+Ref: devref 6.5.3.2
+
+Tag: too-long-extended-description-in-templates
+Severity: normal
+Certainty: certain
+Info: Some debconf interfaces cannot deal very well with descriptions of
+ more than about 20 lines, so try to keep the extended description below
+ this limit.
+Ref: devref 6.5.3.2
+
+Tag: unknown-debconf-priority
+Severity: important
+Certainty: certain
+Info: The given maintainer script calls db_input or db_text with a
+ first argument that doesn't match one of the known priorities.  The
+ supported priorities are low, medium, high, and critical.
+Ref: debconf-devel(7)
+
+Tag: possible-debconf-note-abuse
+Severity: normal
+Certainty: possible
+Info: Debconf notes should be used only for important notes that the
+ user really should see, since debconf will go to great pains to make
+ sure the user sees it.
+ .
+ Displaying a note with a low priority is conflicting with this statement,
+ since using a low or medium priority shows that the note is not
+ important.
+ .
+ The right fix is NOT to increase the priority of the note, but to move
+ it somewhere else in the inline documentation, for example in a
+ README.Debian file for notes about package usability or NEWS.Debian for
+ changes in the package behavior, or to simply drop it if it is not
+ needed (e.g. "welcome" notes).  Changing the templates type to "error"
+ can also be appropriate, such as for input validation errors.
+Ref: policy 3.9.1
+
+Tag: select-with-boolean-choices
+Severity: normal
+Certainty: possible
+Info: Select templates with only yes and no choices should use the boolean
+ type instead.
+Ref: debconf-devel(7)
+
+Tag: template-uses-unsplit-choices
+Severity: normal
+Certainty: possible
+Info: The use of _Choices in templates is deprecated.
+ A _Choices field must be translated as a single string.
+ .
+ Using __Choices allows each choice to be translated separately, easing
+ translation and is therefore recommended.
+ .
+ Instead of simply replacing all occurrences of "_Choices" by "__Choices",
+ apply the method described in po-debconf(7) under "SPLITTING CHOICES
+ LIST", to avoid breaking existing translations.
+ .
+ If in doubt, please ask for help on the debian-i18n mailing list.
+Ref: po-debconf(7)
+
+Tag: unused-debconf-template
+Severity: minor
+Certainty: possible
+Info: Templates which are not used by the package should be removed from
+ the templates file.
+ .
+ This will reduce the size of the templates database and prevent
+ translators from unnecessarily translating the template's text.
+ .
+ In some cases, the template is used but Lintian is unable to determine
+ this.  Common causes are:
+ .
+ - the maintainer scripts embed a variable in the template name in
+ order to allow a template to be selected from a range of similar
+ templates (e.g. <tt>db_input low start_$service_at_boot</tt>)
+ .
+ - the template is not used by the maintainer scripts but is used by
+ a program in the package
+ .
+ - the maintainer scripts are written in perl.  Lintian currently only
+ understands the shell script debconf functions.
+ .
+ If any of the above apply, please install an override.
+
+Tag: syntax-error-in-debconf-template
+Severity: important
+Certainty: possible
+Info: The template file contains a syntax error.
+ .
+ This issue may hide other issues as Lintian skips some checks on the
+ file in this case.

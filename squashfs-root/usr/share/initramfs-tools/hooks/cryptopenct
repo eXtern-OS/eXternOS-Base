@@ -1,0 +1,61 @@
+#!/bin/sh
+
+set -e
+
+PREREQ="cryptroot"
+
+prereqs()
+{
+    echo "$PREREQ"
+}
+
+case $1 in
+    prereqs)
+        prereqs
+        exit 0
+        ;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+# Hooks for loading smartcard reading software into the initramfs
+
+# Check whether cryptroot hook has installed decrypt_openct script
+if [ ! -x ${DESTDIR}/lib/cryptsetup/scripts/decrypt_openct ] ; then
+    exit 0
+fi
+
+# Install cryptroot key files into initramfs
+keys=$(sed 's/^\(.*,\|\)key=//; s/,.*//' ${DESTDIR}/conf/conf.d/cryptroot)
+
+if [ "${keys}" != "none" ]
+then
+	if [ -z "${keys}" ] ; then
+	    echo $0: Missing key files in ${DESTDIR}/conf/conf.d/cryptroot >&2
+	    cat ${DESTDIR}/conf/conf.d/cryptroot >&2
+	    exit 1
+	fi
+	for key in ${keys} ; do
+	    if [ ! -d ${DESTDIR}/$(dirname ${key}) ] ; then
+	        mkdir -p ${DESTDIR}/$(dirname ${key})
+	    fi
+	    cp ${key} ${DESTDIR}/${key}
+	done
+fi
+
+# Install directories needed by smartcard reading daemon, command, and
+# key-script
+for dir in etc etc/init.d etc/udev/rules.d lib/udev usr/bin usr/sbin var/run/openct tmp ; do
+    if [ ! -d ${DESTDIR}/${dir} ] ; then mkdir -p ${DESTDIR}/${dir} ; fi
+done
+
+# Install openct tools, drivers, conf file
+cp /etc/openct.conf ${DESTDIR}/etc/
+cp /etc/udev/rules.d/z60_openct.rules ${DESTDIR}/etc/udev/rules.d/
+cp /lib/udev/openct_pcmcia ${DESTDIR}/lib/udev/
+cp /lib/udev/openct_serial ${DESTDIR}/lib/udev/
+cp /lib/udev/openct_usb ${DESTDIR}/lib/udev/
+copy_exec /usr/bin/openct-tool
+copy_exec /usr/bin/pkcs15-tool
+copy_exec /usr/sbin/ifdhandler
+copy_exec /usr/sbin/openct-control

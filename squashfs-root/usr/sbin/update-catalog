@@ -1,0 +1,360 @@
+#!/usr/bin/perl
+## ----------------------------------------------------------------------
+## Debian GNU/Linux update-catalog version 0.2
+## ----------------------------------------------------------------------
+## Copyright (c) 2001-2004 Ardo van Rangelrooij
+## Copyright (c) 2012 Helmut Grohne
+## Copyright (c) 2012 Jakub Wilk
+##
+## This is free software; see the GNU General Public Licence version 2
+## or later for copying conditions.  There is NO warranty.
+## ----------------------------------------------------------------------
+
+## ----------------------------------------------------------------------
+use strict;
+
+## ----------------------------------------------------------------------
+$0 =~ m|[^/]+$|;
+
+## ----------------------------------------------------------------------
+use vars qw( $name );
+$name = $&;
+
+## ----------------------------------------------------------------------
+use vars qw( $add );
+use vars qw( $backup );
+use vars qw( $catalog );
+use vars qw( @data );
+use vars qw( $debug );
+use vars qw( $entry );
+use vars qw( $quiet );
+use vars qw( $remove );
+use vars qw( $super );
+use vars qw( $updatesuper );
+use vars qw( $template );
+use vars qw( $type );
+
+## ----------------------------------------------------------------------
+while ( $ARGV[0] =~ m/^--/ )
+{
+    $_ = shift( @ARGV );
+    last if $_ eq '--';
+    if ( $_ eq '--add' )
+    {
+        $add = 1;
+    }
+    elsif ( $_ eq '--remove' )
+    {
+        $remove = 1;
+    }
+    elsif ( $_ eq '--quiet' )
+    {
+        $quiet = 1;
+    }
+    elsif ( $_ eq '--super' )
+    {
+        $super = 1;
+    }
+    elsif ( $_ eq '--test' )
+    {
+        $debug = 1;
+    }
+    elsif ( $_ eq '--update-super' )
+    {
+        $updatesuper = 1;
+    }
+    elsif ( $_ eq '--help' )
+    {
+        &help;
+	exit -1;
+    }
+    elsif ( $_ eq '--version' )
+    {
+        &help;
+	exit -1;
+    }
+    else
+    {
+        print STDERR "$name: unknown option \`$_'\n";
+	&help;
+	exit 1;
+    }
+}
+
+## ----------------------------------------------------------------------
+if ( $add + $remove + $updatesuper != 1)
+{
+    print "Huh? You have to use precisely one out of --add --remove or --update-super.\n";
+    exit 1;
+}
+
+## ----------------------------------------------------------------------
+if ( $add || $remove )
+{
+    if ( ! @ARGV )
+    {
+        print STDERR "\n";
+        &help;
+        exit 1;
+    }
+
+    if ( $super )
+    {
+	$catalog = '/etc/sgml/catalog';
+    }
+    else
+    {
+	$catalog = shift( @ARGV );
+    }
+
+    if ( ! @ARGV )
+    {
+        print STDERR "\n";
+        &help;
+        exit 1;
+    }
+
+    $entry = shift( @ARGV );
+}
+
+## ----------------------------------------------------------------------
+if ( @ARGV )
+{
+    print STDERR "$name: too many arguments\n";
+    &help;
+    exit 1;
+}
+
+## ----------------------------------------------------------------------
+print STDERR "$name: test mode - catalog file will not be updated\n"
+    if $debug && ! $quiet;
+
+## ----------------------------------------------------------------------
+if ( $super )
+{
+    print "update-catalog: Suppressing action on super catalog. Invoking trigger instead.\n";
+    system("dpkg-trigger /etc/sgml");
+    if ( $? != 0 )
+    {
+        print "Invocation of dpkg-trigger failed with status $?.\n";
+        print "Forcing update of the super catalog...\n";
+        &update_super;
+    }
+}
+elsif ( $add )
+{
+    print "Adding entry $entry to catalog $catalog...\n"
+        unless $quiet;
+    
+    &read_catalog_without_entry;
+    &add_entry;
+    &write_catalog;
+}
+elsif ( $remove )
+{
+    print "Removing entry $entry from catalog $catalog...\n"
+        unless $quiet;
+    
+    &read_catalog_without_entry;
+    &write_catalog;
+}
+elsif ( $updatesuper )
+{
+    print "Updating the super catalog...\n"
+        unless $quiet;
+    &update_super;
+}
+
+## ----------------------------------------------------------------------
+exit 0;
+
+## ----------------------------------------------------------------------
+ sub read_catalog_without_entry
+{
+    if ( -f $catalog )
+    {
+	print "Reading catalog $catalog and removing entry $entry...\n"
+	    if $debug;
+	open( CATALOG, "<$catalog" )
+	    or die "cannot open catalog $catalog for reading: $!";
+	while ( <CATALOG> )
+	{
+	    chop;
+	    push( @data, $_ ) unless m/$entry/;
+	}
+	close( CATALOG );
+    }
+    else
+    {
+	$type = $super ? 'super' : 'centralized';
+	$template = "/usr/share/sgml-base/catalog.$type";
+	print "Reading template $template...\n"
+	    if $debug;
+	open( TEMPLATE, "<$template" )
+	    or die "cannot open template $template for reading: $!";
+	while ( <TEMPLATE> )
+	{
+	    chop;
+	    s|CATALOG|$catalog| if m/CATALOG/;
+	    push( @data, $_ );
+	}
+	close( TEMPLATE );
+    }
+}
+
+## ----------------------------------------------------------------------
+sub add_entry
+{
+    print "Appending entry $entry...\n" if $debug;
+    push( @data, "CATALOG $entry" );
+}
+
+## ----------------------------------------------------------------------
+sub write_catalog
+{
+    $backup = $catalog . '.old';
+    if ( not $debug )
+    {
+	if ( -f $catalog )
+	{
+	    # remove old backup file
+	    if ( -f $backup )
+	    {
+		unlink( $backup )
+		    or die "cannot remove backup copy $backup: $!";
+	    }
+	    rename( $catalog, $backup )
+		or die "cannot rename $catalog to $backup: $!";
+	}
+	open( CATALOG, ">$catalog" )
+	    or die "cannot open catalog $catalog for writing: $!";
+	for ( @data ) { print CATALOG "$_\n"; };
+	close( CATALOG );
+    }
+    else
+    {
+	print "Writing new entry to $catalog...\n";
+	for ( @data ) { print "$_\n"; };
+    }
+}
+
+## ----------------------------------------------------------------------
+# Reference: https://www.oasis-open.org/specs/a401.htm
+sub check_catalog($)
+{
+    my($catalog)=shift;
+    my $base = $catalog;
+    $base =~ s,/[^/]+$,,;
+    my $catalog_tokens = qr{
+        ( (?: \s+ | -- .*? --)+ # whitespace and comments
+        | ' .*? ' | " .*? " # literal
+        | \S+ # other tokens
+        )
+        }sx;
+    unless(open(PKGCAT, "<", $catalog)) {
+        print "Warning: Ignoring unreadable catalog file `$catalog'.\n"
+            unless $quiet;
+        return 0;
+    };
+    local $/;
+    my $contents = <PKGCAT>;
+    close PKGCAT;
+    my $prevtoken = 0;
+    while ($contents =~ m/$catalog_tokens/g) {
+        my $token = $1;
+        if ($prevtoken) {
+            next if $token =~ m/^\s|^--/;
+            $token =~ s/^(['"])(.*)\1$/$2/;
+            if($prevtoken eq 'base') {
+                $base = $token;
+            } elsif($prevtoken eq 'catalog') {
+                my $path;
+                if($token =~ m,^/,) {
+                    $path = $token;
+                } else {
+                    $path = "$base/$token";
+                }
+                if(not -f $path) {
+                    print "Warning ignoring catalog `$catalog' which references non-existent catalogs. See man update-catalog for details.\n"
+                        unless $quiet;
+                    return 0;
+                }
+            }
+            $prevtoken = 0;
+        } elsif ("\L$token" eq 'catalog') {
+            $prevtoken = 'catalog';
+        } elsif ("\L$token" eq 'base') {
+            $prevtoken = 'base';
+        }
+    }
+    return 1;
+}
+## ----------------------------------------------------------------------
+sub update_super
+{
+    my(@cats);
+    my($catdir)="/etc/sgml";
+    my($supercat)="/var/lib/sgml-base/supercatalog";
+    my $catfile;
+    opendir(CATDIR, $catdir)
+        or die "cannot open catalog directory $catdir: $!";
+    while( readdir CATDIR )
+    {
+        m/^[^.].*\.cat$/ or next;
+        $catfile = $catdir . "/" . $_;
+        check_catalog($catfile) or next;
+        push(@cats, $catfile);
+    }
+    closedir(CATDIR)
+        or die "cannot close catalog directory $catdir: $!";
+    if ( not $debug )
+    {
+        open( CATALOG, ">$supercat.new")
+            or die "cannot open $supercat.new for writing: $!";
+        print CATALOG "--\n";
+        print CATALOG "## This file is created by update-catalog with update-super.\n";
+        print CATALOG "## Please see update-catalog(8) for how to modify this file.\n";
+        print CATALOG "--\n";
+        for ( @cats ) { print CATALOG "CATALOG $_\n"; }
+        close( CATALOG );
+        if( -e $supercat)
+        {
+            rename( $supercat, "$supercat.old" )
+                or die "cannot rename $supercat to $supercat.old: $!";
+        }
+        rename( "$supercat.new", $supercat )
+            or die "cannot rename $supercat.new to $supercat: $!";
+   }
+   else
+   {
+        print "The new super catalog would contain the following entries.\n";
+        for ( @cats ) { print "CATALOG $_\n"; }
+   }
+}
+
+## ----------------------------------------------------------------------
+sub help
+{
+    print STDERR <<END;
+Usage:
+    $name <options> --add --super <centralized_catalog>
+    $name <options> --add <centralized_catalog> <ordinary_catalog>
+or
+    $name <options> --remove --super <centralized_catalog>
+    $name <options> --remove <centralized_catalog> <ordinary_catalog>
+
+Options:
+    --quiet         be quiet
+    --test          do not modify any files, enables debugging mode
+    --version       display version number
+    --help          display this text
+END
+}
+
+## ----------------------------------------------------------------------
+sub version
+{
+    print "Debian $name version 0.2\n";
+}
+
+## ----------------------------------------------------------------------

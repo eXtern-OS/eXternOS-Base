@@ -1,0 +1,109 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      type="topic" style="task"
+      id="disk-repair">
+  <info>
+    <link type="guide" xref="disk"/>
+
+
+    <credit type="author">
+      <name>GNOME Documentation Project</name>
+      <email>gnome-doc-list@gnome.org</email>
+    </credit>
+
+    <revision pkgversion="3.25.90" date="2017-08-17" status="review"/>
+
+    <desc>Check if a filesystem is damaged and bring it back into a usable
+          state.</desc>
+    <include href="legal.xml" xmlns="http://www.w3.org/2001/XInclude"/>
+  </info>
+
+<title>Repair a damaged filesystem</title>
+
+  <p>Filesystems can be corrupted due to unexpected power loss, system crashes
+     and unsafe removal of the drive.
+     After such an incident it is recommended to <em>repair</em> or at least
+     <em>check</em> the filesystem to prevent future data loss.</p>
+  <p>Sometimes a repair is required in order to mount or modify a filesystem.
+     Even if a <em>check</em> does not report any damage the filesystem might
+     still be marked as ‘dirty’ internally and require a repair.</p>
+
+<steps>
+  <title>Check if a filesystem is damaged</title>
+  <item>
+    <p>Open <app>Disks</app> from the <gui>Activities</gui> overview.</p>
+  </item>
+  <item>
+    <p>Select the disk containing the filesystem in question from the list of
+       storage devices on the left. If there is more than one volume on the
+       disk, select the volume which contains the filesystem.</p>
+  </item>
+  <item>
+    <p>In the toolbar underneath the <gui>Volumes</gui> section, click the
+    menu button. Then click <gui>Check Filesystem…</gui>.</p>
+  </item>
+  <item>
+    <p>Depending on how much data is stored in the filesystem a check may take
+       longer time. Confirm to start the action in the dialog that pops up.</p>
+   <p>The action will not modify the filesystem but will unmount it if needed.
+      Be patient while the filesystem is checked.</p>
+  </item>
+  <item>
+    <p>After completion you will be notified whether the filesystem is damaged.
+       Note that in some cases even if the filesystem is undamaged it still
+       may need to be repaired to reset an internal ‘dirty’ marker.</p>
+  </item>
+</steps>
+
+<note style="warning">
+ <title>Possible data loss when repairing</title>
+  <p>If the filesystem structure is damaged it can affect the files stored
+     in it. In some cases these files can not be brought into a valid form
+     again and will be deleted or moved to a special directory. It is normally
+     the <em>lost+found</em> folder in the top level directory of the filesystem
+     where these recovered file parts can be found.</p>
+  <p>If the data is too valuable to be lost during this process, you are
+     advised to back it up by saving an image of the volume before
+     repairing.</p>
+  <p>This image can be then processed with forensic analysis tools like
+     <app>sleuthkit</app> to further recover missing files and data parts
+     which were not restored during the repair, and also previously removed
+     files.</p>
+</note>
+
+<steps>
+  <title>Repair a filesystem</title>
+  <item>
+    <p>Open <app>Disks</app> from the <gui>Activities</gui> overview.</p>
+  </item>
+  <item>
+    <p>Select the disk containing the filesystem in question from the list
+       of storage devices on the left. If there is more than one volume on
+       the disk, select the volume which contains the filesystem.</p>
+  </item>
+  <item>
+    <p>In the toolbar underneath the <gui>Volumes</gui> section, click the
+    menu button. Then click <gui>Repair Filesystem…</gui>.</p>
+  </item>
+  <item>
+    <p>Depending on how much data is stored in the filesystem a repair may take
+       longer time. Confirm to start the action in the dialog that pops up.</p>
+   <p>The action will unmount the filesystem if needed. The repair action tries
+   to bring the filesystem into a consistent state and moves files which were
+   damaged in a special folder. Be patient while the filesystem is
+   repaired.</p>
+  </item>
+  <item>
+    <p>After completion you will be notified whether the filesystem could be
+       successfully repaired. In case of success it can be used again in the
+       normal way.</p>
+    <p>If the filesystem could not be repaired, back it up by saving an image
+       of the volume to be able to retrieve important files later. This can
+       be done by mounting the image read-only or using forensic analysis tools
+       like <app>sleuthkit</app>.</p>
+    <p>To make use of the volume again it has to be
+       <link xref="disk-format">formatted</link> with a new filesystem. All
+       data will be discarded.</p>
+  </item>
+</steps>
+
+</page>

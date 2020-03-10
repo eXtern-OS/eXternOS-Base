@@ -1,0 +1,112 @@
+#!/usr/bin/python3
+#
+# Collect information about processes which are still running after sending
+# SIGTERM to them (which happens during computer shutdown in
+# /etc/init.d/sendsigs in Debian/Ubuntu)
+#
+# Copyright (c) 2010 Canonical Ltd.
+# Author: Martin Pitt <martin.pitt@ubuntu.com>
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.  See http://www.gnu.org/copyleft/gpl.html for
+# the full text of the license.
+
+import os, os.path, sys, errno, optparse
+
+import apport, apport.fileutils, apport.hookutils
+
+
+def parse_argv():
+    '''Parse command line and return (options, args).'''
+
+    optparser = optparse.OptionParser('%prog [options]')
+    optparser.add_option('-o', '--omit', metavar='PID', action='append',
+                         default=[], dest='blacklist',
+                         help='Ignore a particular process ID (can be specified multiple times)')
+
+    (opts, args) = optparser.parse_args()
+
+    if len(args) != 0:
+        optparser.error('This program does not take any non-option arguments.  Please see --help.')
+        sys.exit(1)
+
+    return (opts, args)
+
+
+def orphaned_processes(blacklist):
+    '''Yield an iterator of running process IDs.
+
+    This excludes PIDs which do not have a valid /proc/pid/exe symlink (e. g.
+    kernel processes), the PID of our own process, and everything that is
+    contained in the blacklist argument.
+    '''
+    my_pid = os.getpid()
+    my_sid = os.getsid(0)
+    for d in os.listdir('/proc'):
+        try:
+            pid = int(d)
+        except ValueError:
+            continue
+        if pid == 1 or pid == my_pid or d in blacklist:
+            apport.warning('ignoring: %s', d)
+            continue
+
+        try:
+            sid = os.getsid(pid)
+        except OSError:
+            # os.getsid() can fail with "No such process" if the process died
+            # in the meantime
+            continue
+
+        if sid == my_sid:
+            apport.warning('ignoring same sid: %s', d)
+            continue
+
+        try:
+            os.readlink(os.path.join('/proc', d, 'exe'))
+        except OSError as e:
+            if e.errno == errno.ENOENT:
+                # kernel thread or similar, silently ignore
+                continue
+            apport.warning('Could not read information about pid %s: %s', d, str(e))
+            continue
+
+        yield d
+
+
+def do_report(pid, blacklist):
+    '''Create a report for a particular PID.'''
+
+    r = apport.Report('Bug')
+    try:
+        r.add_proc_info(pid)
+    except (ValueError, AssertionError):
+        # happens if ExecutablePath doesn't exist (any more?), ignore
+        return
+
+    r['Tags'] = 'shutdown-hang'
+    r['Title'] = 'does not terminate at computer shutdown'
+    if 'ExecutablePath' in r:
+        r['Title'] = os.path.basename(r['ExecutablePath']) + ' ' + r['Title']
+    r['Processes'] = apport.hookutils.command_output(['ps', 'aux'])
+    r['InitctlList'] = apport.hookutils.command_output(['initctl', 'list'])
+    if blacklist:
+        r['OmitPids'] = ' '.join(blacklist)
+
+    try:
+        with apport.fileutils.make_report_file(r) as f:
+            r.write(f)
+    except (IOError, OSError) as e:
+        apport.fatal('Cannot create report: ' + str(e))
+
+
+#
+# main
+#
+
+(opts, args) = parse_argv()
+
+for p in orphaned_processes(opts.blacklist):
+    do_report(p, opts.blacklist)

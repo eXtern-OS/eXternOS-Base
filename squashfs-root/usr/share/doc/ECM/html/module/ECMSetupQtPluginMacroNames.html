@@ -1,0 +1,180 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ECMSetupQtPluginMacroNames &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ECMSetupVersion" href="ECMSetupVersion.html" />
+    <link rel="prev" title="ECMQtDeclareLoggingCategory" href="ECMQtDeclareLoggingCategory.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ECMSetupVersion.html" title="ECMSetupVersion"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ECMQtDeclareLoggingCategory.html" title="ECMQtDeclareLoggingCategory"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" accesskey="U">ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ecmsetupqtpluginmacronames">
+<span id="module:ECMSetupQtPluginMacroNames"></span><h1>ECMSetupQtPluginMacroNames<a class="headerlink" href="#ecmsetupqtpluginmacronames" title="Permalink to this headline">¶</a></h1>
+<p>Instruct CMake’s automoc about C++ preprocessor macros used to define Qt-style plugins.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_setup_qtplugin_macro_names</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">JSON_NONE</span> <span class="o">&lt;</span><span class="n">macro_name</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">macro_name</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]]</span>
+    <span class="p">[</span><span class="n">JSON_ARG1</span> <span class="o">&lt;</span><span class="n">macro_name</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">macro_name</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]]</span>
+    <span class="p">[</span><span class="n">JSON_ARG2</span> <span class="o">&lt;</span><span class="n">macro_name</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">macro_name</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]]</span>
+    <span class="p">[</span><span class="n">JSON_ARG3</span> <span class="o">&lt;</span><span class="n">macro_name</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">macro_name</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">...</span><span class="p">]]]</span>
+    <span class="p">[</span><span class="n">CONFIG_CODE_VARIABLE</span> <span class="o">&lt;</span><span class="n">variable_name</span><span class="o">&gt;</span><span class="p">]</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>CMake’s automoc needs some support when parsing C++ source files to detect whether moc
+should be run on those files and if there are also dependencies on other files, like those
+with Qt plugin metadata in JSON format. Because automoc just greps overs the raw plain text
+of the sources without any C++ preprocessor-like processing.
+CMake in newer versions provides the variables <code class="docutils literal"><span class="pre">CMAKE_AUTOMOC_DEPEND_FILTERS</span></code> (CMake &gt;= 3.9.0)
+and <code class="docutils literal"><span class="pre">CMAKE_AUTOMOC_MACRO_NAMES</span></code> (CMake &gt;= 3.10) to allow the developer to assist automoc.</p>
+<p>This macro cares for the explicit setup needed for those variables for common cases of
+C++ preprocessor macros used for Qt-style plugins.</p>
+<p>JSON_NONE lists the names of C++ preprocessor macros for Qt-style plugins which do not refer to
+external files with the plugin metadata.</p>
+<p>JSON_ARG1 lists the names of C++ preprocessor macros for Qt-style plugins where the first argument
+to the macro is the name of the external file with the plugin metadata.</p>
+<p>JSON_ARG2 is the same as JSON_ARG1 but with the file name being the second argument.</p>
+<p>JSON_ARG3 is the same as JSON_ARG1 but with the file name being the third argument.</p>
+<p>CONFIG_CODE_VARIABLE specifies the name of the variable which will get set as
+value some generated CMake code for instructing automoc for the given macro names,
+as useful in an installed CMake config file. The variable can then be used as usual in
+the template file for such a CMake config file, by <code class="docutils literal"><span class="pre">&#64;&lt;variable_name&gt;&#64;</span></code>.</p>
+<p>Example usage:</p>
+<p>Given some plugin-oriented Qt-based software which defines a custom C++ preprocessor
+macro <code class="docutils literal"><span class="pre">EXPORT_MYPLUGIN</span></code> for declaring the central plugin object:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="cp">#define EXPORT_MYPLUGIN_WITH_JSON(classname, jsonFile) \</span>
+<span class="cp">class classname : public QObject \</span>
+<span class="cp">{ \</span>
+<span class="cp">    Q_OBJECT \</span>
+<span class="cp">    Q_PLUGIN_METADATA(IID &quot;myplugin&quot; FILE jsonFile) \</span>
+<span class="cp">    explicit classname() {} \</span>
+<span class="cp">};</span>
+</pre></div>
+</div>
+<p>In the CMake buildsystem of the library one calls</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">ecm_setup_qtplugin_macro_names</span><span class="p">(</span>
+    <span class="s">JSON_ARG2</span>
+       <span class="s">EXPORT_MYPLUGIN_WITH_JSON</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>to instruct automoc about the usage of that macro in the sources of the
+library itself.</p>
+<p>Given the software installs a library including the header with the macro
+definition and a CMake config file, so 3rd-party can create additional
+plugins by linking against the library, one passes additionally the name of
+a variable which shall be set as value the CMake code needed to instruct
+automoc about the usage of that macro.</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">ecm_setup_qtplugin_macro_names</span><span class="p">(</span>
+    <span class="s">JSON_ARG2</span>
+       <span class="s">EXPORT_MYPLUGIN_WITH_JSON</span>
+    <span class="s">CONFIG_CODE_VARIABLE</span>
+       <span class="s">PACKAGE_SETUP_AUTOMOC_VARIABLES</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This variable then is used in the template file (e.g.
+<code class="docutils literal"><span class="pre">MyProjectConfig.cmake.in</span></code>) for the libary’s installed CMake config file
+and that way will ensure that in the 3rd-party plugin’s buildsystem
+automoc is instructed as well as needed:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span>@PACKAGE_SETUP_AUTOMOC_VARIABLES@
+</pre></div>
+</div>
+<p>Since 5.45.0.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ECMQtDeclareLoggingCategory.html"
+                        title="previous chapter">ECMQtDeclareLoggingCategory</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ECMSetupVersion.html"
+                        title="next chapter">ECMSetupVersion</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/module/ECMSetupQtPluginMacroNames.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ECMSetupVersion.html" title="ECMSetupVersion"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ECMQtDeclareLoggingCategory.html" title="ECMQtDeclareLoggingCategory"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" >ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

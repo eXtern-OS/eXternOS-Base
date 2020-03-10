@@ -1,0 +1,31 @@
+#!/bin/sh
+
+PREREQ=""
+DESCRIPTION="Enabling detection of crashes..."
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+
+log_begin_msg "$DESCRIPTION"
+
+# During development releases apport is enabled, no need to change anything;
+# for released versions, enable it only for Ubiquity (LP #593606)
+if grep -q 'enabled=0' /root/etc/default/apport; then
+    sed -i 's/enabled=0/enabled=1/' /root/etc/default/apport
+    mkdir -p /root/etc/apport/whitelist.d/
+    echo "/usr/lib/ubiquity/bin/ubiquity" > /root/etc/apport/whitelist.d/ubiquity
+fi
+
+log_end_msg

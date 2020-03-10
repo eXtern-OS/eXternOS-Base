@@ -1,0 +1,24 @@
+#!/usr/bin/perl -w
+use Mail::Internet;
+
+$mail = Mail::Internet->new([<>]);
+$rply = $mail->reply(Keep => [qw(Newsgroups)]);
+
+$file = "/tmp/reply.$$";
+
+open(REPLY,">$file") || die "Cannot open $file:$!\n";
+
+$rply->print(\*REPLY);
+
+close(REPLY);
+
+$editor = $ENV{"EDITOR"} || die "\$EDITOR not defined\n";
+
+warn "$editor :$!\n" if (system("$editor $file"));
+
+# Cleanup
+unlink($file,$file . '%',$file . '~');
+
+exit 0;
+
+

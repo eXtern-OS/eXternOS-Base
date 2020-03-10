@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+
+## Submitted by Borislav Deianov <borislav@users.sourceforge.net>
+## This stresses the blocking write to see if it blocks.
+
+use Fcntl;
+use IO::Pty;
+use IPC::Run qw(run);
+
+sub makecmd {
+    return [
+        'perl', '-e',
+        '<STDIN>, print "\n" x ' . $_[0] . '; while(<STDIN>){last if /end/}'
+    ];
+}
+
+pipe R, W;
+fcntl( W, F_SETFL, O_NONBLOCK );
+while ( syswrite( W, "\n", 1 ) ) { $pipebuf++ }
+print "pipe buffer size is $pipebuf\n";
+$in = "\n" x ( $pipebuf * 3 ) . "end\n";
+
+print "reading from scalar via pipe... ";
+run( makecmd( $pipebuf * 3 ), '<', \$in, '>', \$out );
+print "done\n";
+
+print "reading from code via pipe... ";
+run( makecmd( $pipebuf * 3 ), '<', sub { $t = $in; undef $in; $t }, '>', \$out );
+print "done\n";
+
+$pty = IO::Pty->new();
+$pty->blocking(0);
+$slave = $pty->slave();
+while ( $pty->syswrite( "\n", 1 ) ) { $ptybuf++ }
+print "pty buffer size is $ptybuf\n";
+$in = "\n" x ( $ptybuf * 3 ) . "end\n";
+
+print "reading via pty... ";
+run( makecmd( $ptybuf * 3 ), '<pty<', \$in, '>', \$out );
+print "done\n";

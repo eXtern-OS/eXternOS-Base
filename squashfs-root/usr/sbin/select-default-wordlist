@@ -1,0 +1,125 @@
+#!/usr/bin/perl -w
+
+use strict;
+use Debian::DictionariesCommon q(:all);
+use Debconf::Client::ConfModule q(:all);
+
+dico_checkroot ();
+
+version ('2.0');
+
+my $class    = "wordlist";
+my $program  = "select-default-$class";
+my $question = "dictionaries-common/default-$class";
+my $script   = "/usr/share/dictionaries-common/dc-debconf-select.pl";
+
+sub dico_force_question (){
+  # Force asking question for given \%languages, or for all if not given
+  my $class     = shift;
+  my $languages = shift;
+  my $question  = "dictionaries-common/default-$class";
+  my %title     = ('ispell'   => "Dictionaries-common: Ispell dictionary",
+		   'wordlist' => "Dictionaries-common: Wordlist dictionary"
+		   );
+
+  # If no explict $languages is given, ask for all, and return if none present
+  $languages    = &dico_parse_languages($class,"languages") unless $languages;
+  return unless %$languages;
+
+  my ($choices, $echoices ) = &dico_get_all_choices($class,$languages);
+  fset  ($question, "seen", "false");
+  subst ($question, "choices", $choices);
+  subst ($question, "echoices", $echoices);
+  input ("critical", $question);
+  title ($title{$class});
+  go ();
+}
+
+updatedb ($class);
+my $dictionaries = loaddb ($class);
+
+my $forced_default_regexp;
+foreach my $option ( @ARGV ){
+  if ( $option =~ s/--set-default=// ){
+    $forced_default_regexp = $option;
+  } elsif ( $option eq "--debug") {
+    dico_debug;
+  } elsif ( $option eq "--show-choices") {
+    print STDERR join("\n",sort keys %$dictionaries), "\n";
+    exit;
+  }
+}
+
+if ( %$dictionaries ) {
+  if ( $forced_default_regexp ){
+    if ( my $forced_value = dico_find_matching_choice($dictionaries,$forced_default_regexp) ){
+      set($question,$forced_value);
+    } else {
+      die "$program: No (unique) match for \"$forced_default_regexp\". Aborting ...\n";
+    }
+  } else {
+    if (get $question) {
+      require $script;
+      &dico_force_question($class);
+    }
+  }
+}
+
+system "update-default-$class";
+
+# Local Variables:
+#  perl-indent-level: 2
+# End:
+
+__END__
+
+=head1 NAME
+
+    select-default-wordlist - select default wordlist
+
+=head1 SYNOPSIS
+
+ select-default-wordlist [options]
+
+  Options (all long only options):
+    --set-default='regexp' Try 'regexp' to get a single match and set
+                           it as default. Fail otherwise.
+    --show-choices         Show available choices to STDERR and exit.
+    --debug                Enable debug mode
+
+=head1 DESCRIPTION
+
+This program is responsible for selecting default
+wordlist.
+
+If B<--show-choices> is used will just output a list of available
+choices to STDERR and exit.
+STDOUT cannot be used, this program loads B<debconf> and B<debconf>
+captures STDOUT.
+
+If B<--set-default> is used, program will try to get a single regexp
+match from available choices, failing if not.
+Will try case dependent match first, then case independent.
+
+If B<--set-default> is not used this program will make debconf always
+ask the shared question about the default wordlist to be used in your system according to the
+installed ones.
+
+In both cases, will do the appropriate settings if needed.
+
+Calls internally B<update-default-wordlist>.
+
+=head1 SEE ALSO
+
+The dictionaries-common policy document
+
+=head1 AUTHORS
+
+Rafael Laboissiere,
+Agustin Martin
+
+=cut
+
+
+
+#  LocalWords:  ispell wordlist

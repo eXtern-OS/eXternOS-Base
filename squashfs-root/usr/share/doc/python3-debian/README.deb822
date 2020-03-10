@@ -1,0 +1,96 @@
+deb822.py README
+================
+
+The Python deb822 aims to provide a dict-like interface to various rfc822-like
+Debian data formats, like Packages/Sources, .changes/.dsc, pdiff Index files,
+etc. The benefit is that deb822 knows about special fields that contain
+whitespace separated sub-fields, and provides named access to them. For
+example, the "Files" field in Source packages, which has three subfields, or
+"Files" in .changes files, which has five. These are known as "multifields".
+
+deb822 has no external dependencies, but can use python-apt if available to
+parse the data, which gives a very significant performance boost when iterating
+over big Packages files.
+
+Key lookup in Deb822 objects and their multifields is case-insensitive, but the
+original case is always preserved, e.g. when printing the object.
+
+
+Classes
+=======
+
+Here is a list of the types deb822 knows about:
+
+  * Deb822 (aliases: Packages) - base class with no multifields.
+
+  * Dsc (aliases: Sources) - class to represent .dsc files / Sources paragraphs.
+
+    - Multivalued fields:
+
+      · Files: md5sum, size, name
+
+  * Changes - class to represent a .changes file
+
+    - Multivalued fields:
+
+      · Files: md5sum, size, section, priority, name
+
+  * PdiffIndex - class to represent a pdiff Index file
+
+    - Multivalued fields:
+
+      · SHA1-Current: SHA1, size
+      · SHA1-History: SHA1, size, date
+      · SHA1-Patches: SHA1, size, date
+
+
+Input
+=====
+
+Deb822 objects are normally initialized from a file object, from which
+at most one paragraph is read, or a string.
+
+Alternatively, any sequence that returns one line of input at a time may
+be used, e.g. an array of strings.
+
+PGP signatures, if present, will be stripped.
+
+
+Iteration
+=========
+
+All classes provide an "iter_paragraphs" class method to easily go over
+each stanza in a file with multiple entries, like a Packages.gz file.
+For example:
+
+    with open('/mirror/debian/dists/sid/main/binary-i386/Sources') as f:
+        for src in Sources.iter_paragraphs(f):
+            print src['Package'], src['Version']
+
+This method uses python-apt if available to parse the file, since it
+significantly boosts performance. If python-apt is not present and the
+file is a compressed file, it must first be decompressed manually.
+
+
+Sample usage (TODO: Improve)
+============
+
+   import deb822 
+
+   with open('foo_1.1.dsc') as f:
+       d = deb822.Dsc(f)
+   source = d['Source']
+   version = d['Version']
+
+   for f in d['Files']:
+       print 'Name:', f['name']
+       print 'Size:', f['size']
+       print 'MD5sum:', f['md5sum']
+
+    # If we like, we can change fields
+    d['Standards-Version'] = '3.7.2'
+
+    # And then dump the new contents
+    new_dsc = open('foo_1.1.dsc2', 'w')
+    d.dump(new_dsc)
+    new_dsc.close()

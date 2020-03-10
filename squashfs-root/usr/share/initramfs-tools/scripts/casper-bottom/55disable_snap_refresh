@@ -1,0 +1,44 @@
+#!/bin/sh
+
+PREREQ=""
+DESCRIPTION="Disabling snap refresh..."
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+
+log_begin_msg "$DESCRIPTION"
+
+mkdir -p /run/systemd/system/snapd.service.wants/
+
+cat > /run/systemd/system/snapd.hold.service << EOF
+[Unit]
+Description=Holds Snappy daemon refresh
+After=snapd.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "snap set core refresh.hold=$(date --date=now+60days --iso-8601=seconds)"
+# Only run once. If snapd restarts result in the setting being reset, remove
+# this line and we will be started each time snapd.service starts.
+RemainAfterExit=yes
+
+[Install]
+WantedBy=snapd.service
+EOF
+
+ln -s /run/systemd/system/snapd.hold.service \
+      /run/systemd/system/snapd.service.wants/
+
+log_end_msg

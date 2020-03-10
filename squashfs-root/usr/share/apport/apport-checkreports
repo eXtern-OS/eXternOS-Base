@@ -1,0 +1,40 @@
+#!/usr/bin/python3
+
+# Check if there are new reports for the invoking user. Exit with 0 if new
+# reports are available, or with 1 if not.
+#
+# Copyright (c) 2006 Canonical Ltd.
+# Author: Martin Pitt <martin.pitt@ubuntu.com>
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.  See http://www.gnu.org/copyleft/gpl.html for
+# the full text of the license.
+
+import sys, optparse
+
+from apport.fileutils import get_new_reports, get_new_system_reports
+import apport
+
+# parse command line options
+optparser = optparse.OptionParser('%prog [options]')
+optparser.add_option('-s', '--system', default=False, action='store_true',
+                     help='Check for crash reports from system users.')
+options, args = optparser.parse_args()
+
+if options.system:
+    reports = get_new_system_reports()
+else:
+    reports = get_new_reports()
+
+if len(reports) > 0:
+    for r in reports:
+        print(r.split('.')[0].split('_')[-1])
+    if apport.packaging.enabled():
+        sys.exit(0)
+    else:
+        print('new reports but apport disabled')
+        sys.exit(2)
+else:
+    sys.exit(1)

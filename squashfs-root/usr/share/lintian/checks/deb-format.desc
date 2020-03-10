@@ -1,0 +1,101 @@
+Check-Script: deb-format
+Author: Russ Allbery <rra@debian.org>
+Abbrev: dfmt
+Type: binary, udeb
+Needs-Info: unpacked, bin-pkg-control
+Info: This script checks the format of the deb ar archive itself.
+
+Tag: malformed-deb-archive
+Severity: serious
+Certainty: certain
+Info: The binary package is not a correctly constructed archive.  A binary
+ Debian package must be an ar archive with exactly three members:
+ <tt>debian-binary</tt>, <tt>control.tar.gz</tt>, and one of
+ <tt>data.tar.gz</tt>, <tt>data.tar.bz2</tt> or <tt>data.tar.xz</tt>
+ in exactly that order.  The <tt>debian-binary</tt> member must start
+ with a single line containing the version number, with a major revision
+ of 2.
+Ref: deb(5)
+
+Tag: misplaced-extra-member-in-deb
+Severity: important
+Certainty: certain
+Info: The binary package contains an extra member that Lintian did not
+ expect or expected at a different position.
+Ref: deb(5)
+
+Tag: lzma-deb-archive
+Severity: serious
+Certainty: certain
+Info: The data portion of this binary package is compressed with lzma.
+ This is supported by dpkg but not yet permitted in the Debian archive.
+ Such a package will be rejected by DAK.
+
+Tag: tar-errors-from-control
+Severity: important
+Certainty: possible
+Info: tar produced an error while listing the contents of the
+ <tt>control.tar.gz</tt> member of this package.  This probably means
+ there's something broken or at least strange about the way the package
+ was constructed.
+
+Tag: tar-errors-from-data
+Severity: important
+Certainty: possible
+Info: tar produced an error while listing the contents of the data
+ member of this package.  This probably means there's something broken or
+ at least strange about the way the package was constructed.
+
+Tag: udeb-uses-unsupported-compression-for-data-tarball
+Severity: serious
+Certainty: certain
+Info: The data tarball of this udeb package is not compressed in format
+ that udpkg (debian-installer's dpkg equivalent) does not support.  Thus
+ the udeb is likely to be uninstallable and could break daily or weekly
+ d-i images.
+ .
+ Currently, udpkg supports .gz and .xz compressed tarballs.
+
+Tag: uses-deprecated-compression-for-data-tarball
+Severity: important
+Certainty: certain
+Info: The data portion of this binary package uses a deprecated compression
+ format.  Although dpkg will support extracting such binary packages for
+ the foreseeable future, creating them will eventually be disallowed.  A
+ warning is emitted for lzma since dpkg 1.16.4, and for bzip2 since dpkg
+ 1.17.7.
+ .
+ For lzma, xz is the direct replacement.  For bzip2 either gzip or xz can
+ be used as a substitute, depending on the wanted properties: gzip for
+ maximum compatibility and speed, and xz for maximum compression ratio.
+
+Tag: uses-no-compression-for-control-tarball
+Severity: important
+Certainty: certain
+Ref: deb(5)
+Info: The control portion of this binary package uses a non-compressed
+ format.  Although dpkg will support extracting such binary packages
+ since dpkg 1.10.24, creating them is not advised except in special
+ cases.
+
+Tag: uses-no-compression-for-data-tarball
+Severity: important
+Certainty: certain
+Ref: deb(5)
+Info: The data portion of this binary package uses a non-compressed
+ format.  Although dpkg will support extracting such binary packages
+ since dpkg 1.10.24, creating them is not advised except in special
+ cases.
+ .
+ Except if data is non-compressible, use gzip for
+ maximum compatibility and speed, and xz for maximum compression ratio.
+
+Tag: data-tarball-compression-format
+Severity: classification
+Certainty: certain
+Info: This is the compressor format used for the <tt>data.tar</tt> tarball.
+
+Tag: control-tarball-compression-format
+Severity: classification
+Certainty: certain
+Info: This is the compressor format used for the <tt>control.tar</tt> tarball.

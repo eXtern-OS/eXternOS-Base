@@ -1,0 +1,146 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ECMUseFindModules &#8212; Extra CMake Modules 5.64.0 documentation</title>
+    <link rel="stylesheet" href="../_static/ecm.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.64.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/kde-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ECMWinResolveSymlinks" href="ECMWinResolveSymlinks.html" />
+    <link rel="prev" title="ECMUninstallTarget" href="ECMUninstallTarget.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ECMWinResolveSymlinks.html" title="ECMWinResolveSymlinks"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ECMUninstallTarget.html" title="ECMUninstallTarget"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" accesskey="U">ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ecmusefindmodules">
+<span id="module:ECMUseFindModules"></span><h1>ECMUseFindModules<a class="headerlink" href="#ecmusefindmodules" title="Permalink to this headline">¶</a></h1>
+<p>Selectively use some of the find modules provided by extra-cmake-modules.</p>
+<p>This module is automatically available once extra-cmake-modules has been
+found, so it is not necessary to <code class="docutils literal"><span class="pre">include(ECMUseFindModules)</span></code> explicitly.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ecm_use_find_modules</span><span class="p">(</span><span class="n">DIR</span> <span class="o">&lt;</span><span class="nb">dir</span><span class="o">&gt;</span>
+                     <span class="n">MODULES</span> <span class="n">module1</span><span class="o">.</span><span class="n">cmake</span> <span class="p">[</span><span class="n">module2</span><span class="o">.</span><span class="n">cmake</span> <span class="p">[</span><span class="o">...</span><span class="p">]]</span>
+                     <span class="p">[</span><span class="n">NO_OVERRIDE</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>This allows selective use of the find modules provided by ECM, including
+deferring to CMake’s versions of those modules if it has them.  Rather than
+adding <code class="docutils literal"><span class="pre">${ECM_FIND_MODULE_DIR}</span></code> to <code class="docutils literal"><span class="pre">CMAKE_MODULE_PATH</span></code>, you use
+ecm_use_find_modules() to copy the modules you want to a local (build)
+directory, and add that to <code class="docutils literal"><span class="pre">CMAKE_MODULE_PATH</span></code>.</p>
+<p>The find modules given to MODULES will be copied to the directory given by DIR
+(which should be located in <code class="docutils literal"><span class="pre">${CMAKE_BINARY_DIR}</span></code> and added to
+<code class="docutils literal"><span class="pre">CMAKE_MODULE_PATH</span></code>).  If NO_OVERRIDE is given, only modules not also
+provided by CMake will be copied.</p>
+<p>Example:</p>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">find_package</span><span class="p">(</span><span class="s">ECM</span> <span class="s">REQUIRED</span><span class="p">)</span>
+<span class="nb">ecm_use_find_modules</span><span class="p">(</span>
+    <span class="s">DIR</span> <span class="o">${</span><span class="nv">CMAKE_BINARY_DIR</span><span class="o">}</span><span class="s">/cmake</span>
+    <span class="s">MODULES</span> <span class="s">FindEGL.cmake</span>
+    <span class="s">NO_OVERRIDE</span>
+<span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_MODULE_PATH</span> <span class="o">${</span><span class="nv">CMAKE_BINARY_DIR</span><span class="o">}</span><span class="s">/cmake</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This example will make <code class="docutils literal"><span class="pre">FindEGL.cmake</span></code> available in your project, but only
+as long as it is not yet part of CMake. Calls to <code class="docutils literal"><span class="pre">find_package(EGL)</span></code> will
+then make use of this copied module (or the CMake module if it exists).</p>
+<p>Another possible use for this macro is to take copies of find modules that can
+be installed along with config files if they are required as a dependency (for
+example, if targets provided by the find module are in the link interface of a
+library).</p>
+<p>Since pre-1.0.0.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ECMUninstallTarget.html"
+                        title="previous chapter">ECMUninstallTarget</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ECMWinResolveSymlinks.html"
+                        title="next chapter">ECMWinResolveSymlinks</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/module/ECMUseFindModules.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ECMWinResolveSymlinks.html" title="ECMWinResolveSymlinks"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ECMUninstallTarget.html" title="ECMUninstallTarget"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ECM 5.64 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../manual/ecm-modules.7.html" >ecm-modules(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright KDE Developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+    </div>
+  </body>
+</html>

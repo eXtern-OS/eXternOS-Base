@@ -1,0 +1,55 @@
+Check-Script: triggers
+Author: Niels Thykier <niels@thykier.net>
+Type: binary, udeb
+Info: Check of trigger files in the binary package.
+Needs-Info: bin-pkg-control
+
+Tag: unknown-trigger
+Severity: important
+Certainty: possible
+Info: The package has a trigger that Lintian does not recognise in its
+ control file.
+ .
+ The package may be uninstallable, if dpkg does not support the trigger.
+ .
+ If this is a new type of trigger, then Lintian may simply be out of date.
+ Please verify if the latest version of Lintian knows of the trigger, or file
+ a bug against Lintian.
+Ref: deb-triggers(5)
+
+Tag: uses-implicit-await-trigger
+Severity: normal
+Certainty: possible
+Info: The listed trigger is present in the control file of the package.
+ The trigger is an await trigger, which may not be obvious from its name.
+ .
+ Await triggers place rather strong requirements on dpkg that often lead
+ to trigger cycles due to changes in other packages.
+ .
+ If the package does not need the guarantees that dpkg provides to await
+ triggers, please use the "-noawait" variant of the trigger.  This is often
+ the case for packages that use the trigger to compile a form of cache.
+ .
+ If the package does need the guarantees provided by dpkg, then please
+ document the rationale in a comment above the trigger and use the
+ "-await" variant of the trigger to avoid this warning.
+Ref: deb-triggers(5), #774559
+
+Tag: repeated-trigger-name
+Severity: important
+Certainty: certain
+Info: The package repeats the same trigger.  There should be no reason to
+ do this and it may lead to confusing results or errors.
+ .
+ For the same "base" type of trigger (e.g. two <tt>interest</tt>-type triggers)
+ the last declaration will be the effective one.
+ .
+ This tag is also triggered if the package has an <tt>activate</tt> trigger
+ for something on which it also declares an <tt>interest</tt>.  The only (but
+ rather unlikely) reason to do this is if another package <i>also</i>
+ declares an <tt>interest</tt> and this package needs to activate that
+ other package.  If the package is using it for this exact purpose, then
+ please use a Lintian override to state this.
+ .
+ Please remove any duplicate definitions.
+Ref: deb-triggers(5), #698723
