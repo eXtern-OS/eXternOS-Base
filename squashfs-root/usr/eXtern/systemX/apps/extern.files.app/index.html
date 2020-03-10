@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>iX Files</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="../../Shared/CoreCSS/bootstrap.min.css" rel="stylesheet">
+<link href="style.css" rel="stylesheet">
+
+        <link href="css/animate.min.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/style.css" rel="stylesheet">
+        <link href="css/font-awesome.min.css" rel="stylesheet">
+        <link href="css/form.css" rel="stylesheet">
+        <link href="css/calendar.css" rel="stylesheet">
+        <link href="css/icons.css" rel="stylesheet">
+        <link href="css/generics.css" rel="stylesheet">
+        <link href="css/jquery.flipster.css" rel="stylesheet">  
+    <!--<link href="css/jquery.flipster.min.css" rel="stylesheet">-->
+    <link href="css/flipsternavtabs.css" rel="stylesheet">  
+<link href="css/something.css" rel="stylesheet">
+<script type="text/javascript" src="js/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="js/canvas_blur_rect.js"></script>
+    <script type="text/javascript" src="jquery.jqplot.js"></script>
+<script type="text/javascript" src="plugins/jqplot.dateAxisRenderer.js"></script>
+<script type="text/javascript" src="plugins/jqplot.logAxisRenderer.js"></script>
+<script type="text/javascript" src="plugins/jqplot.canvasTextRenderer.js"></script>
+<script type="text/javascript" src="plugins/jqplot.canvasAxisTickRenderer.js"></script>
+<script type="text/javascript" src="plugins/jqplot.highlighter.js"></script>
+ <script type="text/javascript" src="plugins/jqplot.canvasOverlay.js"></script>   
+<link rel="stylesheet" type="text/css" href="jquery.jqplot.css" />
+    
+    <script src="js/Chart.min.js"></script>
+    <script src="js/files_piechart.js"></script>
+<script type="text/javascript" src="main.js"></script>
+
+         <style type="text/css">
+            .font-icons .icon { font-size: 25px; margin-right: 5px; }
+            .font-icons [class*="col-"] { padding: 5px 10px; }
+            .font-icons [class*="col-"]:hover { background: rgba(0,0,0,0.2); }
+        </style>   
+    
+
+
+</head>
+<body id="body_settings">
+    
+    
+    <div>
+
+<!--YES I know the menu below using TABLE is hilarious! I created this years ago at like 4 AM, can't be bothered to change it. 
+Someone else can do that, cos it works, so not gonna waste my time on this! -->
+
+	<div id="fileContextMenuBlurBg" class="hidden"></div>
+<div id = "file_context_menu" class = "right_click_menu hidden">
+
+        <div id = "generated_thumbnail" class="overflow hidden">
+    </div>
+    <div id = "generated_thumbnail2" class="overflow hidden">
+    </div>
+    <img id = "rightclick_bg22" class="hidden" src="images/blur.jpg" alt="">
+        <div class="rightclickBgIcon"></div>
+        <img id = "rightclick_bg" class="hidden" src="images/blur.jpg" alt="">
+        <img id = "right_click_preview" class="hidden" src='images/thumbnail.jpg' alt="">
+        <img id = "rightclick_icon_bg" src='icons/pdf.png' alt="">
+        <!--<div id = "rightclick_icon_bg" class="hidden"></div>-->
+        <a href="#" class="hidden"><span id = "rightclick_icon" class="icon">&#61931;</span></a>
+        <table id="onFile"  style="border-bottom-left-radius: 5px; border-bottom-right-radius: 5px; width:100%; /*height: 60%;*/ position: relative;  margin-top: 47%; background-color: rgba(0, 0, 0, 0.63);">
+            <tr>
+                <td style="width:50%; /*border-right-style: solid;*/ border-color: rgba(255,255,255,0.2); border-width: 1px;">
+                    <a href="#" onclick="App.menu_selet_submenu('move_options',true)"><div id = "move_menu" class = "menu_option "><span class="icon .menu_icon">&#61717;</span> Move <span id = "move_arrow" class="icon current_menu_arrow hidden">&#61815;</span></div></a> <!--menu_active     class="icon current_menu_arrow animated fadeIn"-->
+                    <a href="#" onclick="App.menu_selet_submenu('open_with_options',true)"><div id = "open_with_menu" class = "menu_option"><span class="icon .menu_icon">&#61723;</span> Open As <span id = "open_with_arrow" class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a href="#"><div class = "menu_option"><span class="icon .menu_icon">&#61711;</span> Share <span id = "share_arrow" class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a href="#" onclick="App.menu_selet_submenu('actions_options',true)"><div id = "actions_menu" class = "menu_option"><span class="icon .menu_icon">&#61897;</span> Actions <span id = "actions_arrow" class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a href="#" onclick="App.menu_selet_submenu('delete_options',true)"><div id="delete_menu" class = "menu_option"><span class="icon .menu_icon">&#61918;</span> Remove <span id = "remove_arrow"class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                </td>
+                <td id = "move_submenu"class = "sub_menus hidden"> <!--animated fadeIn-->
+                    <a id="copyButton" href="#" copy-files = "test" ><div class="menu_item"><span class="icon .menu_icon">&#61717;</span> Copy<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a id="cutButton" href="#"><div class="menu_item"><span class="icon .menu_icon">&#61858;</span> Cut<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a href="#"><div class="menu_item"><span class="icon .menu_icon">&#61825;</span> Move to...<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                </td>
+
+<td id = "actions_submenu" class = "sub_menus hidden">
+
+			         <a id="addToDeskButton2" onclick="folder_view.localVars.addToDeskStacks()" href="#"><div class="menu_item">Add to Desktop<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+
+			         <a id="setAsDesktopWallpaper" onclick="folder_view.localVars.setAsDeskWallpaper()" href="#"><div class="menu_item">Desk Wallpaper<span class="icon current_menu_arrow">&#61815;</span></div></a>
+
+			         <a id="renameButton" onclick="folder_view.localVars.showRenameWindow()" href="#"><div class="menu_item"><span class="icon .menu_icon">&#61952;</span> Rename<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+
+		               <div id="renameDiv">
+      <input type="text" class="search" placeholder="Filename">
+
+			         <a id="renameModifyButton" onclick="App.renameCurrentFile()" href="#"><div class="menu_item"> Done<span class="icon pull-right">&#61815;</span></div></a>
+      				</div>
+
+                    <p id="noActions" style="margin: 0 0 20px; text-align: center;"> There are no actions available for this file. </p>
+                    <a id="extractButton" onclick="" href="#"><div class="menu_item"><span class="icon .menu_icon">&#61897;</span> Extract here<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                </td>
+                
+                <td id = "open_with_submenu" style="padding-top: 10px;" class = "sub_menus overflow hidden">
+
+		    
+                    <div id="openWithOptions">
+		    <h3 class="block-title">Related Apps</h3>
+                    <div id="openWithTopRelatedOptions">
+			<a href="#" onclick="App.openWithApp(&quot;extern.text.app&quot;)"><div class="menu_item" title="Text Editor"><div class="menu_icon"><img src="../extern.text.app/icon.svg" alt=""></div><div class="menu_app_label">Text Editor</div><span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    </div>
+
+                    <h3 class="block-title">Categories</h3>
+                    <a href="#" onclick="App.menu_selet_submenu('open_with_audio',false)"><div class="menu_item"><span class="icon .menu_icon">&#61859;</span> Audio<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a href="#" onclick="App.menu_selet_submenu('open_with_video',false)"><div class="menu_item"><span class="icon .menu_icon">&#61856;</span> Video<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a href="#"><div class="menu_item"><span class="icon .menu_icon">&#61873;</span> Image<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a href="#" onclick="App.menu_selet_submenu('open_with_text',false)"><div class="menu_item"><span class="icon .menu_icon">&#61955;</span> Text<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a href="#" onclick="App.menu_selet_submenu('open_with_web',false)"><div class="menu_item"><span class="icon .menu_icon">&#61838;</span> Web<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a href="#"><div class="menu_item"><span class="icon .menu_icon">&#61769;</span> Other<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                        </div>
+                    <div id="openWithApps" class="hidden">
+                    
+                        <a href="#"><div class="menu_item"><span class="icon .menu_icon">&#61859;</span> xMusic<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a href="#"><div class="menu_item"><span class="icon .menu_icon">&#61856;</span> Video<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a href="#"><div class="menu_item"><span class="icon .menu_icon">&#61873;</span> Image<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a href="#"><div class="menu_item"><span class="icon .menu_icon">&#61955;</span> Text<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a href="#"><div class="menu_item"><span class="icon .menu_icon">&#61769;</span> Other<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    
+                    </div>
+                </td>
+                
+                <td id = "remove_submenu" class = "sub_menus hidden">
+                    <p style="margin: 0 0 20px; text-align: center;">Are you sure you want to delete "<span id="fileToDelete"></span>"?</p>
+                    <a id="deleteButton" onclick="App.delete_files();" href="#"><div class="menu_item"><span class="icon .menu_icon">&#61918;</span> Delete<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                </td>
+            </tr>
+        </table>
+        
+        <table id="onDirectory" class="hidden" style="border-bottom-left-radius: 5px; border-bottom-right-radius: 5px; width:100%; /*height: 60%;*/ position: relative;  margin-top: 47%; background-color: rgba(0, 0, 0, 0.63);">
+            <tr>
+                <td style="width:50%;border-right-style: solid; border-color: rgba(255,255,255,0); border-width: 1px;">
+                    <a href="#" onclick="App.menu_selet_submenu('move_options_dir',true)"><div id = "move_menuDir" class = "menu_option menu_active"><span class="icon .menu_icon">&#61717;</span> Move <span id = "move_arrow_dir" class="icon current_menu_arrow animated fadeIn">&#61815;</span></div></a>
+                    <a href="#" onclick="App.menu_selet_submenu('open_with_options')"><div id = "open_with_menu" class = "menu_option"><span class="icon .menu_icon">&#61723;</span> Open With <span id = "open_with_arrow" class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a href="#"><div class = "menu_option"><span class="icon .menu_icon">&#61711;</span> Share <span id = "share_arrow" class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                  
+                   <a href="#" onclick="App.menu_selet_submenu('actions_options_dir',true)"><div id = "actions_menuDir" class = "menu_option"><span class="icon .menu_icon">&#61897;</span> Actions <span id = "actions_arrow_dir" class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                   
+                    
+                </td>
+                <td id = "move_submenu_dir"class = "sub_menus animated fadeIn">
+                    <a id="pasteButton" onclick="App.getClipboardFiles();" href="#" copy-files = "test" ><div class="menu_item menu_disabled"><span class="icon .menu_icon">&#61717;</span> Paste<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    
+                    
+                </td>
+              
+              <td id = "actions_submenu_dir" class = "sub_menus hidden">
+			         <a onclick="folder_view.localVars.showNewDirWindow(true)" href="#"><div class="menu_item"><span class="icon .menu_icon">&#61784;</span> New Folder<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+
+			         <a onclick="folder_view.localVars.showNewFileWindow(true)" href="#"><div class="menu_item"><span class="icon .menu_icon">&#61769;</span> New File<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+
+			         <a onclick="folder_view.localVars.addToDeskStacks()" href="#"><div class="menu_item">Add to Desktop<span class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                
+              </td>
+                
+                <td id = "open_with_submenu" class = "sub_menus hidden">
+                    <div class="menu_item"><a href="#"><span class="icon .menu_icon">&#61717;</span> Video Player<span class="icon current_menu_arrow hidden">&#61815;</span></a></div>
+                    <div class="menu_item"><a href="#"><span class="icon .menu_icon">&#61858;</span> Music Player<span class="icon current_menu_arrow hidden">&#61815;</span></a></div>
+                    <div class="menu_item"><a href="#"><span class="icon .menu_icon">&#61825;</span> Picture Viewer<span class="icon current_menu_arrow hidden">&#61815;</span></a></div>
+                </td>
+                
+                <td id = "remove_submenu" class = "sub_menus hidden">
+                    <div class="menu_item"><a href="#"><span class="icon .menu_icon">&#61717;</span> Video Player<span class="icon current_menu_arrow hidden">&#61815;</span></a></div>
+                    <div class="menu_item"><a href="#"><span class="icon .menu_icon">&#61858;</span> Music Player<span class="icon current_menu_arrow hidden">&#61815;</span></a></div>
+                    <div class="menu_item"><a href="#"><span class="icon .menu_icon">&#61825;</span> Picture Viewer<span class="icon current_menu_arrow hidden">&#61815;</span></a></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+        <!--<div class="bar_bg drag_enabled"><div id = "minimize_button" class="window_buttonsX"><span class="icon">&#61853;</span></div><p class="tile-title"><b class="tile-title" id="tile-text">iX Files<sup id="sub_title" style="top: -0.3em;"></sup></b></p> <div id = "close_button">X</div>
+</div>-->
+        
+            
+ <!-- <div id="body_contents">-->
+<!--<div style="position: absolute; left: 0; right: 0; top: 3px; bottom: 10px;">-->
+  
+<!--HEREDKDKDKDKDKD-->
+
+
+        
+      <div id="mainNavigation" class="row">
+
+
+            <div id="sideBarr" class="well col-md-2">
+
+            <div id= "navigation_control">
+                <a id="go_back_button" class="tooltips" data-placement="bottom" data-original-title="Go back" href="#" go-back='go_back'><span class="icon navButton">&#61903;</span></a>
+                <a href="#" class="tooltips" data-placement="bottom" data-original-title="Go backwards" go-up = "go_back"><span class="icon navButton">&#61736;</span></a>
+                <a href="#" class="tooltips" data-placement="bottom" data-original-title="Go forwards" go-forward = "go_back"><span class="icon navButton">&#61815;</span></a>
+                <a href="#" class="tooltips" data-placement="bottom" data-original-title="Refresh" go-nowhere= "go_back"><span class="icon navButton">&#61910;</span></a>
+                <a href="#" class="hidden tooltips" data-placement="bottom" data-original-title="Add new file/folder (Unavailable)"><span class="icon navButton">&#61943;</span></a>
+                <a href="#" class="tooltips" data-placement="bottom" data-original-title="Show/Hide hidden files" onclick="App.toggleHiddenFiles();"><span class="icon navButton">&#61913;</span></a>
+    </div> <!-- Dsplay &#61729; -->
+
+
+            <div id="searchDiv">
+      <input id="searchInput" type="text" class="search" placeholder="Search">
+          <span class="icon">&#61788;</span>
+      </div>
+                
+    <ul class="nav nav-list overflow" id="sidebar">
+
+	<div id="dropdownAnimateSearchOptions"></div>
+
+      <li class="filesSearchOption" style="display: none;">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="searchRadio" value="search-only-this-folder" checked>
+                            Search only in this folder
+                        </label>
+                    </div>
+      </li>
+      <li class="filesSearchOption" style="display: none;">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" value="deep-search" name="searchRadio">
+                            Search in all sub-folders
+                        </label>
+                    </div>
+      </li>
+
+      <li class="filesSearchOption" style="margin-top: 20px; margin-bottom: 20px; display: none;">
+                    <div class="checkbox m-b-5">
+                        <label>
+                            <input type="checkbox" disabled>
+                            Go through contents of files
+                        </label>
+                    </div>
+      </li>
+            
+      <li class="nav-header"> Quick Places</li>
+      <li class="active">
+        <a href="#" nw-path="~/"><i><span class="icon">&#61713;</span></i> Home</a>
+      </li>
+      <li>
+        <a href="#" nw-path="~/Documents"><i><span class="icon">&#61784;</span></i> Documents</a>
+      </li>
+      <li>
+        <a href="#" nw-path="~/Downloads"><i><span class="icon">&#61751;</span></i> Downloads</a>
+      </li>
+      <li>
+        <a href="#" nw-path="~/Music"><i class="icon">&#61859;</i> Music</a>
+      </li>
+      <li>    
+        <a href="#" nw-path="~/Pictures"><i><span class="icon">&#61873;</span></i> Pictures</a>
+      </li>
+      <li>
+        <a href="#" nw-path="~/Videos"><i><span class="icon">&#61856;</span></i> Videos</a>
+      </li>
+      <li class="nav-header" style="margin-top: 10px;"> Mounted Drives </li>
+      <!--<li class="divider"></li>-->
+      <!--<li><a href="#" nw-call="about" onclick="App.about()"><span class="icon">&#61717;</span> Test</a></li> -->
+    </ul>
+  </div>
+
+    <div id = "files_container" onmousemove="keepDragging(event,this)" onmousedown="startDrag(event,this)" onmouseup="stopDrag(event,this)" class="row col-md-7" style="" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ontouchstart="dragStart(event)">
+
+      <ul class = "animated fadeInUp" style="margin: 5px;" id="files"></ul>
+        <div id = "no_files" class = "hidden" style="margin: 5px;" ><p id = "empty_folder_text">This folder does not contain any viewable files.<br><a href="#" onclick="folder_view.localVars.showNewDirWindow(true)" class="btn btn-alt m-r-5"><span class="icon">&#61784;</span> New Folder</a><a href="#" onclick="folder_view.localVars.showNewFileWindow(true)" class="btn btn-alt m-r-5"><span class="icon">&#61769;</span> New Empty File</a></p><div id = "no_files_go_back" class="hidden" ><span class="icon">&#61903;</span> Go Back</div> <div id = "no_files_new_entry" class="hidden"><span class="icon">&#61943;</span> New Entry <span class="icon" style = "right: 11px; bottom: 3px; position: absolute;">&#61701;</span></div></div>
+<div class="draggableelector"></div>
+    </div>
+      
+      
+<div id="rightSideBar" class="col-md-3">
+      <!-- Flipster List -->	
+		<div class="flipster">
+		  <ul id="file_preview">
+		  </ul>
+		</div>
+<!-- End Flipster List -->
+
+      
+      <!--<h4 style = "text-align: center; color:rgba(255,255,255,0.5);">Actions</h4>-->
+      <div id = "info_tabs">
+      <div id = "details_tab">Details</div>
+          <div id="actions_tab">Actions</div>
+          <div id="copy_window">
+          </div>
+          <!-- Details Window -->
+          <div id="details_window" class="overflow">
+              <div id="fileCopyDetails" style = "color: rgba(255,255,255,0.9); text-shadow: rgba(0, 0, 0, 0.8) 0px 0px 10px; padding-left:3px;">
+              <p id = "show_file_details" class = "small_buttons heading_text"><a href="#" nw-call="about" onclick="$('#fileCopyDetails').fadeOut(); $('#file_details').fadeIn();" style="color: rgba(255, 255, 255, 0.8); text-shadow: 0 0 10px #000;" class="hidden"><i><span class="icon">&#61903;</span> Back to File Details</i></a></p>
+                  <div class="copying_text" ><span id="currentCopyFile">Currently Copying</span>  <b id="copyName"><span class="icon">&#61931;</span><span id="copyNameText"></span></b></div>
+                  
+              <div id = "chart1" class="jqplot-target" style="height:110px; width: 310px"></div>
+                  <div class="copying_text">From <b ><span class="icon">&#61882;</span><span id="copyFrom"> Music</span></b> to <b ><span class="icon">&#61882;</span><span id="copyTo"></span></b></div>
+                  <div><b id="copyPercentage"><span>12% </span> Completed</b></div>
+                  <div>Speed: <span id="copySpeed">Unknown </span></div>
+                  <div id="copyEstimate">About <span id="copyEta">Unknown minutes</span> remaining</div>
+              </div>
+              <div id = "file_details">
+              <p id = "show_copy_progress" class = "small_buttons heading_text hidden"><a href="#" nw-call="about" onclick="$('#fileCopyDetails').fadeIn(); $('#file_details').fadeOut();" style="text-shadow: rgba(0, 0, 0, 0.8) 0px 0px 10px; color: rgba(255, 255, 255, 0.8);"><i>Show File Transfer Progress</i></a></p>
+              <!--<h4 class = "force_inline"><b>File: </b></h4>-->
+              <h4 id = "filename_info" class = "force_inline heading_text" style="    margin: 0; white-space:0; display: none;">Test File.mp3</h4>
+
+
+              <div id="file_dts">
+              
+
+                                <div id="chart_properties">
+              <canvas id="pieChart"></canvas>
+               <p id = "more_details_button"><a id="mememe" href="#" style="font-weight: bold; color: rgba(255, 255, 255, 0.8); text-shadow: 0 0 20px #000;" nw-call="about" onclick="App.about()"><i style="font-weight: bold; color: rgba(255, 255, 255, 0.8); text-shadow: 0 0 20px #000;">More Details</i></a></p>                     
+              </div>
+
+                <div class="infoElement">
+                    <h3 id = "filesize_info_tag" class = "force_inline heading_text"></h3>
+                  <div id = "filesize_info" class = "force_inline sub_text"></div>
+                </div>
+
+                <div id="imageInfo" class="hidden"></div>
+
+
+        <!-- Video Information-->
+        <div id="videoInfo" class="hidden">
+          <div id="playlist_view" class="hidden">
+          <h2 style="padding: 10px; background-color: rgba(0,0,0,0.1); margin: 0; margin-bottom: 5px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);">What's Playing...</h2>
+              <div id="playlist_items" class="overflow"></div>
+          </div>
+          <div id="info_view" >
+          <!--<h2 style="padding: 10px; background-color: rgba(0,0,0,0.1); margin: 0; margin-bottom: 5px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);">What's Playing...</h2>-->
+              <div id="subInfo" class="overflow">
+                  <h4>Duration: <span id="infoFduration">00:00</span></h4>
+                  <h3 class="block-title" style="margin-bottom: 0;">Video</h3>
+                  <h4 id="infoVresolutionMain">Resolution: <span id="infoVresolution">1920x1080</span></h4>
+                  <h4 id="infoVframeRateMain">Frame Rate: <span id="infoVframeRate">0</span></h4>
+                  <h4 id="infoVbitRateMain">Bit Rate: <span id="infoVbitRate">0</span></h4>
+                  <h4 id="infoVcodecTagMain">Codec Tag: <span id="infoVcodecTag">0</span></h4>
+                  
+                  <h3 class="block-title" style="margin-bottom: 0;">Audio</h3>
+                  <h4 id="infoAchannelsMain">Channels: <span id="infoAchannels">0</span></h4>
+                  <h4 id="infoAsampleRateMain">Sample Rate: <span id="infoAsampleRate">0</span></h4>
+                  <h4 id="infoAbitRateMain">Bit Rate: <span id="infoAbitRate">0</span></h4>
+                  <h4 id="infoAcodecTagMain">Codec Tag: <span id="infoAcodecTag">0</span></h4>
+              </div>
+              
+              <!--<div id="playlist_items" class="overflow"></div>-->
+          </div>
+      </div>
+
+
+
+              <div class="infoElement hidden" >
+                  <h3 class = "force_inline heading_text"></h3>
+                  <p id = "filetype_info" class = "force_inline sub_text"></p>
+            </div>
+              <div class="infoElement">
+                  <h3 id = "modified_title" class = "force_inline heading_text"></h3>
+                  <p id = "filemodified_info" class = "force_inline sub_text"></p>
+                  </div>
+              <h3  id = "accessed_title" class = "force_inline heading_text"></h3>
+                  <p id = "fileaccessed_info" class = "force_inline sub_text"></p>
+
+
+                  
+              </div>
+
+
+              
+              <div style="position: absolute; bottom:0; width:100%;">
+
+
+
+
+              <p id="currentDriveOuterDiv" class = "heading_text hidden"style="margin-left: 10px;">File Located in <b id="current_drive"></b> </p>
+              <div class="progress progress_modifier hidden">
+  <div id ="used_info" class="bar" style="width: 0%;">Unknown</div>
+</div>
+                  
+                  <div id="customFileSelector" class="hidden">
+                      <div id="savingFile" class="hidden">Select the location to save <span></span></div>                    
+                      <div id="openingFile" class="hidden">Select <span></span> compatible files.</div>                    
+                      <div id="openingDirectory" class="hidden"> Select the Folder to use.</div>                    
+                      
+                      <button class="btn btn-alt m-r-5">Select</button>
+                      <button class="btn btn-alt m-r-5">Cancel</button>
+                  </div>
+
+                  </div>
+          </div>
+
+
+
+          </div>
+          </div>
+      
+          
+          
+        </div>
+          
+          
+
+  </div>
+    
+
+            <!--</div>-->
+        <!--<div id = "expand_window"></div>-->
+        
+<div class="bar_footer">
+
+
+  <div class="row">
+
+            <div id="topOptions">
+    <div class="row" style="/*float: right; width: 54.1vw; margin-right:50px;*/"><!--height: 7vh;-->
+      <ul id="addressbar" class="breadcrumb"></ul>
+    </div>
+
+      <div id = "settings_gear" class="hidden"><a href="#" onclick="App.searchInCurrentDir()"> <span class="icon nav_buttons">&#61886;</span></a></div>
+        </div>
+<p id="footer_text"><b>Selected File: </b>Test file.mp4</p>
+</div>
+
+</div>
+        <div id="temp_global_vars"></div>
+        <div id="temp_global_locations" style="display:none;"></div>
+        <div id="temp_global_drive_names" style="display:none;"></div>
+        <div id="temp_current_drive" style="display:none;"></div>
+        <div id="total_files" style="display:none;"></div>
+        <div id="total_folders" style="display:none;"></div>
+        <div id="current_location" style="display:none;"></div>
+        <div id="current_location_type" style="display:none;"></div>
+        <div id="current_location_full" style="display:none;"></div>
+        <div id="show_hidden_files" style="display:none;">false</div>
+        <div id="order_by_type" style="display:none;">true</div>
+        <div id="previous_state" style="display:none;">showing</div>
+        <div id="location_history" style="display:none;"></div>
+        <div id="location_history_pos" style="display:none;">0</div>
+        <div id="going_back" style="display:none;">false</div>
+        <div id="refreshing" style="display:none;">false</div>
+        <div id="thumbnail_url" style="display:none;"></div>
+        <div id="thumbnail_type" style="display:none;">video</div>
+        <div id="thumbnail_name" style="display:none;"></div>
+        <div id="thumbnail_exists" style="display:none;"></div>
+        <div id="console_w" style="display:none;"></div>
+    </div>
+
+    <!-- Bootstrap -->
+        <script src="../../Shared/CoreJS/bootstrap.min.js"></script>
+
+        <script type="text/javascript" src="js/jquery.flipster.js"></script>
+    <script type="text/javascript" src="js/jquery.flipster.min.js"></script>
+    <script src="../../Shared/CoreJS/scroll.min.js"></script> <!-- Custom Scrollbar -->
+         <script src="../../Shared/CoreJS/select.min.js"></script> <!-- Custom Select -->
+        <script src="../../Shared/CoreJS/chosen.min.js"></script> <!-- Custom Multi Select -->
+        <script src="../../Shared/CoreJS/icheck.js"></script> <!-- Custom Checkbox + Radio -->
+    <script src="../../Shared/CoreJS/functions.js"></script>
+    
+    <script>
+    
+    //document.oncontextmenu=function(){return false};
+    </script>
+    
+    
+
+     <script>
+        (function() {
+	if($('.overflow')[0]) {
+	    var overflowRegular, overflowInvisible = false;
+	    overflowRegular = $('.overflow').niceScroll();
+        //console.log(overflowRegular);
+	}
+    })();
+    folder_view.localVars.guis = require('nw.gui');
+    
+    </script>
+    <script>
+        fs = require('fs');
+sys = require('util');
+        var already_scrolling = false;
+        var threeTimesVerification = 0;
+        
+        function isThumbBlank(canvas)
+        {
+            var blank = document.createElement('canvas');
+            blank.width = canvas.width;
+            blank.height = canvas.height;
+            //console.log(blank);
+            //console.log(canvas);
+            return canvas.toDataURL() == blank.toDataURL();
+        }
+        
+
+   folder_view.localVars.videoThumbs = [];   
+
+console.log("folder_view.localVars 2",folder_view.localVars);  
+
+	testingVar = folder_view.localVars;
+        
+   folder_view.localVars.load_thumb = function load_thumb(rightClick){ 
+            
+                  //console.log("LOADING THUMBBBBBBS");
+            
+            
+            if (($("#generated_thumbnail").hasClass( "hidden" ) == false))
+            {
+                
+                var thumbnail_type = $("#thumbnail_type").text();
+                
+                if (thumbnail_type == "video")
+                {
+                $('#rightclick_icon_bg').addClass("hidden");
+                $('#rightclickBgIcon').addClass("hidden");
+                var canvas = document.createElement('canvas');
+canvas.width = 300;
+canvas.height = 140;
+var ctx = canvas.getContext('2d');
+                var contnt = document.getElementById("vid_thumb");
+                //contnt.currentTime = 50;
+                //draw image to canvas. scale to target dimensions
+ctx.drawImage(contnt, 0, 0, canvas.width, canvas.height);
+//convert to desired file format
+var thumb_url = canvas.toDataURL('image/jpeg'); // can also use 'image/png'
+                        //App.saveThumbImage(thumb_url);
+                        $("#right_click_preview").addClass("hidden");
+          $("#right_click_preview").addClass('animated fadeIn');
+                $("#right_click_preview").attr("src", thumb_url);
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    var imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+                    var data = imageData.data;
+        var r,g,b,avg;
+                      var colorSum = 0;
+        for(var x = 0, len = data.length; x < len; x+=4) {
+            r = data[x];
+            g = data[x+1];
+            b = data[x+2];
+
+            avg = Math.floor((r+g+b)/3);
+            colorSum += avg;
+        }
+
+        var brightness = Math.floor(colorSum / (canvas.width*canvas.height));
+                    //console.log("Brightness: "+brightness);
+                      if (brightness !=0)
+                      {
+                          
+        // string generated by canvas.toDataURL()
+                            var img = thumb_url;
+                            // strip off the data: url prefix to get just the base64-encoded bytes
+                            var data = img.replace(/^data:image\/\w+;base64,/, "");
+                            var buf = new Buffer(data, 'base64');
+                            var thumb_cache = $("#thumbnail_url").text();
+                            var thumb_name = $("#thumbnail_name").text();
+                            if (thumb_cache !="" && thumb_name !="") {
+                                //fs.writeFile(thumb_cache+thumb_name+'.jpg', buf);
+                          
+                          var mkdirp = require('mkdirp');
+                          var getDirName = require('path').dirname;
+                          
+                          function writeFile(path, contents, cb) {
+                              mkdirp(getDirName(path), function (err) {
+                                  if (err) return cb(err);
+                                  fs.writeFile(path, contents, cb);
+                              });
+                          }
+                          var path = thumb_cache+thumb_name+'.jpg';
+                          var contents = buf;
+                          writeFile(path, contents, function (err) {
+                              
+                              //console.log("falied to save thumbnail");
+                          });
+                            
+                      }
+                            threeTimesVerification = 0;
+                     
+                    $("#generated_thumbnail").addClass("hidden");
+                    $("#right_click_preview").removeClass("hidden");
+                      } 
+          
+                  
+                  if ($("#generated_thumbnail").hasClass( "hidden" ) == false)
+              {
+                  setTimeout(function(){ folder_view.localVars.load_thumb();}
+                 , 50);
+              }
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                        
+                      /*  if ($("#vid_thumb")[0].currentTime == 0)//(isThumbBlank(canvas))
+                        {
+                            
+                        threeTimesVerification +=1;
+                            console.log("nope");
+                        setTimeout(function(){ load_thumb(); }, 500);
+                        }
+                        else 
+                        {
+                            console.log($("#vid_thumb"));
+                            
+                            
+                            // string generated by canvas.toDataURL()
+                            var img = thumb_url;
+                            // strip off the data: url prefix to get just the base64-encoded bytes
+                            var data = img.replace(/^data:image\/\w+;base64,/, "");
+                            var buf = new Buffer(data, 'base64');
+                            var thumb_cache = $("#thumbnail_url").text();
+                            var thumb_name = $("#thumbnail_name").text();
+                            if (thumb_cache !="" && thumb_name !="")
+                                fs.writeFile(thumb_cache+thumb_name+'.jpg', buf);
+                            
+                            
+                            threeTimesVerification = 0;
+                       $('#rightclick_icon_bg').removeClass("hidden");
+                    $("#generated_thumbnail").addClass("hidden");
+                    $("#right_click_preview").removeClass("hidden");
+                    $("#rightclick_bg").removeClass("hidden");
+                            
+                        }*/
+                
+            }
+                
+                if (thumbnail_type == "text_other")
+                {
+                    $("#right_click_preview").addClass("hidden");
+   /* html2canvas(document.getElementById("generated_thumbnail"), {
+      onrendered: function(canvas) {
+          var thumb_url = canvas.toDataURL();
+          $("#right_click_preview").addClass("hidden");
+          $("#right_click_preview").addClass('animated fadeIn');
+           $("#right_click_preview").attr("src", thumb_url);
+              $("#rightclick_bg").attr("src", thumb_url);
+              $('#rightclick_icon_bg').css('background-image', 'url("'+thumb_url+'")');
+          $("#right_click_preview").removeClass("hidden");
+          $("#generated_thumbnail").addClass("hidden");
+          //setTimeout(function(){ $("#right_click_preview").removeClass('animated fadeIn'); }, 100);
+          
+          //$OuterDiv = $('#textCanvas').append(canvas);
+        //document.body.appendChild(canvas);
+          
+          //setTimeout(function(){ $("#generated_thumbnail").addClass("hidden"); }, 50);
+          
+      }
+    });*/
+                                       
+                    
+                }
+                //No live thumbs for now
+          //$("#generated_thumbnail").addClass("hidden");
+        }
+            
+        }
+       
+        
+    </script>
+    <script>
+        
+
+
+
+        
+        /*document.getElementById("filesize_info").innerHTML = current_filesize;*/
+        var gui = require('nw.gui');
+    var win = gui.Window.get();
+        
+        folder_view.localVars.setTitle = function setTitle(title) {
+            win.title = title;
+        }
+        var thumb_cache = gui.App.dataPath+"/thumbnails/videos/";
+        //thumb_cache = "file://"+(thumb_cache.replace(/\\/g,"/"));
+        $("#thumbnail_url").text(thumb_cache);
+        
+        function add_drive(drive_name,driv_location,hdd_location,set_active) {
+  var ul = document.getElementById("sidebar");
+  var li = document.createElement("li");
+   var a = document.createElement("a");
+            //$(a).append('<span class="icon">&#61831;</span>');
+            
+            li.setAttribute("id", drive_name);
+            //var arrow = document.createElement("p");//text-align: right;
+            //arrow.setAttribute("id", "friendly_file_system");
+    /*var span = document.createElement("span");
+            span.appendChild(document.createTextNode('&#61717;'));
+            span.setAttribute("class", "icon");*/
+  a.appendChild(document.createTextNode(" "+drive_name));
+            a.setAttribute("href", "#");
+            a.setAttribute("nw-call", "open_drive");
+            a.setAttribute("onclick", 'App.open_drive("'+driv_location+'","'+drive_name+'","'+hdd_location+'")');
+            a.setAttribute("class", "smooth_trans");
+	    $(a).append(' <div class="progress progress-striped progress-alt"><div id="'+drive_name+'_progressbarX" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%"></div></div>'); //FIXME
+            //a.appendChild(span); 
+            var dri_name = drive_name.replace(/ /g,'');
+            //console.log("dri_indicator = "+dri_name);
+       
+            if (set_active)
+            {
+                $(a).append('<span id = "'+dri_name+'_indicator" class="icon current_drive_arrow">&#61815;</span>');
+                $("#temp_current_drive").text(drive_name);
+                li.setAttribute("class", "active");
+                $("#current_drive").text(drive_name);
+                //arrow.appendChild(document.createTextNode("File System  >"));
+                //arrow.setAttribute("style", "text-align: right;");
+                //arrow.setAttribute("class", "arrow_properties");
+                //a.appendChild(arrow);
+            }
+            else
+                $(a).append('<span id = "'+dri_name+'_indicator" class="icon current_drive_arrow hidden">&#61815;</span>');
+            
+            li.appendChild(a);
+  ul.appendChild(li);
+}
+        onload = function() {
+            /*
+  gui.Window.get().show();
+            var exec = require('child_process').exec,
+                child;
+            child = exec("/home/anesu/.blur.sh",function (error, stdout, stderr) {
+    console.log('stdout: ' + stdout);
+    console.log('stderr: ' + stderr);
+    if (error !== null) {
+      console.log('exec error: ' + error);
+        
+    }
+});*/
+var win = gui.Window.get();
+//win.showDevTools();
+
+            
+            function get_drive_loci(){
+                
+                        child = exec("df -h -T",function (error, stdout, stderr) {
+                        var drive_lines = stdout.split(/\r?\n/);
+                            var temp_strs = "";
+                            var temp_str = "";
+                  
+                           for (i=1; i<drive_lines.length-1;i++)
+                            {
+                                var line_split = drive_lines[i].split(/[ ,]+/);
+                                temp_strs +=line_split[6]+" ";
+                                //console.log(line_split[6]);
+                                
+                                //$("#temp_global_locations").text();
+
+                                
+                        }
+                                  $("#temp_global_locations").text(temp_strs);
+                    
+                            for (i=1; i<drive_lines.length-1;i++)
+                            {
+                                var line_split = drive_lines[i].split(/[ ,]+/);
+                                temp_str +=line_split[0].replace("/dev/","../../")+" ";
+                                //console.log(line_split[0]);
+                                
+                                //$("#temp_global_locations").text();
+
+                                
+                        }
+                                  $("#temp_global_drive_names").text(temp_str); 
+                                  var device_loci = $("#temp_global_drive_names").text();
+                                  //console.log("ALL NAMESXX: "+device_loci);
+                                                  return 5; 
+                    //$("#temp_global_vars").text(unnamed_drives);
+                                           
+
+});
+                
+               
+            }
+            
+            
+            function regenerate_drives(set_active_drive)
+            {
+                
+                
+
+                                child = exec("ls -l /dev/disk/by-label",function (error, stdout, stderr) {
+                                    
+                        var drive_lines = stdout.split(/\r?\n/);
+                                    //console.log("STDOUT "+stdout);
+                        var drive_names = new Array();
+                       var drive_device_location = "";
+                        /*Since this does some funny things, lets generate a reference point*/
+                           var reference_point = 9; //Usually works out, but sometimes doesn't so lets make sure
+                        for (i=1; i<drive_lines.length-1;i++)
+                       {
+                            var line_split = drive_lines[i].split(" ");
+                           
+                           
+                           if (i == 1) //Lets only do this once, and not process too much
+                           {
+                               for (k=0;k<line_split.length;k++)
+                               {
+                               if (line_split[k] == "->")
+                               {
+                                   reference_point = k;
+                                   break;
+                               }
+                           }
+                           }
+                           drive_names.push(line_split[reference_point-1]);
+                           //console.log("NAME: "+line_split[12]);
+                           /*drive_device_location.push(line_split[10]);*/
+                           drive_device_location+=" "+line_split[reference_point+1];
+                           
+                           var device_loci = $("#temp_global_drive_names").text();
+                                //console.log("ALL NAMES: "+device_loci);
+                                var drive_array = device_loci.split(" ");
+                           
+                           var device_real_loci = $("#temp_global_locations").text();
+                                //console.log("ALL NAMES: "+device_loci);
+                                var drive_real_array = device_real_loci.split(" ");
+                           var device_pos = -1;
+                           var real_location = "";
+                           for (j=0;j<drive_array.length;j++)
+                           {
+                               var temp_pos = drive_array[j].indexOf(line_split[reference_point+1]);
+                               //console.log("Names array: "+drive_array[j]);
+                               if (temp_pos !=-1)
+                               {
+                                   real_location = drive_real_array[j];
+                                   device_pos = j;
+                               }
+                                   
+                           }
+                           
+                           //console.log("Found it at position:"+device_pos);
+                           
+                           /*if (device_pos != -1)
+                           {
+                               
+                           }*/
+                           var hdd_location = line_split[reference_point+1];
+                           if (line_split[reference_point+1]==set_active_drive)
+                               add_drive(drive_names[i-1],real_location,hdd_location,true);
+                           else
+                               add_drive(drive_names[i-1],real_location,hdd_location,false);
+                            
+                        }
+       $("#temp_global_vars").text(drive_device_location);                             
+    //console.log('stdout: ' + drive_names[0]);
+    //console.log('stderr: ' + stderr);
+    if (error !== null) {
+      console.log('exec error: ' + error);
+       }
+});
+            
+            
+  
+                        child = exec("ls -l /dev/disk/by-uuid",function (error, stdout, stderr) {
+                        var drive_lines = stdout.split(/\r?\n/);
+                            var unnamed_drives = "";
+                            
+                            for (i=1; i<drive_lines.length-1;i++)
+                            {
+                                var line_split = drive_lines[i].split(" ");
+                                var device_locations = $("#temp_global_vars").text();
+                           
+                                //Check if drive's name was found, if not tag it, so that we can give it a temporary name later//
+                                var device_position = device_locations.indexOf(line_split[10]);
+                                //console.log(device_position);
+                                
+                                if (device_position ==-1)
+                               unnamed_drives += " "+line_split[10];
+                            
+                        }
+                    
+                    $("#temp_global_vars").text(unnamed_drives);
+                                           
+
+});             
+              child = exec("df -h -T",function (error, stdout, stderr) {
+                        var drive_lines = stdout.split(/\r?\n/);
+                            //var unnamed_drives = "";
+                            var current_drive = $("#current_drive").text();
+                  
+                            for (i=1; i<drive_lines.length-1;i++)
+                            {
+                                var line_split = drive_lines[i].split(/[ ,]+/);
+                                //console.log(line_split[4]);
+                                
+                                var device_locations = $("#temp_global_vars").text();
+                                
+                                //Check if it is an unknown device, if so give it a name based on drive size
+                                var corrected_path = line_split[0].replace("/dev/","../../");
+                                var hdd_location = "/";
+                                if (line_split[6] == "/")
+                                {
+                                    if (corrected_path == set_active_drive)
+                                    {
+                                    add_drive("eXtern OS",line_split[6],hdd_location,true);
+                                    }
+                                    else
+                                    {
+                                       add_drive("eXtern OS",line_split[6],hdd_location,false); 
+                                    }
+                                    current_drive = "eXtern OS";
+                                }
+                                
+                                var device_position = device_locations.indexOf(line_split[0].replace("/dev/","../../"));
+                                
+                                if (corrected_path == set_active_drive)
+                                    {
+                                        var file_sys = "test";
+                                        //console.log(line_split[1]);
+                                        if (line_split[1].localeCompare("fuseblk") != -1)
+                                        {
+                                            file_sys = "NTFS Files >";
+                                        }
+                                        
+                                        if (line_split[1] == "ext4")
+                                        {
+                                            file_sys = "EXT4 Files >";
+                                        }
+                                        $("#friendly_file_system").text(file_sys);
+                                        
+                                        App.set_drive_usage(current_drive,line_split[5],line_split[3]);
+                                    }
+                                
+                                /*
+                                var device_locations = $("#temp_global_vars").text();
+                           
+                                //Check if drive's name was found, if not tag it, so that we can give it a temporary name later//
+                                var device_position = device_locations.indexOf(line_split[10]);
+                                console.log(device_position);
+                                
+                                if (device_position ==-1)
+                               unnamed_drives += " "+line_split[10];
+                            */
+                        }
+                    
+                    //$("#temp_global_vars").text(unnamed_drives);
+                                           
+
+});      
+                
+            }
+            //teest = get_drive_loci()
+            
+            //if (teest !=5)
+                //setTimeout(function(){ regenerate_drives("../../sda9"); }, 300);//../../sda11
+            
+                
+                                 /* child = exec("df -h",function (error, stdout, stderr) {
+                        var drive_lines = stdout.split(/\r?\n/);
+                            //var unnamed_drives = "";
+                            
+                            for (i=1; i<drive_lines.length-1;i++)
+                            {
+                                var line_split = drive_lines[i].split(/[ ,]+/);
+                                //console.log(line_split[4]);
+                                
+                                var device_locations = $("#temp_global_vars").text();
+                                
+                                //Check if it is an unknown device, if so give it a name based on drive size
+                                var corrected_path = line_split[0].replace("/dev/","../../");
+                                var device_position = device_locations.indexOf(line_split[0].replace("/dev/","../../"));
+                                
+                                if (device_position !=-1)
+                                {
+                                    if (line_split[0] !="/dev/sda1")
+                                    {
+                                    console.log(line_split[0]);
+                                    console.log(line_split[4]);
+                                    add_drive(line_split[1]+" Drive",false);
+                                    }
+                                }*/
+                                /*
+                                var device_locations = $("#temp_global_vars").text();
+                           
+                                //Check if drive's name was found, if not tag it, so that we can give it a temporary name later//
+                                var device_position = device_locations.indexOf(line_split[10]);
+                                console.log(device_position);
+                                
+                                if (device_position ==-1)
+                               unnamed_drives += " "+line_split[10];
+                            */
+                  /*      }
+                    
+                    //$("#temp_global_vars").text(unnamed_drives);
+                                           
+
+});         */    
+            
+            
+
+            
+
+            
+               /*     child = exec("df -h",function (error, stdout, stderr) {
+                        var drive_lines = stdout.split(/\r?\n/);
+                        var drive_names = new Array();
+                        var total_drives = 0;
+                        
+                        for (i=1; i<drive_lines.length;i++)
+                       {
+                           var is_dev_drive = drive_lines[i].indexOf("/dev/");
+                           if (is_dev_drive == 0)
+                           {
+                               console.log("dev drive at:"+is_dev_drive);
+                               total_drives++;
+                               
+                           }
+                            
+                        }
+                        
+                        console.log("total drives:"+total_drives);
+    if (error !== null) {
+      console.log('exec error: ' + error);
+       }
+});   */         
+           
+}
+        
+        
+        
+
+        
+    
+    
+    
+    </script>
+<script>
+    
+   /* files_clicked = document.getElementById("files").getElementsByClassName('file');
+for (var i = 0; i < files_clicked.length; i++) {
+    files_clicked[i].addEventListener('click',redirect,false);
+}
+function redirect(){
+    alert(this.className);
+}*/
+/*document.getElementById("files").addEventListener('contextmenu', function(ev) {
+    ev.preventDefault();
+    alert('success!');
+    return false;
+}, false);
+*/
+
+
+
+</script>
+   
+    
+    <script>
+    
+      //$('#pieChart').remove(); // this is my <canvas> element
+ // $('#chart_properties').append('<canvas id="pieChart"><canvas>');
+  //canvas = document.querySelector('#results-graph');
+        
+        
+  /*ctx = canvas.getContext('2d');
+  ctx.canvas.width = $('#graph').width(); // resize to parent width
+  ctx.canvas.height = $('#graph').height(); // resize to parent height
+  var x = canvas.width/2;
+  var y = canvas.height/2;
+  ctx.font = '10pt Verdana';
+  ctx.textAlign = 'center';
+  ctx.fillText('This text is centered on the canvas', x, y);*/
+    //-------------
+        //- PIE CHART -
+        //-------------
+        // Get context with jQuery - using jQuery's .get() method.
+        var pieChartCanvas = $("#pieChart").get(0).getContext("2d");
+        var pieChart = new Chart(pieChartCanvas);
+        pieChart.canvas.width = 500;
+        var PieData = [
+          {
+            value: 700,
+            color: "rgba(0,0,0,0.1)",
+            highlight: "#f56954",
+            label: "Chrome"
+          },
+          {
+            value: 500,
+            color: "rgba(0,0,0,0.1)",/*"#00a65a",*/
+            highlight: "#00a65a",
+            label: "IE"
+          },
+          {
+            value: 400,
+            color: "rgba(0,0,0,0.1)",
+            highlight: "#f39c12",
+            label: "FireFox"
+          },
+          {
+            value: 600,
+            color: "rgba(0,154,255,1)",
+            highlight: "#00c0ef",
+            label: "Safari"
+          },
+          {
+            value: 300,
+            color: "rgba(0,0,0,0.1)",
+            highlight: "#3c8dbc",
+              showTooltip: true,
+            label: "Opera"
+          },
+          {
+            value: 100,
+            color: "rgba(0,0,0,0.1)",
+            highlight: "#d2d6de",
+            label: "Navigator"
+          }
+        ];
+        var pieOptions = {
+          //animation (enbaled by defalt, but we need to disable it later)
+          animation: true,
+          //Boolean - Whether we should show a stroke on each segment
+          segmentShowStroke: true,
+          //String - The colour of each segment stroke
+          segmentStrokeColor: "rgba(255,255,255,0.2)",
+          //Number - The width of each segment stroke
+          segmentStrokeWidth: 1,
+          //Number - The percentage of the chart that we cut out of the middle
+          percentageInnerCutout: 50, // This is 0 for Pie charts
+          //Number - Amount of animation steps
+          animationSteps: 100,
+          //String - Animation easing effect
+          //animationEasing: "easeInOutCirc",
+            animationEasing: "easeInOutCirc",
+          //Boolean - Whether we animate the rotation of the Doughnut
+          animateRotate: true,
+          //Boolean - Whether we animate scaling the Doughnut from the centre
+          animateScale: false,
+          //Boolean - whether to make the chart responsive to window resizing
+          responsive: true,
+          // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+          maintainAspectRatio: true,
+          
+          tooltipTemplate: "<%= label %>",
+        
+        onAnimationComplete: function()
+        {
+            //this.showTooltip(this.segments, true);
+        },
+          //String - A legend template
+          legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+        };
+        //Create pie or douhnut chart
+        
+ 
+        
+        
+        pieChart.Doughnut(PieData, pieOptions);
+        var fileData = new Array();
+    
+        this.element = $("#files");
+        
+        
+       function selectFilePieChart(file) {
+            var current_filename = $(file).attr('filename');
+            var current_filetype = $(file).attr('filetype');
+            //console.log("E: ",e);
+            //Reset all colours
+            for (i=0;i<fileData.length;i++)
+            {
+                fileData[i].color = "rgba(0,0,0,0.1)";
+            }
+
+	var actualFiles = [];
+
+	//console.log("$.currentlySelectedFiles.length",folder_view.localVars.currentlySelectedFiles.length);
+
+	for (var h = 0; h < folder_view.localVars.currentlySelectedFiles.length; h++) {
+		//console.log("checking",folder_view.localVars.currentlySelectedFiles[h]);
+		if (folder_view.localVars.currentlySelectedFiles[h].type !="folder") {
+			//console.log("found",folder_view.localVars.currentlySelectedFiles[h]);
+			actualFiles.push(folder_view.localVars.currentlySelectedFiles[h]);
+		}
+	}
+
+	//console.log("actualFiles.length",actualFiles.length);
+	//console.log("actualFiles",actualFiles);
+
+	//Using Filter for perfomance reasons
+
+	/*function filterSelectedFiles(currentFilename) {
+			var allFiltereds = $.currentlySelectedFiles
+  .filter(function( index ) {
+
+	if (this.name == currentFilename) {
+    		return true;
+	} else {
+		return false;
+	}
+	
+  });
+
+		return allFiltereds;
+	}
+
+
+	var allFiltered = fileData
+  .filter(function( index ) {
+
+	if (filterSelectedFiles(this.label).length == 1) {
+		this.color = "rgba(255,255,255,0.1)";
+    		return true;//$( "strong", this ).length === 1;
+	} else {
+		return false;
+	}
+	
+  });*/
+
+	//console.log("allFiltered",allFiltered);
+	//console.log("$.currentlySelectedFiles",$.currentlySelectedFiles);
+
+	function checkIfFileIsSelected(checkName) {
+		var foundFile = false;
+		for (var k = 0; k < actualFiles.length; k++)
+			if (actualFiles[k].name == checkName) {
+				foundFile = true;
+				break;
+			}
+		return foundFile;
+	}
+
+
+
+	
+
+	if (actualFiles.length != 0) {
+		for (i=0;i<fileData.length;i++)
+                {
+                    if (checkIfFileIsSelected(fileData[i].label))
+                    {
+                        fileData[i].color = "rgba(255,255,255,0.1)";
+                    }
+                }
+	}
+            
+            //Check if its a folder, if so, we don't highlight anything
+            /*if (current_filetype !="folder")
+            {
+                for (i=0;i<fileData.length;i++)
+                {
+                    if (fileData[i].label == current_filename)
+                    {
+                        fileData[i].color = "rgba(255,255,255,0.1)";
+                    }
+                }
+            }*/
+            pieOptions.animation = false;
+            $('#pieChart').remove();
+            $('#more_details_button').remove();
+            $('#chart_properties').append('<canvas id="pieChart"><canvas>');
+            $('#chart_properties').append('<p id = "more_details_button"class = "force_inline heading_text"><a href="#" style="font-weight: bold; color: rgba(255, 255, 255, 0.8); text-shadow: 0 0 20px #000;" nw-call="about" onclick="App.about()"><i>More Details</i></a></p>');
+            cx = document.querySelector("#pieChart");
+            var pieChartCanvas = cx.getContext("2d");
+            var pieChart = new Chart(pieChartCanvas);
+            pieChart.canvas.width = 500;
+		
+            pieChart.Doughnut(fileData, pieOptions);
+	    //console.log("pieChart",pieChart);
+        }
+        folder_view.localVars.selectFilePieChart = selectFilePieChart;
+        /*this.element.delegate('.file', 'click', function(e) {
+            //selectFilePieChart(this);
+        });*/
+        
+             // Right-Click on file
+  this.element.delegate('.file', 'contextmenu', function(e) {
+      selectFilePieChart(this);
+  });
+        
+        folder_view.localVars.reset_PieChart = function reset_PieChart(){
+            //Reset all colours
+            for (i=0;i<fileData.length;i++)
+            {
+                fileData[i].color = "rgba(0,0,0,0.1)";
+            }
+            
+            pieOptions.animation = false;
+            $('#pieChart').remove();
+            $('#more_details_button').remove();
+            $('#chart_properties').append('<canvas id="pieChart"><canvas>');
+            $('#chart_properties').append('<p id = "more_details_button"class = "force_inline heading_text"><a href="#" style="font-weight: bold; color: rgba(255, 255, 255, 0.8); text-shadow: 0 0 20px #000;" nw-call="about" onclick="App.about()"><i>More Details</i></a></p>');
+            cx = document.querySelector("#pieChart");
+            var pieChartCanvas = cx.getContext("2d");
+            var pieChart = new Chart(pieChartCanvas);
+            pieChart.canvas.width = 500;
+		
+            pieChart.Doughnut(fileData, pieOptions);
+        }
+        
+        folder_view.localVars.create_PieChart = function create_PieChart(files){ 
+            fileData = [];
+            for (i = 0; i<files.length;i++)
+            {
+                if (files[i].type !="folder")
+                fileData.push({
+                    value: files[i].size,
+            color: "rgba(0,0,0,0.1)",
+            highlight: "rgba(255,255,255,0.4)",
+            label: files[i].name});
+                
+            }
+            
+            if (files.length == 0)
+            {
+                fileData.push({
+                    value: 100,
+            color: "rgba(0,0,0,0.1)",
+            highlight: "rgba(0,0,0,0.1)",
+            label: "No Files available"});
+            }
+                
+            pieOptions.animation = true;
+            $('#pieChart').remove();
+            $('#more_details_button').remove();
+  $('#chart_properties').append('<canvas id="pieChart"><canvas>');
+  $('#chart_properties').append('<p id = "more_details_button"class = "force_inline heading_text"><a href="#" style="font-weight: bold; color: rgba(255, 255, 255, 0.8); text-shadow: 0 0 20px #000;" nw-call="about" onclick="App.about()"><i>More Details</i></a></p>');
+            cx = document.querySelector("#pieChart");
+                    var pieChartCanvas = cx.getContext("2d");
+        var pieChart = new Chart(pieChartCanvas);
+        pieChart.canvas.width = 500;
+	
+    pieChart.Doughnut(fileData, pieOptions);
+        }
+
+    
+    
+    
+    </script>
+     <!-- UX -->
+        
+</body>
+</html>
+<!-- Copy --#61717; -->

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<aiml>
+
+<!-- -->
+<!-- Permission is hereby granted, free of charge, to any person       -->
+<!-- obtaining a copy of this software and associated documentation    -->
+<!-- files (the "Software"), to deal in the Software without           -->
+<!-- restriction, including without limitation the rights to use,      -->
+<!-- copy, modify, merge, publish, distribute, sublicense, and/or sell -->
+<!-- copies of the Software, and to permit persons to whom the         -->
+<!-- Software is furnished to do so, subject to the following          -->
+<!-- conditions:                                                       -->
+<!-- -->
+<!-- The above copyright notice and this permission notice shall be    -->
+<!-- included in all copies or substantial portions of the Software.   -->
+<!-- -->
+<!-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,   -->
+<!-- EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES   -->
+<!-- OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND          -->
+<!-- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT       -->
+<!-- HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,      -->
+<!-- WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING      -->
+<!-- FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR     -->
+<!-- OTHER DEALINGS IN THE SOFTWARE. -->
+<!-- -->
+<!-- Complies with the AIML 1.0.1 Standard -->
+<!-- as adopted by the ALICE A.I. Foundation. -->
+<!-- Last modified July 26, 2007 -->
+
+<!-- Stack.aiml : a simple topic stack in AIML -->
+<!-- Be sure that the default predicate value returned by "top" is OM. -->
+<category><pattern>POP</pattern> 
+<template>
+<set name="topic"><srai>POPOM <get name="top" /></srai></set>
+</template></category>
+<category>
+<pattern>PUSH *</pattern> 
+<template>
+<think>
+<set name="last">
+<get name="seventh" /> 
+</set>
+<set name="seventh">
+<get name="sixth" /> 
+</set>
+<set name="sixth">
+<get name="fifth" /> 
+</set>
+<set name="fifth">
+<get name="fourth" /> 
+</set>
+<set name="fourth">
+<get name="third" /> 
+</set>
+<set name="third">
+<get name="second" /> 
+</set>
+<set name="second">
+<get name="top" /> 
+</set>
+<set name="top">
+<star /> 
+</set>
+</think>
+<star /> 
+</template>
+</category>
+<category>
+<pattern>POPOM *</pattern> 
+<template>
+<get name="top" /> 
+<think>
+<set name="top">
+<get name="second" /> 
+</set>
+<set name="second">
+<get name="third" /> 
+</set>
+<set name="third">
+<get name="fourth" /> 
+</set>
+<set name="fourth">
+<get name="fifth" /> 
+</set>
+<set name="fifth">
+<get name="sixth" /> 
+</set>
+<set name="sixth">
+<get name="seventh" /> 
+</set>
+<set name="seventh">
+<get name="last" /> 
+</set>
+<set name="last">
+<srai>RANDOM TOPIC</srai> 
+</set>
+</think>
+</template>
+</category>
+<category>
+<pattern>POPOM OM</pattern> 
+<template>
+<set name="top">
+<srai>RANDOM TOPIC</srai> 
+</set>
+</template>
+</category>
+<category>
+<pattern>SHOW STACK</pattern> 
+<template>
+  top=" 
+<get name="top" /> 
+  " second=" 
+<get name="second" /> 
+  " third=" 
+<get name="third" /> 
+  " fourth=" 
+<get name="fourth" /> 
+  " fifth=" 
+<get name="fifth" /> 
+  " sixth=" 
+<get name="sixth" /> 
+  " seventh=" 
+<get name="seventh" /> 
+  " last=" 
+<get name="last" /> 
+  " 
+</template>
+</category>
+<category>
+<pattern>RANDOM TOPIC</pattern> 
+<template>
+<random>
+<li>Your Chinese animal sign</li> 
+<li>Your home town</li> 
+<li>Your favorite color</li> 
+<li>Your star sign</li> 
+<li>Your rising sign</li> 
+<li>My favorite movie</li> 
+<li>Your personality</li> 
+<li>Your good looks</li> 
+<li>Your favorite band</li> 
+<li>Your problems</li> 
+</random>
+</template>
+</category>
+</aiml>

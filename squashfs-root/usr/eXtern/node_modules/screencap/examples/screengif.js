@@ -1,0 +1,4 @@
+var screencap = require('../index.js');
+
+var screen = screencap('test.gif');
+screen.gif('350','10');

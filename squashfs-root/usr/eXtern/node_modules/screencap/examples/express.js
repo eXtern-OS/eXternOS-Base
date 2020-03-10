@@ -1,0 +1,18 @@
+var express = require('express');
+var app = express();
+var screencap = require('../index.js');
+
+var screen = screencap();
+
+app.get('/', function(req, res) {
+	screen.shotPipe(res);
+});
+
+var server = app.listen(3000, function () {
+
+  var host = server.address().address;
+  var port = server.address().port;
+
+  console.log('Express ScreenCap Test Running On http://%s:%s', host, port);
+
+});

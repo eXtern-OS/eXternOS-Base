@@ -1,0 +1,4 @@
+var screencap = require('../index.js');
+
+var screen = screencap('test.png');
+screen.shot();

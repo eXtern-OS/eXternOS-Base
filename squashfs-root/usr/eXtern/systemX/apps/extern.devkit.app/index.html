@@ -1,0 +1,716 @@
+
+
+<head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+        <meta name="format-detection" content="telephone=no">
+        <meta charset="UTF-8">
+
+        <title>DevKit</title>
+            
+        <!-- CSS -->
+        <link href="../../Shared/CoreCSS/bootstrap.min.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/animate.min.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/font-awesome.min.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/form.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/calendar.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/app-style.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/icons.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/generics.css" rel="stylesheet">
+    	<link href="../../Shared/CoreCSS/slick.css" rel="stylesheet"> 
+      	<link href="../../Shared/CoreCSS/slick-theme.css" rel="stylesheet">
+    	<link href="../../Shared/CoreCSS/app-control.css" rel="stylesheet">
+	<link href="../../Shared/CoreCSS/scrollbar.css" rel="stylesheet">
+	<link href="css/devkit.css" rel="stylesheet">
+
+
+<script src="js/CollapsibleLists.js"></script>
+<script src="zepto.min.js"></script>
+
+
+
+    </head>
+
+	<!-- Do not change anything (unless you know what you are doing) except the title under id="sub_title" -->
+    <body id="body_settings" onresize="resizeEditor()">
+<div style="overflow-y: hidden; overflow-x:hidden;">
+        
+        <div class="clearfix"></div>
+  
+  <section id="no-file-open">
+    
+    <div>
+
+		<p>
+			<img src="img/devkit/tools.svg" width="30%" style="opacity: 0.2; margin-top: 40px;" />
+		</p>
+
+		<h1 style="text-shadow: 0 0 20px rgba(0, 0, 0, 0.8); color: rgba(255, 255, 255, 0.6);    font-weight: normal;">Welcome, Developer!</h1>
+
+		<p style="text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);">Let's get started. <a href="" onclick="openWebLink('https://externos.io/developer')" style="color: #FFD600; text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);">Read how to build your first App</a></p>
+      
+      <div style="margin-top: 20px;">
+        
+        <a href="#" class="btn btn-alt" onclick="openNewProjectPopupDialogue()"><span class="icon">&#61943;</span> New Project </a>
+        
+        <a href="#" class="btn btn-alt" style="margin-left: 10px;" onclick="handleOpenButton()"><span class="icon">&#61784;</span> Open Existing Project </a>
+        
+      </div>
+
+
+
+
+</div>
+    
+    
+  </section>
+            
+            <section id="diagueBoxes" style="height: 100%; position: absolute; width: 100%; z-index: 1000000; top: 0;" class="hidden">
+        <div class="modal" style="height: 100%; position: relative; display: block; z-index: 0;"> <!-- Style for just preview -->
+                        <div id="fileSaveDialogue" class="modal-dialog hidden">
+                            <div class="modal-content" style="width: 500px;">
+                                <div class="modal-header">
+                                    <button style="width: 10px;" type="button" onclick="closePopupDialogue()" class="close" data-dismiss="modal" aria-hidden="true">
+                                        <i style="font-size: 18px;" class="fa fa-circle-thin" aria-hidden="true"></i>
+                                    </button>
+                                    <h4 class="modal-title" style="font-size: 14px;">Save Changes</h4>
+                                </div>
+                                <div class="modal-body" style="font-size: 13px;">
+                                    <p>You've made some changes since the last time you saved <span id="notSavedFiles"></span>. <br>Woud you like to save before closing this App?</p>
+                                </div>
+                                <div style="padding: 15px 15px; border-top: 1px solid rgba(255, 255, 255, 0.11);">
+                                    <button style="width: 200px;margin-top: 0;" type="button" class="btn btn-alt m-r-5" onclick="saveChanges(true)">Save changes</button>
+                                    <button style="width: 200px;margin-top: 0;" type="button" onclick="discardChanges()" class="btn btn-alt m-r-5 pull-right" data-dismiss="modal">Discard</button>
+                                </div>
+                            </div>
+                        </div>
+            <div id="fileExistsDialogue" class="modal-dialog hidden">
+                            <div class="modal-content" style="width: 500px;">
+                                <div class="modal-header">
+                                    <button style="width: 10px;" type="button" onclick="closePopupDialogue()" class="close" data-dismiss="modal" aria-hidden="true">
+                                        <i style="font-size: 18px;" class="fa fa-circle-thin" aria-hidden="true"></i>
+                                    </button>
+                                    <h4 class="modal-title" style="font-size: 14px;">Save Changes</h4>
+                                </div>
+                                <div class="modal-body" style="font-size: 13px;">
+                                    <p>Another file with the same name exists in Documents. Are you sure you want to override it?</p>
+                                </div>
+                                <div style="padding: 15px 15px; border-top: 1px solid rgba(255, 255, 255, 0.11);">
+                                    <button style="width: 200px;margin-top: 0;" type="button" class="btn btn-alt m-r-5" onclick="createNewDocument(true)">Override</button>
+                                    <button style="width: 200px;margin-top: 0;" type="button" onclick="closePopupDialogue()" class="btn btn-alt m-r-5 pull-right" data-dismiss="modal">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="buildAppDialogue" class="modal-dialog hidden">
+                            <div class="modal-content" style="width: 550px;">
+                                <div class="modal-header">
+                                    <button style="width: 10px;" type="button" onclick="closePopupDialogue()" class="close" data-dismiss="modal" aria-hidden="true">
+                                        <i style="font-size: 18px;" class="fa fa-circle-thin" aria-hidden="true"></i>
+                                    </button>
+                                    <h4 class="modal-title" style="font-size: 14px;">Build Project</h4>
+                                </div>
+                                <div class="modal-body" style="font-size: 13px;">
+					<div id="compileConfirmation">
+                                    <p class="text-center">eXtern OS will now build your project using settings specified in your build configuration.<br> Select "Build" below to proceed.</p>
+				<div id="packageExistsWarning" class="alert alert-info hidden" style="text-align: left;">
+                        		        It appears that there is another compiled package in the project directory. This package will be deleted and will be replaced with a new package. 
+                                    </div>
+                                    
+					</div>
+
+					<div id="compileInProgress" class="hidden">
+						<div class="alert alert-info" style="text-align: left;">
+                        		        Currently Building your App, will be done in a moment.
+                        </div>
+					</div>
+
+					<div id="compileFinished" class="hidden">
+                                    		<p class="text-center">Your App has successfully been compiled! See the distributable installable package in the file manager <a href="#">here.</a> We recommend you submit your App to eXtern OS Store <a href="#">here.</a></p>
+					</div>
+
+					<div id="compileFinishedError" class="hidden">
+                                    		<p class="text-center">An unknown error occured while compiling your App. Please make sure you have enough space and that none of your files source files are corrupt.</p>
+					</div>
+
+					<div id="compileNoBuildFinished" class="hidden">
+                                    		<p class="text-center">Your project has successfully been compiled! You can find the binary files in the project directory.
+					</div>
+
+
+					
+
+                                </div>
+                                <div style="padding: 15px 15px; border-top: 1px solid rgba(255, 255, 255, 0.11);">
+                                    <button style="width: 200px;margin-top: 0;" type="button" class="btn btn-alt m-r-5 build-btn" onclick="buildProject()">Build</button>
+                                    <button style="width: 200px;margin-top: 0;" type="button" onclick="closePopupDialogue()" class="btn btn-alt m-r-5 pull-right build-btn" data-dismiss="modal">Cancel</button>
+				<div class="done-build-btn" style="width: 100%; text-align: center;">
+                                    <button style="width: 200px;margin-top: 0;" type="button" onclick="closePopupDialogue()" class="btn btn-alt m-r-5" data-dismiss="modal">Ok</button>
+				</div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div id="newProject" class="modal-dialog hidden">
+                            <div class="modal-content" style="width: 500px;">
+                                <div class="modal-header">
+                                    <button style="width: 10px;" type="button" onclick="closePopupDialogue()" class="close" data-dismiss="modal" aria-hidden="true">
+                                        <i style="font-size: 18px;" class="fa fa-circle-thin" aria-hidden="true"></i>
+                                    </button>
+                                    <h4 class="modal-title" style="font-size: 14px;">New Project</h4>
+                                </div>
+                                <div class="modal-body" style="font-size: 13px; text-align: center;">
+                    		<div id="errorProjectExists" class="alert alert-danger hidden" style="text-align: left;">
+                        		Oh snap! A folder/directory with that name exists in the specified project directory!
+                    		</div>
+                                    <div class="row">
+                                        <p>Please select the type of project you want to create:</p>
+                                    </div>
+
+                                    <div class="row" style="margin-bottom: 20px;">
+                                        <input id="newProjectName" type="text" class="form-control input-sm"  placeholder="Project Name" style="text-align: center;">
+                                    </div>
+
+                                    <div class="row" style="margin-bottom: 20px;">
+                                      <input id="teamDeveloperProjectName" type="text" class="form-control input-sm"  placeholder="Developer/Team Name" style="text-align: center; margin-bottom: 3px;">
+                                      <small>Please note this is important and will be used to help identify your App for eXtern OS Apps.</small>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="btn-group" style="display: block; width: 100%;">
+                                      <button class="btn btn-alt dropdown-toggle" type="button" style="width: 100%; font-size: 17px;  margin-bottom: 15px; " data-toggle="dropdown">
+                                                    <span id="selectedNewProjectType">eXtern OS App</span>
+                                                    <span class="caret" style="border-top: 6px solid; border-right: 6px solid transparent; border-left: 6px solid transparent;"></span>
+                                                </button>
+                                                <ul class="dropdown-menu leave-menu" role="menu" style="width: 100%; font-size: 14px; text-align: center;">
+                                                    <li>
+                                                        <a href="javascript:void(0);" onclick="selectProjectType('eXternOSApp','eXtern OS App');" > eXtern OS App</a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="javascript:void(0);" onclick="selectProjectType('emptyProject','Empty Project');" > Empty Project</a>
+                                                    </li>
+
+                                                </ul>
+                                            </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <p><h3 class="block-title">Project Directory</h3></p>
+                                        <p><span class="icon">&#61784;</span> <span id="selectedDirectoryForNewProject"> No Directory selected </span> <button style="margin-left: 5px;" class="btn btn-sm btn-alt m-r-5" onclick="handleChooseProjectDirectoryButton()">Choose</button> <span></p>
+                                    </div>
+
+                                </div>
+                                <div style="padding: 15px 15px; border-top: 1px solid rgba(255, 255, 255, 0.11);">
+                                    <button id="createNewProject" style="width: 200px;margin-top: 0;" type="button" class="btn btn-alt m-r-5" onclick="createNewProject()" disabled>Create</button>
+                                    <button style="width: 200px;margin-top: 0;" type="button" onclick="closePopupDialogue()" class="btn btn-alt m-r-5 pull-right" data-dismiss="modal">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+            
+            <div id="errorOccuredDialogue" class="modal-dialog hidden">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button style="width: 10px;" type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                        &times;
+                                    </button>
+                                    <h4 class="modal-title">Modal title</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <p>One fine body...</p>
+                                </div>
+                                <div style="padding: 15px 15px; border-top: 1px solid rgba(255, 255, 255, 0.11);">
+                                    <button style="width: 200px;margin-top: 0;" type="button" class="btn btn-alt m-r-5">Save changes</button>
+                                    <button style="width: 200px;margin-top: 0;" type="button" class="btn btn-alt m-r-5" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+        </section>
+        
+        <section id="main" class="p-relative hidden" role="main" >
+            
+            <!-- Sidebar -->
+            <aside id="sidebar" class="hideBar">
+                
+
+                
+                <!-- Side Menu -->
+                <ul class="list-unstyled side-menu">
+                    <li class="dropdown">
+                        <a href="#">
+                            <span class="icon sidebar_icon">&#61784;</span>
+                            <span class="menu-item">Project</span>
+                        </a>
+                         <ul class="list-unstyled menu-item">
+                             <li><a id="open" href="#">Open Project<span class="pull-right">Ctrl+Shift+O</span></a></li>
+                             <li><a id="open" href="#" onclick="openNewProjectPopupDialogue()">New Proect<span class="pull-right">Ctrl+Shift+N</span></a></li>
+			    <div class="whiter" style="margin: 60px 0 10px 0;"></div>
+                            <li><a href="#" onclick="newEmptyEditor()">New File<span class="pull-right">Ctrl+N</span></a></li>
+                            <li><a href="#" onclick="handleSaveButton();">Save File<span class="pull-right">Ctrl+S</span></a></li>
+                            <li><a href="#" onclick="handleSaveAsButton();">Save File As<span class="pull-right">Shift+Ctrl+S</span></a></li>
+                        </ul>
+                    </li>
+
+                     <li class="dropdown">
+                        <a href="#">
+                            <span class="icon sidebar_icon">&#61955;</span>
+                            <span class="menu-item">Clipboard</span>
+                        </a>
+                         <ul class="list-unstyled menu-item">
+                            <li><a href="#" onclick="copy(); ">Copy <span class="pull-right">Ctrl+C</span></a></li>
+                            <li><a href="#" onclick="cut(); ">Cut <span class="pull-right">Ctrl+X</span></a></li>
+                            <li><a href="#" onclick="paste();">Paste <span class="pull-right">Ctrl+V</span></a></li>
+                        </ul>
+                    </li>
+		   <li>
+                        <a href="#" onclick="undo();">
+                            <span class="icon sidebar_icon">&#61737;</span>
+                            <span class="menu-item">Undo</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="redo();">
+                            <span class="icon sidebar_icon">&#61924;</span>
+                            <span class="menu-item">Redo</span>
+                        </a>
+                    </li>
+                    <div class="whiter"></div>
+                    <li id="fontMenu" class="dropdown">
+                        <a href="">
+                            <span id="fontIndicator" class="sidebar_icon">14</span>
+                            <span class="menu-item">Font</span>
+                        </a>
+                         <ul class="list-unstyled menu-item">
+                            <li style="padding-right: 5px; padding-left: 5px;"><input type="text" class="form-control input-sm spinner-1 spinedit" /></li>
+                            
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="" onclick="editor.getAction('actions.find').run()">
+                            <span class="icon sidebar_icon">&#61788;</span>
+                            <span class="menu-item">Search</span>
+                        </a>
+                    </li>
+                    
+                    <div class="whiter"></div>
+                    <li id="currentLang" class="dropdown hidden">
+                        <a href="javascript:void(0);">
+                            <span id="currentLangIcon" class="sidebar_icon">JS</span>
+                            <span class="menu-item">Programmming Language</span>
+                        </a>
+                        <ul class="list-unstyled menu-item">
+                            <li style="padding-right: 5px; padding-left: 5px;">
+                                <div class="btn-group" style="display: block; width: 100%;">
+                                      <button class="btn btn-alt dropdown-toggle" type="button" style="width: 100%; font-size: 17px;  margin-bottom: 15px; " data-toggle="dropdown">
+                                                    <span id="currentLanguageFull">Not set</span>
+                                                    <span class="caret" style="border-top: 6px solid; border-right: 6px solid transparent; border-left: 6px solid transparent;"></span>
+                                                </button>
+                                                <ul id="availableLanguagesList" class="dropdown-menu leave-menu" role="menu" style="width: 100%; font-size: 14px; text-align: center;">
+                                                    <!--Languages here -->
+
+                                                </ul>
+                                            </div>
+                            </li>
+                            
+                        </ul>
+                    </li>
+                    
+                </ul>
+                
+            </aside>
+            
+            <section id="content">
+			<!-- Your App contents here -->
+<section class="row">
+<section class="col-md-9" style="padding-right: 0; width: calc(100% - 297px);">
+<div class="buttons hidden">
+	<button id="new"> <img src="img/16x16/file_add.png"/>New  </button>
+	<!--<button id="open"><img src="img/16x16/file.png"/>    Open </button>-->
+	<button id="save"><img src="img/16x16/diskette.png"/>Save </button>
+</div>
+
+<div id="no-file-open" class="hidden">
+
+
+
+
+		<br/><br/><br/><br/>
+
+		<p>
+			<img src="img/devkit/tools.svg" width="30%" style="opacity: 0.1;" />
+		</p>
+
+		<h1 style="text-shadow: 0 0 20px rgba(0, 0, 0, 0.8); color: rgba(255, 255, 255, 0.6);">Welcome, Developer!</h1>
+
+		<p style="text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);">Let's get started. <a href="" onclick="openWebLink('https://externos.io/developer')" style="color: #FFD600; text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);">Read how to build your first App</a></p>
+
+
+
+
+</div>
+
+<!--hiddenOpacity-->
+
+      <div id="allTabs" class="carousel slide" data-ride="carousel" data-interval="false">
+
+  <!-- Wrapper for slides  -->
+  <div id="allTabsC" class="carousel-inner hiddenOpacity" role="listbox">
+      
+	<!--<div id="container" class="editor" style="width:100%;height:100%;"></div>-->
+
+  </div>
+          <div>
+          <ul id="tabNav" class="hidden hiddenOpacity">
+              <button class="newTabButton newNavButton tooltips" data-original-title="Create a new file" title="" style="font-weight: normal; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0); height: 20px; position: relative; padding: 0;" onclick="newEmptyEditor()"><span class="icon" style="position: absolute; top: -5px; left: 5px;">&#61943;</span></button>
+            
+            
+                        </ul>
+          </div>
+
+ 
+</div>
+
+
+
+
+<input style="display:none;" id="openFile" type="file" />
+<input style="display:none;" id="saveFile" type="file" nwsaveas />
+<input id="openDirectory" style="display:none;" type="file" nwdirectory />
+
+
+</section>
+
+<section class="col-md-3" style="max-width: none; width: 296px; height: calc(100% - 75px);">
+    <div class="tab-container tile" style="height: 100%; margin-top: 35px; background: none; box-shadow: none;">
+        <div id="newItemWindow" class="hidden">
+            <div class="modal-content" style="margin-top: 50%;">
+                <div class="modal-header">
+                    <button style="width: 10px;" type="button" onclick="closePopupDialogue()" class="close" data-dismiss="modal" aria-hidden="true">
+                        <i style="font-size: 18px;" class="fa fa-circle-thin" aria-hidden="true"></i>
+                    </button>
+                    <h4 class="modal-title" style="font-size: 14px;">Create A New Directory</h4>
+                </div>
+                                <div class="modal-body" style="font-size: 13px;">
+                                    <div id="errorDirectoryExists" class="alert alert-danger hidden" style="text-align: left;">
+                        		Oh snap! A folder/directory with that name exists in this directory!
+                                </div>
+                                   <div class="row">
+                                        <input id="newItemName" type="text" class="form-control input-sm"  placeholder="Folder name" style="text-align: center;">
+                                    </div>
+                                </div>
+                                <div style="padding: 15px 15px; border-top: 1px solid rgba(255, 255, 255, 0.11);">
+                                    <button id="createNewDirectory" style="margin-top: 0;" type="button" class="btn btn-alt m-r-5" onclick="createNewDirectory()" disabled><span class='icon'>&#61943;</span> Create</button>
+                                    <button style="margin-top: 0;" type="button" onclick="closePopupDialogue()" class="btn btn-alt m-r-5 pull-right" data-dismiss="modal">Cancel</button>
+                                </div>
+                            </div>
+        </div>
+        <div class="tab-content">
+        <div class="tab-pane active verticalCenter" id="files">
+
+				<div id="accordionContainer" class="accordion tile" style="background-color: rgba(0, 0, 0, 0.1); margin-left: 3px; margin-top: 0; margin-right: 3px;">
+				<!--<div class="panel-group block hidden" id="accordion2">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">
+                                        <a id="projectName1" class="accordion-toggle collapsed active" data-toggle="collapse" data-parent="#accordion2" href="#collapseProject1">
+                                            Unnamed
+                                        </a>
+                                    </h3>
+                                </div>
+                                <div id="collapseProject1" class="panel-collapse collapse">
+                                    <div id="projectFiles1" class="panel-body">
+					
+				   </div>
+				   </div>
+				   </div>
+				   </div>-->
+                  
+                  				<div class="panel-group block hidden" id="accordion0">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">
+                                        <a id="projectName0" class="accordion-toggle collapsed active" data-toggle="collapse" data-parent="#accordion0" href="#collapseProject0">
+                                            Seperate files
+                                        </a>
+                                    </h3>
+                                </div>
+                                <div id="collapseProject0" class="panel-collapse collapse">
+                                    <div id="projectFiles0" class="panel-body">
+					<ul></ul>
+				   </div>
+				   </div>
+				   </div>
+				   </div>
+
+			   </div> </div>
+
+                            <div class="tab-pane" id="home">
+                              
+                                
+                                
+                                 <div class="accordion tile" style="background-color: rgba(0, 0, 0, 0.1); margin-left: 3px; margin-top: 0; margin-right: 3px;">
+                        <div class="panel-group block" id="accordion">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">
+                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                                            Window
+                                        </a>
+                                    </h3>
+                                </div>
+                                <div id="collapseOne" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <button title="Get the current window (window_obj: Optional is the DOM window) ::: nw.Window.get([window_object])" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('nw.Window.get([window_object]);')">nw.Window.get([window_object])</button>
+                                        <button title="Function called when a user or another App requests to open a file with your App" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.onOpenFiles(files) {  };')">win.onOpenFiles(files)</button>
+                                      <button title="Object with file types supported by given Apps" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.fileTypesApps')">win.fileTypesApps</button>
+                                      
+                                      <button title="Object containing all installed eXtern OS Apps" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.apps')">win.apps</button>
+                                      
+                                      <button title="Function to be called when playing audio as a music player. Allows the OS to display music notification and lets other Apps know that your App is currently playing music." class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.explorebar.updateTrack(data,callback);')">win.explorebar.updateTrack(data,callback)</button>
+                                      
+                                        <button title="Get the corresponding DOM window object of the native window. ::: win.window" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.window')">win.window</button>
+                                        <button title="Get or set left offset from window to screen. ::: win.x" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.x')">win.x</button>
+                                        <button title="Get or set left/top offset from window to screen. ::: win.y" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.y')">win.y</button>
+                                        <button title="Get or set window’s width. ::: win.width" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.width')">win.width</button>
+                                        <button title="Get or set window’s height. ::: win.height" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.height')">win.height</button>
+                                        <button title="Get or set window’s title. ::: win.title" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.title')">win.title</button>
+                                        <button title="Get whether we’re in fullscreen mode. ::: win.isFullscreen" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.isFullscreen')">win.isFullscreen</button>
+                                        <button title="Get whether transparency is turned on ::: win.isTransparent" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.isTransparent')">win.isTransparent</button>
+                                        <!--<button title="Get whether we’re in kiosk mode. ::: win.isKioskMode" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.isKioskMode')">win.isKioskMode</button>-->
+                                        <button title="Get or set the page zoom. 0 for normal size; positive value for zooming in; negative value for zooming out. ::: win.zoomLevel" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.zoomLevel')">win.zoomLevel</button>
+                                        <button title="Moves a window’s left and top edge to the specified coordinates. ::: win.moveTo(x, y)" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.moveTo(x, y);')">win.moveTo(x, y)</button>
+                                        <button title="Moves a window a specified number of pixels relative to its current coordinates. ::: win.moveBy(x, y)" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.moveBy(x, y);')">win.moveBy(x, y)</button>
+                                        <button title="Resizes a window to the specified width and height. ::: win.resizeTo(width, height)" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.resizeTo(width, height);')">win.resizeTo(width, height)</button>
+                                        <button title="Resizes a window by the specified amount. ::: win.resizeBy(width, height)" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.resizeBy(width, height);')">win.resizeBy(width, height)</button>
+                                        <button title="Focus on the window. ::: win.focus()" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.focus()')">win.focus()</button>
+                                        <button title="Move focus away. Usually it will move focus to other windows of your app, since on some platforms there is no concept of blur. ::: win.blur()" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.blur()')">win.blur()</button>
+                                        <button title="Show the window if it’s not shown. ::: win.show([is_show])" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.show([is_show])')">win.show([is_show])</button>
+                                        <button title="Hide the window. User will not be able to find the window once it’s hidden. ::: win.hide()" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.hide()')">win.hide()</button>
+                                        <button title="Close current window. And you can prevent the closing by listening to the close event. If force is specified and equals to true, then the close event will be ignored. ::: win.close([force])" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.close([force])')">win.close([force])</button>
+                                        <!--<button title="Reloads the current window. ::: win.reload()" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.reload()')">win.reload()</button>-->
+                                        <button title="Reloads the current page by starting a new renderer process from scratch. ::: win.reloadDev()" class="btn btn-alt m-r-5 insertPlugins" onclick="insertCode('win.reloadDev()')">win.reloadDev()</button>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">
+                                        <a class="accordion-toggle active" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                                            Window ::: Events
+                                        </a>
+                                    </h3>
+                                </div>
+                                <div id="collapseTwo" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        Will be available in Beta 2.1
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">
+                                        <a class="accordion-toggle active" data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+                                            Screen
+                                        </a>
+                                    </h3>
+                                </div>
+                                <div id="collapseThree" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        Will be available in Beta 2.1
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">
+                                        <a class="accordion-toggle active" data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
+                                            Screen ::: Events
+                                        </a>
+                                    </h3>
+                                </div>
+                                <div id="collapseFour" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        Will be available in Beta 2.1
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">
+                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseFive">
+                                            Tray
+                                        </a>
+                                    </h3>
+                                </div>
+                                <div id="collapseFive" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        Will be available in Beta 2.1
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">
+                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseSix">
+                                            Webview
+                                        </a>
+                                    </h3>
+                                </div>
+                                <div id="collapseSix" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        Will be available in Beta 2.1
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">
+                                        <a class="accordion-toggle active" data-toggle="collapse" data-parent="#accordion" href="#collapseSeven">
+                                            Webview ::: Events
+                                        </a>
+                                    </h3>
+                                </div>
+                                <div id="collapseSeven" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        Will be available in Beta 2.1
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">
+                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseEight">
+                                            Node Modules
+                                        </a>
+                                    </h3>
+                                </div>
+                                <div id="collapseEight" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        Will be available in Beta 2.1
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                
+                                
+                                
+                                
+                            </div>
+                            <div class="tab-pane" id="mainsx" style="margin-left: 8px;">
+
+				<div id="accordionContainerSettings" class="accordion tile" style="background-color: rgba(0, 0, 0, 0.1); margin-left: 3px; margin-top: 0; margin-right: 3px;">
+
+
+				</div>
+
+
+
+
+				</div>
+                            <div class="tab-pane" id="custom">
+                                <p>Will be available in Beta 2.1.</p>
+                            </div>
+                        </div>
+  
+                          <ul class="nav tab nav-tabs" style="background: rgba(0, 0, 0, 0) !important;">
+			    <li class="active"><a href="#files">Projects</a></li>
+                            <li><a href="#home">Helper Functions</a></li>
+                            <li><a href="#mainsx">Settings</a></li>
+                            <!--<li><a href="#custom">Custom</a></li>-->
+                        </ul>
+                    </div>
+
+</section>
+
+
+
+</section>
+
+	    </section>
+
+
+        
+        <!-- Javascript Libraries -->
+        <!-- jQuery -->
+        <script src="../../Shared/CoreJS/jquery.min.js"></script> <!-- jQuery Library -->
+            <script src="../../Shared/CoreJS/jquery-ui.min.js"></script> <!-- jQuery UI -->
+        <script src="../../Shared/CoreJS/jquery.easing.1.3.js"></script> <!-- jQuery Easing - Requirred for Lightbox + Pie Charts-->
+        
+        <!-- Bootstrap -->
+        <script src="../../Shared/CoreJS/bootstrap.min.js"></script>
+        <script src="../../Shared/CoreJS/jQuery.twFile.js"></script>    
+
+            
+                    <script src="../../Shared/CoreJS/sparkline.min.js"></script> <!-- Sparkline - Tiny charts -->
+        <script src="../../Shared/CoreJS/easypiechart.js"></script> <!-- EasyPieChart - Animated Pie Charts -->
+        <script src="../../Shared/CoreJS/charts.js"></script> <!-- All the above chart related functions -->
+            
+        <!-- Map -->
+        <script src="../../Shared/CoreJS/maps/jvectormap.min.js"></script> <!-- jVectorMap main library -->
+        <script src="../../Shared/CoreJS/maps/au.js"></script> <!-- Australia Map for jVectorMap -->
+        
+        <!-- UX -->
+        <script src="../../Shared/CoreJS/scroll.min.js"></script> <!-- Custom Scrollbar -->
+        
+        <!-- Other -->
+        <script src="../../Shared/CoreJS/calendar.min.js"></script> <!-- Calendar -->
+        <script src="../../Shared/CoreJS/feeds.min.js"></script> <!-- News Feeds -->
+            
+                   <!--  Form Related -->
+        <script src="../../Shared/CoreJS/icheck.js"></script> <!-- Custom Checkbox + Radio -->
+         <script src="../../Shared/CoreJS/select.min.js"></script> <!-- Custom Select -->
+        <script src="../../Shared/CoreJS/chosen.min.js"></script> <!-- Custom Multi Select -->
+        <script src="../../Shared/CoreJS/datetimepicker.min.js"></script> <!-- Date & Time Picker -->
+        <script src="../../Shared/CoreJS/colorpicker.min.js"></script> <!-- Color Picker -->
+        <script src="../../Shared/CoreJS/icheck.js"></script> <!-- Custom Checkbox + Radio -->
+        <script src="../../Shared/CoreJS/autosize.min.js"></script> <!-- Textare autosize -->
+        <script src="../../Shared/CoreJS/toggler.min.js"></script> <!-- Toggler -->
+        <script src="../../Shared/CoreJS/input-mask.min.js"></script> <!-- Input Mask -->
+        <script src="../../Shared/CoreJS/spinner.min.js"></script> <!-- Spinner -->
+        <script src="../../Shared/CoreJS/slider.min.js"></script> <!-- Input Slider -->
+        <script src="../../Shared/CoreJS/fileupload.min.js"></script> <!-- File Upload -->
+        
+        <!-- Text Editor -->
+        <script src="../../Shared/CoreJS/editor.min.js"></script> <!-- WYSIWYG Editor -->
+        <script src="../../Shared/CoreJS/markdown.min.js"></script> <!-- Markdown Editor -->
+        
+
+        
+
+        
+        
+        <!-- All JS functions -->
+        <script src="../../Shared/CoreJS/functions.js"></script>
+            <script src="../../slick.js"></script>
+            <script src="../../Shared/CoreJS/app-window-control.js"></script>
+            <script type="text/javascript" src="../../Shared/CoreJS/canvas_blur_rect.js"></script>
+            <script src="../../Shared/CoreJS/jquery.zoomooz.min.js"></script>
+	    <script src="editor.js"></script>
+	    <script src="node_modules/monaco-editor/min/vs/loader.js"></script>
+	    <!--<script type="text/javascript" src="https://unpkg.com/monaco-themes/dist/monaco-themes.js"></script>-->
+<script>
+
+
+
+//resizeEditor
+
+
+</script>
+	    
+        </div>
+
+<script>
+            
+            
+           
+                
+        
+        
+        </script>
+        
+    </body>
+
+

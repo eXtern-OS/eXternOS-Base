@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html style="background: rgba(0, 0, 0, 0.01);">
+  <head>
+              <!-- CSS -->
+        <link href="../../Shared/CoreCSS/bootstrap.min.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/animate.min.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/font-awesome.min.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/form.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/calendar.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/style.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/icons.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/generics.css" rel="stylesheet">
+    	<link href="../../Shared/CoreCSS/app-control.css" rel="stylesheet">
+	<link href="../../Shared/CoreCSS/scrollbar.css" rel="stylesheet">
+	<link href="css/browser2.css" rel="stylesheet" />
+    	<link rel="stylesheet" href="css/browser.css">
+  </head>
+    
+  <body id="body_settings">
+      <div style="overflow-y: hidden; overflow-x:hidden;">
+   
+   			<div id="blur2" class="hidden"> </div>  
+                      <div id = "navigationBar" class="navbar" style="margin-bottom:0;">
+                          <!--<div id="navBG" ></div>-->
+                    <button id="backButton" class="newNavButton tooltips" data-placement="right" data-original-title="Go back"><span class="icon">&#61903;</span></button>
+                    <button id="forwardButton" class="newNavButton tooltips" data-placement="right" data-original-title="Go forward"><span class="icon">&#61815;</span></button><!--#61737;-->
+                    <button id="reloadButton" class="newNavButton tooltips" data-placement="right" data-original-title="Reload"><span class="icon">&#61910;</span></button>
+                    
+                    <!--<button id="stopButton" class="navButton stopButton" title="Stop loading"></button>-->
+                    
+                    <div id="tweet" title="Tweet about this browser" style="display:none;"></div>
+                          <span id="shareIcon" class="icon">&#61701;</span>
+                          <!--<i id="secureConnection" class="fa fa-lock" aria-hidden="true"></i>-->
+                          
+                    <!--<i id="shareIcon" class="fa fa-share-alt" aria-hidden="true"></i>-->
+                          
+                    <div id="urlWrap">
+<label class="icon_s" for="urlInput">
+                        <span id = "loadingRing" class="ring"></span>
+                        <img id="favicon" src="file:///usr/eXtern/systemX/apps/extern.web.app/temporary/search.png" />
+                        
+                        <span id="audioPlayingIcon" class="icon">&#61849;</span>
+                    </label>
+                        <sup id="secureConnection2" style="margin-top:7px;"><span id="secureConnection2-text">Secure</span> <span class="fa fa-lock" style="color: black;" aria-hidden="true"></span></sup>
+                        <input id="urlInput" type="text" class="win-textbox" />
+                        
+                        <span id="urlDisplay" class="win-textbox" />
+                    </div>
+                          
+                          <div id="blockDetection"></div>
+                    
+                          <div style="width: calc(100% - 220px);"></div>
+                    <!--<button id="favButton" class="navButton favButton" title="View favorites"></button>-->
+                    <!--<button id="settingsButton" class="navButton settingsButton" title="View settings"></button>-->                          
+                          
+                          
+                          <!-- #61897; - Extensions icon -->
+                          <!--<button class="newTabButton newNavButton" title="Create a new tab" style="font-weight: normal; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0);" onclick="newTab()"><span class="icon">&#61943;</span></button>-->
+			<span id="fpsDebug" style="color: white"></span> <span id="fpsDebugMin" style="color: red"></span>
+                        
+                        <button id="extensionsButton" class="newNavButton tooltips" style="font-weight: normal;" data-placement="left" data-original-title="View Extensions" onclick="openExtensions();"><span class="icon">&#61796;</span></button>
+                        
+                          <button id="downloadsButton" class="newNavButton tooltips" style="font-weight: normal;" data-placement="left" data-original-title="View Downloads" onclick="openDownloads();"><span class="icon">&#61751;</span></button>
+                          
+                          <button id="favouritesButton" class="newNavButton tooltips" style="font-weight: normal;" data-placement="left" data-original-title="Favorites" onclick="openFavourites()"><span class="icon">&#61885;</span></button>
+                          <button id="settingsButton" onclick="openSettings();" class="newNavButton tooltips" style="font-weight: normal;" data-placement="left" data-original-title="Settings"><span class="icon">&#61886;</span></button>
+                </div>
+          <div id="tabsNavigator" class="hidden">
+                    
+                   
+
+   <!-- data-placement="bottom" <div id = "newTab0" class="browserTab browserTabSelected"><a href="#" data-target="#allTabs" onclick="switchToTab(0);" data-slide-to="0" class="active tabText" style="padding: 45% 78%; padding-left: 0;"><img id="tabicon0" class="tabIcon" src="" /> <span id = "newTabText0" class="tabTextStyle"> Sorry...</span></a><a href="#" class="tabCloseButton">X</a></div>
+    <div id = "newTab1" class="browserTab"><a href="#" data-target="#allTabs" onclick="switchToTab(1);" data-slide-to="1" style="padding: 45% 78%; padding-left: 0;" class="tabText"><img id="tabicon1" class="tabIcon" src="" /> <span id = "newTabText1" class="tabTextStyle"> Sorry...</span></a><a href="#" class="tabCloseButton">X</a></div>-->
+                        <!--<div id="addTab" class="browserTab" style="width: 20px" ><a href="#" style="padding: 45% 28%;" class="tabText">+</a></div>-->
+
+                    </div>
+      </div>
+      
+      
+    <div id="controls" style="display:none;">
+
+      <button id="back" title="Go Back" disabled="true">&#9664;</button>
+      <button id="forward" title="Go Forward" disabled="true">&#9654;</button>
+      <button id="home" title="Go Home">&#8962;</button>
+      <button id="reload" title="Reload">&#10227;</button>
+
+      <form id="oldlocation-form">
+        <div id="center-column">
+          <input id="oldlocation" type="text" value="http://www.github.com/">
+        </div>
+        <input type="submit" value="Go">
+      </form>
+
+      <!--<button id="zoom" title="Change Zoom">&#128270;</button>
+      <button id="find" title="Find in Page">&#128294;</button>-->
+        <button id="tab1" title="tab" onclick="switchToTab(0);">tab1</button>
+        <button id="tab2" title="tab" onclick="switchToTab(1);">tab2</button>
+
+    </div>
+          
+          
+
+    
+      
+      <div id="allTabs" class="carousel slide" data-ride="carousel" data-interval="false">
+<div class="searchSuggestions" style="opacity:1; display:none;"><div class="blackBg"></div><div class="blackBgInner"><div class="p-l-5 mainResult" link=""><div class="pull-left mainSearchIage"><img width="100" src="" alt="" style="-webkit-filter: drop-shadow(0 0 3px rgba(0,0,0,0.5));"></div><div class="media-body searchMedia"><p class="searchMain"></p><small class="mainSearchOverflow searchDesc"></small></div><div class="moreInfo"><button class="fromWikipedia">View on Wikipedia</button></div></div><div class="p-l-5 adaptiveSearch" searchTerm=""><div class="pull-left"><span class="icon searchIcon">&#61788;</span></div><div class="media-body"><p class="searchMainX"></p></div></div></div></div>
+        
+    <div id="contextMenuOverlay" class="hidden" onclick="returnToWebviewFocus()">
+      
+    </div>
+
+  <!-- Wrapper for slides  -->
+  <div id="allTabsC" class="carousel-inner" role="listbox" style="height: calc(100% - 30px);">
+      
+      <!--<div class="searchSuggestions">
+          <div class="blackBg"></div>
+     <div class="blackBgInner">
+          <div class="p-l-5 searchResult">
+                                                <div class="pull-left">
+                                                    <img width="100" src="https://duckduckgo.com/i/0227507d.png" alt="" style="    -webkit-filter: drop-shadow(0 0 3px rgba(0,0,0,0.5));">
+                                                </div>
+                                                <div class="media-body">
+                                                    <a href="#">
+                                                    <p class="searchMain">Google</p>
+                                                    <small class="mainSearchOverflow searchDesc">Google is an American multinational technology company specializing in Internet-related services and products that include online advertising technologies, search, cloud computing, software, and hardware. Most of its profits are derived from AdWords, an online advertising service that places advertising near the list of search results.
+                                                   </small>
+                                                        </a>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="p-l-5 searchResult">
+                                                <div class="pull-left">
+                                                    <span class="icon searchIcon">&#61788;</span>
+                                                </div>
+                                                <div class="media-body">
+                                                    <a href="#">
+                                                    <p class="searchMainX">Google</p>
+                                                        </a>
+                                                    
+                                                </div>
+                                                </div>
+      
+     
+      </div>
+          </div>-->
+  </div><!--    max-width: calc(100% - 45px);-->
+          <div>
+          <ul id="tabNav" class="overflow">
+                        </ul>
+              <button class="newTabButton newNavButton tooltips" data-original-title="Create a new tab" title="" style="font-weight: normal; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0); height: 20px; position: relative; padding: 0; display: inline-block; top: -15px;" onclick="newTab()"><span class="icon" style="position: absolute; top: -5px; left: 5px;">&#61943;</span></button>
+
+      <!--<button id="back" title="Go Back" disabled="true">&#9664;</button>-->
+      <button id="forwardScrollTab" title="Go Forward" onclick="scrollForward()" style="top: -25px; position: relative;" class="hidden" >&#9654;</button>
+          </div>
+
+ 
+</div>
+
+<div id="contextMenuBG" class="hidden"></div>
+
+          <div id = "link_context_menu" class="hidden">
+          <div id="contextMenuBgCover" class="hidden"></div>
+          
+          <img id = "rightclickBgAll" src="" alt="">  
+          <img id = "right_click_preview" class="hidden" src='' alt="">
+          <div id="rightClickBgDiv">
+              <img id = "rightclick_bg" src="" alt="">
+              <p id="rightClickText" class="hidden">"<span></span>"</p>
+              </div>
+        
+        
+                    <div id="rightclickoptions">
+                        <div id="normalLinkOption">
+
+                          <div class="contextMenu dropdown open">
+                            <ul class="dropdown-menu dropdown-menu-alt threeItemsContextHeight" role="menu">
+                              <li id="downloadLink" role="presentation" class="hidden" onclick="newTab('about')"><a role="menuitem" tabindex="-1"href="javascript:void(0);"><span style="font-weight: bold;" class="icon">&#61751;</span> Download</a></li>
+                              <li id="openNewTab" role="presentation" class="stackMenuItem" onclick="newTab('about')"><a role="menuitem" tabindex="-1" href="javascript:void(0);" class="disabled"><i class="fa fa-external-link" aria-hidden="true"></i> Open in new tab <span id = "move_arrow" class="icon current_menu_arrow hidden">&#61815;</span></a></li>
+                              <li id="openNewTab" role="presentation" class="stackMenuItem" onclick="newTab('about')"><a role="menuitem" tabindex="-1" href="javascript:void(0);" class="disabled"><i class="fa fa-clone" aria-hidden="true"></i> Open in new window <span id = "open_with_arrow" class="icon current_menu_arrow hidden">&#61815;</span></a></li>
+                              <li id="openNewTab" role="presentation" class="stackMenuItem" onclick="newTab('about')"><a role="menuitem" tabindex="-1" href="javascript:void(0);" class="disabled"><i class="fa fa-user-secret" aria-hidden="true"></i> Open in a private window <span id = "share_arrow" class="icon current_menu_arrow hidden">&#61815;</span></a></li>
+                              <li id="openNewTab" role="presentation" class="stackMenuItem" onclick="newTab('about')"><a role="menuitem" tabindex="-1" href="javascript:void(0);" class="disabled"><i class="fa fa-link" aria-hidden="true"></i>  Copy link location <span id = "convert_arrow" class="icon current_menu_arrow hidden">&#61815;</span></a></li>
+                              <li id="downloadLink2" role="presentation" class="hidden" onclick="newTab('about')"><a role="menuitem" tabindex="-1"href="javascript:void(0);"><span style="font-weight: bold;" class="icon">&#61751;</span> Download</a></li> <!-- For links with images inside them -->
+                              </ul>
+                          </div>
+                          <!--
+                    <a id="downloadLink" class="hidden" href="#" onclick="newTab('about')"><div id = "move_menu" class = "menu_option menu_active"><span style="font-weight: bold;" class="icon">&#61751;</span> Download <span id = "move_arrow" class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a id="openNewTab" href="#" onclick="newTab('about')"><div id = "move_menu" class = "menu_option menu_active"><i class="fa fa-external-link" aria-hidden="true"></i> Open in new tab <span id = "move_arrow" class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a id="openNewWindow" href="#" onclick="openNewWindow('about')"><div id = "open_with_menu" class = "menu_option"><i class="fa fa-clone" aria-hidden="true"></i> Open in new window <span id = "open_with_arrow" class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a href="#" class="not-active"><div class = "menu_option"><i class="fa fa-user-secret" aria-hidden="true"></i> Open in a private window <span id = "share_arrow" class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a id="copyLinkLocation" href="#" onclick=""><div class = "menu_option"><i class="fa fa-link" aria-hidden="true"></i> Copy link location <span id = "convert_arrow" class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                    <a href="#" class="not-active"><div class = "menu_option">More... <span id = "remove_arrow"class="icon current_menu_arrow">&#61815;</span></div></a>
+                    -->
+                </div>
+                        <div id="textSelectionOption" class="hidden">
+                          <div class="contextMenu dropdown open">
+                            <ul class="dropdown-menu dropdown-menu-alt threeItemsContextHeight" role="menu">
+                              <li id="copyText" role="presentation" onclick="setTextToClipboard()"><a role="menuitem" tabindex="-1"href="javascript:void(0);"><i class="fa fa-clone" aria-hidden="true"></i>  Copy </a></li>
+                              <li id="selectAllText" role="presentation" onclick="newTab('about')"><a role="menuitem" tabindex="-1"href="javascript:void(0);"><i class="fa fa-check" aria-hidden="true"></i>  Select All </a></li>
+                              <li id="searchText" role="presentation" onclick="newTab('about')"><a role="menuitem" tabindex="-1"href="javascript:void(0);"><i class="fa fa-search" aria-hidden="true"></i>  Search Online </a></li>
+                              <li id="inspectText" role="presentation" onclick="newTab('about')"><a role="menuitem" tabindex="-1"href="javascript:void(0);"><i class="fa fa-bullseye" aria-hidden="true"></i>  Inspect </a></li>
+
+                              <!--
+                             <a id="copyText" href="#" onclick="newTab('about')"><div id = "move_menu" class = "menu_option menu_active"><i class="fa fa-clone" aria-hidden="true"></i> Copy <span id = "move_arrow" class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                             <a id="selectAllText" class="not-active" href="#" onclick="newTab('about')"><div id = "move_menu" class = "menu_option menu_active"><i class="fa fa-check" aria-hidden="true"></i> Select All <span id = "move_arrow" class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                             <a id="searchText" class="not-active" href="#" onclick="newTab('about')"><div id = "move_menu" class = "menu_option menu_active"><i class="fa fa-search" aria-hidden="true"></i> Search Online <span id = "move_arrow" class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                             <a id="inspectText"  onclick="openDevTools()" href="#" onclick="newTab('about')"><div id = "move_menu" class = "menu_option menu_active"><i class="fa fa-bullseye" aria-hidden="true"></i> Inspect <span id = "move_arrow" class="icon current_menu_arrow hidden">&#61815;</span></div></a>
+                            <a href="#" class="not-active"><div class = "menu_option">More... <span id = "remove_arrow"class="icon current_menu_arrow">&#61815;</span></div></a>
+                            -->
+                        </div>
+
+</div>
+</div>
+          </div>
+    
+
+      
+      <div id="sideBar" class="">
+
+              <div id="historyContainer"  style="width:100%; height:100%;" class="hidden">
+
+
+		                            
+                            <!-- Browsing History List -->
+                            <div class="" style="height: 100%">
+                                <h2 class="tile-title">Browsing History</h2>
+                                <div class="tile-config dropdown">
+                                    <a data-toggle="dropdown" href="#" class="tooltips tile-menu" title="Options"></a>
+                                    <ul class="dropdown-menu pull-right text-right">
+                                        <li><a href="#">Refresh</a></li>
+                                        <li><a href="#">Settings</a></li>
+                                    </ul>
+                                </div>
+                                
+                                <div id="historyList" class="listview narrow overflow" style="height: 100%">
+					<!--Show Browsing history here -->
+                                </div>
+                            </div>
+                
+
+          
+              </div>
+
+<div id="devToolsContainer" style="width:100%; height:100%;" class="hidden">
+	<!--<h3 class="block-title">Developer Tools</h3>-->
+              <div id="devToolsInner"  style="width:100%; height:calc(100% - 10px)">
+                
+                <webview id="devToolsWebview" src="about:blank" style="width:100%; height:calc(100% - 10px)" partition="persist:trusted" allowtransparency></webview>
+                  
+              <!--<p>Developer tools is currently unavailable.</p>-->
+          
+              </div>
+
+
+
+
+		<button style="width: 100%; border: none !important; padding-bottom: 2px; padding-top: 2px; text-align: right;" class="btn btn-alt m-r-5" onclick="closeSideBar()">Close Developer Tools <img style="width: 20px;" src="../../Shared/CoreIMG/icons/actions/close-icon.png"></button>
+              
+              
+              
+          </div>
+          
+          <div id="settingsContainer" class="hidden">
+
+              <div id="settingsInner">
+                  <h3 class="block-title">Zoom</h3>
+                  <div id="zoom-box">
+                      
+      <form id="zoom-form">
+          <button class="tooltips icon" title="Zoom Out" id="zoom-out">&#61701;</button>
+        <input id="zoom-text" type="text">
+        <input type="submit" class="hidden" value="&#128270;">
+        <button class="tooltips icon" title="Zoom In" id="zoom-in">&#61736;</button>
+      </form>
+    </div>
+                  <div class="whiter" style="margin-top: 10px;"></div>
+                  
+                  <h3 class="block-title">Find</h3>
+
+    <div id="find-box">
+      <form id="find-form">
+        <input id="find-text" placeholder="Search" type="text">
+        <div id="find-results"></div>
+        <input type="submit" style="position:absolute; visibility:hidden">
+        <button id="match-case" class="hidden">aA</button>
+        <button class="tooltips icon" title="Previous" id="find-backward">&#61903;</button>
+        <button class="tooltips icon" title="Next" id="find-forward">&#61815;</button>
+      </form>
+    </div>
+                  <div class="whiter" style="margin-top: 10px;"></div>
+                  
+                   <h3 class="block-title">Search Engine</h3>
+                      
+                      <div class="btn-group">
+                        <button class="btn btn-alt dropdown-toggle" type="button" style="min-width: 120px; text-shadow: 0 0 10px rgba(0, 0, 0, 0.8); font-weight: bold;" data-toggle="dropdown">
+                            <span id="searchEnginesDropdown">DuckDuckGo</span> <span class="caret"></span>
+                        </button>
+                        <ul id="searchEnginesDropdownOptions" class="dropdown-menu" style="width: 215px;" role="menu">
+                            <li><a href="#" onclick="setSearchEngine('https://duckduckgo.com/?q=','DuckDuckGo')">DuckDuckGo</a></li>
+                            <li><a href="#" onclick="setSearchEngine('https://www.google.com/?#q=','Google')">Google</a></li>
+                            <li><a href="#" onclick="setSearchEngine('https://www.bing.com/search?q=','Bing')">Bing</a></li>
+                        </ul>
+                    </div>
+                  
+                  <div class="whiter" style="margin-top: 10px;"></div>
+                  
+                  <h3 class="block-title">Tools</h3>
+                  
+                  <div>
+                  <button id="zoom" class="hidden" title="Change Zoom">&#128270;</button>
+      <button id="find" class="hidden" title="Find in Page">&#128294;</button>
+                  
+                  <button class="btn-connect btn btn-alt m-r-5" onclick="openDevTools()">Developer Tools</button>
+                  </div>
+                
+             
+                  
+                  <div class="whiter" style="margin-top: 10px;"></div>
+                
+                <h3 class="block-title">Browsing Experience</h3>
+                
+                <div>
+                  
+                  <button class="btn-connect btn btn-alt m-r-5" onclick="openHistory()">View History</button>
+                  </div>
+                
+                <div class="whiter" style="margin-top: 10px;"></div>
+                  
+                  <h3 class="block-title">Trackers and Ads</h3>
+                  
+<div style="width: 100%; height: 40px;">
+                                            <h5 style="display:inline-block; float:left;">Blocker </h5>
+
+                                            <div class="" style="float:right;">
+                                                <div class="make-switch">
+                                                    <input id="enableTrackersAdsBlocker" type="checkbox">
+                                                </div>
+                                            </div>
+
+                  
+                </div>
+<p> Uses latest rules from <a href="#" onclick="">EasyList and EasyPrivacy </a> </p>
+                  <div class="whiter" style="margin-top: 10px;"></div>
+
+<h3 class="block-title">Browsing Experience</h3>
+                  <!--Enabled-->
+                                        <div style="width: 100%; height: 40px;">
+                                            <h5 style="display:inline-block; float:left;">Transparency </h5>
+
+                                            <div style="float:right;">
+                                                <div class="make-switch">
+                                                    <input id="enableTransparency" type="checkbox">
+                                                </div>
+                                            </div>
+                  
+                </div>
+                
+                  
+             
+              
+              
+              
+          </div>
+            </div>
+
+
+    <div id="downloadsContainer" class="hidden">
+<p id="downloadsTitle" class="hidden">Downloads</p>
+<h3 class="block-title">Downloads</h3>
+              <div id="downloadsInner">
+                  
+              <p>No new downloads for this session.</p>
+          
+              </div>
+              
+              
+              
+          </div>
+        
+        <div id="historyViewContainer" class="hidden">
+<h3 class="block-title">Your Browsing History</h3>
+              <div id="downloadsInner">
+                  
+              <p>You haven't Accessed any webpage yet.</p>
+          
+              </div>
+              
+              
+              
+          </div>
+        
+          
+<!--right click menu used to be here -->
+
+
+<div id = "favourites_context_menu" class="hidden">
+          
+          <img id = "favouritesBgAll" src="" alt="">  
+          <img id = "favourites_preview" class="hidden" src='' alt="">
+          <div id="bookmarkBgDiv">
+              <img id = "bookmark_bg" src="" alt="">
+              <p id="bookmarkText" class="hidden"></p>
+              </div>
+        
+        
+                    <div id="favouritesOptions">
+                        <div class="form-group m-b-15">
+                                        <label>Name</label>
+                                        <input id="favouriteNameInput" type="text" class="form-control input-sm">
+                                    </div>
+                        <div class="form-group m-b-15">
+                                        <label>Description</label>
+                                        <input id="favouriteDescInput" type="text" class="form-control input-sm">
+                                    </div>
+
+			<div>
+				<div class="pull-left">
+					<a href="#" class="btn btn-alt m-r-5" onclick="deleteCurrentBookMark()">Remove</a>
+				</div>
+
+				<div class="pull-right">
+					
+					<a href="#" onclick="changeBookMarkDetails()" class="btn btn-alt m-r-5">Done</a>
+				</div>
+			</div>
+                        </div>
+
+	</div>
+        
+
+                        
+           
+       
+      </div>
+          <canvas id="blurCanvas" class="hidden" width="300" height="136"></canvas>
+    <div id="sad-webview">
+      <div id="sad-webview-icon">&#9762;</div>
+      <h2 id="crashed-label">Aw, Snap!</h2>
+      <h2 id="killed-label">He's Dead, Jim!</h2>
+
+      <p>Something went wrong while displaying this webpage.
+      To continue, reload or go to another page.</p>
+    </div>
+      
+      </div>
+              <!-- Javascript Libraries -->
+        <!-- jQuery -->
+        <script src="../../Shared/CoreJS/jquery.min.js"></script> <!-- jQuery Library -->
+            <script src="../../Shared/CoreJS/jquery-ui.min.js"></script> <!-- jQuery UI -->
+        <script src="../../Shared/CoreJS/jquery.easing.1.3.js"></script> <!-- jQuery Easing - Requirred for Lightbox + Pie Charts-->
+        
+        <!-- Bootstrap -->
+        <script src="../../Shared/CoreJS/bootstrap.min.js"></script>
+            
+
+            
+                    <script src="../../Shared/CoreJS/sparkline.min.js"></script> <!-- Sparkline - Tiny charts -->
+        <script src="../../Shared/CoreJS/easypiechart.js"></script> <!-- EasyPieChart - Animated Pie Charts -->
+        <script src="../../Shared/CoreJS/charts.js"></script> <!-- All the above chart related functions -->
+            <script src="js/CircularLoader-v1.2.js"></script>
+
+        
+        <!-- UX -->
+        <script src="../../Shared/CoreJS/scroll.min.js"></script> <!-- Custom Scrollbar -->
+            
+            <!--Toggles-->
+            <script src="../../Shared/CoreJS/toggler.min.js"></script> <!-- Toggler -->
+        
+        <!-- Other -->
+        <script src="../../Shared/CoreJS/feeds.min.js"></script> <!-- News Feeds -->
+            
+                   <!--  Form Related -->
+        <script src="../../Shared/CoreJS/icheck.js"></script> <!-- Custom Checkbox + Radio -->
+            <script src="../../Shared/CoreJS/slider.min.js"></script> <!-- Input Slider -->
+        
+        
+        <!-- All JS functions -->
+        <script src="../../Shared/CoreJS/functions.js"></script>
+      <script type="text/javascript" src="../../Shared/CoreJS/canvas_blur_rect.js"></script>
+      
+      
+     <script src="../../Shared/CoreJS/jquery.zoomooz.min.js"></script>
+      <script src="js/browser.js"></script>
+	<script src="../../Shared/CoreJS/asyncReplace.js"></script> <!-- Asynchronous Replace -->
+      <script src="ext/filterLists/updateEasylist.js"></script>
+  </body>
+</html>

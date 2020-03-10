@@ -1,0 +1,1052 @@
+
+
+<head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+        <meta name="format-detection" content="telephone=no">
+        <meta charset="UTF-8">
+
+        <title>Music</title>
+            
+        <!-- CSS -->
+        <link href="../../Shared/CoreCSS/bootstrap.min.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/animate.min.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/font-awesome.min.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/form.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/calendar.css" rel="stylesheet">
+	<link href="css/music.css" rel="stylesheet">
+        <link href="css/style.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/icons.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/generics.css" rel="stylesheet">
+    	<link href="../../Shared/CoreCSS/slick.css" rel="stylesheet"> 
+      	<link href="../../Shared/CoreCSS/slick-theme.css" rel="stylesheet">
+    	<link href="../../Shared/CoreCSS/app-control.css" rel="stylesheet">
+
+          <style>
+              .currently_playing
+              {
+                  display:none;
+              }
+          h4{
+              float:left;
+          }
+          #track_name
+          {
+          width: 65%;
+              
+                  text-shadow: 0 0 10px #fff;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+              overflow: hidden;
+                  display: inline;
+    float:left;
+              
+          }
+div#mp3_player{ position: relative;     /*width: 80%;*/
+    height: 280px;
+    background: rgba(0,0,0,0);
+    padding: 5px;
+    margin-left: 20px;  }
+div#mp3_player > div > audio{      width: 100%;
+    /* max-width: 437px; */
+    background: rgba(0,0,0,0);
+    /* float: right; */
+    /* margin-right: 43; */}
+div#mp3_player > canvas{     width: 95%;
+    /* max-width: 411px; */
+    height: 100%;
+    /* background: rgba(255, 255, 255, 0.15); */
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-radius: 5px;
+    /* box-shadow: 0 -5px 40px rgba(0,0,0,0.5); */
+    float: right;
+    margin-right: 10px;
+    /* margin-top: 30px; */
+    /* margin-bottom: 20px; */}
+              
+              #audio_box {
+                      position: absolute;
+    width: 100%;
+    padding-left: 8px;
+    padding-right: 28px;
+    /* top: 200px; */
+    bottom: 5px;
+    left: 0;
+                  
+              }
+              
+          #drag_loader{display: none;}
+</style>
+
+   
+    
+    </head>
+    <body id="body_settings">
+        <!--<canvas id="bg_cover" width="1260" height="600"></canvas>-->
+        <!--<div id = "bg_cover"></div>-->
+        <div style="overflow-y: hidden; overflow-x:hidden;">
+            <!--<img id = "bg_cover" src="BLURED.jpg" />-->
+            
+                 <!-- <div class="bar_bg drag_enabled"><div id = "minimize_button" class="window_buttonsX"><span class="icon">&#61853;</span></div><p class="tile-title" id="tile-text"><b>iX Music<sup id="title_track_info"> - Disfigure by Blank</sup></b></p> <div id = "close_button">X</div>
+</div>-->
+            
+            <!--<div id= "draggableTopBar" class="bar_bg drag_enabled"><div id = "minimize_button" class="window_buttonsX"><span class="icon">&#61853;</span></div><p class="tile-title" id="tile-text"><b>Music<sup id="title_track_info" style="display:none;"> - Disfigure by Blank</sup></b></p> <i id = "close_button" class="fa fa-circle-thin" aria-hidden="true"></i>
+</div>-->
+            
+        
+        <div class="clearfix"></div>
+
+<section id="fistStartIntro">
+<div style="text-align: center; padding-top: 10%; color: white; text-shadow: 0 0 30px rgba(0, 0, 0, 0.47);">
+          <p>
+              <img src="icon.svg" style="width: 200px">
+              <!--<span style="text-shadow: 0 0 30px rgba(0, 0, 0, 0.47); color: rgba(255, 255, 255, 0.74); font-size: 120px;" class="icon">&#61955;</span>-->
+          
+          </p>
+          
+          <p style="font-size: 20px; font-weight: bold; background-color: rgba(255, 255, 255, 0.13); text-shadow: 0 0 20px rgb(0, 0, 0); margin: 0 50px 30px 50px; padding: 10px;"> eXtern OS Music uses Deezer&trade;, Google Play Music & MusicBrainz for online streamable content and artist information. You can now stream your unlimited Google Play Music library directly! eXtern OS will only stream 30 seconds from Deezer for preview purposes due to legal reasons. We plan to add more streaming options and maybe support Deezer&trade; premium for full length streams for premium users.</p>
+      <p><a class="btn btn-alt btn-lg" onclick="closeFirstStart();">Got it</a></p>
+          
+      </div>
+</section>
+        
+        <section id="main" style="display: none;" class="p-relative" role="main" >
+            
+            <!-- Sidebar -->
+            <aside id="sidebar">
+                
+
+                
+                <!-- Side Menu -->
+                <ul class="list-unstyled side-menu">
+                    <li class="active">
+                        <!--setTimeout(function(){window.updateTopBanner()}, 500);-->
+                        <a href="#" onclick="closeSettings()">
+                            <span class="icon sidebar_icon">&#61859;</span>
+                            <span class="menu-item">My Library</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="openSettings();">
+                            <span class="icon sidebar_icon">&#61886;</span>
+                            <span class="menu-item">Settings</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-target="#allTabs" data-slide-to="3">
+                            <span class="icon sidebar_icon">&#61730;</span>
+                            <span class="menu-item">About Music</span>
+                        </a>
+                    </li>
+                </ul>
+                
+            </aside>
+
+
+
+
+
+
+
+
+        
+            <div id="allTabs">
+
+
+  <!-- Wrapper for slides  -->
+  <div id="allTabsC"">
+      
+      
+      <div id="catalogueView" class="zoomContainer musicMenu">
+          
+          <canvas id="baanerBlur" width="200" height="300" class="hidden"></canvas>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+          <section id="catalogueSection" class="container" style="margin-left: 40px;">
+              <div class="block-area" style="padding-top:0;">
+                  
+                  
+                  
+                  <div class="tab-container tile">
+                        <ul class="nav tab nav-tabs">
+                            <li class="active"><a href="#home" onclick="focusOnlineSearch()"><span class="icon" style="margin-right: 3px;">&#61838;</span> Online</a></li>
+                            <li><a href="#profile"><span class="icon" style="margin-right: 3px;">&#61751;</span> Local</a></li>
+
+                        </ul>
+
+                          
+                        <div class="tab-content">
+                            <div class="tab-pane active overflow" id="home" style="height:100%;">
+                                <div id="mainOnlineLibrary" class="hidden">
+                                 <div id="onlineLibrary">
+                  
+                  </div>
+
+<div class="col-md-4 col-md-offset-4"> <input id="searchInput" type="text" class="form-control" placeholder="What would you like to listen to?">
+
+                            <a id="searchRequest" href="#" onclick="aiRequest()" style="position: absolute; top: 0px; right: 10px; color: rgba(255, 255, 255, 0.75);" class="hidden"><span class="icon aiTextInputGo" style="font-size: 18px; text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);">&#61788;</span></a>
+</div>
+                  <div class="col-md-12">
+                  <h4 class="catalogueTitle block-title">Top Playlists</h4> </div>
+
+
+
+
+                    <div id="cataloguePlaylist" class="row m-container" style=""></div>
+                                
+                    <a id="moreTopPlaylists" href="#" class="pull-right" style="margin-right: 20px; margin-top: 10px;" onclick="addMoreTrending('playlists',6,12)">More Playlists</a>
+                  
+		<div class="col-md-12">
+                  <h4 class="catalogueTitle block-title">Trending Artists</h4> </div>
+                  
+                    <div id="catalogueArtists" class="row m-container" style=""></div>
+                                <a id="moreTopArtists" href="#" class="pull-right" style="margin-right: 20px; margin-top: 10px;" onclick="addMoreTrending('artists',6,12)">More Artists</a>
+
+		<div class="col-md-12">
+                  <h4 class="catalogueTitle block-title">Top Albums</h4> </div>
+
+
+                  <div id="catalogueAlbums" class="row m-container" style=""></div>
+                                <a id="moreTopAlbums" href="#" class="pull-right" style="margin-right: 20px; margin-top: 10px;" onclick="addMoreTrending('albums',6,12)">More Albums</a>
+                            </div>
+                              
+                              <div id="noInternetConnection" class="hidden">
+                                
+                                <p>You are currently not connected to the internet.</p>
+                                
+                              </div>
+                                
+
+                            </div>
+                            
+                            <div class="tab-pane overflow" id="profile" style="height:100%;">
+                              
+                              <div id="cataloguePlaylistsLocal" class="row m-container hidden">
+                                <h4 class="catalogueTitle block-title">Playlists</h4>
+                                
+                                <div class="ctalogueContent"></div>
+                              
+                              </div>
+                              
+                              <div id="catalogueArtistsLocal" class="row m-container hidden">
+                                <h4 class="catalogueTitle block-title">Artists</h4>
+                                
+                                <div class="ctalogueContent"></div>
+                              
+                              </div>
+                              
+                              <div id="catalogueAlbumsLocal" class="row m-container hidden">
+                                <h4 class="catalogueTitle block-title">Albums</h4>
+                                
+                                <div class="ctalogueContent"></div>
+                              
+                              </div>
+                                
+                              
+                              
+                              </div>
+                              <div id="localNoLibrary"  style="text-align: center; font-size: 30px; padding-top: 25%; padding-bottom: 25%;">
+                                <p>You have not yet added a local Music Library.</p>
+				<a href="#" class="btn btn-alt m-r-5"><span class="icon">&#61943;</span> Add New Music Library</a>
+				</div>
+                            </div>
+                        </div>
+                    </div>
+                  
+                  
+                  
+                 
+                  
+                  
+                  
+                  
+             
+          </section>
+          
+          <section id="content" class="container hidden">
+                <div class="block-area">
+                    <div class="row m-container noLibraryBanner" style="margin-left: 20px;">
+                        <img id="sampleArtist1" src="" style="border-radius: 10px 0 0 10px; box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);">
+                        <img id="sampleArtist2" src="" style="margin-left: -105px;">
+                        <img id="sampleArtist3" src="" style="margin-left: -105px;">
+                        <img id="sampleArtist4" src="" style="border-radius: 0 10px 10px 0; box-shadow: 0 0 30px rgba(0, 0, 0, 0.8); margin-left: -105px;">
+                    
+                    
+                    </div>
+                    <div class="row m-container" style="/*margin-top: 10%;*/">
+                        <div class="block-area" id="jumbotron">
+                            <div class="jumbotron tile-light"style = "background-color: rgba(255, 255, 255, 0.05); box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);">
+                                <div class="container">
+                                    <p>My Library</p>
+                                    <p style="font-size: 13px;"><i>Currently unavailable in this release. You can open music directly from the file browser (or any other app).</i></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+              </div>
+          </section>
+      </div>
+      
+
+      
+
+      
+      <div id="aboutView" class="hidden">
+          <section id="content" class="container">
+                <div class="block-area">
+                    <div class="row m-container" style="margin-top: 10%;">
+                        <div class="block-area" id="jumbotron">
+                            <div class="jumbotron tile-light"style = "background-color: rgba(255, 255, 255, 0); box-shadow: 0 0 30px rgba(0, 0, 0, 0);">
+                                <div class="container" style="text-align:center;">
+                                    <h1 style="color: rgba(255, 255, 255, 0.68);">Music<sup> v0.3 (Beta)</sup></h1>
+                                    <p> We are working on it :) </p>
+                                    <p style="font-size: 13px;"><i>By Anesu Chiodze</i></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+              </div>
+          </section>
+      </div>
+      
+      
+      
+  </div>
+          
+      <div id="onlineSearch" class="musicMenu hidden">
+          <div>
+              <button id = "go_back_to_online" class="btn btn-alt m-r-5 pull-left"> <a href="#"><span class="icon" >&#61760;</span></a> Go Back </button>
+              <h2 id="onlineSearchTitle" style="text-align: center; margin-bottom: 20px;">Search results for "Enimen"</h2>
+          </div>
+          <div id="onlineSearchResults" class="overflow" style="background-color: rgba(255, 255, 255, 0.14902); border-radius: 5px; padding: 10px; height: 100%;"></div>
+      </div>
+          
+          <section id="playbackView" class="zoomContainer hidden">
+                        
+          <div id="welcomeView" style="text-align: center; padding-top: 10%; color: white; text-shadow: 0 0 30px rgba(0, 0, 0, 0.47);">
+          <p>
+              <img src="icon.svg" style="width: 200px">
+              <!--<span style="text-shadow: 0 0 30px rgba(0, 0, 0, 0.47); color: rgba(255, 255, 255, 0.74); font-size: 120px;" class="icon">&#61955;</span>-->
+          
+          </p>
+          
+          <p style="font-size: 30px;"> Open Audio files from <a href="#" style="background-color: rgba(255, 255, 255, 0.22); text-decoration: none; border-radius: 5px; padding: 0 5px 0 5px;"><span style="position: relative; top: -5px;"><img src="../extern.files.app/icon.svg" style="width: 40px"></span><span> Files</span></a> or stream online.</p>
+      
+          
+      </div>
+          
+                  <!-- Music Player View -->
+            <section id="view0" class="container">
+                <div class="block-area">
+                    <div class="row m-container">
+		                 <a id="backFromPlayerButton" href="#" onclick="makeControlsSmall()" class="pull-left" style="font-size: 18px; position: absolute; margin-left: 10px;">
+                                            <span class="icon" >&#61760;</span>
+                                       Back</a>
+                        
+                        <div id = "all_artist_info" class="col-md-4">
+                <div id="artist_cover_bg">
+                                <img id = "artist_cover" src="" style="height: 303.48;" alt="Artist Cover" />
+                        </div>
+                            <div id="artist_overlay_blur"></div>
+                            <div id="artist_overlay_label">
+                            <h4 id="artist_name_label">Unknown</h4>
+                                <div class="clearfix"></div>
+                            <div id="artistWebDetails">
+                            <span id = "url_a_label">Website: </span><a id="artist_website" class="news-title countsx" style = "font-size: 13px;"href="#"></a>
+                                <div class="clearfix"></div>
+                            <span id = "url_b_label">Twitter: </span><a id="artist_twitter" class="news-title countsx" style = "font-size: 13px;"href="#"></a>
+                            </div>
+
+			   <div id="artistStatsDetails">
+				<p id = "albums_a_label">Albums: </p><span id = "nb_albums" class="countsx"></span>
+<br>
+<p id = "fans_a_label" class="hidden">Fans on Deezer: </p><span id = "nb_fans" class="countsx hidden"></span>
+			  </div>
+                            </div>
+  
+                                            <!-- Playlist -->
+
+			<h3 id="playListTitle" class="block-title" style="top: -150px; position: relative;">Playlist</h3>
+				<div id="sidePlaylist" class="overflow listview todo-list sortable"></div>
+
+                            <div class="tile hidden" style="top: -150px;  max-width: 324px;   box-shadow: 0 0 20px rgba(0,0,0,0); background: rgba(255, 255, 255, 0);">
+                                <div class="tab-container">
+                        <div class="tab-content" style="padding-right: 0;">
+                            <div class="tab-pane active" id="home-b">
+                                <div class="listview narrow">
+                                    
+                                    <div id = "artist_rating" class="media">
+                                        <div class="pull-right">
+                                            <div id = "nb_ratings" class="counts"></div>
+                                        </div>
+                                        <div class="media-body">
+                                            <h6 style="padding-left: 10px;">RATING (OUT OF 5)</h6>
+                                        </div>
+                                    </div>
+                                    <div class="media">
+                                        <div class="pull-right">
+                                            <div id = "nbk_albums" class="counts"></div>
+                                        </div>
+                                        <div class="media-body">
+                                            <h6 style="padding-left: 10px;">ALBUMS</h6>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="years_active" class="media">
+                                        <div class="pull-right">
+                                            <div id = "nb_years_active" class="counts"></div>
+                                        </div>
+                                        <div class="media-body">
+                                            <h6 style="padding-left: 10px;">AGE</h6>
+                                        </div>
+                                    </div>
+                                    <div id="deezer_fans" class="media">
+                                        <div class="pull-right">
+                                            <div id = "nb_fansx" class="counts"></div>
+                                        </div>
+                                        <div class="media-body">
+                                            <h6 style="padding-left: 10px;">FANS ON DEEZER</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <div class="tab-pane overflow" id="profile-b">
+                                 <div id="sidePlaylistx" class="listview todo-list sortable">
+                                     
+                                     
+                                </div>
+                            </div>
+                                    </div>
+                                <ul class="nav tab nav-tabs">
+                            <li class="active" style="width: 49%;"><a href="#home-b">Artist Statistics</a></li>
+                            <li style="width: 50%;"><a href="#profile-b">Currently Playing Playlist</a></li>
+                        </ul>
+                                </div>
+                                
+                                
+                            </div>
+           
+                        </div>
+                
+                
+                
+                
+                
+                
+               
+              <div id = "main_music_components" class="col-md-7" style=""> <!--style="width: 65.33333333%;"-->
+            
+                      
+      <div id="mp3_player">
+          <div id="lyricDisplay" style="height: 290px; height: 276px; width: 100%;
+    text-align: center; font-size:20px; position: absolute;     border-radius: 5px; box-shadow: 0 0 40px rgba(0,0,0,0);"> 
+              <img id="bigAlbum" src="" style="max-height: 100%; border-radius: 5px; -webkit-filter: blur(10px); opacity: 0.1;" alt="" />
+              <p class="hidden" style="font-size: 50px; text-align: center;  color: rgba(255, 255, 255, 0.34); text-shadow: 0 0 20px rgba(0, 0, 0, 0.33);"> Lyrics Unavailable </p>
+              <img id="current_album_cover" class="album_cover hidden" src="img/album-art-blank.png" alt="">
+                  <img id="current_audio_cover" class="album_cover2 hidden" src="img/album-art-blank.png" alt="">
+
+		<div id="smallPlaybackViewToggle" onclick="makeControlsBig()" class="hidden"><!-- Used to toggle from small player to big player--></div>
+              <div id="waveform" style="bottom: 100px; position: relative; width: 100%; /*background-color: rgba(0, 0, 0, 0.1);*/ border-bottom-right-radius: 5px; border-bottom-left-radius: 5px;"></div>
+          </div>
+          
+         
+          <!--<canvas id="analyser_render"></canvas> --> 
+  <div id="audio_box"></div>
+</div>
+                
+       
+                                <div id="playingInfoControls">
+                                    <a id="playControls" href="#"><i class="fa fa-pause" aria-hidden="true"></i></a> <!--pause--> 
+                                    <div id="nowPlayingNames" class="slider single-item" style="font-size: 30px;">
+                                       
+                                    
+                                    </div>
+                                    
+                                    
+                                    
+                                <h2 class="tile-title hidden" style="background: rgba(0,0,0,0.05); box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);" >Currently Playing</h2>
+                                <div class="listview narrow tile-light hidden" style="background: rgba(255,255,255,0.05);">
+                                    <div class="media">
+                                        <div class="media-body">
+                                            <a id = "track_plus_album" class="news-title underline" style = "font-size: 14px;"href="#">Unknown Track</a>
+                                            <div class="clearfix"></div>
+                                            <small id = "artist_name" class="muted">Unknown Artist</small>
+                                        </div>
+                                    </div>
+                                    <div class="media text-center l-100">
+                            <a href="#"></a>
+                        </div>
+                                </div>
+                                </div>
+                             
+                
+                
+      <div class="currently_playing">
+      <h4 class="text_margin_none text_inline">Currently Playing: </h4>
+          <p id = "track_name" class="text_margin_none text_inline">Disfigure by Blank</p>
+          <div></div> <h5 class="text_margin_none text_inline album_name">Album: </h5>
+          <p class="text_margin_none text_inline">NCS</p>
+          <a href=""><div class="view_playlist_button"><center><p class="text_margin_none text_inline">View Playlist</p></center></div></a>
+      
+      
+      </div>
+                  
+                             <!-- Content Boxes -->
+                <div class="block-area" id="content-boxes" style="/*margin-top: 20px;*/">
+                     <h3 id = "similar_tracks_label" class="block-title hidden" style="margin-top: 20px;">Similar tracks</h3>
+                     
+                     <div id = "album_list_box" class="row overflow" style="height: calc(100% - 450px);">
+                          <p id="noRelatedAlbumsFound"><span class="icon" >&#61730;</span> <br> Sorry, we cannot find related content for this song.</p>
+                     </div>
+ 
+                        </div>
+                        </div>    
+                        
+       
+                    </div>
+                </div>
+          
+            </section>
+          </section>
+ 
+</div>
+
+
+
+
+      <div id="settingsView" class="hidden musicMenu">
+
+
+
+
+          <section id="content" class="container">
+                <div class="block-area">
+
+
+		<!-- Online Streaming services and user accounts settings-->
+		<div class="row m-container" style="overflow-y: scroll;">
+
+		<div class="col-md-5">
+		<div class="p-10" style="background: rgba(0,0,0,0);">
+                        <h4 class="page-title">ONLINE STREAMING</h4>
+			<div>
+				<div style="margin-top: 30px; width: 50px;">
+                    <div class="text-center s-widget m-b-25 dropdown open" id="profile-menu">
+                        <a href="#">
+                            <img id="streamingServiceIcon" class="profile-pic2 animated" src="img/logos/deezer-logo.png" alt="">
+                        </a>
+                        <ul id="userMenus" class="dropdown-menu profile-menu profile-menu2">
+                            <li><a id="streamingServiceUsername" href="#">Free Access</a> <i class="icon left">&#61903;</i><i class="icon right">&#61815;</i></li>
+                            <li style="width: 90%; margin-left: 10px;"> <a id="accountType" href="#"> Deezer</a> </li> <li style="width: 80%; margin-left: 5px;"><a id="accountLogout" href="#" onclick="signout()" class="disabled"> Logout</a></li>
+                        </ul>
+                        
+                    </div>
+                    </div>
+			</div>
+
+<div>
+<a id="deezer_free_option" href="#" onclick="setStreamingToDeezerFree()" class="btn btn-lg btn-alt m-r-5 streamOption streamingOptionSelected"> <img style="height: 40px;" src="img/logos/deezer-logo.png"> Streaming using Deezer Free</a>
+<a id="deezer_premium_option" href="#" class="btn btn-lg btn-alt m-r-5 streamOption"> <img style="height: 40px;" src="img/logos/deezer-logo.png"> Streaming using Deezer Premium</a>
+<a id="google_music_option" href="#" onclick="checkLogin('play_music','settingsView')" class="btn btn-lg btn-alt m-r-5 streamOption"> <img style="height: 40px;" src="img/logos/gpm-logo.png"> Streaming using Google Play Music </a>
+<a id="spotify_music_option" href="#" class="btn btn-lg btn-alt m-r-5 streamOption"> <img style="height: 40px;" src="img/logos/spotify-logo.png"> Streaming using Spotify Premium</a>
+</div>
+			
+</div>
+
+<div class="p-10" style="background: rgba(0,0,0,0);">
+    <h4 class="page-title" style="float: none;">Local Playback</h4>
+    
+     <h4 class="block-title" style="float: none;">Library</h4>
+     
+     <div style="float: none;">
+         <input id="openDirectory" style="display:none;" type="file" nwdirectory />
+         <span id="localLibraryLocation">/home/extern/music</span>
+         <a id="localLibraryLocationChooserButton" href="#" onclick="openLocalLibraryDirectory()" class="btn btn-lg btn-alt m-r-5" style="padding: 2px 4px 2px 4px; font-size: 13px;">Change</a>
+     </div>
+    
+</div>
+
+</div>
+
+<div class="col-md-7">
+		<!--</div>
+                    <div class="row m-container">-->
+
+
+                        <div class="p-10" style="background: rgba(0,0,0,0);">
+                        <h4 class="page-title">MUSIC EQUALIZER<sup></sup></h4>
+
+	<div style="margin-top:20px;">			
+<div class="btn-group">
+                        <button class="btn btn-alt dropdown-toggle" type="button" data-toggle="dropdown" disabled>
+                             Normal <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#">Classical</a></li>
+                            <li><a href="#">Club</a></li>
+                            <li><a href="#">Custom</a></li>
+                            <li><a href="#">Dance</a></li>
+                            <li><a href="#">Full Bass</a></li>
+                            <li><a href="#">Full Bass & Treble</a></li>
+                            <li><a href="#">Headphones</a></li>
+                            <li><a href="#">Large Hall</a></li>
+                            <li><a href="#">Live</a></li>
+                            <li><a href="#">Normal</a></li>
+                            <li><a href="#">Party</a></li>
+                            <li><a href="#">Pop</a></li>
+                            <li><a href="#">Reggae</a></li>
+                            <li><a href="#">Rock</a></li>
+                            <li><a href="#">Soft Rock</a></li>
+                            <li><a href="#">Techno</a></li>
+                        </ul>
+                    </div>
+	</div>
+
+                            <div style="margin-top:20px;">
+                                
+
+                                
+                         <div class="eqOuter"> 
+                             <p>32 Hz</p>
+                        <input id="32HzSlider" type="text" class="input-slider" value="" data-slider-min="-40" data-slider-max="40" data-slider-value="20" data-slider-orientation="vertical" data-slider-selection="after">
+                             </div>
+                            
+                     <div class="eqOuter">  
+                         <p>64 Hz</p>
+                    <input id="64HzSlider" type="text" class="input-slider" value="" data-slider-min="-30" data-slider-max="30" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after">
+                            </div>
+                            
+                    <div class="eqOuter">   
+                         <p>125 Hz</p>
+                    <input id="125HzSlider" type="text" class="input-slider" value="" data-slider-min="-30" data-slider-max="30" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after">
+                            </div>
+                    <div class="eqOuter">  
+                         <p>250 Hz</p>
+                    <input id="250HzSlider" type="text" class="input-slider" value="" data-slider-min="-30" data-slider-max="30" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after">
+                            </div>
+                    <div class="eqOuter">  
+                         <p>500 Hz</p>
+                    <input id="500HzSlider" type="text" class="input-slider" value="" data-slider-min="-30" data-slider-max="30" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after">
+                            </div>
+                            
+                    <div class="eqOuter">  
+                         <p>1.0 kHz</p>
+                    <input id="1000HzSlider" type="text" class="input-slider" value="" data-slider-min="-30" data-slider-max="30" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after">
+                            </div>
+                    <div class="eqOuter">  
+                         <p>2.0 kHz</p>
+                    <input id="2000HzSlider" type="text" class="input-slider" value="" data-slider-min="-30" data-slider-max="30" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after">
+                            </div>
+                    <div class="eqOuter">  
+                         <p>4.0 kHz</p>
+                    <input id="4000HzSlider" type="text" class="input-slider" value="" data-slider-min="-30" data-slider-max="30" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after">
+                            </div>
+                    <div class="eqOuter">  
+                         <p>8.0 KHz</p>
+                    <input id="8000HzSlider" type="text" class="input-slider" value="" data-slider-min="-30" data-slider-max="30" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after">
+                            </div>
+                    <div class="eqOuter">  
+                         <p>16 KHz</p>
+                    <input id="1600HzSlider" type="text" class="input-slider" value="" data-slider-min="-30" data-slider-max="30" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after">
+                            </div>
+                    <div class="eqOuter">  
+                         <p>20 KHz</p>
+                    <input id="20000HzSlider" type="text" class="input-slider" value="" data-slider-min="-30" data-slider-max="30" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after">
+                            </div>
+                    </div>
+                        
+                            
+                        </div>
+                        </div>
+
+                    </div>
+              </div>
+          </section>
+      </div>
+    
+            
+ <section id="loadingDiv" class="container musicMenu hidden">
+            
+             <div class="col-md-12" style="padding-top: 20%; text-align: center; font-size: 40px;">
+                 <p>We are getting the music for you.</p>
+                 <button id = "go_back_to_cancel"style="width:120px; */*margin-top: -140px; width:100%*/" class="btn btn-alt m-r-5">
+                 <div class="pull-left" style="font-size: 18px;">
+                                            <a href="#"><span class="icon" >&#61760;</span></a>
+                                        </div> Cancel</button>
+     </div>
+            </section>
+          
+          <section id="login_view" class="container musicMenu hidden">
+            
+            <div id="Serviceicon" class="row">
+              
+              <div class="col-md-2 col-md-offset-5">
+			<img class="profile-pic2 animated" src="img/logos/gpm-logo.png" alt="">
+              </div>
+              
+            </div>
+            
+            <div class="row">
+              
+              <div id="ServiceDetails" class="col-md-4 col-md-offset-4">
+		<p class="loginInfo"> Please enter your Google Play Music login details.</p>
+		<input id="userLogin" type="text" class="form-control login-input" placeholder="Username">
+              	<input id="userPassword" type="password" class="form-control login-input" placeholder="Password">
+
+		<a id="exit_login_window" href = "#" class="btn btn-alt m-r-5"><span class="icon" >&#61760;</span> Go Back </a>
+		<a href = "#" class="btn btn-alt m-r-5" onclick="googleTryLogin()"><span class="icon" >&#61792;</span> login </a>
+              </div>
+              
+              <div id="ServiceLoging_in" class="col-md-4 col-md-offset-4 hidden">
+                
+                <p> Getting your profile...</p>
+                
+              </div>
+              
+		</div>
+
+		<div class="row">
+		<div class="col-md-8 col-md-offset-2">
+		<div class="alert alert-info alert-icon">
+                        Make sure you have "Allow less secure apps" setting set to "ON". You can change it <a href="#" onclick='openWebLink("https://myaccount.google.com/security#connectedapps")'>here</a>.
+                        <i class="icon">&#61770;</i>
+                    </div>
+
+		<div>
+              
+            </div>
+            
+            
+            
+          </section>
+            
+            <section id="album_view" class="container musicMenu hidden">
+            
+             <div id = "all_album_info" class="col-md-4">
+                <div id="album_cover_bg">
+                                <img id = "album_cover" src="" alt="" />
+                        </div>
+                            <div id="album_overlay_blur"></div>
+                            <div id="album_overlay_label">
+                            <h4 id="album_name_label">Unknown</h4>
+                                <div class="clearfix"></div>
+                            <b id="listArtist">Artist: </b><a id="album_artist" class="news-title underline" style = "font-size: 12px; text-shadow: 0 0 10px rgba(0,0,0,0.94);"href="#"></a>
+                                <div class="clearfix"></div>
+                            <b id="album_release_year_title">Released on: </b><a id="album_release_year" class="news-title underline" style = "font-size: 12px; text-shadow: 0 0 10px rgba(0,0,0,0.94);"href="#">2010</a>
+                            
+                            </div>
+  
+             <button id = "go_back_to"style="margin-top: -140px; width:100%" class="btn btn-alt m-r-5">
+                 <div class="pull-left" style="font-size: 18px;">
+                                            <a href="#"><span class="icon" >&#61760;</span></a>
+                                        </div>Back</button>
+                 
+                 <div class="tile" style=" top: -90px; box-shadow: -4px 2px 10px rgba(0,0,0,0.5); border-radius: 5px;">
+                       
+                                <div class="listview narrow">
+                                    
+                                    <div class="media">
+                                        <div class="pull-right">
+                                            <div id = "album_total_tracks" class="counts"></div>
+                                        </div>
+                                        <div class="media-body">
+                                            <h6>Number of Tracks</h6>
+                                        </div>
+                                    </div>
+                                    <div id="albumRatingBody" class="media">
+                                        <div class="pull-right">
+                                            <div id = "album_rating" class="counts"></div>
+                                        </div>
+                                        <div class="media-body">
+                                            <h6>Rating</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                 </div>
+                 <button id = "adAllTracks"style="width:100%" class="btn btn-alt m-r-5" onclick="addAllToPlaylist()">
+                 <div class="pull-left" style="font-size: 18px;">
+                                            <a href="#"><i class="fa fa-play" aria-hidden="true"></i></a>
+                                        </div>Play All</button>
+           
+                        </div>
+            <div id = "album_songs" class="col-md-8">
+                     <h3 class="block-title" >Tracks</h3>
+                     <div class="tile" style="margin-top: 0; box-shadow: -4px 2px 10px rgba(0,0,0,0);">
+                                <div id="album_tracks_view" class="listview narrow overflow" style="height:90%; background-color: rgba(255, 255, 255, 0.15); border-radius: 5px;">
+                                    
+                                    <div class="media">
+                                        <div class="pull-left" style="font-size: 20px; margin-top: 3px; color: rgba(255,255,255,0.8);">
+                                            <b>1.</b>
+                                        </div>
+                                        <div class="pull-right" style="font-size: 20px;">
+                                            <a href="#"><span class="icon" >&#61749;</span></a>
+                                            <a href="#"><span class="icon" >&#61943;</span></a>
+                                            <a href="#"><span class="icon" >&#61815;</span></a>
+                                        </div>
+                                        <div class="media-body">
+                                            <h6>.</h6>
+                                        </div>
+                                    </div>
+                                    <div class="media">
+                                        <div class="pull-left" style="font-size: 20px; margin-top: 3px; color: rgba(255,255,255,0.8);">
+                                            <b>2.</b>
+                                        </div>
+                                        <div class="pull-right" style="font-size: 20px;">
+                                            <a href="#"><span class="icon" >&#61749;</span></a>
+                                            <a href="#"><span class="icon" >&#61943;</span></a>
+                                            <a href="#"><span class="icon" >&#61815;</span></a>
+                                        </div>
+                                        <div class="media-body">
+                                            <h6>.</h6>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="years_active" class="media">
+                                        <div class="pull-left" style="font-size: 20px; margin-top: 3px; color: rgba(255,255,255,0.8);">
+                                            <b>3.</b>
+                                        </div>
+                                        <div class="pull-right" style="font-size: 20px;">
+                                            <a href="#"><span class="icon" >&#61749;</span></a>
+                                            <a href="#"><span class="icon" >&#61943;</span></a>
+                                            <a href="#"><span class="icon" >&#61815;</span></a>
+                                        </div>
+                                        <div class="media-body">
+                                            <h6>.</h6>
+                                        </div>
+                                    </div>
+                                    <div id="deezer_fans" class="media">
+                                        <div class="pull-left" style="font-size: 20px; margin-top: 3px; color: rgba(255,255,255,0.8);">
+                                            <b>4.</b>
+                                        </div>
+                                        <div class="pull-right" style="font-size: 20px;">
+                                            <a href="#"><span class="icon" >&#61749;</span></a>
+                                            <a href="#"><span class="icon" >&#61943;</span></a>
+                                            <a href="#"><span class="icon" >&#61815;</span></a>
+                                        </div>
+                                        <div class="media-body">
+                                            <h6>.</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                     
+                     
+                     
+                 </div>
+                            </div>
+            
+            
+            </section>
+            
+            
+            <section id="artist_view" class="container musicMenu hidden">
+            
+             <div id = "all_album_info" class="col-md-4">
+                <div id="artistcover_bg">
+                                <img id = "artist_covers" src="" alt="Artist Cover" />
+                        </div>
+                            <div id="album_overlay_blur"></div>
+                            <div id="artist_overlay_labels">
+                            <h4 id="artist_name_labels">Unknown</h4>
+                                <div class="clearfix"></div>
+                            <b id = "url_a_labels">Website: </b><a id="artist_websites" class="news-title underline" style = "font-size: 12px; text-shadow: 0 0 10px rgba(0,0,0,0.94);"href="#"></a>
+                                <div class="clearfix"></div>
+                            <b id = "url_b_labels">Twitter: </b><a id="artist_twitters" class="news-title underline" style = "font-size: 12px; text-shadow: 0 0 10px rgba(0,0,0,0.94);"href="#"></a>
+                            
+                            </div>
+  
+             <button id = "go_back_tos"style="margin-top: -140px; width:100%" class="btn btn-alt m-r-5">
+                 <div class="pull-left" style="font-size: 18px;">
+                                            <a href="#"><span class="icon" >&#61760;</span></a>
+                                        </div>Back</button>
+                 
+                 <!-- Activity -->
+                            <div class="tile" style="bottom: 130px; /*top: -90px;*/  max-width: 324px;   box-shadow: 0 -5px 20px rgba(0,0,0,0.2);">
+                                <div class="tab-container">
+                        <div id="playStatsView" class="tab-content" style="padding-right: 0;">
+                            <div class="tab-pane active" id="home-bs">
+                                <div class="listview narrow">
+                                    
+                                    <div id = "artist_ratings" class="media">
+                                        <div class="pull-right">
+                                            <div id = "nbs_ratings" class="counts"></div>
+                                        </div>
+                                        <div class="media-body">
+                                            <h6 style="padding-left: 10px;">RATING (OUT OF 5)</h6>
+                                        </div>
+                                    </div>
+                                    <div class="media">
+                                        <div class="pull-right">
+                                            <div id = "nbs_albums" class="counts"></div>
+                                        </div>
+                                        <div class="media-body">
+                                            <h6 style="padding-left: 10px;">ALBUMS</h6>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="years_actives" class="media">
+                                        <div class="pull-right">
+                                            <div id = "nbs_years_active" class="counts"></div>
+                                        </div>
+                                        <div class="media-body">
+                                            <h6 style="padding-left: 10px;">AGE</h6>
+                                        </div>
+                                    </div>
+                                    <div id="deezer_fans" class="media">
+                                        <div class="pull-right">
+                                            <div id = "nbs_fans" class="counts"></div>
+                                        </div>
+                                        <div class="media-body">
+                                            <h6 style="padding-left: 10px;">FANS ON DEEZER</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                                    </div>
+                                <ul class="nav tab nav-tabs">
+                            <li class="active" style="width: 49%;"><a href="#home-bs">Artist Statistics</a></li>
+                        </ul>
+                                </div>
+                                
+                                
+                            </div>
+           
+                        </div>
+            <div id = "album_songs" class="col-md-8">
+                     <h3 class="block-title">Top Tracks</h3>
+                     <div class="tile" style="box-shadow: 0 0 30px rgba(0,0,0,0.2);">
+                                <div id="artist_tracks_view" class="listview narrow overflow" style="height:40%; background-color: rgba(255, 255, 255, 0.15); border-radius: 5px;">
+                                    
+                                    
+                                    
+                                    
+                                </div>
+                     
+                     
+                     
+                 </div>
+                            </div>
+                
+                <div id="artistAlbums" class="col-md-8">
+                    <h3 class="block-title" style="margin-top: 20px;">Albums</h3>
+                <div id = "artist_albums" class="row m-container overflow" style="height: 37%;"></div>
+                
+                </div>
+            
+            
+            </section>
+            
+            <section id="app_about" class="container hidden">
+                <div class="jumbotron tile-light"style = "box-shadow: -4px 4px 8px rgba(0,0,0,0.55);">
+                          <div class="container" style="margin-left:100px;">
+                               <h1 style="text-shadow: 0 0 20px #fff;">iX Music<sup> 0.1 (Alpha Preview)</sup></h1>
+                               <p></p>
+                              <p style="font-size: 13px;"><i>By Anesu Chiodze</i></p>
+                              <p style="font-size: 13px;">Artist and Album Art from <a href="#">Deezer</a></p>
+                              <p style="font-size: 13px;">Artist and Album Data from <a href="#">MusicBrainz</a></p>
+                               <p><a class="btn btn-alt btn-lg">Website</a></p>
+                          </div>
+                     </div>
+            </section>
+            <div id="addedToPl" class="hidden">
+              <p>Added Track to playlist</p>
+                        </div>
+        </section>
+
+        
+        
+        <!-- Javascript Libraries -->
+        <!-- jQuery -->
+        <script src="../../Shared/CoreJS/jquery.min.js"></script> <!-- jQuery Library -->
+            <script src="../../Shared/CoreJS/jquery-ui.min.js"></script> <!-- jQuery UI -->
+        <script src="../../Shared/CoreJS/jquery.easing.1.3.js"></script> <!-- jQuery Easing - Requirred for Lightbox + Pie Charts-->
+        
+        <!-- Bootstrap -->
+        <script src="../../Shared/CoreJS/bootstrap.min.js"></script>
+        <script src="../../Shared/CoreJS/jQuery.twFile.js"></script>    
+
+<script>
+    $(document).ready(function () {
+        $('.dropdown-toggle').dropdown();
+    });
+</script>
+        
+        <!-- UX -->
+        <script src="../../Shared/CoreJS/scroll.min.js"></script> <!-- Custom Scrollbar -->
+
+        <!--Toggles-->
+        <script src="../../Shared/CoreJS/toggler.min.js"></script> <!-- Toggler -->
+        <script src="../../Shared/CoreJS/select.min.js"></script> <!-- Custom Select -->
+
+        
+
+            
+                   <!--  Form Related -->
+        <script src="../../Shared/CoreJS/icheck.js"></script> <!-- Custom Checkbox + Radio -->
+	<script src="../../Shared/CoreJS/slider.min.js"></script> <!-- Input Slider -->
+        
+        
+        <!-- All JS functions -->
+        <script src="js/functions.js"></script>
+            <script src="../../Shared/CoreJS/slick.js"></script>
+            
+
+
+
+
+    
+
+
+
+
+
+
+
+
+        
+        <!--<script src="js/window_loader.js"></script>-->
+            
+            <!--<script src="js/window_control.js"></script>-->
+            <script src="js/wavesurfer.js"></script>
+            <script type="text/javascript" src="../../Shared/CoreJS/canvas_blur_rect.js"></script>
+            <script src="js/scripts.js"></script>
+            <script src="../../Shared/CoreJS/jquery.zoomooz.min.js"></script>
+            <script src="js/music_player/configuration.js"></script>
+            <script src="js/music_player/wavesurfer_controller.js"></script>
+            <script src="js/music_player/init.js"></script>
+            <script src="js/music_player/blur_controller.js"></script>
+            <script src="js/music_player/playback_controller.js"></script>
+            <script src="js/music_player/like_dislike_controller.js"></script>
+            <script src="js/music_player/music_brainz_controller.js"></script>
+            <script src="js/music_player/deezer_controller.js"></script>
+            <script src="js/music_player/googlemusic_controller.js"></script>
+            <script src="js/music_player.js"></script>
+            
+            <div class="bar_footer hidden"><p id="drag_loader"></p></div>
+        </div>
+        
+        <canvas id="artistCanvasCover" class="hidden" width="314.05" height="314.05"></canvas>
+        <canvas id="generalCanvas" class="hidden" width="314.05" height="314.05"></canvas>
+         
+        
+    </body>
+
+

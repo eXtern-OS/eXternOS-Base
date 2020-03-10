@@ -1,0 +1,454 @@
+
+
+<head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+        <meta name="format-detection" content="telephone=no">
+        <meta charset="UTF-8">
+
+        <title>Store</title>
+            
+        <!-- CSS -->
+        <link href="../../Shared/CoreCSS/bootstrap.min.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/animate.min.css" rel="stylesheet">
+        <link href="../../Hub/css/fonts/fontawesome.min.5.8.1.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/form.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/calendar.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/style.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/icons.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/generics.css" rel="stylesheet">
+    	<link href="../../Shared/CoreCSS/slick.css" rel="stylesheet"> 
+      	<link href="../../Shared/CoreCSS/slick-theme.css" rel="stylesheet">
+    	<link href="../../Shared/CoreCSS/app-control.css" rel="stylesheet">
+    	<link href="css/store.css" rel="stylesheet">
+
+    </head>
+    <body id="body_settings">
+        <div style="overflow-y: hidden; overflow-x:hidden;">
+
+            
+        
+        <div class="clearfix"></div>
+            
+        <section id="diagueBoxes" style="height: 100%; position: absolute; width: 100%; z-index: 1000; display: none;">
+        <div class="modal" style="height: 100%; position: relative; display: block; z-index: 0; backdrop-filter: blur(30px); background: rgba(0, 0, 0, 0.25);"> <!-- Style for just preview -->
+                        <div id="installDialogue" class="modal-dialog hidden" style="margin-left: 30% !important; margin-top: 25% !important;">
+                            <div class="modal-content" style="width: 500px;">
+                                <div class="modal-header">
+                                    <a href="#" style="width: 10px;" type="button" onclick="closeAppWindow()" class="close" data-dismiss="modal" aria-hidden="true">
+                                        <i class="fas fa-circle"></i>
+                                    </a>
+                                    <h4 class="modal-title" style="font-size: 14px;">Apply Updates</h4>
+                                </div>
+                                <div class="modal-body" style="font-size: 14px;">
+                                    <p>eXtern OS needs to refresh to complete the installation. Choose "Restart" to continue. <br>This is not a full restart and will take about 5 seconds to complete.</p>
+                                </div>
+                                <div style="padding: 15px 15px; border-top: 1px solid rgba(255, 255, 255, 0.11); text-align: center;">
+                                    <button style="width: 200px;margin-top: 0;" type="button" class="btn btn-alt m-r-5" onclick="chrome.runtime.reload();">Restart</button>
+                                    
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="loginDialogue" class="modal-dialog" style="margin-left: 400px !important; margin-top: 100px !important;">
+                            <div class="modal-content" style="width: 1000px;">
+                                <div class="modal-header">
+                                    <a href="#" style="width: 10px;" type="button" onclick="closePopupDialogue()" class="close" data-dismiss="modal" aria-hidden="true">
+                                        <i class="fas fa-circle"></i>
+                                    </a>
+                                    <h4 class="modal-title" style="font-size: 14px;">Login</h4>
+                                </div>
+                                <div class="modal-body" style="font-size: 14px;">
+                                    <iframe frameBorder="0" style="width: 100%; height: calc(100% - 320px);" src=""></iframe>
+					<a href="#" onclick="openRegisterOptions()">Don't have an account? Click here to Register</a>
+                                </div>
+                            </div>
+                        </div>
+          </div>
+            
+                
+        </section>
+        <section class="mainAppContents" class="p-relative" role="main" >
+            
+            <div id="welcomeView" class="hidden" style="text-align: center; padding-top: 10%; color: white; text-shadow: 0 0 30px rgba(0, 0, 0, 0.47);">
+          <p>
+              <img src="icon.svg" style="width: 200px">
+              <!--<span style="text-shadow: 0 0 30px rgba(0, 0, 0, 0.47); color: rgba(255, 255, 255, 0.74); font-size: 120px;" class="icon">&#61955;</span>-->
+          
+          </p>
+          
+          <p style="font-size: 30px; margin: 50px 0 50px 0;"> Open image files from <a href="#" style="background-color: rgba(255, 255, 255, 0.22); text-decoration: none; border-radius: 5px; padding: 0 5px 0 5px;"><span style="position: relative; top: -3px;"><img src="../extern.files.app/icon.svg" style="width: 40px"></span><span> Files</span></a> or equivalent.</p>
+      
+          
+      </div>
+       
+            
+            <section id="mainView" class="container">
+                
+            
+                    
+
+
+                                      <div id="catalogueViews">
+          
+          <canvas id="baanerBlur" width="200" height="300" class="hidden"></canvas>
+                                          
+                                          <div id="catalogueOuter">
+          
+          <section id="catalogueSection">
+              <div>
+                  
+                  
+                  
+                  <div class="tab-container">
+                        <ul class="nav tab nav-tabs" style="padding-top: 30px;">
+                            <li class="active"><a href="#home">Home</a></li>
+                            <li><a id="sysUpdates" href="#profile">Updates</a></li>
+                        </ul>
+                          
+                        <div class="tab-content" style="height: 90%;padding: 0; padding-bottom: 50px;">
+                            <div class="tab-pane active" id="home" style="height:100%;">
+                              
+                              
+                              
+                              <!-- categories -->
+                              
+                              <div class = "categoryOptions row"> 
+                                <a id="backFromApp" href="#" onclick="goBack()" style="font-size: 25px; width: 100px;" class="col-md-3"><span class="icon" style="font-size: inherit;">&#61903;</span><span> Back</span></a>
+                                    <a id="MultimediaCategory" class="category-btn btn btn-alt m-r-5 col-md-3" onclick="setCategory('Multimedia')"><span class="icon" >&#61934;</span> Multimedia</a>
+                                    <button id="InternetCategory" class="category-btn btn btn-alt m-r-5 col-md-3" onclick="setCategory('Internet')"><span class="icon" >&#61838;</span> Internet</button>
+                                    <button id="GamesCategory" class="category-btn btn btn-alt m-r-5 col-md-3" onclick="setCategory('Games')"><span class="icon" >&#61902;</span> Games</button>
+                                    <button id="Productivity-ToolsCategory" class="category-btn btn btn-alt m-r-5 col-md-3" style="margin-right: 0px !important;" onclick="setCategory('Productivity-Tools')"><span class="icon" >&#61734;</span> Productivity Tools</button>
+                                     <input id="searchInput" type="text" class="form-control input-sm pull-right" placeholder="Search">
+                                    <button id="loginButton" class="category-btn btn btn-alt m-r-5 col-md-3 pull-right" style="margin-right: 20px !important; width: 100px;" onclick="loadLoginWindow()"> Login</button>  
+                                    <button id="logoutButton" class="category-btn btn btn-alt m-r-5 col-md-3 pull-right hidden" onclick="logOut()"> <i class="fas fa-sign-out-alt"></i></button>                              
+                                </div>
+                              
+                              <!-- End of categories -->
+                              
+                              
+                              
+                              
+                              <div id="allAppsViewOuter" class="zoomContainer">
+                             <div id="allAppsView" class="container"> 
+                                 <div id="onlineLibrary" class="col-md-12" style="/*height: 400px; width: 1230px; background: rgba(0,0,0,0.35);*/">
+                                     <div id="allTabss" style="    margin-left: auto; margin-right: auto;" class="carousel slide" data-ride="carousel" data-interval="true">
+                                         <!-- Wrapper for slides  -->
+                                         <div id="allTabsD" class="carousel-inner" role="listbox" style="">
+                                         
+                                             <div id="viewBanner1" class="item">
+                                                 <a href="#" onclick="playTopChart(0);" class="bannerHover">
+                                                     <div class="bannerLabel"><h1 id="bannerLabelTrack1">Music</h1>
+                                                         <small id="bannerLabelArtist1" style="font-size: 20px;">Play and stream local or online audio content. </small>
+                                                         <i class="fa fa-play playBannerLeft hidden" aria-hidden="true"></i></div><img id="banner1Blur" src="temp/music_imga.png" style="width: 100%; min-height: 400px; padding-left: 420px;">           <img id="banner1Bg" src="temp/music.svg" style="border-radius: 10px 0 0 10px; -webkit-filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.55));  position: absolute; top: 0; left: 90px; height: 230px;"></a></div>
+                                             
+                                             <div id="viewBanner2" class="item active">
+                                                 <a href="#" onclick="playTopChart(1);" class="bannerHover">
+                                                     <div class="bannerLabel2">
+                                                         <h1 id="bannerLabelTrack2">Video</h1>
+                                                         <small id="bannerLabelArtist2" style="font-size: 20px;">Easily and flawlessly play video files.</small>              <i class="fa fa-play playBannerRight hidden" aria-hidden="true"></i>
+                                                     </div>
+                                                     <img id="banner2Blur" src="temp/video_imga.png" style="width: calc(100% - 420px); min-height: 400px">
+                                                     <img id="banner2Bg" src="temp/video.svg" style="border-radius: 10px 0 0 10px;  -webkit-filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.55)); position: absolute; top: 0; height: 230px; right: 90px;">
+                                                 </a>
+                                             </div>
+                                             <div id="viewBanner3" class="item">
+                                                 <a href="#" onclick="playTopChart(2);" class="bannerHover">
+                                                    
+                                                     <img id="banner3Blur" src="temp/files_imga.png" style="width: 100%; min-height: 400px; padding-left: 420px;">
+                                                     <img id="banner3Bg" src="temp/files.svg" style="border-radius: 10px 0 0 10px; -webkit-filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.55));  position: absolute; top: 0; left: 90px; height: 230px;">
+                                                    <div class="bannerLabel">
+                                                         <h1 id="bannerLabelTrack3">Files</h1>
+                                                         <small id="bannerLabelArtist3" style="font-size: 20px;">Browse, view, modify and remove files from filesystems connected to this Computer</small>
+                                                         <i class="fa fa-play playBannerLeft hidden" aria-hidden="true"></i>
+                                                     </div>
+                                                 </a>
+                                             </div>
+                                             
+                                         </div>
+                                     </div>
+                  
+                  </div>
+                                
+                  
+                  <h4 class="catalogueTitle page-title" style="margin-top: 10px;">Recommended</h4>
+                    <div id="cataloguePlaylist" class="row m-container col-md-12" style=""></div>
+                             </div><!-- End of allAppsView -->
+				<div id="categoryAppsView" class="row m-container col-md-12 hidden" style=""></div>
+                              </div>
+
+			
+
+                              <section id="appView" style="padding-top: 10px; height:100%;">
+                                              
+                                          <div style="position: relative;">
+                                              
+
+                                               <div class="bannerLabel" style="height: 200px; border-radius: 10px; top: 0; width: 300px;">
+
+<h3 id="nameLabelApp1" style="font-size: 30px; font-weight: 200; margin-top: 50px;">Music</h3>
+                                                         <small id="bannerLabelApp1" style="font-size: 20px;">Play and stream local or online audio content. </small>
+                                                         <i class="fa fa-play playBannerLeft hidden" aria-hidden="true"></i></div>
+                                              <img id="appBanner1Blur" src="" style="width: calc(100% - 300px); min-height: 200px; border-radius: 10px; margin-left: 300px; -webkit-filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.55));">
+                                              <img id="appBanner1Bg" src="temp/music.svg" style="margin-top: 130px; border-radius: 10px 0 0 10px; -webkit-filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.55));  position: absolute; top: 0; height: 250px; margin-left: 20px;">
+                                              
+                                              </div>
+<!-- <div style="margin-top: -80px; position: relative; margin-bottom: 100px;">
+
+                                          
+</div> -->
+
+<div class="row" style="padding: 0 20px;">
+  
+  <div class="col-md-12" style="padding: 20px 0;">
+    <button id="installButton" class="category-btn btn btn-alt m-r-5 pull-right"><span class="icon" >&#61751;</span> <span id="installButtonText">Install</span> <span id="installPercentage" class="hidden"> (0%) </span></button>
+  </div>
+
+	<div class="col-md-6">
+
+        <div id="appDescription"></div>
+  
+      <div class="block-area review hidden"> 
+        
+        <div>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+          
+        </div>
+        
+        <h3 class="block-title"> This App is awesome!
+        </h3>
+        
+        <div class="tile p-15">
+          
+          
+          I might have a biased opinion on this, but it's great! 
+        </div>
+        
+        
+      </div>
+  
+  
+  
+  </div>
+
+	<div class="col-md-6"> 
+
+
+
+                            
+      
+      <div id="app-info-widgets" class="block-area shortcut-area">
+        
+        <!--<a href="#" class="shortcut tile info-widget"> 200+ <small class="t-overflow"> Thousand Downloads </small></a>-->
+        
+
+        
+        <a href="#" class="shortcut tile info-widget"> 2+ <small class="t-overflow"> Age <br> Restriction </small></a>
+        
+        <a href="#" class="shortcut tile info-widget"> <span class="icon" >&#61934;</span> <small class="t-overflow"> Multimedia </small></a>
+        
+        <a href="#" class="shortcut tile info-widget"> <span id="appRatingTotal">4.4</span> <small class="t-overflow"> 
+          
+          <span id="appRating1" class="appRatings fa fa-star checked"></span>
+            <span id="appRating2" class="appRatings fa fa-star checked"></span>
+            <span id="appRating3" class="appRatings fa fa-star checked"></span>
+            <span id="appRating4" class="appRatings fa fa-star checked"></span>
+            <span id="appRating5" class="appRatings fa fa-star"></span>
+          
+          </small></a>
+        
+                <!-- Number of Downloads -->
+                        <div class="col-md-4 col-xs-6 pull-right">
+                            <div class="tile quick-stats">
+                                <div id="donwloads-statsline" class="pull-left"></div>
+                                <div class="data">
+                                    <h2 id="noOfDownloads" data-value="1000">0</h2>
+                                    <small>Downloads</small>
+                                </div>
+                            </div>
+                        </div>
+          
+        
+      </div>
+      
+      <div class="row" style="font-size: 20px; cursor: default;">
+        
+        <div style="text-align: right;" class="hidden">
+          <span class="rate-app-text"> Your Rating </span>
+          <span class="fa fa-star user-rating-star"></span>
+            <span class="fa fa-star user-rating-star"></span>
+            <span class="fa fa-star user-rating-star"></span>
+            <span class="fa fa-star user-rating-star"></span>
+            <span class="fa fa-star user-rating-star"></span>
+        </div>
+        
+        
+        
+        <!-- Quick Posting -->
+                            <div id="write-review" class="hidden">
+                                
+                                <form role="form" class="p-15">
+                                    <div class="form-group m-b-15">
+                                        <label>Review Title</label>
+                                        <input type="text" class="form-control input-sm">
+                                    </div>
+                                    
+                                    <div class="form-group m-b-15">
+                                        <label>Review Content</label>
+                                        <div class="wysiwye-editorx"></div>
+                                    </div>
+                                  
+                                  <div>
+                                  <a href="#" class="btn btn-alt m-r-5 col-md-3"><span class="icon" >&#61845;</span> Submit</a>
+                                  
+                                  <a href="#" onclick="closeReviewBox(true)" class="btn btn-alt m-r-5 col-md-3"> Discard</a>
+                                    
+                                  </div>
+                                    
+                                </form>
+                            </div>
+        
+      </div>
+
+
+
+
+	 </div>
+
+</div>
+                                          
+                                          </section>
+
+                            </div>
+                            <div class="tab-pane" id="profile">
+<div id="systemUpdates" class="hidden" style="text-align: center;">
+                <div class="block-area" id="jumbotron">
+                     <div class="jumbotron"style = "/*box-shadow: -4px 4px 8px rgba(0,0,0,0.55);*/ background: rgba(255, 255, 255, 0.1);">
+                          <div class="container">
+                               <h1 style="/*text-shadow: 0 0 20px #fff;*/ text-shadow: 0 0 30px rgba(0, 0, 0, 1);"><span id="osname">eXternOS</span> <sup id="osversion"> Beta 2</sup></h1>
+                               <p id="osDescription" style="text-shadow: 0 0 20px rgba(0, 0, 0, 1);">This release brings all new powerful features such as a powerful music player etc and everything else.</p>
+                              <p style="font-size: 13px; text-shadow: 0 0 20px rgba(0, 0, 0, 1);"><i id="osAvailability">Available as an Over The Air Update.</i></p>
+                               <p><a id="sysDownload" class="btn btn-alt btn-lg" onclick="handleDownload(url,destination,dlCount,callback)">Download</a></p>
+<div id="sysDownloadProgress" class="hidden">
+<p> Download in progress... <span id="dl0eta" class="hidden">(Unknown Time)</span> 
+(<span id="dl0speed"> Preparing for the update </span>).</p>
+<div class="progress">
+                            <div id="divProgresss0" class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;"></div>
+                        </div>
+</div>
+                          </div>
+                     </div>
+                </div>
+</div>
+
+
+<div id="appUpdatesOuter" style="padding: 20px; font-size: 20px;">
+<h4>App Updates</h4>
+<div id="appUpdates"><p>Currently Unavailable.</p></div>
+</div>
+
+                                
+                            </div>
+                        </div>
+                    </div>
+                  
+                  
+                  
+                 
+                  
+                  
+                  
+                  
+              </div>
+          </section>
+                                          
+                                          
+                                    </div>      
+                                          
+                                          
+                                          
+          
+      </div>
+                            
+                    
+                    
+          
+            </section>
+            
+            
+            
+
+        </section>
+         <canvas id="CanvasCover" class="hidden" width="1210" height="440"></canvas>
+         <canvas id="CanvasCover2" class="hidden" width="1210" height="202"></canvas>
+        <!-- Javascript Libraries -->
+        <!-- jQuery -->
+        <script src="../../Shared/CoreJS/jquery.min.js"></script> <!-- jQuery Library -->
+            <script src="../../Shared/CoreJS/jquery-ui.min.js"></script> <!-- jQuery UI -->
+        
+        <!-- Bootstrap -->
+        <script src="../../Shared/CoreJS/bootstrap.min.js"></script>
+
+            
+                    <script src="../../Shared/CoreJS/sparkline.min.js"></script> <!-- Sparkline - Tiny charts -->
+        <script src="../../Shared/CoreJS/easypiechart.js"></script> <!-- EasyPieChart - Animated Pie Charts -->
+        <script src="../../Shared/CoreJS/charts.js"></script> <!-- All the above chart related functions -->
+            
+
+        <!-- UX -->
+        <script src="../../Shared/CoreJS/scroll.min.js"></script> <!-- Custom Scrollbar -->
+           
+                   <!--  Form Related -->
+        <script src="../../Shared/CoreJS/icheck.js"></script> <!-- Custom Checkbox + Radio -->
+         <script src="../../Shared/CoreJS/select.min.js"></script> <!-- Custom Select -->
+        <script src="../../Shared/CoreJS/chosen.min.js"></script> <!-- Custom Multi Select -->
+        <script src="../../Shared/CoreJS/icheck.js"></script> <!-- Custom Checkbox + Radio -->
+        <script src="../../Shared/CoreJS/autosize.min.js"></script> <!-- Textare autosize -->
+        <script src="../../Shared/CoreJS/toggler.min.js"></script> <!-- Toggler -->
+        <script src="../../Shared/CoreJS/input-mask.min.js"></script> <!-- Input Mask -->
+        
+        <!-- Text Editor -->
+        <script src="../../Shared/CoreJS/editor.min.js"></script> <!-- WYSIWYG Editor -->
+
+        
+
+        
+
+        
+        
+        <!-- All JS functions -->
+        <script src="../../Shared/CoreJS/functions.js"></script>
+            <!--<script src="slick.js"></script>-->
+            <!--<script src="js/slick_script.js"></script>-->
+            
+
+
+
+
+    
+
+
+
+
+
+
+
+
+        
+        <!--<script src="js/window_loader.js"></script>-->
+            
+            <script type="text/javascript" src="../../Shared/CoreJS/canvas_blur_rect.js"></script>
+            <!--<script src="scripts.js"></script>-->
+            <script src="../../Shared/CoreJS/jquery.zoomooz.min.js"></script>
+            <script src="js/store.js"></script>
+
+        </div>
+
+
+        
+    </body>
+
+

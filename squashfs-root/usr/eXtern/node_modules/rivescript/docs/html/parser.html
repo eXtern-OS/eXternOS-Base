@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>parser</title>
+<link rel="stylesheet" type="text/css" href="md.css">
+</head>
+<body>
+
+<h1>Parser (RiveScript master)</h1>
+<p>Create a parser object to handle parsing RiveScript code.</p>
+<h2>data parse (string filename, string code[, func onError])</h2>
+<p>Read and parse a RiveScript document. Returns a data structure that
+represents all of the useful contents of the document, in this format:</p>
+<pre class="codehilite"><code class="language-javascript">{
+  &quot;begin&quot;: { // &quot;begin&quot; data
+    &quot;global&quot;: {}, // ! global vars
+    &quot;var&quot;: {},    // ! bot vars
+    &quot;sub&quot;: {},    // ! sub substitutions
+    &quot;person&quot;: {}, // ! person substitutions
+    &quot;array&quot;: {},  // ! array lists
+  },
+  &quot;topics&quot;: { // main reply data
+    &quot;random&quot;: { // (topic name)
+      &quot;includes&quot;: {}, // included topics
+      &quot;inherits&quot;: {}, // inherited topics
+      &quot;triggers&quot;: [ // array of triggers
+        {
+          &quot;trigger&quot;: &quot;hello bot&quot;,
+          &quot;reply&quot;: [], // array of replies
+          &quot;condition&quot;: [], // array of conditions
+          &quot;redirect&quot;: &quot;&quot;,  // @ redirect command
+          &quot;previous&quot;: null, // % previous command
+        },
+        ...
+      ]
+    }
+  },
+  &quot;objects&quot;: [ // parsed object macros
+    {
+      &quot;name&quot;: &quot;&quot;,     // object name
+      &quot;language&quot;: &quot;&quot;, // programming language
+      &quot;code&quot;: [],     // object source code (in lines)
+    }
+  ]
+}</code></pre>
+
+
+<h2>string stringify (data deparsed)</h2>
+<p>Translate deparsed data into the source code of a RiveScript document.
+See the <code>stringify()</code> method on the parent RiveScript class; this is its
+implementation.</p>
+<h2>string checkSyntax (char command, string line)</h2>
+<p>Check the syntax of a RiveScript command. <code>command</code> is the single character
+command symbol, and <code>line</code> is the rest of the line after the command.</p>
+<p>Returns an empty string on success, or a description of the error on error.</p>
+<h2>private void initTopic (object topics, string name)</h2>
+<p>Initialize the topic tree for the parsing phase. Sets up the topic under
+ast.topics with all its relevant keys and sub-keys, etc.</p>
+
+</body>
+</html>

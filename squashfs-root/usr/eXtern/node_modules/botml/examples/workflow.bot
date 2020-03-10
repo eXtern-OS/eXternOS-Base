@@ -1,0 +1,62 @@
+! BOTML 1
+
+# A bot that has a lot to ask you.
+#
+# Example:
+#  < Hello sir. Please answer this quick survey to help us better know you. Alright?
+#  > Ok
+#  < Great!
+#    How old are you?
+#  > 25
+#  < Alright
+#    And where were you born?
+#  > I was born in Bermuda Island
+#  < Ok
+#    What is your email address?
+#  > email@example.org
+#  < Perfect. We'll keep in touch with you over 'email@example.org'.
+
+~ survey
+< [hello] sir. Please answer this quick survey to help us better know you. [ok]?
+> [ok]
+< Great!
+~ [age]
+~ [city of birth]
+~ [email address]
+< [ok]. We'll keep in touch with you over $email.
+
+~ age
+< How old are you?
+> #{age}
+> #{age} years old
+< [ok]
+
+~ city of birth
+< And where were you born?
+> * in *{city}
+> * near *{city}
+> *{city}
+< [ok]
+
+~ email address
+< What is your email address?
+> * is *{email}
+> *{email}
+
+# dictionnaries
+
+= hello
+- hello
+- hi
+- hey
+- good day
+
+= ok
+- ok
+- alright
+- perfect
+
+# Make the workflow executable again.
+
+> [hello]
+~ [survey]

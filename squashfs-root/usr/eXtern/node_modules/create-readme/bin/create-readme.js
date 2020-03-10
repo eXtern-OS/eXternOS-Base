@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+require('../lib/run').run(process.argv, function (code) {
+  process.exitCode = code;
+});

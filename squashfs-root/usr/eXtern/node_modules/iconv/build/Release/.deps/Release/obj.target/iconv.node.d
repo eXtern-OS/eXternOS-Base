@@ -1,0 +1,1 @@
+cmd_Release/obj.target/iconv.node := g++ -shared -pthread -rdynamic -m64  -Wl,-soname=iconv.node -o Release/obj.target/iconv.node -Wl,--start-group Release/obj.target/iconv/src/binding.o Release/obj.target/iconv/deps/libiconv/lib/iconv.o Release/obj.target/iconv/support/localcharset.o -Wl,--end-group 

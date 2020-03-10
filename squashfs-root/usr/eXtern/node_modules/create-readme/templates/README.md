@@ -1,0 +1,60 @@
+# {{pkg.name}}@{{pkg.version}}
+{{#badges}} [![{{&name}}]({{&img}})]({{&url}}) {{/badges}}
+
+{{&description}}
+
+{{#usage}}
+## Usage
+
+{{&usage.description}}
+
+{{#usage.examples}}
+```{{&lang}}
+{{&content}}
+```
+
+{{/usage.examples}}{{/usage}}
+
+## Installation
+{{^pkg.private}}
+Download node at [nodejs.org](http://nodejs.org) and install it, if you haven't already.
+
+```sh
+{{#pkg.preferGlobal}}
+npm install {{&pkg.name}} --global
+{{/pkg.preferGlobal}}
+{{^pkg.preferGlobal}}
+npm install {{&pkg.name}} --save
+{{/pkg.preferGlobal}}
+```
+
+{{/pkg.private}}
+{{#install.modules}}This package is provided in these module formats:
+
+{{#install.modules.names}}
+- {{&name}}{{/install.modules.names}}
+{{/install.modules}}
+
+{{#install.npmcdn}}The module is available via [npmcdn](https://npmcdn.com/) at
+[https://npmcdn.com/{{pkg.name}}](https://npmcdn.com/{{&pkg.name}}){{/install.npmcdn}}
+
+{{#docs}}
+## Documentation
+
+You can find a documentation [here]({{&docs}}).
+{{/docs}}
+
+## Dependencies
+
+{{#dependencies.dep}}- [{{&name}}]({{&url}}): {{&desc}}
+{{/dependencies.dep}}{{^dependencies.dep}}None{{/dependencies.dep}}
+
+## Dev Dependencies
+
+{{#dependencies.dev}}- [{{&name}}]({{&url}}): {{&desc}}
+{{/dependencies.dev}}{{^dependencies.dev}}None{{/dependencies.dev}}
+
+{{#license}}
+## License
+[{{&license.name}}]({{&license.file}})
+{{/license}}
