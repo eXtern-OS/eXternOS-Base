@@ -7,6 +7,6 @@ This repository containts the filesystem base as it comes in the releases of eXt
 
 ## Related Repositories
 
-Ubiquity: https://github.com/anesuc/ubiquity
-Photos: https://github.com/anesuc/photos
-Live: https://github.com/anesuc/live
+Ubiquity: https://github.com/anesuc/ubiquity  
+Photos: https://github.com/anesuc/photos  
+Live: https://github.com/anesuc/live  
