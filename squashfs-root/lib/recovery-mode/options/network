@@ -1,0 +1,62 @@
+#!/bin/sh
+
+if [ "$1" = "test" ]; then
+  . /lib/recovery-mode/l10n.sh
+  echo $(eval_gettext "Enable networking")
+  exit 0
+fi
+
+# Check for existing connectivity
+check_connectivity() {
+    ip route get 1.2.3.4 >/dev/null 2>&1
+    retval_route=$?
+
+    grep ^nameserver -q /etc/resolv.conf
+    retval_resolve=$?
+
+    if [ "$retval_route" = "0" ] && [ "$retval_resolve" ]; then
+        exit 0
+    fi
+}
+
+# Try handling networking using systemd
+if [ -d /run/systemd/system ]; then
+    echo "Enabling networking..."
+    for i in dbus.socket systemd-udevd.service systemd-sysctl.service systemd-resolved.service networking.service systemd-networkd.service NetworkManager.service; do
+	systemctl is-enabled -q $i && systemctl start --no-ask-password --job-mode=ignore-dependencies $i
+    done
+    echo "Waiting for networking to be configured..."
+    systemctl is-enabled -q NetworkManager.service && systemctl start --no-ask-password NetworkManager-wait-online.service
+    systemctl is-enabled -q systemd-networkd.service && systemctl start --no-ask-password systemd-networkd-wait-online.service
+    echo "Done."
+    exit 0
+fi
+
+# Start by trying to bring everything up
+ifup -a
+check_connectivity
+
+# Then try Network Manager
+if type NetworkManager >/dev/null 2>&1; then
+    echo "Trying to start NetworkManager..."
+    mkdir -p /run/dbus
+    chown messagebus:messagebus /run/dbus
+    dbus-daemon --system --nopidfile
+    NetworkManager
+    trap "killall dbus-daemon NetworkManager" EXIT HUP INT QUIT PIPE
+    timeout=15
+    while [ $timeout -ge 0 ]; do
+        check_connectivity
+        sleep 1
+        timeout=$((timeout-1))
+    done
+fi
+
+# Try running dhclient on everything else
+cd /sys/class/net/
+for interface in *; do
+    dhclient -1 $interface
+    check_connectivity
+done
+
+exit 0

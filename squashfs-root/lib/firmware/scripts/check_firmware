@@ -1,0 +1,71 @@
+#!/bin/bash
+
+#
+# Check that the firmware files in the kernel match those in this
+# repository. Conversely, check that the firmware files in the
+# firmware repository are also referenced in a kernel MODULE_FIRMWARE
+# definition.
+#
+
+if [ ! -f WHENCE ]
+then
+	echo This script must be run from the root of the
+	echo linux-firmware repository.
+	exit 1
+fi
+
+if [ "${KSRC}" = "" ] || [ ! -f "${KSRC}/MAINTAINERS" ]
+then
+	echo You must set a path to the kernel source tree.
+	echo Example: KSRC=../linux-2.6 $0
+	exit 1
+fi
+
+#
+# Intel IWL firmware file names just gotta be special. Ignore them
+# in this check. Plenty of folks will complain if they're missing.
+#
+BLACKLIST="-e /IWL/d"
+
+#
+# Print a list of firmware files referenced in a MODULE_FIRMWARE instance
+# that is missing in the linux-firmware repository.
+#
+let i=0
+find ${KSRC} -type f -name "*.[ch]" | xargs grep MODULE_FIRMWARE | grep '"' | \
+sed ${BLACKLIST} -e 's/^.*MODULE_FIRMWARE("//' -e 's/".*$//' | while read f
+do
+	if [ ! -f "${f}" ]
+	then
+		echo Missing: $f
+	fi
+	names[${i#*:}]="$f"
+	let i=$i+1
+done
+
+WHITELIST="-e /LICENSE/d -e /LICENCE/d -e /WHENCE/d -e /\.git/d -e /iwlwifi/d"
+
+#
+# Print a list of files found in this linux-firmware repository that are not
+# referenced in a MODULE_FIRMWARE instance.
+#
+find . -type f | sed ${WHITELIST} | while read f
+do
+	let i=0
+	let found=0
+
+	while [ $i -lt ${#names[@]} ]
+	do
+		if [ "$f" = "${names[${i}]}"
+		then
+			let found=1
+			let i=${#names[@]}
+		fi
+		let i=$i+1
+	done
+	if [ ${found} -lt 1 ]
+	then
+		echo Could not find $f in any kernel MODULE_FIRMWARE definitions.
+	fi
+done
+

@@ -1,0 +1,13 @@
+[Unit]
+Description=Set the CPU Frequency Scaling governor
+ConditionVirtualization=no
+ConditionPathExists=/sys/devices/system/cpu/online
+# Don't run if we're going to start an Android LXC container on Ubuntu Touch
+ConditionPathExists=!/etc/init/lxc-android-config.conf
+
+[Service]
+Type=idle
+ExecStart=/lib/systemd/set-cpufreq
+
+[Install]
+WantedBy=multi-user.target

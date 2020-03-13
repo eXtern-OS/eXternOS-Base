@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -e
+
+. /lib/recovery-mode/l10n.sh
+
+# check if its there
+if [ ! -x /usr/bin/apt-btrfs-snapshot ]; then
+    exit 1
+fi
+
+# check if its usable, if list returns a non-zero exit code, 
+# we probably run on a system with no snapshot support
+if ! /usr/bin/apt-btrfs-snapshot list > /dev/null  2>&1; then
+    exit 1
+fi
+
+# if we make it to this point, show some help
+if [ "$1" = "test" ]; then
+    echo $(eval_gettext "Revert to old snapshot and reboot")
+    exit 0
+fi
+
+# get snapshots and show them in whiptail
+snapshots=$(apt-btrfs-snapshot list | sed 1d)
+tag_item=""
+for item in $snapshots; do
+    tag_item="$item snapshot $tag_item"
+done
+
+choice="$(whiptail --menu "$(eval_gettext "Snapshot")" 15 70 6 $tag_item \
+         3>&1 1>&2 2>&3 3>&-)"
+# user selected cancel
+if [ -z "$choice" ]; then
+    exit 0
+fi
+
+# set new snapshot and reboot
+if apt-btrfs-snapshot set-default "$choice"; then
+    reboot
+fi
+

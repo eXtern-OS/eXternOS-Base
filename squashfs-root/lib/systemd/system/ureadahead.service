@@ -1,0 +1,16 @@
+[Unit]
+Description=Read required files in advance
+DefaultDependencies=false
+Conflicts=shutdown.target
+Before=shutdown.target
+Requires=ureadahead-stop.timer
+RequiresMountsFor=/var/lib/ureadahead
+ConditionVirtualization=no
+
+[Service]
+ExecStart=/sbin/ureadahead -q
+# when profiling, give it three minutes after sending SIGTERM to write out the pack file
+TimeoutStopSec=3m
+
+[Install]
+WantedBy=default.target

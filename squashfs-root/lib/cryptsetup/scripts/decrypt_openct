@@ -1,0 +1,64 @@
+#!/bin/sh
+
+#check_reader() {
+#    readerfound=0
+#
+#    readertmp=$(/usr/bin/openct-tool list 2>&1)
+#    if [ $? = 0 ] ; then
+#        readerfound=1
+#    fi
+#}
+
+wait_reader() {
+#    check_reader
+    echo "Waiting for Smart Card reader..." >&2
+    /usr/bin/openct-tool rwait >/dev/null 2>&1
+    if [ $? != 0 ]; then
+        echo 'Failed to find Smart Card reader!' >&2
+    fi
+#    if [ $readerfound = 0 ] ; then
+#        tries=0
+#        while [ $readerfound == 0 -a $tries -lt 60 ] ; do
+#            echo "Waiting for Smart Card reader..." >&2
+#            sleep 1
+#            check_reader
+#            tries=$(($tries + 1))
+#        done
+#        if [ $readerfound = 0 ] ; then
+#            echo 'Failed to find Smart Card reader!' >&2
+#            exit 1
+#        fi
+#    fi
+}
+
+wait_card() {
+    echo "Waiting for Smart Card..." >&2
+    /usr/bin/openct-tool wait >/dev/null 2>&1
+    if [ $? != 0 ]; then
+        echo 'Failed to find Smart Card!' >&2
+    fi
+}
+
+/usr/sbin/openct-control init
+wait_reader
+wait_card
+
+# Due to a bug in openct, the --label does not work on data objects, means,
+# all data objects have by default the label 'pkcs15-init', that's why we are
+# setting the label manually if none is configured by the user.
+
+if [ -z "$1" ] || [ "$1" = "none" ] ; then
+	LABEL="pkcs15-init"
+else
+	LABEL="$1"
+fi
+
+if [ -x /bin/plymouth ] && plymouth --ping; then
+	# Get pin number from plymouth
+	/usr/bin/pkcs15-tool --read-data-object $LABEL --pin "$(plymouth ask-for-password --prompt "Enter pin for $crypttarget ($cryptsource): ")" -o /proc/self/fd/3 3>&1 1>/dev/null 2>&1
+else
+	# Interactive call, user enters pin
+	/usr/bin/pkcs15-tool --read-data-object $LABEL -o /proc/self/fd/3 3>&1 1>/dev/null 2>&1
+fi
+
+exit $?

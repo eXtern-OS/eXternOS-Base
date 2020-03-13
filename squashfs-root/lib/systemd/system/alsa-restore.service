@@ -1,0 +1,18 @@
+#
+# Note that two different ALSA card state management schemes exist and they
+# can be switched using a file exist check - /etc/alsa/state-daemon.conf .
+#
+
+[Unit]
+Description=Save/Restore Sound Card State
+Documentation=man:alsactl(1)
+ConditionPathExists=!/etc/alsa/state-daemon.conf
+ConditionPathExistsGlob=/dev/snd/control*
+After=alsa-state.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStartPre=/bin/mkdir -p /run/alsa
+ExecStart=-/usr/sbin/alsactl -E HOME=/run/alsa restore
+ExecStop=-/usr/sbin/alsactl -E HOME=/run/alsa store

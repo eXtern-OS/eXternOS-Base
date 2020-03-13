@@ -1,0 +1,19 @@
+#!/bin/sh
+
+. /lib/recovery-mode/l10n.sh
+
+if [ "$1" = "test" ]; then
+  echo $(eval_gettext "Try to make free space")
+  exit 0
+fi
+
+apt-get clean
+
+echo $(eval_gettext "Trying to find packages you don't need (apt-get autoremove), please review carefully.")
+apt-get autoremove
+
+echo ""
+echo $(eval_gettext "Finished, please press ENTER")
+read TMP
+
+exit 0

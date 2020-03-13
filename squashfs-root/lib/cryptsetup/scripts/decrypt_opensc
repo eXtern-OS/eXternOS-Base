@@ -1,0 +1,46 @@
+#!/bin/sh
+
+# Why not use "openct-tool rwait" instead of polling opensc-tool exit status?
+# Well openct daemon has to be running which interferes with pcscd since both
+# implement reader drivers, my particular CCID reader (SCM SCR331-LC1) doesn't
+# work with the CCID driver in openct, however it does work with pcscd.
+
+# Why not use "opensc-tool --wait" instead of polling opensc-tool exit status?
+# Although opensc-tool --help reports that there is a --wait option, it doesn't
+# seem to be implemented.
+
+check_card() {
+    cardfound=0
+
+    cardtmp=$(/usr/bin/opensc-tool -n 2>&1)
+    if [ $? = 0 ] ; then
+        cardfound=1
+    fi
+}
+
+wait_card() {
+    check_card
+    if [ $cardfound = 0 ] ; then
+        echo "Waiting for Smart Card..." >&2
+        tries=0
+        while [ $cardfound = 0 -a $tries -lt 60 ] ; do
+            sleep 1
+            check_card
+            tries=$(($tries + 1))
+        done
+        if [ $cardfound = 0 ] ; then
+            echo 'Failed to find Smart Card card!' >&2
+            exit 1
+        fi
+    fi
+}
+
+wait_card
+if [ -x /bin/plymouth ] && plymouth --ping; then
+	# Get pin number from plymouth
+	/usr/bin/pkcs15-crypt --decipher --input $1 --pkcs1 --raw --pin "$(plymouth ask-for-password --prompt "Enter pin for $crypttarget ($cryptsource): ")"
+else
+	# Get pin number from console
+	/usr/bin/pkcs15-crypt --decipher --input $1 --pkcs1 --raw < /dev/console 2>/dev/console
+fi
+exit $?

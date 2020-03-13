@@ -1,0 +1,84 @@
+# This file was automatically created based on description files (*.desc)
+#
+# udev rules file for supported USB and SCSI devices
+#
+# For the list of supported USB devices see /usr/lib/udev/hwdb.d/20-sane.hwdb
+#
+# The SCSI device support is very basic and includes only
+# scanners that mark themselves as type "scanner" or
+# SCSI-scanners from HP and other vendors that are entitled "processor"
+# but are treated accordingly.
+#
+# If your SCSI scanner isn't listed below, you can add it to a new rules
+# file under /etc/udev/rules.d/.
+#
+# If your scanner is supported by some external backend (brother, epkowa,
+# hpaio, etc) please ask the author of the backend to provide proper
+# device detection support for your OS
+#
+# If the scanner is supported by sane-backends, please mail the entry to
+# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).
+#
+ACTION!="add", GOTO="libsane_rules_end"
+
+# The following rule will disable USB autosuspend for the device
+ENV{DEVTYPE}=="usb_device", ENV{libsane_matched}=="yes", TEST=="power/control", ATTR{power/control}="on"
+
+SUBSYSTEMS=="scsi", GOTO="libsane_scsi_rules_begin"
+GOTO="libsane_rules_end"
+
+LABEL="libsane_scsi_rules_begin"
+KERNEL!="sg[0-9]*", GOTO="libsane_rules_end"
+
+# Generic: SCSI device type 6 indicates a scanner
+ATTRS{type}=="6", ENV{libsane_matched}="yes"
+
+# Some scanners advertise themselves as SCSI device type 3
+
+# Wildcard: for some Epson SCSI scanners
+ATTRS{type}=="3", ATTRS{vendor}=="EPSON", ATTRS{model}=="SCANNER*", ENV{libsane_matched}="yes"
+
+# Epson Expression 800 | Epson Expression 800
+ATTRS{type}=="3", ATTRS{vendor}=="EPSON", ATTRS{model}=="Expression800", ENV{libsane_matched}="yes"
+
+# Epson Perfection 2450 | Epson GT-9700F | Epson Perfection 2450 PHOTO
+ATTRS{type}=="3", ATTRS{vendor}=="EPSON", ATTRS{model}=="GT-9700", ENV{libsane_matched}="yes"
+
+# Epson Perfection 3200 | Epson GT-9800F | Epson Perfection 3200 PHOTO
+ATTRS{type}=="3", ATTRS{vendor}=="EPSON", ATTRS{model}=="GT-9800", ENV{libsane_matched}="yes"
+
+# Epson GT-X900 | Epson Perfection V700 Photo | Epson Perfection V750 Photo
+ATTRS{type}=="3", ATTRS{vendor}=="EPSON", ATTRS{model}=="GT-X900", ENV{libsane_matched}="yes"
+
+# Epson Perfection 636S | Epson Perfection 1200S | Epson Perfection 1200S
+ATTRS{type}=="3", ATTRS{vendor}=="EPSON", ATTRS{model}=="Perfection1200", ENV{libsane_matched}="yes"
+
+# Epson Perfection 636 | Epson Perfection 636S
+ATTRS{type}=="3", ATTRS{vendor}=="EPSON", ATTRS{model}=="Perfection636", ENV{libsane_matched}="yes"
+
+# Hewlett-Packard ScanJet 4p
+ATTRS{type}=="3", ATTRS{vendor}=="HP", ATTRS{model}=="C1130A", ENV{libsane_matched}="yes"
+
+# Hewlett-Packard ScanJet IIc
+ATTRS{type}=="3", ATTRS{vendor}=="HP", ATTRS{model}=="C1750A", ENV{libsane_matched}="yes"
+
+# Hewlett-Packard ScanJet IIp
+ATTRS{type}=="3", ATTRS{vendor}=="HP", ATTRS{model}=="C1790A", ENV{libsane_matched}="yes"
+
+# Hewlett-Packard ScanJet IIcx
+ATTRS{type}=="3", ATTRS{vendor}=="HP", ATTRS{model}=="C2500A", ENV{libsane_matched}="yes"
+
+# Hewlett-Packard ScanJet 4c
+ATTRS{type}=="3", ATTRS{vendor}=="HP", ATTRS{model}=="C2520A", ENV{libsane_matched}="yes"
+
+# Hewlett-Packard ScanJet 5p
+ATTRS{type}=="3", ATTRS{vendor}=="HP", ATTRS{model}=="C5110A", ENV{libsane_matched}="yes"
+
+# Hewlett-Packard ScanJet 6200C
+ATTRS{type}=="3", ATTRS{vendor}=="HP", ATTRS{model}=="C6270A", ENV{libsane_matched}="yes"
+
+# Hewlett-Packard ScanJet 6300C
+ATTRS{type}=="3", ATTRS{vendor}=="HP", ATTRS{model}=="C7670A", ENV{libsane_matched}="yes"
+
+
+LABEL="libsane_rules_end"

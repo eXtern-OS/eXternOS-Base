@@ -1,0 +1,85 @@
+#!/bin/sh
+# decrypt_keyctl - to use in /etc/crypttab as keyscript
+#  Allows to cache passwords for cryptdevices for 60s
+#  The same password is used for for cryptdevices with the same identifier.
+#  The keyfile parameter, which is the third field from /etc/crypttab, is
+#  used as identifier in this keyscript.
+#
+# sample crypttab entries:
+# test1   /dev/sda1    test_pw         luks,keyscript=decrypt_keyctl
+# test2   /dev/sda2    test_pw         luks,keyscript=decrypt_keyctl
+# test3   /dev/sda3    test_other_pw   luks,keyscript=decrypt_keyctl
+#
+#  test1 and test2 have the same identifier thus test2 does not need a password
+#  typed in manually
+
+die()
+{
+    echo "$@" >&2
+    exit 1
+}
+
+# the keyfile given from crypttab is used as identifier in the keyring
+# including the prefix "cryptkey-"
+ID_="cryptkey-$1"
+TIMEOUT_='60'
+ASKPASS_='/lib/cryptsetup/askpass'
+STTY_='/bin/stty'
+PW_READER_='undefined'
+PROMPT_="Caching passphrase for ${CRYPTTAB_SOURCE}: "
+
+test -x "$STTY_" && PW_READER_='stty'           # 1. backup method
+test -x "$ASKPASS_" && PW_READER_='askpass'     # prefered method
+
+KID_=$(keyctl search @u user "$ID_" 2>/dev/null)
+if [ $? -ne 0 ] || [ -z "$KID_" ] || [ "$CRYPTTAB_TRIED" -gt 0 ]; then
+    # key not found or wrong, ask the user
+    case "$PW_READER_" in
+        askpass)
+            KEY_=$($ASKPASS_ "$PROMPT_") || die "Error executing $ASKPASS_"
+            ;;
+        stty) # disable echoing with stty
+            $STTY_ -echo
+            if ! read -r KEY_; then
+                $STTY_ echo
+                die "Error reading key from /dev/stdin"
+            else
+                $STTY_ echo
+                echo >&2
+            fi
+            ;;
+        *)  # first try to read the posix way, then at least give the user a chance
+            echo -n "$PROMPT_" >&2
+            if ! read -res KEY_; then
+                echo
+                echo "ERROR: Can not disable echoing, YOUR PASSWORD WILL BE VISIBLE!" >&2
+                echo "This can be fixed if you add either $ASKPASS_" >&2
+                echo "or $STTY_ to your initramfs" >&2
+                echo -n "$PROMPT_" >&2
+                if ! read -r KEY_; then
+                    die "Error reading key from /dev/stdin"
+                else
+                    echo >&2
+                fi
+            else
+                echo >&2
+            fi
+            ;;
+    esac
+    if [ -n "$KID_" ]; then
+        # I have cached wrong password and now i may use either `keyctl update`
+        # to update $KID_ or just unlink old key, and add new. With `update` i
+        # may hit "Key has expired", though. So i'll go "unlink and add" way.
+        keyctl unlink $KID_ @u
+        KID_=""
+    fi
+    KID_=$(echo -n "$KEY_" |keyctl padd user "$ID_" @u)
+    [ -z "$KID_" ] && die "Error adding passphrase to kernel keyring"
+    if ! keyctl timeout $KID_ $TIMEOUT_; then
+        keyctl unlink $KID_ @u
+        die "Error setting timeout on key ($KID_), removing"
+    fi
+else
+    echo "Using cached passphrase for ${CRYPTTAB_SOURCE}." >&2
+fi
+keyctl pipe $KID_

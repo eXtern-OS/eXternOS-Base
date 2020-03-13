@@ -1,0 +1,31 @@
+#!/bin/sh
+
+. /lib/recovery-mode/l10n.sh
+
+if [ "$1" = "test" ]; then
+  echo $(eval_gettext "Repair broken packages")
+  exit 0
+fi
+
+# do some cleanup
+rm -f /var/lib/apt/lists/partial/*
+rm -f /var/cache/apt/archives/partial/*
+
+# check and use dist-upgraders partial mode if we have it,
+# it contains a lot of useful repair code
+script=/usr/lib/python3/dist-packages/DistUpgrade/dist-upgrade.py
+if [ -e $script ]; then
+    env RELEASE_UPGRADER_NO_SCREEN=1 python3 "$script" --partial --frontend DistUpgradeViewText \
+      --datadir /usr/share/ubuntu-release-upgrader
+else
+    dpkg --configure -a
+    apt-get update
+    apt-get install -f
+    apt-get dist-upgrade
+fi
+
+echo ""
+echo $(eval_gettext "Finished, please press ENTER")
+read TMP
+
+exit 0

@@ -1,0 +1,13 @@
+[Unit]
+Description=Automatically fetch and run repair assertions
+Documentation=man:snap(1)
+# don't run on classic
+ConditionKernelCommandLine=snap_core
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/snapd/snap-repair run
+EnvironmentFile=-/etc/environment
+Environment=SNAP_REPAIR_FROM_TIMER=1
+# There is no need to start this, the timer will run it
+# X-Snapd-Snap: do-not-start

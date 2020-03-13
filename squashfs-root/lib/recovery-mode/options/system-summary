@@ -1,0 +1,113 @@
+#!/bin/sh
+
+. /lib/recovery-mode/l10n.sh
+
+if [ "$1" = "test" ]; then
+  if [ "$2" = "mode" ]; then
+    exit 2
+  fi
+  echo $(eval_gettext "System summary")
+  exit 0
+fi
+
+# Get FS state
+if [ "$READONLY" = "true" ]; then
+    fs_state=$(eval_gettext 'Read-only mode')
+else
+    fs_state=$(eval_gettext 'Read/Write mode')
+fi
+
+# Check for existing connectivity
+net_state=$(eval_gettext 'none')
+ip route get 1.2.3.4 >/dev/null 2>&1 &&
+    net_state=$(eval_gettext 'IP configured') &&
+    grep ^nameserver -q /etc/resolv.conf &&
+    net_state=$(eval_gettext 'IP and DNS configured')
+
+# Get CPU information
+cpu_count=$(ls -1 /sys/devices/system/cpu/ | grep "^cpu[0-9]*$" | wc -l)
+if [ -f /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq ]; then
+    cpu_freq=$(($(cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq) / 1000))
+else
+    cpu_freq=0
+fi
+cpu_info="${cpu_count}x${cpu_freq}MHz"
+
+# Get RAID information
+if [ -n "$(grep md /proc/mdstat)" ]; then
+    raid_state=$(cat /proc/mdstat | grep -v Personalities)
+else
+    raid_state=$(eval_gettext 'No software RAID detected (mdstat)')
+fi
+
+# LVM
+if [ -z "$(which vgscan)" ]
+then
+    lvm_state=$(eval_gettext 'No LVM detected (vgscan)')
+else
+    if [ "$(id -u)" -ne 0 ]
+    then
+        lvm_state=$(eval_gettext 'Unknown (must be run as root)')
+    else
+        lvm_state="$(eval_gettext 'Physical Volumes:')"
+        pvck >/dev/null 2>&1
+        if [ $? -eq 0 ]; then
+          lvm_state="$lvm_state $(eval_gettext 'ok (good)')"
+        else
+          lvm_state="$lvm_state $(eval_gettext 'not ok (BAD)')"
+        fi
+
+        lvm_state="$lvm_state
+$(eval_gettext 'Volume Groups:')"
+        vgck >/dev/null 2>&1
+        if [ $? -eq 0 ]; then
+          lvm_state="$lvm_state $(eval_gettext 'ok (good)')"
+        else
+          lvm_state="$lvm_state $(eval_gettext 'not ok (BAD)')"
+        fi
+    fi
+fi
+
+# Get package system information
+if [ "$READONLY" = "true" ]; then
+    apt_state=$(eval_gettext 'unknown (read-only filesystem)')
+elif [ "$(id -u)" -ne 0 ]; then
+    apt_state=$(eval_gettext 'unknown (must be run as root)')
+else
+    apt-get -qq --no-act check
+    if [ $? -eq 0 ]; then
+        apt_state=$(eval_gettext 'yes (good)')
+    else
+        apt_state=$(eval_gettext 'no (BAD)')
+    fi
+fi
+
+msg="$(eval_gettext '(Use arrows/PageUp/PageDown keys to scroll and TAB key to select)')
+
+$(eval_gettext '=== General information ===')
+$(eval_gettext 'System mode:') $fs_state
+$(eval_gettext 'CPU information:') $cpu_info
+$(eval_gettext 'Network connectivity:') $net_state
+
+$(eval_gettext '=== Detailed disk usage ===')
+$(df -h 2>/dev/null)
+
+$(eval_gettext '=== Software RAID state ===')
+$raid_state
+
+$(eval_gettext '=== LVM state ===')
+$lvm_state
+
+$(eval_gettext '=== Detailed memory usage ===')
+$(free -m)
+
+$(eval_gettext '=== Detailed network configuration ===')
+$(ifconfig)
+
+$(eval_gettext '=== System database (APT) ===')
+$(eval_gettext 'Database is consistent:') $apt_state
+"
+
+whiptail --scrolltext --msgbox "$msg" 21 80 --title $(eval_gettext "System summary")
+
+exit 0

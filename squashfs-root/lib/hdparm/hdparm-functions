@@ -1,0 +1,274 @@
+hdparm_is_on_battery() {
+    on_ac_power 2>/dev/null
+    [ $? -eq 1 ]
+}
+
+hdparm_set_option()
+{
+  local NEW_OPT= NEW_DEF=
+  if test -n "$DISC"; then
+    for i in $OPTIONS; do
+      if test x${i%${i#??}} != x${1%${1#??}}; then
+        NEW_OPT="$NEW_OPT $i"
+      else
+        NEW_OPT=${NEW_OPT%-q}
+      fi
+    done
+    OPTIONS="$NEW_OPT $OPT_QUIET $1"
+  else
+    for i in $DEFAULT; do
+      if test x${i%${i#??}} != x${1%${1#??}}; then
+        NEW_DEF="$NEW_DEF $i"
+      else
+        NEW_DEF=${NEW_DEF%-q}
+      fi
+    done
+    DEFAULT="$NEW_DEF $DEF_QUIET $1"
+  fi
+}
+
+hdparm_eval_value()
+{
+  case $1 in
+    off|0)
+      hdparm_set_option "$2"0
+       ;;
+    on|1)
+      hdparm_set_option "$2"1
+      ;;
+    *)
+      log_failure_msg "Unknown Value for $2: $1"
+      exit 1
+      ;;
+  esac
+}
+
+# It isn't safe to set an APM policy by default on Firewire or USB devices.
+# See https://bugs.launchpad.net/bugs/515023.
+hdparm_try_apm()
+{
+    # set our default global apm policy here.
+    if [ -z "$ID_PATH" ]; then
+        local ID_PATH="$(udevadm info -n "$1" -q property 2>/dev/null | sed -n 's/^ID_PATH=//p')" || true
+    fi
+    case $ID_PATH in
+        pci-*-ieee1394-*|pci-*-usb-*)
+            return 1
+            ;;
+    esac
+
+    # Only activate APM on disks that support it.
+    if [ -z "$ID_ATA_FEATURE_SET_APM" ]; then
+        local ID_ATA_FEATURE_SET_APM="$(udevadm info -n "$1" -q property 2>/dev/null | sed -n 's/^ID_ATA_FEATURE_SET_APM=//p')" || true
+    fi
+    if [ "$ID_ATA_FEATURE_SET_APM" = "1" ]; then
+        return 0
+    fi
+    return 1
+}
+
+# parse /etc/hdparm.conf and spit out a list of options for the specified
+# disk, taking into account global settings in /etc/hdparm.conf, current AC
+# power status, and (as a fallback) the default apm settings on Ubuntu.
+# arguments: device_name
+# returns 0 on success, 1 on failure.
+# options to be passed to hdparm are returned on stdout.
+hdparm_options()
+{
+    local WANTED_DISK="$1"
+
+    local DISC= DEFAULT= DEF_QUIET= COMMAND_LINE=
+    # if the below is guaranteed to spawn a subshell, then this next line is
+    # unnecessary
+    local OPTIONS OPT_QUIET KEY SEP VALUE
+
+    egrep -v '^[[:space:]]*(#|$)' /etc/hdparm.conf |
+    {
+        # set our default global apm policy here.
+        if hdparm_try_apm "$WANTED_DISK"; then
+            if hdparm_is_on_battery; then
+                hdparm_set_option -B128
+		# set a spindown time of 3 minutes by default so the disk isn't
+		# constantly power cycling on a busy machine if spindown is
+		# enabled
+		hdparm_set_option -S36
+            else
+                hdparm_set_option -B254
+            fi
+        fi
+
+        while read KEY SEP VALUE; do
+            case $SEP in
+                '{')
+                    case $KEY in
+                        command_line)
+                            unset DISC
+                            unset OPTIONS
+                            unset OPT_QUIET
+                            COMMAND_LINE=1
+                            ;;
+                        *)
+                            if [ -h "$KEY" ]
+                            then
+                                DISC=$(readlink -m "$KEY")
+                                DISC=${DISC%%[[:digit:]]*}
+                            else
+                                DISC=$KEY
+                            fi
+                            OPTIONS=$DEFAULT
+                            OPT_QUIET=$DEF_QUIET
+                            ;;
+                    esac
+                    ;;
+                =)
+                    case $KEY in
+                         read_ahead_sect)
+                             hdparm_set_option -a$VALUE
+                            ;;
+                        lookahead)
+                            hdparm_eval_value $VALUE -A
+                            ;;
+                        bus)
+                            hdparm_eval_value $VALUE -b
+                            ;;
+                        apm)
+                            if ! hdparm_is_on_battery; then
+                                hdparm_set_option -B$VALUE
+                            fi
+                            ;;
+                        apm_battery)
+                            if hdparm_is_on_battery; then
+                                hdparm_set_option -B$VALUE
+                            fi
+                            ;;
+                        io32_support)
+                            hdparm_set_option -c$VALUE
+                            ;;
+                        dma)
+                            hdparm_eval_value $VALUE -d
+                            ;;
+                        defect_mana)
+                            hdparm_eval_value $VALUE -D
+                            ;;
+                        cd_speed)
+                            hdparm_set_option -E$VALUE
+                            ;;
+                        mult_sect_io)
+                            hdparm_set_option -m$VALUE
+                            ;;
+                        prefetch_sect)
+                            hdparm_set_option -P$VALUE
+                            ;;
+                        read_only)
+                            hdparm_eval_value $VALUE -r
+                            ;;
+                        write_read_verify)
+                            hdparm_eval_value $VALUE -R
+                            ;;
+                        spindown_time)
+                            hdparm_set_option -S$VALUE
+                            ;;
+                        poweron_standby)
+                            hdparm_eval_value $VALUE -s
+                            ;;
+                        interrupt_unmask)
+                            hdparm_eval_value $VALUE -u
+                            ;;
+                        write_cache)
+                            hdparm_eval_value $VALUE -W
+                            ;;
+                        transfer_mode)
+                            hdparm_set_option -X$VALUE
+                            ;;
+                        acoustic_management)
+                            hdparm_set_option -M$VALUE
+                            ;;
+                        keep_settings_over_reset)
+                            hdparm_eval_value $VALUE -k
+                            ;;
+                        keep_features_over_reset)
+                            hdparm_eval_value $VALUE -K
+                            ;;
+                        chipset_pio_mode)
+                            hdparm_set_option -p$VALUE
+                            ;;
+                        security_unlock)
+                            hdparm_set_option --security-unlock $VALUE
+                            ;;
+                        security_pass)
+                            hdparm_set_option --security-set-pass $VALUE
+                            ;;
+                        security_disable)
+                            hdparm_set_option --security-disable $VALUE
+                            ;;
+                        user-master)
+                            hdparm_set_option --user-master $VALUE
+                            ;;
+                        security_mode)
+                            hdparm_set_option --security-mode $VALUE
+                            ;;
+                        ROOTFS)
+                            ;;
+                        *)
+                            echo "Unknown option $KEY"
+                            exit 1
+                            ;;
+                    esac
+                    ;;
+                "")
+                    case $KEY in
+                        '}')
+                            if [ -z "$DISC" ] && [ -z "$COMMAND_LINE" ]; then
+                                echo "No disk enabled. Exiting" >&2
+                                return 1
+                            fi
+                            if [ -n "$OPTIONS" ] && [ "$DISC" = "$WANTED_DISK" ]
+                            then
+                                echo $OPTIONS
+                                return 0
+                            fi
+                            COMMAND_LINE=
+                            ;;
+                        quiet)
+                            if [ -n "$DISC" ]; then
+                                OPT_QUIET=-q
+                            else
+                                DEF_QUIET=-q
+                            fi
+                            ;;
+                        standby)
+                            hdparm_set_option -y
+                            ;;
+                        sleep)
+                            hdparm_set_option -Y
+                            ;;
+                        disable_seagate)
+                            hdparm_set_option -Z
+                            ;;
+                        security_freeze)
+                            hdparm_set_option --security-freeze
+                            ;;
+                        *)
+                            if [ -z "$COMMAND_LINE" ]; then
+                                echo "unknown option $KEY" >&2
+                                return 1
+                            fi
+                            ;;
+                    esac
+                    ;;
+                *)
+                    if [ -z "$COMMAND_LINE" ]; then
+                        echo "unknown separator $SEP" >&2
+                        return 1
+                    fi
+                    ;;
+            esac
+        done
+        # parsed the whole file and didn't find the disk,
+        # so try the default instead.
+        if [ -n "$DEFAULT" ]; then
+            echo $DEFAULT
+            return 0
+        fi
+    }
+}

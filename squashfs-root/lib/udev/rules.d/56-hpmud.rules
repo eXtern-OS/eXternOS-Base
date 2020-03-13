@@ -1,0 +1,18 @@
+# HPLIP udev rules file. Notify console user if plugin support is required for this device.
+
+ACTION!="add", GOTO="hpmud_rules_end"
+SUBSYSTEM=="ppdev", OWNER="root", GROUP="lp", MODE="0664"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", GOTO="hpmud_usb_rules"
+GOTO="hpmud_rules_end"
+
+LABEL="hpmud_usb_rules"
+
+ENV{ID_USB_INTERFACES}=="", IMPORT{builtin}="usb_id"
+
+# ENV{ID_HPLIP}="1" is for Ubuntu udev-acl
+ATTR{idVendor}=="03f0", ENV{ID_USB_INTERFACES}=="*:0701??:*|*:ffcc00:", OWNER="root", GROUP="lp", MODE="0664", ENV{libsane_matched}="yes", ENV{hp_test}="yes", ENV{ID_HPLIP}="1"
+
+# This rule will check the smart install feature, plugin status and firmware download for the required printers.
+ENV{hp_test}=="yes", PROGRAM="/bin/sh -c 'logger -p user.info loading HP Device $env{BUSNUM} $env{DEVNUM}'", RUN+="/bin/sh -c '/usr/bin/nohup /usr/bin/hp-config_usb_printer $env{BUSNUM}:$env{DEVNUM}'"
+
+LABEL="hpmud_rules_end"

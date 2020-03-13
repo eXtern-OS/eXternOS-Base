@@ -1,0 +1,7 @@
+# Android based kernel exports the uevent property PARTNAME, which can be
+# used to find out at run time the named partitions (e.g. boot) for the
+# device. This is specially useful for the Touch based images and flash-kernel,
+# to automatically update the kernel by writing at the correct partition
+# (independently of the hardware revision).
+ACTION!="remove", KERNEL=="mmcblk[0-9]p[0-9]", ENV{PARTNAME}=="?*", SYMLINK+="disk/by-partlabel/$env{PARTNAME}"
+

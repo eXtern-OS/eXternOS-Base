@@ -1,0 +1,12 @@
+#!/bin/sh
+
+echo "WARNING: The check script $0 is depreciated. Please use check script blkid instead." >&2
+
+not_fs=""
+for fs in ext2 ext3 ext4 ext4dev; do
+	/lib/cryptsetup/checks/blkid "$1" "$fs" >/dev/null || not_fs="$not_fs $fs"
+done
+if [ "$not_fs" = " ext2 ext3 ext4 ext4dev" ]; then
+	echo " - The device $1 does not contain a valid ext2, ext3, ext4 or ext4dev filesystem."
+	exit 1
+fi

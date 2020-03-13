@@ -1,0 +1,20 @@
+[Unit]
+Description=Recovery mode menu
+DefaultDependencies=no
+Conflicts=shutdown.target
+Wants=systemd-udevd-control.socket systemd-udevd.service systemd-udev-trigger.service basic.target sysinit.target
+After=systemd-udevd-control.socket systemd-udevd.service systemd-udev-trigger.service basic.target sysinit.target
+
+[Service]
+Type=notify
+Environment=HOME=/root
+WorkingDirectory=/root
+ExecStartPre=-/bin/dmesg --console-off
+ExecStartPre=-/bin/plymouth quit
+ExecStart=-/lib/recovery-mode/recovery-menu
+StandardInput=tty-force
+StandardOutput=inherit
+StandardError=inherit
+KillMode=process
+IgnoreSIGPIPE=no
+SendSIGHUP=yes

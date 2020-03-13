@@ -1,0 +1,30 @@
+[Unit]
+Description=Location Lookup Service
+
+[Service]
+Type=dbus
+BusName=org.freedesktop.GeoClue2
+User=geoclue
+ExecStart=/usr/libexec/geoclue
+
+# Filesystem lockdown
+ProtectSystem=strict
+ProtectKernelTunables=true
+ProtectControlGroups=true
+ProtectHome=true
+PrivateTmp=true
+
+# Network
+PrivateNetwork=false
+
+# Execute Mappings
+MemoryDenyWriteExecute=true
+
+# Modules
+ProtectKernelModules=true
+
+# Real-time
+RestrictRealtime=true
+
+# Privilege escalation
+NoNewPrivileges=true

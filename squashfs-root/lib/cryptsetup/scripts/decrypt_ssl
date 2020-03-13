@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# Script to decrypt the key which is encrypted with openssl.
+# See /usr/share/doc/cryptsetup/examples/gen-ssl-key to create such a key.
+#
+
+decrypt_ssl () {
+	echo "" >&2
+	echo "Decrypting ssl key $1..." >&2
+	if ! /usr/bin/openssl enc -aes-256-cbc -d -salt -in $1 2>/dev/null; then
+		return 1
+	fi
+	return 0
+}
+
+decrypt_ssl $1
+exit $?

@@ -1,0 +1,2285 @@
+# UDEV-style hotplug map for libmtp
+# Put this file in /etc/udev/rules.d
+
+ACTION!="add", GOTO="libmtp_rules_end"
+ENV{MAJOR}!="?*", GOTO="libmtp_rules_end"
+SUBSYSTEM=="usb", GOTO="libmtp_usb_rules"
+GOTO="libmtp_rules_end"
+
+LABEL="libmtp_usb_rules"
+
+# Some sensitive devices we surely don't wanna probe
+# Color instruments
+ATTR{idVendor}=="0670", GOTO="libmtp_rules_end"
+ATTR{idVendor}=="0765", GOTO="libmtp_rules_end"
+ATTR{idVendor}=="085c", GOTO="libmtp_rules_end"
+ATTR{idVendor}=="0971", GOTO="libmtp_rules_end"
+# Canon scanners that look like MTP devices (PID 0x22nn)
+ATTR{idVendor}=="04a9", ATTR{idProduct}=="22*", GOTO="libmtp_rules_end"
+# Canon digital camera (EOS 3D) that looks like MTP device (PID 0x3113)
+ATTR{idVendor}=="04a9", ATTR{idProduct}=="3113", GOTO="libmtp_rules_end"
+# Sensitive Atheros devices that look like MTP devices
+ATTR{idVendor}=="0cf3", GOTO="libmtp_rules_end"
+# Sensitive Atmel JTAG programmers
+ATTR{idVendor}=="03eb", GOTO="libmtp_rules_end"
+# Sensitive Philips device
+ATTR{idVendor}=="0471", ATTR{idProduct}=="083f", GOTO="libmtp_rules_end"
+# Creative ZEN Vision
+ATTR{idVendor}=="041e", ATTR{idProduct}=="411f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative Portable Media Center
+ATTR{idVendor}=="041e", ATTR{idProduct}=="4123", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative ZEN Xtra (MTP mode)
+ATTR{idVendor}=="041e", ATTR{idProduct}=="4128", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Dell DJ (2nd generation)
+ATTR{idVendor}=="041e", ATTR{idProduct}=="412f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative ZEN Micro (MTP mode)
+ATTR{idVendor}=="041e", ATTR{idProduct}=="4130", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative ZEN Touch (MTP mode)
+ATTR{idVendor}=="041e", ATTR{idProduct}=="4131", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Dell Dell Pocket DJ (MTP mode)
+ATTR{idVendor}=="041e", ATTR{idProduct}=="4132", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative ZEN MicroPhoto (alternate version)
+ATTR{idVendor}=="041e", ATTR{idProduct}=="4133", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative ZEN Sleek (MTP mode)
+ATTR{idVendor}=="041e", ATTR{idProduct}=="4137", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative ZEN MicroPhoto
+ATTR{idVendor}=="041e", ATTR{idProduct}=="413c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative ZEN Sleek Photo
+ATTR{idVendor}=="041e", ATTR{idProduct}=="413d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative ZEN Vision:M
+ATTR{idVendor}=="041e", ATTR{idProduct}=="413e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative ZEN V
+ATTR{idVendor}=="041e", ATTR{idProduct}=="4150", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative ZEN Vision:M (DVP-HD0004)
+ATTR{idVendor}=="041e", ATTR{idProduct}=="4151", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative ZEN V Plus
+ATTR{idVendor}=="041e", ATTR{idProduct}=="4152", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative ZEN Vision W
+ATTR{idVendor}=="041e", ATTR{idProduct}=="4153", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative ZEN
+ATTR{idVendor}=="041e", ATTR{idProduct}=="4157", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative ZEN V 2GB
+ATTR{idVendor}=="041e", ATTR{idProduct}=="4158", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative ZEN Mozaic
+ATTR{idVendor}=="041e", ATTR{idProduct}=="4161", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative ZEN X-Fi
+ATTR{idVendor}=="041e", ATTR{idProduct}=="4162", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Creative ZEN X-Fi 3
+ATTR{idVendor}=="041e", ATTR{idProduct}=="4169", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# ZiiLABS Zii EGG
+ATTR{idVendor}=="041e", ATTR{idProduct}=="6000", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-900
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="0409", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung I550W Phone
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="04a4", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung Jet S8000
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="4f1f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YH-920 (501d)
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="501d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YH-920 (5022)
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="5022", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YH-925GS
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="5024", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YH-820
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="502e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YH-925(-GS)
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="502f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YH-J70J
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="5033", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-Z5
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="503c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-T7J
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="5047", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-U2J (YP-U2JXB/XAA)
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="5054", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-F2J
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="5057", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-K5
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="505a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-U3
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="507d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-T9
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="507f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-K3
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="5081", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-P2
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="5083", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-T10
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="508a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-S5
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="508b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-S3
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="5091", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-U4
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="5093", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-R1
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="510f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-Q1
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="5115", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-M1
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="5118", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-P3
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="511a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-Q2
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="511d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-U5
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="5121", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-R0
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="5125", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-R2
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="512e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-Q3
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="5130", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YP-Z3
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="5137", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung YH-999 Portable Media Center/SGH-A707/SGH-L760V/SGH-U900/Verizon Intensity/Fascinate
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="5a0f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung M7600 Beat/GT-S8300T/SGH-F490/S8300
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="6642", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung X830 Mobile Phone
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="6702", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung U600 Mobile Phone
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="6709", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung F250 Mobile Phone
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="6727", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung Juke (SCH-U470)
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="6734", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung GT-B2700
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="6752", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung SAMSUNG Trance
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="6763", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung GT-S8500
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="6819", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung Galaxy models (MTP+ADB)
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="685c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung Galaxy models (MTP)
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="6860", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung Galaxy models Kies mode
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="6877", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung Vibrant SGH-T959/Captivate/Media player mode
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="68a9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung GT-B2710/Xcover 271
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="68af", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Samsung GT-S5230
+ATTR{idVendor}=="04e8", ATTR{idProduct}=="e20c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Microsoft/Intel Bandon Portable Media Center
+ATTR{idVendor}=="045e", ATTR{idProduct}=="00c9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Microsoft Windows Phone
+ATTR{idVendor}=="045e", ATTR{idProduct}=="04ec", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Microsoft Windows MTP Simulator
+ATTR{idVendor}=="045e", ATTR{idProduct}=="0622", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Microsoft Zune HD
+ATTR{idVendor}=="045e", ATTR{idProduct}=="063e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Microsoft Kin 1
+ATTR{idVendor}=="045e", ATTR{idProduct}=="0640", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Microsoft/Sharp/nVidia Kin TwoM
+ATTR{idVendor}=="045e", ATTR{idProduct}=="0641", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Microsoft Zune
+ATTR{idVendor}=="045e", ATTR{idProduct}=="0710", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Microsoft Lumia 950 XL Dual SIM (RM-1116)
+ATTR{idVendor}=="045e", ATTR{idProduct}=="0a00", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Microsoft/HTC HTC 8S
+ATTR{idVendor}=="045e", ATTR{idProduct}=="f0ca", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# JVC Alneo XA-HD500
+ATTR{idVendor}=="04f1", ATTR{idProduct}=="6105", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Intex Aqua Fish
+ATTR{idVendor}=="05c6", ATTR{idProduct}=="0a07", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips HDD6320/00 or HDD6330/17
+ATTR{idVendor}=="0471", ATTR{idProduct}=="014b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips HDD14XX,HDD1620 or HDD1630/17
+ATTR{idVendor}=="0471", ATTR{idProduct}=="014c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips HDD085/00 or HDD082/17
+ATTR{idVendor}=="0471", ATTR{idProduct}=="014d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips GoGear SA9200
+ATTR{idVendor}=="0471", ATTR{idProduct}=="014f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips SA1115/55
+ATTR{idVendor}=="0471", ATTR{idProduct}=="0164", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips GoGear Audio
+ATTR{idVendor}=="0471", ATTR{idProduct}=="0165", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips Shoqbox
+ATTR{idVendor}=="0471", ATTR{idProduct}=="0172", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips PSA610
+ATTR{idVendor}=="0471", ATTR{idProduct}=="0181", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips HDD6320
+ATTR{idVendor}=="0471", ATTR{idProduct}=="01eb", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips GoGear SA6014/SA6015/SA6024/SA6025/SA6044/SA6045
+ATTR{idVendor}=="0471", ATTR{idProduct}=="084e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips GoGear SA5145
+ATTR{idVendor}=="0471", ATTR{idProduct}=="0857", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips i908
+ATTR{idVendor}=="0471", ATTR{idProduct}=="190b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips GoGear SA6125/SA6145/SA6185
+ATTR{idVendor}=="0471", ATTR{idProduct}=="2002", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips GoGear SA3345
+ATTR{idVendor}=="0471", ATTR{idProduct}=="2004", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips W6610
+ATTR{idVendor}=="0471", ATTR{idProduct}=="2008", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips SA5285
+ATTR{idVendor}=="0471", ATTR{idProduct}=="2022", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips GoGear ViBE SA1VBE04
+ATTR{idVendor}=="0471", ATTR{idProduct}=="2075", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips GoGear Muse
+ATTR{idVendor}=="0471", ATTR{idProduct}=="2077", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips GoGear ViBE SA1VBE04/08
+ATTR{idVendor}=="0471", ATTR{idProduct}=="207b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips GoGear Aria
+ATTR{idVendor}=="0471", ATTR{idProduct}=="207c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips GoGear SA1VBE08KX/78
+ATTR{idVendor}=="0471", ATTR{idProduct}=="208e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips GoGear VIBE SA2VBE[08|16]K/02
+ATTR{idVendor}=="0471", ATTR{idProduct}=="20b7", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips GoGear Ariaz
+ATTR{idVendor}=="0471", ATTR{idProduct}=="20b9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips GoGear Vibe/02
+ATTR{idVendor}=="0471", ATTR{idProduct}=="20e5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips GoGear Ariaz/97
+ATTR{idVendor}=="0471", ATTR{idProduct}=="2138", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips PI3900B2/58 
+ATTR{idVendor}=="0471", ATTR{idProduct}=="2190", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Philips PSA235
+ATTR{idVendor}=="0471", ATTR{idProduct}=="7e01", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia TAB A500 (ID1)
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3325", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia TAB A500 (ID2)
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3341", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia TAB A501 (ID1)
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3344", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia TAB A501 (ID2)
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3345", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia TAB A100 (ID1)
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3348", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia TAB A100 (ID2)
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3349", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia TAB A101 (ID1)
+ATTR{idVendor}=="0502", ATTR{idProduct}=="334a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia TAB A700
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3378", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia TAB A200 (ID1)
+ATTR{idVendor}=="0502", ATTR{idProduct}=="337c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia TAB A200 (ID2)
+ATTR{idVendor}=="0502", ATTR{idProduct}=="337d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia TAB A510 (ID1)
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3389", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia TAB A510 (ID2)
+ATTR{idVendor}=="0502", ATTR{idProduct}=="338a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer S500 CloudMobile
+ATTR{idVendor}=="0502", ATTR{idProduct}=="33aa", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer E350 Liquid Gallant Duo (ID1)
+ATTR{idVendor}=="0502", ATTR{idProduct}=="33c3", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer E350 Liquid Gallant Duo (ID2)
+ATTR{idVendor}=="0502", ATTR{idProduct}=="33c4", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia TAB A210
+ATTR{idVendor}=="0502", ATTR{idProduct}=="33cb", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia TAB A110
+ATTR{idVendor}=="0502", ATTR{idProduct}=="33d8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Liquid Z120 MT65xx Android Phone
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3473", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Liquid E2
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3514", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia A1-810
+ATTR{idVendor}=="0502", ATTR{idProduct}=="353c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Liquid Z130 MT65xx Android Phone
+ATTR{idVendor}=="0502", ATTR{idProduct}=="355f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia A3-A11
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3586", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Liquid E3
+ATTR{idVendor}=="0502", ATTR{idProduct}=="35a8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Z150
+ATTR{idVendor}=="0502", ATTR{idProduct}=="35e4", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Liquid X1
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3609", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Z160
+ATTR{idVendor}=="0502", ATTR{idProduct}=="361d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia A1-840FHD
+ATTR{idVendor}=="0502", ATTR{idProduct}=="362d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer E39
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3643", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer liquid e700
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3644", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer One 7
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3657", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Z200
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3683", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer A1-841
+ATTR{idVendor}=="0502", ATTR{idProduct}=="365e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Liquid S56
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3725", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Liquid Z220 (ID1)
+ATTR{idVendor}=="0502", ATTR{idProduct}=="374f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Liquid Z220 (ID2)
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3750", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Liquid Z330
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3750", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Liquid Z630
+ATTR{idVendor}=="0502", ATTR{idProduct}=="37ef", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Z530
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3822", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Z530 16GB
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3823", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Iconia One 10
+ATTR{idVendor}=="0502", ATTR{idProduct}=="3841", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acer Liquid Zest Plus
+ATTR{idVendor}=="0502", ATTR{idProduct}=="38bb", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa m230/m240
+ATTR{idVendor}=="0781", ATTR{idProduct}=="7400", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa m200-tcc (MTP mode)
+ATTR{idVendor}=="0781", ATTR{idProduct}=="7401", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa c150
+ATTR{idVendor}=="0781", ATTR{idProduct}=="7410", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa e200/e250/e260/e270/e280
+ATTR{idVendor}=="0781", ATTR{idProduct}=="7420", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa e260/e280 v2
+ATTR{idVendor}=="0781", ATTR{idProduct}=="7422", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa m240/m250
+ATTR{idVendor}=="0781", ATTR{idProduct}=="7430", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa Clip
+ATTR{idVendor}=="0781", ATTR{idProduct}=="7432", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa Clip v2
+ATTR{idVendor}=="0781", ATTR{idProduct}=="7434", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa c240/c250
+ATTR{idVendor}=="0781", ATTR{idProduct}=="7450", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa c250 v2
+ATTR{idVendor}=="0781", ATTR{idProduct}=="7452", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa Express
+ATTR{idVendor}=="0781", ATTR{idProduct}=="7460", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa Connect
+ATTR{idVendor}=="0781", ATTR{idProduct}=="7480", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa View
+ATTR{idVendor}=="0781", ATTR{idProduct}=="74b0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa Fuze
+ATTR{idVendor}=="0781", ATTR{idProduct}=="74c0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa Fuze v2
+ATTR{idVendor}=="0781", ATTR{idProduct}=="74c2", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa Clip+
+ATTR{idVendor}=="0781", ATTR{idProduct}=="74d0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa Fuze+
+ATTR{idVendor}=="0781", ATTR{idProduct}=="74e0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SanDisk Sansa Clip Zip
+ATTR{idVendor}=="0781", ATTR{idProduct}=="74e4", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver H300 Series MTP
+ATTR{idVendor}=="1006", ATTR{idProduct}=="3004", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver Portable Media Center 1
+ATTR{idVendor}=="1006", ATTR{idProduct}=="4002", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver Portable Media Center 2
+ATTR{idVendor}=="1006", ATTR{idProduct}=="4003", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver T7 Volcano
+ATTR{idVendor}=="1042", ATTR{idProduct}=="1143", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver iFP-880
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1008", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver T10
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1113", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver T20 FM
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1114", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver T20
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1115", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver U10
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1116", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver T10b
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1117", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver T20b
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1118", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver T30
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1119", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver T10 2GB
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1120", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver N12
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1122", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver Clix2
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1126", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver Clix
+ATTR{idVendor}=="4102", ATTR{idProduct}=="112a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver X20
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1132", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver T60
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1134", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver E100
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1141", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver E100 v2/Lplayer
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1142", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver Spinn
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1147", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver E50
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1151", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver E150
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1152", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver T5
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1153", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver E30
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1167", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver AK70
+ATTR{idVendor}=="4102", ATTR{idProduct}=="1200", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver H10 20GB
+ATTR{idVendor}=="4102", ATTR{idProduct}=="2101", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver H10 5GB
+ATTR{idVendor}=="4102", ATTR{idProduct}=="2102", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver H10 5.6GB
+ATTR{idVendor}=="4102", ATTR{idProduct}=="2105", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Dell Inc DJ Itty
+ATTR{idVendor}=="413c", ATTR{idProduct}=="4500", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Dell Inc Dell Streak 7
+ATTR{idVendor}=="413c", ATTR{idProduct}=="b10b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Dell Inc Dell Venue 7 inch
+ATTR{idVendor}=="413c", ATTR{idProduct}=="b11a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Dell Inc Dell Venue 7 inch (2nd ID)
+ATTR{idVendor}=="413c", ATTR{idProduct}=="b11b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Toshiba Gigabeat MEGF-40
+ATTR{idVendor}=="0930", ATTR{idProduct}=="0009", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Toshiba Gigabeat
+ATTR{idVendor}=="0930", ATTR{idProduct}=="000c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Toshiba Gigabeat P20
+ATTR{idVendor}=="0930", ATTR{idProduct}=="000f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Toshiba Gigabeat S
+ATTR{idVendor}=="0930", ATTR{idProduct}=="0010", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Toshiba Gigabeat P10
+ATTR{idVendor}=="0930", ATTR{idProduct}=="0011", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Toshiba Gigabeat V30
+ATTR{idVendor}=="0930", ATTR{idProduct}=="0014", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Toshiba Gigabeat U
+ATTR{idVendor}=="0930", ATTR{idProduct}=="0016", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Toshiba Gigabeat MEU202
+ATTR{idVendor}=="0930", ATTR{idProduct}=="0018", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Toshiba Gigabeat T
+ATTR{idVendor}=="0930", ATTR{idProduct}=="0019", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Toshiba Gigabeat MEU201
+ATTR{idVendor}=="0930", ATTR{idProduct}=="001a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Toshiba Gigabeat MET401
+ATTR{idVendor}=="0930", ATTR{idProduct}=="001d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Toshiba Excite AT300
+ATTR{idVendor}=="0930", ATTR{idProduct}=="0963", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Toshiba Excite AT200
+ATTR{idVendor}=="0930", ATTR{idProduct}=="0960", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Toshiba Thrive AT100/AT105
+ATTR{idVendor}=="0930", ATTR{idProduct}=="7100", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos Gmini XS100
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1207", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos XS202 (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1208", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 104 (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="120a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 204 (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="120c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 404 (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1301", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 404CAM (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1303", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 504 (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1307", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 604 (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1309", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 604WIFI (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="130b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 704 mobile dvr
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="130d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 704TV (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="130f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 405 (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1311", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 605 (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1313", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 605F (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1315", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 705 (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1319", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos TV+ (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="131b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 105 (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="131d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 405HDD (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1321", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 5 (MTP mode 1)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1331", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 5 (MTP mode 2)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1333", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 7 (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1335", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos SPOD (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1341", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 5S IT (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1351", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 5H IT (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1357", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 48 (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1421", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos Arnova Childpad
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1458", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos Arnova 8c G3
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="145e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos Arnova 10bG3 Tablet
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="146b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 97 Xenon
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="149a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 97 Titanium
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="14ad", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 80 Titanium
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="14bf", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 101 Titanium
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="14b9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 70b Titanium
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="14ef", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 8o G9 (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1508", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 8o G9 Turbo (MTP mode)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1509", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 80G9
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1518", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 101 G9 (ID1)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1528", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 101 G9 (ID2)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1529", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 101 G9 Turbo 250 HD
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1538", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 101 G9 Turbo
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1539", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 101 XS
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1548", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 70it2 (ID 1)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1568", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 70it2 (ID 2)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="1569", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 70 Cobalt
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="15ba", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 50c
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="2008", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos C40
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="31ab", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos Helium 45B
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="31d8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos Phone
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="31e1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 45 Neon
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="31f3", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 50 Diamond
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="3229", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 101 G4
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="4002", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos (for Tesco) Hudl (ID1)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="5008", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos (for Tesco) Hudl (ID2)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="5009", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos AC40DTI
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="5217", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 101 xenon lite
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="528c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 101 xenon lite (ADB)
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="528d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 40 Helium phone
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="52c2", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos Diamond S
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="5305", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 50d neon
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="5371", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 70b neon
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="5395", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 101b Oxygen
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="542f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Archos 55 diamond Selfie
+ATTR{idVendor}=="0e79", ATTR{idProduct}=="5465", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Dunlop MP3 player 1GB / EGOMAN MD223AFD
+ATTR{idVendor}=="10d6", ATTR{idProduct}=="2200", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Memorex or iRiver MMP 8585/8586 or iRiver E200
+ATTR{idVendor}=="10d6", ATTR{idProduct}=="2300", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sirius Stiletto
+ATTR{idVendor}=="18f6", ATTR{idProduct}=="0102", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sirius Stiletto 2
+ATTR{idVendor}=="18f6", ATTR{idProduct}=="0110", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N81 Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="000a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 6120c Classic Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="002e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N96 Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0039", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 6500c Classic Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="003c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 3110c Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="005f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 3109c Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0065", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 5310 XpressMusic
+ATTR{idVendor}=="0421", ATTR{idProduct}=="006c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N95 Mobile Phone 8GB
+ATTR{idVendor}=="0421", ATTR{idProduct}=="006e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N82 Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0074", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N78 Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0079", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 6220 Classic
+ATTR{idVendor}=="0421", ATTR{idProduct}=="008d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N85 Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0092", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 6210 Navigator
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0098", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia E71
+ATTR{idVendor}=="0421", ATTR{idProduct}=="00e4", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia E66
+ATTR{idVendor}=="0421", ATTR{idProduct}=="00e5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 5320 XpressMusic
+ATTR{idVendor}=="0421", ATTR{idProduct}=="00ea", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 5800 XpressMusic
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0154", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 5800 XpressMusic v2
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0155", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 5800 XpressMusic v3
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0159", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia E63
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0179", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N79
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0186", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia E71x
+ATTR{idVendor}=="0421", ATTR{idProduct}=="01a1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia E52
+ATTR{idVendor}=="0421", ATTR{idProduct}=="01cf", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 3710
+ATTR{idVendor}=="0421", ATTR{idProduct}=="01ee", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N97-1
+ATTR{idVendor}=="0421", ATTR{idProduct}=="01f4", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N97
+ATTR{idVendor}=="0421", ATTR{idProduct}=="01f5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 5130 XpressMusic
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0209", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia E72
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0221", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 5530
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0229", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia E6
+ATTR{idVendor}=="0421", ATTR{idProduct}=="032f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N97 mini
+ATTR{idVendor}=="0421", ATTR{idProduct}=="026b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia X6
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0274", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 6600i
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0297", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 2710
+ATTR{idVendor}=="0421", ATTR{idProduct}=="02c1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 5230
+ATTR{idVendor}=="0421", ATTR{idProduct}=="02e2", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N8
+ATTR{idVendor}=="0421", ATTR{idProduct}=="02fe", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N8 (Ovi mode)
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0302", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia E7
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0334", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia E7 (Ovi mode)
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0335", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia C7
+ATTR{idVendor}=="0421", ATTR{idProduct}=="03c1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia C7 (ID2)
+ATTR{idVendor}=="0421", ATTR{idProduct}=="03cd", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N950
+ATTR{idVendor}=="0421", ATTR{idProduct}=="03d2", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 3250 Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0462", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N93 Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0478", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 5500 Sport Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="047e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N91 Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0485", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 5700 XpressMusic Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="04b4", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 5300 Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="04ba", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 5200 Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="04be", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N73 Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="04d1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N75 Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="04e1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N93i Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="04e5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N95 Mobile Phone
+ATTR{idVendor}=="0421", ATTR{idProduct}=="04ef", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N80 Internet Edition (Media Player)
+ATTR{idVendor}=="0421", ATTR{idProduct}=="04f1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N9
+ATTR{idVendor}=="0421", ATTR{idProduct}=="051a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N300
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0524", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia C5-00
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0592", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia C5-00 (ID2)
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0595", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia 808 PureView
+ATTR{idVendor}=="0421", ATTR{idProduct}=="05d3", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia Lumia WP8
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0661", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia Lumia 301
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0666", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia XL
+ATTR{idVendor}=="0421", ATTR{idProduct}=="06e8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia Lumia (RM-975)
+ATTR{idVendor}=="0421", ATTR{idProduct}=="06fc", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia X2 Dual Sim
+ATTR{idVendor}=="0421", ATTR{idProduct}=="0708", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Qualcomm (for Nokia) 5530 Xpressmusic
+ATTR{idVendor}=="05c6", ATTR{idProduct}=="0229", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Qualcomm (for Nokia/Verizon) 6205 Balboa/Verizon Music Phone
+ATTR{idVendor}=="05c6", ATTR{idProduct}=="3196", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Qualcomm (for Gigabyte) GSmart G1342
+ATTR{idVendor}=="05c6", ATTR{idProduct}=="8800", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Qualcomm (for Smartfren) Andromax U
+ATTR{idVendor}=="05c6", ATTR{idProduct}=="9025", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Qualcomm (for OnePlus) One (MTP)
+ATTR{idVendor}=="05c6", ATTR{idProduct}=="6764", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Qualcomm (for OnePlus) One (MTP+ADB)
+ATTR{idVendor}=="05c6", ATTR{idProduct}=="6765", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Qualcomm (for Xolo) Xolo Black (MTP)
+ATTR{idVendor}=="901b", ATTR{idProduct}=="9039", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Qualcomm (for PhiComm) C230w (MTP)
+ATTR{idVendor}=="05c6", ATTR{idProduct}=="9039", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Qualcomm (for OnePlus) One Plus 2 (A2003) (MTP)
+ATTR{idVendor}=="05c6", ATTR{idProduct}=="f003", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Qualcomm (for Highscreen) Omega Prime S
+ATTR{idVendor}=="05c6", ATTR{idProduct}=="f003", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Logik LOG DAX MP3 and DAB Player
+ATTR{idVendor}=="13d1", ATTR{idProduct}=="7002", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Technika MP-709
+ATTR{idVendor}=="13d1", ATTR{idProduct}=="7017", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Thomson EM28 Series
+ATTR{idVendor}=="069b", ATTR{idProduct}=="0774", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Thomson / RCA Opal / Lyra MC4002
+ATTR{idVendor}=="069b", ATTR{idProduct}=="0777", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Thomson Lyra MC5104B (M51 Series)
+ATTR{idVendor}=="069b", ATTR{idProduct}=="077c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Thomson RCA H106
+ATTR{idVendor}=="069b", ATTR{idProduct}=="301a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Thomson scenium E308
+ATTR{idVendor}=="069b", ATTR{idProduct}=="3028", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Thomson / RCA Lyra HC308A
+ATTR{idVendor}=="069b", ATTR{idProduct}=="3035", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Fujitsu, Ltd F903iX HIGH-SPEED
+ATTR{idVendor}=="04c5", ATTR{idProduct}=="1140", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Fujitsu, Ltd STYLISTIC M532
+ATTR{idVendor}=="04c5", ATTR{idProduct}=="133b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Fujitsu, Ltd F02-E
+ATTR{idVendor}=="04c5", ATTR{idProduct}=="1378", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Fujitsu, Ltd Arrows 202F
+ATTR{idVendor}=="04c5", ATTR{idProduct}=="13dd", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# NormSoft, Inc. Pocket Tunes
+ATTR{idVendor}=="1703", ATTR{idProduct}=="0001", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# NormSoft, Inc. Pocket Tunes 4
+ATTR{idVendor}=="1703", ATTR{idProduct}=="0002", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# TrekStor Vibez 8/12GB
+ATTR{idVendor}=="066f", ATTR{idProduct}=="842a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Medion MD8333 (ID1)
+ATTR{idVendor}=="066f", ATTR{idProduct}=="8550", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Medion MD8333 (ID2)
+ATTR{idVendor}=="066f", ATTR{idProduct}=="8588", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Verizon Ellipsis 7
+ATTR{idVendor}=="0408", ATTR{idProduct}=="3899", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Medion MD99000 (P9514)/Olivetti Olipad 110
+ATTR{idVendor}=="0408", ATTR{idProduct}=="b009", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Medion Lifetab P9514
+ATTR{idVendor}=="0408", ATTR{idProduct}=="b00a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Maxfield G-Flash NG 1GB
+ATTR{idVendor}=="066f", ATTR{idProduct}=="846c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SigmaTel Inc. MTPMSCN Audio Player
+ATTR{idVendor}=="066f", ATTR{idProduct}=="a010", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# TrekStor i.Beat Sweez FM
+ATTR{idVendor}=="0402", ATTR{idProduct}=="0611", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# TrekStor i.Beat Organix 2.0
+ATTR{idVendor}=="1e68", ATTR{idProduct}=="0002", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRiver Tolino Tab 7
+ATTR{idVendor}=="1e68", ATTR{idProduct}=="1002", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Disney MixMax
+ATTR{idVendor}=="0aa6", ATTR{idProduct}=="6021", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Tevion MD 81488
+ATTR{idVendor}=="0aa6", ATTR{idProduct}=="3011", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# MyMusix PD-6070
+ATTR{idVendor}=="0aa6", ATTR{idProduct}=="9601", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Cowon iAudio U3 (MTP mode)
+ATTR{idVendor}=="0e21", ATTR{idProduct}=="0701", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Cowon iAudio 6 (MTP mode)
+ATTR{idVendor}=="0e21", ATTR{idProduct}=="0711", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Cowon iAudio 7 (MTP mode)
+ATTR{idVendor}=="0e21", ATTR{idProduct}=="0751", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Cowon iAudio U5 (MTP mode)
+ATTR{idVendor}=="0e21", ATTR{idProduct}=="0761", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Cowon iAudio D2 (MTP mode)
+ATTR{idVendor}=="0e21", ATTR{idProduct}=="0801", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Cowon iAudio D2+ FW 2.x (MTP mode)
+ATTR{idVendor}=="0e21", ATTR{idProduct}=="0861", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Cowon iAudio D2+ DAB FW 4.x (MTP mode)
+ATTR{idVendor}=="0e21", ATTR{idProduct}=="0871", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Cowon iAudio D2+ FW 3.x (MTP mode)
+ATTR{idVendor}=="0e21", ATTR{idProduct}=="0881", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Cowon iAudio D2+ DMB FW 1.x (MTP mode)
+ATTR{idVendor}=="0e21", ATTR{idProduct}=="0891", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Cowon iAudio S9 (MTP mode)
+ATTR{idVendor}=="0e21", ATTR{idProduct}=="0901", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Cowon iAudio 9 (MTP mode)
+ATTR{idVendor}=="0e21", ATTR{idProduct}=="0911", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Cowon iAudio J3 (MTP mode)
+ATTR{idVendor}=="0e21", ATTR{idProduct}=="0921", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Cowon iAudio X7 (MTP mode)
+ATTR{idVendor}=="0e21", ATTR{idProduct}=="0931", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Cowon iAudio C2 (MTP mode)
+ATTR{idVendor}=="0e21", ATTR{idProduct}=="0941", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Cowon iAudio 10 (MTP mode)
+ATTR{idVendor}=="0e21", ATTR{idProduct}=="0952", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Insignia NS-DV45
+ATTR{idVendor}=="19ff", ATTR{idProduct}=="0303", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Insignia Sport Player
+ATTR{idVendor}=="19ff", ATTR{idProduct}=="0307", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Insignia Pilot 4GB
+ATTR{idVendor}=="19ff", ATTR{idProduct}=="0309", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. T54
+ATTR{idVendor}=="043e", ATTR{idProduct}=="7040", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. UP3
+ATTR{idVendor}=="043e", ATTR{idProduct}=="70b1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. VX8550 V CAST Mobile Phone
+ATTR{idVendor}=="1004", ATTR{idProduct}=="6010", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. KC910 Renoir Mobile Phone
+ATTR{idVendor}=="1004", ATTR{idProduct}=="608f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. GR-500 Music Player
+ATTR{idVendor}=="1004", ATTR{idProduct}=="611b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. KM900
+ATTR{idVendor}=="1004", ATTR{idProduct}=="6132", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. LG8575
+ATTR{idVendor}=="1004", ATTR{idProduct}=="619a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. Android phone (ID1)
+ATTR{idVendor}=="1004", ATTR{idProduct}=="61f1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. Android phone (ID2)
+ATTR{idVendor}=="1004", ATTR{idProduct}=="61f9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. LG VS980
+ATTR{idVendor}=="1004", ATTR{idProduct}=="621c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. LG2 Optimus
+ATTR{idVendor}=="1004", ATTR{idProduct}=="6225", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. LG VS950
+ATTR{idVendor}=="1004", ATTR{idProduct}=="622a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. LG VS870
+ATTR{idVendor}=="1004", ATTR{idProduct}=="6239", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. LG VS890
+ATTR{idVendor}=="1004", ATTR{idProduct}=="623d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. LG Optimus Zone 2
+ATTR{idVendor}=="1004", ATTR{idProduct}=="6259", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. VK810
+ATTR{idVendor}=="1004", ATTR{idProduct}=="6265", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. G3
+ATTR{idVendor}=="1004", ATTR{idProduct}=="627f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. 810 tablet
+ATTR{idVendor}=="1004", ATTR{idProduct}=="6263", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. G3 (VS985)
+ATTR{idVendor}=="1004", ATTR{idProduct}=="626e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. Various E and P models
+ATTR{idVendor}=="1004", ATTR{idProduct}=="631c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# LG Electronics Inc. LG G Flex 2
+ATTR{idVendor}=="1004", ATTR{idProduct}=="633e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-A815/NWZ-A818
+ATTR{idVendor}=="054c", ATTR{idProduct}=="0325", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-S516
+ATTR{idVendor}=="054c", ATTR{idProduct}=="0326", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-S615F/NWZ-S616F/NWZ-S618F
+ATTR{idVendor}=="054c", ATTR{idProduct}=="0327", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-S716F
+ATTR{idVendor}=="054c", ATTR{idProduct}=="035a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-A826/NWZ-A828/NWZ-A829
+ATTR{idVendor}=="054c", ATTR{idProduct}=="035b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-A726/NWZ-A728/NWZ-A768
+ATTR{idVendor}=="054c", ATTR{idProduct}=="035c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-B135
+ATTR{idVendor}=="054c", ATTR{idProduct}=="036e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-E436F
+ATTR{idVendor}=="054c", ATTR{idProduct}=="0385", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-W202
+ATTR{idVendor}=="054c", ATTR{idProduct}=="0388", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-S739F
+ATTR{idVendor}=="054c", ATTR{idProduct}=="038c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-S638F
+ATTR{idVendor}=="054c", ATTR{idProduct}=="038e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-X1050B/NWZ-X1060B
+ATTR{idVendor}=="054c", ATTR{idProduct}=="0397", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-X1051/NWZ-X1061
+ATTR{idVendor}=="054c", ATTR{idProduct}=="0398", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-B142F
+ATTR{idVendor}=="054c", ATTR{idProduct}=="03d8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-E344/E345
+ATTR{idVendor}=="054c", ATTR{idProduct}=="03fc", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-E445
+ATTR{idVendor}=="054c", ATTR{idProduct}=="03fd", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-S545
+ATTR{idVendor}=="054c", ATTR{idProduct}=="03fe", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-A845
+ATTR{idVendor}=="054c", ATTR{idProduct}=="0404", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-W252B
+ATTR{idVendor}=="054c", ATTR{idProduct}=="04bb", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-B153F
+ATTR{idVendor}=="054c", ATTR{idProduct}=="04be", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-E354
+ATTR{idVendor}=="054c", ATTR{idProduct}=="04cb", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-S754
+ATTR{idVendor}=="054c", ATTR{idProduct}=="04cc", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony Sony Tablet P1
+ATTR{idVendor}=="054c", ATTR{idProduct}=="04d1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-B163F
+ATTR{idVendor}=="054c", ATTR{idProduct}=="059a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-E464
+ATTR{idVendor}=="054c", ATTR{idProduct}=="05a6", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-S765
+ATTR{idVendor}=="054c", ATTR{idProduct}=="05a8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony Sony Tablet S
+ATTR{idVendor}=="054c", ATTR{idProduct}=="05b3", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony Sony Tablet S1
+ATTR{idVendor}=="054c", ATTR{idProduct}=="05b4", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-B173F
+ATTR{idVendor}=="054c", ATTR{idProduct}=="0689", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony NWZ-E474
+ATTR{idVendor}=="054c", ATTR{idProduct}=="06a9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Sony DCR-SR75
+ATTR{idVendor}=="054c", ATTR{idProduct}=="1294", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson K850i
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0075", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson W910
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0076", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson W890i
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="00b3", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson W760i
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="00c6", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson C902
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="00d4", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson C702
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="00d9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson W980
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="00da", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson C905
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="00ef", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson W595
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="00f3", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson W902
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="00f5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson T700
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="00fb", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson W705/W715
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0105", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson W995
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0112", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson U5
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0133", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson U8i
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="013a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson j10i2 (Elm)
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0144", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson j108i (Cedar)
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="014e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson W302
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="10c8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson j10i (Elm)
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="d144", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson K550i
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="e000", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson c1605 Xperia Dual E MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0146", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson LT15i Xperia arc S MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="014f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson MT11i Xperia Neo MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0156", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson IS12S Xperia Acro MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0157", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson MK16i Xperia MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="015a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson R800/R88i Xperia Play MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="015d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson ST18a Xperia Ray MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0161", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson SK17i Xperia Mini Pro MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0166", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson ST15i Xperia Mini MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0167", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson ST17i Xperia Active MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0168", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT26i Xperia S MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0169", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY WT19i Live Walkman MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="016d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY ST21i Xperia Tipo MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0170", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY ST15i Xperia U MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0171", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT22i Xperia P MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0172", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY MT27i Xperia Sola MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0173", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT26w Xperia Acro HD IS12S MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0175", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT26w Xperia Acro HD SO-03D MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0176", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT28at Xperia Ion MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0177", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT29i Xperia GX MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0178", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY ST27i/ST27a Xperia go MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="017e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY ST23i Xperia Miro MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0180", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY SO-05D Xperia SX MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0181", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT30p Xperia T MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0182", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT25i Xperia V MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0186", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia J MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0188", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia ZL MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0189", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia E MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="018c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Tablet Z MTP 1
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="018d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia L MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0192", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0193", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Tablet Z MTP 2
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0194", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia SP MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0195", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z Ultra MTP (ID2)
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0196", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia ZR MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0197", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia A MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="0198", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia M MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="019b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z Ultra MTP (ID3)
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="019c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z1 MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="019e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia C MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01a3", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z1 Compact D5503
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01a7", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia M2 MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01aa", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia M2 Dual MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01ab", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z2 MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01af", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z3v MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01b0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z2 Tablet MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01b1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia E1 MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01b5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z Ultra MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01b6", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia M2 Aqua MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01b8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z3 MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01ba", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z3 Compact MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01bb", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia E3 MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01bc", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z3 Tablet MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01c0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria M4 Aqua Dual MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01c4", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY E2115 MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01c5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria Z3+ MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01c9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria E4g MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01cb", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY C4 Dual MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01d2", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria M5 MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01d6", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria Z5 MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01d9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria Z5 Compact MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01da", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria XA MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01de", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria XZ MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01e7", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria X Compact MTP
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="01e8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson IS12S Xperia Acro MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4157", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson ST17i Xperia Active MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4168", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT26i Xperia S MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4169", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY ST21i Xperia Tipo MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4170", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY ST25i Xperia U MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4171", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT22i Xperia P MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4172", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY MT27i Xperia Sola MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4173", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT26w Xperia Acro HD IS12S MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4175", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT26w Xperia Acro HD SO-03D MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4176", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT28at Xperia Ion MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4177", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT29i Xperia GX MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4178", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY ST27i/ST27a Xperia go MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="417e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY ST23i Xperia Miro MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4180", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY SO-05D Xperia SX MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4181", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT30p Xperia T MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4182", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT25i Xperia V MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4186", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia J MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4188", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia ZL MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4189", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia E MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="418c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Tablet Z MTP+CDROM 1
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="418d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia L MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4192", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4193", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Tablet Z MTP+CDROM 2
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4194", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia SP MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="4195", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia M MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="419b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z Ultra MTP+CDROM (ID3)
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="419c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z1 MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="419e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia C MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41a3", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z1 Compact D5503 MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41a7", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia M2 MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41aa", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia M2 Dual MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41ab", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z2 MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41af", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z3v MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41b0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z2 Tablet MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41b1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia E1 MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41b5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z Ultra MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41b6", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia M2 Aqua MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41b8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z3 MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41ba", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z3 Compact MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41bb", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia E3 MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41bc", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z3 Tablet MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41c0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria M4 Aqua Dual MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41c4", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY E2115 MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41c5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria Z3+ MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41c9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria E4g MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41cb", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY C4 Dual MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41d2", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria M5 MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41d6", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria Z5 MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41d9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria Z5 Compact MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41da", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria XA MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41de", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria XZ MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41e7", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria X Compact MTP+CDROM
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41e8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson c1605 Xperia Dual E MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5146", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson LT15i Xperia Arc MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="514f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson MT11i Xperia Neo MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5156", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson IS12S Xperia Acro MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5157", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson MK16i Xperia MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="515a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson R800/R88i Xperia Play MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="515d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson ST18i Xperia Ray MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5161", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson SK17i Xperia Mini Pro MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5166", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson ST15i Xperia Mini MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5167", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson ST17i Xperia Active MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5168", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT26i Xperia S MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5169", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SonyEricsson WT19i Live Walkman MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="516d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY ST21i Xperia Tipo MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5170", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY ST25i Xperia U MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5171", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT22i Xperia P MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5172", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY MT27i Xperia Sola MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5173", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY IS12S Xperia Acro HD MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5175", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY SO-03D Xperia Acro HD MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5176", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT28at Xperia Ion MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5177", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT29i Xperia GX MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5178", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY ST27i/ST27a Xperia go MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="517e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY ST23i Xperia Miro MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5180", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY SO-05D Xperia SX MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5181", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT30p Xperia T MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5182", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT25i Xperia V MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5186", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia J MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5188", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia ZL MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5189", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia E MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="518c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Tablet Z MTP+ADB 1
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="518d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia L MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5192", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5193", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Tablet Z MTP+ADB 2
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5194", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia SP MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5195", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z Ultra MTP+ADB (ID2)
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5196", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia ZR MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5197", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia A MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="5198", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia M MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="519b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z Ultra MTP+ADB (ID3)
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="519c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z1 MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="519e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia C MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51a3", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z1 Compact MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51a7", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia M2 MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51aa", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia M2 Dual MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51ab", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z2 MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51af", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z3v MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51b0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z2 Tablet MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51b1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia E1 MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51b5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z Ultra MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51b6", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia M2 Aqua MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51b8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z3 MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51ba", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z3 Compact MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51bb", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia E3 MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51bc", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY Xperia Z3 Tablet MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="41c0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria M4 Aqua Dual MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51c4", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY E2115 MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51c5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria Z3+ MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51c9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria E4g MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51cb", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY C4 Dual MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51d2", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria M5 MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51d6", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria Z5 MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51d9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria Z5 Compact MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51da", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria XA MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51de", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria XZ MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51e7", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY XPeria X Compact MTP+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="51e8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY MT27i Xperia Sola MTP+UMS
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="a173", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY IS12S Xperia Acro HD MTP+UMS
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="a175", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY SO-03D Xperia Acro HD MTP+UMS
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="a176", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT28at Xperia Ion MTP+UMS
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="a177", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY ST27i/ST27a Xperia go MTP+UMS
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="a17e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY MT27i Xperia Sola MTP+UMS+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="b173", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY IS12S Xperia Acro MTP+UMS+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="b175", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY SO-03D Xperia Acro MTP+UMS+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="b176", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY LT28at Xperia Ion MTP+UMS+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="b177", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SONY ST27i/ST27a Xperia go MTP+UMS+ADB
+ATTR{idVendor}=="0fce", ATTR{idProduct}=="b17e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola XT1524 (MTP)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="002e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola V3m/V750 verizon
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2a65", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Atrix/Razr HD (MTP)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2e32", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Atrix/Razr HD (MTP+ADB)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2e33", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola RAZR M XT907 (MTP)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2e50", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola RAZR M XT907 (MTP+ADB)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2e51", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Droid Turbo 2 (XT1585)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2e61", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Moto X (XT1053)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2e62", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Moto X (XT1058)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2e63", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Moto X (XT1080)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2e66", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Droid Maxx (XT1080)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2e67", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Droid Ultra
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2e68", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Moto G (ID1)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2e76", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Moto G (ID2)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2e82", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Moto G (XT1032)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2e84", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Moto Maxx (XT1225)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2ea4", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola MB632
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2dff", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Xoom 2 Media Edition (ID3)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="41cf", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Droid X/MB525 (Defy)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="41d6", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola DROID2 (ID1)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="41da", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Milestone / Verizon Droid
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="41dc", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola DROID2 (ID2)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="42a7", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Xoom 2 Media Edition (ID2)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="4306", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Xoom 2 Media Edition
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="4311", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola XT912/XT928
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="4362", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola DROID4 (PTP)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="4373", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola DROID4
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="437f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola IdeaPad K1
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="4811", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola A1200
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="60ca", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola MTP Test Command Interface
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="6413", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola RAZR2 V8/U9/Z6
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="6415", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Razr D1/D3/i (MTP)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="64b5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Razr D1/D3/i (MTP+?)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="64b6", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Atrix XT687 (MTP)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="64cf", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Atrix MB860 (MTP)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="7088", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Xoom (Factory test)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="70a3", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Xoom (MTP)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="70a8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Xoom (MTP+ADB)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="70a9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Milestone X2
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="70ca", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola XT890/907/Razr (MTP)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="710d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola XT890/907/Razr (MTP+ADB)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="710e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Droid Turbo (XT1254)
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2ea5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Motorola Droid Turbo Verizon
+ATTR{idVendor}=="22b8", ATTR{idProduct}=="2ea8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc (for Allwinner) A31 SoC
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="0006", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc (for Ainol Novo) Fire/Flame
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="0007", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc (for Sony) S1
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="05b3", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc (for Barnes & Noble) Nook Color
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="2d02", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc (for Asus) TF201 Transformer
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="4d00", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc (for Asus) TF101 Transformer
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="4e0f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc (for Samsung) Nexus S (MTP)
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="4e25", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc (for Samsung) Nexus S (MTP+ADB)
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="4e26", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc (for Asus) Nexus 7 (MTP)
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="4e41", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc (for Asus) Nexus 7 (MTP+ADB)
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="4e42", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc Nexus/Pixel (MTP)
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="4ee1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc Nexus/Pixel (MTP+ADB)
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="4ee2", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc Nexus/Pixel (PTP)
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="4ee5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc Nexus/Pixel (PTP+ADB)
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="4ee6", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Pixel C (MTP)
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="5202", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Pixel C (MTP+ADB)
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="5203", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc (for Motorola) Xoom (MZ604)
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="70a8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc (for Toshiba) Thrive 7/AT105
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="7102", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc (for Lenovo) Ideapad K1
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="740a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc (for Medion) MD99000 (P9514)
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="b00a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Meizu Pro 5 Ubuntu Phone
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="d001", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc (for LG Electronics) P990/Optimus (Cyanogen)
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="d109", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Google Inc (for LG Electronics) P990/Optimus
+ATTR{idVendor}=="18d1", ATTR{idProduct}=="d10a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Kenwood Media Keg HD10GB7 Sport Player
+ATTR{idVendor}=="0b28", ATTR{idProduct}=="100c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Micro-Star International P610/Model MS-5557
+ATTR{idVendor}=="0db0", ATTR{idProduct}=="5572", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# FOMA D905i
+ATTR{idVendor}=="06d3", ATTR{idProduct}=="21ba", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Haier Ibiza Rhapsody 1
+ATTR{idVendor}=="1302", ATTR{idProduct}=="1016", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Haier Ibiza Rhapsody 2
+ATTR{idVendor}=="1302", ATTR{idProduct}=="1017", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Panasonic P905i
+ATTR{idVendor}=="04da", ATTR{idProduct}=="2145", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Panasonic P906i
+ATTR{idVendor}=="04da", ATTR{idProduct}=="2158", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Polaroid Freescape/MPU-433158
+ATTR{idVendor}=="0546", ATTR{idProduct}=="2035", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Pioneer XMP3
+ATTR{idVendor}=="08e4", ATTR{idProduct}=="0148", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Slacker Inc. Slacker Portable Media Player
+ATTR{idVendor}=="1bdc", ATTR{idProduct}=="fabf", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Conceptronic CMTD2
+ATTR{idVendor}=="1e53", ATTR{idProduct}=="0005", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# O2 Sistemas ZoltarTV
+ATTR{idVendor}=="1e53", ATTR{idProduct}=="0006", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Wyplay Wyplayer
+ATTR{idVendor}=="1e53", ATTR{idProduct}=="0007", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Perception Digital, Ltd Gigaware GX400
+ATTR{idVendor}=="0aa6", ATTR{idProduct}=="9702", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# RIM BlackBerry Storm/9650
+ATTR{idVendor}=="0fca", ATTR{idProduct}=="8007", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# RIM BlackBerry Priv
+ATTR{idVendor}=="0fca", ATTR{idProduct}=="8031", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# RIM BlackBerry Dtek 60
+ATTR{idVendor}=="0fca", ATTR{idProduct}=="8041", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nextar MA715A-8R
+ATTR{idVendor}=="0402", ATTR{idProduct}=="5668", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Coby COBY MP705
+ATTR{idVendor}=="1e74", ATTR{idProduct}=="6512", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Curitel Communications, Inc. Verizon Wireless Device
+ATTR{idVendor}=="106c", ATTR{idProduct}=="3215", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Pantech Crux
+ATTR{idVendor}=="106c", ATTR{idProduct}=="f003", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus Zenfone Go (ZC500TG)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="2008", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus TF300 Transformer (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4c80", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus TF300 Transformer (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4c81", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus TF700 Transformer (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4c90", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus TF700 Transformer (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4c91", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus TF701T Transformer Pad (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4ca0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus TF701T Transformer Pad (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4ca1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus ME302KL MeMo Pad FHD10 (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4cc0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus ME302KL MeMo Pad FHD10 (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4cc1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus ME301T MeMo Pad Smart 10 (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4cd0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus ME301T MeMo Pad Smart 10 (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4cd1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus Asus Fonepad Note 6 (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4ce0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus Asus Fonepad Note 6 (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4ce1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus TF201 Transformer Prime (keyboard dock)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4d00", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus TF201 Transformer Prime (tablet only)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4d01", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus SL101 (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4e00", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus SL101 (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4e01", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus TF101 Eeepad Transformer (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4e0f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus TF101 Eeepad Transformer (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="4e1f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus Fonepad
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="514f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus PadFone (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5200", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus PadFone (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5201", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus ME302C MemoPad (MTP+?)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="520f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus PadFone 2 (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5210", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus PadFone 2 (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5211", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus PadFone 2 (PTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5214", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus ME302C MemoPad (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="521f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus PadFone Infinity (2nd ID) (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5220", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus PadFone Infinity (2nd ID) (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5221", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus PadFone Infinity (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5230", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus PadFone Infinity (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5231", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus Memo ME172V (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5400", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus Fonepad 7 LTE ME372CL (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="540f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus Memo ME173X (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5410", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus Memo ME173X (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5411", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus Fonepad 7 LTE ME372CL (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="541f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus Memo K00F (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5460", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus Memo Pad 8 (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5466", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus Memo K00F (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5468", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus ZenFone 5 (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5480", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus ZenFone 5 (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5481", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus ZenFone 6 (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5490", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus ZenFone 6 (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5491", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus K010 (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5500", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus MemoPad 7 (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5506", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus K00E (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="550f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus MemoPad 8 ME181 CX (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5561", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus Zenfone 2 (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5600", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus Z00AD (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5601", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus TX201LA (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="561f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus ZenFone 4 (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="580f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus ZenFone 4 A400CG (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="581f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus ASUS FonePad 8 FE380CG (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="590f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus A450CG (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5a0f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus ZenPad 80 (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5e0f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus Zenfone 2 ZE550ML (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5f02", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus Zenfone 2 ZE551ML (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="5f03", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus ME581CL
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="7770", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus MemoPad 7 (ME572CL)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="7772", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus Fonepad 7 (FE375CXG)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="7773", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus ZenFone 5 A500KL (MTP)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="7780", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Asus ZenFone 5 A500KL (MTP+ADB)
+ATTR{idVendor}=="0b05", ATTR{idProduct}=="7781", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo P70-A
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="0c02", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo P70
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="2008", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo K1
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="740a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo ThinkPad Tablet
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="741c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Medion Lifetab P9516
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7483", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo P700
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7497", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo A820
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7498", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo P780
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="74a6", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo Lifetab S9512
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="74cc", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo S660
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="74f8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo IdeaTab A2109A
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7542", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo IdeaTab S2210a
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="757d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo K900 (ID2)
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="75b3", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo K900 (ID1)
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="75b5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo IdeaPad A3000 (ID1)
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="75bc", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo IdeaPad A3000 (ID2)
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="75be", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo A706
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7614", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo IdeaTab S5000
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="76e8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo Toga Tablet B6000-F
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="76f2", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo Yoga Tablet 10 B8000-H
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="76ff", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo S960
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="770a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo K910SS
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7713", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo S930
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7718", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo A5500-F
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="772b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo A7600-F
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7731", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo A3500-F
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7737", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo A3500-FL
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7738", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo LifeTab E733X
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="775a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo K920
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="778f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo Yoga Tablet 2 - 1050F
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="77a4", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo Yoga Tablet 2 Pro
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="77b1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo Tab S8-50F
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="77d8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo Vibe Z2
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="77ea", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo K3 Note
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7883", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo A10-70F
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="789a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo A10-70L
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="789b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Medion P8312 Tablet
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="78ae", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo Lifetab S1034X
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="78b0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo PHAB Plus
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="78d1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo Vibe K4 Note
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="78f6", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo Vibe P1 Pro
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="78fc", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo Vibe X
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7902", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo P1ma40
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7921", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo A1000 Smartphone
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7928", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo A1000 Smartphone ADB
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7929", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo TAB 2 A10-30
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7949", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo K5
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7993", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo Vibe K5 Note
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7999", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo Vibe K4
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="79b7", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Lenovo B Smartphone
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="7a18", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Huawei MTP device (ID1)
+ATTR{idVendor}=="12d1", ATTR{idProduct}=="1051", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Huawei MTP device (ID2)
+ATTR{idVendor}=="12d1", ATTR{idProduct}=="1052", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Huawei Honor 7
+ATTR{idVendor}=="12d1", ATTR{idProduct}=="1074", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Huawei H60-L11
+ATTR{idVendor}=="12d1", ATTR{idProduct}=="1079", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Huawei H60-L12
+ATTR{idVendor}=="12d1", ATTR{idProduct}=="107a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Huawei Nova
+ATTR{idVendor}=="12d1", ATTR{idProduct}=="107d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Huawei P9 Plus
+ATTR{idVendor}=="12d1", ATTR{idProduct}=="107e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Huawei Ascend P8
+ATTR{idVendor}=="12d1", ATTR{idProduct}=="1082", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Huawei Honor 3C
+ATTR{idVendor}=="12d1", ATTR{idProduct}=="2012", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Huawei Y320-U10
+ATTR{idVendor}=="12d1", ATTR{idProduct}=="2406", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Huawei Y360-U61
+ATTR{idVendor}=="12d1", ATTR{idProduct}=="2567", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Huawei Y360-U03
+ATTR{idVendor}=="12d1", ATTR{idProduct}=="256b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Huawei Y560-L01
+ATTR{idVendor}=="12d1", ATTR{idProduct}=="259c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Huawei Mediapad (mode 0)
+ATTR{idVendor}=="12d1", ATTR{idProduct}=="360f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Huawei Mediapad (mode 1)
+ATTR{idVendor}=="12d1", ATTR{idProduct}=="361f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# ZTE V55 ID 1
+ATTR{idVendor}=="19d2", ATTR{idProduct}=="0244", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# ZTE V55 ID 2
+ATTR{idVendor}=="19d2", ATTR{idProduct}=="0245", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# ZTE V790/Blade 3
+ATTR{idVendor}=="19d2", ATTR{idProduct}=="0306", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# ZTE V880E
+ATTR{idVendor}=="19d2", ATTR{idProduct}=="0307", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# ZTE Grand X In
+ATTR{idVendor}=="19d2", ATTR{idProduct}=="0343", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# ZTE V985
+ATTR{idVendor}=="19d2", ATTR{idProduct}=="0383", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# ZTE V5
+ATTR{idVendor}=="19d2", ATTR{idProduct}=="ffce", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# ZTE Z9 Max
+ATTR{idVendor}=="19d2", ATTR{idProduct}=="ffcf", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC One M9 (1st ID)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="040b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC Spreadtrum SH57MYZ03342 (MTP)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="05e3", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC Desire 510 (MTP+ADB)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="05fd", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC One M8 Google Play Edition (MTP+ADB)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="060b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC One Mini 2 (MTP)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0629", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC One M9 (2nd ID)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="065c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC Desire 626s (MTP)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0668", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC Desire 520
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0670", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC6515LVW/One Remix
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="07d8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC X920E
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="07a1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One (HTC6500LVW)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="07ae", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One M8 (HTC6525LVW)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="07ca", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One M8 (Verizon) (HTC6525LVW)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="07cb", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One Remix (HTC6515LVW)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="07d9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC Windows Phone 8X ID1
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0ba1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC Windows Phone 8X ID2
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0ba2", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC Android Device ID1 (Zopo, HD2, Bird...)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0c02", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC EVO 4G LTE/One V (ID1)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0c93", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC EVO 4G LTE/One V (ID2)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0ca8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One S (ID1)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0cec", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC One Mini (ID1)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0dcd", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One 802w (ID1)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0dd2", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC Desire X
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0dd5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One (ID1)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0dda", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC Butterfly X290d
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0de4", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One (MTP+UMS+ADB)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0dea", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC Evo 4G LTE (ID1)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0df5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One S (ID2)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0df8", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One S (ID3)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0df9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One X (ID1)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0dfa", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One X (ID2)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0dfb", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One X (ID3)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0dfc", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One X (ID4)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0dfd", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC Butterfly (ID1)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0dfe", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC Droid DNA (MTP+UMS+ADB)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0dff", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC Droid Incredible 4G LTE (MTP)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0e31", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC Droid Incredible 4G LTE (MTP+ADB)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0e32", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC Droid DNA (MTP+UMS)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0ebd", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC Desire 310 (MTP)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0ec6", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC Desire 310 (2nd id) (MTP)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0ec7", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC Desire 816G (MTP)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0edb", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC Desire 626G Dual Sim (MTP)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0edd", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One (MTP+ADB+CDC)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0f5f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One (MTP+CDC)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0f60", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One (MTP+ADB)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0f63", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One (MTP)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0f64", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One (MTP+ADB+?)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0f87", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One (ID3)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0f91", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One M8 (MTP)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0f25", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One M8 (MTP+ADB)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="061a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One M8 (MTP+UMS)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0fb5", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC HTC One M8 (MTP+ADB+UMS)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0fb4", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC Android Device ID2 (Zopo, HD2...)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="2008", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC Motorola Razr D1
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="2012", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC Motorola P98 4G
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="201d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC One M9 (3rd ID)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="4ee1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC One M9 (4th ID)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="4ee2", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC (for Hewlett-Packard) HP Touchpad (MTP)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="685c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC (for Hewlett-Packard) HP Touchpad (MTP+ADB)
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="6860", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HTC Windows Phone 8s ID1
+ATTR{idVendor}=="0bb4", ATTR{idProduct}=="f0ca", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# NEC FOMA N01A
+ATTR{idVendor}=="0409", ATTR{idProduct}=="0242", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# NEC Casio C811
+ATTR{idVendor}=="0409", ATTR{idProduct}=="0326", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# NEC Casio CA-201L
+ATTR{idVendor}=="0409", ATTR{idProduct}=="0432", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# nVidia CM9-Adam
+ATTR{idVendor}=="0955", ATTR{idProduct}=="70a9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# nVidia Various tablets (ID1)
+ATTR{idVendor}=="0955", ATTR{idProduct}=="7100", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# nVidia Various tablets (ID2)
+ATTR{idVendor}=="0955", ATTR{idProduct}=="7102", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# nVidia Jetson TX1
+ATTR{idVendor}=="0955", ATTR{idProduct}=="7721", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# nVidia Shield (ID1)
+ATTR{idVendor}=="0955", ATTR{idProduct}=="b400", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# nVidia Shield (Tegra4)
+ATTR{idVendor}=="0955", ATTR{idProduct}=="b401", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# nVidia Tegra Note
+ATTR{idVendor}=="0955", ATTR{idProduct}=="cf02", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# nVidia Shield (ID2)
+ATTR{idVendor}=="0955", ATTR{idProduct}=="cf07", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nokia N1
+ATTR{idVendor}=="0489", ATTR{idProduct}=="1ab0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# InFocus M808
+ATTR{idVendor}=="0489", ATTR{idProduct}=="c00b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# InFocus M810
+ATTR{idVendor}=="0489", ATTR{idProduct}=="c025", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Vizio Unknown 1
+ATTR{idVendor}=="0489", ATTR{idProduct}=="c026", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Vizio VTAB1008
+ATTR{idVendor}=="0489", ATTR{idProduct}=="e040", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Vizio (for Lenovo) LIFETAB S9714
+ATTR{idVendor}=="0489", ATTR{idProduct}=="e111", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Amazon Kindle Fire 2G (ID1)
+ATTR{idVendor}=="1949", ATTR{idProduct}=="0005", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Amazon Kindle Fire (ID1)
+ATTR{idVendor}=="1949", ATTR{idProduct}=="0007", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Amazon Kindle Fire (ID2)
+ATTR{idVendor}=="1949", ATTR{idProduct}=="0008", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Amazon Kindle Fire (ID3)
+ATTR{idVendor}=="1949", ATTR{idProduct}=="000a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Amazon Kindle Fire (ID6)
+ATTR{idVendor}=="1949", ATTR{idProduct}=="000b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Amazon Kindle Fire (ID4)
+ATTR{idVendor}=="1949", ATTR{idProduct}=="000c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Amazon Kindle Fire (ID7)
+ATTR{idVendor}=="1949", ATTR{idProduct}=="000d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Amazon Kindle Fire (ID5)
+ATTR{idVendor}=="1949", ATTR{idProduct}=="0012", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Amazon Kindle Fire HD6
+ATTR{idVendor}=="1949", ATTR{idProduct}=="00f2", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Amazon Kindle Fire 8
+ATTR{idVendor}=="1949", ATTR{idProduct}=="0211", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Amazon Kindle Fire 8 HD
+ATTR{idVendor}=="1949", ATTR{idProduct}=="0212", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Amazon Kindle Fire 7
+ATTR{idVendor}=="1949", ATTR{idProduct}=="0221", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Amazon Kindle Fire 5
+ATTR{idVendor}=="1949", ATTR{idProduct}=="0222", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Amazon Fire Phone
+ATTR{idVendor}=="1949", ATTR{idProduct}=="0800", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Barnes&Noble Nook HD+
+ATTR{idVendor}=="2080", ATTR{idProduct}=="0005", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Barnes&Noble Nook HD
+ATTR{idVendor}=="2080", ATTR{idProduct}=="0006", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Barnes&Noble Nook Glowlight+
+ATTR{idVendor}=="2080", ATTR{idProduct}=="000a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Various Viewpia DR/bq Kepler
+ATTR{idVendor}=="2207", ATTR{idProduct}=="0001", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# YiFang BQ Tesla
+ATTR{idVendor}=="2207", ATTR{idProduct}=="0006", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Various Viewpia DR/bq Kepler Debugging
+ATTR{idVendor}=="2207", ATTR{idProduct}=="0011", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Kobo Arc 7 HD
+ATTR{idVendor}=="2237", ATTR{idProduct}=="b108", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Kobo Arc (ID1)
+ATTR{idVendor}=="2237", ATTR{idProduct}=="d108", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Kobo Arc (ID2)
+ATTR{idVendor}=="2237", ATTR{idProduct}=="d109", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Hisense E860 (ID1)
+ATTR{idVendor}=="109b", ATTR{idProduct}=="9106", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Hisense E860 (ID2)
+ATTR{idVendor}=="109b", ATTR{idProduct}=="9109", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Intel Point of View TAB-I847
+ATTR{idVendor}=="8087", ATTR{idProduct}=="092a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Intel Xolo 900/AZ210A
+ATTR{idVendor}=="8087", ATTR{idProduct}=="09fb", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Intel Noblex T7A21
+ATTR{idVendor}=="8087", ATTR{idProduct}=="0a16", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Intel Foxconn iView i700
+ATTR{idVendor}=="8087", ATTR{idProduct}=="0a15", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Intel Telcast Air 3G
+ATTR{idVendor}=="8087", ATTR{idProduct}=="0a5e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Intel Chuwi vi8
+ATTR{idVendor}=="8087", ATTR{idProduct}=="0a5f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Xiaomi Mi-3w (MTP)
+ATTR{idVendor}=="2717", ATTR{idProduct}=="0360", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Xiaomi Mi-3 (MTP)
+ATTR{idVendor}=="2717", ATTR{idProduct}=="0368", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Xiaomi MiPad (MTP)
+ATTR{idVendor}=="2717", ATTR{idProduct}=="0660", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Xiaomi MiPad (MTP+ADB)
+ATTR{idVendor}=="2717", ATTR{idProduct}=="0668", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Xiaomi Hongmi (MTP+ADB)
+ATTR{idVendor}=="2717", ATTR{idProduct}=="1240", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Xiaomi Hongmi (MTP)
+ATTR{idVendor}=="2717", ATTR{idProduct}=="1248", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Redmi 1S (MTP)
+ATTR{idVendor}=="2717", ATTR{idProduct}=="1260", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Redmi HM 1S (MTP)
+ATTR{idVendor}=="2717", ATTR{idProduct}=="1268", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Xiaomi HM NOTE 1LTEW MIUI (MTP)
+ATTR{idVendor}=="2717", ATTR{idProduct}=="1368", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Xiaomi Mi-2 (MTP+ADB)
+ATTR{idVendor}=="2717", ATTR{idProduct}=="9039", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Xiaomi Mi-2 (MTP)
+ATTR{idVendor}=="2717", ATTR{idProduct}=="f003", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Xiaomi Mi-2s (id2) (MTP)
+ATTR{idVendor}=="2717", ATTR{idProduct}=="ff40", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Xiaomi Mi-2s (MTP)
+ATTR{idVendor}=="2717", ATTR{idProduct}=="ff48", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Xiaomi Redmi 2 (MTP)
+ATTR{idVendor}=="2717", ATTR{idProduct}=="ff60", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Xiaomi Redmi 2 2014811 (MTP)
+ATTR{idVendor}=="2717", ATTR{idProduct}=="ff68", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acromag Inc. XO Learning Tablet (MTP+ADB)
+ATTR{idVendor}=="16d5", ATTR{idProduct}=="8005", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Acromag Inc. XO Learning Tablet (MTP)
+ATTR{idVendor}=="16d5", ATTR{idProduct}=="8006", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SHARP Corporation SH930W
+ATTR{idVendor}=="0489", ATTR{idProduct}=="c025", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SHARP Corporation SBM203SH
+ATTR{idVendor}=="04dd", ATTR{idProduct}=="9661", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SHARP Corporation SH-06E
+ATTR{idVendor}=="04dd", ATTR{idProduct}=="96ca", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# SHARP Corporation SHV35 AQUOS U 
+ATTR{idVendor}=="04dd", ATTR{idProduct}=="99d2", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Alcatel One Touch 997D (MTP+ADB)
+ATTR{idVendor}=="1bbb", ATTR{idProduct}=="0c02", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Alcatel One Touch 997D (MTP)
+ATTR{idVendor}=="1bbb", ATTR{idProduct}=="2008", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Alcatel/TCT 6010D/TCL S950
+ATTR{idVendor}=="1bbb", ATTR{idProduct}=="0167", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Alcatel 6030a
+ATTR{idVendor}=="1bbb", ATTR{idProduct}=="0168", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Alcatel/Bouygues BS472
+ATTR{idVendor}=="1bbb", ATTR{idProduct}=="904d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Alcatel OneTouch 5042D (MTP)
+ATTR{idVendor}=="1bbb", ATTR{idProduct}=="a00e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Alcatel OneTouch Idol 3 ID2 (MTP)
+ATTR{idVendor}=="1bbb", ATTR{idProduct}=="af00", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Alcatel OneTouch Idol 3 small (MTP)
+ATTR{idVendor}=="1bbb", ATTR{idProduct}=="af2a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Alcatel OneTouch Idol 3 (MTP)
+ATTR{idVendor}=="1bbb", ATTR{idProduct}=="af2b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Alcatel OneTouch 6034R
+ATTR{idVendor}=="1bbb", ATTR{idProduct}=="f003", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Kyocera Rise
+ATTR{idVendor}=="0482", ATTR{idProduct}=="0571", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Kyocera Event
+ATTR{idVendor}=="0482", ATTR{idProduct}=="0591", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Kyocera Torque Model E6715
+ATTR{idVendor}=="0482", ATTR{idProduct}=="059a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Kyocera Hydro Elite C6750
+ATTR{idVendor}=="0482", ATTR{idProduct}=="073c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Kyocera KYL22
+ATTR{idVendor}=="0482", ATTR{idProduct}=="0810", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Kyocera 302KC
+ATTR{idVendor}=="0482", ATTR{idProduct}=="09fc", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Kyocera DuraForce
+ATTR{idVendor}=="0482", ATTR{idProduct}=="0979", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Kyocera KC-S701
+ATTR{idVendor}=="0482", ATTR{idProduct}=="09cb", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Kyocera C6740N
+ATTR{idVendor}=="0482", ATTR{idProduct}=="0a73", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# HiSense Sero 7 Pro
+ATTR{idVendor}=="109b", ATTR{idProduct}=="9105", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Hewlett-Packard Slate 7 4600
+ATTR{idVendor}=="03f0", ATTR{idProduct}=="5c1d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Hewlett-Packard Slate 7 2800
+ATTR{idVendor}=="03f0", ATTR{idProduct}=="5d1d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Hewlett-Packard Slate 10 HD
+ATTR{idVendor}=="03f0", ATTR{idProduct}=="7e1d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# MediaTek Inc MT5xx and MT6xx SoCs
+ATTR{idVendor}=="0e8d", ATTR{idProduct}=="0050", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Bravis A401 Neo
+ATTR{idVendor}=="0e8d", ATTR{idProduct}=="0c03", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# MediaTek Inc MT65xx
+ATTR{idVendor}=="0e8d", ATTR{idProduct}=="2008", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# elephone p6000
+ATTR{idVendor}=="0e8d", ATTR{idProduct}=="2008", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# MediaTek Inc Elephone P8000
+ATTR{idVendor}=="0e8d", ATTR{idProduct}=="201d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Jolla Sailfish (ID1)
+ATTR{idVendor}=="2931", ATTR{idProduct}=="0a01", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Jolla Sailfish (ID2)
+ATTR{idVendor}=="2931", ATTR{idProduct}=="0a05", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Jolla Sailfish (ID3)
+ATTR{idVendor}=="2931", ATTR{idProduct}=="0a07", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# TCL Alcatel one touch 986+
+ATTR{idVendor}=="0451", ATTR{idProduct}=="d108", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Garmin Monterra
+ATTR{idVendor}=="091e", ATTR{idProduct}=="2585", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Wacom Cintiq Companion Hybrid (MTP+ADB)
+ATTR{idVendor}=="0531", ATTR{idProduct}=="2001", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Kurio 7S
+ATTR{idVendor}=="1f3a", ATTR{idProduct}=="1006", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# iRulu X1s
+ATTR{idVendor}=="1f3a", ATTR{idProduct}=="1007", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# DigiLand DL701Q
+ATTR{idVendor}=="1f3a", ATTR{idProduct}=="0c02", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# bq Krillin (MTP+ADB)
+ATTR{idVendor}=="2a47", ATTR{idProduct}=="0c02", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# bq Krillin (MTP)
+ATTR{idVendor}=="2a47", ATTR{idProduct}=="2008", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# bq Aquaris M10 (MTP)
+ATTR{idVendor}=="2a47", ATTR{idProduct}=="200d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# bq Avila Cooler (MTP)
+ATTR{idVendor}=="2a47", ATTR{idProduct}=="201d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# bq Aquaris X5 (MTP)
+ATTR{idVendor}=="2a47", ATTR{idProduct}=="3003", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# bq Aquarius E5-4G
+ATTR{idVendor}=="2a47", ATTR{idProduct}=="7f10", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# bq Aquarius X5 (MTP) (ID2)
+ATTR{idVendor}=="2a47", ATTR{idProduct}=="7f11", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# bq Aquarius M5.5
+ATTR{idVendor}=="2a47", ATTR{idProduct}=="901b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Prestigio 5505 DUO 
+ATTR{idVendor}=="29e4", ATTR{idProduct}=="1103", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Prestigio 5504 DUO 
+ATTR{idVendor}=="29e4", ATTR{idProduct}=="1203", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Prestigio 3405 DUO 
+ATTR{idVendor}=="29e4", ATTR{idProduct}=="3201", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Prestigio Multipad Color 7.0
+ATTR{idVendor}=="29e4", ATTR{idProduct}=="b003", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Megafon MFLogin3T
+ATTR{idVendor}=="201e", ATTR{idProduct}=="42ab", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Haier CT715
+ATTR{idVendor}=="201e", ATTR{idProduct}=="a0c1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Gensis GT-7305 
+ATTR{idVendor}=="040d", ATTR{idProduct}=="885c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Oppo Find 5
+ATTR{idVendor}=="22d9", ATTR{idProduct}=="2764", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Oppo Find 7 (ID 1)
+ATTR{idVendor}=="22d9", ATTR{idProduct}=="2765", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Oppo X9006
+ATTR{idVendor}=="22d9", ATTR{idProduct}=="2773", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Oppo Find 7 (ID 2)
+ATTR{idVendor}=="22d9", ATTR{idProduct}=="2774", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Gigabyte RCT6773W22 (MTP+ADB)
+ATTR{idVendor}=="0414", ATTR{idProduct}=="0c02", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Gigabyte RCT6773W22 (MTP)
+ATTR{idVendor}=="0414", ATTR{idProduct}=="2008", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Meizu MX Phone (MTP)
+ATTR{idVendor}=="2a45", ATTR{idProduct}=="2008", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Meizu MX Phone (MTP+ADB)
+ATTR{idVendor}=="2a45", ATTR{idProduct}=="0c02", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Caterpillar Cat S50
+ATTR{idVendor}=="04b7", ATTR{idProduct}=="88a9", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Caterpillar Cat S50 (2nd ID)
+ATTR{idVendor}=="04b7", ATTR{idProduct}=="88aa", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Caterpillar Cat S40
+ATTR{idVendor}=="04b7", ATTR{idProduct}=="88b0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Caterpillar Cat S60
+ATTR{idVendor}=="04b7", ATTR{idProduct}=="88c0", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Pegatron Chagall (ADB)
+ATTR{idVendor}=="1d4d", ATTR{idProduct}=="5035", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Pegatron Chagall
+ATTR{idVendor}=="1d4d", ATTR{idProduct}=="5036", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Pegatron Hudl 2
+ATTR{idVendor}=="1d4d", ATTR{idProduct}=="504a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Yota Phone C9660
+ATTR{idVendor}=="2916", ATTR{idProduct}=="9039", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Yota Phone
+ATTR{idVendor}=="2916", ATTR{idProduct}=="9139", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Yota Phone 2
+ATTR{idVendor}=="2916", ATTR{idProduct}=="914d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Yota Phone 2 (ID2)
+ATTR{idVendor}=="2916", ATTR{idProduct}=="f003", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Fly Evo Tech 4
+ATTR{idVendor}=="2970", ATTR{idProduct}=="2008", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Wileyfox Swift
+ATTR{idVendor}=="2970", ATTR{idProduct}=="2281", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Wileyfox Swift 2
+ATTR{idVendor}=="2970", ATTR{idProduct}=="2282", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Kazam Trooper 650 4G
+ATTR{idVendor}=="2970", ATTR{idProduct}=="9039", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Megafon Login+
+ATTR{idVendor}=="1271", ATTR{idProduct}=="2012", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Fly iq4415 era style 3
+ATTR{idVendor}=="2970", ATTR{idProduct}=="0c02", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Fly iq449
+ATTR{idVendor}=="1782", ATTR{idProduct}=="4001", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# YU Yureka Vodafone smart turbo 4
+ATTR{idVendor}=="1ebf", ATTR{idProduct}=="7f29", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# BenQ F5
+ATTR{idVendor}=="1d45", ATTR{idProduct}=="459d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# TomTom Rider 40
+ATTR{idVendor}=="1390", ATTR{idProduct}=="5455", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# OUYA Videogame Console
+ATTR{idVendor}=="2836", ATTR{idProduct}=="0010", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# BLU Studio HD
+ATTR{idVendor}=="0e8d", ATTR{idProduct}=="2008", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Cubot X17
+ATTR{idVendor}=="0e8d", ATTR{idProduct}=="201d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# OnePlus ONE A2001
+ATTR{idVendor}=="2a70", ATTR{idProduct}=="9011", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# OnePlus OnePlus 2 A2005
+ATTR{idVendor}=="2a70", ATTR{idProduct}=="f003", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Parrot Bebop Drone
+ATTR{idVendor}=="19cf", ATTR{idProduct}=="5038", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# GoPro HERO3+ Black
+ATTR{idVendor}=="2672", ATTR{idProduct}=="0011", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# GoPro HERO
+ATTR{idVendor}=="2672", ATTR{idProduct}=="000c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# GoPro HERO4 Silver
+ATTR{idVendor}=="2672", ATTR{idProduct}=="000d", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Gopro HERO4 Black
+ATTR{idVendor}=="2672", ATTR{idProduct}=="000e", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# GoPro HERO4 Session
+ATTR{idVendor}=="2672", ATTR{idProduct}=="000f", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# GoPro HERO+
+ATTR{idVendor}=="2672", ATTR{idProduct}=="0021", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# GoPro HERO5 Black
+ATTR{idVendor}=="2672", ATTR{idProduct}=="0027", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# GoPro HERO5 Session
+ATTR{idVendor}=="2672", ATTR{idProduct}=="0029", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Marshall London
+ATTR{idVendor}=="2ad9", ATTR{idProduct}=="000b", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Fairphone Fairphone 2
+ATTR{idVendor}=="2ae5", ATTR{idProduct}=="f003", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Fairphone Fairphone 2 OS
+ATTR{idVendor}=="2ae5", ATTR{idProduct}=="9039", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Allview Energy P5
+ATTR{idVendor}=="271d", ATTR{idProduct}=="4016", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# BLU Studio Energy X 2 Phone
+ATTR{idVendor}=="271d", ATTR{idProduct}=="4016", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# BLU Studio Energy 2
+ATTR{idVendor}=="271d", ATTR{idProduct}=="4017", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Zuk Z1
+ATTR{idVendor}=="2b4c", ATTR{idProduct}=="1004", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Zuk Z1 (2nd ID)
+ATTR{idVendor}=="2b4c", ATTR{idProduct}=="1005", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Letv X5001s
+ATTR{idVendor}=="2b0e", ATTR{idProduct}=="1700", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Letv 1s
+ATTR{idVendor}=="2b0e", ATTR{idProduct}=="1704", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Letv X800 (ID1)
+ATTR{idVendor}=="2b0e", ATTR{idProduct}=="182c", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Letv X800 (ID2)
+ATTR{idVendor}=="2b0e", ATTR{idProduct}=="1830", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# TP-Link Neffos C5 (MTP)
+ATTR{idVendor}=="2357", ATTR{idProduct}=="0314", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# TP-Link Neffos C5 MAX (MTP)
+ATTR{idVendor}=="2357", ATTR{idProduct}=="031a", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# TP-Link Neffos Y5L (MTP)
+ATTR{idVendor}=="2357", ATTR{idProduct}=="0320", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# TP-Link Neffos Y5 (MTP)
+ATTR{idVendor}=="2357", ATTR{idProduct}=="0328", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Recon Instruments Jet
+ATTR{idVendor}=="2523", ATTR{idProduct}=="d209", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Recon Instruments Snow2 HUD
+ATTR{idVendor}=="2523", ATTR{idProduct}=="d109", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Nextbit Robin
+ATTR{idVendor}=="2c3f", ATTR{idProduct}=="0001", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+# Isabella Her Prototype
+ATTR{idVendor}=="0b20", ATTR{idProduct}=="ddee", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+
+# Autoprobe vendor-specific, communication and PTP devices
+ENV{ID_MTP_DEVICE}!="1", ENV{MTP_NO_PROBE}!="1", ENV{COLOR_MEASUREMENT_DEVICE}!="1", ENV{libsane_matched}!="yes", ATTR{bDeviceClass}=="00|02|06|ef|ff", PROGRAM="mtp-probe /sys$env{DEVPATH} $attr{busnum} $attr{devnum}", RESULT=="1", SYMLINK+="libmtp-%k", MODE="660", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+
+LABEL="libmtp_rules_end"

@@ -1,0 +1,29 @@
+[Unit]
+
+Description=Braille Device Support
+Documentation=man:brltty(1)
+Documentation=http://brltty.com/
+
+DefaultDependencies=no
+StopWhenUnneeded=true
+
+RequiresMountsFor=/var/lib/brltty
+
+
+[Service]
+
+Type=notify
+ExecStart=/sbin/brltty -n -p /var/run/brltty.pid
+
+TimeoutStartSec=5
+TimeoutStopSec=10
+
+Restart=always
+RestartSec=30
+
+Nice=-10
+OOMScoreAdjust=-900
+
+ProtectHome=read-only
+ProtectSystem=full
+SystemCallArchitectures=native

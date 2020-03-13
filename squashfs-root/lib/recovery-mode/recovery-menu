@@ -1,0 +1,121 @@
+#!/bin/bash
+
+if [ ! -x "$(which whiptail)" ]; then
+  echo "Couldn't find whiptail, starting root shell instead of recovery menu."
+  sulogin
+  clear
+  exit
+fi
+
+systemd-notify --ready || :
+
+# include gettext stuff
+. /lib/recovery-mode/l10n.sh
+
+# main
+READONLY=true
+
+while true; do
+  unset items
+
+  if [ "$READONLY" = "true" ]; then
+    menu_text=$(eval_gettext "Recovery Menu (filesystem state: read-only)")
+  else
+    menu_text=$(eval_gettext "Recovery Menu (filesystem state: read/write)")
+  fi
+
+  items[c++]="resume"
+  items[c++]=$(eval_gettext "   Resume normal boot")
+
+  for i in /lib/recovery-mode/options/*; do
+    if [ -x "$i" ]; then
+      name="`"$i" test`"
+      if [ $? -eq 0 ]; then
+        items[c++]="${i##*/}"
+        items[c++]="   $name"
+      fi
+    fi
+  done
+
+  choice="$(whiptail --nocancel --menu "$menu_text" 18 70 10 \
+                             "${items[@]}" \
+                             3>&1 1>&2 2>&3 3>&-)"
+
+  if [ -z "$choice" ]; then
+    continue
+  fi
+
+  if [ "$choice" = "resume" ]; then
+    box_text=$(eval_gettext "You are now going to exit the recovery mode and continue the boot sequence. Please note that some graphic drivers require a full graphical boot and so will fail when resuming from recovery.
+If that's the case, simply reboot from the login screen and then perform a standard boot.")
+    whiptail --msgbox "$box_text" 12 70
+    clear
+    touch /run/friendly_recovery.resume
+    systemctl daemon-reload
+    systemctl --no-block isolate default.target
+    exit
+  fi
+
+  /lib/recovery-mode/options/$choice test mode >/dev/null 2>&1
+  retval=$?
+
+  # Hack for the fsck case (needs to be cosidered read/write only when
+  # in read-only mode and read-only only when in read/write mode)
+  if [ "$choice" = "fsck" ] && [ "$READONLY" = "false" ]; then
+    retval=1
+  fi
+
+  case "$retval" in
+    0)
+      # 0 => requires read/write
+      if [ "$READONLY" = "true" ]; then
+        box_text=$(eval_gettext "Continuing will remount your / filesystem in read/write mode and mount any other filesystem defined in /etc/fstab.
+Do you wish to continue?")
+        whiptail --yesno "$box_text" 10 70 || continue
+
+        if [ "$choice" = "fsck" ]; then
+            FSCHECK="true"
+        fi
+
+        . /etc/default/rcS
+        if [ -d /run/systemd/system ]; then
+            [ "$FSCKFIX" = "yes" ] && fsck_mode="-y" || fsck_mode='-a'
+            [ "$FSCHECK" = "true" ] || [ -f /forcefsck ] && fsck $fsck_mode
+            systemctl start --job-mode=ignore-dependencies systemd-remount-fs.service
+            mount -a
+        else
+            [ "$FSCHECK" = "true" ] || [ -f /forcefsck ] && force_fsck="--force-fsck"
+            [ "$FSCKFIX" = "yes" ] && fsck_fix="--fsck-fix"
+            mountall $force_fsck $fsck_fix --no-events
+        fi
+        rm -f /forcefsck
+
+        if [ "$choice" = "fsck" ]; then
+          echo ""
+          echo $(eval_gettext "Finished, please press ENTER")
+          read TMP
+        fi
+
+        READONLY=false
+      fi
+    ;;
+
+    1)
+      # 1 => read-only only
+      if [ "$READONLY" = "false" ]; then
+        box_text=$(eval_gettext "The option you selected requires your filesystem to be in read-only mode. Unfortunately another option you selected earlier, made you exit this mode.
+The easiest way of getting back in read-only mode is to reboot your system.")
+        whiptail --msgbox "$box_text" 12 70
+        continue
+      fi
+    ;;
+
+    2)
+      # 2 => works in all cases
+      # nothing to do
+    ;;
+  esac
+
+  export READONLY
+  /lib/recovery-mode/options/$choice
+done

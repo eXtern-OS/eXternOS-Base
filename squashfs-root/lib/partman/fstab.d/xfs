@@ -1,0 +1,30 @@
+#!/bin/sh
+
+. /lib/partman/lib/base.sh
+
+for dev in $DEVICES/*; do
+	[ -d $dev ] || continue
+	cd $dev
+	open_dialog PARTITIONS
+	while { read_line num id size type fs path name; [ "$id" ]; }; do
+		[ $fs != free ] || continue
+		[ -f "$id/method" ] || continue
+		[ -f "$id/acting_filesystem" ] || continue
+		method=$(cat $id/method)
+		filesystem=$(cat $id/acting_filesystem)
+		case "$filesystem" in
+		    xfs)
+			[ -f "$id/mountpoint" ] || continue
+			mountpoint=$(cat $id/mountpoint)
+			# due to #249322, #255135, #258117:
+			if [ "$mountpoint" = /tmp ]; then
+				rm -f $id/options/noexec
+			fi
+			options=$(get_mountoptions $dev $id)
+			# There is no xfs fsck
+			echo "$path" "$mountpoint" xfs $options 0 0
+			;;
+		esac
+	done
+	close_dialog
+done

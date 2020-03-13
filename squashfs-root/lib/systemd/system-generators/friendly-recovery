@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+[ ! -e /run/friendly_recovery.resume ]
+normaldir=$1
+earlydir=$2
+latedir=$3
+set -- $(cat /proc/cmdline)
+for cmdline_arg in "$@"; do
+	if [ "$cmdline_arg" = "recovery" ]
+	then
+		ln -sf /lib/systemd/system/friendly-recovery.target $earlydir/default.target
+		break
+	fi
+done

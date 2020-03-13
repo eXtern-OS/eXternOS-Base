@@ -1,0 +1,14 @@
+# On Hyper-V and Xen Virtual Machines we want to add memory and cpus as soon as they appear
+ATTR{[dmi/id]sys_vendor}=="Microsoft Corporation", ATTR{[dmi/id]product_name}=="Virtual Machine", GOTO="vm_hotadd_apply"
+ATTR{[dmi/id]sys_vendor}=="Xen", GOTO="vm_hotadd_apply"
+GOTO="vm_hotadd_end"
+
+LABEL="vm_hotadd_apply"
+
+# Memory hotadd request
+SUBSYSTEM=="memory", ACTION=="add", DEVPATH=="/devices/system/memory/memory[0-9]*", TEST=="state", ATTR{state}="online"
+
+# CPU hotadd request
+SUBSYSTEM=="cpu", ACTION=="add", DEVPATH=="/devices/system/cpu/cpu[0-9]*", TEST=="online", ATTR{online}="1"
+
+LABEL="vm_hotadd_end"

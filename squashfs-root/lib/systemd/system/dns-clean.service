@@ -1,0 +1,17 @@
+[Unit]
+Description=Clean up any mess left by 0dns-up
+
+DefaultDependencies=false
+Before=network-manager.service systemd-networkd.service networking.service resolvconf.service
+After=local-fs.target
+Requires=local-fs.target
+
+ConditionPathExists=/etc/ppp/ip-down.d/0dns-down
+
+[Service]
+Type=oneshot
+ExecStartPre=/bin/mkdir -p /var/run/pppconfig
+ExecStart=/etc/ppp/ip-down.d/0dns-down "0dns-clean"
+
+[Install]
+WantedBy=multi-user.target

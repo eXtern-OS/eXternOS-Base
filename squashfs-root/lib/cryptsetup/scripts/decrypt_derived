@@ -1,0 +1,55 @@
+#!/bin/sh
+
+# WARNING: If you use the decrypt_derived keyscript for devices with
+# persistent data (i.e. not swap or temp devices), then you will lose
+# access to that data permanently if something damages the LUKS header
+# of the LUKS device you derive from. The same applies if you luksFormat
+# the device, even if you use the same passphrase(s). A LUKS header
+# backup, or better a backup of the data on the derived device may be
+# a good idea. See the Cryptsetup FAQ on how to do this right.
+
+countlines() {
+	local IFS input count tmp
+	input="$1"
+	count=0
+	IFS='
+'
+	for tmp in $input; do
+		count=$(( $count + 1 ))
+	done
+	echo $count
+}
+
+if [ -z "$1" ]; then
+	echo "$0: must be executed with a crypto device as argument" >&2
+	exit 1
+fi
+
+if ! device=$(dmsetup --showkeys table 2>/dev/null \
+	| awk -vtarget="$1" '$1 == target ":" {print}'); then
+	echo "$0: failed to find $1 in dmtable" >&2
+	exit 1
+fi
+
+if [ -z "$device" ]; then
+	echo "$0: device $1 doesn't exist" >&2
+	exit 1
+fi
+
+count=$(countlines "$device")
+if [ $count -ne 1 ]; then
+	echo "$0: more than one device match $1" >&2
+	exit 1
+fi
+
+eval set -- $device
+type="$4"
+key="$6"
+
+if [ "$type" != "crypt" ]; then
+	echo "$0: device $1 is not a crypto device" >&2
+	exit 1
+fi
+
+echo -n "$key"
+exit 0

@@ -1,0 +1,503 @@
+#!/bin/sh
+#
+# ufw-init-functions: functions used by ufw-init and distribution initscripts
+#
+# Copyright 2008-2015 Canonical Ltd.
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License version 3,
+#    as published by the Free Software Foundation.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+set -e
+
+PATH="/sbin:/bin:/usr/sbin:/usr/bin"
+
+for s in "${DATA_DIR}/etc/default/ufw" "${DATA_DIR}/etc/ufw/ufw.conf" ; do
+    if [ -s "$s" ]; then
+        . "$s"
+    else
+        echo "Could not find $s (aborting)"
+        exit 1
+    fi
+done
+
+RULES_PATH="${DATA_DIR}/etc/ufw"
+USER_PATH="${DATA_DIR}/etc/ufw"
+
+flush_builtins() {
+    error=""
+    execs="iptables"
+    if ip6tables -L INPUT -n >/dev/null 2>&1; then
+        execs="$execs ip6tables"
+    fi
+
+    for exe in $execs
+    do
+        $exe -F || error="yes"
+        $exe -X || error="yes"
+        $exe -P INPUT ACCEPT || error="yes"
+        $exe -P OUTPUT ACCEPT || error="yes"
+        $exe -P FORWARD ACCEPT || error="yes"
+
+        # now handle the mangle table
+        if $exe -t mangle -L -n >/dev/null 2>&1; then
+            for i in INPUT OUTPUT FORWARD PREROUTING POSTROUTING ; do
+                $exe -t mangle -F $i || error="yes"
+                $exe -t mangle -P $i ACCEPT || error="yes"
+            done
+        fi
+    done
+
+    # now handle the nat table
+    if iptables -t nat -L -n >/dev/null 2>&1; then
+        for i in OUTPUT PREROUTING POSTROUTING ; do
+            iptables -t nat -F $i || error="yes"
+            iptables -t nat -P $i ACCEPT || error="yes"
+        done
+    fi
+
+    if [ "$error" = "yes" ]; then
+        return 1
+    fi
+}
+
+chains_command() {
+    flag="$1"
+    type=""
+    exe="iptables"
+    if [ "$2" = "6" ]; then
+        type="$2"
+        exe="ip6tables"
+    fi
+
+    for c in ufw$type-logging-deny ufw$type-logging-allow ufw$type-not-local ufw$type-user-logging-input ufw$type-user-limit-accept ufw$type-user-limit ufw$type-skip-to-policy-input ufw$type-reject-input ufw$type-after-logging-input ufw$type-after-input ufw$type-user-input ufw$type-before-input ufw$type-before-logging-input ufw$type-skip-to-policy-forward ufw$type-reject-forward ufw$type-after-logging-forward ufw$type-after-forward ufw$type-user-logging-forward ufw$type-user-forward ufw$type-before-forward ufw$type-before-logging-forward ufw$type-track-forward ufw$type-track-output ufw$type-track-input ufw$type-skip-to-policy-output ufw$type-reject-output ufw$type-after-logging-output ufw$type-after-output ufw$type-user-logging-output ufw$type-user-output ufw$type-before-output ufw$type-before-logging-output; do
+        if [ "$UFW_INIT_DEBUG" = "yes" ]; then
+            echo "$exe $flag $c" >&2
+            $exe $flag $c || true
+        else
+            $exe $flag $c 2>/dev/null || true
+        fi
+    done
+}
+
+delete_chains() {
+    chains_command -F $1
+    chains_command -Z $1
+
+    # Delete the secondary chains to reduce clutter, but keep the primary ones
+    # so that the primary chains don't leave the built-in chains just to come
+    # back later in a different place. This means that some (empty) chains will
+    # linger until the next boot after disabling ufw.
+    for c in ufw$type-logging-deny ufw$type-logging-allow ufw$type-not-local ufw$type-user-logging-input ufw$type-user-logging-output ufw$type-user-logging-forward ufw$type-user-limit-accept ufw$type-user-limit ufw$type-user-input ufw$type-user-forward ufw$type-user-output ufw$type-skip-to-policy-input ufw$type-skip-to-policy-output ufw$type-skip-to-policy-forward ; do
+        if [ "$UFW_INIT_DEBUG" = "yes" ]; then
+            echo "$exe $flag $c" >&2
+            $exe -X $c || true
+        else
+            $exe -X $c 2>/dev/null || true
+        fi
+    done
+}
+
+ufw_start() {
+    out=""
+    if [ "$ENABLED" = "yes" ] || [ "$ENABLED" = "YES" ]; then
+        if iptables -L ufw-user-input -n >/dev/null 2>&1 ; then
+            echo "Firewall already started, use 'force-reload'"
+            return 0
+        fi
+        for m in $IPT_MODULES
+        do
+            modprobe $m || true
+        done
+
+        if [ "$MANAGE_BUILTINS" = "yes" ]; then
+            flush_builtins
+        fi
+
+        if [ -x "$RULES_PATH/before.init" ]; then
+            if ! "$RULES_PATH/before.init" start ; then
+                error="yes"
+                out="${out}\n'$RULES_PATH/before.init start' exited with error"
+            fi
+        fi
+
+        execs="iptables"
+
+        # IPv6 setup
+        if [ "$IPV6" = "yes" ] || [ "$IPV6" = "YES" ]; then
+            if ip6tables -L INPUT -n >/dev/null 2>&1; then
+                execs="$execs ip6tables"
+            else
+                out="${out}\nProblem loading ipv6 (skipping)"
+            fi
+        else
+            if ip6tables -L INPUT -n >/dev/null 2>&1; then
+                # IPv6 support disabled but available in the kernel, so
+                # default DROP and accept all on loopback
+                delete_chains 6 || error="yes"
+
+                printf "*filter\n"\
+":INPUT DROP [0:0]\n"\
+":FORWARD DROP [0:0]\n"\
+":OUTPUT DROP [0:0]\n"\
+"-A INPUT -i lo -j ACCEPT\n"\
+"-A OUTPUT -o lo -j ACCEPT\n"\
+"COMMIT\n" | ip6tables-restore || error="yes"
+
+                if [ "$error" = "yes" ]; then
+                    out="${out}\nProblem loading ipv6 (skipping)"
+                fi
+            fi
+        fi
+
+        for exe in $execs
+        do
+            type=""
+            if [ "$exe" = "ip6tables" ]; then
+                type="6"
+            fi
+            BEFORE_RULES="$RULES_PATH/before${type}.rules"
+            AFTER_RULES="$RULES_PATH/after${type}.rules"
+            USER_RULES="$USER_PATH/user${type}.rules"
+
+            # set the default policy
+            input_pol="$DEFAULT_INPUT_POLICY"
+            if [ "$DEFAULT_INPUT_POLICY" = "REJECT" ]; then
+                input_pol="DROP"
+            fi
+
+            output_pol="$DEFAULT_OUTPUT_POLICY"
+            if [ "$DEFAULT_OUTPUT_POLICY" = "REJECT" ]; then
+                output_pol="DROP"
+            fi
+
+            forward_pol="$DEFAULT_FORWARD_POLICY"
+            if [ "$DEFAULT_FORWARD_POLICY" = "REJECT" ]; then
+                forward_pol="DROP"
+            fi
+
+            printf "*filter\n"\
+"# builtin chains\n"\
+":INPUT %s [0:0]\n"\
+":FORWARD %s [0:0]\n"\
+":OUTPUT %s [0:0]\n"\
+"COMMIT\n" $input_pol $forward_pol $output_pol | $exe-restore -n || error="yes"
+
+            # flush the chains (if they exist)
+            if $exe -L ufw${type}-before-logging-input -n >/dev/null 2>&1 ; then
+                delete_chains $type || error="yes"
+            else
+                # setup all the primary chains
+                printf "*filter\n"\
+"# primary chains\n"\
+":ufw${type}-before-logging-input - [0:0]\n"\
+":ufw${type}-before-logging-output - [0:0]\n"\
+":ufw${type}-before-logging-forward - [0:0]\n"\
+":ufw${type}-before-input - [0:0]\n"\
+":ufw${type}-before-output - [0:0]\n"\
+":ufw${type}-before-forward - [0:0]\n"\
+":ufw${type}-after-input - [0:0]\n"\
+":ufw${type}-after-output - [0:0]\n"\
+":ufw${type}-after-forward - [0:0]\n"\
+":ufw${type}-after-logging-input - [0:0]\n"\
+":ufw${type}-after-logging-output - [0:0]\n"\
+":ufw${type}-after-logging-forward - [0:0]\n"\
+":ufw${type}-reject-input - [0:0]\n"\
+":ufw${type}-reject-output - [0:0]\n"\
+":ufw${type}-reject-forward - [0:0]\n"\
+":ufw${type}-track-input - [0:0]\n"\
+":ufw${type}-track-output - [0:0]\n"\
+":ufw${type}-track-forward - [0:0]\n"\
+"\n"\
+"-A INPUT -j ufw${type}-before-logging-input\n"\
+"-A INPUT -j ufw${type}-before-input\n"\
+"-A INPUT -j ufw${type}-after-input\n"\
+"-A INPUT -j ufw${type}-after-logging-input\n"\
+"-A INPUT -j ufw${type}-reject-input\n"\
+"-A INPUT -j ufw${type}-track-input\n"\
+"\n"\
+"-A OUTPUT -j ufw${type}-before-logging-output\n"\
+"-A OUTPUT -j ufw${type}-before-output\n"\
+"-A OUTPUT -j ufw${type}-after-output\n"\
+"-A OUTPUT -j ufw${type}-after-logging-output\n"\
+"-A OUTPUT -j ufw${type}-reject-output\n"\
+"-A OUTPUT -j ufw${type}-track-output\n"\
+"\n"\
+"-A FORWARD -j ufw${type}-before-logging-forward\n"\
+"-A FORWARD -j ufw${type}-before-forward\n"\
+"-A FORWARD -j ufw${type}-after-forward\n"\
+"-A FORWARD -j ufw${type}-after-logging-forward\n"\
+"-A FORWARD -j ufw${type}-reject-forward\n"\
+"-A FORWARD -j ufw${type}-track-forward\n"\
+"COMMIT\n" | $exe-restore -n || error="yes"
+            fi
+
+            # add reject policy
+            if [ "$DEFAULT_INPUT_POLICY" = "REJECT" ]; then
+                printf "*filter\n"\
+"-A ufw${type}-reject-input -j REJECT\n"\
+"COMMIT\n" | $exe-restore -n || error="yes"
+            fi
+            if [ "$DEFAULT_OUTPUT_POLICY" = "REJECT" ]; then
+                printf "*filter\n"\
+"-A ufw${type}-reject-output -j REJECT\n"\
+"COMMIT\n" | $exe-restore -n || error="yes"
+            fi
+            if [ "$DEFAULT_FORWARD_POLICY" = "REJECT" ]; then
+                printf "*filter\n"\
+"-A ufw${type}-reject-forward -j REJECT\n"\
+"COMMIT\n" | $exe-restore -n || error="yes"
+            fi
+
+            # add tracking policy
+            if [ "$DEFAULT_INPUT_POLICY" = "ACCEPT" ]; then
+                printf "*filter\n"\
+"-A ufw${type}-track-input -p tcp -m conntrack --ctstate NEW -j ACCEPT\n"\
+"-A ufw${type}-track-input -p udp -m conntrack --ctstate NEW -j ACCEPT\n"\
+"COMMIT\n" | $exe-restore -n || error="yes"
+            fi
+
+            if [ "$DEFAULT_OUTPUT_POLICY" = "ACCEPT" ]; then
+                printf "*filter\n"\
+"-A ufw${type}-track-output -p tcp -m conntrack --ctstate NEW -j ACCEPT\n"\
+"-A ufw${type}-track-output -p udp -m conntrack --ctstate NEW -j ACCEPT\n"\
+"COMMIT\n" | $exe-restore -n || error="yes"
+            fi
+
+            if [ "$DEFAULT_FORWARD_POLICY" = "ACCEPT" ]; then
+                printf "*filter\n"\
+"-A ufw${type}-track-forward -p tcp -m conntrack --ctstate NEW -j ACCEPT\n"\
+"-A ufw${type}-track-forward -p udp -m conntrack --ctstate NEW -j ACCEPT\n"\
+"COMMIT\n" | $exe-restore -n || error="yes"
+            fi
+
+            # now setup the secondary 'logging-deny' chains
+            if ! $exe -L ufw${type}-logging-deny -n >/dev/null 2>&1 ; then
+                printf "*filter\n"\
+":ufw${type}-logging-deny - [0:0]\n"\
+":ufw${type}-logging-allow - [0:0]\n"\
+"COMMIT\n" | $exe-restore -n || error="yes"
+            fi
+
+            # now setup the secondary 'skip to policy' chains
+            if ! $exe -L ufw${type}-skip-to-policy-input -n >/dev/null 2>&1 ; then
+                printf "*filter\n"\
+":ufw${type}-skip-to-policy-input - [0:0]\n"\
+":ufw${type}-skip-to-policy-output - [0:0]\n"\
+":ufw${type}-skip-to-policy-forward - [0:0]\n"\
+"-A ufw${type}-skip-to-policy-input -j %s\n"\
+"-A ufw${type}-skip-to-policy-output -j %s\n"\
+"-A ufw${type}-skip-to-policy-forward -j %s\n"\
+"COMMIT\n" $DEFAULT_INPUT_POLICY $DEFAULT_OUTPUT_POLICY $DEFAULT_FORWARD_POLICY | $exe-restore -n || error="yes"
+            fi
+
+            # now ip[6]tables-restore before*.rules. This resets the following
+            # chains:
+            #   ufw-before-input
+            #   ufw-before-output
+            #   ufw-before-forward
+            #
+            # and sets the following:
+            #   ufw-not-local
+            if [ -s "$BEFORE_RULES" ]; then
+                if ! $exe-restore -n < "$BEFORE_RULES" ; then
+                    out="${out}\nProblem running '$BEFORE_RULES'"
+                    error="yes"
+                fi
+            else
+                out="${out}\nCouldn't find '$BEFORE_RULES'"
+                error="yes"
+            fi
+
+            # now ip[6]tables-restore after*.rules. This resets the following
+            # chains:
+            #   ufw-after-input
+            #   ufw-after-output
+            #   ufw-after-forward
+            if [ -s "$AFTER_RULES" ]; then
+                if ! $exe-restore -n < "$AFTER_RULES" ; then
+                    out="${out}\nProblem running '$AFTER_RULES'"
+                    error="yes"
+                fi
+            else
+                out="${out}\nCouldn't find '$AFTER_RULES'"
+                error="yes"
+            fi
+
+            # user chains
+            if [ -s "$USER_RULES" ]; then
+                # setup the secondary 'user' chains
+                if ! $exe -L ufw${type}-user-input -n >/dev/null 2>&1 ; then
+                    printf "*filter\n"\
+":ufw${type}-user-input - [0:0]\n"\
+":ufw${type}-user-output - [0:0]\n"\
+":ufw${type}-user-forward - [0:0]\n"\
+":ufw${type}-user-logging-input - [0:0]\n"\
+":ufw${type}-user-logging-output - [0:0]\n"\
+":ufw${type}-user-logging-forward - [0:0]\n"\
+":ufw${type}-user-limit - [0:0]\n"\
+":ufw${type}-user-limit-accept - [0:0]\n"\
+"COMMIT\n" | $exe-restore -n || error="yes"
+                fi
+
+                # now ip[6]tables-restore user*.rules. This resets the following
+                # chains:
+                #   ufw-before-logging-input
+                #   ufw-before-logging-output
+                #   ufw-before-logging-forward
+                #   ufw-after-logging-input
+                #   ufw-after-logging-output
+                #   ufw-after-logging-forward
+                #   ufw-logging-deny
+                #   ufw-logging-allow
+                #   ufw-after-input
+                #   ufw-after-output
+                #   ufw-after-forward
+                #   ufw-user-limit
+                #   ufw-user-limit-accept
+                if ! $exe-restore -n < "$USER_RULES" ; then
+                    out="${out}\nProblem running '$USER_RULES'"
+                    error="yes"
+                fi
+
+                # now hooks these into the primary chains
+                printf "*filter\n"\
+"-A ufw${type}-before-input -j ufw${type}-user-input\n"\
+"-A ufw${type}-before-output -j ufw${type}-user-output\n"\
+"-A ufw${type}-before-forward -j ufw${type}-user-forward\n"\
+"COMMIT\n" | $exe-restore -n || error="yes"
+            else
+                out="${out}\nCouldn't find '$USER_RULES'"
+                error="yes"
+            fi
+        done
+
+        if [ ! -z "$IPT_SYSCTL" ] && [ -s "$IPT_SYSCTL" ]; then
+            sysctl -e -q -p $IPT_SYSCTL || true
+        fi
+
+        if [ -x "$RULES_PATH/after.init" ]; then
+            if ! "$RULES_PATH/after.init" start ; then
+                error="yes"
+                out="${out}\n'$RULES_PATH/after.init start' exited with error"
+            fi
+        fi
+
+        if [ "$error" = "yes" ]; then
+            /bin/echo -e "$out"
+            return 1
+        fi
+    else
+        out="Skip starting firewall: ufw (not enabled)"
+    fi
+    if [ ! -z "$out" ]; then
+        /bin/echo -e "$out"
+    fi
+}
+
+ufw_stop() {
+    if [ "$1" != "--force" ] && [ "$ENABLED" != "yes" ] && [ "$ENABLED" != "YES" ]; then
+        echo "Skip stopping firewall: ufw (not enabled)"
+        return 0
+    fi
+
+    error=""
+
+    if [ -x "$RULES_PATH/before.init" ]; then
+        if ! "$RULES_PATH/before.init" stop ; then
+            error="yes"
+            out="${out}\n'$RULES_PATH/before.init stop' exited with error"
+        fi
+    fi
+
+    # If we manage the builtins, just return
+    if [ "$MANAGE_BUILTINS" = "yes" ]; then
+        flush_builtins || error="yes"
+        if [ -x "$RULES_PATH/after.init" ]; then
+            "$RULES_PATH/after.init" stop || error="yes"
+        fi
+        if [ "$error" = "yes" ]; then
+            return 1
+        fi
+        return 0
+    fi
+
+    execs="iptables"
+    if ip6tables -L INPUT -n >/dev/null 2>&1; then
+        execs="$execs ip6tables"
+    fi
+
+    for exe in $execs
+    do
+        type=""
+        if [ "$exe" = "ip6tables" ]; then
+            type="6"
+        fi
+        delete_chains $type || error="yes"
+        $exe -P INPUT ACCEPT || error="yes"
+        $exe -P OUTPUT ACCEPT || error="yes"
+        $exe -P FORWARD ACCEPT || error="yes"
+    done
+
+    if [ -x "$RULES_PATH/after.init" ]; then
+        if ! "$RULES_PATH/after.init" stop ; then
+            error="yes"
+        fi
+    fi
+
+    if [ "$error" = "yes" ]; then
+        return 1
+    fi
+    return 0
+}
+
+ufw_reload() {
+    if [ "$ENABLED" = "yes" ] || [ "$ENABLED" = "YES" ]; then
+        if [ -x "$RULES_PATH/before.init" ]; then
+            "$RULES_PATH/before.init" stop || return 1
+        fi
+        ufw_stop || return "$?"
+        if [ -x "$RULES_PATH/after.init" ]; then
+            "$RULES_PATH/after.init" stop || return 1
+        fi
+
+        if [ -x "$RULES_PATH/before.init" ]; then
+            "$RULES_PATH/before.init" start || return 1
+        fi
+        ufw_start || return "$?"
+        if [ -x "$RULES_PATH/after.init" ]; then
+            "$RULES_PATH/after.init" start || return 1
+        fi
+    else
+        echo "Skipping $1 (not enabled)"
+    fi
+    return 0
+}
+
+ufw_status() {
+    err=""
+    iptables -L ufw-user-input -n >/dev/null 2>&1 || {
+        echo "Firewall is not running"
+        return 3
+    }
+
+    if [ "$IPV6" = "yes" ] || [ "$IPV6" = "YES" ]; then
+        ip6tables -L ufw6-user-input -n >/dev/null 2>&1 || {
+            # unknown state: ipv4 ok, but ipv6 isn't
+            echo "Firewall in inconsistent state (IPv6 enabled but not running)"
+            return 4
+        }
+    fi
+
+    echo "Firewall is running"
+    return 0
+}
+

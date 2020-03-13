@@ -1,0 +1,20 @@
+#!/bin/sh
+
+. /lib/partman/lib/base.sh
+. /lib/partman/lib/crypto-base.sh
+
+dev=$2
+id=$3
+part=$dev/$id
+
+cd $dev
+
+if [ -f $part/skip_erase ]; then
+	exit 0
+fi
+
+open_dialog PARTITION_INFO $id
+read_line num id size type fs path name
+close_dialog
+
+crypto_wipe_device $path $part "" || true

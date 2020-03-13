@@ -1,0 +1,96 @@
+#!/bin/sh
+#
+# ufw-init: helper script to be used by ufw itself
+#
+# Copyright 2008-2015 Canonical Ltd.
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License version 3,
+#    as published by the Free Software Foundation.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+set -e
+
+# FIXME: this shouldn't be ordered
+rootdir=
+if [ "$1" = "--rootdir" ] && [ -s "$2" ]; then
+    rootdir="$2/" # ensure trailing slash
+    shift 2
+fi
+datadir=
+if [ "$1" = "--datadir" ] && [ -s "$2" ]; then
+    datadir="$2/" # ensure trailing slash
+    shift 2
+fi
+export DATA_DIR="$datadir"
+
+# Debian/Ubuntu: small boot speed improvement
+. "${rootdir}/etc/ufw/ufw.conf"
+if [ "$1" = "start" ] && [ "$2" = "quiet" ] && [ "$ENABLED" = "no" ]; then
+    exit 0
+fi
+
+if [ -s "${rootdir}/lib/ufw/ufw-init-functions" ]; then
+    . "${rootdir}/lib/ufw/ufw-init-functions"
+else
+    echo "Could not find ${rootdir}/lib/ufw/ufw-init-functions (aborting)"
+    exit 1
+fi
+
+case "$1" in
+start)
+    # process multiple error strings
+    ret=0
+    output=`ufw_start` || ret="$?"
+    test -n "$output" && echo "$output" | while read line ; do
+        if [ "$2" = "quiet" ] || [ "$QUIET" = "yes" ]; then
+            echo "$line" | grep -q "Skip starting" && continue
+        fi
+        echo "$line"
+    done
+    exit "$ret"
+    ;;
+stop)
+    ufw_stop || exit "$?"
+    ;;
+force-stop)
+    ufw_stop --force || exit "$?"
+    ;;
+restart|force-reload)
+    ufw_reload || exit "$?"
+    ;;
+status)
+    ufw_status || exit "$?"
+    # If before.init and after.init support 'status', just display them after
+    # ufw_status() so it is prettier
+    if [ -x "$RULES_PATH/before.init" ]; then
+        "$RULES_PATH/before.init" status || exit "$?"
+    fi
+    if [ -x "$RULES_PATH/after.init" ]; then
+        "$RULES_PATH/after.init" status || exit "$?"
+    fi
+    ;;
+flush-all)
+    # Use sparingly. It flushes the built-in chains, deletes all non-builtin
+    # chains and resets the policy to ACCEPT
+    if [ -x "$RULES_PATH/before.init" ]; then
+        "$RULES_PATH/before.init" flush-all || exit "$?"
+    fi
+    flush_builtins || exit "$?"
+    if [ -x "$RULES_PATH/after.init" ]; then
+        "$RULES_PATH/after.init" flush-all || exit "$?"
+    fi
+    ;;
+*)
+    echo "Usage: /lib/ufw/ufw-init {start|stop|restart|force-reload|force-stop|flush-all|status}"
+    exit 1
+    ;;
+esac
+

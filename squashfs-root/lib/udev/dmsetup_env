@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# Debian's dmsetup is lacking the export patch, so gather the minimum
+# information here in order to get proper partition mappings via kpartx
+# 
+# See: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=434241
+#      http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=487881
+#      http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=493078
+
+MAJOR=$1
+MINOR=$2
+
+if [ -z "$MAJOR" -o -z "$MINOR" ]; then
+    echo "usage: $0 major minor"
+    exit 1
+fi
+
+DMSETUP="/sbin/dmsetup -c --noheadings info -j$MAJOR  -m$MINOR"
+
+DM_UUID=`$DMSETUP -oUUID`
+if [ -n "$DM_UUID" ]; then 
+    echo DM_UUID=$DM_UUID
+    ATTRS=`$DMSETUP -oattr`
+    case "$ATTRS" in
+        L-*) # this is the only state needed for the kpartx udev rules
+            echo DM_TABLE_STATE=LIVE
+	    echo DM_STATE=ACTIVE
+	    ;;
+    esac
+fi
+echo DM_NAME=`$DMSETUP -oname`

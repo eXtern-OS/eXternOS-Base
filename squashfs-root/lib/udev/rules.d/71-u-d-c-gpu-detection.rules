@@ -1,0 +1,8 @@
+# Rule installed by ubuntu-drivers-common
+
+# Create a file with the card details for gpu-manager
+ACTION=="add", SUBSYSTEM=="drm", DEVPATH=="*/drm/card*", RUN+="/sbin/u-d-c-print-pci-ids"
+
+# Create a file when a module is loaded
+ACTION=="add", SUBSYSTEMS=="pci", DRIVERS=="nvidia*", RUN+="/bin/touch /run/u-d-c-nvidia-was-loaded"
+ACTION=="add", SUBSYSTEM=="module", KERNEL=="fglrx*", RUN+="/bin/touch /run/u-d-c-fglrx-was-loaded"

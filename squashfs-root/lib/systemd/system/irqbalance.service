@@ -1,0 +1,13 @@
+[Unit]
+Description=irqbalance daemon
+ConditionVirtualization=!container
+
+[Service]
+EnvironmentFile=-/etc/default/irqbalance
+ExecStart=/usr/sbin/irqbalance --foreground $IRQBALANCE_ARGS
+# If IRQBALANCE_ONESHOT environment is set, the service will exit so:
+Restart=no
+# (The above case would be better as a real Type=oneshot unit.)
+
+[Install]
+WantedBy=multi-user.target

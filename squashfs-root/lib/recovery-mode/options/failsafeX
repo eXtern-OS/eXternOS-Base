@@ -1,0 +1,17 @@
+#!/bin/sh
+
+. /lib/recovery-mode/l10n.sh
+
+# no failsafe X session
+if [ ! -e /usr/share/xdiagnose/failsafeXServer ]; then
+    exit 1
+fi
+
+if [ "$1" = "test" ]; then
+  echo $(eval_gettext "Run in failsafe graphic mode")
+  exit 0
+fi
+
+/usr/share/xdiagnose/failsafeXServer
+
+exit 0

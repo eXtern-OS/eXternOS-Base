@@ -1,0 +1,26 @@
+#!/bin/sh
+
+decrypt_gpg () {
+	echo "Performing GPG symmetric decryption ..." >&2
+	if ! /lib/cryptsetup/askpass "Enter passphrase for key $1: " | \
+		/usr/bin/gpg -q --batch --no-options  \
+		--no-random-seed-file --no-default-keyring \
+		--keyring /dev/null --secret-keyring /dev/null \
+		--trustdb-name /dev/null --passphrase-fd 0 --decrypt "$1"; then
+		return 1
+	fi
+	return 0
+}
+
+if [ ! -x /usr/bin/gpg ]; then
+	echo "$0: /usr/bin/gpg is not available" >&2
+	exit 1
+fi
+
+if [ -z "$1" ]; then
+	echo "$0: missing key as argument" >&2
+	exit 1
+fi
+
+decrypt_gpg "$1"
+exit $?

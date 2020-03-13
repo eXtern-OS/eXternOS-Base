@@ -1,0 +1,99 @@
+#!/bin/sh
+
+set -e
+
+. /lib/partman/lib/base.sh
+
+dev=${1%//*}
+id=${1#*//}
+
+cd $dev
+
+setup_reuse_partition () {
+	echo keep > $1/method
+	if [ -f $1/detected_filesystem ]; then
+		cp $1/detected_filesystem $1/filesystem
+	fi
+	mkdir -p $1/options
+	rm -f $1/format
+	>$1/use_filesystem
+	>$1/reuse
+}
+
+path=
+cleanup_ro_partitions=
+mountpoint="$(mktemp -d)"
+cleanup () {
+	[ -e $mountpoint ] && umount -l $mountpoint && rmdir $mountpoint || true
+	for p in $cleanup_ro_partitions; do
+		blockdev --setrw $p || true
+	done
+}
+trap cleanup EXIT HUP INT QUIT TERM
+
+setup_reuse_partition $id
+echo / > $id/mountpoint
+update_partition $dev $id
+
+open_dialog PARTITION_INFO $id
+read_line num i size type fs path name
+close_dialog
+
+mounted=
+if type grub-mount >/dev/null 2>&1 && \
+    grub-mount "$path" "$mountpoint" 2>/dev/null 3>&- 6>&- 7<&-; then
+    mounted=1
+else
+    blockdev --setro "$path" || continue
+    cleanup_ro_partitions="$cleanup_ro_partitions $path"
+    if mount -o ro "$path" "$mountpoint" 3>&- 6>&- 7<&-; then
+	mounted=1
+    fi
+fi
+
+if [ ! "$mounted" ] || [ ! -f "$mountpoint/etc/fstab" ]; then
+	exit 100
+fi
+
+fstab=
+while read uuid mp rest; do
+	if [ "${uuid%=*}" != "UUID" ]; then
+		continue
+	fi
+	uuid="${uuid#*=}"
+	if [ ! -e "/dev/disk/by-uuid/$uuid" ]; then
+		continue
+	fi
+	fstab="$fstab $uuid,$mp"
+done < "$mountpoint/etc/fstab"
+
+for dev in $DEVICES/*; do
+	cd $dev
+	partitions=
+	open_dialog PARTITIONS
+	while { read_line num i size type fs p name; [ "$i" ]; }; do
+		if [ "$(cat $i/detected_filesystem)" = "linux-swap" ]; then
+			# Swap will be automatically used.
+			continue
+		fi
+
+		u="$(blkid -o value -s UUID $p)" || true
+		for line in $fstab; do
+			uuid="${line%,*}"
+			mp="${line#*,}"
+			if [ "$uuid" = "$u" ]; then
+				echo "$mp" > $i/mountpoint
+				partitions="$partitions $i"
+				break
+			fi
+		done
+	done
+	close_dialog
+
+	for part in $partitions; do
+		setup_reuse_partition $part
+		update_partition $dev $part
+	done
+done
+
+exit 100

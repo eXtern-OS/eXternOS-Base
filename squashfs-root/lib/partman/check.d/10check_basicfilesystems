@@ -1,0 +1,72 @@
+#!/bin/sh
+
+. /lib/partman/lib/base.sh
+
+if search-path fsck.fat; then
+	FSCK_FAT=fsck.fat
+elif search-path dosfsck; then
+	FSCK_FAT=dosfsck
+else
+	FSCK_FAT=
+fi
+
+for dev in $DEVICES/*; do
+	[ -d "$dev" ] || continue
+	cd $dev
+	partitions=
+	open_dialog PARTITIONS
+	while { read_line num id size type fs path name; [ "$id" ]; }; do
+		[ "$fs" != free ] || continue
+		partitions="$partitions $id,$num"
+	done
+	close_dialog
+
+	for part in $partitions; do
+		id=${part%,*}
+		num=${part#*,}
+		[ -f $id/method -a ! -f $id/format \
+		  -a -f $id/acting_filesystem ] || continue
+		filesystem=$(cat $id/acting_filesystem)
+		case $filesystem in
+		    fat16|fat32)
+			# We can't check FAT filesystems if dosfstools is
+			# unavailable (i.e. on non-Linux architectures), but
+			# it's probably OK to just allow mounting them.
+			[ "$FSCK_FAT" ] || continue
+			log "Check the file system in $dev/$id"
+			template=partman-basicfilesystems/progress_checking
+			RET=''
+			db_metaget  partman/filesystem_short/"$filesystem" description || RET=''
+			[ "$RET" ] || RET="$filesystem"
+			db_subst $template TYPE "$RET"
+			db_subst $template PARTITION "$num"
+			db_subst $template DEVICE $(humandev $(cat device))
+			open_dialog PARTITION_INFO $id
+			read_line x1 x2 x3 x4 x5 device x6
+			close_dialog
+			db_progress START 0 1 partman/text/please_wait
+			db_progress INFO $template
+			if log-output -t partman --pass-stdout \
+			    $FSCK_FAT -n $device >/dev/null; then
+				status=good
+			else
+				status=failed
+			fi
+			db_progress STOP    
+
+			if [ "$status" != good ]; then
+				db_subst partman-basicfilesystems/check_failed TYPE "$filesystem"
+				db_subst partman-basicfilesystems/check_failed PARTITION "$num"
+				db_subst partman-basicfilesystems/check_failed DEVICE $(humandev $(cat device))
+				db_set partman-basicfilesystems/check_failed true
+				db_input critical partman-basicfilesystems/check_failed || true
+				db_go || true
+				db_get partman-basicfilesystems/check_failed
+				if [ "$RET" = true ]; then
+					exit 1
+				fi
+			fi
+			;;
+		esac
+	done
+done

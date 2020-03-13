@@ -1,0 +1,26 @@
+ACTION!="add|change", GOTO="media_player_end"
+# catch MTP devices
+ENV{DEVTYPE}=="usb_device", GOTO="media_player_start"
+
+# catch UMS devices
+SUBSYSTEM!="block", GOTO="media_player_end"
+SUBSYSTEMS=="usb", GOTO="media_player_start"
+GOTO="media_player_end"
+
+LABEL="media_player_start"
+
+ATTRS{vendor}=="*Apple*", ATTRS{model}=="*iPod*", ENV{ID_MEDIA_PLAYER}="apple_ipod"
+
+ATTRS{model}=="*[iI][tT][uU][nN][eE][sS]*", ATTRS{idVendor}=="22b8", ATTRS{idProduct}=="4810", ENV{ID_MEDIA_PLAYER}="motorola_itunes-phone"
+
+ATTRS{model}=="*Motorola Phone (V3i)*", ATTRS{idVendor}=="22b8", ATTRS{idProduct}=="4810", ENV{ID_MEDIA_PLAYER}="motorola_v3i"
+
+# Series 60 phones
+ATTRS{model}=="S60", ATTRS{idVendor}=="0421", ATTRS{idProduct}=="*", ENV{ID_MEDIA_PLAYER}="nokia_series-60-phones"
+
+ATTRS{product}=="Rockbox media player", ATTRS{manufacturer}=="Rockbox.org", ENV{ID_MEDIA_PLAYER}="rockbox"
+
+ATTRS{vendor}=="[sS][oO][nN][yY]*", ATTRS{model}=="*PSP*", ENV{ID_MEDIA_PLAYER}="sony_psp"
+
+
+LABEL="media_player_end"

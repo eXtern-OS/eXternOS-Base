@@ -1,0 +1,8 @@
+# This file causes drives with dmraid arrays to be checked, and if all
+# drives are present, brought up.
+# See udev(8) for syntax
+
+SUBSYSTEM=="block", ACTION=="add", ENV{ID_TYPE}=="disk", ENV{ID_FS_USAGE}=="raid", KERNEL=="hd[a-z]|sd[a-z]", \
+	RUN+="/sbin/dmraid-activate %k"
+ENV{DM_STATE}=="ACTIVE", ENV{DM_UUID}=="DMRAID-*", \
+        RUN+="/sbin/kpartx -a /dev/$kernel"

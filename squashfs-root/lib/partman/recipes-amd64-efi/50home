@@ -1,0 +1,40 @@
+partman-auto/text/home_scheme ::
+
+538 538 1075 fat32
+	$iflabel{ gpt }
+	$reusemethod{ }
+	method{ efi }
+	format{ } .
+
+512 1024 768 ext4
+	$defaultignore{ }
+	$lvmignore{ }
+	method{ format }
+	format{ }
+	use_filesystem{ }
+	filesystem{ ext4 }
+	mountpoint{ /boot } .
+
+1500 6000 30000 $default_filesystem
+	$lvmok{ }
+	method{ format }
+	format{ }
+	use_filesystem{ }
+	$default_filesystem{ }
+	mountpoint{ / } .
+
+96 512 200% linux-swap
+	$defaultignore{ }
+	$lvmok{ }
+	$reusemethod{ }
+	method{ swap }
+	format{ } .
+
+1000 10000 -1 $default_filesystem
+	$lvmok{ }
+	method{ format }
+	format{ }
+	use_filesystem{ }
+	$default_filesystem{ }
+	mountpoint{ /home } .
+

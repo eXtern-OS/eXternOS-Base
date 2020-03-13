@@ -1,0 +1,59 @@
+#!/bin/sh
+
+. /lib/partman/lib/base.sh
+
+ARCH="$(archdetect)"
+case $ARCH in
+    i386/mac|amd64/mac)
+	# Not yet sure what to do on Intel Macs.  Mounting the EFI System
+	# Partition on /boot/efi will change the behaviour of grub-install,
+	# so it seems best to avoid it for the moment.
+	exit 0
+	;;
+esac
+
+paths=
+for dev in $DEVICES/*; do
+	[ -d $dev ] || continue
+	cd $dev
+	open_dialog PARTITIONS
+	while { read_line num id size type fs path name; [ "$id" ]; }; do
+		[ $fs != free ] || continue
+		[ -f "$id/method" ] || continue
+		method=$(cat $id/method)
+		[ "$method" = efi ] || continue
+		if [ -z "$paths" ]; then
+			paths="$path"
+		else
+			paths="$paths $path"
+		fi
+	done
+	close_dialog
+done
+
+if [ -z "$paths" ]; then
+	exit 0
+fi
+
+# Use any autopartition disk that has been set
+if db_get partman-auto/disk && [ "$RET" ]; then
+	disks="$RET"
+	seen_efi=
+	for disk in $disks; do
+		for path in $paths; do
+			case "$path" in
+				$disk*)
+					echo "$path" /boot/efi vfat umask=0077 0 1
+					seen_efi=1
+					break
+					;;
+			esac
+		done
+		[ -z "$seen_efi" ] || break
+	done
+else
+	for path in $paths; do
+		echo "$path" /boot/efi vfat umask=0077 0 1
+		break
+	done
+fi
