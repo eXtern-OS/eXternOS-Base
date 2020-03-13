@@ -1,0 +1,38 @@
+#!/bin/sh
+
+set -e
+
+rm_conffile() {
+	CONFFILE="$1"
+	
+	if [ -e "$CONFFILE" ]; then
+		md5sum="`md5sum \"$CONFFILE\" | sed -e \"s/ .*//\"`"
+		old_md5sum="`dpkg-query -W -f='${Conffiles}' docbook-xml | grep $CONFFILE | awk '{print $2}'`"
+		if [ "$md5sum" != "$old_md5sum" ]; then
+			echo "Obsolete conffile $CONFFILE has been modified by you."
+			echo "Saving as $CONFFILE.dpkg-bak ..."
+			mv -f "$CONFFILE" "$CONFFILE".dpkg-bak
+		else
+			echo "Removing obsolete conffile $CONFFILE ..."
+			rm -f "$CONFFILE"
+		fi
+	fi
+}
+
+# converting a directory to symlinks during package upgrade doesn't work,
+# lets remove the junk in here by hand
+# bug 143780, problems caused by danging symlinks
+if [ "$1" = upgrade ]; then
+    rm -r /usr/share/sgml/docbook/dtd/xml/[1-9]* || true
+fi
+
+# handle obsolete dbgenent.ent files, that are placed in /etc/sgml/docbook-xml
+# fixes bug #426058
+# 4.5: obsoletes 3.1.7
+if [ "$1" = remove ] || [ "$1" = upgrade ]; then
+	if dpkg --compare-versions "$2" lt "4.5"; then
+		rm_conffile "/etc/sgml/docbook-xml/3.1.7/dbgenent.ent"
+	fi
+fi
+
+

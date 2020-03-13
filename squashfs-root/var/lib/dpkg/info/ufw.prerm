@@ -1,0 +1,28 @@
+#!/bin/sh -e
+
+case "$1" in
+    remove)
+        # Unload ufw (will only happen if enabled)
+        if [ -x /lib/ufw/ufw-init ]; then
+            /lib/ufw/ufw-init stop || true
+        fi
+        ;;
+esac
+
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/bash_completion.d/ufw 0.34-1~ ufw -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/init/ufw.conf 0.35-5~ ufw -- "$@"
+# End automatically added section
+
+# Automatically added by dh_python3:
+if which py3clean >/dev/null 2>&1; then
+	py3clean -p ufw 
+else
+	dpkg -L ufw | perl -ne 's,/([^/]*)\.py$,/__pycache__/\1.*, or next; unlink $_ or die $! foreach glob($_)'
+	find /usr/lib/python3/dist-packages/ -type d -name __pycache__ -empty -print0 | xargs --null --no-run-if-empty rmdir
+fi
+
+# End automatically added section
+

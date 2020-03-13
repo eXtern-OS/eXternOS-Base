@@ -1,0 +1,29 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = configure ]; then
+	update-alternatives \
+		--install /usr/bin/traceroute6 traceroute6 /usr/bin/traceroute6.iputils 100 \
+		--slave /usr/share/man/man8/traceroute6.8.gz traceroute6.8.gz /usr/share/man/man8/traceroute6.iputils.8.gz
+	if false; then
+		if setcap cap_net_raw+ep /usr/bin/traceroute6.iputils; then
+            chmod u-s /usr/bin/traceroute6.iputils
+		else
+			echo "Setcap failed on /usr/bin/traceroute6.iputils, falling back to setuid" >&2
+			chmod u+s /usr/bin/traceroute6.iputils
+		fi
+	else
+		chmod u+s /usr/bin/traceroute6.iputils
+	fi
+fi
+
+
+
+exit 0
+
+# Local variables:
+# mode: shell-script
+# tab-width: 4
+# indent-tabs-mode: nil
+# end:

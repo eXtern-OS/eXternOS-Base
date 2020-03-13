@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/default/pulseaudio 1:8.0-0ubuntu3\~ -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/init.d/pulseaudio 1:8.0-0ubuntu3\~ -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/xdg/autostart/pulseaudio-kde.desktop 1:6.0-0ubuntu1\~vivid1\~ -- "$@"
+dpkg-maintscript-helper mv_conffile /etc/bash_completion.d/pulseaudio-bash-completion.sh /etc/bash_completion.d/pulseaudio 1:8.0-0ubuntu3\~ -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/bash_completion.d/pulseaudio 1:8.0-0ubuntu3\~ -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/init/pulseaudio.conf 1:8.0-0ubuntu3\~ -- "$@"
+# End automatically added section
+
+
+if [ "$1" = "purge" ] ; then
+        deluser --quiet --system pulse > /dev/null || true
+        delgroup --quiet --system pulse-access > /dev/null || true
+        delgroup --quiet --system pulse-rt > /dev/null || true
+fi
+
+exit 0

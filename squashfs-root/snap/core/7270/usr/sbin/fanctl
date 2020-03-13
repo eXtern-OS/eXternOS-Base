@@ -1,0 +1,1905 @@
+#!/bin/sh
+#
+# fanctl - control fan bridge devices
+#   fanctl up 15 10.1.0.1
+#   fanctl down 15 10.1.0.1
+#
+
+usage()
+{
+	echo "Usage: $0 <cmd> [<options>...]" 1>&2
+	echo "Available commands:" 1>&2
+	echo "	up       - bring up Fans" 1>&2
+	echo "	down     - bring down configured Fans" 1>&2
+	echo "	show     - show configured Fans" 1>&2
+	echo "	config   - manage local persistent configuration for Fans" 1>&2
+	echo "Use $0 help [<cmd>] for more details" 1>&2
+}
+
+run()
+{
+	last_cmd="$@"
+	[ "$opt_v" ] && echo "$@"
+	"$@"
+}
+
+state_dir="/run/ubuntu-fan"
+lconfig_dir="/var/lib/ubuntu-fan/config"
+
+__ip_split()
+{
+	eval `echo "$1" | {
+		IFS=./ read a b c d e f
+		echo ip_a="$a" ip_b="$b" ip_c="$c" ip_d="$d" ip_e="$e"
+	}`
+}
+
+width_to_mask()
+{
+	local width="$1"
+	local mask=""
+	local zeros="$(( (32-$width)/4 ))"
+
+	while [ "$width" -ge 4 ]; do
+		mask="${mask}F"
+		width="$(($width - 4))"
+	done
+	case "$width" in
+	3)	mask="${mask}E" ;;
+	2)	mask="${mask}C" ;;
+	1)	mask="${mask}8" ;;
+	esac
+
+	while [ "$zeros" -gt 0 ]; do
+		mask="${mask}0"
+		zeros="$(($zeros - 1))"
+	done
+
+	#printf "%x %x\n" "$((0x$mask))" "$(( (~0x$mask) & 0xffffffff ))"
+
+	RET="$(( 0x$mask ))"
+}
+
+ip_to_num_width()
+{
+	local ip_a
+	local ip_b
+	local ip_c
+	local ip_d
+	local ip_e
+	local ip_f
+
+	__ip_split "$1"
+
+	RET="$(( ($ip_a << 24) | ($ip_b << 16) | ($ip_c << 8) | $ip_d ))"
+	RET2="$ip_e"
+}
+
+num_to_ip()
+{
+	local ip_num="$1"
+	local ip_sep="$2"
+
+	[ "$ip_sep" = '' ] && ip_sep='.'
+
+	RET="$(( (($ip_num >> 24) & 0xff) ))$ip_sep$(( (($ip_num >> 16) & 0xff) ))$ip_sep$(( (($ip_num >> 8) & 0xff) ))$ip_sep$(( $ip_num & 0xff ))"
+}
+
+overlay_device()
+{
+	local format="$1"
+	local a1="$2"
+
+	case "$format" in
+	A)		overlay="$a1" ;;
+	*)		fail "$overlay: unknown overlay network format" ;;
+	esac
+}
+
+underlay_device()
+{
+	local format="$1"
+	local a1="$2"
+	local a2="$3"
+
+	case "$format" in
+	A)		underlay="$a1" ;;
+	B)		[ "$a1" = "default" ] && a1=`ip route show 0.0.0.0/0 | awk '{print $5; exit}'`
+			a1="`ip -4 addr show dev "$a1" | grep inet | awk -F '[/ ]*' '{print $3; exit}'`"
+			[ "$a1" = "" ] && fail "$a1: device address not found"
+			underlay="$a1/$a2" 
+			;;
+	*)		fail "$underlay: unknown underlay network format" ;;
+	esac
+}
+
+__underlay_lookup_address()
+{
+	local ipnum="$1"
+	local width="$2"
+
+	width_to_mask "$width"
+	local tmp
+	local interface
+	local what
+	local address
+	local address_mask="$RET"
+	local address_ipnum
+	local address_ipnum_prefix
+	local address_prefix
+
+	address_prefix="$(( $ipnum & $address_mask ))"
+	# If an address on the network was specified find exactly that.
+	if [ "$ipnum" -ne "$address_prefix" ]; then
+		address_prefix="$ipnum"
+		address_mask="$(( ~0 ))"
+	fi
+
+	ip -o addr show | \
+	while read tmp interface what address tmp
+	do
+		case "$what" in
+		inet)
+			ip_to_num_width "$address"
+			address_ipnum="$RET"
+			address_ipnum_prefix="$(( $RET & $address_mask ))"
+			if [ "$address_ipnum_prefix" -eq "$address_prefix" ]; then
+				num_to_ip "$address_ipnum"
+				echo "$RET/$width"
+			fi
+			;;
+		esac
+	done
+}
+
+underlay_lookup_address()
+{
+	local underlay="$1"
+
+	# Find matching address(es) ...
+	ip_to_num_width "$underlay"
+	local underlay_raw_ipnum="$RET"
+	local underlay_width="$RET2"
+
+	eval RET=\'$(__underlay_lookup_address "$underlay_raw_ipnum" "$underlay_width")\'
+}
+
+networks_decode_overlay()
+{
+	local overlay="$1"
+
+	#echo "APW: networks_decode_overlay <$overlay>"
+	local format="`echo "$overlay" | sed -n \
+		-e 's@^\([0-9][0-9]*\)$@A \1.0.0.0/8@p' \
+		-e 's@^\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\/[0-9][0-9]*\)$@A \1@p'
+	`"
+	overlay_device $format
+	RET="$overlay"
+}
+networks_decode_underlay()
+{
+	local underlay="$1"
+
+	#echo "APW: networks_decode_underlay <$underlay>"
+	local format="`echo "$underlay" | sed -n \
+		-e 's@^\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\)$@A \1/16@p' \
+		-e 's@^\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\/[0-9][0-9]*\)$@A \1@p' \
+		-e 's@^\([a-z][a-z]*[0-9][0-9]*\|default\)$@B \1 16@p' \
+		-e 's@^\([a-z][a-z]*[0-9][0-9]*\|default\)/\([0-9][0-9]*\)$@B \1 \2@p' \
+	`"
+	underlay_device $format
+	RET="$underlay"
+}
+
+validate_flags()
+{
+	local flag
+
+	for flag in "$@"
+	do
+		case "$flag" in
+		_*)	fail "$flag: invalid flag specified" ;;
+		esac
+	done
+}
+
+cmd_decode_init()
+{
+	C_flag_dhcp=''
+	C_flag_debug=''
+	C_flag_enable=''
+	C_flag_auto=''
+	C_flag_host_reserve=1
+	C_flag_bridge=''
+	C_flag_type='vxlan'
+	C_flag_mode='compact'
+	C_flag_i_device=''
+}
+
+cmd_decode_legacy()
+{
+	local name="$1"
+	shift
+
+	#echo "$0: $name: WARNING using legacy fan format, see fanctl(8) for details ($@)" 1>&2
+
+	local addresses=y
+	local args
+
+	[ "$1" = '--' ] && shift
+
+	# XXX: we should be using the sed from network_decode_addresses()
+	case "$1" in
+	*.*.*.*/*)	;;
+	*)		addresses=n ;;
+	esac
+	case "$2" in
+	*.*.*.*/*)	;;
+	*)		addresses=n ;;
+	esac
+
+	if [ "$addresses" = 'n' ]; then
+		fail "$name: invalid specifier ($1)"
+	fi
+
+	args="-o '$1' -u '$2'"
+	shift 2
+
+	while [ "$#" -gt 0 ]
+	do
+		case "$1" in
+		type|mode|host-reserve|bridge)
+			args="$args --$1='$2'"
+			shift
+			;;
+		dhcp|off)
+			args="$args --$1"
+			;;
+		*)
+			fail "$name: invalid specifier ($1)"
+			;;
+		esac
+		shift
+	done
+
+	echo "$args"
+}
+
+cmd_decode_payload()
+{
+	##echo "cmd_decode_payload($@)"
+
+	while [ "$#" -gt 0 ]
+	do
+		flag="$1"
+		flagv=`echo "$flag" | sed -e s/^--// -e s/-/_/g`
+		shift
+
+		#echo "<$flag>"
+		case "$flag" in
+		--)
+			break
+			;;
+		-u|--underlay)
+			C_underlay="$1"
+			shift
+			;;
+		-o|--overlay)
+			C_overlay="$1"
+			shift
+			;;
+		--enable|--on)
+			C_flag_enable=y
+			;;
+		--disable|--off)
+			C_flag_enable=
+			;;
+		--dhcp|--auto)
+			eval C_flag_${flagv}=y
+			;;
+		--host-reserve)
+			arg=`echo "I:$1" | sed -n \
+				-e 's/^I:\([0-9][0-9]*\)$/\1/p' \
+				-e 's/^I:.*$/E/p'`
+			[ "$arg" = 'E' ] && fail "$1: malformed $flag flag argument -- integer expected"
+			shift
+
+			eval C_flag_$flagv=$arg
+			;;
+		--bridge)
+			C_flag_bridge="$1"
+			shift
+			;;
+		--type)
+			C_flag_type="$1"
+			shift
+
+			case "$C_flag_type" in
+			ipip)		version='0'
+					[ ! -f /proc/sys/net/fan/version ] && modprobe ipip
+					[ -f /proc/sys/net/fan/version ] && version=`cat /proc/sys/net/fan/version`
+					[ "$version" -eq 0 ] && fail "no ipip fan support availabe in the kernel"
+					[ "$version" -lt 3 ] && C_flag_type="ipip1"
+					;;
+			vxlan)		version='0'
+					[ ! -f /proc/sys/net/fan/vxlan ] && modprobe vxlan
+					[ -f /proc/sys/net/fan/vxlan ] && version=`cat /proc/sys/net/fan/vxlan`
+					[ "$version" -eq 0 ] && fail "no vxlan fan support availabe in the kernel"
+					;;
+			*)		fail "$C_flag_type: unknown tunnel protocol type (ipip or vxlan expected)" ;;
+			esac
+
+			;;
+		--mode)
+			C_flag_mode="$1"
+			shift
+			case "$C_flag_mode" in
+			sliced|compact)	;;
+			*)		fail "$C_flag_mode: unknown bridge mode" ;;
+			esac
+			;;
+		--comment)
+			shift
+			;;
+		--i-device)
+			C_flag_i_device="$1"
+			shift
+			;;
+		*)
+			fail "$flag: unknown flag"
+			;;
+		esac
+	done
+
+	if [ "$#" != 0 ]; then
+		fail "invalid specifier ($@)"
+	fi
+
+	if [ "$C_overlay" != "" ]; then
+		networks_decode_overlay "$C_overlay"
+		C_overlay="$RET"
+	fi
+	if [ "$C_underlay" != "" ]; then
+		networks_decode_underlay "$C_underlay"
+		C_underlay="$RET"
+	fi
+
+	return 0
+}
+
+cmd_decode_short='u:o:'
+cmd_decode_long_uo='underlay:,overlay:'
+cmd_decode_long_all='enable,on,disable,off,dhcp,auto,host-reserve:,bridge:,type:,mode:'
+cmd_decode_long_internal='i-device:'
+cmd_decode_long_config='comment:'
+
+cmd_decode_internal()
+{
+	TEMP=$(getopt \
+		-n "$0" \
+		-o "$cmd_decode_short" -l "$cmd_decode_long_uo" \
+		-l "$cmd_decode_long_all" \
+		-l "$cmd_decode_long_internal" \
+		-- "$@"
+	)
+	if [ "$?" != 0 ]; then
+		fail "invalid specifier -- parser failure"
+	fi
+
+	eval set -- "$TEMP"
+
+	cmd_decode_payload "$@"
+}
+cmd_decode_all()
+{
+	local name="$1"
+	shift 1
+
+	#echo "<<$@>>"
+	TEMP=$(getopt \
+		-n "$0: $name" \
+		-o "$cmd_decode_short" -l "$cmd_decode_long_uo" \
+		-l "$cmd_decode_long_all" \
+		-- "$@"
+	)
+	if [ "$?" != 0 ]; then
+		fail "$name: invalid fan specifier option"
+	fi
+	#echo "<<<$TEMP>>>"
+	eval set -- "$TEMP"
+
+	if [ "$1" = '--' ]; then
+		return 1
+	fi
+
+	cmd_decode_payload "$@"
+}
+
+cmd_decode_ou()
+{
+	local name="$1"
+	shift
+
+	TEMP=$(getopt \
+		-n "$0: $name" \
+		-o "$cmd_decode_short" -l "$cmd_decode_long_uo" \
+		-- "$@"
+	)
+	if [ "$?" != 0 ]; then
+		fail "$name: invalid fan specifier option"
+	fi
+
+	eval set -- "$TEMP"
+
+	if [ "$1" = '--' ]; then
+		return 1
+	fi
+
+	cmd_decode_payload "$@"
+}
+
+cmd_decode_config()
+{
+	local name="$1"
+	shift 1
+
+	#echo "<<$@>>"
+	TEMP=$(getopt \
+		-n "$0: $name" \
+		-o "$cmd_decode_short" -l "$cmd_decode_long_uo" \
+		-l "$cmd_decode_long_all" \
+		-l "$cmd_decode_long_config" \
+		-- "$@"
+	)
+	if [ "$?" != 0 ]; then
+		fail "$name: invalid fan specifier option"
+	fi
+	#echo "<<<$TEMP>>>"
+	eval set -- "$TEMP"
+
+	cmd_decode_payload "$@"
+}
+cmd_decode_user()
+{
+	local name="$1"
+	shift 1
+
+	#echo "<<$@>>"
+	TEMP=$(getopt \
+		-n "$0: $name" \
+		-o "$cmd_decode_short" -l "$cmd_decode_long_uo" \
+		-l "$cmd_decode_long_all" \
+		-l "$cmd_decode_long_config" \
+		-- "$@"
+	)
+	if [ "$?" != 0 ]; then
+		fail "$name: invalid fan specifier option"
+	fi
+	#echo "<<<$TEMP>>>"
+	eval set -- "$TEMP"
+
+	local flag
+	local val
+	RET=""
+	RET2=""
+	while [ "$#" -gt 0 ]
+	do
+		flag="$1"
+		shift
+
+		case "$flag" in
+		--)
+			break
+			;;
+		-u|--underlay|-o|--overlay)
+			;;
+		--enable|--on|--disable|--off|--dhcp|--auto)
+			RET="$RET $flag"
+			RET2="$RET2 $flag"
+			;;
+		--host-reserve|--bridge|--type|--mode)
+			RET="$RET $flag=$1"
+			RET2="$RET2 $flag=$1"
+			shift
+			;;
+		--comment)
+			val="$1"
+			case "$val" in
+			*\ *)	RET2="$RET2 $flag='$val'" ;;
+			*)	RET2="$RET2 $flag=$1" ;;
+			esac
+			shift
+			;;
+		esac
+	done
+
+	RET="${RET## }"
+	RET2="${RET2## }"
+}
+
+cmd_decode_show()
+{
+	RET=""
+	[ "$C_flag_enable" ] && RET="${RET} enable"
+	[ "$C_flag_dhcp" ] && RET="${RET} dhcp"
+	[ "$C_flag_host_reserve" -a "$C_flag_host_reserve" != "1" ] && RET="${RET} host-reserve=${C_flag_host_reserve}"
+	#[ "$C_flag_auto" ] && RET="${RET} auto"
+	[ "$C_flag_bridge" ] && RET="${RET} bridge=${C_flag_bridge}"
+	[ "$C_flag_type" -a "$C_flag_type" != "vxlan" ] && RET="${RET} type=${C_flag_type}"
+	[ "$C_flag_mode" -a "$C_flag_mode" != "compact" ] && RET="${RET} mode=${C_flag_mode}"
+}
+
+networks_decode_one()
+{
+	C_user_flags="$@"
+
+	cmd_decode_init
+	cmd_decode_internal "$@"
+
+	C_flags=''
+	C_i_flags=''
+	[ "$C_flag_enable" ] && C_flags="${C_flags} --enable"
+	[ "$C_flag_dhcp" ] && C_flags="${C_flags} --dhcp"
+	[ "$C_flag_host_reserve" ] && C_flags="${C_flags} --host-reserve=${C_flag_host_reserve}"
+	[ "$C_flag_auto" ] && C_flags="${C_flags} --auto"
+	[ "$C_flag_bridge" ] && C_flags="${C_flags} --bridge=${C_flag_bridge}"
+	[ "$C_flag_type" ] && C_flags="${C_flags} --type=${C_flag_type}"
+	[ "$C_flag_mode" ] && C_flags="${C_flags} --mode=${C_flag_mode}"
+
+	# Decode and extract the base IP addresses and widths.
+	overlay="$C_overlay"
+	underlay="$C_underlay"
+	##C_overlay="$overlay"
+	##C_underlay="$underlay"
+
+	C_slice_id=`echo "${overlay}-${underlay}" | sed -e 's@/@_@g'`
+	C_slice_oid=`echo "${overlay}" | sed -e 's@/@_@g'`
+
+	ip_to_num_width "$overlay"
+	local overlay_raw_ipnum="$RET"
+	C_overlay_width="$RET2"
+
+	ip_to_num_width "$underlay"
+	local underlay_raw_ipnum="$RET"
+	C_underlay_width="$RET2"
+
+	num_to_ip "$underlay_raw_ipnum"
+	local underlay_raw_ip="$RET"
+
+	# Mask off the overlay address to the width specified.
+	width_to_mask "$C_overlay_width"
+	local overlay_ipnum="$(( $overlay_raw_ipnum & $RET ))"
+
+	num_to_ip "$overlay_ipnum"
+	C_overlay_subnet="$RET/$C_overlay_width"
+
+	# Strip any insignificant octets on the right to make the shortest prefix.
+	RET=${RET%.0}; RET=${RET%.0}; RET=${RET%.0}
+	C_overlay_prefix="$RET"
+
+	# The underlay prefix.
+	width_to_mask "$C_underlay_width"
+	local underlay_prefix_ipnum="$(( $underlay_raw_ipnum & $RET ))"
+	num_to_ip "$underlay_prefix_ipnum"
+	C_underlay_prefix="$RET"
+
+	C_underlay_subnet="$C_underlay_prefix/$C_underlay_width"
+
+	# Mask off the underlay address to the width specified.
+	width_to_mask "$C_underlay_width"
+	RET="$(( ~ $RET ))"
+	local underlay_overlay_ipnum="$(( $underlay_raw_ipnum & $RET ))"
+
+	# Shift the underlay addresses and merge it with the overlay
+	# to make the bridge subnet addressing and from that the name.
+	local sl="$(( $C_underlay_width - $C_overlay_width ))"
+	local bridge_width="$(( $C_overlay_width + ( 32 - $C_underlay_width ) ))"
+	local slice_width="$bridge_width"
+	local bridge_ipnum="$(( $overlay_ipnum | ($underlay_overlay_ipnum << $sl) ))"
+	local bridge_name_ipnum="$bridge_ipnum"
+
+	case "$C_flag_mode-$C_flag_type" in
+	compact-vxlan)
+		bridge_name_ipnum="$overlay_ipnum"
+		bridge_width="$C_overlay_width"
+		;;
+	sliced-vxlan)
+		bridge_width="$C_overlay_width"
+		;;
+	compact-ipip)
+		bridge_name_ipnum="$overlay_ipnum"
+		;;
+	esac
+
+	num_to_ip "$bridge_ipnum"
+	C_bridge_subnet="$RET/$bridge_width"
+	num_to_ip "$(( $bridge_ipnum + 1 ))"
+	C_overlay_address="$RET"
+
+	# Addresses and route for the bridge (FLAG: local)
+	local n=1
+	C_bridge_addresses=''
+	while [ "$n" -le "$C_flag_host_reserve" ]
+	do
+		num_to_ip "$(( $bridge_ipnum + $n ))"
+		C_bridge_addresses="$C_bridge_addresses $RET/$bridge_width"
+		n="$(( $n + 1 ))"
+	done
+
+	# If DHCP is requested, work out address range (FLAG: dhcp)
+	if [ "$C_flag_dhcp" = 'y' ]; then
+		num_to_ip "$(( $bridge_ipnum + 1 ))"
+		C_bridge_dhcp_listen="$RET"
+
+		# DHCP addresses.
+		num_to_ip "$(( $bridge_ipnum + ${C_flag_host_reserve} + 1 ))"
+		C_bridge_dhcp_low="$RET"
+
+		width_to_mask "$slice_width"
+		RET="$(( ~ $RET ))"
+		num_to_ip "$(( $bridge_ipnum + (-2 & $RET) ))"
+		C_bridge_dhcp_high="$RET"
+	fi
+
+	# Work out the bridge name.
+	num_to_ip "$bridge_name_ipnum" "-"
+	RET=${RET%-0}; RET=${RET%-0}; RET=${RET%-0};
+	C_bridge_state="fan-$RET"
+
+	if [ "$C_flag_bridge" != '' ]; then
+		C_bridge="$C_flag_bridge"
+
+	else
+		C_bridge="$C_bridge_state"
+	fi
+
+	# The raw underlay IP address is our local address on the tunnel.
+	num_to_ip "$underlay_raw_ipnum"
+	C_tun_local="$RET"
+
+	case "$C_flag_type" in
+	ipip1)
+		# Determine if we have a ftunN associated with this local address.
+		local n
+		if [ ! -f "$state_dir/map-$C_tun_local" ]; then
+			n=0
+			while [ -f "$state_dir/alloc-ftun$n" ]; do
+				n=$(($n+1))
+			done
+			echo "$C_tun_local" >"$state_dir/alloc-ftun$n"
+			echo "ftun$n" >"$state_dir/map-$C_tun_local"
+		fi
+
+		C_tun="`cat "$state_dir/map-$C_tun_local"`"
+		;;
+
+	ipip)
+		# We use tunl0 for all overlay mappings.
+		C_tun="tunl0"
+		;;
+
+	vxlan)
+		# We need a ftunN per bridge
+		local n
+		if [ ! -f "$state_dir/map-$C_bridge" ]; then
+			n=0
+			while [ -f "$state_dir/alloc-ftun$n" ]; do
+				n=$(($n+1))
+			done
+			echo "$C_bridge" >"$state_dir/alloc-ftun$n"
+			echo "ftun$n" >"$state_dir/map-$C_bridge"
+		fi
+
+		C_tun="`cat "$state_dir/map-$C_bridge"`"
+		;;
+	esac
+
+	# Work out the device name for the underlay address.
+	if [ "$C_flag_i_device" = "" ]; then
+		num_to_ip "$underlay_raw_ipnum"
+		C_underlay_dev=`ip -4 -o addr show to "$RET" | awk '{ print $2 }'`
+	else
+		C_underlay_dev="$C_flag_i_device"
+	fi
+	[ "$C_underlay_dev" ] && C_i_flags="${C_i_flags} --i-device=${C_underlay_dev}"
+
+	case "$C_flag_type" in
+	ipip*)	
+		C_tun_control="type ipip"
+		C_bridge_mtu=1480
+		;;
+	vxlan)
+		# XXX: check that the overlay width is not more than 24 bits.
+
+		# Work out the vxlan ID, which is our overlay >> 8 bits to fix in the
+		# vxlan nid.
+		local vxlan_id="$(( $overlay_ipnum >> 8 ))"
+
+		C_tun_control="type vxlan id $vxlan_id dev $C_underlay_dev dstport 0"
+		C_bridge_mtu=1450
+		;;
+	esac
+
+	if [ "$C_flag_debug" = 'y' ]; then
+		set | grep "^C_"
+		exit 1
+	fi
+}
+
+fail()
+{
+	[ "$last_cmd" != '' ] && echo "$0: $last_cmd" 1>&2
+	echo "$0: $@" 1>&2
+	exit 1
+}
+warn()
+{
+	[ "$last_cmd" != '' ] && echo "$0: $last_cmd" 1>&2
+	echo "$0: WARNING: $@" 1>&2
+}
+mute()
+{
+	:
+}
+
+slice_down_if_up()
+{
+	local fail="$1"
+
+	if [ -f "$state_dir/slice-state-$C_slice_id" ]; then
+		# If we are using the address for the tunnel route, we need to flip it out.
+		rm -f "$state_dir/addr-$C_tun-$C_overlay_prefix-$C_slice_id"
+		if [ -f "$state_dir/net-$C_overlay_prefix" ]; then
+			local N_overlay_subnet
+			local N_tun
+			local N_overlay_address
+
+			read N_overlay_subnet N_tun N_overlay_address \
+				<"$state_dir/net-$C_overlay_prefix"
+
+			# We are using the address of the bridge which is about to go, so flip to
+			# a new one if available.
+			if [ "$N_overlay_address" = "$C_overlay_address" ]; then
+				N_overlay_address=`cat "$state_dir/addr-$C_tun-$C_overlay_prefix"-* 2>/dev/null | head -1`
+				# If we have none, then simply remove the address for now.
+				[ "$N_overlay_address" = '' ] && N_overlay_address='0.0.0.0'
+
+				case "$C_flag_type" in
+				ipip*)
+					run ip route change "$C_overlay_subnet" dev "$C_tun" src "$N_overlay_address" || \
+						$fail "$C_tun: failed to switch master route address"
+					;;
+				esac
+				echo "$N_overlay_subnet $N_tun $N_overlay_address" \
+					>"$state_dir/net-$C_overlay_prefix"
+			fi
+		fi
+
+		local bridge_address
+		for bridge_address in $C_bridge_addresses
+		do
+			run ip addr del "$bridge_address" dev "$C_bridge" || \
+				"$fail" "$C_bridge: failed to remove $bridge_address address"
+		done
+
+		run iptables -t nat -D POSTROUTING --source "$C_bridge_subnet" -j "fan-egress" || \
+			$fail "$C_bridge: unable to destroy NAT for bridge (POSTROUTING)"
+		run iptables -t nat -D "fan-egress" -j SNAT --source "$C_bridge_subnet" --to "$C_tun_local" || \
+			$fail "unable to destroy NAT for bridge (SNAT)"
+
+		rm -f "$state_dir/slice-state-$C_slice_id"
+		rm -f "$state_dir/slice-display-$C_slice_id"
+	fi
+}
+
+bridge_down_if_free()
+{
+	local fail="$1"
+
+	[ ! -f "$state_dir/brg-state-$C_bridge" ] && return
+
+	slices=`cat "$state_dir/slice-state"-* 2>/dev/null | grep "^$C_bridge " | wc -l`
+	if [ "$slices" -eq 0 ]; then
+		run ip link set dev "$C_bridge" down || \
+			$fail "$C_bridge: failed to bring interface down"
+		if ! run brctl delbr "$C_bridge"; then
+			$fail "$C_bridge: failed destroy bridge interface"
+		else
+			rm -f "$state_dir/brg-state-$C_bridge"
+		fi
+	fi
+}
+
+route_down_if_free()
+{
+	local fail="$1"
+
+	local N_overlay_subnet
+	local N_tun
+	local N_overlay_address
+
+	[ ! -f "$state_dir/net-$C_overlay_prefix" ] && return
+
+	read N_overlay_subnet N_tun N_overlay_address \
+		<"$state_dir/net-$C_overlay_prefix"
+
+	if [ "$N_overlay_address" = "0.0.0.0" ]; then
+		case "$C_flag_type" in
+		ipip*)
+			run ip route del "$C_overlay_subnet" dev "$C_tun" || \
+				$fail "$C_tun: failed to remove master route"
+			;;
+		esac
+		run iptables -t nat -D "fan-egress" --dest "$C_overlay_subnet" -j RETURN || \
+			$fail "$C_tun: failed to remove master route NAT"
+			
+		rm -f "$state_dir/net-$C_overlay_prefix"
+	fi
+}
+
+tun_down_if_free()
+{
+	local fail="$1"
+
+	[ ! -f "$state_dir/tunnel-$C_tun" ] && return
+
+	mappings=`ls -1 "$state_dir/addr-$C_tun-$C_overlay_prefix"-* 2>/dev/null | wc -l`
+	if [ "$mappings" -eq 0 ]; then
+		case "$C_flag_type" in
+		ipip*)
+			# Note: this is will _after_ removing the last fan mapping, exiting
+			# EINVAL.  Therefore while this is investigated, ignore any failures.
+			run ip link change dev "$C_tun" $C_tun_control fan-map "$C_overlay_subnet:0/0" 2>/dev/null
+			;;
+		esac
+		rm -f "$state_dir/tunnel-$C_tun-$C_overlay_prefix"
+	fi
+
+	mappings=`ls -1 "$state_dir/tunnel-$C_tun"-* 2>/dev/null | wc -l`
+	if [ "$mappings" -eq 0 ]; then
+		run ip link set dev "$C_tun" down || \
+			$fail "$C_tun: failed to down interface"
+		case "$C_flag_type" in
+		ipip1|vxlan)
+			run ip link delete "$C_tun" $C_tun_control || \
+				$fail "$C_tun: unable to destroy address translator"
+		esac
+		rm -f "$state_dir/tunnel-$C_tun"
+
+		# Deallocate this tunnel allowing its reuse.
+		if [ -f "$state_dir/alloc-$C_tun" ]; then
+			local T_map_name
+			read T_map_name <"$state_dir/alloc-$C_tun"
+			
+			rm -f "$state_dir/map-$T_map_name"
+			rm -f "$state_dir/alloc-$C_tun"
+		fi
+	fi
+}
+
+
+dhcp_reconfigure()
+{
+	local fail="$1"
+
+	local dhcp_state
+	local dhcp_flags
+	local dhcp_flags_current
+
+	dhcp_flags=`
+		for dhcp_state in "$state_dir/slice-dhcp"-*
+		do
+			[ "$dhcp_state" = "$state_dir/slice-dhcp-*" ] && continue
+			read dhcp_bridge dhcp_listen dhcp_low dhcp_high <"$dhcp_state"
+
+			echo "--listen-address $dhcp_listen --dhcp-range $dhcp_low,$dhcp_high"
+		done
+	`
+	dhcp_flags_current=`cat "$state_dir/dnsmasq-flags-$C_bridge_state" 2>&1`
+
+	# Unchanged, status quo.
+	if [ "$dhcp_flags_current" = "$dhcp_flags" ]; then
+		return
+	fi
+
+	# Kill off the current dnsmasq, leaving its state files for reuse.
+	dhcp_pid=`cat "$state_dir/dnsmasq-$C_bridge_state.pid" 2>/dev/null`
+	if [ "$dhcp_pid" ]; then
+		kill "$dhcp_pid" 2>/dev/null
+		while kill -0 "$dhcp_pid" 2>/dev/null
+		do
+			sleep 0.1		# XXX: this really needs to timeout.
+		done
+	fi
+	rm -f "$state_dir/dnsmasq-$C_bridge_state.pid"
+	rm -f "$state_dir/dnsmasq-flags-$C_bridge_state"
+
+	if [ "$dhcp_flags" = '' ]; then
+		return
+	fi
+
+	echo "$dhcp_flags" >"$state_dir/dnsmasq-flags-$C_bridge_state"
+
+	for DNSMASQ_USER in fan-dnsmasq dnsmasq nobody
+	do
+	if getent passwd ${DNSMASQ_USER} >/dev/null; then
+		break
+	fi
+	done
+
+	run dnsmasq -u ${DNSMASQ_USER} \
+		--strict-order \
+		--bind-interfaces \
+		--pid-file="$state_dir/dnsmasq-$C_bridge_state.pid" \
+		--conf-file= \
+		$dhcp_flags \
+		--dhcp-no-override \
+		--except-interface=lo \
+		--interface="$C_bridge" \
+		--dhcp-leasefile=/var/lib/misc/dnsmasq."$C_bridge_state".leases \
+		--dhcp-authoritative \
+	    || $fail "$C_bridge: failed to start dnsmasq"
+
+}
+
+dhcp_down_if_up()
+{
+	local fail="$1"
+
+	if [ -f "$state_dir/slice-dhcp-$C_slice_id" ]; then
+		rm -f "$state_dir/slice-dhcp-$C_slice_id"
+
+		dhcp_reconfigure "$fail"
+	fi
+}
+
+nat_down_if_free()
+{
+	local fail="$1"
+
+	slices=`ls -1 "$state_dir/slice"-* 2>/dev/null | wc -l`
+	if [ "$slices" -eq 0 ]; then
+		run iptables -t nat -D "fan-egress" -o lo0 -j RETURN || \
+			$fail "unable to deconfigure NAT core (lo0 exception)"
+		run iptables -t nat -X "fan-egress" || \
+			$fail "unable to deconfigure NAT core (destroy chain)"
+		rm "$state_dir/nat-core"
+	fi
+}
+
+fail_up()
+{
+	echo "$0: $last_cmd" 1>&2
+	echo "$0: WARNING: $@" 1>&2
+	slice_down_if_up mute
+	bridge_down_if_free mute
+	route_down_if_free mute
+	tun_down_if_free mute
+	dhcp_down_if_up mute
+	nat_down_if_free mute
+	exit 1
+}
+
+cmd_up_help()
+{
+	echo "Usage: $0 up -u <underlay> -o <overlay> [<options>...]" 1>&2
+	echo "       $0 up -a" 1>&2
+}
+cmd_up()
+{
+	if [ "$#" -eq 0 ]; then
+		cmd_up_help
+		exit 1
+	fi
+
+	### HANDLE LECAGY HERE BY CALLING SELF AGAIN
+	cmd_decode_init
+	if ! cmd_decode_all "up" "$@"; then
+		TEMP=$(cmd_decode_legacy "up" "$@")
+		eval set -- "$TEMP"
+		cmd_up "$@"
+		return
+	fi
+
+	# XXX: this likely should be just spinning all addresses if we have
+	#      no underlay address.  This would allow us to say like:
+	#          fanctl up -o 15.0.0.0/8
+
+	#networks_decode_addresses "$C_overlay" "$C_underlay"
+	underlay_lookup_address "$C_underlay"
+
+	# XXX: we should be checking we have at least some matching
+	#      addresses.
+	L_overlay="$C_overlay"
+	##L_underlays="$RET"
+
+	# When the caller indicates that they want this brought up in
+	# --auto mode they are saying they want it brought up as if
+	# it was brought up by 'fanctl up -a' which in turn means
+	# they only want enabled Fan Networks brought up.  Use
+	# an appropriate selector for this case.
+	if [ "$C_flag_auto" = 'y' ]; then
+		selector='__cmd_up_all_select'
+	else
+		selector='__cmd_up_select'
+	fi
+	ret=0
+	for L_underlay in $RET
+	do
+		if ! config_scan "$selector" __cmd_up "$@"; then
+			(__cmd_up "$@" -u "$L_underlay")
+			res="$?"
+			if [ "$res" -ne 0 ]; then
+				echo "$0: up $@ -- failed err=$res"
+			fi
+			ret="$res"
+		else
+			# config_scan has processed something, the status
+			# is in $RET. Pick up errors.
+			if [ "$RET" -gt 0 ]; then
+				ret="$RET"
+			fi
+		fi
+	done
+	
+	exit "$ret"
+}
+__cmd_up_select()
+{
+	#echo "<<<$@>>>"
+	local overlay="$1"
+	local underlay="$2"
+	#local flags="$3"
+
+	#echo "L_overlay<$L_overlay> L_underlay<$L_underlay> overlay<$overlay> underlay<$underlay>"
+
+	if [ "$L_overlay" != '' -a "$L_overlay" != "$overlay" ]; then
+		return 1
+	fi
+
+	if [ "$L_underlay" = "" ]; then
+		return 0
+	fi
+
+	# See if any of our direct addresses match this entry.
+	if [ "$L_underlay" = "$underlay" ]; then
+		RET="$underlay"
+		return 0
+	fi
+
+	# See if the underlay address is in this mask.
+	ip_to_num_width "$underlay"
+	local ipnum="$RET"
+	local width="$RET2"
+
+	width_to_mask "$width"
+	local address_mask="$RET"
+	local address_ipnum
+	local address_ipnum_prefix
+	local address_prefix
+
+	address_prefix="$(( $ipnum & $address_mask ))"
+	# If an address on the network was specified find exactly that.
+	if [ "$ipnum" -ne "$address_prefix" ]; then
+		address_prefix="$ipnum"
+		address_mask="$(( ~0 ))"
+	fi
+
+	local address="$L_underlay"
+
+	ip_to_num_width "$address"
+	address_ipnum="$RET"
+	address_ipnum_prefix="$(( $RET & $address_mask ))"
+
+	# XXX: should we be checking the two widths match if both present?
+
+	# If the address offered has no width then use the mask width.
+	case "$address" in
+	*/*)	;;
+	*)	address="$address/$width" ;;
+	esac
+	
+	if [ "$address_ipnum_prefix" -eq "$address_prefix" ]; then
+		RET="$address"
+		return 0
+	fi
+	
+	return 1
+}
+__cmd_up()
+{
+	#echo "__cmd_up<$@>"
+	networks_decode_one "$@"
+
+	# Validation: ensure the bridge is not already configured.
+	[ -f "$state_dir/slice-state-$C_slice_id" ] && fail "$C_bridge: already configured"
+
+	# Validation: check the flag combinations make sense.
+	case "$C_flag_mode-$C_flag_type" in
+	sliced-vxlan)
+		[ -f "$state_dir/net-$C_overlay_prefix" ] && fail "$C_underlay $C_overlay: cannot configure multiple sliced vxlan bridges on the same overlay"
+		;;
+	esac
+
+	# Record this slice as up and using this bridge.
+	echo "$C_bridge $C_overlay $C_underlay -- $@ $C_i_flags" >"$state_dir/slice-state-$C_slice_id"
+	#echo "$C_bridge $C_overlay $C_underlay $C_user_flags" >"$state_dir/slice-display-$C_slice_id"
+	# Record this address as available to the tunnel should it need it.
+	echo "$C_overlay_address" >"$state_dir/addr-$C_tun-$C_overlay_prefix-$C_slice_id"
+
+	# create the bridge
+	local bridge_created=0
+	if [ ! -f "$state_dir/brg-state-$C_bridge" ]; then
+		run brctl addbr "$C_bridge" || fail_up "$C_bridge: failed to create bridge"
+		#echo "$C_bridge $C_overlay $C_underlay$C_flags" >"$state_dir/bridge-$C_tun-$C_overlay_prefix-$C_bridge_state"
+		echo "" >"$state_dir/brg-state-$C_bridge"
+		run ip link set dev "$C_bridge" mtu "$C_bridge_mtu" || \
+			fail_up "$C_bridge: failed to bring interface up"
+		echo 1 >"/proc/sys/net/ipv4/conf/$C_bridge/promote_secondaries"
+		bridge_created=1
+	fi
+
+	# ensure the tunnel is up.
+	if [ ! -f "$state_dir/tunnel-$C_tun" ]; then
+		case "$C_flag_type" in
+		ipip1)
+			run ip link add "$C_tun" $C_tun_control local "$C_tun_local" underlay "$C_underlay_prefix" || \
+				fail_up "$C_tun: failed to configure address translation"
+			;;
+		vxlan)
+			run ip link add "$C_tun" $C_tun_control local "$C_tun_local" fan-map "$C_overlay_subnet:$C_underlay_subnet" || \
+				fail_up "$C_tun: failed to configure address translation"
+			;;
+		esac
+		run ip link set dev "$C_tun" up || \
+			fail_up "$C_tun: failed to up interface"
+		echo "" >"$state_dir/tunnel-$C_tun"
+	fi
+
+	# ensure that address tunnelling is enabled for 15 net
+	if [ ! -f "$state_dir/tunnel-$C_tun-$C_overlay_prefix" ]; then
+		case "$C_flag_type" in 
+		ipip)
+			run ip link change dev "$C_tun" $C_tun_control fan-map "$C_overlay_subnet:$C_underlay_subnet" || \
+				fail_up "$C_tun: failed to configure address translation"
+			;;
+		vxlan)
+			run brctl addif "$C_bridge" "$C_tun" || \
+				fail_up "$C_tun: failed to add vxlan interface to bridge"
+			;;
+		esac
+		echo "$C_tun $C_tun_local $C_overlay_subnet" >"$state_dir/tunnel-$C_tun-$C_overlay_prefix"
+	fi
+
+	# Bring up the nat core rules
+	if [ ! -f "$state_dir/nat-core" ]; then
+		run iptables -t nat -N "fan-egress" || \
+			fail_up "unable to initialise NAT core (new chain)"
+		echo "" >"$state_dir/nat-core"
+		run iptables -t nat -I "fan-egress" -o lo0 -j RETURN || \
+			fail_up "unable to initialise NAT core (lo0 exception)"
+	fi
+
+	# enable SNAT for packets leaving the FANs
+	run iptables -t nat -A POSTROUTING --source "$C_bridge_subnet" -j "fan-egress" || \
+		fail_up "$C_bridge: unable to initialise NAT for bridge (POSTROUTING)"
+	run iptables -t nat -A "fan-egress" -j SNAT --source "$C_bridge_subnet" --to "$C_tun_local" || \
+		fail_up "unable to initialise NAT for bridge (SNAT)"
+
+	# Add the local addressses, do this after any bridge addif occurs as that
+	# strips the addresses.
+	# NOTE: we are relying on the add being a one time deal per bridge else we will
+	#       lose addresses.
+	local bridge_address
+	for bridge_address in $C_bridge_addresses
+	do
+		run ip addr add "$bridge_address" dev "$C_bridge" || \
+			fail_up "$C_bridge: failed to add $bridge_address address"
+	done
+
+	# Delay bringing the bridge up to allow addresses to be added reliably.
+	if [ "$bridge_created" -eq 1 ]; then
+		run ip link set dev "$C_bridge" up || \
+			fail_up "$C_bridge: failed to bring interface up"
+	fi
+
+	# ensure that routing is present for 15 net outgoing
+	if [ ! -f "$state_dir/net-$C_overlay_prefix" ]; then
+		case "$C_flag_type" in
+		ipip*)
+			run ip route add "$C_overlay_subnet" dev "$C_tun" src "$C_overlay_address" || \
+				fail_up "$C_tun: failed to add master route"
+			;;
+		esac
+		echo "$C_overlay_subnet $C_tun $C_overlay_address" \
+			>"$state_dir/net-$C_overlay_prefix"
+		# If we are routing to this FAN then we do not need to NAT
+		run iptables -t nat -I "fan-egress" --dest "$C_overlay_subnet" -j RETURN || \
+			fail "$C_tun: failed to add master route NAT"
+	fi
+
+	# Ensure we have ip_forwarding on.
+	echo 1 > /proc/sys/net/ipv4/ip_forward
+
+	# If dhcp is requested then we need to ensure the current dnsmasq is correctly
+	# reconfigured for this new range.
+	if [ "$C_flag_dhcp" = 'y' ]; then
+		echo "${C_bridge} ${C_bridge_dhcp_listen} ${C_bridge_dhcp_low} ${C_bridge_dhcp_high}" > "$state_dir/slice-dhcp-$C_slice_id"
+
+		dhcp_reconfigure fail_up
+	fi
+}
+
+config_scan()
+{
+	local select="$1"
+	local payload="$2"
+	shift 2
+
+	# No config is fine.
+	if [ ! -e "/etc/network/fan" ]; then
+		return 1
+	fi
+
+	lock -x || fail "unable to lock fan state"
+
+	local n=0
+	local err=0
+	local found=1
+	local underlay_actual
+	local config
+	local lconfig
+	while read line
+	do
+		n="$((n + 1))"
+
+		line="${line%%#*}"
+		read underlay overlay flags <<EOL
+$line
+EOL
+		[ "$underlay" = "" ] && continue
+
+		#echo "APW config underlay<$underlay> overlay<$overlay> L_underlay<$L_underlay"
+
+		# Check if we have any local config before selection.
+		config_filename "${underlay}" "${overlay}" "${underlay}"
+		config="$RET"
+		lconfig=''
+		if [ -f "$config" ]; then
+			lconfig=$(cat "$config")
+		fi
+		# XXX: this should be passed in as a real parameter ... sigh.
+		config_filename "${underlay}" "${overlay}" "${L_underlay}"
+		config="$RET"
+		if [ -f "$config" ]; then
+			lconfig="$lconfig $(cat "$config")"
+		fi
+		#echo "LCONFIG<$lconfig> config<$config>"
+
+		# Run this in a subshell so we catch its exit.
+
+		# See if we want this line.
+		! $select $overlay $underlay "$lconfig $flags" && continue
+		underlay_actual="$RET"
+
+		found=0
+
+		($payload $flags $lconfig "$@" -o "$overlay" -u "$underlay_actual")
+		res="$?"
+
+		if [ "$res" -ne 0 ]; then
+			echo "$0: /etc/network/fan:$n $underlay $overlay $flags -- failed err=$res"
+			err="$res"
+		fi
+	done <"/etc/network/fan"
+
+	RET="$err"
+	return "$found"
+}
+
+slices_scan()
+{
+	local why="$1"
+	local select="$2"
+	local payload="$3"
+	shift 3
+		
+	lock -x || fail "unable to lock fan state"
+
+	err=0
+	found=1
+	for state in "$state_dir/slice-state"-*
+	do
+		[ "$state" = "$state_dir/slice-state-*" ] && continue
+		read bridge overlay underlay specifier flags <"$state"
+
+		# See if we want this line.
+		! $select "$@" $bridge $overlay $underlay "$flags" && continue
+
+		found=0
+
+		(
+			networks_decode_one $flags -o "$overlay" -u "$underlay"
+			$payload "$overlay" "$underlay" $flags
+		)
+		res="$?"
+
+		if [ "$res" -ne 0 ]; then
+			echo "$0: $why $overlay $underlay -- failed err=$res"
+			err="$res"
+		fi
+	done
+
+	RET="$err"
+	return $found
+}
+
+__cmd_up_all_select()
+{
+	#echo "__cmd_up_all_select($@)"
+	#local overlay="$1"
+	#local underlay="$2"
+	local flags="$3"
+
+	case " $flags " in
+	*\ --enable\ *)	;;
+	*\ --on\ *)	;;
+	*)		return 1 ;;
+	esac
+
+	__cmd_up_select "$@"
+}
+
+cmd_up_all()
+{
+	for L_underlay in $(
+			ip -4 -o addr show | \
+			while read x iface which addr x
+			do
+				case "$which" in
+				inet)		;;
+				*)		continue ;;
+				esac
+				addr="${addr%/*}"
+
+				echo "$addr"
+			done
+		)
+	do
+		#echo "L_underlay<$L_underlay>"
+		config_scan __cmd_up_all_select __cmd_up '--auto'
+	done
+	exit "$RET"
+}
+
+cmd_net_up()
+{
+	local dev="$1"
+
+	RET="0"
+	for L_underlay in $(
+			ip -4 -o addr show dev "$dev" | \
+			while read x iface which addr x
+			do
+				case "$which" in
+				inet)		;;
+				*)		continue ;;
+				esac
+				addr="${addr%/*}"
+
+				echo "$addr"
+			done
+		)
+	do
+		config_scan __cmd_up_all_select __cmd_up '--auto'
+	done
+	exit "$RET"
+}
+
+cmd_down_help()
+{
+	echo "Usage: $0 down -u <underlay> -o <overlay>" 1>&2
+	echo "       $0 down -a" 1>&2
+	echo "       $0 down -e" 1>&2
+}
+cmd_down()
+{
+	if [ "$#" -eq 0 ]; then
+		cmd_down_help
+		exit 1
+	fi
+
+	cmd_decode_init
+	if ! cmd_decode_ou "down" "$@"; then
+		TEMP=$(cmd_decode_legacy "down" "$@")
+		eval set -- "$TEMP"
+		cmd_down "$@"
+		return
+	fi
+
+	#networks_decode_addresses "$C_overlay" "$C_underlay"
+	underlay_lookup_address "$C_underlay"
+
+	L_overlay="$C_overlay"
+	L_underlays="$RET"
+
+	if ! slices_scan 'down' __cmd_down_select __cmd_down_payload; then
+		fail "$C_overlay $C_underlay: not configured"
+		RET="1"
+	fi
+	exit "$RET"
+}
+__cmd_down_select()
+{
+	local bridge="$1"
+	local overlay="$2"
+	local underlay="$3"
+
+	#echo "APW: overlay<$overlay> underlay<$underlay> L_overlay<$L_overlay> L_underlays<$L_underlays>"
+
+	if [ "$L_underlays" = "" ]; then
+		return 1
+	fi
+
+	for select_underlay in $L_underlays
+	do
+		if [ "$select_underlay" = "$underlay" -a "$L_overlay" = "$overlay" ]; then
+			return 0
+		fi
+	done
+	return 1
+}
+__cmd_down_payload()
+{
+	# Validation: ensure the bridge is already configured.
+	[ ! -f "$state_dir/slice-state-$C_slice_id" ] && fail "XXX: $C_bridge: not configured"
+
+	# XXX: not the right check now, we may not have one either.
+	# Validation: confirm the bridge is not in use.
+	count=`ls /sys/class/net/"$C_bridge"/brif 2>/dev/null | \
+		egrep -v "^$C_tun\$" | \
+		wc -l`
+	[ "$count" != 0 ] && \
+		fail "$C_bridge: in use, will not destroy"
+	
+	# if dnsmasq is present for this network terminate it
+	dhcp_down_if_up fail
+
+	slice_down_if_up fail
+
+	# remove routing for 15.0.1.0/24 from the bridge
+	# destroy bridge fan-15-0-1
+	bridge_down_if_free fail
+
+	# if this is the last bridge using 15 net then:
+	#  clear out routing
+	#  drop address tunnelling
+	route_down_if_free warn
+	tun_down_if_free warn
+	nat_down_if_free warn
+}
+
+
+cmd_down_all_auto()
+{
+	slices_scan 'down' __cmd_down_select_auto __cmd_down_payload
+	exit "$RET"
+}
+__cmd_down_select_auto()
+{
+	#local bridge="$1"
+	#local underlay="$2"
+	#local overlay="$3"
+	local flags="$4"
+
+	case " $flags " in
+	*\ --auto\ *)	return 0 ;;
+	*)		return 1 ;;
+	esac
+}
+
+cmd_down_all_full()
+{
+	slices_scan 'down' true __cmd_down_payload
+	exit "$RET"
+}
+
+cmd_net_down()
+{
+	L_underlay_dev="$1"
+
+	slices_scan 'down' __cmd_net_down_select __cmd_net_down_payload
+	exit "$RET"
+}
+__cmd_net_down_select()
+{
+	#local bridge="$1"
+	#local underlay="$2"
+	#local overlay="$3"
+	local flags="$4"
+
+	case " $flags " in
+	*\ _dev\ $L_underlay_dev\ *) ;;
+	*)		return 1 ;;
+	esac
+	case " $flags " in
+	*\ auto\ *)	return 0 ;;
+	*)		return 1 ;;
+	esac
+}
+__cmd_net_down_payload()
+{
+	C_underlay_dev="$L_underlay_dev"
+	__cmd_down_payload "$@"
+}
+
+cmd_show_help()
+{
+	echo "Usage: $0 show" 1>&2
+}
+cmd_show()
+{
+	if [ "$#" -ne 0 ]; then
+		cmd_show_help
+		exit 1
+	fi
+
+	printf "%-16s %-20s %-20s %s\n" 'Bridge' 'Underlay' 'Overlay' 'Flags'
+	lock -s || exit 0
+	for state in "$state_dir/bridge"-* "$state_dir/slice-state"-*
+	do
+		[ "$state" = "$state_dir/bridge-*" ] && continue
+		[ "$state" = "$state_dir/slice-state-*" ] && continue
+		read bridge overlay underlay separator flags <"$state"
+		#echo "<$overlay> <$underlay> <$flags>"
+		cmd_decode_init
+		cmd_decode_internal $flags
+		cmd_decode_show $flags
+		printf "%-16s %-20s %-20s%s\n" $bridge $C_underlay $C_overlay "$RET"
+	done
+}
+
+#
+# CMD: config set -u <underlay> -o <overlay> [<option>...]
+# CMD: config show -u <underlay> -o <overlay>
+# CMD: config list
+#
+cmd_config_help()
+{
+	echo "Usage: $0 config set -u <underlay> -o <overlay> [<options>...]" 1>&2
+	echo "       $0 config show -u <underlay> -o <overlay>" 1>&2
+	echo "       $0 config list" 1>&2
+}
+
+config_filename()
+{
+	local underlay="$1"
+	local overlay="$2"
+	local interface="$3"
+
+	local interface_suffix=''
+
+	local underlay_ipnum
+	local underlay_width
+	local underlay_mask
+
+	local interface_ipnum
+	local interface_width
+	local interface_mask
+
+	# Round the underlay address to the mask.
+	ip_to_num_width "$underlay"
+	underlay_ipnum="$RET"
+	underlay_width="$RET2"
+	width_to_mask "$underlay_width"
+	underlay_mask="$RET"
+
+	if [ "$(( $underlay_ipnum & ~$underlay_mask ))" -ne 0 ]; then
+		num_to_ip "$(( $underlay_ipnum & $underlay_mask ))"
+		underlay="$RET/$underlay_width"
+	fi
+
+	# Work out if the host portion of the interface address is 0.
+	case "$interface" in
+	*/*)    ;;
+	*)      interface="$interface/$underlay_width" ;;
+	esac
+	ip_to_num_width "$interface"
+	interface_ipnum="$RET"
+	interface_width="$RET2"
+	width_to_mask "$interface_width"
+	interface_mask="$RET"
+
+	if [ "$(( $interface_ipnum & ~$interface_mask ))" -ne 0 ]; then
+		num_to_ip "$interface_ipnum"
+		interface_suffix="--${RET}"
+	fi
+
+	RET="$lconfig_dir/$(echo "${underlay}--${overlay}${interface_suffix}" | sed -e 's@/@-@g').conf"
+}
+
+cmd_config()
+{
+	if [ "$#" -lt 1 ]; then
+		cmd_config_help
+		exit 1
+	fi
+
+	local cmd="$1"
+	shift
+
+	case "$cmd" in
+	list|ls)
+		ls -1 "$lconfig_dir" | \
+		while read config
+		do
+			case "$config" in
+			*.conf)		;;
+			*)		continue ;;
+			esac
+
+			config=$( echo "$config" | sed \
+				-e 's/.conf$//' \
+				-e 's/--/ /g' \
+				-e 's@-@/@g'
+			)
+			echo "$config"
+		done
+		;;
+	show)
+		cmd_decode_init
+		if ! cmd_decode_ou "config set" "$@"; then
+			fail "invalid config"
+		fi
+		if [ "$C_underlay" = '' -o "$C_overlay" = '' ]; then
+			fail "underlay/overlay required"
+		fi
+		config_filename "${C_underlay}" "${C_overlay}" "${C_underlay}"
+		config="$RET"
+		uconfig="$config-user"
+		[ -f "$uconfig" ] && cat "$uconfig"
+		;;
+	set)
+		cmd_decode_init
+		if ! cmd_decode_config "config set" "$@"; then
+			fail "invalid config"
+		fi
+		if [ "$C_underlay" = '' -o "$C_overlay" = '' ]; then
+			fail "underlay/overlay required"
+		fi
+		config_filename "${C_underlay}" "${C_overlay}" "${C_underlay}"
+		config="$RET"
+		#config="$lconfig_dir/$(echo "${C_underlay}--${C_overlay}" | sed -e 's@/@-@g').conf"
+		uconfig="$config-user"
+		cmd_decode_user "$@"
+		#echo "@<$@> RET<$RET>"
+		if [ "$RET" = "" ]; then
+			rm -f "$config" "$uconfig"
+		else
+			echo "$RET" >"$config"
+			echo "$RET2" >"$uconfig"
+		fi
+		;;
+	*)
+		cmd_config_help
+		exit 1
+		;;
+	esac
+}
+
+cmd_net_help()
+{
+	echo "Usage: $0 net start <device>" 1>&2
+	echo "       $0 net stop <device>" 1>&2
+}
+cmd_net()
+{
+	if [ "$#" != 2 ]; then
+		cmd_net_help
+		exit 1
+	fi
+	case "$1" in
+	start)
+		cmd_net_up "$2"
+		;;
+	stop)
+		cmd_net_down "$2"
+		;;
+	*)
+		cmd_net_help
+		exit 1
+		;;
+	esac
+}
+
+cmd_help_help()
+{
+	echo "Usage: $0 help <command>" 1>&2
+}
+cmd_help()
+{
+	if [ "$#" != 1 ]; then
+		{
+			echo "Command summary:"
+
+			cmd_up_help
+			echo ""
+			cmd_down_help
+			echo ""
+			cmd_show_help
+			echo ""
+			cmd_net_help
+			echo ""
+			cmd_config_help
+			echo ""
+			cmd_help_help
+		} 2>&1 | sed -e '2,$s/Usage:/      /'
+		exit 0
+	fi
+	case "$1" in
+	up)
+		cmd_up_help
+		;;
+	down)
+		cmd_down_help
+		;;
+	show)
+		cmd_show_help
+		;;
+	net)
+		cmd_net_help
+		;;
+	config)
+		cmd_config_help
+		;;
+	help)
+		cmd_help_help
+		;;
+	*)
+		echo "Unknown command." 1>&2
+		exit 1
+		;;
+	esac
+
+	exit 0
+}
+
+cmd__upgrade()
+{
+	# Check if we even have state to convert.
+	[ ! -d "$state_dir" ] && exit 0
+
+	echo "fanctl: converting live state"
+
+	# Needing work:
+	#  slice-dhcp-15.0.0.0_8-192.168.122.72_16
+	#  slice-display-15.0.0.0_8-192.168.122.72_16
+	#  slice-state-15.0.0.0_8-192.168.122.72_16
+	#  brg-state-fan-15
+	#  dnsmasq-flags-fan-15
+	#  addr-ftun0-15-15.0.0.0_8-192.168.122.72_16
+	for state in "$state_dir/bridge"-*
+	do
+		[ "$state" = "$state_dir/bridge-*" ] && exit 0
+
+		read bridge overlay underlay flags <"$state"
+
+		(
+			networks_decode_one "$overlay" "$underlay" type ipip mode sliced $flags ## XXX: new flags form
+
+			# Replace the bridge state.
+			echo "$C_bridge $C_overlay $C_underlay $C_user_flags" >"$state_dir/slice-display-$C_slice_id"
+			echo "$C_bridge $C_overlay $C_underlay $C_flags" >"$state_dir/slice-state-$C_slice_id"
+			echo "${C_bridge} ${C_bridge_dhcp_listen} ${C_bridge_dhcp_low} ${C_bridge_dhcp_high}" >"$state_dir/slice-dhcp-$C_slice_id"
+
+			# Mark the bridge as available.
+			echo "" >"$state_dir/brg-state-$C_bridge_state"
+
+			# we cannot be sure what the current flags are, but if we have dhcp
+			# then record non-blank current flags so that we will restart/stop the
+			# server correctly on the first change.
+			if [ -f "$state_dir/dnsmasq-$C_bridge_state.pid" ]; then
+				echo "__DUMMY__" >"$state_dir/dnsmasq-flags-$C_bridge_state"
+			fi
+
+			# See if we have an address recorded for this combination.
+			if [ -f "$state_dir/addr-$C_tun-$C_overlay_prefix-$C_bridge_state" ]; then
+				mv "$state_dir/addr-$C_tun-$C_overlay_prefix-$C_bridge_state" "$state_dir/addr-$C_tun-$C_overlay_prefix-$C_slice_id"
+			fi
+		)
+		rm "$state"
+	done
+
+	# Unchanged:
+	#  alloc-ftun0
+	#  dnsmasq-fan-15.pid
+	#  map-fan-15
+	#  nat-core
+	#  net-15
+	#  tunnel-ftun0
+	#  tunnel-ftun0-15
+}
+
+# Parse the command line.
+opt_v=
+while getopts ":vs:" opt
+do
+        case "$opt" in
+	v)		opt_v=1 ;;
+	?)		echo "$0: $opt: unknown flag ??" 2>&1; exit 1 ;;
+	esac
+done
+shift $(($OPTIND - 1))
+
+# Validation.
+if [ "$#" -lt 1 ]; then
+	usage
+	exit 1
+fi
+cmd="$1"
+shift
+
+lock()
+{
+	local mode="$1"
+
+	# Ensure we have a lock file if at all possible.
+	[ ! -d "$state_dir" ] && mkdir -p "$state_dir" 2>/dev/null
+	[ ! -f "$state_dir/.lock" ] && touch "$state_dir/.lock" 2>/dev/null
+	
+	[ ! -r "$state_dir/.lock" ] && return 1
+
+	exec 9<"$state_dir/.lock" || return 2
+	flock "$1" 9
+}
+
+# Validate and execute the command.
+case "$cmd" in
+up)
+	[ `id -u` -ne 0 ] && fail "priviledge to alter network configuration required"
+	if [ "$#" -eq 1 -a "$1" = "-a" ]; then
+		cmd_up_all
+		exit 1
+	fi
+	lock -x || fail "unable to lock fan state"
+	cmd_up "$@"
+	;;
+down)
+	[ `id -u` -ne 0 ] && fail "priviledge to alter network configuration required"
+	if [ "$#" -eq 1 -a "$1" = "-a" ]; then
+		cmd_down_all_auto
+		exit 1
+	fi
+	if [ "$#" -eq 1 -a "$1" = "-e" ]; then
+		cmd_down_all_full
+		exit 1
+	fi
+	lock -x || fail "unable to lock fan state"
+	cmd_down "$@"
+	;;
+net)
+	[ `id -u` -ne 0 ] && fail "priviledge to alter network configuration required"
+	cmd_net "$@"
+	;;
+show)
+	cmd_show "$@"
+	;;
+config)
+	[ `id -u` -ne 0 ] && fail "priviledge to alter network configuration required"
+	lock -x || fail "unable to lock fan state"
+	cmd_config "$@"
+	;;
+__upgrade)
+	[ `id -u` -ne 0 ] && fail "priviledge to alter network configuration required"
+	lock -x || fail "unable to lock fan state"
+	cmd__upgrade
+	;;
+help)
+	cmd_help "$@"
+	;;
+*)
+	usage
+	echo "$cmd: unknown command" 1>&2
+	exit 1
+	;;
+esac

@@ -1,0 +1,35 @@
+#! /bin/sh
+# postinst script for docbook-xsl
+#
+# see: dh_installdeb(1)
+
+set -e
+
+# remove old cruft, just in case
+if [ "$1" = configure ]; then
+
+	# remove the old directory, config files now obsolete
+	rm -rf /etc/sgml/docbook-xsl
+
+	# upgrade will not replace the directory with a symlink
+	# so test for the directory and remove it for 1.74.3
+	if dpkg --compare-versions "$2" lt 1.74.3 && \
+	   [ ! -h /usr/share/xml/docbook/stylesheet/nwalsh -a -d /usr/share/xml/docbook/stylesheet/nwalsh ]; then
+		rm -rf /usr/share/xml/docbook/stylesheet/nwalsh
+		ln -sf docbook-xsl /usr/share/xml/docbook/stylesheet/nwalsh
+	fi
+fi
+
+# Automatically added by dh_installxmlcatalogs
+if [ "$1" = "configure" ]; then
+	update-xmlcatalog --add --type uri --id "http://docbook.sourceforge.net/release/xsl/" --package docbook-xsl --local /usr/share/xml/docbook/stylesheet/docbook-xsl/catalog.xml
+	update-xmlcatalog --add --type system --id "http://docbook.sourceforge.net/release/xsl/" --package docbook-xsl --local /usr/share/xml/docbook/stylesheet/docbook-xsl/catalog.xml
+
+	update-xmlcatalog --add --type uri --id "http://docbook.sourceforge.net/release/xsl/" --package docbook-xsl --root
+	update-xmlcatalog --add --type system --id "http://docbook.sourceforge.net/release/xsl/" --package docbook-xsl --root
+
+fi
+# End automatically added section
+
+
+exit 0

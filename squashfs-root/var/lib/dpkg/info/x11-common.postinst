@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+if [ -f /usr/share/debconf/confmodule ]; then
+  . /usr/share/debconf/confmodule
+
+  db_purge
+fi
+
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/X11/Xsession.d/00upstart 1:7.7\+19ubuntu5\~ upstart -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/X11/Xsession.d/99upstart 1:7.7\+19ubuntu5\~ upstart -- "$@"
+# End automatically added section
+# Automatically added by dh_installinit/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	if [ -x "/etc/init.d/x11-common" ]; then
+		update-rc.d x11-common start 70 S . >/dev/null
+		if [ -n "$2" ]; then
+			_dh_action=restart
+		else
+			_dh_action=start
+		fi
+		invoke-rc.d x11-common $_dh_action || exit 1
+	fi
+fi
+# End automatically added section
+
+
+exit 0

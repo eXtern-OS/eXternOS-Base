@@ -1,0 +1,743 @@
+# -*- shell-script -*-
+
+catenate_cpiogz() {
+	# Sanity check
+	if [ ! -e "${1}" ]; then
+		echo "W: catenate_cpiogz: arg1='${1}' does not exist." >&2
+		return
+	fi
+
+	cat "${1}" >>"${__TMPCPIOGZ}"
+}
+
+prepend_earlyinitramfs() {
+	# Sanity check
+	if [ ! -e "${1}" ]; then
+		echo "W: prepend_earlyinitramfs: arg1='${1}' does not exist." >&2
+		return
+	fi
+
+	cat "${1}" >>"${__TMPEARLYCPIO}"
+}
+
+# force_load module [args...]
+force_load()
+{
+	manual_add_modules "$1"
+	echo "${@}" >>"${DESTDIR}/conf/modules"
+}
+
+# Takes a file containing a list of modules to be added as an
+# argument, figures out dependancies, and adds them.
+#
+# Input file syntax:
+#
+#   # comment
+#   modprobe_module_name [args ...]
+#   [...]
+#
+add_modules_from_file()
+{
+	# Sanity check
+	if [ ! -e "${1}" ]; then
+		echo "W: add_modules_from_file: arg1='${1}' does not exist." >&2
+		return
+	fi
+
+	grep '^[^#]' ${1} | while read module args; do
+		[ -n "$module" ] || continue
+		force_load "${module}" "${args}"
+	done
+}
+
+# Is this module available?
+have_module()
+{
+	modprobe --set-version="${version}" --ignore-install \
+		--show-depends "${1}" >/dev/null 2>&1
+}
+
+# Add dependent modules + eventual firmware
+manual_add_modules()
+{
+	local prefix kmod options firmware
+
+	if [ $# -eq 0 ]; then
+		return
+	fi
+
+	# modprobe --ignore-install inhibits processing of 'install'
+	# configuration lines, so that instead we will see 'insmod
+	# module.ko' as we want.  However it also means that 'softdep'
+	# configuration lines and embedded softdep information is not
+	# processed.  So we run twice, with and without this option.
+	{ modprobe --all --set-version="${version}" --ignore-install --quiet --show-depends "$@";
+	  modprobe --all --set-version="${version}" --quiet --show-depends "$@"; } |
+	while read prefix kmod options ; do
+		if [ "${prefix}" != "insmod" ]; then
+			continue
+		fi
+
+		copy_file module "${kmod}" || continue
+
+		# Add required firmware
+		for firmware in $(modinfo -k "${version}" -F firmware "${kmod}"); do
+			if [ -e "${DESTDIR}/lib/firmware/${firmware}" ] \
+			|| [ -e "${DESTDIR}/lib/firmware/${version}/${firmware}" ]; then
+				continue
+			fi
+
+			# Only print warning for missing fw of loaded module
+			# or forced loaded module
+			if [ ! -e "/lib/firmware/${firmware}" ] \
+			&& [ ! -e "/lib/firmware/${version}/${firmware}" ] ; then
+				# Only warn about missing firmware if
+				# /proc/modules exists
+				if [ ! -e /proc/modules ] ; then
+					continue
+				fi
+
+				kmod_modname="${kmod##*/}"
+				kmod_modname="${kmod_modname%.ko}"
+				if grep -q "^$kmod_modname\\>" /proc/modules "${CONFDIR}/modules"; then
+					echo "W: Possible missing firmware /lib/firmware/${firmware} for module $(basename ${kmod} .ko)" >&2
+				fi
+				continue
+			fi
+
+			if [ -e "/lib/firmware/${version}/${firmware}" ]; then
+				copy_file firmware \
+					"/lib/firmware/${version}/${firmware}"
+			else
+				copy_file firmware "/lib/firmware/${firmware}"
+			fi
+		done
+	done
+}
+
+# $1 = file type (for logging)
+# $2 = file to copy to ramdisk
+# $3 (optional) Name for the file on the ramdisk
+# Location of the image dir is assumed to be $DESTDIR
+# If the target exists, we leave it and return 1.
+# On any other error, we return >1.
+copy_file() {
+	local type src target link_target
+
+	type="${1}"
+	src="${2}"
+	target="${3:-$2}"
+
+	[ -f "${src}" ] || return 2
+
+	if [ -d "${DESTDIR}/${target}" ]; then
+		target="${target}/${src##*/}"
+	fi
+
+	# check if already copied
+	[ -e "${DESTDIR}/${target}" ] && return 1
+
+	#FIXME: inst_dir
+	mkdir -p "${DESTDIR}/${target%/*}"
+
+	if [ -h "${src}" ]; then
+		[ "${verbose}" = "y" ] && echo "Adding ${type}-link ${src}"
+
+		# We don't need to replicate a chain of links completely;
+		# just link directly to the ultimate target.  Create a
+		# relative link so it always points to the right place.
+		link_target="$(readlink -f "${src}")" || return $(($? + 1))
+		ln -rs "${DESTDIR}/${link_target}" "${DESTDIR}/${target}"
+
+		# Copy the link target if it doesn't already exist
+		src="${link_target}"
+		target="${link_target}"
+		[ -e "${DESTDIR}/${target}" ] && return 1
+		mkdir -p "${DESTDIR}/${target%/*}"
+	fi
+
+	[ "${verbose}" = "y" ] && echo "Adding ${type} ${src}"
+
+	cp -pP "${src}" "${DESTDIR}/${target}" || return $(($? + 1))
+}
+
+# $1 = executable to copy to ramdisk, with library dependencies
+# $2 (optional) Name for the file on the ramdisk
+# Location of the image dir is assumed to be $DESTDIR
+# We never overwrite the target if it exists.
+copy_exec() {
+	local src target x nonoptlib ret
+
+	src="${1}"
+	target="${2:-$1}"
+
+	copy_file binary "${src}" "${target}" || return $(($? - 1))
+
+	# Copy the dependant libraries
+	for x in $(ldd "${src}" 2>/dev/null | sed -e '
+		/\//!d;
+		/linux-gate/d;
+		/=>/ {s/.*=>[[:blank:]]*\([^[:blank:]]*\).*/\1/};
+		s/[[:blank:]]*\([^[:blank:]]*\) (.*)/\1/' 2>/dev/null); do
+
+		# Try to use non-optimised libraries where possible.
+		# We assume that all HWCAP libraries will be in tls,
+		# sse2, vfp or neon.
+		nonoptlib=$(echo "${x}" | sed -e 's#/lib/\([^/]*/\)\?\(tls\|i686\|sse2\|neon\|vfp\).*/\(lib.*\)#/lib/\1\3#')
+		nonoptlib=$(echo "${nonoptlib}" | sed -e 's#-linux-gnu/\(tls\|i686\|sse2\|neon\|vfp\).*/\(lib.*\)#-linux-gnu/\2#')
+
+		if [ -e "${nonoptlib}" ]; then
+			x="${nonoptlib}"
+		fi
+
+		copy_file library "${x}" || {
+			ret=$?
+			[ ${ret} = 1 ] || return $((ret - 1))
+		}
+	done
+}
+
+# Copy entire subtrees to the initramfs
+copy_modules_dir()
+{
+	local kmod exclude
+	local modules=
+	local dir="$1"
+	shift
+
+	if ! [ -d "${MODULESDIR}/${dir}" ]; then
+		return;
+	fi
+	if [ "${verbose}" = "y" ]; then
+		echo "Copying module directory ${dir}"
+		if [ $# -ge 1 ]; then
+			echo "(excluding $*)"
+		fi
+	fi
+	while [ $# -ge 1 ]; do
+		exclude="${exclude:-} -name $1 -prune -o "
+		shift
+	done
+	for kmod in $(find "${MODULESDIR}/${dir}" ${exclude:-} -name '*.ko' -printf '%f\n'); do
+		modules="$modules ${kmod%.ko}"
+	done
+	manual_add_modules $modules
+}
+
+# walk /sys for relevant modules
+sys_walk_mod_add()
+{
+	local driver_path module device_path modalias
+	device_path="$1"
+
+	while [ "${device_path}" != "/sys" ]; do
+		# device modalias
+		if [ -e "${device_path}/modalias" ]; then
+			modalias=$(cat "${device_path}/modalias")
+			if [ -n "${modalias}" ]; then
+				force_load "${modalias}"
+			fi
+		fi
+
+		# current driver module
+		driver_path="$(readlink -f ${device_path}/driver/module)"
+		if [ -e "$driver_path" ]; then
+			module="$(basename $(readlink -f $driver_path))"
+			if [ -n "${module}" ]; then
+				force_load "${module}"
+			fi
+		fi
+
+		device_path="$(dirname ${device_path})"
+	done
+}
+
+block_dev_sys_walk_mod_add()
+{
+	local dev_sys_path disk_sys_path component
+
+	# Resolve symlink so sys_walk_mod_add can walk up the hierarchy
+	dev_sys_path="$(readlink -f "$1")"
+
+	# Find whole disk from partition
+	if grep -q "^DEVTYPE=partition$" "$dev_sys_path/uevent"; then
+		disk_sys_path="$dev_sys_path/.."
+	else
+		disk_sys_path="$dev_sys_path"
+	fi
+
+	# Iterate over component of a layered device
+	ls -1 "$disk_sys_path/slaves" | while read component; do
+		block_dev_sys_walk_mod_add "$disk_sys_path/slaves/$component"
+	done
+
+	sys_walk_mod_add ${dev_sys_path}
+}
+
+block_dev_mod_add()
+{
+	local dev_node dev_num dev_sys_path
+	dev_node="$1"
+
+	# Look up device number and convert to decimal as it appears in sysfs
+	dev_num="$(stat -c %t:%T "$dev_node")"
+	dev_num="$((0x${dev_num%:*})):$((0x${dev_num#*:}))"
+
+	# Look up device in sysfs
+	dev_sys_path="/sys/dev/block/$dev_num"
+	if [ ! -d "$dev_sys_path" ]; then
+		echo "mkinitramfs: for device ${dev_node} missing ${dev_sys_path}" >&2
+		echo "mkinitramfs: workaround is MODULES=most" >&2
+		echo "mkinitramfs: Error please report the bug" >&2
+		exit 1
+	fi
+
+	block_dev_sys_walk_mod_add "$dev_sys_path"
+}
+
+# Copy all loaded or built-in modules matching the given pattern.
+# Pattern mustn't include directory or '.ko' suffix but should use
+# '[-_]' to allow for differences in naming between /sys/module and
+# modules.builtin.
+add_loaded_modules()
+{
+	local pattern="$1"
+	local module
+	local builtin=/lib/modules/$(uname -r)/modules.builtin
+
+	for module in /sys/module/$pattern; do
+		if [ -d "$module" ]; then
+			manual_add_modules $(basename $module)
+		fi
+	done
+	if [ -f $builtin ]; then
+		while read module; do
+			case "$module" in
+			*/$pattern.ko)
+				manual_add_modules $(basename $module .ko)
+				;;
+			esac
+		done < $builtin
+	fi
+}
+
+# find and only copy modules relevant to a mountpoint
+dep_add_modules_mount()
+{
+	local dir dev_node FSTYPE
+	local modules=
+
+	dir="$1"
+
+	# require mounted sysfs
+	if [ ! -d /sys/devices/ ]; then
+		echo "mkinitramfs: MODULES dep requires mounted sysfs on /sys" >&2
+		exit 1
+	fi
+
+	# find out block device + fstype
+	eval "$(while read dev mp fs opts rest ; do \
+		[ "$mp" = "$dir" ] && [ "$fs" != "rootfs" ] \
+		&& printf "dev_node=$dev\nFSTYPE=$fs"\
+		&& break; done < /proc/mounts)"
+
+	# Only the root mountpoint has to exist; do nothing if any other
+	# directory is not a mountpoint.
+	if [ "$dir" != / ] && [ -z "$dev_node" ]; then
+		return
+	fi
+
+	# handle ubifs and return since ubifs is mounted on char devices
+	# but most of the commands below only work with block devices.
+	if [ "${FSTYPE}" = "ubifs" ]; then
+		manual_add_modules "${FSTYPE}"
+		return
+	fi
+
+	if [ "$dir" = / ] && [ "${dev_node}" = "/dev/root" ] ; then
+		if [ -b "${dev_node}" ]; then
+			# Match it to the canonical device name by UUID
+			dev_node="/dev/disk/by-uuid/"$(blkid -o value -s UUID ${dev_node}) 2>/dev/null
+		else
+			# Does not exist in our namespace, so look at the
+			# kernel command line
+			dev_node=
+			for arg in $(cat /proc/cmdline); do
+				case "$arg" in
+				root=*)
+					dev_node="${arg#root=}"
+					if [ "${dev_node#/dev/}" = "$dev_node" ]; then
+						dev_node="/dev/$dev_node"
+					fi
+					;;
+				--)
+					break
+					;;
+				*)
+					;;
+				esac
+			done
+		fi
+	fi
+
+	# recheck device
+	if [ -z "$dev_node" ] || ! dev_node="$(readlink -f ${dev_node})" \
+		|| ! [ -b "$dev_node" ]; then
+		echo "mkinitramfs: failed to determine device for $dir" >&2
+		echo "mkinitramfs: workaround is MODULES=most, check:" >&2
+		echo "grep -r MODULES /etc/initramfs-tools/" >&2
+		echo "" >&2
+		echo "Error please report bug on initramfs-tools" >&2
+		echo "Include the output of 'mount' and 'cat /proc/mounts'" >&2
+		exit 1
+	fi
+
+	# do not trust mount, check superblock
+	eval "$(/usr/lib/klibc/bin/fstype ${dev_node})"
+
+	# check that fstype fs recognition
+	if [ "${FSTYPE}" = "unknown" ]; then
+		FSTYPE=$(blkid -o value -s TYPE "${dev_node}")
+		if [  -z "${FSTYPE}" ]; then
+			echo "mkinitramfs: unknown fstype on device ${dev_node}" >&2
+			echo "mkinitramfs: workaround is MODULES=most" >&2
+			echo "Error please report bug on initramfs-tools" >&2
+			exit 1
+		fi
+	fi
+
+	# Add filesystem
+	modules="$modules ${FSTYPE}"
+
+	block_dev_mod_add "$dev_node"
+
+	# sys walk some important device classes
+	for class in gpio phy regulator; do
+		for device in /sys/class/$class/*; do
+			device="$(readlink -f "$device")" \
+				&& sys_walk_mod_add "$device"
+		done
+	done
+
+	# clk, USB-PHY and pinctrl devices are outside the device model (!) so
+	# match loaded modules by name
+	add_loaded_modules 'clk[-_]*'
+	add_loaded_modules 'phy[-_]*'
+	add_loaded_modules 'pinctrl[-_]*'
+
+	# catch old-style IDE
+	if [ -e /sys/bus/ide/devices/ ]; then
+		modules="$modules ide-gd_mod ide-cd"
+	fi
+
+	if [ -e /sys/bus/scsi/devices/ ]; then
+		modules="$modules sd_mod"
+	fi
+
+	if [ -e /sys/bus/mmc/devices/ ]; then
+		modules="$modules mmc_block"
+	fi
+
+	if [ -e /sys/bus/virtio ] ; then
+		modules="$modules virtio_pci virtio_mmio"
+	fi
+
+	if [ -e /sys/bus/i2o/devices/ ]; then
+		force_load i2o_block
+		force_load i2o_config
+	fi
+
+	if [ -e /sys/bus/ps3_system_bus/ ]; then
+		modules="$modules ps3disk ps3rom ps3-gelic ps3_sys_manager"
+	fi
+
+	if [ -e /sys/bus/vio/ ]; then
+		modules="$modules sunvnet sunvdc"
+	fi
+
+	manual_add_modules $modules
+}
+
+dep_add_modules()
+{
+	dep_add_modules_mount /
+	dep_add_modules_mount /usr
+}
+
+# The modules "most" classes added per default to the initramfs
+auto_add_modules()
+{
+	local arg
+	local modules=
+
+	if [ "$#" -eq 0 ] ; then
+		set -- base net ide scsi block ata i2o dasd ieee1394 firewire mmc usb_storage virtual nx
+	fi
+
+	for arg in "$@" ; do
+		case "$arg" in
+		base)
+			modules="$modules ehci-pci ehci-orion ehci-hcd ehci-msm ohci-hcd ohci-pci uhci-hcd usbhid"
+			modules="$modules xhci xhci-pci xhci-hcd xhci-plat-hcd"
+			modules="$modules btrfs ext2 ext3 ext4 ext4dev "
+			modules="$modules isofs jfs reiserfs squashfs udf xfs"
+			modules="$modules nfs nfsv2 nfsv3 nfsv4"
+			modules="$modules af_packet atkbd i8042 psmouse"
+			modules="$modules virtio_pci virtio_mmio"
+			# nls not automatically pulled in as ubuntu has built-in vfat
+			modules="$modules vfat nls_cp437 nls_iso8859-1"
+
+			# Include all HID drivers unless we're sure they
+			# don't support keyboards.  hid-*ff covers various
+			# game controllers with force feedback.
+			copy_modules_dir kernel/drivers/hid \
+				'hid-*ff.ko' hid-a4tech.ko hid-cypress.ko \
+				hid-dr.ko hid-elecom.ko hid-gyration.ko \
+				hid-icade.ko hid-kensington.ko hid-kye.ko \
+				hid-lcpower.ko hid-magicmouse.ko \
+				hid-multitouch.ko hid-ntrig.ko \
+				hid-petalynx.ko hid-picolcd.ko hid-pl.ko \
+				hid-ps3remote.ko hid-quanta.ko \
+				'hid-roccat-ko*.ko' hid-roccat-pyra.ko \
+				hid-saitek.ko hid-sensor-hub.ko hid-sony.ko \
+				hid-speedlink.ko hid-tivo.ko hid-twinhan.ko \
+				hid-uclogic.ko hid-wacom.ko hid-waltop.ko \
+				hid-wiimote.ko hid-zydacron.ko
+
+			# Any of these might be needed by other drivers
+			copy_modules_dir kernel/drivers/clk
+			copy_modules_dir kernel/drivers/gpio
+			copy_modules_dir kernel/drivers/phy
+			copy_modules_dir kernel/drivers/pinctrl
+			copy_modules_dir kernel/drivers/regulator
+			copy_modules_dir kernel/drivers/usb/phy
+		;;
+		net)
+			copy_modules_dir kernel/drivers/net \
+				appletalk arcnet bonding can dummy.ko \
+				hamradio hippi ifb.ko irda macvlan.ko \
+				macvtap.ko pcmcia sb1000.ko team tokenring \
+				tun.ko usb veth.ko wan wimax wireless \
+				xen-netback.ko
+			# Ubuntu backported bnxt driver
+			copy_modules_dir kernel/ubuntu/bnxt
+		;;
+		ide)
+			copy_modules_dir kernel/drivers/ide
+		;;
+		mmc)
+			copy_modules_dir kernel/drivers/mmc
+		;;
+		scsi)
+			copy_modules_dir kernel/drivers/scsi
+			modules="$modules mptfc mptsas mptscsih mptspi zfcp"
+		;;
+		ata)
+			copy_modules_dir kernel/drivers/ata
+		;;
+		block)
+			copy_modules_dir kernel/drivers/block
+			copy_modules_dir kernel/drivers/nvme
+		;;
+		ubi)
+			modules="$modules deflate zlib lzo ubi ubifs"
+		;;
+		ieee1394)
+			modules="$modules ohci1394 sbp2"
+		;;
+		firewire)
+			modules="$modules firewire-ohci firewire-sbp2"
+		;;
+		i2o)
+			modules="$modules i2o_block"
+		;;
+		dasd)
+			modules="$modules dasd_diag_mod dasd_eckd_mod dasd_fba_mod"
+		;;
+		usb_storage)
+			copy_modules_dir kernel/drivers/usb/storage
+		;;
+		virtual)
+			# Hyper-V
+			modules="$modules hv_vmbus hv_utils hv_netvsc hv_mouse hv_storvsc hyperv-keyboard"
+		;;
+		nx)
+			# PowerPC NX Crypto Coprocessor
+			modules="$modules nx-compress nx-compress-crypto nx-compress-platform"
+			modules="$modules nx-compress-pseries nx-compress-powernv 842-decompress"
+		;;
+		esac
+	done
+
+	manual_add_modules $modules
+}
+
+# 'depmod' only looks at symbol dependencies; there is no way for
+# modules to declare explicit dependencies through module information,
+# so dependencies on e.g. crypto providers are hidden.  Until this is
+# fixed, we need to handle those hidden dependencies.
+hidden_dep_add_modules()
+{
+	local modules=
+	for dep in "lib/libcrc32c crc32c" \
+			"fs/ubifs/ubifs deflate zlib lzo" \
+			"fs/btrfs/btrfs crc32c"; do
+		set -- $dep
+		if [ -f "${DESTDIR}/lib/modules/${version}/kernel/$1.ko" ]; then
+			shift
+			modules="$modules $@"
+		fi
+	done
+	manual_add_modules $modules
+}
+
+# mkinitramfs help message
+usage()
+{
+	cat >&2 << EOF
+
+Usage: ${0} [OPTION]... -o outfile [version]
+
+Options:
+  -c compress	Override COMPRESS setting in initramfs.conf.
+  -d confdir	Specify an alternative configuration directory.
+  -k		Keep temporary directory used to make the image.
+  -o outfile	Write to outfile.
+  -r root	Override ROOT setting in initramfs.conf.
+
+See mkinitramfs(8) for further details.
+EOF
+	exit 1
+
+}
+
+# Find the source for a script file.  This is needed to work around
+# temporary directories mounted with the noexec option.  The source
+# will be on / or /usr which must be executable.
+get_source()
+{
+	if [ -z "$scriptdir" ]; then
+		echo "${initdir}/$1"
+	elif [ -f "${CONFDIR}${scriptdir}/$1" ]; then
+		echo "${CONFDIR}${scriptdir}/$1"
+	else
+		echo "/usr/share/initramfs-tools${scriptdir}/$1"
+	fi
+}
+
+set_initlist()
+{
+	unset initlist
+	for si_x in ${initdir}/*; do
+		# skip empty dirs without warning
+		[ "${si_x}" = "${initdir}/*" ] && return
+
+		# only allow variable name chars
+		case ${si_x#${initdir}/} in
+		*[![:alnum:]\._-]*)
+			[ "${verbose}" = "y" ] \
+			&& echo "$si_x ignored: not alphanumeric or '_' file" >&2
+			continue
+			;;
+		esac
+
+		# skip directories
+		if [ -d ${si_x} ]; then
+			[ "${verbose}" = "y" ] \
+			&& echo "$si_x ignored: a directory" >&2
+			continue
+		fi
+
+		si_x="$(get_source "${si_x#${initdir}/}")"
+
+		# skip non executable scripts
+		if [ ! -x ${si_x} ]; then
+			[ "${verbose}" = "y" ] \
+			&& echo "$si_x ignored: not executable" >&2
+			continue
+		fi
+
+		# skip bad syntax
+		if ! sh -n ${si_x} ; then
+			[ "${verbose}" = "y" ] \
+			&& echo "$si_x ignored: bad syntax" >&2
+			continue
+		fi
+
+		initlist="${initlist:-} ${si_x##*/}"
+	done
+}
+
+get_prereq_pairs()
+{
+	set_initlist
+	for gp_x in ${initlist:-}; do
+		echo ${gp_x} ${gp_x}
+		gp_src="$(get_source $gp_x)"
+		prereqs=$("${gp_src}" prereqs)
+		for prereq in ${prereqs}; do
+			echo ${prereq} ${gp_x}
+		done
+	done
+}
+
+# cache boot scripts order
+cache_run_scripts()
+{
+	DESTDIR=${1}
+	scriptdir=${2}
+	initdir=${DESTDIR}${scriptdir}
+	[ ! -d ${initdir} ] && return
+
+	runlist=$(get_prereq_pairs | tsort)
+	for crs_x in ${runlist}; do
+		[ -f ${initdir}/${crs_x} ] || continue
+		echo "${scriptdir}/${crs_x} \"\$@\"" >> ${initdir}/ORDER
+		echo "[ -e /conf/param.conf ] && . /conf/param.conf" >> ${initdir}/ORDER
+	done
+}
+
+call_scripts()
+{
+	set -e
+	for cs_x in ${runlist}; do
+		[ -f ${initdir}/${cs_x} ] || continue
+		if [ x"$call_scripts_optional" = "xoptional" ]; then
+			option=$(sed '/^OPTION=/!d;$d;s/^OPTION=//;s/[[:space:]]*$//' "${initdir}/${cs_x}")
+			[ -z "${option}" ] || eval test -n \"\${$option}\" -a \"\${$option}\" != \"n\" || continue
+		fi
+
+		# mkinitramfs verbose output
+		if [ "${verbose}" = "y" ]; then
+			echo "Calling hook ${cs_x}"
+		fi
+		${initdir}/${cs_x} && ec=$? || ec=$?
+		# allow hooks to abort build:
+		if [ "$ec" -ne 0 ]; then
+			echo "E: ${initdir}/${cs_x} failed with return $ec."
+			# only errexit on mkinitramfs
+			[ -n "${version}" ] && exit $ec
+		fi
+		# allow boot scripts to modify exported boot parameters
+		if [ -e /conf/param.conf ]; then
+			. /conf/param.conf
+		fi
+	done
+	set +e
+}
+
+run_scripts()
+{
+	scriptdir=${2:-}
+	initdir=${1}
+	[ ! -d ${initdir} ] && return
+
+	runlist=$(get_prereq_pairs | tsort)
+	call_scripts $scriptdir
+}
+
+run_scripts_optional()
+{
+	call_scripts_optional=y
+	run_scripts "$@"
+}

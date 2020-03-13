@@ -1,0 +1,51 @@
+#!/bin/sh
+set -e
+
+
+log() {
+    echo "libnss-mdns.postrm: $*"
+}
+
+remove_mdns() {
+    log "Checking NSS setup..."
+    # abort if /etc/nsswitch.conf does not exist
+    if ! [ -e /etc/nsswitch.conf ]; then
+        log "Could not find /etc/nsswitch.conf."
+        return
+    fi
+    log "Removing mdns from NSS setup"
+    perl -i -pe '
+        my @remove=(
+            "mdns4_minimal [NOTFOUND=return]",
+            "mdns4_minimal",
+            "mdns4",
+            "mdns6_minimal [NOTFOUND=return]",
+            "mdns6_minimal",
+            "mdns6",
+            "mdns_minimal [NOTFOUND=return]",
+            "mdns_minimal",
+            "mdns",
+        );
+        sub remove {
+            my $s=shift;
+            foreach my $bit (@remove) {
+                $s=~s/\s+\Q$bit\E//g;
+            }
+            return $s;
+        }
+        s/^(hosts:)(.*)/$1.remove($2)/e;
+    ' /etc/nsswitch.conf
+}
+
+action="$1"
+
+if [ "$action" = purge ]; then
+    # as recommended by
+    # <https://lists.debian.org/debian-devel/2013/04/msg00656.html>
+    instances="$(dpkg-query -f '${db:Status-Abbrev} ${binary:Package}\n' -W libnss-mdns | grep -v '^.n' | wc -l)"
+    if [ "$instances" = 1 ]; then
+      remove_mdns
+    else
+      log "Not removing mdns from nsswitch.conf, $(( $instances - 1 )) architecture(s) still installed"
+    fi
+fi

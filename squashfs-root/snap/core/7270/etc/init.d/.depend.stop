@@ -1,0 +1,10 @@
+TARGETS = cgmanager ubuntu-fan cgproxy resolvconf urandom sendsigs rsyslog umountnfs.sh hwclock.sh networking umountfs umountroot halt reboot
+sendsigs: ubuntu-fan
+rsyslog: sendsigs
+umountnfs.sh: sendsigs ubuntu-fan rsyslog
+hwclock.sh: rsyslog
+networking: umountnfs.sh ubuntu-fan
+umountfs: umountnfs.sh ubuntu-fan networking resolvconf hwclock.sh urandom
+umountroot: umountfs
+halt: umountroot
+reboot: umountroot

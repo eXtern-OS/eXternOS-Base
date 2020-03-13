@@ -1,0 +1,14 @@
+[Unit]
+Description=Set console keymap
+DefaultDependencies=no
+Before=local-fs-pre.target
+Wants=local-fs-pre.target
+ConditionPathExists=/dev/tty0
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/loadkeys /etc/console-setup/cached.kmap.gz
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target

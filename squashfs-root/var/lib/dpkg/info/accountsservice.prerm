@@ -1,0 +1,23 @@
+#!/bin/sh
+
+set -e
+
+get_pid() {
+    [ -n "$1" ] || return 0
+    [ -S /var/run/dbus/system_bus_socket ] || return 0
+
+    dbus-send --system --dest=org.freedesktop.DBus --print-reply \
+              /org/freedesktop/DBus org.freedesktop.DBus.GetConnectionUnixProcessID \
+              string:$1 2>/dev/null | awk '/uint32/ {print $2}'
+}
+
+if [ "$1" = "remove" -a ! -d /run/systemd/system ]; then
+    kill $(get_pid org.freedesktop.Accounts) 2>/dev/null || true
+fi
+
+# Automatically added by dh_systemd_start/11ubuntu1
+if [ -d /run/systemd/system ] && [ "$1" = remove ]; then
+	deb-systemd-invoke stop 'accounts-daemon.service' >/dev/null
+fi
+# End automatically added section
+

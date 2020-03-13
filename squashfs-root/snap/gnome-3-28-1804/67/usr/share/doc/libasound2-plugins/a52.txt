@@ -1,0 +1,65 @@
+A52 OUTPUT PLUGIN
+=================
+
+This plugin converts S16 linear format to A52 compressed stream and
+send to an SPDIF output.  It requires libavcodec for encoding the
+audio stream.
+
+A PCM using this plugin can be defined like below:
+
+	pcm.myout {
+		type a52
+	}
+
+In addition, the following options are available:
+
+- The "card" option specifies the card ID or number of the SPDIF.
+  The output PCM becomes "iec958:{CARD=$CARD}" with extra AESx
+  settings.  When omitted, the default card is used.
+
+- The "slavepcm" option specifies a string of the slave PCM
+  explicitly.  This is useful if a device has no proper SPDIF
+  configuration (e.g. usb-audio), or if you want to pass your own PCM
+  definition.  This option is exclusive with "card" option.
+
+- The "rate" option specifies the input/output sample rate in HZ.
+  The accepted rate is either 44100 or 48000.
+  When omitted, 48000 is used.
+
+- The "channels" option specifies the number of _input_ channels.
+  It must be either 2, 4 or 6.  The default value is 6.
+
+- The "bitrate" option specifies the bit-rate of the compressed
+  stream in kbps.  Too small or too big value may not be accepted by
+  the encoder.  When omitted, 448 is used.
+
+- The "format" option specifies the output format type.  It's either
+  S16_LE or S16_BE.  As default, S16_LE is used.
+
+An example using the secondary card, 44.1kHz, 4 channels, output
+bitrate 256kbps and output format S16_BE looks like below: 
+
+	pcm.myout {
+		type a52
+		card 1
+		rate 44100
+		channels 4
+		bitrate 256
+		format S16_BE
+	}
+
+For using slavepcm option,
+
+	pcm.mypcm {
+		card 1
+		device 2
+	}
+
+	pcm.myout {
+		type a52
+		slavepcm "mypcm"
+	}
+
+
+The plugin reads always S16 format (i.e. native-endian) as input, so
+you'd need plug layer appropriately to covert it.

@@ -1,0 +1,52 @@
+#!/bin/sh
+## ----------------------------------------------------------------------
+## debian/postrm : postremoval script for xml-core
+## ----------------------------------------------------------------------
+
+## ----------------------------------------------------------------------
+set -e
+
+## ---------------------------------------------------------------------- 
+## automatically generated debhelper commands
+# Automatically added by dh_installxmlcatalogs/UNDECLARED
+if [ "$1" = "purge" ]; then
+	rm -f /etc/xml/xml-core.xml /etc/xml/xml-core.xml.old
+fi
+# End automatically added section
+# Automatically added by dh_installcatalogs/10.10.5ubuntu1
+if [ "$1" = "purge" ]; then
+	rm -f /etc/sgml/xml-core.cat.old
+fi
+# End automatically added section
+
+
+## ----------------------------------------------------------------------
+if [ "$1" = "purge" ]
+then
+
+    ## ------------------------------------------------------------------
+    ## remove /var/lib/xml-core
+    [ -d /var/lib/xml-core ] && rmdir --ignore-fail-on-non-empty /var/lib/xml-core
+
+    ## ------------------------------------------------------------------
+    ## remove root XML catalog
+    rm -f /etc/xml/catalog
+    rm -f /etc/xml/catalog.old
+
+    ## ------------------------------------------------------------------
+    ## remove /etc/xml
+    [ -d /var/lib/xml-core ] && rmdir --ignore-fail-on-non-empty /etc/xml
+
+    ## ------------------------------------------------------------------
+    ## restore legacy /etc/xml/catalog
+    if [ -f /etc/xml/catalog.legacy ]
+    then
+	mv /etc/xml/catalog.legacy /etc/xml/catalog
+    fi
+
+fi
+
+## ---------------------------------------------------------------------- 
+exit 0
+
+## ----------------------------------------------------------------------

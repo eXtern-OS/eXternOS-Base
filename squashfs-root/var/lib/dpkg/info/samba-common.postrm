@@ -1,0 +1,27 @@
+#!/bin/sh
+
+set -e
+if [ "$1" = purge ]; then
+
+	# Remove Samba's state files, both volatile and non-volatile
+	rm -Rf /var/run/samba/ /var/cache/samba/ /var/lib/samba
+
+	# Remove log files
+	rm -Rf /var/log/samba/
+
+	rm -rf /etc/samba/ /var/cache/samba/ /var/lib/samba/ /var/run/samba/
+	if [ -x "`which ucf 2>/dev/null`" ]; then
+		ucf --purge /etc/samba/smb.conf
+	fi
+	if [ -x "`which ucfr 2>/dev/null`" ]; then
+		ucfr --purge samba-common /etc/samba/smb.conf
+	fi
+fi
+
+# Automatically added by dh_installdebconf/11.1.6ubuntu1
+if [ "$1" = purge ] && [ -e /usr/share/debconf/confmodule ]; then
+	. /usr/share/debconf/confmodule
+	db_purge
+fi
+# End automatically added section
+

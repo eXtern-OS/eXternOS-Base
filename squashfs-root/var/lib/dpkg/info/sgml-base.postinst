@@ -1,0 +1,102 @@
+#!/bin/sh
+## ----------------------------------------------------------------------
+## debian/postinst : postinstallation script for sgml-base
+## ----------------------------------------------------------------------
+
+## ----------------------------------------------------------------------
+set -e
+
+## ----------------------------------------------------------------------
+if [ "$1" = "configure" ]
+then
+
+    ## ------------------------------------------------------------------
+    ## clean up /usr/lib/sgml
+    if [ -d /usr/lib/sgml ]
+    then
+
+	## --------------------------------------------------------------
+	## remove symlink to /etc/sgml/catalog
+	rm -f /usr/lib/sgml/catalog
+
+        ## --------------------------------------------------------------
+	## move transitional SGML catalog to /etc/sgml
+	TRANSCAT=transitional.cat
+	if [ -f /usr/lib/sgml/${TRANSCAT} ]
+	then
+	    mv -f /usr/lib/sgml/${TRANSCAT} /etc/sgml/${TRANSCAT}
+	    if [ -f /usr/lib/sgml/${TRANSCAT}.old ]
+	    then
+		mv -f /usr/lib/sgml/${TRANSCAT}.old /etc/sgml/${TRANSCAT}.old
+	    fi
+	fi
+
+        ## --------------------------------------------------------------
+        ## remove /usr/lib/sgml
+	cd /usr/lib
+	rmdir --ignore-fail-on-non-empty sgml
+	cd - >/dev/null
+
+    fi
+
+    ## ------------------------------------------------------------------
+    ## evolve legacy /etc/sgml.catalog
+    OCATALOG=/etc/sgml.catalog
+    if [ -f ${OCATALOG} ]
+    then
+	TRANSCAT=/etc/sgml/transitional.cat
+	if [ -f ${TRANSCAT} ]
+	then
+	    cp ${TRANSCAT} ${TRANSCAT}.old
+	else
+	    cp /usr/share/sgml-base/transitional.cat ${TRANSCAT}
+	fi
+	sed -e '1,10d' <${OCATALOG} >>${TRANSCAT}
+	rm -f ${OCATALOG}
+	if [ -f ${OCATALOG}.old ]
+	then
+	    sed -e '1,10d' <${OCATALOG}.old >>${TRANSCAT}.old
+	    rm -f ${OCATALOG}.old
+	fi
+    fi
+
+    ## ------------------------------------------------------------------
+    update-catalog --quiet --update-super
+    ln -sf /var/lib/sgml-base/supercatalog /etc/sgml/catalog
+fi
+if [ "$1" = "triggered" ]
+then
+    update-catalog --quiet --update-super
+fi
+
+## ---------------------------------------------------------------------- 
+## automatically generated debhelper commands
+# Automatically added by dh_usrlocal
+if [ "$1" = configure ]; then
+(
+	while read line; do
+		set -- $line
+		dir="$1"; mode="$2"; user="$3"; group="$4"
+		if [ ! -e "$dir" ]; then
+			if mkdir "$dir" 2>/dev/null; then
+				chown "$user":"$group" "$dir"
+				chmod "$mode" "$dir"
+			fi
+		fi
+	done
+) << DATA
+/usr/local/share 2775 root staff
+/usr/local/share/sgml 2775 root staff
+/usr/local/share/sgml/declaration 2775 root staff
+/usr/local/share/sgml/dtd 2775 root staff
+/usr/local/share/sgml/entities 2775 root staff
+/usr/local/share/sgml/misc 2775 root staff
+/usr/local/share/sgml/stylesheet 2775 root staff
+DATA
+fi
+# End automatically added section
+
+
+exit 0
+
+## ----------------------------------------------------------------------

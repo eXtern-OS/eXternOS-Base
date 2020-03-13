@@ -1,0 +1,164 @@
+#!/bin/sh
+
+set -e
+
+# This script can be called in the following ways:
+#
+# After the package was installed:
+#	<postinst> configure <old-version>
+#
+#
+# If prerm fails during upgrade or fails on failed upgrade:
+#	<old-postinst> abort-upgrade <new-version>
+#
+# If prerm fails during deconfiguration of a package:
+#	<postinst> abort-deconfigure in-favour <new-package> <version>
+#	           removing <old-package> <version>
+#
+# If prerm fails during replacement due to conflict:
+#	<postinst> abort-remove in-favour <new-package> <version>
+
+case "$1" in
+    configure)
+        # request a reboot (NM tears down interfaces on restart
+        # which is not the way we want to go)
+        [ -x /usr/share/update-notifier/notify-reboot-required ] && \
+            /usr/share/update-notifier/notify-reboot-required
+
+        update-rc.d -f NetworkManager remove >/dev/null
+
+        if [ -x "/etc/init.d/dbus" ]; then
+            invoke-rc.d dbus force-reload || true
+        fi
+
+        NIF=/etc/network/interfaces
+        if [ -z "$2" ] && [ -f $NIF ]; then
+            ifaces=`grep -v '^#' $NIF | awk '/iface/ {print $2}' | sort -u | sed -e 's/lo//' -e '/^$/d' -e 's/^/- /'`
+            if [ -n "$ifaces" ]; then
+                echo "" 1>&2
+                echo "The following network interfaces were found in $NIF" 1>&2
+                echo "which means they are currently configured by ifupdown:" 1>&2
+                echo "$ifaces" 1>&2
+                echo "If you want to manage those interfaces with NetworkManager instead" 1>&2
+                echo "remove their configuration from $NIF." 1>&2
+                echo "" 1>&2
+            fi
+        fi
+
+        # Fix up existing /etc/resolv.conf symlinks after the migration to /run
+        if dpkg --compare-versions "$2" lt-nl "1.8.0-4"; then
+            if [ "$(readlink /etc/resolv.conf)" = /var/run/NetworkManager/resolv.conf ] ; then
+                ln -sf  /run/NetworkManager/resolv.conf /etc/resolv.conf
+            fi
+        fi
+
+	if dpkg --compare-versions "$2" le-nl "9999"; then
+		mkdir -p /etc/NetworkManager/conf.d || true
+		# for old versions, override the global config with a null config,
+		# but only if the netplan config has not been modified by an user.
+		if find /etc/netplan -name "*.yaml" | wc -l | grep -qc 0; then
+			touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
+		fi
+	fi
+        ;;
+
+    abort-upgrade|abort-deconfigure|abort-remove)
+        ;;
+
+    *)
+        echo "$0 called with unknown argument \`$1'" 1>&2
+        exit 1
+        ;;
+esac
+
+# Automatically added by dh_systemd_enable/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# This will only remove masks created by d-s-h on package removal.
+	deb-systemd-helper unmask 'NetworkManager-dispatcher.service' >/dev/null || true
+
+	# was-enabled defaults to true, so new installations run enable.
+	if deb-systemd-helper --quiet was-enabled 'NetworkManager-dispatcher.service'; then
+		# Enables the unit on first installation, creates new
+		# symlinks on upgrades if the unit file has changed.
+		deb-systemd-helper enable 'NetworkManager-dispatcher.service' >/dev/null || true
+	else
+		# Update the statefile to add new symlinks (if any), which need to be
+		# cleaned up on purge. Also remove old symlinks.
+		deb-systemd-helper update-state 'NetworkManager-dispatcher.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_systemd_enable/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# This will only remove masks created by d-s-h on package removal.
+	deb-systemd-helper unmask 'NetworkManager-wait-online.service' >/dev/null || true
+
+	# was-enabled defaults to true, so new installations run enable.
+	if deb-systemd-helper --quiet was-enabled 'NetworkManager-wait-online.service'; then
+		# Enables the unit on first installation, creates new
+		# symlinks on upgrades if the unit file has changed.
+		deb-systemd-helper enable 'NetworkManager-wait-online.service' >/dev/null || true
+	else
+		# Update the statefile to add new symlinks (if any), which need to be
+		# cleaned up on purge. Also remove old symlinks.
+		deb-systemd-helper update-state 'NetworkManager-wait-online.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_systemd_enable/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# This will only remove masks created by d-s-h on package removal.
+	deb-systemd-helper unmask 'NetworkManager.service' >/dev/null || true
+
+	# was-enabled defaults to true, so new installations run enable.
+	if deb-systemd-helper --quiet was-enabled 'NetworkManager.service'; then
+		# Enables the unit on first installation, creates new
+		# symlinks on upgrades if the unit file has changed.
+		deb-systemd-helper enable 'NetworkManager.service' >/dev/null || true
+	else
+		# Update the statefile to add new symlinks (if any), which need to be
+		# cleaned up on purge. Also remove old symlinks.
+		deb-systemd-helper update-state 'NetworkManager.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_systemd_start/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	if [ -d /run/systemd/system ]; then
+		systemctl --system daemon-reload >/dev/null || true
+		if [ -n "$2" ]; then
+			deb-systemd-invoke try-restart 'NetworkManager-dispatcher.service' >/dev/null || true
+		fi
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_systemd_start/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	if [ -d /run/systemd/system ]; then
+		systemctl --system daemon-reload >/dev/null || true
+		if [ -n "$2" ]; then
+			deb-systemd-invoke try-restart 'NetworkManager-wait-online.service' >/dev/null || true
+		fi
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_systemd_start/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	if [ -d /run/systemd/system ]; then
+		systemctl --system daemon-reload >/dev/null || true
+		if [ -n "$2" ]; then
+			_dh_action=restart
+		else
+			_dh_action=start
+		fi
+		deb-systemd-invoke $_dh_action 'NetworkManager-dispatcher.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/dbus-1/system.d/nm-avahi-autoipd.conf 1.1.90-2\~ -- "$@"
+dpkg-maintscript-helper mv_conffile /etc/NetworkManager/dispatcher.d/01ifupdown /etc/NetworkManager/dispatcher.d/01-ifupdown 1.8.0-5\~ -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/dbus-1/system.d/nm-ofono.conf 1.2.4-1\~ -- "$@"
+# End automatically added section
+
+

@@ -1,0 +1,36 @@
+#!/bin/sh -e
+
+action="$1"
+oldversion="$2"
+
+if [ "$action" != configure ]; then
+    exit 0
+fi
+
+
+if [ -x /etc/init.d/rsync ]; then
+    if dpkg --compare-versions "$oldversion" lt "3.0.7-2"; then
+        update-rc.d -f rsync remove
+    fi
+
+    update-rc.d rsync defaults >/dev/null
+    invoke-rc.d rsync restart
+fi
+
+## from /usr/share/debhelper/autoscripts/postinst-systemd-enable :
+
+# This will only remove masks created by d-s-h on package removal.
+deb-systemd-helper unmask rsync.service >/dev/null || true
+
+# was-enabled defaults to true, so new installations run enable.
+if deb-systemd-helper --quiet was-enabled rsync.service; then
+	# Enables the unit on first installation, creates new
+	# symlinks on upgrades if the unit file has changed.
+	deb-systemd-helper enable rsync.service >/dev/null || true
+else
+	# Update the statefile to add new symlinks (if any), which need to be
+	# cleaned up on purge. Also remove old symlinks.
+	deb-systemd-helper update-state rsync.service >/dev/null || true
+fi
+
+exit 0

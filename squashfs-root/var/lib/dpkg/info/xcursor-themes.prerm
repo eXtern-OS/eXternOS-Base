@@ -1,0 +1,23 @@
+#!/bin/sh
+# Debian xcursor-themes package pre-removal script
+# Copyright 2003 Daniel Stone, Branden Robinson.
+# Copyright 2004 Branden Robinson.
+# Licensed under the GNU General Public License, version 2.  See the file
+# /usr/share/common-licenses/GPL or <http://www.gnu.org/copyleft/gpl.txt>.
+# Acknowledgements to Stephen Early, Mark Eichin, and Manoj Srivastava.
+
+set -e
+
+if [ "$1" = "remove" ] || [ "$1" = "deconfigure" ]; then
+  # deregister available X cursor themes with update-alternatives
+  update-alternatives --remove x-cursor-theme /etc/X11/cursors/core.theme
+  for THEME in whiteglass redglass handhelds; do
+    update-alternatives --remove x-cursor-theme "/etc/X11/cursors/$THEME.theme"
+  done
+fi
+
+
+
+exit 0
+
+# vim:set ai et sts=2 sw=2 tw=0:

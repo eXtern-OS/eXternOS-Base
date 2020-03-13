@@ -1,0 +1,93 @@
+#!/bin/sh
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+THIS_PACKAGE=gdm3
+DEFAULT_DISPLAY_MANAGER_FILE=/etc/X11/default-display-manager
+
+# creating gdm group if it isn't already there
+if ! getent group gdm >/dev/null; then
+        addgroup --system --force-badname --quiet gdm
+fi
+
+# creating gdm user if it isn't already there
+if ! getent passwd gdm >/dev/null; then
+        adduser --system --force-badname --quiet \
+            --ingroup gdm \
+            --home /var/lib/gdm3 --no-create-home \
+            --shell /bin/false \
+            gdm
+        usermod -c "Gnome Display Manager" gdm
+fi
+
+# debconf is not a registry, so we only fiddle with the default file if 
+# the configure script requested an update
+if [ -e $DEFAULT_DISPLAY_MANAGER_FILE.debconf-update ]; then
+  rm -f $DEFAULT_DISPLAY_MANAGER_FILE.debconf-update
+  if db_get shared/default-x-display-manager; then
+    # workaround debconf passthru bug (#379198)
+    if [ -z "$RET" ]; then
+      RET="$THIS_PACKAGE"
+    fi
+    if [ "$THIS_PACKAGE" != "$RET" ]; then
+      echo "Please be sure to run \"dpkg --configure $RET\"."
+    fi
+    if db_get "$RET"/daemon_name; then
+      echo "$RET" > $DEFAULT_DISPLAY_MANAGER_FILE
+    fi
+  fi
+fi
+
+DEFAULT_SERVICE=/etc/systemd/system/display-manager.service
+# set default-display-manager systemd service link according to our config
+if [ "$1" = configure ] && [ -d /etc/systemd/system/ ]; then
+  if [ -e "$DEFAULT_DISPLAY_MANAGER_FILE" ]; then
+    SERVICE=/lib/systemd/system/$(basename $(cat "$DEFAULT_DISPLAY_MANAGER_FILE")).service
+    if [ -h "$DEFAULT_SERVICE" ] && [ $(readlink "$DEFAULT_SERVICE") = /dev/null ]; then
+      echo "Display manager service is masked" >&2
+    elif [ -e "$SERVICE" ]; then
+      ln -sf "$SERVICE" "$DEFAULT_SERVICE"
+    else
+      echo "WARNING: $SERVICE is the selected default display manager but does not exist" >&2
+      rm -f "$DEFAULT_SERVICE"
+    fi
+  else
+    rm -f "$DEFAULT_SERVICE"
+  fi
+fi
+
+ucf --debconf-ok --three-way /usr/share/gdm/greeter.dconf-defaults /etc/gdm3/greeter.dconf-defaults
+ucfr gdm3 /etc/gdm3/greeter.dconf-defaults
+
+# debconf hangs if gdm3 gets started below without this
+db_stop || true
+
+# Setup pulseaudio to run as user service
+UNIT=/usr/lib/systemd/user/pulseaudio.socket
+USERUNITDIR=/var/lib/gdm3/.config/systemd/user
+if ! [ -L $USERUNITDIR/sockets.target.wants/pulseaudio.socket ]; then
+  mkdir -p $USERUNITDIR/sockets.target.wants
+  ln -sf $UNIT $USERUNITDIR/sockets.target.wants
+fi
+
+# Install PA workaround for LP:#1703415
+# Stops GDM using Bluetooth audio so that it's available in the users session
+if ! [ -f /var/lib/gdm3/.config/pulse/default.pa ]; then
+  mkdir -p /var/lib/gdm3/.config/pulse
+  cp /usr/share/gdm/default.pa /var/lib/gdm3/.config/pulse/default.pa
+fi
+
+chown -R gdm:gdm /var/lib/gdm3
+
+if [ -L /etc/pam.d/gdm-welcome ]; then
+    rm -f /etc/pam.d/gdm-welcome
+fi
+
+
+
+if [ -x /etc/init.d/gdm3 ]; then
+  update-rc.d gdm3 defaults >/dev/null 2>&1
+  invoke-rc.d gdm3 reload || true
+fi

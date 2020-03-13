@@ -1,0 +1,23 @@
+#!/bin/sh -
+
+# See how we were called.
+case "$1" in
+    start)
+        : ## fanctl up -a
+    ;;
+
+    stop)
+        : ## fanctl down -a
+    ;;
+
+    restart|reload|force-reload)
+        $0 stop
+        $0 start
+    ;;
+
+    *)
+        echo "Usage: $0 {start|stop|restart|reload|force-reload}"
+        exit 2
+esac
+
+exit $?

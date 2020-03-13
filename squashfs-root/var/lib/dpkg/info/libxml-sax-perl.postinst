@@ -1,0 +1,47 @@
+#!/bin/sh
+## ----------------------------------------------------------------------
+## debian/postinst : postinstallation script for libxml-sax-perl
+## ----------------------------------------------------------------------
+
+## ----------------------------------------------------------------------
+set -e
+
+## ----------------------------------------------------------------------
+if [ "$1" = configure ]
+then
+    [ -d /etc/perl/XML/SAX ] || mkdir --parents /etc/perl/XML/SAX
+    if which ucfr >/dev/null 2>&1
+    then
+        ucfr libxml-sax-perl /etc/perl/XML/SAX/ParserDetails.ini 
+    fi
+
+    if [ -n "$2" ] && dpkg --compare-versions "$2" le 0.16-0.1
+    then
+        echo "Migrating the Perl SAX parser information directory."
+        # first, move /etc/perl/XML/SAX/ParserDetails.d/ under 
+        #             /var/lib/libxml-sax-perl
+        for i in /etc/perl/XML/SAX/ParserDetails.d/*
+        do
+            # the directory should never be missing or empty, but the [ ! -e ]
+            # construct handles an unexpanded glob just in case
+            [ ! -e "$i" ] || \
+            mv "$i" "/var/lib/libxml-sax-perl/ParserDetails.d/50-$(basename $i)"
+        done
+        [ ! -d /etc/perl/XML/SAX/ParserDetails.d ] || \
+            rmdir --ignore-fail-on-non-empty /etc/perl/XML/SAX/ParserDetails.d
+
+        # now downgrade XML::SAX::PurePerl priority by removing it first
+        update-perl-sax-parsers --remove XML::SAX::PurePerl
+    fi
+
+    update-perl-sax-parsers --add XML::SAX::PurePerl --priority 10
+    update-perl-sax-parsers --update
+fi
+
+## ---------------------------------------------------------------------- 
+## automatically generated debhelper commands
+
+
+exit 0
+
+## ----------------------------------------------------------------------

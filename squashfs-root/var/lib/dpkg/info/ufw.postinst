@@ -1,0 +1,196 @@
+#!/bin/sh -e
+
+# Only source /usr/share/debconf/confmodule when not called with 'triggered'
+# to avoid LP: #618410.
+if [ "$1" != "triggered" ]; then
+    . /usr/share/debconf/confmodule
+fi
+
+RULES_PATH="/etc/ufw"
+OLD_USER_PATH="/lib/ufw"
+USER_PATH="$RULES_PATH"
+TEMPLATE_PATH="/usr/share/ufw"
+
+enable_ufw() {
+    ans=""
+    if [ "$1" = "true" ]; then
+        ans="yes"
+    elif [ "$1" = "false" ]; then
+        ans="no"
+    else
+        return 1
+    fi
+
+    test -f /etc/ufw/ufw.conf && sed -i "s/^ENABLED=.*/ENABLED=$ans/" /etc/ufw/ufw.conf
+}
+
+allow_port() {
+    ufw allow "$@" >/dev/null || true
+}
+
+allow_service() {
+    service=`echo "$@" | sed 's/#/ /g'`
+    if [ "$service" = "CUPS" ]; then
+        allow_port 631
+    elif [ "$service" = "DNS" ]; then
+        allow_port 53
+    elif [ "$service" = "IMAPS" ]; then
+        allow_port 993/tcp
+    elif [ "$service" = "POP3S" ]; then
+        allow_port 995/tcp
+    elif [ "$service" = "SSH" ]; then
+        allow_port 22/tcp
+    elif [ "$service" = "CIFS (Samba)" ]; then
+        allow_port 137/udp
+        allow_port 138/udp
+        allow_port 139/tcp
+        allow_port 445/tcp
+    elif [ "$service" = "SMTP" ]; then
+        allow_port 25/tcp
+    elif [ "$service" = "HTTP" ]; then
+        allow_port 80/tcp
+    elif [ "$service" = "HTTPS" ]; then
+        allow_port 443/tcp
+    fi
+}
+
+# If a primary chain is added to upstream, we should add it on upgrade so
+# reload works correctly
+add_primary_chain() {
+    chain="$1"
+    builtin="$2"
+    ver="$3"
+
+    exe="iptables"
+    if [ "$ver" = "6" ]; then
+        exe="ip6tables"
+    fi
+    if $exe -L "$chain" -n >/dev/null 2>&1 ; then
+        return
+    fi
+    $exe -N "$chain" || true
+    $exe -A "$builtin" -j "$chain" || true
+}
+
+case "$1" in
+    configure)
+        # these files are required, but don't want to change them if
+        # the user modified them
+        for f in before.rules before6.rules after.rules after6.rules
+        do
+            ucf --debconf-ok $TEMPLATE_PATH/iptables/$f $RULES_PATH/$f
+            test -f $RULES_PATH/$f && chmod 640 $RULES_PATH/$f
+        done
+
+        # migrate user rules on upgrade
+        if [ ! -z "$2" ] && dpkg --compare-versions "$2" lt "0.35~" ; then
+            for f in user.rules user6.rules
+            do
+                mv $OLD_USER_PATH/$f $USER_PATH/$f
+                ln -s $USER_PATH/$f $OLD_USER_PATH/$f
+            done
+        fi
+
+        for f in user.rules user6.rules
+        do
+            if [ ! -e "$USER_PATH/$f" ]; then
+                # if no config, copy the template
+                cp $TEMPLATE_PATH/iptables/$f $USER_PATH/$f
+                chmod 640 $USER_PATH/$f
+            fi
+        done
+
+        for f in before.init after.init
+        do
+            if [ ! -e "/etc/ufw/$f" ]; then
+                cp $TEMPLATE_PATH/$f /etc/ufw
+                chmod 640 /etc/ufw/$f
+            fi
+        done
+
+        if [ ! -e "/etc/ufw/ufw.conf" ]; then
+            cp $TEMPLATE_PATH/ufw.conf /etc/ufw
+        fi
+
+        # configure ufw with debconf values
+        db_get ufw/enable
+        enabled="$RET"
+
+        db_fget ufw/existing_configuration seen
+        seen_warning="$RET"
+        if [ "$enabled" = "true" ] && [ "$seen_warning" = "false" ] ; then
+            db_get ufw/allow_known_ports
+            CHOICES="$RET"
+            for service in `echo "$CHOICES" | sed 's/, /\n/g' | sed 's/ /#/g'`; do
+                allow_service "$service"
+            done
+
+            db_get ufw/allow_custom_ports
+            PORTS="$RET"
+            for port in $PORTS ; do
+                allow_port "$port"
+            done
+
+            db_fset ufw/existing_configuration seen true
+        fi
+
+        # need to do this after all 'allow_service' calls, otherwise ufw may
+        # try to use iptables, which breaks the installer
+        enable_ufw "$enabled"
+
+        # add new primary chains on upgrade
+        if [ "$enabled" = "true" ] && [ ! -z "$2" ] && dpkg --compare-versions "$2" lt "0.34~rc-0ubuntu2" ; then
+            add_primary_chain ufw-track-forward FORWARD
+            add_primary_chain ufw6-track-forward FORWARD 6
+        fi
+        ;;
+    triggered)
+        ufw app update all || echo "Processing ufw triggers failed. Ignoring."
+        exit 0
+        ;;
+    abort-upgrade|abort-remove|abort-deconfigure)
+        ;;
+    *)
+        echo "postinst called with unknown argument '$1'" >&2
+        exit 1
+        ;;
+esac
+
+# Automatically added by dh_systemd_enable/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# This will only remove masks created by d-s-h on package removal.
+	deb-systemd-helper unmask 'ufw.service' >/dev/null || true
+
+	# was-enabled defaults to true, so new installations run enable.
+	if deb-systemd-helper --quiet was-enabled 'ufw.service'; then
+		# Enables the unit on first installation, creates new
+		# symlinks on upgrades if the unit file has changed.
+		deb-systemd-helper enable 'ufw.service' >/dev/null || true
+	else
+		# Update the statefile to add new symlinks (if any), which need to be
+		# cleaned up on purge. Also remove old symlinks.
+		deb-systemd-helper update-state 'ufw.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+
+# Automatically added by dh_python3:
+if which py3compile >/dev/null 2>&1; then
+	py3compile -p ufw 
+fi
+
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/init/ufw.conf 0.35-5~ ufw -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/bash_completion.d/ufw 0.34-1~ ufw -- "$@"
+# End automatically added section
+# Automatically added by dh_installinit/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	if [ -x "/etc/init.d/ufw" ]; then
+		update-rc.d ufw defaults >/dev/null || exit 1
+	fi
+fi
+# End automatically added section
+

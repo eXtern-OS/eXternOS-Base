@@ -1,0 +1,86 @@
+# Description: Can manage containers. This is restricted because it gives wide
+# access to the system, which is needed for software managing containers. It is
+# understood that the confinement provided here is only advisory.
+# Usage: reserved
+
+# Allow our pid file and socket
+/run/@{APP_PKGNAME}/ rw,
+/run/@{APP_PKGNAME}/** mrwklix,
+/run/@{APP_PKGNAME}.pid rw,
+/run/@{APP_PKGNAME}.sock rw,
+
+# Wide read access to /proc, but somewhat limited writes for now
+@{PROC}/ r,
+@{PROC}/** r,
+@{PROC}/[0-9]*/attr/exec w,
+@{PROC}/sys/net/** w,
+@{PROC}/[0-9]*/cmdline r,
+
+# Wide read access to /sys
+/sys/** r,
+# Limit cgroup writes a bit
+/sys/fs/cgroup/*/docker/   rw,
+/sys/fs/cgroup/*/docker/** rw,
+/sys/fs/cgroup/*/system.slice/   rw,
+/sys/fs/cgroup/*/system.slice/** rw,
+
+# We can trace ourselves
+ptrace (trace) peer=@{profile_name},
+
+# Docker needs a lot of caps, but limits them in the app container
+capability,
+
+# Allow talking to systemd
+#include <abstractions/dbus-strict>
+dbus (send)
+     bus=system
+     peer=(name=org.freedesktop.systemd*,label=unconfined),
+# Allow receiving from unconfined
+dbus (receive)
+     bus=system
+     peer=(label=unconfined),
+
+# Docker does all kinds of mounts all over the filesystem
+/dev/mapper/control rw,
+/dev/mapper/docker* rw,
+/dev/loop* r,
+/dev/loop[0-9]* w,
+mount,
+umount,
+pivot_root,
+/.pivot_root*/ rw,
+
+# for console access
+/dev/ptmx rw,
+
+# For loading the docker-default policy. We might be able to get rid of this
+# if we load docker-default ourselves and make docker not do it.
+/sbin/apparmor_parser ixr,
+/etc/apparmor*/** r,
+/var/lib/apparmor/profiles/docker rw,
+/etc/apparmor.d/cache/docker* w,
+/etc/apparmor.d/cache/.features w,
+/sys/kernel/security/apparmor/** rw,
+
+# We'll want to adjust this to support --security-opts...
+change_profile -> docker-default,
+signal (send) peer=docker-default,
+ptrace (read, trace) peer=docker-default,
+# This is exceedingly unfortunate but needed since privileged containers run
+# unconfined.
+#signal (send) peer=unconfined,
+#ptrace (read, trace) peer=unconfined,
+
+/ r,
+/dev/ r,
+/dev/**/ r,
+/proc r,
+
+/dev/dm-* rw,
+/dev/shm/aufs.xino rw,
+@{PROC}/fs/aufs/plink_maint rw,
+
+/bin/chown ixr,
+capability sys_resource,
+/sbin/killall5 ixr,
+/sbin/dmsetup ixr,

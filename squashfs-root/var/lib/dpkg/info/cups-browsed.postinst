@@ -1,0 +1,64 @@
+#!/bin/sh
+set -e
+# Automatically added by dh_apparmor/2.12-4ubuntu5.1
+aa_is_enabled() {
+   if command aa-enabled >/dev/null 2>&1; then
+      # apparmor >= 2.10.95-2
+      aa-enabled --quiet 2>/dev/null
+   else
+      # apparmor << 2.10.95-2
+      # (This should be removed once Debian Stretch and Ubuntu 18.04 are out.)
+      rc=0
+      aa-status --enabled 2>/dev/null || rc=$?
+      [ "$rc" = 0 ] || [ "$rc" = 2 ]
+   fi
+}
+
+if [ "$1" = "configure" ]; then
+    APP_PROFILE="/etc/apparmor.d/usr.sbin.cups-browsed"
+    if [ -f "$APP_PROFILE" ]; then
+        # Add the local/ include
+        LOCAL_APP_PROFILE="/etc/apparmor.d/local/usr.sbin.cups-browsed"
+
+        test -e "$LOCAL_APP_PROFILE" || {
+            mkdir -p `dirname "$LOCAL_APP_PROFILE"`
+            install --mode 644 /dev/null "$LOCAL_APP_PROFILE"
+        }
+
+        # Reload the profile, including any abstraction updates
+        if aa_is_enabled; then
+            apparmor_parser -r -T -W "$APP_PROFILE" || true
+        fi
+    fi
+fi
+# End automatically added section
+# Automatically added by dh_installinit/11.1.6ubuntu1
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	if [ -x "/etc/init.d/cups-browsed" ]; then
+		update-rc.d cups-browsed defaults >/dev/null
+		if [ -n "$2" ]; then
+			_dh_action=restart
+		else
+			_dh_action=start
+		fi
+		invoke-rc.d cups-browsed $_dh_action || exit 1
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_installsystemd/11.1.6ubuntu1
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# This will only remove masks created by d-s-h on package removal.
+	deb-systemd-helper unmask 'cups-browsed.service' >/dev/null || true
+
+	# was-enabled defaults to true, so new installations run enable.
+	if deb-systemd-helper --quiet was-enabled 'cups-browsed.service'; then
+		# Enables the unit on first installation, creates new
+		# symlinks on upgrades if the unit file has changed.
+		deb-systemd-helper enable 'cups-browsed.service' >/dev/null || true
+	else
+		# Update the statefile to add new symlinks (if any), which need to be
+		# cleaned up on purge. Also remove old symlinks.
+		deb-systemd-helper update-state 'cups-browsed.service' >/dev/null || true
+	fi
+fi
+# End automatically added section

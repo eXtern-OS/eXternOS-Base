@@ -1,0 +1,12 @@
+[Unit]
+Description=Set console font and keymap
+Documentation=man:loadkeys(1)
+DefaultDependencies=no
+After=console-screen.service kbd.service local-fs.target
+Before=system-getty.slice
+ConditionPathExists=/dev/tty0
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/setupcon --save

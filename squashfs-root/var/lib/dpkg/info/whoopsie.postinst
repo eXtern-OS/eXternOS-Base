@@ -1,0 +1,63 @@
+#! /bin/sh
+# postinst for whoopsie
+
+set -e
+
+WHOOPSIE_DEFAULT_FILE=/etc/default/whoopsie
+
+if [ "$1" = configure ]; then
+		if ! getent passwd whoopsie >/dev/null; then
+			adduser --disabled-password --quiet --system \
+				--home /nonexistent --no-create-home --group whoopsie \
+				--shell /bin/false
+		fi
+		mkdir -p -m 3777 /var/crash
+		chmod g+s /var/crash
+		chgrp whoopsie /var/crash
+		chgrp whoopsie /var/crash/*.crash >/dev/null 2>&1 || true
+		chmod 0640 /var/crash/*.crash >/dev/null 2>&1 || true
+
+		mkdir -p -m 3777 /var/metrics
+		chmod g+s /var/metrics
+		chgrp whoopsie /var/metrics
+
+                if [ -f /etc/whoopsie ]; then
+                    # neither report_crashes nor report_metrics is used by whoopsie
+                    rm /etc/whoopsie
+                fi
+fi
+
+# Automatically added by dh_systemd_enable/11.1.6ubuntu1
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# This will only remove masks created by d-s-h on package removal.
+	deb-systemd-helper unmask 'whoopsie.service' >/dev/null || true
+
+	# was-enabled defaults to true, so new installations run enable.
+	if deb-systemd-helper --quiet was-enabled 'whoopsie.service'; then
+		# Enables the unit on first installation, creates new
+		# symlinks on upgrades if the unit file has changed.
+		deb-systemd-helper enable 'whoopsie.service' >/dev/null || true
+	else
+		# Update the statefile to add new symlinks (if any), which need to be
+		# cleaned up on purge. Also remove old symlinks.
+		deb-systemd-helper update-state 'whoopsie.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu1
+dpkg-maintscript-helper rm_conffile /etc/cron.daily/whoopsie 0.1.25 -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu1
+dpkg-maintscript-helper rm_conffile /etc/default/whoopsie 0.2.47 -- "$@"
+# End automatically added section
+# Automatically added by dh_installinit/11.1.6ubuntu1
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	if [ -x "/etc/init.d/whoopsie" ]; then
+		update-rc.d whoopsie defaults >/dev/null
+		invoke-rc.d whoopsie start || exit 1
+	fi
+fi
+# End automatically added section
+
+
+exit 0

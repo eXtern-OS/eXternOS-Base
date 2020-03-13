@@ -1,0 +1,77 @@
+/* Decorations */
+
+UnityDecoration {
+    -UnityDecoration-extents: 28px 0 0 0;
+    -UnityDecoration-input-extents: 10px;
+
+    -UnityDecoration-shadow-offset-x: 1px;
+    -UnityDecoration-shadow-offset-y: 5px;
+    -UnityDecoration-active-shadow-color: alpha (@active_shadow_color, 0.75);
+    -UnityDecoration-active-shadow-radius: 30px;
+    -UnityDecoration-inactive-shadow-color: @inactive_shadow_color;
+    -UnityDecoration-inactive-shadow-radius: 25px;
+
+    -UnityDecoration-glow-size: 10px;
+    -UnityDecoration-glow-color: rgb (221, 72, 20);
+
+    -UnityDecoration-title-indent: 10px;
+    -UnityDecoration-title-fade: 35px;
+    -UnityDecoration-title-alignment: 0.0;
+}
+
+/* Definitions of UnityDecoration .top (and :backdrop) are now shared with
+ * Gtk .titlebar (and :backdrop); .left and .right are not used by this theme */
+
+/* Panel Style */
+
+UnityPanelWidget,
+.unity-panel {
+    background-color: transparent;
+    background-image: -gtk-gradient (linear, left top, left bottom,
+                                     from (shade (@dark_bg_color, 1.5)),
+                                     to (shade (@dark_bg_color, 1.04)));
+    border-top-color: shade (@dark_bg_color, 1.6);
+    border-style: solid;
+    border-width: 1px 0 0 0;
+
+    color: @dark_fg_color;
+    text-shadow: 1px 0 #333, -1px 0 #333, 0 1px #333, 0 -1px #333;
+}
+
+UnityPanelWidget:backdrop,
+.unity-panel:backdrop {
+    color: #807d78;
+}
+
+.unity-panel.menubar,
+.unity-panel .menubar {
+}
+
+.unity-panel.menuitem,
+.unity-panel .menuitem {
+    border-width: 1px 1px 0 1px;
+    -gtk-icon-shadow: 0 -1px shade (@dark_bg_color, 0.7);
+}
+
+.unity-panel.menubar:backdrop,
+.unity-panel .menubar *:backdrop {
+    color: @backdrop_dark_fg_color;
+}
+
+.unity-panel.menubar.menuitem:hover,
+.unity-panel.menubar .menuitem *:hover {
+    background-image: -gtk-gradient (linear, left top, left bottom,
+                                     from (shade (@dark_bg_color, 1.5)),
+                                     to (shade (@dark_bg_color, 1.11)));
+}
+
+
+@keyframes playbackmenuitem_spinner {
+    to { -gtk-icon-transform: rotate(1turn); }
+}
+
+.menu IdoPlaybackMenuItem.menuitem:active {
+    -gtk-icon-source: -gtk-icontheme("process-working-symbolic");
+    animation: playbackmenuitem_spinner 1s infinite linear;
+    color: @selected_bg_color;
+}

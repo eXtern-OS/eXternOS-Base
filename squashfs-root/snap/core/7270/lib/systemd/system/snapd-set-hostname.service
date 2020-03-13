@@ -1,0 +1,18 @@
+# Set the true hostname.
+#
+# systemd has already set the hostname when this unit executes (based on
+# the original /etc/hostname).
+#
+# However, since that file is on the read-only rootfs and the real
+# hostname is on the writable partition (/etc/writable bind-mount), it
+# is necessary to reset the hostname as soon as the true hostname file
+# is available.
+
+[Unit]
+Description=Set the hostname to the value stored on the writable partition
+After=etc-writable.mount
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/bin/hostname -F /etc/hostname

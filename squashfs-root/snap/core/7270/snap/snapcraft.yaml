@@ -1,0 +1,57 @@
+name: core
+version: 16-2
+version-script: |
+    # remember to keep version script in sync with "Makefile"
+    echo "16-$(cat prime/usr/lib/snapd/info |cut -f2 -d=| sed s/~ubuntu.*// | cut -b1-29)"
+summary: snapd runtime environment
+description: The core runtime environment for snapd
+confinement: strict
+type: os
+grade: stable
+
+parts:
+  check:
+    plugin: dump
+    override-pull: |
+      if ! apt-cache policy ubuntu-core-config|grep -q ppa.launchpad.net/snappy-dev/image; then
+          echo "The ppa:snappy-dev/image PPA is missing."
+          echo "This probably means that the build was triggered incorrectly."
+          apt-cache policy ubuntu-core-config
+          exit 1
+      fi
+
+  hooks:
+    plugin: dump
+    source: hooks
+    organize:
+      configure: meta/hooks/configure
+
+  livebuild:
+    source: .
+    plugin: make
+    build-packages:
+      - livecd-rootfs
+      - shellcheck
+      - gawk
+
+
+  # the version in Ubuntu 16.04 (cache v6)
+  fontconfig-xenial:
+    plugin: nil
+    source: fc/
+    build: |
+      ./build-from-security.py xenial
+      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
+      cp -a fc-cache-xenial $SNAPCRAFT_PART_INSTALL/bin/fc-cache-v6
+    stage:
+      - bin/fc-cache-v6
+  # the version in Ubuntu 18.04 (cache v7)
+  fontconfig-bionic:
+    plugin: nil
+    source: fc/
+    build: |
+      ./build-from-security.py bionic
+      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
+      cp -a fc-cache-bionic $SNAPCRAFT_PART_INSTALL/bin/fc-cache-v7
+    stage:
+      - bin/fc-cache-v7

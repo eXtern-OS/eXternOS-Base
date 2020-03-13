@@ -1,0 +1,261 @@
+#! /usr/bin/python3
+# ------------------------------------------------------------------
+#
+#    Copyright (C) 2005-2006 Novell/SUSE
+#    Copyright (C) 2011 Canonical Ltd.
+#
+#    This program is free software; you can redistribute it and/or
+#    modify it under the terms of version 2 of the GNU General Public
+#    License published by the Free Software Foundation.
+#
+# ------------------------------------------------------------------
+
+import re, os, sys, errno, json
+
+# PLEASE NOTE: we try to keep aa-status as minimal as possible, for
+# environments where installing all of the python utils and python
+# apparmor module may not make sense. Please think carefully before
+# importing anything from apparmor; see how the apparmor.fail import is
+# handled below.
+
+# setup exception handling
+try:
+    from apparmor.fail import enable_aa_exception_handler
+    enable_aa_exception_handler()
+except ImportError:
+    # just let normal python exceptions happen (LP: #1480492)
+    pass
+
+def cmd_enabled():
+    '''Returns error code if AppArmor is not enabled'''
+    if get_profiles() == {}:
+        sys.exit(2)
+
+def cmd_profiled():
+    '''Prints the number of loaded profiles'''
+    profiles = get_profiles()
+    sys.stdout.write("%d\n" % len(profiles))
+    if profiles == {}:
+        sys.exit(2)
+
+def cmd_enforced():
+    '''Prints the number of loaded enforcing profiles'''
+    profiles = get_profiles()
+    sys.stdout.write("%d\n" % len(filter_profiles(profiles, 'enforce')))
+    if profiles == {}:
+        sys.exit(2)
+
+def cmd_complaining():
+    '''Prints the number of loaded non-enforcing profiles'''
+    profiles = get_profiles()
+    sys.stdout.write("%d\n" % len(filter_profiles(profiles, 'complain')))
+    if profiles == {}:
+        sys.exit(2)
+
+def cmd_verbose():
+    '''Displays multiple data points about loaded profile set'''
+    global verbose
+    verbose = True
+    profiles = get_profiles()
+    processes = get_processes(profiles)
+
+    stdmsg("%d profiles are loaded." % len(profiles))
+    for status in ('enforce', 'complain'):
+        filtered_profiles = filter_profiles(profiles, status)
+        stdmsg("%d profiles are in %s mode." % (len(filtered_profiles), status))
+        for item in filtered_profiles:
+                stdmsg("   %s" % item)
+
+    stdmsg("%d processes have profiles defined." % len(processes))
+    for status in ('enforce', 'complain', 'unconfined'):
+        filtered_processes = filter_processes(processes, status)
+        if status == 'unconfined':
+            stdmsg("%d processes are unconfined but have a profile defined." % len(filtered_processes))
+        else:
+            stdmsg("%d processes are in %s mode." % (len(filtered_processes), status))
+        # Sort by name, and then by pid
+        filtered_processes.sort(key=lambda x: int(x[0]))
+        filtered_processes.sort(key=lambda x: x[1])
+        for (pid, process) in filtered_processes:
+            stdmsg("   %s (%s) " % (process, pid))
+
+    if profiles == {}:
+        sys.exit(2)
+
+def cmd_json(pretty_output=False):
+    '''Outputs multiple data points about loaded profile set in a machine-readable JSON format'''
+    global verbose
+    profiles = get_profiles()
+    processes = get_processes(profiles)
+
+    i = {
+        'version': '1',
+        'profiles': {},
+        'processes': {}
+    }
+
+    for status in ('enforce', 'complain'):
+        filtered_profiles = filter_profiles(profiles, status)
+        for item in filtered_profiles:
+            i['profiles'][item] = status
+
+    for status in ('enforce', 'complain', 'unconfined'):
+        filtered_processes = filter_processes(processes, status)
+        for (pid, process) in filtered_processes:
+            if process not in i['processes']:
+                i['processes'][process] = []
+
+            i['processes'][process].append({
+                'pid': pid,
+                'status': status
+            })
+
+    if pretty_output:
+        sys.stdout.write(json.dumps(i, sort_keys=True, indent=4, separators=(',', ': ')))
+    else:
+        sys.stdout.write(json.dumps(i))
+
+def cmd_pretty_json():
+    cmd_json(True)
+
+def get_profiles():
+    '''Fetch loaded profiles'''
+
+    profiles = {}
+
+    if os.path.exists("/sys/module/apparmor"):
+        stdmsg("apparmor module is loaded.")
+    else:
+        errormsg("apparmor module is not loaded.")
+        sys.exit(1)
+
+    apparmorfs = find_apparmorfs()
+    if not apparmorfs:
+        errormsg("apparmor filesystem is not mounted.")
+        sys.exit(3)
+
+    apparmor_profiles = os.path.join(apparmorfs, "profiles")
+    try:
+        f = open(apparmor_profiles)
+    except IOError as e:
+        if e.errno == errno.EACCES:
+            errormsg("You do not have enough privilege to read the profile set.")
+        else:
+            errormsg("Could not open %s: %s" % (apparmor_profiles, os.strerror(e.errno)))
+        sys.exit(4)
+
+    for p in f.readlines():
+        match = re.search("^([^\(]+)\s+\((\w+)\)$", p)
+        profiles[match.group(1)] = match.group(2)
+
+    f.close()
+
+    return profiles
+
+def get_processes(profiles):
+    '''Fetch process list'''
+    processes = {}
+    contents = os.listdir("/proc")
+    for filename in contents:
+        if filename.isdigit():
+            try:
+                for p in open("/proc/%s/attr/current" % filename).readlines():
+                    match = re.search("^([^\(]+)\s+\((\w+)\)$", p)
+                    if match:
+                        processes[filename] = { 'profile' : match.group(1), \
+                                                'mode' : match.group(2) }
+                    elif os.path.realpath("/proc/%s/exe" % filename) in profiles:
+                        # keep only unconfined processes that have a profile defined
+                        processes[filename] = { 'profile' : os.path.realpath("/proc/%s/exe" % filename), \
+                                                'mode' : 'unconfined' }
+            except:
+                pass
+    return processes
+
+def filter_profiles(profiles, status):
+    '''Return a list of profiles that have a particular status'''
+    filtered = []
+    for key, value in list(profiles.items()):
+        if value == status:
+            filtered.append(key)
+    filtered.sort()
+    return filtered
+
+def filter_processes(processes, status):
+    '''Return a list of processes that have a particular status'''
+    filtered = []
+    for key, value in list(processes.items()):
+        if value['mode'] == status:
+            filtered.append([key, value['profile']])
+    return filtered
+
+def find_apparmorfs():
+    '''Finds AppArmor mount point'''
+    for p in open("/proc/mounts","rb").readlines():
+        if p.split()[2].decode() == "securityfs" and \
+           os.path.exists(os.path.join(p.split()[1].decode(), "apparmor")):
+            return os.path.join(p.split()[1].decode(), "apparmor")
+    return False
+
+def errormsg(message):
+    '''Prints to stderr if verbose mode is on'''
+    global verbose
+    if verbose:
+        sys.stderr.write(message + "\n")
+
+def stdmsg(message):
+    '''Prints to stdout if verbose mode is on'''
+    global verbose
+    if verbose:
+        sys.stdout.write(message + "\n")
+
+def print_usage():
+    '''Print usage information'''
+    sys.stdout.write('''Usage: %s [OPTIONS]
+Displays various information about the currently loaded AppArmor policy.
+OPTIONS (one only):
+  --enabled       returns error code if AppArmor not enabled
+  --profiled      prints the number of loaded policies
+  --enforced      prints the number of loaded enforcing policies
+  --complaining   prints the number of loaded non-enforcing policies
+  --json          displays multiple data points in machine-readable JSON format
+  --pretty-json   same data as --json, formatted for human consumption as well
+  --verbose       (default) displays multiple data points about loaded policy set
+  --help          this message
+''' % sys.argv[0])
+
+# Main
+global verbose
+verbose = False
+
+if len(sys.argv) > 2:
+    sys.stderr.write("Error: Too many options.\n")
+    print_usage()
+    sys.exit(1)
+elif len(sys.argv) == 2:
+    cmd = sys.argv.pop(1)
+else:
+    cmd = '--verbose'
+
+# Command dispatch:
+commands = {
+    '--enabled'      : cmd_enabled,
+    '--profiled'     : cmd_profiled,
+    '--enforced'     : cmd_enforced,
+    '--complaining'  : cmd_complaining,
+    '--json'         : cmd_json,
+    '--pretty-json'  : cmd_pretty_json,
+    '--verbose'      : cmd_verbose,
+    '-v'             : cmd_verbose,
+    '--help'         : print_usage,
+    '-h'             : print_usage
+}
+
+if cmd in commands:
+    commands[cmd]()
+    sys.exit(0)
+else:
+    sys.stderr.write("Error: Invalid command.\n")
+    print_usage()
+    sys.exit(1)
+

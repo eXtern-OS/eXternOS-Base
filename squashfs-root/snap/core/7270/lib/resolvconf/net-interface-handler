@@ -1,0 +1,162 @@
+#!/bin/sh
+# copy dns settings from a dhcp in the initramfs into resolvconf.
+# This is invoked from udev via 70-resolvconf-initramfs-copy.rules
+#
+
+DEBUG=0
+OPENISCSI_MARKER=/run/initramfs/open-iscsi.interface
+PROG="rconf-initrd"   # PROG, per resolvconf(8) IFACE.PROG
+CR="
+"
+
+error() {
+    echo "$0${INTERFACE:+[$INTERFACE]}:" "$@" 1>&2
+}
+
+debug() {
+    [ "${DEBUG:-0}" != "0" ] || return 0
+    error "$@" 1>&2;
+}
+
+enabled_on_kernel_cmdline() {
+    # this can be enabled on the kernel command line if
+    # it has either cloud-config-url= (maas will have this)
+    # or it explicitly has 'rc-initrd-dns' (mostly testing)
+    local cmdline=""
+    if [ ! -e /proc/cmdline ]; then
+       debug "/proc/cmdline does not exist."
+       return 1
+    fi
+    read cmdline < /proc/cmdline
+    case " $cmdline " in
+        *cloud-config-url=*|*\ rc-initrd-dns\ *) :;;
+        *\ root=http*) :;; # LP: #1735225
+        *) debug "not enabled in kernel cmdline."; return 1;;
+    esac
+
+    # if the command line matched, we may be in a container
+    # where a shared cmdline with the host.
+    if command -v systemd-detect-virt >/dev/null 2>&1; then
+        local out=""
+        out=$(systemd-detect-virt --container)
+        case "$out" in
+            none) :;;
+            *) debug "inside a container, ignoring cmdline."; return 1;;
+        esac
+    fi
+
+    return 0
+}
+
+should_be_enabled() {
+    if [ -f "${OPENISCSI_MARKER}" ]; then
+        debug "open-iscsi in control per ${OPENISCSI_MARKER}"
+        return 1
+    fi
+
+    if ! enabled_on_kernel_cmdline; then
+        return 1
+    fi
+    return 0
+}
+
+assert_environment() {
+    if [ -z "$INTERFACE" ]; then
+        error "'INTERFACE' not set in environment."
+        return 1
+    fi
+    return 0
+}
+
+netinfo_to_resolv_conf() {
+    # netinfo_to_resolv_conf(output, files)
+    # write resolv_conf from /run/net-<device> style files.
+    # borrowed with slight modification from initramfs-tools/scripts/functions
+    local output="$1" search="" ns="" f="" n=""
+    shift
+    for f in "$@"; do
+        [ -f "$f" ] || continue
+        unset IPV4DNS0 IPV4DNS1 IPV6DNS0 IPV6DNS1
+        unset DOMAINSEARCH IPV6DOMAINSEARCH
+        . "$f" || { error "failed '. \"$f\"'" 1>&2; return 1; }
+        for n in "${IPV4DNS0}" "${IPV4DNS1}" \
+            "${IPV6DNS0}" "${IPV6DNS1}"; do
+            [ -n "$n" -a "$n" != "0.0.0.0" ] || continue
+            # skip if 'n' already in list.
+            case " ${ns} " in
+                *\ $n\ *) continue;;
+            esac
+            ns="${ns} ${n}"
+        done
+        for n in "${DOMAINSEARCH}" "${IPV6DOMAINSEARCH}"; do
+            [ -n "$n" ] || continue
+            # skip if already in search.
+            case " ${search}" in
+                *\ $n\ *) continue;;
+            esac
+            search="$search $n"
+        done
+        search=${search# }
+        ns=${ns# }
+    done
+
+    local rconf=""
+    for n in ${ns}; do
+        rconf="${rconf}nameserver $n${CR}"
+    done
+    if [ -n "${search}" ]; then
+        rconf="${rconf}search ${search}${CR}"
+    fi
+    if [ -z "$rconf" ]; then
+        debug "no search or nameservers found in $*"
+    fi
+    if [ "$output" = "-" ]; then
+        echo -n "$rconf"
+    else
+        echo -n "$rconf" > "$output"
+    fi
+}
+
+start() {
+    # if open-iscsi is involved we assume it is in charge of this work.
+
+    assert_environment || return
+    should_be_enabled || return 0
+
+    local iface="$INTERFACE" i="" rconf=""
+    set --
+    for i in "/run/net-$iface.conf" "/run/net6-$iface.conf"; do
+        [ -f "$i" ] || continue
+        set -- "$@" "$i"
+    done
+    if [ $# -eq 0 ]; then
+        debug "no /run/net*-$iface.conf files found."
+        return 0
+    fi
+
+    rconf=$(netinfo_to_resolv_conf - "$@")
+    if [ -z "$rconf" ]; then
+        debug "no resolv.conf related settings in $*"
+        return 0
+    fi
+
+    # create the dir in case resolvconf did not start yet
+    mkdir -p /run/resolvconf/interface
+    debug echo "\"$rconf\"" "|" "resolvconf -a $iface.$PROG"
+    echo "$rconf" | resolvconf -a "$iface.$PROG"
+}
+
+stop() {
+    assert_environment || return
+    should_be_enabled || return 0
+    local iface="$INTERFACE"
+    debug resolvconf -d "$iface.$PROG"
+    resolvconf -d "$iface.$PROG"
+}
+
+case "$1" in
+    start) start ;;
+    stop) stop ;;
+    _test) :;;
+    *) echo "ERROR: must be called with 'start' or 'stop'" >&2; exit 1 ;;
+esac

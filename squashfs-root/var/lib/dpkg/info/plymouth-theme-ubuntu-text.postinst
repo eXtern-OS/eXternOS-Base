@@ -1,0 +1,58 @@
+#!/bin/sh -e
+# This script can be called in the following ways:
+#
+# After the package was installed:
+#       <postinst> configure <old-version>
+#
+#
+# If prerm fails during upgrade or fails on failed upgrade:
+#       <old-postinst> abort-upgrade <new-version>
+#
+# If prerm fails during deconfiguration of a package:
+#       <postinst> abort-deconfigure in-favour <new-package> <version>
+#                  removing <old-package> <version>
+#
+# If prerm fails during replacement due to conflict:
+#       <postinst> abort-remove in-favour <new-package> <version>
+
+
+case "$1" in
+    configure|triggered)
+	if [ "$1" = "configure" ]; then
+		# We remove leftover generated file from previous plymouth version. Can be removed on xenial+1
+		if dpkg --compare-versions "$2" le-nl "0.9.2-3ubuntu1~"; then
+			rm -f /lib/plymouth/themes/ubuntu-text/ubuntu-text.plymouth
+		fi
+	fi
+	# we keep that rmdir unconditional as we want to ensure that the dir is
+	# removed at some point (alternatives on other theme package removing
+	# default links may happens later)
+	rmdir -p --ignore-fail-on-non-empty /lib/plymouth/ 2>/dev/null || :
+
+	sed -re \
+		"/\[ubuntu-text\]/ {
+			N;
+			s/(title=Ubuntu ).*\$/\1$(lsb_release -rs)/
+		}" /usr/share/plymouth/themes/ubuntu-text/ubuntu-text.plymouth.in \
+			> /usr/share/plymouth/themes/ubuntu-text/ubuntu-text.plymouth
+	update-alternatives \
+		--install /usr/share/plymouth/themes/text.plymouth text.plymouth \
+		/usr/share/plymouth/themes/ubuntu-text/ubuntu-text.plymouth 50
+
+	if which update-initramfs >/dev/null 2>&1
+	then
+	    update-initramfs -u
+	fi
+	;;
+
+    abort-upgrade|abort-deconfigure|abort-remove)
+	;;
+
+    *)
+	echo "$0 called with unknown argument \`$1'" 1>&2
+	exit 1
+	;;
+esac
+
+
+exit 0

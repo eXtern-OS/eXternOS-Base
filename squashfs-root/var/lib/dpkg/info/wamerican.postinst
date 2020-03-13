@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+# wamerican can be installed standalone, with no dictionaries-common,
+# so use update-default-wordlist if present and do not complain
+# otherwise
+
+SCRIPT="/usr/sbin/update-default-wordlist"
+ 
+if [ "$1" = "configure" ] ; then
+    if [ -x "$SCRIPT" ]; then
+	$SCRIPT  --rebuild
+    fi
+fi
+
+

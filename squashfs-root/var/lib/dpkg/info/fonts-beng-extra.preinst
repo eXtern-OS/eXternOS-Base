@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+broken_dir=/etc/fonts/conf.avail/65-0-fonts-beng-extra.conf
+
+if dpkg --compare-versions "$2" lt-nl 1.0-6ubuntu0.1 \
+   && [ -d "$broken_dir" ]; then
+	# wonderful hack to replace a wrong directory with a conffile.
+	mv "$broken_dir" "$broken_dir".tmp
+	mv "$broken_dir.tmp/65-0-fonts-beng-extra.conf" /etc/fonts/conf.avail
+	rmdir --ignore-fail-on-non-empty "$broken_dir".tmp
+fi
+
+

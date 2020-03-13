@@ -1,0 +1,104 @@
+#!/bin/sh
+# ----------------------------------------------------------------------
+#    Copyright (c) 2017 Canonical Ltd. (All rights reserved)
+#
+#    This program is free software; you can redistribute it and/or
+#    modify it under the terms of version 2 of the GNU General Public
+#    License published by the Free Software Foundation.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program. If not, see <http://www.gnu.org/licenses/>.
+# ----------------------------------------------------------------------
+
+APPARMOR_FUNCTIONS=/lib/apparmor/functions
+APPARMORFS=/sys/kernel/security/apparmor
+PROFILES_IFACE="${APPARMORFS}/profiles"
+REMOVE="${APPARMORFS}/.remove"
+
+DRY_RUN=0
+
+. $APPARMOR_FUNCTIONS
+
+usage() {
+	local progname="$1"
+	local rc="$2"
+	local msg="usage: ${progname} [options]\n
+Remove profiles unknown to the system
+
+Options:
+ -h, --help	Show this help message and exit
+ -n		Dry run; don't remove profiles"
+
+	if [ "$rc" -ne 0 ] ; then
+		echo "$msg" 1>&2
+	else
+		echo "$msg"
+	fi
+
+	exit "$rc"
+}
+
+if [ "$#" -gt 1 ] ; then
+	usage "$0" 1
+elif [ "$#" -eq 1 ] ; then
+	if [ "$1" = "-h" -o "$1" = "--help" ] ; then
+		usage "$0" 0
+	elif [ "$1" = "-n" ] ; then
+		DRY_RUN=1
+	else
+		usage "$0" 1
+	fi
+fi
+
+
+# We can't use a -r test here because while $PROFILES_IFACE is world-readable,
+# apparmorfs may still return EACCES from open()
+#
+# We have to do this check because error checking awk's getline() below is
+# tricky and, as is, results in an infinite loop when apparmorfs returns an
+# error from open().
+if ! IFS= read line < "$PROFILES_IFACE" ; then
+	echo "ERROR: Unable to read apparmorfs profiles file" 1>&2
+	exit 1
+elif [ ! -w "$REMOVE" ] ; then
+	echo "ERROR: Unable to write to apparmorfs remove file" 1>&2
+	exit 1
+fi
+
+# Clean out running profiles not associated with the current profile
+# set, excluding the libvirt dynamically generated profiles.
+aa_configured=$(mktemp -t aa-XXXXXX)
+configured_profile_names > "$aa_configured"
+if [ "$?" -ne 0 ] ; then
+	echo "ERROR: Unable to enumerate the known profiles" 1>&2
+	rm -f "$aa_configured" "$aa_loaded"
+	exit 1
+fi
+
+aa_loaded=$(mktemp -t aa-XXXXXX)
+running_profile_names > "$aa_loaded" || true
+if [ "$?" -ne 0 ] ; then
+	echo "ERROR: Unable to enumerate the running profiles" 1>&2
+	rm -f "$aa_configured" "$aa_loaded"
+	exit 1
+fi
+
+LC_COLLATE=C comm -2 -3 "$aa_loaded" "$aa_configured" | while read profile ; do
+	if [ "$DRY_RUN" -ne 0 ]; then
+		echo "Would remove '${profile}'"
+	else
+		echo "Removing '${profile}'"
+		unload_profile "$profile"
+	fi
+done
+ret="$?"
+
+rm -f "$aa_configured" "$aa_loaded"
+
+# will not catch all errors, but still better than nothing
+exit $ret

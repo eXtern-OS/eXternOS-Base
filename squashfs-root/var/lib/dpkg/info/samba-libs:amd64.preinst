@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+#
+
+set -e
+
+# Move files to private subdir now fhs patch is finally gone
+if [ "$1" = "install" ]
+then
+	for file in passdb.tdb secrets.tdb schannel_store.tdb idmap2.tdb
+	do
+		if [ -e /var/lib/samba/$file ]
+		then
+			if [ -e /var/lib/samba/private/$file ] &&
+				[ ! /var/lib/samba/$file -ef /var/lib/samba/private/$file ]
+			then
+				echo $file exists in /var/lib/samba and /var/lib/samba/private, aborting samba-libs preinst
+				echo rename one of them to allow the install/upgrade to continue
+				echo http://bugs.debian.org/726472
+				ls -al /var/lib/samba /var/lib/samba/private
+				exit 1
+			fi
+		fi
+	done
+	for file in passdb.tdb secrets.tdb schannel_store.tdb idmap2.tdb
+	do
+		if [ -e /var/lib/samba/$file ]
+		then
+			if ! [ -e /var/lib/samba/private/$file ]
+			then
+				if [ ! -d /var/lib/samba/private ]
+				then
+					mkdir /var/lib/samba/private
+				fi
+				mv /var/lib/samba/$file /var/lib/samba/private/$file
+				ln /var/lib/samba/private/$file /var/lib/samba/$file
+			fi
+		fi
+	done
+fi
+
+
+
+
+exit 0

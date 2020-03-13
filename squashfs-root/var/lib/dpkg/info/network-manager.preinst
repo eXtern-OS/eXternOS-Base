@@ -1,0 +1,48 @@
+#!/bin/sh
+
+set -e
+
+# This script can be called in the following ways:
+#
+# Before the package is installed:
+#	<new-preinst> install
+#
+# Before removed package is upgraded:
+#	<new-preinst> install <old-version>
+#
+# Before the package is upgraded:
+#	<new-preinst> upgrade <old-version>
+#
+#
+# If postrm fails during upgrade or fails on failed upgrade:
+#	<old-preinst> abort-upgrade <new-version>
+
+case "$1" in
+    install|upgrade)
+        if dpkg --compare-versions "$2" lt-nl "1.0.0-4"; then
+            if [ -L /etc/systemd/system/dbus-org.freedesktop.NetworkManager.service ]; then
+                rm -f /etc/systemd/system/dbus-org.freedesktop.NetworkManager.service
+            fi
+        fi
+
+        # Purge the state so the service gets properly enabled on upgrades
+        if dpkg --compare-versions "$2" lt-nl "1.2.2-2"; then
+            deb-systemd-helper purge NetworkManager-wait-online.service
+        fi
+        ;;
+
+    abort-upgrade)
+        ;;
+
+    *)
+        echo "$0 called with unknown argument \`$1'" 1>&2
+        exit 1
+        ;;
+esac
+
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/dbus-1/system.d/nm-avahi-autoipd.conf 1.1.90-2\~ -- "$@"
+dpkg-maintscript-helper mv_conffile /etc/NetworkManager/dispatcher.d/01ifupdown /etc/NetworkManager/dispatcher.d/01-ifupdown 1.8.0-5\~ -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/dbus-1/system.d/nm-ofono.conf 1.2.4-1\~ -- "$@"
+# End automatically added section
+

@@ -1,0 +1,18 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+  install|upgrade)
+    if dpkg --compare-versions "$2" lt 1.98+20100804-2 && \
+       test -h /etc/kernel/postrm.d/zz-update-grub; then
+      rm -f /etc/kernel/postrm.d/zz-update-grub
+    fi
+    ;;
+esac
+
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper dir_to_symlink /usr/share/doc/grub-pc grub-common 1.99-1~ -- "$@"
+# End automatically added section
+
+
+exit 0

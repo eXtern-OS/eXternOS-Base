@@ -1,0 +1,24 @@
+[Unit]
+Description=Initial cloud-init job (pre-networking)
+DefaultDependencies=no
+Wants=network-pre.target
+After=systemd-remount-fs.service
+Before=NetworkManager.service
+Before=network-pre.target
+Before=shutdown.target
+Before=sysinit.target
+Conflicts=shutdown.target
+RequiresMountsFor=/var/lib/cloud
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/cloud-init init --local
+ExecStart=/bin/touch /run/cloud-init/network-config-ready
+RemainAfterExit=yes
+TimeoutSec=0
+
+# Output needs to appear in instance console output
+StandardOutput=journal+console
+
+[Install]
+WantedBy=cloud-init.target

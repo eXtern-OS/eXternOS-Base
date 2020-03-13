@@ -1,0 +1,36 @@
+#!/bin/sh
+## ----------------------------------------------------------------------
+## debian/postrm : postremoval script for sgml-base
+## ----------------------------------------------------------------------
+
+## ----------------------------------------------------------------------
+set -e
+
+## ----------------------------------------------------------------------
+if [ "$1" = "purge" ]
+then
+
+    ## ------------------------------------------------------------------
+    ## remove SGML root catalog
+    rm -f /etc/sgml/catalog /etc/sgml/catalog.old
+    rm -f /var/lib/sgml-base/supercatalog
+    rm -f /var/lib/sgml-base/supercatalog.new
+    rm -f /var/lib/sgml-base/supercatalog.old
+
+    ## ------------------------------------------------------------------
+    ## remove /etc/sgml and /var/lib/sgml-base
+    for dir in /etc/sgml /var/lib/sgml-base; do
+      if [ -d $dir ]; then
+         rmdir --ignore-fail-on-non-empty $dir
+      fi
+    done
+
+fi
+
+## ---------------------------------------------------------------------- 
+## automatically generated debhelper commands
+
+
+exit 0
+
+## ----------------------------------------------------------------------

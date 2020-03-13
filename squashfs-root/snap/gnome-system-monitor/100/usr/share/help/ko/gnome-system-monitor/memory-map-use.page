@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<page xmlns="http://projectmallard.org/1.0/" xmlns:ui="http://projectmallard.org/ui/1.0/" type="topic" style="task" id="memory-map-use" xml:lang="ko">
+
+  <info>
+    <revision pkgversion="3.11" date="2014-01-28" status="candidate"/>
+    <link type="guide" xref="index#memory" group="memory"/>
+
+    <include xmlns="http://www.w3.org/2001/XInclude" href="legal.xml"/>
+
+    <credit type="author copyright">
+      <name>Phil Bull</name>
+      <email>philbull@gmail.com</email>
+      <years>2011</years>
+    </credit>
+
+    <credit type="author copyright">
+      <name>Michael Hill</name>
+      <email>mdhillca@gmail.com</email>
+      <years>2011, 2014</years>
+    </credit>
+
+    <desc>프로세스의 메모리 맵을 봅니다.</desc>
+  
+    <mal:credit xmlns:mal="http://projectmallard.org/1.0/" type="translator copyright">
+      <mal:name>조성호</mal:name>
+      <mal:email>shcho@gnome.org</mal:email>
+      <mal:years>2016, 2017</mal:years>
+    </mal:credit>
+  </info>
+
+  <title>메모리 맵 활용</title>
+
+  <p><gui>가상 메모리</gui>는 시스템의 <gui>실제 메모리</gui>와 <link xref="mem-swap">스왑 영역</link>을 합쳐서 나타냅니다. 실제 메모리에서 디스크의 파일로 <gui>매핑</gui>하여, 실행 프로세스가 기존의 실제 메모리보다 <em>더 많은</em> 공간에 접근할 수 있게 해줍니다. 시스템에서 더 많은 메모리 페이지가 필요하다면 기존 페이지 일부를 <em>내보내거나</em> 스왑 영역에 기록합니다.</p>
+
+  <p><gui>메모리 맵</gui>에서는 프로세스에서 활용하는 전체 가상 메모리를 표시하며, 올바른 공유 메모리를 확인하거나, 프로그램에서 취할 다양한 성능 튜닝 매개 변수 결과를 보거나, 메모리 누수와 같은 문제를 진단하든지, 프로그램의 단일 인스턴스 또는 다중 인스턴스를 실행하는 메모리 용량을 결정할 때 활용할 수 있습니다.</p>
+
+  <p>프로세스의 <link xref="memory-map-what">메모리 맵</link>을 표시하려면:</p>
+
+  <steps>
+    <item><p><gui>프로세스</gui> 탭을 누르십시오.</p></item>
+    <item><p><gui>프로세스 목록</gui>에서 원하는 프로세스에 오른쪽 마우스 단추를 누르십시오.</p></item>
+    <item><p><gui>메모리 맵</gui>을 누르십시오.</p></item>
+  </steps>
+
+<section id="read">
+  <title>메모리 맵 보기</title>
+
+  <list>
+    <item>
+      <p>주소는 16진수(16진법)로 표시합니다.</p>
+    </item>
+    <item>
+      <p>크기는 <link xref="units">IEC 바이너리 접두 단위</link>로 표시합니다.</p>
+    </item>
+    <item>
+      <p>프로세스는 실행 시간동안 <em>힙</em> 이라는 메모리 공간을 동적으로 할당할 수 있으며, 인자 및 변수 값을 <em>스택</em> 이라는 다른 공간에 저장합니다.</p>
+    </item>
+    <item>
+      <p>프로그램 자체와 각 공유 라이브러리는 읽고 실행하는 텍스트 세그먼트, 읽고 쓰는 데이터 세그먼트, 읽기 전용 데이터 세그먼트를 보유합니다. 각 데이터 세그먼트는 스왑 타임에 페이지 단위로 소거처리해야합니다.</p>
+    </item>
+  </list>
+
+<table shade="rows" ui:expanded="false">
+<title>속성</title>
+  <tr>
+	  <td><p>파일 이름</p></td>
+	  <td><p>프로세스에서 현재 사용하는 공유 라이브러리 위치입니다. 이 부분이 피어있다면, 이 부분의 메모리 정보는 메모리 맵 테이블에 표시한 이름을 가진 프로세스가 소유합니다.</p></td>
+  </tr>
+  <tr>
+	  <td><p>VM 시작</p></td>
+	  <td><p>메모리 세그먼트 시작 주소입니다. VM 시작, VM 끝, VM 오프셋은 공유 라이브러리를 매핑하는 디스크 위치를 지정합니다.</p></td>
+  </tr>
+  <tr>
+	  <td><p>VM 끝</p></td>
+	  <td><p>메모리 세그먼트가 끝나는 주소입니다.</p></td>
+  </tr>
+  <tr>
+	  <td><p>VM 크기</p></td>
+	  <td><p>메모리 세그먼트의 크기입니다.</p></td>
+  </tr>
+  <tr>
+	  <td><p>플래그</p></td>
+	  <td><p>다음 플래그는 프로세스가 취할 수 있는 다양한 메모리 세그먼트 접근 형식을 나타냅니다:</p>
+    <terms>
+      <item>
+        <title><gui>p</gui></title>
+        <p>메모리 세그먼트는 프로세스에서 전용으로 활용하며, 다른 프로세스에서 접근할 수 없습니다.</p>
+      </item>
+      <item>
+        <title><gui>r</gui></title>
+        <p>프로세스는 메모리 세그먼트의 내용을 읽을 권한이 있습니다.</p>
+      </item>
+      <item>
+        <title><gui>s</gui></title>
+        <p>메모리 세그먼트를 다른 프로세스에서 활용하도록 공유했습니다.</p>
+      </item>
+      <item>
+        <title><gui>w</gui></title>
+        <p>프로세스는 메모리 세그먼트의 내용을 기록할 권한이 있습니다.</p>
+      </item>
+      <item>
+        <title><gui>x</gui></title>
+        <p>프로세스에는 메모리 세그먼트에 있는 명령을 실행할 권한이 있습니다.</p>
+      </item>
+    </terms>
+    </td>
+  </tr>
+  <tr>
+	  <td><p>VM 오프셋</p></td>
+	  <td><p>VM 시작점으로 측정한 메모리 세그먼트의 주소 위치입니다.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Private, Shared, Clean, Dirty</p></td>
+<!--	  <td><p>Text pages are flagged read-execute in memory and don't need to
+  be written to swap since they can be re-loaded from their original location
+  on disk. Data pages have read-write permissions, and if modified when in
+  memory, they are labeled <em>dirty</em>, and when designated for swapping,
+  must be paged out.</p></td>
+-->
+          <td><list><item><p><em>private</em> 페이지는 하나의 프로세스에서 접근합니다</p></item>
+          <item><p><em>shared</em> 페이지는 하나 이상의 프로세스에서 접근할 수 있습니다</p></item>
+          <item><p><em>clean</em> 페이지는 메모리에 있는동안 수정하지 않았으며 스와핑 하도록 지정했을 때 버릴 수 있습니다</p></item>
+          <item><p><em>dirty</em> 페이지는 메모리에서 수정했으며 스와핑 처리할 때 디스크에 기록해야합니다</p></item></list></td>
+  </tr>
+  <tr>
+	  <td><p>장치</p></td>
+	  <td><p>공유 라이브러리 파일 이름이 위치한 장치의 주/부 번호입니다. 시스템의 분할 공간을 지정합니다.</p></td>
+  </tr>
+  <tr>
+	  <td><p>아이노드</p></td>
+	  <td><p>공유 라이브러리 위치에서 메모리로 불러오는 장치의 아이노드입니다 아이노드는 파일 시스템이 파일을 저장할 때 활용하는 구조이며, 할당 번호는 유일한 번호입니다.</p></td>
+  </tr>
+</table>
+
+</section>
+</page>

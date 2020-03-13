@@ -1,0 +1,134 @@
+#!/bin/sh
+
+set -e
+
+# summary of how this script can be called:
+#        * <postinst> `configure' <most-recently-configured-version>
+#        * <old-postinst> `abort-upgrade' <new version>
+#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#          <new-version>
+#        * <postinst> `abort-remove'
+#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#          <failed-install-package> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+case "$1" in
+    configure)
+	user_conf=/etc/rsyslog.d/50-default.conf
+	default_conf=/usr/share/rsyslog/50-default.conf
+
+	ucf --three-way --debconf-ok $default_conf $user_conf
+	ucfr rsyslog $user_conf
+
+	adduser --system --group --no-create-home --quiet syslog || true
+	adduser syslog adm || true
+
+	if which systemd-tmpfiles >/dev/null
+	then
+	    systemd-tmpfiles --create /usr/lib/tmpfiles.d/00rsyslog.conf
+	else
+	    # fix ownership of work directory (LP: #1075901)
+            chown syslog:adm /var/spool/rsyslog
+
+	    # ensure that rsyslogd can create log files after dropping
+	    # privileges
+	    chgrp syslog /var/log
+	    chmod g+w /var/log
+
+	    # Fix permissions of the spool/work directory (Bug: #693099)
+	    chmod 700 /var/spool/rsyslog
+	fi
+    ;;
+
+    triggered)
+	# Try to restart rsyslog
+	invoke-rc.d rsyslog try-restart || true
+	exit 0
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+	echo "postinst called with unknown argument \`$1'" >&2
+	exit 1
+    ;;
+esac
+
+# Automatically added by dh_systemd_enable/11.1.6ubuntu1
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# This will only remove masks created by d-s-h on package removal.
+	deb-systemd-helper unmask 'rsyslog.service' >/dev/null || true
+
+	# was-enabled defaults to true, so new installations run enable.
+	if deb-systemd-helper --quiet was-enabled 'rsyslog.service'; then
+		# Enables the unit on first installation, creates new
+		# symlinks on upgrades if the unit file has changed.
+		deb-systemd-helper enable 'rsyslog.service' >/dev/null || true
+	else
+		# Update the statefile to add new symlinks (if any), which need to be
+		# cleaned up on purge. Also remove old symlinks.
+		deb-systemd-helper update-state 'rsyslog.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_apparmor/2.12-4ubuntu5
+aa_is_enabled() {
+   if command aa-enabled >/dev/null 2>&1; then
+      # apparmor >= 2.10.95-2
+      aa-enabled --quiet 2>/dev/null
+   else
+      # apparmor << 2.10.95-2
+      # (This should be removed once Debian Stretch and Ubuntu 18.04 are out.)
+      rc=0
+      aa-status --enabled 2>/dev/null || rc=$?
+      [ "$rc" = 0 ] || [ "$rc" = 2 ]
+   fi
+}
+
+if [ "$1" = "configure" ]; then
+    APP_PROFILE="/etc/apparmor.d/usr.sbin.rsyslogd"
+    if [ -f "$APP_PROFILE" ]; then
+        # Add the local/ include
+        LOCAL_APP_PROFILE="/etc/apparmor.d/local/usr.sbin.rsyslogd"
+
+        test -e "$LOCAL_APP_PROFILE" || {
+            mkdir -p `dirname "$LOCAL_APP_PROFILE"`
+            install --mode 644 /dev/null "$LOCAL_APP_PROFILE"
+        }
+
+        # Reload the profile, including any abstraction updates
+        if aa_is_enabled; then
+            apparmor_parser -r -T -W "$APP_PROFILE" || true
+        fi
+    fi
+fi
+# End automatically added section
+# Automatically added by dh_installinit/11.1.6ubuntu1
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# In case this system is running systemd, we need to ensure that all
+	# necessary tmpfiles (if any) are created before starting.
+	if [ -d /run/systemd/system ] ; then
+		systemd-tmpfiles --create /usr/lib/tmpfiles.d/00rsyslog.conf >/dev/null || true
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu1
+dpkg-maintscript-helper rm_conffile /etc/init/rsyslog.conf 8.16.0-1ubuntu9\~ rsyslog -- "$@"
+# End automatically added section
+# Automatically added by dh_installinit/11.1.6ubuntu1
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	if [ -x "/etc/init.d/rsyslog" ]; then
+		update-rc.d rsyslog defaults >/dev/null
+		if [ -n "$2" ]; then
+			_dh_action=restart
+		else
+			_dh_action=start
+		fi
+		invoke-rc.d rsyslog $_dh_action || exit 1
+	fi
+fi
+# End automatically added section
+

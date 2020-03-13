@@ -1,0 +1,63 @@
+#!/bin/sh
+set -e
+
+
+log() {
+    echo "$*"
+}
+
+# try to insert mdns entries to the "hosts" line in /etc/nsswitch.conf to
+# automatically enable nss-mdns support; do not change the configuration if the
+# "hosts" line already references some mdns lookups
+insert_mdns() {
+    log "Checking NSS setup..."
+    # abort if /etc/nsswitch.conf does not exist
+    if ! [ -e /etc/nsswitch.conf ]; then
+        log "Could not find /etc/nsswitch.conf."
+        return
+    fi
+    perl -i -pe '
+        sub insert {
+            # this also splits on tab
+            my @bits=split(" ", shift);
+            # do not break configuration if the "hosts" line already references
+            # mdns
+            if (grep { $_ eq "mdns4_minimal" || $_ eq "mdns4"
+                || $_ eq "mdns" || $_ eq "mdns_minimal" 
+                || $_ eq "mdns6" || $_ eq "mdns6_minimal"} @bits) {
+                return join " ", @bits;
+            }
+            # change "dns" or "resolve", whichever comes first, into
+            # "mdns4_minimal [NOTFOUND=return] dns|resolve"
+            foreach my $bit (@bits) {
+                if ($bit eq "dns" || $bit eq "resolve") {
+                    $bit = "mdns4_minimal [NOTFOUND=return] $bit";
+                    last;
+                }
+            }
+            return join " ", @bits;
+        }
+        s/^(hosts:\s+)(.*)/$1.insert($2)/e;
+    ' /etc/nsswitch.conf
+}
+
+action="$1"
+
+if [ configure = "$action" ]; then
+    if [ -z "$2" ]; then
+        log "First installation detected..."
+        # first install: setup the recommended configuration (unless
+        # nsswitch.conf already contains mdns entries)
+        insert_mdns
+    else
+        # upgrade
+        version="$2"
+
+        if dpkg --compare-versions "$version" lt 0.10-8~; then
+            log "Re-ordering libnss-mdns before libnss-resolve if necessary (#846944)."
+            perl -i -pe \
+                's/(resolve \[!?[A-Za-z=]+\]) (mdns4_minimal \[!?[A-Za-z=]+\])/$2 $1/ if /^hosts:/' \
+                /etc/nsswitch.conf
+        fi
+    fi
+fi

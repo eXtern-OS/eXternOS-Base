@@ -1,0 +1,96 @@
+name: gnome-logs
+adopt-info: gnome-logs
+summary: A log viewer for the systemd journal
+description: |
+  Logs makes it easy to view and filter log messages and events.
+  Filter logs by category and importance to get the information you want. Use
+  the integrated search to get more relevant results.
+
+grade: stable # must be 'stable' to release into candidate/stable channels
+confinement: strict
+base: core18
+
+plugs:
+  gnome-3-28-1804:
+    interface: content
+    target: $SNAP/gnome-platform
+    default-provider: gnome-3-28-1804
+  gtk-3-themes:
+    interface: content
+    target: $SNAP/data-dir/themes
+    default-provider: gtk-common-themes
+  icon-themes:
+    interface: content
+    target: $SNAP/data-dir/icons
+    default-provider: gtk-common-themes
+  sound-themes:
+    interface: content
+    target: $SNAP/data-dir/sounds
+    default-provider: gtk-common-themes
+
+slots:
+  # for GtkApplication registration
+  gnome-logs:
+    interface: dbus
+    bus: session
+    name: org.gnome.Logs
+
+apps:
+  gnome-logs:
+    command: desktop-launch gnome-logs
+    plugs:
+      - log-observe
+      - desktop
+      - desktop-legacy
+      - network
+      - home
+      - gsettings
+      - unity7
+      - wayland
+    desktop: usr/share/applications/org.gnome.Logs.desktop
+    environment:
+      GSETTINGS_SCHEMA_DIR: $SNAP/share/glib-2.0/schemas
+      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/lib/gnome-logs
+
+parts:
+  desktop-gnome-platform:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: gtk
+    plugin: make
+    make-parameters: ["FLAVOR=gtk3"]
+    build-packages:
+      - build-essential
+      - libgtk-3-dev
+    override-build: |
+      snapcraftctl build
+      mkdir -pv $SNAPCRAFT_PART_INSTALL/gnome-platform
+  gnome-logs:
+    after: [desktop-gnome-platform]
+    source: https://gitlab.gnome.org/GNOME/gnome-logs.git
+    source-type: git
+    source-branch: gnome-3-32
+    plugin: autotools
+    configflags: [--prefix=/snap/gnome-logs/current/usr]
+    organize:
+      snap/gnome-logs/current/usr: usr
+    build-packages:
+      - appstream-util
+      - desktop-file-utils
+      - gnome-common
+      - intltool
+      - libglib2.0-dev
+      - libgtk-3-dev
+      - libsystemd-dev
+      - yelp-tools
+    override-pull: |
+      snapcraftctl pull
+      snapcraftctl set-version $(git describe --tags --abbrev=10 | sed -e s/gnome-logs-//g)
+      sed -i.bak -e 's|=org.gnome.Logs$|=${SNAP}/meta/gui/org.gnome.Logs.svg|g' data/org.gnome.Logs.desktop.in
+    override-build: |
+      snapcraftctl build
+      mkdir -p $SNAPCRAFT_PART_INSTALL/meta/gui/
+      cp ../src/data/icons/scalable/org.gnome.Logs.svg $SNAPCRAFT_PART_INSTALL/meta/gui/
+  libraries:
+    plugin: nil
+    prime:
+      - "-*"

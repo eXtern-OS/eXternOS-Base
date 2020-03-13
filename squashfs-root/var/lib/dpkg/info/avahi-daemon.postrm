@@ -1,0 +1,47 @@
+#!/bin/sh
+
+set -e
+
+# drop the temporary mask from prerm
+if [ -d /run/systemd/system ] && [ "$1" = remove ]; then
+    systemctl unmask --runtime avahi-daemon.service
+fi
+
+# Automatically added by dh_installinit/11.1.6ubuntu1
+if [ "$1" = "purge" ] ; then
+	update-rc.d avahi-daemon remove >/dev/null
+fi
+
+
+# In case this system is running systemd, we make systemd reload the unit files
+# to pick up changes.
+if [ -d /run/systemd/system ] ; then
+	systemctl --system daemon-reload >/dev/null || true
+fi
+# End automatically added section
+# Automatically added by dh_systemd_enable/11.1.6ubuntu1
+if [ "$1" = "remove" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper mask 'avahi-daemon.service' 'avahi-daemon.socket' >/dev/null || true
+	fi
+fi
+
+if [ "$1" = "purge" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper purge 'avahi-daemon.service' 'avahi-daemon.socket' >/dev/null || true
+		deb-systemd-helper unmask 'avahi-daemon.service' 'avahi-daemon.socket' >/dev/null || true
+	fi
+fi
+# End automatically added section
+
+
+if [ "$1" = "purge" ] ; then
+    deluser --quiet --system avahi > /dev/null || true
+    delgroup --quiet --system avahi > /dev/null || true
+    # Cleanup /var/run/avahi-daemon, see #448539
+    f=/var/run/avahi-daemon
+    if [ -d "$f" ]; then
+        rmdir "$f" || { chown root:root "$f" && chmod 00700 "$f"; }
+    fi
+fi
+

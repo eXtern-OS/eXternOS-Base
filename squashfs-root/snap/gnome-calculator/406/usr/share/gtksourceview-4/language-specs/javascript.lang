@@ -1,0 +1,848 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+ This file is part of GtkSourceView
+
+ Author: Scott Martin <scott@coffeeblack.org>
+ Copyright (C) 2004 Scott Martin <scott@coffeeblack.org>
+ Copyright (C) 2005 Stef Walter (formerly Nate Nielsen) <stef@memberwebs.com>
+ Copyright (C) 2005-2007 Marco Barisione <barisione@gmail.com>
+ Copyright (C) 2005-2007 Emanuele Aina
+ Copyright (C) 2018 Jeffery To <jeffery.to@gmail.com>
+
+ GtkSourceView is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+
+ GtkSourceView is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this library; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<language id="js" name="JavaScript" version="2.0" _section="Script">
+  <metadata>
+    <property name="mimetypes">application/javascript;application/x-javascript;text/x-javascript;text/javascript;text/x-js</property>
+    <property name="globs">*.js</property>
+    <property name="line-comment-start">//</property>
+    <property name="block-comment-start">/*</property>
+    <property name="block-comment-end">*/</property>
+  </metadata>
+
+  <styles>
+    <style id="escape"          name="Escaped Character"        map-to="def:special-char"/>
+    <style id="decimal"         name="Decimal Number"           map-to="def:decimal"/>
+    <style id="base-n-number"   name="Base-N Number"            map-to="def:base-n-integer"/>
+    <style id="null-value"      name="Null Value"               map-to="def:special-constant"/>
+    <style id="undefined-value" name="Undefined Value"          map-to="def:special-constant"/>
+    <style id="boolean"         name="Boolean Value"            map-to="def:boolean"/>
+    <style id="keyword"         name="Keyword"                  map-to="def:keyword"/>
+    <style id="type"            name="Data Type"                map-to="def:type"/>
+    <style id="function"        name="Function"                 map-to="def:builtin"/>
+    <style id="properties"      name="Properties"               map-to="def:statement"/>
+    <style id="constructors"    name="Constructors"             map-to="def:type"/>
+    <style id="future-words"    name="Future Reserved Keywords" map-to="def:error"/>
+    <style id="string"          name="String"                   map-to="def:string"/>
+    <style id="regex"           name="Regular Expression"       map-to="def:string"/>
+  </styles>
+
+  <definitions>
+
+    <define-regex id="is-member">(?&lt;=[^.]\.)</define-regex>
+
+    <!--regex-->
+    <define-regex id="regex-opts">[gim]*</define-regex>
+
+    <!--contexts NOT used in the main context-->
+    <context id="escape" style-ref="escape">
+      <match extended="true">
+        \\
+        (?:
+          (?: [1-7][0-7]{0,2} | [0-7]{2,3} ) |  # octal escape (\0 is the null character, not octal)
+          x[0-9a-fA-F]{2} |                     # hexadecimal escape
+          u[0-9a-fA-F]{4} |                     # unicode escape
+          u\{[0-9a-fA-F]{1,}\} |                # unicode code point escape
+          .                                     # single character escape
+        )
+      </match>
+    </context>
+
+    <!-- only valid in regular expressions -->
+    <context id="control-escape" style-ref="escape">
+      <match>\\c[a-zA-Z]</match>
+    </context>
+
+    <context id="regex-bracketed" style-ref="escape" style-inside="true">
+      <start>\[</start>
+      <end>]</end>
+      <include>
+        <context ref="control-escape"/>
+        <context ref="escape"/>
+      </include>
+    </context>
+
+    <!--contexts used in the main context-->
+    <context id="string" style-ref="string" end-at-line-end="true" class="string" class-disabled="no-spell-check">
+      <start>"</start>
+      <end>"</end>
+      <include>
+        <context ref="escape"/>
+        <context ref="def:line-continue"/>
+      </include>
+    </context>
+
+    <context id="single-quoted-string" style-ref="string" end-at-line-end="true" class="string" class-disabled="no-spell-check">
+      <start>'</start>
+      <end>'</end>
+      <include>
+        <context ref="escape"/>
+        <context ref="def:line-continue"/>
+      </include>
+    </context>
+
+    <context id="regex-simple" style-ref="regex">
+      <start extended="true">
+        ((?&lt;=([(]|\s))|^)
+        \/
+        (?=
+          ([^/\\]*(\\.))*
+          [^/]*
+          \/
+          \%{regex-opts}
+          \s*
+          ([),;.\/\]:}]|$)
+        )</start>
+      <end>\/\%{regex-opts}</end>
+      <include>
+        <context ref="control-escape"/>
+        <context ref="escape"/>
+        <context ref="regex-bracketed"/>
+      </include>
+    </context>
+
+    <context id="decimal" style-ref="decimal">
+      <match extended="true">
+        (?&lt;! [\w\.] )
+        (?&gt;
+          ( [1-9][0-9]* | 0 ) ( \. [0-9]* )? |
+          \. [0-9]+
+        )
+        (?&gt; [eE] [+-]? [0-9]+ )?
+        (?! [\w\.] )
+      </match>
+    </context>
+
+    <context id="binary-integer" style-ref="base-n-number">
+      <match extended="true">
+        (?&lt;![\w\.]) (?&gt;0 [bB] [01]+) (?![\w\.])
+      </match>
+    </context>
+
+    <context id="octal-integer" style-ref="base-n-number">
+      <match extended="true">
+        (?&lt;![\w\.]) (?&gt;0 [oO] [0-7]+) (?![\w\.])
+      </match>
+    </context>
+
+    <context id="hex-integer" style-ref="base-n-number">
+      <match extended="true">
+        (?&lt;![\w\.]) (?&gt;0 [xX] [0-9a-fA-F]+) (?![\w\.])
+      </match>
+    </context>
+
+    <!-- deprecated -->
+    <context id="legacy-octal-integer" style-ref="base-n-number">
+      <match extended="true">
+        (?&lt;![\w\.]) (?&gt;0 [0-7]+) (?![\w\.])
+      </match>
+    </context>
+
+    <!--
+        There was a long discussion on ##javascript on freenode between
+        'katspaugh', 'joo' and 'prog_' on whether 'undefined' should be
+        highlighted on not, specialy as a constant. The conclusion was "It can't
+        be highlighted as a constant literal value, because it can be an
+        identifier (of a variable value) but leave it be as it is. Let tradition
+        and convention obscure the details."
+    -->
+    <context id="undefined-value" style-ref="undefined-value">
+      <keyword>undefined</keyword>
+    </context>
+
+    <context id="null-value" style-ref="null-value">
+      <keyword>null</keyword>
+    </context>
+
+    <context id="boolean" style-ref="boolean">
+      <keyword>false</keyword>
+      <keyword>true</keyword>
+    </context>
+
+    <context id="keywords" style-ref="keyword">
+      <keyword>arguments</keyword>
+      <keyword>async</keyword>
+      <keyword>as</keyword>
+      <keyword>await</keyword>
+      <keyword>break</keyword>
+      <keyword>case</keyword>
+      <keyword>catch</keyword>
+      <keyword>class</keyword>
+      <keyword>const</keyword>
+      <keyword>constructor</keyword>
+      <keyword>continue</keyword>
+      <keyword>debugger</keyword>
+      <keyword>default</keyword>
+      <keyword>delete</keyword>
+      <keyword>do</keyword>
+      <keyword>else</keyword>
+      <keyword>export</keyword>
+      <keyword>extends</keyword>
+      <keyword>finally</keyword>
+      <keyword>for</keyword>
+      <keyword>from</keyword>
+      <keyword>function</keyword>
+      <keyword>get</keyword>
+      <keyword>if</keyword>
+      <keyword>import</keyword>
+      <keyword>instanceof</keyword>
+      <keyword>in</keyword>
+      <keyword>let</keyword>
+      <keyword>new</keyword>
+      <keyword>of</keyword>
+      <keyword>return</keyword>
+      <keyword>set</keyword>
+      <keyword>static</keyword>
+      <keyword>super</keyword>
+      <keyword>switch</keyword>
+      <keyword>this</keyword>
+      <keyword>throw</keyword>
+      <keyword>try</keyword>
+      <keyword>typeof</keyword>
+      <keyword>var</keyword>
+      <keyword>void</keyword>
+      <keyword>while</keyword>
+      <keyword>with</keyword>
+      <keyword>yield</keyword>
+    </context>
+
+    <context id="types" style-ref="type">
+      <keyword>Infinity</keyword>
+      <keyword>NaN</keyword>
+    </context>
+
+    <context id="global-functions" style-ref="function">
+      <keyword>decodeURIComponent</keyword>
+      <keyword>decodeURI</keyword>
+      <keyword>encodeURIComponent</keyword>
+      <keyword>encodeURI</keyword>
+      <keyword>escape</keyword> <!-- deprecated -->
+      <keyword>eval</keyword>
+      <keyword>isFinite</keyword>
+      <keyword>isNaN</keyword>
+      <keyword>parseFloat</keyword>
+      <keyword>parseInt</keyword>
+      <keyword>unescape</keyword> <!-- deprecated -->
+    </context>
+
+    <context id="array-properties" style-ref="properties">
+      <prefix>\%{is-member}</prefix>
+      <keyword>length</keyword>
+    </context>
+
+    <context id="array-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>concat</keyword>
+      <keyword>copyWithin</keyword>
+      <keyword>entries</keyword>
+      <keyword>every</keyword>
+      <keyword>fill</keyword>
+      <keyword>filter</keyword>
+      <keyword>findIndex</keyword>
+      <keyword>find</keyword>
+      <keyword>forEach</keyword>
+      <keyword>from</keyword>
+      <keyword>indexOf</keyword>
+      <keyword>isArray</keyword>
+      <keyword>join</keyword>
+      <keyword>keys</keyword>
+      <keyword>lastIndexOf</keyword>
+      <keyword>map</keyword>
+      <keyword>of</keyword>
+      <keyword>pop</keyword>
+      <keyword>push</keyword>
+      <keyword>reduceRight</keyword>
+      <keyword>reduce</keyword>
+      <keyword>reverse</keyword>
+      <keyword>shift</keyword>
+      <keyword>slice</keyword>
+      <keyword>some</keyword>
+      <keyword>sort</keyword>
+      <keyword>unshift</keyword>
+      <keyword>values</keyword>
+    </context>
+
+    <context id="arraybuffer-properties" style-ref="properties">
+      <prefix>\%{is-member}</prefix>
+      <keyword>byteLength</keyword>
+    </context>
+
+    <context id="arraybuffer-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>isView</keyword>
+      <keyword>slice</keyword>
+    </context>
+
+    <context id="dataview-properties" style-ref="properties">
+      <prefix>\%{is-member}</prefix>
+      <keyword>buffer</keyword>
+      <keyword>byteLength</keyword>
+      <keyword>byteOffset</keyword>
+    </context>
+
+    <context id="dataview-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>getFloat32</keyword>
+      <keyword>getFloat64</keyword>
+      <keyword>getInt16</keyword>
+      <keyword>getInt32</keyword>
+      <keyword>getInt8</keyword>
+      <keyword>getUint16</keyword>
+      <keyword>getUint32</keyword>
+      <keyword>getUint8</keyword>
+      <keyword>setFloat32</keyword>
+      <keyword>setFloat64</keyword>
+      <keyword>setInt16</keyword>
+      <keyword>setInt32</keyword>
+      <keyword>setInt8</keyword>
+      <keyword>setUint16</keyword>
+      <keyword>setUint32</keyword>
+      <keyword>setUint8</keyword>
+    </context>
+
+    <context id="date-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>getDate</keyword>
+      <keyword>getDay</keyword>
+      <keyword>getFullYear</keyword>
+      <keyword>getHours</keyword>
+      <keyword>getMilliseconds</keyword>
+      <keyword>getMinutes</keyword>
+      <keyword>getMonth</keyword>
+      <keyword>getSeconds</keyword>
+      <keyword>getTime</keyword>
+      <keyword>getTimezoneOffset</keyword>
+      <keyword>getUTCDate</keyword>
+      <keyword>getUTCDay</keyword>
+      <keyword>getUTCFullYear</keyword>
+      <keyword>getUTCHours</keyword>
+      <keyword>getUTCMilliseconds</keyword>
+      <keyword>getUTCMinutes</keyword>
+      <keyword>getUTCMonth</keyword>
+      <keyword>getUTCSeconds</keyword>
+      <keyword>getYear</keyword> <!-- deprecated -->
+      <keyword>now</keyword>
+      <keyword>parse</keyword>
+      <keyword>setDate</keyword>
+      <keyword>setFullYear</keyword>
+      <keyword>setHours</keyword>
+      <keyword>setMilliseconds</keyword>
+      <keyword>setMinutes</keyword>
+      <keyword>setMonth</keyword>
+      <keyword>setSeconds</keyword>
+      <keyword>setTime</keyword>
+      <keyword>setUTCDate</keyword>
+      <keyword>setUTCFullYear</keyword>
+      <keyword>setUTCHours</keyword>
+      <keyword>setUTCMilliseconds</keyword>
+      <keyword>setUTCMinutes</keyword>
+      <keyword>setUTCMonth</keyword>
+      <keyword>setUTCSeconds</keyword>
+      <keyword>setYear</keyword> <!-- deprecated -->
+      <keyword>toDateString</keyword>
+      <keyword>toGMTString</keyword> <!-- deprecated -->
+      <keyword>toISOString</keyword>
+      <keyword>toJSON</keyword>
+      <keyword>toLocaleDateString</keyword>
+      <keyword>toLocaleTimeString</keyword>
+      <keyword>toTimeString</keyword>
+      <keyword>toUTCString</keyword>
+      <keyword>UTC</keyword>
+    </context>
+
+    <context id="error-properties" style-ref="properties">
+      <prefix>\%{is-member}</prefix>
+      <keyword>message</keyword>
+      <keyword>name</keyword>
+    </context>
+
+    <context id="function-properties" style-ref="properties">
+      <prefix>\%{is-member}</prefix>
+      <keyword>length</keyword>
+      <keyword>name</keyword>
+      <keyword>target</keyword> <!-- for new.target -->
+    </context>
+
+    <context id="function-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>apply</keyword>
+      <keyword>bind</keyword>
+      <keyword>call</keyword>
+    </context>
+
+    <context id="generator-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>next</keyword>
+      <keyword>return</keyword>
+      <keyword>throw</keyword>
+    </context>
+
+    <context id="json-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>parse</keyword>
+      <keyword>stringify</keyword>
+    </context>
+
+    <context id="map-properties" style-ref="properties">
+      <prefix>\%{is-member}</prefix>
+      <keyword>size</keyword>
+    </context>
+
+    <context id="map-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>clear</keyword>
+      <keyword>delete</keyword>
+      <keyword>entries</keyword>
+      <keyword>forEach</keyword>
+      <keyword>get</keyword>
+      <keyword>has</keyword>
+      <keyword>keys</keyword>
+      <keyword>set</keyword>
+      <keyword>values</keyword>
+    </context>
+
+    <context id="math-properties" style-ref="properties">
+      <prefix>\%{is-member}</prefix>
+      <keyword>E</keyword>
+      <keyword>LN10</keyword>
+      <keyword>LN2</keyword>
+      <keyword>LOG10E</keyword>
+      <keyword>LOG2E</keyword>
+      <keyword>PI</keyword>
+      <keyword>SQRT1_2</keyword>
+      <keyword>SQRT2</keyword>
+    </context>
+
+    <context id="math-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>abs</keyword>
+      <keyword>acosh</keyword>
+      <keyword>acos</keyword>
+      <keyword>asinh</keyword>
+      <keyword>asin</keyword>
+      <keyword>atan2</keyword>
+      <keyword>atanh</keyword>
+      <keyword>atan</keyword>
+      <keyword>cbrt</keyword>
+      <keyword>ceil</keyword>
+      <keyword>clz32</keyword>
+      <keyword>cosh</keyword>
+      <keyword>cos</keyword>
+      <keyword>expm1</keyword>
+      <keyword>exp</keyword>
+      <keyword>floor</keyword>
+      <keyword>fround</keyword>
+      <keyword>hypot</keyword>
+      <keyword>imul</keyword>
+      <keyword>log10</keyword>
+      <keyword>log1p</keyword>
+      <keyword>log2</keyword>
+      <keyword>log</keyword>
+      <keyword>max</keyword>
+      <keyword>min</keyword>
+      <keyword>pow</keyword>
+      <keyword>random</keyword>
+      <keyword>round</keyword>
+      <keyword>sign</keyword>
+      <keyword>sinh</keyword>
+      <keyword>sin</keyword>
+      <keyword>sqrt</keyword>
+      <keyword>tanh</keyword>
+      <keyword>tan</keyword>
+      <keyword>trunc</keyword>
+    </context>
+
+    <context id="number-properties" style-ref="properties">
+      <prefix>\%{is-member}</prefix>
+      <keyword>EPSILON</keyword>
+      <keyword>MAX_SAFE_INTEGER</keyword>
+      <keyword>MAX_VALUE</keyword>
+      <keyword>MIN_SAFE_INTEGER</keyword>
+      <keyword>MIN_VALUE</keyword>
+      <keyword>NaN</keyword>
+      <keyword>NEGATIVE_INFINITY</keyword>
+      <keyword>POSITIVE_INFINITY</keyword>
+    </context>
+
+    <context id="number-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>isFinite</keyword>
+      <keyword>isInteger</keyword>
+      <keyword>isNaN</keyword>
+      <keyword>isSafeInteger</keyword>
+      <keyword>parseFloat</keyword>
+      <keyword>parseInt</keyword>
+      <keyword>toExponential</keyword>
+      <keyword>toFixed</keyword>
+      <keyword>toPrecision</keyword>
+    </context>
+
+    <context id="object-properties" style-ref="properties">
+      <prefix>\%{is-member}</prefix>
+      <keyword>constructor</keyword>
+      <keyword>prototype</keyword>
+    </context>
+
+    <context id="object-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>assign</keyword>
+      <keyword>create</keyword>
+      <keyword>defineProperties</keyword>
+      <keyword>defineProperty</keyword>
+      <keyword>freeze</keyword>
+      <keyword>getOwnPropertyDescriptor</keyword>
+      <keyword>getOwnPropertyNames</keyword>
+      <keyword>getOwnPropertySymbols</keyword>
+      <keyword>getPrototypeOf</keyword>
+      <keyword>hasOwnProperty</keyword>
+      <keyword>isExtensible</keyword>
+      <keyword>isFrozen</keyword>
+      <keyword>isPrototypeOf</keyword>
+      <keyword>isSealed</keyword>
+      <keyword>is</keyword>
+      <keyword>keys</keyword>
+      <keyword>preventExtensions</keyword>
+      <keyword>propertyIsEnumerable</keyword>
+      <keyword>seal</keyword>
+      <keyword>setPrototypeOf</keyword>
+      <keyword>toLocaleString</keyword>
+      <keyword>toString</keyword>
+      <keyword>valueOf</keyword>
+    </context>
+
+    <context id="promise-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>all</keyword>
+      <keyword>catch</keyword>
+      <keyword>race</keyword>
+      <keyword>reject</keyword>
+      <keyword>resolve</keyword>
+      <keyword>then</keyword>
+    </context>
+
+    <context id="proxy-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>revocable</keyword>
+    </context>
+
+    <context id="reflect-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>apply</keyword>
+      <keyword>construct</keyword>
+      <keyword>defineProperty</keyword>
+      <keyword>deleteProperty</keyword>
+      <keyword>getOwnPropertyDescriptor</keyword>
+      <keyword>getPrototypeOf</keyword>
+      <keyword>get</keyword>
+      <keyword>has</keyword>
+      <keyword>isExtensible</keyword>
+      <keyword>ownKeys</keyword>
+      <keyword>preventExtensions</keyword>
+      <keyword>setPrototypeOf</keyword>
+      <keyword>set</keyword>
+    </context>
+
+    <context id="regexp-properties" style-ref="properties">
+      <prefix>\%{is-member}</prefix>
+      <keyword>flags</keyword>
+      <keyword>global</keyword>
+      <keyword>ignoreCase</keyword>
+      <keyword>lastIndex</keyword>
+      <keyword>multiline</keyword>
+      <keyword>source</keyword>
+      <keyword>sticky</keyword>
+      <keyword>unicode</keyword>
+    </context>
+
+    <context id="regexp-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>exec</keyword>
+      <keyword>test</keyword>
+    </context>
+
+    <context id="set-properties" style-ref="properties">
+      <prefix>\%{is-member}</prefix>
+      <keyword>size</keyword>
+    </context>
+
+    <context id="set-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>add</keyword>
+      <keyword>clear</keyword>
+      <keyword>delete</keyword>
+      <keyword>entries</keyword>
+      <keyword>forEach</keyword>
+      <keyword>has</keyword>
+      <keyword>keys</keyword>
+      <keyword>values</keyword>
+    </context>
+
+    <context id="string-properties" style-ref="properties">
+      <prefix>\%{is-member}</prefix>
+      <keyword>length</keyword>
+    </context>
+
+    <context id="string-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>charAt</keyword>
+      <keyword>charCodeAt</keyword>
+      <keyword>codePointAt</keyword>
+      <keyword>concat</keyword>
+      <keyword>endsWith</keyword>
+      <keyword>fromCharCode</keyword>
+      <keyword>fromCodePoint</keyword>
+      <keyword>includes</keyword>
+      <keyword>indexOf</keyword>
+      <keyword>lastIndexOf</keyword>
+      <keyword>localeCompare</keyword>
+      <keyword>match</keyword>
+      <keyword>normalize</keyword>
+      <keyword>raw</keyword>
+      <keyword>repeat</keyword>
+      <keyword>replace</keyword>
+      <keyword>search</keyword>
+      <keyword>slice</keyword>
+      <keyword>split</keyword>
+      <keyword>startsWith</keyword>
+      <keyword>substring</keyword>
+      <keyword>substr</keyword> <!-- deprecated -->
+      <keyword>toLocaleLowerCase</keyword>
+      <keyword>toLocaleUpperCase</keyword>
+      <keyword>toLowerCase</keyword>
+      <keyword>toUpperCase</keyword>
+      <keyword>trim</keyword>
+    </context>
+
+    <context id="symbol-properties" style-ref="properties">
+      <prefix>\%{is-member}</prefix>
+      <keyword>hasInstance</keyword>
+      <keyword>isConcatSpreadable</keyword>
+      <keyword>iterator</keyword>
+      <keyword>match</keyword>
+      <keyword>replace</keyword>
+      <keyword>search</keyword>
+      <keyword>species</keyword>
+      <keyword>split</keyword>
+      <keyword>toPrimitive</keyword>
+      <keyword>toStringTag</keyword>
+      <keyword>unscopables</keyword>
+    </context>
+
+    <context id="symbol-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>for</keyword>
+      <keyword>keyFor</keyword>
+    </context>
+
+    <!-- TypedArray is one of these objects:
+         * Float32Array
+         * Float64Array
+         * Int16Array
+         * Int32Array
+         * Int8Array
+         * Uint16Array
+         * Uint32Array
+         * Uint8Array
+         * Uint8ClampedArray
+    -->
+    <context id="typedarray-properties" style-ref="properties">
+      <prefix>\%{is-member}</prefix>
+      <keyword>buffer</keyword>
+      <keyword>byteLength</keyword>
+      <keyword>byteOffset</keyword>
+      <keyword>BYTES_PER_ELEMENT</keyword>
+      <keyword>length</keyword>
+      <keyword>name</keyword>
+    </context>
+
+    <context id="typedarray-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>copyWithin</keyword>
+      <keyword>entries</keyword>
+      <keyword>every</keyword>
+      <keyword>fill</keyword>
+      <keyword>filter</keyword>
+      <keyword>findIndex</keyword>
+      <keyword>find</keyword>
+      <keyword>forEach</keyword>
+      <keyword>from</keyword>
+      <keyword>indexOf</keyword>
+      <keyword>join</keyword>
+      <keyword>keys</keyword>
+      <keyword>lastIndexOf</keyword>
+      <keyword>map</keyword>
+      <keyword>of</keyword>
+      <keyword>reduceRight</keyword>
+      <keyword>reduce</keyword>
+      <keyword>reverse</keyword>
+      <keyword>set</keyword>
+      <keyword>slice</keyword>
+      <keyword>some</keyword>
+      <keyword>sort</keyword>
+      <keyword>subarray</keyword>
+      <keyword>values</keyword>
+    </context>
+
+    <context id="weakmap-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>delete</keyword>
+      <keyword>get</keyword>
+      <keyword>has</keyword>
+      <keyword>set</keyword>
+    </context>
+
+    <context id="weakset-methods" style-ref="function">
+      <prefix>\%{is-member}</prefix>
+      <keyword>add</keyword>
+      <keyword>delete</keyword>
+      <keyword>has</keyword>
+    </context>
+
+    <context id="constructors" style-ref="constructors">
+      <keyword>ArrayBuffer</keyword>
+      <keyword>Array</keyword>
+      <keyword>Boolean</keyword>
+      <keyword>Date</keyword>
+      <keyword>Error</keyword>
+      <keyword>EvalError</keyword>
+      <keyword>Float32Array</keyword>
+      <keyword>Float64Array</keyword>
+      <keyword>Function</keyword>
+      <keyword>Int16Array</keyword>
+      <keyword>Int32Array</keyword>
+      <keyword>Int8Array</keyword>
+      <keyword>JSON</keyword>
+      <keyword>Map</keyword>
+      <keyword>Math</keyword>
+      <keyword>Number</keyword>
+      <keyword>Object</keyword>
+      <keyword>Promise</keyword>
+      <keyword>Proxy</keyword>
+      <keyword>RangeError</keyword>
+      <keyword>ReferenceError</keyword>
+      <keyword>Reflect</keyword>
+      <keyword>RegExp</keyword>
+      <keyword>Set</keyword>
+      <keyword>String</keyword>
+      <keyword>Symbol</keyword>
+      <keyword>SyntaxError</keyword>
+      <keyword>TypeError</keyword>
+      <keyword>Uint16Array</keyword>
+      <keyword>Uint32Array</keyword>
+      <keyword>Uint8Array</keyword>
+      <keyword>Uint8ClampedArray</keyword>
+      <keyword>URIError</keyword>
+      <keyword>WeakMap</keyword>
+      <keyword>WeakSet</keyword>
+    </context>
+
+    <context id="future-words" style-ref="future-words">
+      <keyword>enum</keyword>
+
+      <!-- in strict mode -->
+      <keyword>implements</keyword>
+      <keyword>interface</keyword>
+      <keyword>package</keyword>
+      <keyword>private</keyword>
+      <keyword>protected</keyword>
+      <keyword>public</keyword>
+    </context>
+
+    <context id="template-string" style-ref="string">
+      <start>`</start>
+      <end>`</end>
+      <include>
+        <context id="template-expression" style-ref="function">
+          <start>\$\{</start>
+          <end>\}</end>
+        </context>
+      </include>
+    </context>
+
+    <!--main context-->
+    <context id="js" class="no-spell-check">
+      <include>
+        <context ref="def:c-like-comment"/>
+        <context ref="def:c-like-comment-multiline"/>
+        <context ref="def:c-like-close-comment-outside-comment"/>
+        <context ref="string" />
+        <context ref="single-quoted-string" />
+        <context ref="template-string"/>
+        <context ref="decimal"/>
+        <context ref="binary-integer"/>
+        <context ref="octal-integer"/>
+        <context ref="hex-integer"/>
+        <context ref="legacy-octal-integer"/>
+        <context ref="undefined-value"/>
+        <context ref="null-value"/>
+        <context ref="boolean"/>
+        <context ref="types"/>
+        <context ref="global-functions"/>
+        <context ref="array-properties"/>
+        <context ref="array-methods"/>
+        <context ref="arraybuffer-properties"/>
+        <context ref="arraybuffer-methods"/>
+        <context ref="dataview-properties"/>
+        <context ref="dataview-methods"/>
+        <context ref="date-methods"/>
+        <context ref="error-properties"/>
+        <context ref="function-properties"/>
+        <context ref="function-methods"/>
+        <context ref="generator-methods"/>
+        <context ref="json-methods"/>
+        <context ref="map-properties"/>
+        <context ref="map-methods"/>
+        <context ref="math-properties"/>
+        <context ref="math-methods"/>
+        <context ref="number-properties"/>
+        <context ref="number-methods"/>
+        <context ref="object-properties"/>
+        <context ref="object-methods"/>
+        <context ref="promise-methods"/>
+        <context ref="proxy-methods"/>
+        <context ref="reflect-methods"/>
+        <context ref="regexp-properties"/>
+        <context ref="regexp-methods"/>
+        <context ref="set-properties"/>
+        <context ref="set-methods"/>
+        <context ref="string-properties"/>
+        <context ref="string-methods"/>
+        <context ref="symbol-properties"/>
+        <context ref="symbol-methods"/>
+        <context ref="typedarray-properties"/>
+        <context ref="typedarray-methods"/>
+        <context ref="weakmap-methods"/>
+        <context ref="weakset-methods"/>
+        <context ref="constructors"/>
+        <context ref="keywords"/>
+        <context ref="future-words"/>
+        <context ref="regex-simple"/>
+      </include>
+    </context>
+    <!--main context-->
+
+  </definitions>
+</language>

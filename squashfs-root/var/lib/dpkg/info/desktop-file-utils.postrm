@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = remove ]; then
+    for dir in /usr/share/applications /usr/local/share/applications; do
+      if [ -d "$dir" ]; then
+          rm -f "$dir/mimeinfo.cache"
+          if [ ! -L "$dir" ]; then
+              rmdir --ignore-fail-on-non-empty "$dir"
+          fi
+      fi
+    done
+fi
+
+

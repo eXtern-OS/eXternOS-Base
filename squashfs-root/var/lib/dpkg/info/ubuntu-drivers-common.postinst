@@ -1,0 +1,30 @@
+#!/bin/sh
+set -e
+# Automatically added by dh_systemd_enable/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# This will only remove masks created by d-s-h on package removal.
+	deb-systemd-helper unmask 'gpu-manager.service' >/dev/null || true
+
+	# was-enabled defaults to true, so new installations run enable.
+	if deb-systemd-helper --quiet was-enabled 'gpu-manager.service'; then
+		# Enables the unit on first installation, creates new
+		# symlinks on upgrades if the unit file has changed.
+		deb-systemd-helper enable 'gpu-manager.service' >/dev/null || true
+	else
+		# Update the statefile to add new symlinks (if any), which need to be
+		# cleaned up on purge. Also remove old symlinks.
+		deb-systemd-helper update-state 'gpu-manager.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+
+# Automatically added by dh_python3:
+if which py3compile >/dev/null 2>&1; then
+	py3compile -p ubuntu-drivers-common -V 3.2-
+fi
+
+if which py3compile >/dev/null 2>&1; then
+	py3compile -p ubuntu-drivers-common /usr/share/ubuntu-drivers-common -V 3.2-
+fi
+
+# End automatically added section

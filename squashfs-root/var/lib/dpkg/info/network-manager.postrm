@@ -1,0 +1,76 @@
+#!/bin/sh
+
+set -e
+
+# summary of how this script can be called:
+#        * <postrm> `remove'
+#        * <postrm> `purge'
+#        * <old-postrm> `upgrade' <new-version>
+#        * <new-postrm> `failed-upgrade' <old-version>
+#        * <new-postrm> `abort-install'
+#        * <new-postrm> `abort-install' <old-version>
+#        * <new-postrm> `abort-upgrade' <old-version>
+#        * <disappearer's-postrm> `disappear' <overwriter>
+#          <overwriter-version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+
+case "$1" in
+    purge)
+        # Clean up state files on purge
+        rm -rf /var/lib/NetworkManager
+        ;;
+    remove)
+        # Replace /etc/resolv.conf symlink with an empty file on package
+        # removal to signal other packages that NetworkManager is no longer
+        # controlling the file. (See: #826366)
+        if [ "$(readlink /etc/resolv.conf)" = /run/NetworkManager/resolv.conf ] ; then
+            rm -f /etc/resolv.conf
+            touch /etc/resolv.conf
+        fi
+        ;;
+    upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+        ;;
+
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
+esac
+
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/dbus-1/system.d/nm-avahi-autoipd.conf 1.1.90-2\~ -- "$@"
+dpkg-maintscript-helper mv_conffile /etc/NetworkManager/dispatcher.d/01ifupdown /etc/NetworkManager/dispatcher.d/01-ifupdown 1.8.0-5\~ -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/dbus-1/system.d/nm-ofono.conf 1.2.4-1\~ -- "$@"
+# End automatically added section
+# Automatically added by dh_systemd_start/11.1.6ubuntu2
+if [ -d /run/systemd/system ]; then
+	systemctl --system daemon-reload >/dev/null || true
+fi
+# End automatically added section
+# Automatically added by dh_systemd_start/11.1.6ubuntu2
+if [ -d /run/systemd/system ]; then
+	systemctl --system daemon-reload >/dev/null || true
+fi
+# End automatically added section
+# Automatically added by dh_systemd_start/11.1.6ubuntu2
+if [ -d /run/systemd/system ]; then
+	systemctl --system daemon-reload >/dev/null || true
+fi
+# End automatically added section
+# Automatically added by dh_systemd_enable/11.1.6ubuntu2
+if [ "$1" = "remove" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper mask 'NetworkManager-dispatcher.service' 'NetworkManager-wait-online.service' 'NetworkManager.service' >/dev/null || true
+	fi
+fi
+
+if [ "$1" = "purge" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper purge 'NetworkManager-dispatcher.service' 'NetworkManager-wait-online.service' 'NetworkManager.service' >/dev/null || true
+		deb-systemd-helper unmask 'NetworkManager-dispatcher.service' 'NetworkManager-wait-online.service' 'NetworkManager.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+

@@ -1,0 +1,28 @@
+#!/bin/sh
+
+set -e
+
+f=/etc/ppp/ip-up.d/000usepeerdns
+# woody version
+w=dca85124803e711d13c5a49a1070d21e
+# one-liner version
+o=3e2b31c72181b87149ff995e7202c0e3
+
+if [ "$1" = "configure" ] && [ "$2" ] && [ -r $f ] ; then
+   if [ -s $f ] ; then
+      sum=`md5sum $f | cut -f1 -d\  `
+      if [ "$sum" = $w ] || [ "$sum" = $o ] ; then
+         rm $f
+      fi
+   else
+      # a zero-sized file, was a bad idea...
+      rm $f
+   fi
+fi
+
+# Automatically added by dh_installmenu
+if [ "$1" = "configure" ] && [ -x "`which update-menus 2>/dev/null`" ]; then
+	update-menus
+fi
+# End automatically added section
+

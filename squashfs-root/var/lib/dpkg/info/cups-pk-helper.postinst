@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+	configure)
+		if ! getent group lpadmin > /dev/null; then
+			addgroup --quiet --system lpadmin
+		fi
+
+		adduser --system --no-create-home --quiet --gecos "user for cups-pk-helper service" \
+			--ingroup lpadmin cups-pk-helper
+		;;
+esac
+
+
+
+exit 0

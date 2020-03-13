@@ -1,0 +1,31 @@
+#! /bin/sh
+set -e
+
+# Insert debhelper fragments before calling 'update-rc.d pcmciautils
+# remove', since that will fail if the init script has not yet been removed.
+
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/udev/pcmcia.rules 015-1+b100 -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/init.d/pcmciautils 015-1+b100 -- "$@"
+# End automatically added section
+
+
+case $1 in
+	configure)
+        	if dpkg --compare-versions "$2" le 015-1+b100 &&
+                        [ -h /etc/udev/rules.d/85-pcmcia.rules ]; then
+                        rm /etc/udev/rules.d/85-pcmcia.rules
+                fi
+
+        	if dpkg --compare-versions "$2" le 015-1+b100; then
+                	update-rc.d pcmciautils remove >/dev/null
+                fi
+
+		if [ ! -f /etc/pcmcia/config.opts ]; then
+			[ -d /etc/pcmcia ] || mkdir /etc/pcmcia
+			cp -a /usr/lib/pcmciautils/config.opts /etc/pcmcia/
+		fi
+                ;;
+esac

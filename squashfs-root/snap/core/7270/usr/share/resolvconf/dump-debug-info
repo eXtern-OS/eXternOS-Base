@@ -1,0 +1,26 @@
+#!/bin/sh
+dump_dir()
+{
+	echo "### ls -l $1"
+	ls -l "$1" || :
+	for F in "$1"/* ; do
+		[ -f "$F" ] || continue
+		echo "### cat $F"
+		cat "$F"
+	done
+}
+echo "###### Start of debugging information for resolvconf ######"
+dump_dir /etc/resolvconf
+dump_dir /etc/resolvconf/resolv.conf.d
+echo "### ls -l /run/resolvconf"
+dump_dir /run/resolvconf
+dump_dir /run/resolvconf/interface
+echo "### ls -l /etc/resolv.conf"
+ls -l /etc/resolv.conf || :
+echo "### lsattr /etc/resolv.conf"
+which lsattr >/dev/null 2>&1 && lsattr /etc/resolv.conf || :
+echo "### cat /etc/resolv.conf"
+cat /etc/resolv.conf || :
+echo "### cat /etc/NetworkManager/NetworkManager.conf"
+cat /etc/NetworkManager/NetworkManager.conf || :
+echo "###### End of debugging information for resolvconf ######"

@@ -1,0 +1,29 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = configure ]; then
+    # If we have setcap is installed, try setting cap_net_raw+ep,
+    # which allows us to install our binaries without the setuid
+    # bit.
+    if false; then
+        if setcap cap_net_raw+ep /usr/bin/arping; then
+            chmod u-s /usr/bin/arping
+        else
+            echo "Setcap failed on /usr/bin/arping, falling back to setuid" >&2
+            chmod u+s /usr/bin/arping
+        fi
+    else
+        chmod u+s /usr/bin/arping
+    fi
+fi
+
+
+
+exit 0
+
+# Local variables:
+# mode: shell-script
+# tab-width: 4
+# indent-tabs-mode: nil
+# end:

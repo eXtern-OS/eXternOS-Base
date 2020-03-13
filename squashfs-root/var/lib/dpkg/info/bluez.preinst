@@ -1,0 +1,38 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+install|upgrade)
+
+  if dpkg-maintscript-helper supports rm_conffile; then
+    for conffile in \
+        "/etc/bluetooth/network.service" \
+        "/etc/bluetooth/serial.service" \
+        "/etc/bluetooth/input.service"; do
+            dpkg-maintscript-helper \
+                rm_conffile "${conffile}" 3.30-1 bluez-utils -- "$@"
+    done
+    dpkg-maintscript-helper rm_conffile \
+        /etc/dbus-1/system.d/bluez-hcid.conf 3.7-1 bluez-utils -- "$@"
+
+    for conffile in \
+        /etc/bluetooth/rfcomm.conf \
+        /etc/bluetooth/serial.conf \
+        /etc/bluetooth/audio.conf; do \
+            dpkg-maintscript-helper \
+                rm_conffile ${conffile} 5.21-2 bluez -- "$@"
+    done
+  fi
+
+  if dpkg-maintscript-helper supports mv_conffile; then
+    dpkg-maintscript-helper mv_conffile \
+      /etc/dbus-1/system.d/bluez-hcid.conf \
+      /etc/dbus-1/system.d/bluetooth.conf 3.7-1 bluez -- "$@"
+
+    dpkg-maintscript-helper mv_conffile \
+        /etc/modprobe.d/bluez /etc/modprobe.d/bluez.conf 4.42-1 bluez -- "$@"
+  fi
+esac
+
+

@@ -1,0 +1,43 @@
+#!/bin/sh
+## ----------------------------------------------------------------------
+## debian/prerm : preremoval script for sgml-base
+## ----------------------------------------------------------------------
+
+## ----------------------------------------------------------------------
+set -e
+
+## ----------------------------------------------------------------------
+if [ "$1" = "remove" ] || [ "$1" = "upgrade" ]
+then
+
+    ## ------------------------------------------------------------------
+    TRANSCAT=/etc/sgml/transitional.cat
+    if [ -f ${TRANSCAT} ]
+    then
+	rm -f ${TRANSCAT} ${TRANSCAT}.old
+	update-catalog --update-super
+    fi
+
+fi
+
+## ---------------------------------------------------------------------- 
+## automatically generated debhelper commands
+# Automatically added by dh_usrlocal
+(
+	while read dir; do
+		rmdir "$dir" 2>/dev/null || true
+	done
+) << DATA
+/usr/local/share/sgml/stylesheet
+/usr/local/share/sgml/misc
+/usr/local/share/sgml/entities
+/usr/local/share/sgml/dtd
+/usr/local/share/sgml/declaration
+/usr/local/share/sgml
+DATA
+# End automatically added section
+
+
+exit 0
+
+## ----------------------------------------------------------------------

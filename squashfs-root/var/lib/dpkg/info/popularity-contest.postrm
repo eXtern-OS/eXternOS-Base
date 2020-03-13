@@ -1,0 +1,24 @@
+#!/bin/sh
+
+set -e
+
+# purge the config file which is created in the postinst script
+if [ "$1" = purge ] ; then
+        rm -f /etc/popularity-contest.conf /etc/cron.d/popularity-contest
+fi
+
+if [ "$1" = "purge" ] && [ -e /usr/share/debconf/confmodule ]; then
+    # Source debconf library.
+    . /usr/share/debconf/confmodule
+    # Remove my changes to the db.
+    db_purge
+fi
+
+# Automatically added by dh_installdebconf/11.1.4ubuntu1
+if [ "$1" = purge ] && [ -e /usr/share/debconf/confmodule ]; then
+	. /usr/share/debconf/confmodule
+	db_purge
+fi
+# End automatically added section
+
+

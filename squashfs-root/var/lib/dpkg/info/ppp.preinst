@@ -1,0 +1,25 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    install|upgrade)
+    if dpkg --compare-versions "$2" lt "2.4.6-3ubuntu1"; then
+	update-rc.d pppd-dns remove
+    fi
+
+    if dpkg --compare-versions "$2" le "2.4.5-4"; then
+
+    if dpkg --compare-versions "$2" le "2.4.4b1-1"; then
+	rm -f /etc/init.d/ppp
+	update-rc.d ppp remove
+    fi
+
+	rm -f /etc/apm/event.d/ppp
+    fi
+    ;;
+esac
+
+# Automatically added by dh_installdeb/11.1.6ubuntu1
+dpkg-maintscript-helper rm_conffile /etc/bash_completion.d/pon 2.4.7-1\+2\~ -- "$@"
+# End automatically added section
+

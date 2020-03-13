@@ -1,0 +1,28 @@
+# vim:syntax=apparmor
+# launchpad-integration
+
+  # Launchpad integration should run in a sanitizing profile
+  /usr/bin/launchpad-integration Cxr -> launchpad_integration,
+  profile launchpad_integration {
+    #include <abstractions/base>
+    #include <abstractions/nameservice>
+    #include <abstractions/ubuntu-browsers>
+
+    # Required for debuggers
+    capability sys_ptrace,
+
+    # Run confined with security execution. sudo scrubs the environment, so we
+    # don't have to
+    /usr/bin/sudo Ux,
+
+    # Give it wide permissions since it and apport need to do a lot
+    /** rwlk,
+    /{,usr/}{,s}bin/* Pixr,
+    /{,usr/}lib*/{,**/}*.so{,.*} m,
+    /usr/share/apport/* Pixr,
+
+    # Dangerous files
+    audit deny owner /**/*.py* r,       # python imports
+    audit deny owner /**/* m,           # compiled libraries
+  }
+

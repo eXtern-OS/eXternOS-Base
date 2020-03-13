@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<page xmlns="http://projectmallard.org/1.0/" xmlns:ui="http://projectmallard.org/ui/1.0/" type="topic" style="task" id="memory-map-use" xml:lang="pl">
+
+  <info>
+    <revision pkgversion="3.11" date="2014-01-28" status="candidate"/>
+    <link type="guide" xref="index#memory" group="memory"/>
+
+    <include xmlns="http://www.w3.org/2001/XInclude" href="legal.xml"/>
+
+    <credit type="author copyright">
+      <name>Phil Bull</name>
+      <email>philbull@gmail.com</email>
+      <years>2011</years>
+    </credit>
+
+    <credit type="author copyright">
+      <name>Michael Hill</name>
+      <email>mdhillca@gmail.com</email>
+      <years>2011, 2014</years>
+    </credit>
+
+    <desc>Wyświetlanie mapy pamięci procesu.</desc>
+  
+    <mal:credit xmlns:mal="http://projectmallard.org/1.0/" type="translator copyright">
+      <mal:name>Piotr Drąg</mal:name>
+      <mal:email>piotrdrag@gmail.com</mal:email>
+      <mal:years>2017</mal:years>
+    </mal:credit>
+  
+    <mal:credit xmlns:mal="http://projectmallard.org/1.0/" type="translator copyright">
+      <mal:name>Aviary.pl</mal:name>
+      <mal:email>community-poland@mozilla.org</mal:email>
+      <mal:years>2017</mal:years>
+    </mal:credit>
+  </info>
+
+  <title>Używanie map pamięci</title>
+
+  <p><gui>Pamięć wirtualna</gui> jest reprezentacją połączonej <gui>pamięci fizycznej</gui> i <link xref="mem-swap">przestrzeni wymiany</link> na komputerze. Umożliwia ona działającym procesom na korzystanie z <em>więcej</em> niż istniejącej pamięci fizycznej przez <gui>mapowanie</gui> położeń w pamięci fizycznej do plików na dysku. Kiedy komputer potrzebuje więcej stron pamięci niż jest dostępnych, to część istniejących stron zostaje usunięta lub zapisana w przestrzeni wymiany.</p>
+
+  <p><gui>Mapa pamięci</gui> wyświetla całkowitą pamięć wirtualną użytą przez proces, i może być używana do ustalania kosztu pamięci działania jednego lub wielu wystąpień programu, do zapewniania użycia właściwych bibliotek współdzielonych, do wyświetlania wyników dostosowania różnych parametrów wydajności, jakie może mieć program, albo do diagnozowania problemów, takich jak wycieki pamięci.</p>
+
+  <p>Aby wyświetlić <link xref="memory-map-what">mapę pamięci</link> procesu:</p>
+
+  <steps>
+    <item><p>Kliknij kartę <gui>Procesy</gui>.</p></item>
+    <item><p>Kliknij odpowiedni proces na <gui>liście procesów</gui> prawym przyciskiem myszy.</p></item>
+    <item><p>Kliknij <gui>Mapy pamięci</gui>.</p></item>
+  </steps>
+
+<section id="read">
+  <title>Odczytywanie mapy pamięci</title>
+
+  <list>
+    <item>
+      <p>Adresy są wyświetlane w systemie szesnastkowym.</p>
+    </item>
+    <item>
+      <p>Rozmiary są wyświetlane za pomocą <link xref="units">przedrostków dwójkowych IEC</link>.</p>
+    </item>
+    <item>
+      <p>Podczas uruchamiania proces może dynamicznie przydzielić więcej pamięci do obszaru o nazwie <em>sterta</em> oraz umieścić parametry i zmienne w innym obszarze o nazwie <em>stos</em>.</p>
+    </item>
+    <item>
+      <p>Sam program i każda biblioteka współdzielona ma po trzy wpisy, jeden dla segmentu tekstowego do odczytu i wykonania, jeden dla segmentu danych do odczytu i zapisu, a jeden segmentu danych tylko do odczytu. Oba segmenty danych muszą być usunięte w czasie wymiany.</p>
+    </item>
+  </list>
+
+<table shade="rows" ui:expanded="false">
+<title>Właściwości</title>
+  <tr>
+	  <td><p>Nazwa pliku</p></td>
+	  <td><p>Położenie biblioteki współdzielonej obecnie używanej przez proces. Jeśli to pole jest puste, to informacje o pamięci w tym rzędzie opisują pamięć, której właścicielem jest proces, którego nazwa jest wyświetlana nad tablicą mapy pamięci.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Początek VM</p></td>
+	  <td><p>Adres, w którym segment pamięci się zaczyna. Początek, koniec i przesunięcie pamięci wirtualnej razem określają położenie na dysku, do którego biblioteka współdzielona jest mapowana.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Koniec VM</p></td>
+	  <td><p>Adres, w którym segment pamięci się kończy.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Rozmiar VM</p></td>
+	  <td><p>Rozmiar segmentu pamięci.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Flagi</p></td>
+	  <td><p>Te flagi określają różne typy dostępu do segmentów pamięci, jakie proces może mieć:</p>
+    <terms>
+      <item>
+        <title><gui>p</gui></title>
+        <p>Segment pamięci jest prywatny dla procesu i nie jest dostępny dla innych procesów.</p>
+      </item>
+      <item>
+        <title><gui>r</gui></title>
+        <p>Proces ma uprawnienie do odczytu z segmentu pamięci.</p>
+      </item>
+      <item>
+        <title><gui>s</gui></title>
+        <p>Segment pamięci jest współdzielony z innymi procesami.</p>
+      </item>
+      <item>
+        <title><gui>w</gui></title>
+        <p>Proces ma uprawnienie do zapisu do segmentu pamięci.</p>
+      </item>
+      <item>
+        <title><gui>x</gui></title>
+        <p>Proces ma uprawnienie do wykonywania instrukcji zawartych w segmencie pamięci.</p>
+      </item>
+    </terms>
+    </td>
+  </tr>
+  <tr>
+	  <td><p>Przesunięcie VM</p></td>
+	  <td><p>Położenie adresu w segmencie pamięci, mierzone od początku pamięci wirtualnej.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Prywatne, współdzielone, czyste, brudne</p></td>
+<!--	  <td><p>Text pages are flagged read-execute in memory and don't need to
+  be written to swap since they can be re-loaded from their original location
+  on disk. Data pages have read-write permissions, and if modified when in
+  memory, they are labeled <em>dirty</em>, and when designated for swapping,
+  must be paged out.</p></td>
+-->
+          <td><list><item><p>Strony <em>prywatne</em> są używane przez jeden proces,</p></item>
+          <item><p>strony <em>współdzielone</em> mogą być używane przez więcej niż jeden proces,</p></item>
+          <item><p>strony <em>czyste</em> nie zostały jeszcze zmodyfikowane w pamięci i mogą zostać odrzucone podczas wyznaczania ich do wymiany,</p></item>
+          <item><p>strony <em>brudne</em> zostały zmodyfikowane w pamięci i muszą zostać zapisane na dysku podczas wyznaczania ich do wymiany.</p></item></list></td>
+  </tr>
+  <tr>
+	  <td><p>Urządzenie</p></td>
+	  <td><p>Większe i mniejsze numery urządzenia, na którym położony jest plik biblioteki współdzielonej. Razem określają one partycję na komputerze.</p></td>
+  </tr>
+  <tr>
+	  <td><p>I-węzeł</p></td>
+	  <td><p>I-węzeł na urządzeniu, z którego położenie biblioteki współdzielonej jest wczytywane do pamięci. I-węzeł to struktura używana przez system plików do przechowywania pliku, a przydzielony do niego numer jest unikalny.</p></td>
+  </tr>
+</table>
+
+</section>
+</page>

@@ -1,0 +1,42 @@
+#!/bin/sh -e
+# prerm for rsync
+
+pathfind() {
+	OLDIFS="$IFS"
+	IFS=:
+	for p in $PATH; do
+		if [ -x "$p/$*" ]; then
+			IFS="$OLDIFS"
+			return 0
+		fi
+	done
+	IFS="$OLDIFS"
+	return 1
+}
+
+
+case "$1" in
+	remove|deconfigure)
+		if [ -h /usr/doc/rsync ]; then
+			rm -f /usr/doc/rsync
+		fi
+		if [ -x /etc/init.d/rsync ]; then
+			if pathfind invoke-rc.d; then
+				invoke-rc.d rsync stop
+			else
+				/etc/init.d/rsync stop
+			fi
+		fi
+		if [ -d /run/systemd/system ]; then
+			deb-systemd-invoke stop rsync.service >/dev/null
+		fi
+		;;
+	upgrade|failed-upgrade)
+		;;
+	*)
+		echo "prerm called with unknown argument \`$1'" >&2
+		exit 0
+	;;
+esac
+
+exit 0

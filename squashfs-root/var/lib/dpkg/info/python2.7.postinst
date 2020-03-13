@@ -1,0 +1,41 @@
+#! /bin/sh
+
+set -e
+
+case "$1" in
+    configure)
+	files=$(dpkg -L libpython2.7-stdlib:amd64 | sed -n '/^\/usr\/lib\/python2.7\/.*\.py$/p')
+	if [ -n "$files" ]; then
+	    /usr/bin/python2.7 -E -S /usr/lib/python2.7/py_compile.py $files
+	    if grep -sq '^byte-compile[^#]*optimize' /etc/python/debian_config; then
+		/usr/bin/python2.7 -E -S -O /usr/lib/python2.7/py_compile.py $files
+	    fi
+	else
+	    echo >&2 "python2.7: can't get files for byte-compilation"
+	fi
+
+        # Create empty directories in /usr/local
+        if [ ! -e /usr/local/lib/python2.7 ]; then
+            mkdir -p /usr/local/lib/python2.7 2> /dev/null || true
+            chmod 2775 /usr/local/lib/python2.7 2> /dev/null || true
+            chown root:staff /usr/local/lib/python2.7 2> /dev/null || true
+        fi
+        if [ ! -e /usr/local/lib/python2.7/site-packages ]; then
+            mkdir -p /usr/local/lib/python2.7/site-packages 2> /dev/null || true
+            chmod 2775 /usr/local/lib/python2.7/site-packages 2> /dev/null || true
+            chown root:staff /usr/local/lib/python2.7/site-packages 2> /dev/null || true
+        fi
+	;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+	;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+
+
+exit 0

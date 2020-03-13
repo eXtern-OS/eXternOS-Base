@@ -1,0 +1,30 @@
+# Description: Can access the network as a server.
+# Usage: common
+#include <abstractions/nameservice>
+#include <abstractions/ssl_certs>
+
+# These probably shouldn't be something that apps should use, but this offers
+# no information disclosure since the files are in the read-only part of the
+# system.
+/etc/hosts.deny r,
+/etc/hosts.allow r,
+
+@{PROC}/sys/net/core/somaxconn r,
+@{PROC}/sys/net/ipv4/ip_local_port_range r,
+
+# LP: #1496906: java apps need these for some reason and they leak the IPv6 IP
+# addresses and routes. Until we find another way to handle them (see the bug
+# for some options), we need to allow them to avoid developer confusion.
+@{PROC}/@{pid}/net/if_inet6 r,
+@{PROC}/@{pid}/net/ipv6_route r,
+
+# java apps request this but seem to work fine without it. Netlink sockets
+# are used to talk to kernel subsystems though and since apps run as root,
+# allowing blanket access needs to be carefully considered. Kernel capabilities
+# checks (which apparmor mediates) *should* be enough to keep abuse down,
+# however Linux capabilities can be quite broad and there have been CVEs in
+# this area. The issue is complicated because reservied policy groups like
+# 'network-admin' and 'network-firewall' have legitimate use for this rule,
+# however a network facing server shouldn't typically be running with these
+# policy groups. For now, explicitly deny to silence the denial. LP: #1499897
+deny network netlink dgram,

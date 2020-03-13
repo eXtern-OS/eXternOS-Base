@@ -1,0 +1,20 @@
+# Description: This will make it possible to use a52 with PulseAudio out of
+#              the box. It may be useful for other use cases. Just include
+#              this in your ~/.asoundrc .
+
+pcm.a52 {
+    @args [ CARD ]
+    @args.CARD {
+               type string
+               default 0
+    }
+    type plug
+    slave {
+           pcm {
+               type a52
+               card $CARD
+           }
+    }
+}
+
+# Usage: aplay -D a52:0 /foo.wav

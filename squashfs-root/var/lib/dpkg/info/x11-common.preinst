@@ -1,0 +1,40 @@
+#!bin/sh
+
+set -e
+
+rm_conffiles_if_uninstalled() {
+    PKGNAME="$1"
+    MAXVERSION="$2"
+
+    if [ "$(dpkg-query --show --showformat='${db:Status-Status}' "$PKGNAME")" != "config-files" ]; then
+        return 0;
+    fi
+
+    pkg_version=$(dpkg-query --show --showformat='${Version}' "$PKGNAME")
+
+    if dpkg --compare-versions "$pkg_version" lt-nl "$MAXVERSION"; then
+        conffiles="$(dpkg-query --show -f='${Conffiles}' "$PKGNAME")"
+        filepaths="$(echo "$conffiles" | cut -f-2 -d' ')"
+
+        for cfile in $filepaths; do
+            if [ -f "$cfile" ]; then
+                echo "Moving obsolete conffile $cfile to $cfile.x11-back..."
+                mv -f "$cfile" "$cfile".x11-back
+            fi
+        done
+    fi
+}
+
+case "$1" in
+install|upgrade)
+    if dpkg --compare-versions "$2" lt 1:7.7+19ubuntu7.1; then
+        rm_conffiles_if_uninstalled nux-tools 4.0.8+18.04.20180613.5-0ubuntu1
+    fi
+    ;;
+esac
+
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/X11/Xsession.d/00upstart 1:7.7\+19ubuntu5\~ upstart -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/X11/Xsession.d/99upstart 1:7.7\+19ubuntu5\~ upstart -- "$@"
+# End automatically added section
+

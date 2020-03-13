@@ -1,0 +1,60 @@
+#!/bin/sh -
+#
+# ubuntu-fan Start/Stop Ubuntu FAN Networking
+#
+# chkconfig: 345 98 01
+# description: Starts/Stops Ubuntu FAN Network Bridge
+#
+### BEGIN INIT INFO
+# Provides: ubuntu-fan
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Required-Start: $network $remote_fs
+# Required-Stop: $remote_fs $network
+# Short-Description: Bring up/down Ubuntu FAN Network Bridge and Overlay
+# Description: Bring up/down Ubuntu FAN Network Bridge and Overlay
+### END INIT INFO
+
+# Source function library.
+. /lib/lsb/init-functions
+
+# provide action() fallback
+if ! type action >/dev/null 2>&1; then
+    # Real basic fallback for sysvinit "action" verbage.
+    action() {
+        echo -n "$1	"
+        shift
+        "$@" && echo "OK" || echo "Failed"
+    }
+fi
+
+start() {
+    action $"Starting Ubuntu FAN network bridge: " /usr/lib/ubuntu-fan/fan-net start
+}
+
+stop() {
+    action $"Stopping Ubuntu FAN network bridge: " /usr/lib/ubuntu-fan/fan-net stop
+}
+
+# See how we were called.
+case "$1" in
+    start)
+        start
+    ;;
+
+    stop)
+        stop
+    ;;
+
+    restart|reload|force-reload)
+        $0 stop
+        $0 start
+    ;;
+
+    *)
+        echo "Usage: $0 {start|stop|restart|reload|force-reload}"
+        exit 2
+    ;;
+esac
+
+exit $?

@@ -1,0 +1,132 @@
+# bash completion for GNU tar                              -*- shell-script -*-
+
+_tar()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    local ext regex tar untar
+
+    if [[ $cword -eq 1 ]]; then
+        COMPREPLY=( $( compgen -W 'c t x u r d A' -- "$cur" ) )
+        return 0
+    fi
+
+    local tars='@(@(tar|gem|spkg)?(.@(Z|[bgx]z|bz2|lz?(ma)))|t@([abglx]z|b?(z)2))'
+
+    case ${words[1]} in
+        --*)
+            ;;
+        ?(-)*[cr]*f)
+            if [[ $cword -eq 2 ]]; then
+                ext='@(tar|gem|spkg)'
+                case ${words[1]} in
+                    *a*)    ext="$tars"               ;;
+                    *z*)    ext='t?(ar.)gz'           ;;
+                    *Z*)    ext='ta@(r.Z|z)'          ;;
+                    *[jy]*) ext='t@(?(ar.)bz?(2)|b2)' ;;
+                    *J*)    ext='t?(ar.)xz'           ;;
+                esac
+                _filedir $ext
+            else
+                _filedir
+            fi
+            return 0
+            ;;
+        +([^ZzJjy])f)
+            ext="$tars"
+            regex='\(\(tar\|gem\|spkg\)\(\.\(Z\|[bgx]z\|bz2\|lz\(ma\)\?\)\)\?\|t\([abglx]z\|bz\?2\)\)'
+            ;;
+        *[Zz]*f)
+            ext='@(@(t?(ar.)|gem.|spkg.)@(gz|Z)|taz)'
+            regex='\(\(t\(ar\.\)\?\|gem\.\|spkg\.\)\(gz\|Z\)\|taz\)'
+            ;;
+        *[jy]*f)
+            ext='@(@(t?(ar.)|gem.)bz?(2)|spkg|tb2)'
+            regex='\(\(t\(ar\.\)\?\|gem\.\)bz2\?\|spkg\|tb2\)'
+            ;;
+        *[J]*f)
+            ext='@(@(tar|gem|spkg).@(lzma|xz)|t[lx]z)'
+            regex='\(\(tar\|gem\|spkg\)\.\(lzma\|xz\)\|t[lx]z\)'
+            ;;
+        *)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    case $prev in
+        *${ext:-$tars})
+            # complete on files in tar file
+            #
+            # get name of tar file from command line
+            tar=$( sed -e 's/^.* \([^ ]*'$regex'\) .*$/\1/' <<<"${words[@]}" )
+            # devise how to untar and list it
+            untar=t${words[1]//[^Jzjyf]/}
+
+            local IFS=$'\n'
+            COMPREPLY=( $( compgen -W "$( printf '%s\n' $( tar $untar $tar \
+                2>/dev/null ) )" -- "$cur" ) )
+            return 0
+            ;;
+        -C|--directory)
+            _filedir -d
+            return 0
+            ;;
+        --atime-preserve)
+            COMPREPLY=( $( compgen -W 'replace system' -- "$cur" ) )
+            return 0
+            ;;
+        --group)
+            COMPREPLY=( $( compgen -g -- "$cur" ) )
+            return 0
+            ;;
+        --owner)
+            COMPREPLY=( $( compgen -u -- "$cur" ) )
+            return 0
+            ;;
+        -F|--info-script|--new-volume-script|--rmt-command|--rsh-command|\
+        -I|--use-compress-program)
+            compopt -o filenames
+            COMPREPLY=( $( compgen -c -- "$cur" ) )
+            return 0
+            ;;
+        --volno-file|--add-file|-T|--files-from|-X|--exclude-from|--index-file)
+            _filedir
+            return 0
+            ;;
+        -H|--format)
+            COMPREPLY=( $( compgen -W 'gnu oldgnu pax posix ustar v7' \
+                -- "$cur" ) )
+            return 0
+            ;;
+        --quoting-style)
+            COMPREPLY=( $( compgen -W 'literal shell shell-always c c-maybe
+                escape locale clocale' -- "$cur" ) )
+            return 0
+            ;;
+        --totals)
+            COMPREPLY=( $( compgen -W 'SIGHUP SIGQUIT SIGINT SIGUSR1 SIGUSR2' \
+                -- "$cur" ) )
+            return 0
+            ;;
+        --occurrence|--sparse-version|--to-command|--mode|--mtime|\
+        --tape-length|-b|--blocking-factor|--record-size|-V|--text|--backup|\
+        --exclude|--exclude-tag*|-K|--starting-file|-N|--newer|--after-date|\
+        --suffix|--strip-components|--transform|--xform|--checkpoint|\
+        --checkpoint-action|--no-quote-chars|--quote-chars|--warnings)
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    # file completion on relevant files
+    _filedir "$ext"
+
+    return 0
+}
+[ -n "${COMP_TAR_INTERNAL_PATHS:-}" ] && complete -F _tar -o dirnames tar ||
+    complete -F _tar tar
+
+# ex: ts=4 sw=4 et filetype=sh

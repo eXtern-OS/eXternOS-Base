@@ -1,0 +1,45 @@
+#! /bin/sh
+
+set -e
+
+# Automatically added by dh_installinit/11.1.6ubuntu1
+if [ "$1" = "purge" ] ; then
+	update-rc.d whoopsie remove >/dev/null
+fi
+
+
+# In case this system is running systemd, we make systemd reload the unit files
+# to pick up changes.
+if [ -d /run/systemd/system ] ; then
+	systemctl --system daemon-reload >/dev/null || true
+fi
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu1
+dpkg-maintscript-helper rm_conffile /etc/default/whoopsie 0.2.47 -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu1
+dpkg-maintscript-helper rm_conffile /etc/cron.daily/whoopsie 0.1.25 -- "$@"
+# End automatically added section
+# Automatically added by dh_systemd_enable/11.1.6ubuntu1
+if [ "$1" = "remove" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper mask 'whoopsie.service' >/dev/null || true
+	fi
+fi
+
+if [ "$1" = "purge" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper purge 'whoopsie.service' >/dev/null || true
+		deb-systemd-helper unmask 'whoopsie.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+
+
+if [ "$1" = "purge" ]; then
+	deluser --quiet --system whoopsie > /dev/null || true
+	chmod g-s /var/crash >/dev/null 2>&1
+	chgrp root /var/crash >/dev/null 2>&1
+fi
+
+exit 0

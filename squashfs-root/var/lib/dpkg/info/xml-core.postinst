@@ -1,0 +1,39 @@
+#!/bin/sh
+set -e
+# Automatically added by dh_installxmlcatalogs/UNDECLARED
+if [ "$1" = "configure" ]; then
+	update-xmlcatalog --sort --add --type system --id "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd" --package xml-core --local /usr/share/xml/schema/xml-core/catalog.xml
+	update-xmlcatalog --sort --add --type public --id "-//OASIS//DTD XML Catalogs V1.0//EN" --package xml-core --local /usr/share/xml/schema/xml-core/catalog.xml
+	update-xmlcatalog --sort --add --type system --id "http://globaltranscorp.org/oasis/catalog/xml/tr9401.dtd" --package xml-core --local /usr/share/xml/schema/xml-core/catalog.xml
+	update-xmlcatalog --sort --add --type public --id "-//GlobalTransCorp//DTD XML Catalogs V1.0-Based Extension V1.0//EN" --package xml-core --local /usr/share/xml/schema/xml-core/catalog.xml
+
+	update-xmlcatalog --sort --add --type system --id "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd" --package xml-core --root
+	update-xmlcatalog --sort --add --type public --id "-//OASIS//DTD XML Catalogs V1.0//EN" --package xml-core --root
+	update-xmlcatalog --sort --add --type system --id "http://globaltranscorp.org/oasis/catalog/xml/tr9401.dtd" --package xml-core --root
+	update-xmlcatalog --sort --add --type public --id "-//GlobalTransCorp//DTD XML Catalogs V1.0-Based Extension V1.0//EN" --package xml-core --root
+
+fi
+# End automatically added section
+# Automatically added by dh_usrlocal/10.10.5ubuntu1
+if [ "$1" = configure ]; then
+(
+	while read line; do
+		set -- $line
+		dir="$1"; mode="$2"; user="$3"; group="$4"
+		if [ ! -e "$dir" ]; then
+			if mkdir "$dir" 2>/dev/null; then
+				chown "$user":"$group" "$dir"
+				chmod "$mode" "$dir"
+			fi
+		fi
+	done
+) << DATA
+/usr/local/share 02775 root staff
+/usr/local/share/xml 02775 root staff
+/usr/local/share/xml/declaration 02775 root staff
+/usr/local/share/xml/entities 02775 root staff
+/usr/local/share/xml/misc 02775 root staff
+/usr/local/share/xml/schema 02775 root staff
+DATA
+fi
+# End automatically added section

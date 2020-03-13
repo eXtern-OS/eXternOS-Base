@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+
+PROGRAM=/usr/bin/gnome-keyring-daemon
+
+if [ "$1" = configure ]; then
+    if which setcap > /dev/null && [ -e $PROGRAM ]; then
+        if ! setcap CAP_IPC_LOCK=ep $PROGRAM >/dev/null 2>&1; then
+            echo "Setting capabilities for gnome-keyring-daemon using Linux Capabilities failed."
+        fi
+    fi
+fi
+
+# Automatically added by dh_installdeb/11.1.6ubuntu1
+dpkg-maintscript-helper rm_conffile /etc/xdg/autostart/gnome-keyring-gpg.desktop 3.16.0-4\~ gnome-keyring -- "$@"
+# End automatically added section
+

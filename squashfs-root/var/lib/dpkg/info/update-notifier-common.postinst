@@ -1,0 +1,35 @@
+#!/bin/sh
+
+set -e
+
+# fixup /var/crash permissions (#449739)
+if [ "$1" = configure ] && dpkg --compare-versions "$2" le-nl "0.89"; then
+    if [ -d /var/crash ] && [ "$(stat -L -c '%a' /var/crash)" = "755" ]; then
+        chmod 1777 /var/crash
+    fi
+fi
+
+if [ "$1" = triggered ]; then
+	for trigger in $2; do
+		case $trigger in
+			/usr/share/package-data-downloads)
+				/usr/lib/update-notifier/package-data-downloader
+				;;
+		esac
+	done
+	exit 0
+fi
+
+# Ensure permissions are correct, otherwise downloading sandboxing fails
+chown -R _apt:root /var/lib/update-notifier/package-data-downloads/partial/
+chmod 700 /var/lib/update-notifier/package-data-downloads/partial/
+
+# Run this when configuring as well, since we may not be triggered at all
+# depending on package unpack order.
+/usr/lib/update-notifier/package-data-downloader
+
+# Remove update-motd cpu-checker script
+dpkg-maintscript-helper rm_conffile /etc/update-motd.d/20-cpu-checker \
+        0.110.1ubuntu1 -- "$@"
+
+

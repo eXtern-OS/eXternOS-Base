@@ -1,0 +1,138 @@
+# -*- shell-script -*- vim:ft=sh:
+#---------------------------------------------------------------------
+# Description: Update kernel/core snap.
+# Entry point: mountroot().
+#---------------------------------------------------------------------
+
+. /scripts/ubuntu-core-functions
+
+# Save "bootloader" environment in $1
+saveenv()
+{
+	echo "snap_mode=$snap_mode
+snap_try_core=$snap_try_core
+snap_try_kernel=$snap_try_kernel
+snap_core=$snap_core
+snap_kernel=$snap_kernel" > "$1".tmp
+	mv "$1".tmp "$1"
+	sync
+}
+
+# Flash kernel snap with name $1 to partition $2
+flash_kernel()
+{
+	local partition="$1"
+	local kernel_snap="$2"
+	local kernel_mnt="/tmpmnt_kernel"
+	mkdir -p "$kernel_mnt"
+	mount "${writable_mnt}/system-data/var/lib/snapd/snaps/${kernel_snap}" \
+	      "$kernel_mnt"
+
+	cat "${kernel_mnt}/boot.img" > "$partition"
+	sync
+}
+
+# Modify kernel command line of partition $1 with core $2 and kernel $3
+modify_kernel_cmdline()
+{
+	local cmdline
+	local partition="$1"
+	local core="$2"
+	local kernel="$3"
+	cmdline=$(abootimg -i "$partition" | grep cmdline)
+	cmdline="${cmdline#\* cmdline = }"
+	cmdline=$(echo "$cmdline" \
+			     | sed "s/snap_core=[[:alnum:]_.-]*/snap_core=$core/" \
+			     | sed "s/snap_kernel=[[:alnum:]_.-]*/snap_kernel=$kernel/")
+	abootimg -u "$partition" -c "cmdline=$cmdline"
+
+	sync
+}
+
+#---------------------------------------------------------------------
+# XXX: Entry point - called by the initramfs "/init" script.
+# For it to be called, the line
+# "BOOT=bootloader-script"
+# must be present in one of the configuration files in /conf/conf.d/
+#---------------------------------------------------------------------
+mountroot()
+{
+	pre_mountroot
+
+	log_begin_msg "Running /scripts/local-premount"
+	run_scripts /scripts/local-premount
+	log_end_msg
+
+	writable_label="writable"
+	writable_mnt="/tmpmnt_${writable_label}"
+	mkdir -p "$writable_mnt"
+
+	# mount the root fs
+	do_root_mounting
+
+	aboot_folder="${writable_mnt}/androidboot"
+	aboot_env="${aboot_folder}/androidboot.env"
+
+	# If no environment, this is the first boot
+	if [ ! -e "${aboot_folder}/androidboot.env" ]; then
+		log_success_msg "This is the first boot"
+		reboot recovery
+	fi
+
+	# Read configuration options
+	. "$aboot_env"
+
+	# Find recovery partition
+	recovery_partition=$(findfs PARTLABEL="recovery" 2>/dev/null || :)
+	[ -e "$recovery_partition" ] || panic "recovery partition does not exist"
+
+	# Make sure update has not already failed
+	if [ "$snap_mode" = "trying" ]; then
+		snap_mode=""
+		saveenv $aboot_env
+		log_failure_msg "mode is still \"trying\"! Reverting..."
+
+		if [ "$snap_try_kernel" != "" ]; then
+			log_begin_msg "Re-flashing old kernel"
+			flash_kernel "$recovery_partition" "$snap_kernel"
+			log_end_msg
+		fi
+
+		# Modify kernel command line
+		modify_kernel_cmdline "$recovery_partition" "$snap_core" "$snap_kernel"
+		log_failure_msg "- booting"
+		reboot recovery
+	fi
+
+	# Check if we are trying a snap, reboot otherwise
+	if [ "$snap_mode" != "try" ]; then
+		log_success_msg "no core/kernel updates, booting"
+		reboot recovery
+	fi
+
+	snap_mode="trying"
+	saveenv $aboot_env
+
+	# Force panic if we fail while trying to update
+	set -e
+
+	if [ "$snap_try_core" != "" ]; then
+		snap_core="$snap_try_core"
+	fi
+
+	if [ "$snap_try_kernel" != "" ]; then
+		snap_kernel="$snap_try_kernel"
+
+		# Flash newer kernel
+		log_begin_msg "flashing new kernel"
+		flash_kernel "$recovery_partition" "$snap_kernel"
+		log_end_msg
+	fi
+
+	# Modify command line
+	modify_kernel_cmdline "$recovery_partition" "$snap_core" "$snap_kernel"
+
+	log_success_msg "update finished, booting"
+
+	reboot recovery
+}

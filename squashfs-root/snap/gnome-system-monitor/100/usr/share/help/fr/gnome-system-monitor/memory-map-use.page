@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<page xmlns="http://projectmallard.org/1.0/" xmlns:ui="http://projectmallard.org/ui/1.0/" type="topic" style="task" id="memory-map-use" xml:lang="fr">
+
+  <info>
+    <revision pkgversion="3.11" date="2014-01-28" status="candidate"/>
+    <link type="guide" xref="index#memory" group="memory"/>
+
+    <include xmlns="http://www.w3.org/2001/XInclude" href="legal.xml"/>
+
+    <credit type="author copyright">
+      <name>Phil Bull</name>
+      <email>philbull@gmail.com</email>
+      <years>2011</years>
+    </credit>
+
+    <credit type="author copyright">
+      <name>Michael Hill</name>
+      <email>mdhillca@gmail.com</email>
+      <years>2011, 2014</years>
+    </credit>
+
+    <desc>Afficher la carte de la mémoire d'un processus.</desc>
+  
+    <mal:credit xmlns:mal="http://projectmallard.org/1.0/" type="translator copyright">
+      <mal:name>naybnet</mal:name>
+      <mal:email>naybnet@gmail.com</mal:email>
+      <mal:years>2014</mal:years>
+    </mal:credit>
+  
+    <mal:credit xmlns:mal="http://projectmallard.org/1.0/" type="translator copyright">
+      <mal:name>Alain Lojewski</mal:name>
+      <mal:email>allomervan@gmail.com</mal:email>
+      <mal:years>2014</mal:years>
+    </mal:credit>
+  
+    <mal:credit xmlns:mal="http://projectmallard.org/1.0/" type="translator copyright">
+      <mal:name>Julien Hardelin</mal:name>
+      <mal:email>jhardlin@orange.fr</mal:email>
+      <mal:years>2014</mal:years>
+    </mal:credit>
+  
+    <mal:credit xmlns:mal="http://projectmallard.org/1.0/" type="translator copyright">
+      <mal:name>Leonor Palazzo</mal:name>
+      <mal:email>leonor.palazzo@gmail.com</mal:email>
+      <mal:years>2015</mal:years>
+    </mal:credit>
+  </info>
+
+  <title>Utilisation des cartes de la mémoire</title>
+
+  <p>La <gui>Mem. virtuelle</gui> est une combinaison de la <gui>Mémoire physique</gui> et de l'<link xref="mem-swap">espace d'échange</link> dans un système. Elle permet aux processus actifs d'accéder à <em>davantage</em> de mémoire que la mémoire existante en <gui>reliant</gui> les localisations dans la mémoire physique aux fichiers sur disque. Quand le système nécessite plus de pages mémoires que disponible, certaines pages sont <em>désindexées</em> ou écrites dans l'espace d'échange.</p>
+
+  <p>Les <gui>Cartes de la mémoire</gui> affichent l'utilisation totale de la mémoire virtuelle par un processus. Elles peuvent être utilisées pour déterminer le coût en terme de mémoire lors de l'exécution d'une ou plusieurs instances d'un programme, afin d'assurer l'utilisation correcte des bibliothèques partagées, de savoir comment ajuster les paramètres de performance disponibles dans un programme, ou de diagnostiquer des problèmes comme les fuites de mémoire.</p>
+
+  <p>Pour afficher les <link xref="memory-map-what">Cartes de la mémoire</link> d'un processus :</p>
+
+  <steps>
+    <item><p>cliquez sur l'onglet <gui>Processus</gui>.</p></item>
+    <item><p>faites un clic droit sur le processus désiré dans la <gui>liste des processus</gui>,</p></item>
+    <item><p>cliquez sur <gui>Cartes de la mémoires</gui>.</p></item>
+  </steps>
+
+<section id="read">
+  <title>Lecture des cartes de la mémoire</title>
+
+  <list>
+    <item>
+      <p>Les adresses sont affichées en hexadécimal (base 16).</p>
+    </item>
+    <item>
+      <p>Les tailles sont affichées en <link xref="units">préfixes binaires de la CEI</link>.</p>
+    </item>
+    <item>
+      <p>Pendant l'exécution, le processus peut allouer dynamiquement plus de mémoire dans une zone appelée le <em>tas</em>, et stocker les arguments et les variables dans une autre zone appelée la <em>pile</em>.</p>
+    </item>
+    <item>
+      <p>Le programme lui-même et chacune des bibliothèques partagées ont chacun trois entrées : une pour le segment de texte read-execute (lecture-exécution), une pour les segments de données read-write (lecture-écriture) et une pour le segment de données read-only(lecture seulement). Les deux segments de données doivent être retirés de la pagination lors de l'utilisation du fichier d'échange.</p>
+    </item>
+  </list>
+
+<table shade="rows" ui:expanded="false">
+<title>Propriétés</title>
+  <tr>
+	  <td><p>Nom de fichier</p></td>
+	  <td><p>Emplacement d'une bibliothèque partagée en cours d'utilisation par un processus. Si ce champ est vide, l'information mémoire de cette ligne décrit la mémoire utilisée par le processus dont le nom est affiché au dessus du tableau des cartes de la mémoire.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Début VM</p></td>
+	  <td><p>Adresse à laquelle le segment de mémoire commence. Le « Début VM », la « Fin VM » et le « Décalage VM » définissent ensemble l'emplacement sur le disque auquel est reliée la bibliothèque partagée.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Fin VM</p></td>
+	  <td><p>L'adresse à laquelle le segment de mémoire se termine.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Taille VM</p></td>
+	  <td><p>La taille du segment de mémoire.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Attributs</p></td>
+	  <td><p>Les attributs suivants décrivent les différents types d'accès aux segments de mémoire que le processus peut avoir :</p>
+    <terms>
+      <item>
+        <title><gui>p</gui></title>
+        <p>Le segment de mémoire est réservé au processus et n'est pas accessible par les autres processus.</p>
+      </item>
+      <item>
+        <title><gui>r</gui></title>
+        <p>Le processus a la permission de lire dans le segment de mémoire.</p>
+      </item>
+      <item>
+        <title><gui>s</gui></title>
+        <p>Le segment de mémoire est partagé avec les autres processus.</p>
+      </item>
+      <item>
+        <title><gui>w</gui></title>
+        <p>Le processus a la permission d'écrire dans le segment de mémoire.</p>
+      </item>
+      <item>
+        <title><gui>x</gui></title>
+        <p>Le processus a la permission d'exécuter des instructions contenues dans le segment de mémoire.</p>
+      </item>
+    </terms>
+    </td>
+  </tr>
+  <tr>
+	  <td><p>Décalage VM</p></td>
+	  <td><p>L'emplacement de l'adresse au sein du segment de mémoire, mesuré à partir du Début VM.</p></td>
+  </tr>
+  <tr>
+	  <td><p>privée, partagée, propre, modifiée</p></td>
+<!--	  <td><p>Text pages are flagged read-execute in memory and don't need to
+  be written to swap since they can be re-loaded from their original location
+  on disk. Data pages have read-write permissions, and if modified when in
+  memory, they are labeled <em>dirty</em>, and when designated for swapping,
+  must be paged out.</p></td>
+-->
+          <td><list><item><p>les pages <em>privées</em> sont accessibles par un seul processus</p></item>
+          <item><p>les pages <em>partagées</em> sont accessibles par plus d'un processus</p></item>
+          <item><p>les pages <em>propres</em> n'ont pas encore été modifiées pendant qu'elles étaient en mémoire et peuvent être abandonnées lorsqu'elles sont désignées comme devant être effacées de la mémoire d'échange</p></item>
+          <item><p>les pages <em>modifiées</em> ont été modifiées pendant qu'elles étaient en mémoire et doivent être écrites sur le disque lorsqu'elles sont désignées comme devant être effacées de la mémoire d'échange</p></item></list></td>
+  </tr>
+  <tr>
+	  <td><p>Périphérique</p></td>
+	  <td><p>Les numéros majeurs et mineurs de l'emplacement sur le périphérique du nom de fichier de la bibliothèque partagée. Ensemble, ceux-ci définissent une partition sur le système.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Inœud</p></td>
+	  <td><p>L'inœud du périphérique à partir duquel la bibliothèque partagée est chargée dans la mémoire. Un inœud est la structure que le système de fichiers utilise pour stocker un fichier et le numéro qui lui est assigné est unique.</p></td>
+  </tr>
+</table>
+
+</section>
+</page>

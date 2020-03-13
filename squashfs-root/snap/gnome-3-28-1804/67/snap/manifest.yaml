@@ -1,0 +1,641 @@
+snapcraft-version: '3.6'
+snapcraft-started-at: '2019-07-09T18:34:33.230269Z'
+snapcraft-os-release-id: ubuntu
+snapcraft-os-release-version-id: '18.04'
+name: gnome-3-28-1804
+version: git
+version-script: 'echo $(git describe --tags).$(git describe --always)
+
+'
+summary: Shared GNOME 3.28 Ubuntu stack
+description: "This snap includes a GNOME 3.28 stack (the base libraries and desktop
+  \nintegration components) and shares it through the content interface. \nIt's built
+  using the Ubuntu xenial backport binaries.\n"
+confinement: strict
+grade: stable
+icon: icon.png
+base: core18
+slots:
+  gnome-3-28-1804:
+    interface: content
+    read:
+    - /
+parts:
+  deb:
+    build-packages:
+    - gtk-update-icon-cache
+    - libglib2.0-bin
+    - shared-mime-info
+    installed-packages: []
+    installed-snaps:
+    - snapcraft=3059
+    - core=7270
+    - core18=1049
+    override-build: |
+      set -eux
+      snapcraftctl build
+      glib-compile-schemas $SNAPCRAFT_PART_INSTALL/usr/share/glib-2.0/schemas
+      update-mime-database $SNAPCRAFT_PART_INSTALL/usr/share/mime
+      for dir in $SNAPCRAFT_PART_INSTALL/usr/share/icons/*; do
+        if [ -f "$dir/index.theme" ]; then
+          gtk-update-icon-cache --force "$dir"
+        fi
+      done
+    plugin: nil
+    prime: []
+    stage: []
+    stage-packages:
+    - ubuntu-settings=18.04.6
+    - libmpc3=1.1.0-1
+    - libgssapi3-heimdal=7.5.0+dfsg-1
+    - libjson-glib-1.0-0=1.4.2-3
+    - libxdmcp6=1:1.1.2-3
+    - libsoup-gnome2.4-1=2.62.1-1ubuntu0.1
+    - gnome-control-center-data=1:3.28.2-0ubuntu0.18.04.4
+    - iso-codes=3.79-1
+    - libssh2-1=1.8.0-1
+    - libcroco3=0.6.12-2
+    - libwebp6=0.6.1-2
+    - gir1.2-gucharmap-2.90=1:10.0.4-1
+    - libkrb5-3=1.16-2ubuntu0.1
+    - libcogl20=1.22.2-3ubuntu1
+    - libgssapi-krb5-2=1.16-2ubuntu0.1
+    - libpython3.6-minimal=3.6.8-1~18.04.1
+    - libpangoft2-1.0-0=1.40.14-1ubuntu0.1
+    - libnghttp2-14=1.30.0-1ubuntu1
+    - libseccomp2=2.4.1-0ubuntu0.18.04.2
+    - glib-networking-services=2.56.0-1
+    - libclutter-1.0-0=1.26.2+dfsg-4
+    - sound-theme-freedesktop=0.8-2ubuntu1
+    - libcom-err2=1.44.1-1ubuntu1.1
+    - libvte-2.91-0=0.52.2-1ubuntu1~18.04.2
+    - libcups2=2.2.7-1ubuntu2.6
+    - libwayland-egl1=1.16.0-1ubuntu1.1~18.04.1
+    - libdbus-1-3=1.12.2-1ubuntu1.1
+    - libwind0-heimdal=7.5.0+dfsg-1
+    - libclutter-gst-3.0-0=3.0.26-1
+    - libdrm-nouveau2=2.4.97-1ubuntu1~18.04.1
+    - gir1.2-gtk-3.0=3.22.30-1ubuntu3
+    - libsasl2-modules-db=2.1.27~101-g0780600+dfsg-3ubuntu2
+    - libgcr-base-3-1=3.28.0-1
+    - libxcb-xfixes0=1.13-2~ubuntu18.04
+    - libwacom-common=0.29-1
+    - libpresage1v5=0.9.1-2.1ubuntu4
+    - libldap-2.4-2=2.4.45+dfsg-1ubuntu1.2
+    - libmpfr6=4.0.1-1
+    - libegl1=1.0.0-2ubuntu2.3
+    - locales-all=2.27-3ubuntu1
+    - libllvm8=1:8-3~ubuntu18.04.1
+    - libgirepository-1.0-1=1.56.1-1
+    - gir1.2-gdkpixbuf-2.0=2.36.11-2
+    - libhttp-parser2.7.1=2.7.1-2
+    - libcogl-path20=1.22.2-3ubuntu1
+    - libgdk-pixbuf2.0-0=2.36.11-2
+    - libproxy1v5=0.4.15-1
+    - liblcms2-2=2.9-1ubuntu0.1
+    - libgoa-1.0-0b=3.28.0-0ubuntu2.1
+    - libegl-mesa0=19.0.2-1ubuntu1.1~18.04.1
+    - dconf-service=0.26.0-2ubuntu3
+    - libcairo-gobject2=1.15.10-2ubuntu0.1
+    - libgoa-1.0-common=3.28.0-0ubuntu2.1
+    - libbrotli1=1.0.3-1ubuntu1.2
+    - libpulsedsp=1:11.1-1ubuntu7.2
+    - glib-networking=2.56.0-1
+    - libgtk-3-common=3.22.30-1ubuntu3
+    - xdg-user-dirs=0.17-1ubuntu1
+    - libpciaccess0=0.14-1
+    - libxcb-present0=1.13-2~ubuntu18.04
+    - libgtk-3-0=3.22.30-1ubuntu3
+    - libheimntlm0-heimdal=7.5.0+dfsg-1
+    - libfcitx-gclient1=1:4.2.9.6-1
+    - libgl1=1.0.0-2ubuntu2.3
+    - pulseaudio=1:11.1-1ubuntu7.2
+    - libglapi-mesa=19.0.2-1ubuntu1.1~18.04.1
+    - gnome-desktop3-data=3.28.2-0ubuntu1.3
+    - libpsl5=0.19.1-5build1
+    - libpixman-1-0=0.34.0-2
+    - libasound2-data=1.1.3-5ubuntu0.2
+    - libsecret-1-0=0.18.6-1
+    - libsqlite3-0=3.22.0-1ubuntu0.1
+    - liborc-0.4-0=1:0.4.28-1
+    - librsvg2-common=2.40.20-2
+    - libpython3.6-stdlib=3.6.8-1~18.04.1
+    - libxrender1=1:0.9.10-1
+    - libwoff1=1.0.2-1build0.1
+    - libicu60=60.2-3ubuntu3
+    - libelf1=0.170-0.4ubuntu0.1
+    - gir1.2-atk-1.0=2.28.1-1
+    - libogg0=1.3.2-1
+    - humanity-icon-theme=0.6.15
+    - libbsd0=0.8.7-1
+    - libwrap0=7.6.q-27
+    - libavahi-common-data=0.7-3.1ubuntu1.2
+    - python3-gi-cairo=3.26.1-2ubuntu1
+    - libgspell-1-common=1.6.1-1
+    - at-spi2-core=2.28.0-1
+    - libgmp10=2:6.1.2+dfsg-2
+    - dconf-gsettings-backend=0.26.0-2ubuntu3
+    - libavahi-common3=0.7-3.1ubuntu1.2
+    - libheimbase1-heimdal=7.5.0+dfsg-1
+    - gir1.2-ggit-1.0=0.26.2-1
+    - libpeas-1.0-0=1.22.0-2
+    - libxcursor1=1:1.1.15-1
+    - libpython3.6=3.6.8-1~18.04.1
+    - python3.6=3.6.8-1~18.04.1
+    - libgtksourceview-3.0-common=3.24.7-1
+    - libthai-data=0.1.27-2
+    - python3=3.6.7-1~18.04
+    - libcogl-pango20=1.22.2-3ubuntu1
+    - libk5crypto3=1.16-2ubuntu0.1
+    - gir1.2-pango-1.0=1.40.14-1ubuntu0.1
+    - libpresage-data=0.9.1-2.1ubuntu4
+    - libharfbuzz-icu0=1.7.2-1ubuntu1
+    - libvorbisfile3=1.3.5-4.2
+    - libmtdev1=1.1.5-1ubuntu3
+    - mime-support=3.60ubuntu1
+    - libxcb-shm0=1.13-2~ubuntu18.04
+    - libepoxy0=1.4.3-1
+    - libsecret-common=0.18.6-1
+    - gsettings-desktop-schemas=3.28.0-1ubuntu1
+    - libsasl2-2=2.1.27~101-g0780600+dfsg-3ubuntu2
+    - libxcb-render0=1.13-2~ubuntu18.04
+    - libhyphen0=2.8.8-5
+    - gir1.2-freedesktop=1.56.1-1
+    - xkb-data=2.23.1-1ubuntu1
+    - bubblewrap=0.2.1-1ubuntu0.1
+    - libmpdec2=2.4.2-1ubuntu1
+    - libgudev-1.0-0=1:232-2
+    - fontconfig-config=2.12.6-0ubuntu2
+    - libcanberra-gtk3-module=0.30-5ubuntu1
+    - libx11-6=2:1.6.4-3ubuntu0.2
+    - libexpat1=2.2.5-3ubuntu0.1
+    - glib-networking-common=2.56.0-1
+    - libgstreamer-plugins-good1.0-0=1.14.4-1ubuntu1~ubuntu18.04.1
+    - libgcr-ui-3-1=3.28.0-1
+    - libsoup2.4-1=2.62.1-1ubuntu0.1
+    - libwebpdemux2=0.6.1-2
+    - libltdl7=2.4.6-2
+    - libgbm1=19.0.2-1ubuntu1.1~18.04.1
+    - ibus-gtk3=1.5.17-3ubuntu4
+    - libxshmfence1=1.3-1
+    - libsm6=2:1.2.2-1
+    - libwayland-client0=1.16.0-1ubuntu1.1~18.04.1
+    - libaspell15=0.60.7~20110707-4
+    - python3.6-minimal=3.6.8-1~18.04.1
+    - libllvm4.0=1:4.0.1-10
+    - libpangoxft-1.0-0=1.40.14-1ubuntu0.1
+    - libdrm-amdgpu1=2.4.97-1ubuntu1~18.04.1
+    - libinput-bin=1.10.4-1
+    - fontconfig=2.12.6-0ubuntu2
+    - fonts-noto-color-emoji=0~20180810-0ubuntu1
+    - libtiff5=4.0.9-5ubuntu0.2
+    - unity-gtk-module-common=0.0.0+18.04.20171202-0ubuntu1
+    - python3-minimal=3.6.7-1~18.04
+    - libxau6=1:1.0.8-1
+    - libpeas-common=1.22.0-2
+    - libgnome-desktop-3-17=3.28.2-0ubuntu1.3
+    - libgee-0.8-2=0.20.1-1
+    - libatk1.0-0=2.28.1-1
+    - librtmp1=2.4+20151223.gitfa8646d.1-1
+    - libxcomposite1=1:0.4.4-2
+    - gir1.2-peas-1.0=1.22.0-2
+    - adwaita-icon-theme=3.28.0-1ubuntu1
+    - libgtk-3-bin=3.22.30-1ubuntu3
+    - libc-bin=2.27-3ubuntu1
+    - libpangocairo-1.0-0=1.40.14-1ubuntu0.1
+    - libpulse0=1:11.1-1ubuntu7.2
+    - gir1.2-glib-2.0=1.56.1-1
+    - gir1.2-vte-2.91=0.52.2-1ubuntu1~18.04.2
+    - gir1.2-gtksource-3.0=3.24.7-1
+    - libxcb1=1.13-2~ubuntu18.04
+    - libxtst6=2:1.2.3-1
+    - libatspi2.0-0=2.28.0-1
+    - librsvg2-2=2.40.20-2
+    - libxi6=2:1.7.9-1
+    - libkrb5support0=1.16-2ubuntu0.1
+    - libvorbisenc2=1.3.5-4.2
+    - libpython3-stdlib=3.6.7-1~18.04
+    - libgucharmap-2-90-7=1:10.0.4-1
+    - libunity-gtk3-parser0=0.0.0+18.04.20171202-0ubuntu1
+    - libgstreamer-gl1.0-0=1.14.4-1ubuntu1.1~ubuntu18.04.1
+    - libxinerama1=2:1.1.3-1
+    - libenchant1c2a=1.6.0-11.1
+    - libldap-common=2.4.45+dfsg-1ubuntu1.2
+    - fonts-dejavu-core=2.37-1
+    - libjack-jackd2-0=1.9.12~dfsg-2
+    - libhcrypto4-heimdal=7.5.0+dfsg-1
+    - ucf=3.0038
+    - libglib2.0-bin=2.56.4-0ubuntu0.18.04.4
+    - libkeyutils1=1.5.9-9.2ubuntu2
+    - libxft2=2.3.2-1
+    - libjson-glib-1.0-common=1.4.2-3
+    - libgck-1-0=3.28.0-1
+    - libgstreamer-plugins-base1.0-0=1.14.4-1ubuntu1.1~ubuntu18.04.1
+    - libxrandr2=2:1.5.1-1
+    - libgail-3-0=3.22.30-1ubuntu3
+    - libsndfile1=1.0.28-4ubuntu0.18.04.1
+    - libjpeg8=8c-2ubuntu8
+    - libdrm2=2.4.97-1ubuntu1~18.04.1
+    - libcanberra-pulse=0.30-5ubuntu1
+    - libglx0=1.0.0-2ubuntu2.3
+    - libcolord2=1.3.3-2build1
+    - shared-mime-info=1.9-2
+    - libwebkit2gtk-4.0-37=2.24.2-0ubuntu0.18.04.1
+    - fcitx-frontend-gtk3=1:4.2.9.6-1
+    - libcanberra-gtk3-0=0.30-5ubuntu1
+    - libgspell-1-1=1.6.1-1
+    - hicolor-icon-theme=0.17-2
+    - libxfixes3=1:5.0.3-1
+    - libthai0=0.1.27-2
+    - libhogweed4=3.4-1
+    - emacsen-common=2.0.8
+    - libfontconfig1=2.12.6-0ubuntu2
+    - libtinyxml2.6.2v5=2.6.2-4
+    - libasyncns0=0.8-6
+    - libx11-data=2:1.6.4-3ubuntu0.2
+    - libgl1-mesa-dri=19.0.2-1ubuntu1.1~18.04.1
+    - aspell=0.60.7~20110707-4
+    - libreadline7=7.0-3
+    - libgdk-pixbuf2.0-common=2.36.11-2
+    - fcitx-modules=1:4.2.9.6-1
+    - libspeexdsp1=1.2~rc1.2-1ubuntu2
+    - libdb5.3=5.3.28-13.1ubuntu1.1
+    - libtdb1=1.3.15-2
+    - libgtksourceview-3.0-1=3.24.7-1
+    - python3-dbus=1.2.6-1
+    - libasound2=1.1.3-5ubuntu0.2
+    - libasound2-plugins=1.1.1-1ubuntu1
+    - libgraphite2-3=1.3.11-2
+    - libxxf86vm1=1:1.1.4-1
+    - libjpeg-turbo8=1.5.2-0ubuntu5.18.04.1
+    - libglib2.0-data=2.56.4-0ubuntu0.18.04.4
+    - libnettle6=3.4-1
+    - libxdamage1=1:1.1.4-3
+    - librest-0.7-0=0.8.0-2
+    - dictionaries-common=1.27.2
+    - libatk-bridge2.0-0=2.26.2-1
+    - python3-cairo=1.16.2-1
+    - libgl1-mesa-glx=19.0.2-1ubuntu1.1~18.04.1
+    - libjbig0=2.1-3.1build1
+    - libxml2=2.9.4+dfsg1-6.1ubuntu1.2
+    - python3-gi=3.26.1-2ubuntu1
+    - libvte-2.91-common=0.52.2-1ubuntu1~18.04.2
+    - libfcitx-utils0=1:4.2.9.6-1
+    - libflac8=1.3.2-1
+    - libgnutls30=3.5.18-1ubuntu1.1
+    - libibus-1.0-5=1.5.17-3ubuntu4
+    - libedit2=3.1-20170329-1
+    - libdrm-intel1=2.4.97-1ubuntu1~18.04.1
+    - libwacom2=0.29-1
+    - libroken18-heimdal=7.5.0+dfsg-1
+    - libfreetype6=2.8.1-2ubuntu2
+    - libffi6=3.2.1-8
+    - libunistring2=0.9.9-0ubuntu2
+    - libp11-kit0=0.23.9-2
+    - libasn1-8-heimdal=7.5.0+dfsg-1
+    - libhunspell-1.6-0=1.6.2-1
+    - libkrb5-26-heimdal=7.5.0+dfsg-1
+    - libgit2-glib-1.0-0=0.26.2-1
+    - x11-common=1:7.7+19ubuntu7.1
+    - gtk-update-icon-cache=3.22.30-1ubuntu3
+    - libdrm-radeon1=2.4.97-1ubuntu1~18.04.1
+    - libvorbis0a=1.3.5-4.2
+    - libssl1.1=1.1.1-1ubuntu2.1~18.04.3
+    - libatk1.0-data=2.28.1-1
+    - libharfbuzz0b=1.7.2-1ubuntu1
+    - libtasn1-6=4.13-2
+    - libice6=2:1.0.9-2
+    - libcanberra0=0.30-5ubuntu1
+    - libcairo2=1.15.10-2ubuntu0.1
+    - fcitx-module-dbus=1:4.2.9.6-1
+    - libavahi-client3=0.7-3.1ubuntu1.2
+    - libxcb-glx0=1.13-2~ubuntu18.04
+    - pulseaudio-utils=1:11.1-1ubuntu7.2
+    - libpango-1.0-0=1.40.14-1ubuntu0.1
+    - libhx509-5-heimdal=7.5.0+dfsg-1
+    - libxcb-dri2-0=1.13-2~ubuntu18.04
+    - libxkbcommon0=0.8.0-1ubuntu0.1
+    - libjavascriptcoregtk-4.0-18=2.24.2-0ubuntu0.18.04.1
+    - libsensors4=1:3.4.0-4
+    - libgit2-26=0.26.0+dfsg.1-1.1ubuntu0.2
+    - libgstreamer1.0-0=1.14.4-1~ubuntu18.04.1
+    - libnotify4=0.7.7-3
+    - libsamplerate0=0.1.9-1
+    - ubuntu-mono=16.10+18.04.20181005-0ubuntu1
+    - libxcb-dri3-0=1.13-2~ubuntu18.04
+    - libglib2.0-0=2.56.4-0ubuntu0.18.04.4
+    - libdconf1=0.26.0-2ubuntu3
+    - libidn2-0=2.0.4-1.1build2
+    - unity-gtk3-module=0.0.0+18.04.20171202-0ubuntu1
+    - libcurl3-gnutls=7.58.0-2ubuntu3.7
+    - libwayland-server0=1.16.0-1ubuntu1.1~18.04.1
+    - libx11-xcb1=2:1.6.4-3ubuntu0.2
+    - libxcb-sync1=1.13-2~ubuntu18.04
+    - libinput10=1.10.4-1
+    - libclutter-gtk-1.0-0=1.8.4-3
+    - libxslt1.1=1.1.29-5ubuntu0.1
+    - libxext6=2:1.3.3-1
+    - aspell-en=2017.08.24-0-0.1
+    - libdatrie1=0.2.10-7
+    - libglx-mesa0=19.0.2-1ubuntu1.1~18.04.1
+    - libglvnd0=1.0.0-2ubuntu2.3
+    - libwebrtc-audio-processing1=0.3-1
+    - libdrm-common=2.4.97-1ubuntu1~18.04.1
+    - libwayland-cursor0=1.16.0-1ubuntu1.1~18.04.1
+    - libpng16-16=1.6.34-1ubuntu0.18.04.2
+    - libevdev2=1.5.8+dfsg-1
+    uname: 'Linux 4.4.0-155-generic #182-Ubuntu SMP Tue Jul 2 14:43:15 UTC 2019 x86_64
+      x86_64 x86_64 GNU/Linux'
+  gtk3-locales:
+    build-packages:
+    - apt
+    - dpkg
+    installed-packages:
+    - adduser=3.116ubuntu1
+    - advancecomp=2.1-1ubuntu0.18.04.1
+    - apparmor=2.12-4ubuntu5.1
+    - apt=1.6.11
+    - base-files=10.1ubuntu2.4
+    - base-passwd=3.5.44
+    - bash=4.4.18-2ubuntu1.2
+    - binutils=2.30-21ubuntu1~18.04.2
+    - binutils-common=2.30-21ubuntu1~18.04.2
+    - binutils-x86-64-linux-gnu=2.30-21ubuntu1~18.04.2
+    - bsdutils=1:2.31.1-0.4ubuntu3.3
+    - build-essential=12.4ubuntu1
+    - bzip2=1.0.6-8.1ubuntu0.2
+    - ca-certificates=20180409
+    - coreutils=8.28-1ubuntu1
+    - cpp=4:7.4.0-1ubuntu2.3
+    - cpp-7=7.4.0-1ubuntu1~18.04.1
+    - dash=0.5.8-2.10
+    - debconf=1.5.66ubuntu1
+    - debianutils=4.8.4
+    - diffutils=1:3.6-1
+    - dmsetup=2:1.02.145-4.1ubuntu3.18.04.1
+    - dpkg=1.19.0.5ubuntu2.1
+    - dpkg-dev=1.19.0.5ubuntu2.1
+    - e2fslibs=1.44.1-1ubuntu1.1
+    - e2fsprogs=1.44.1-1ubuntu1.1
+    - fakeroot=1.22-2ubuntu1
+    - fdisk=2.31.1-0.4ubuntu3.3
+    - findutils=4.6.0+git+20170828-2
+    - fuse=2.9.7-1ubuntu1
+    - g++=4:7.4.0-1ubuntu2.3
+    - g++-7=7.4.0-1ubuntu1~18.04.1
+    - gcc=4:7.4.0-1ubuntu2.3
+    - gcc-7=7.4.0-1ubuntu1~18.04.1
+    - gcc-7-base=7.4.0-1ubuntu1~18.04.1
+    - gcc-8-base=8.3.0-6ubuntu1~18.04.1
+    - git=1:2.17.1-1ubuntu0.4
+    - git-man=1:2.17.1-1ubuntu0.4
+    - gpg=2.2.4-1ubuntu1.2
+    - gpg-agent=2.2.4-1ubuntu1.2
+    - gpgconf=2.2.4-1ubuntu1.2
+    - gpgv=2.2.4-1ubuntu1.2
+    - grep=3.1-2
+    - gtk-update-icon-cache=3.22.30-1ubuntu3
+    - gzip=1.6-5ubuntu1
+    - hostname=3.20
+    - init=1.51
+    - init-system-helpers=1.51
+    - initscripts=2.88dsf-59.3ubuntu2
+    - insserv=1.14.0-5ubuntu3
+    - libacl1=2.2.52-3build1
+    - libapparmor1=2.12-4ubuntu5.1
+    - libapt-pkg5.0=1.6.11
+    - libargon2-0=0~20161029-1.1
+    - libasan4=7.4.0-1ubuntu1~18.04.1
+    - libasn1-8-heimdal=7.5.0+dfsg-1
+    - libassuan0=2.5.1-2
+    - libatomic1=8.3.0-6ubuntu1~18.04.1
+    - libattr1=1:2.4.47-2build1
+    - libaudit-common=1:2.8.2-1ubuntu1
+    - libaudit1=1:2.8.2-1ubuntu1
+    - libbinutils=2.30-21ubuntu1~18.04.2
+    - libblkid1=2.31.1-0.4ubuntu3.3
+    - libbsd0=0.8.7-1
+    - libbz2-1.0=1.0.6-8.1ubuntu0.2
+    - libc-bin=2.27-3ubuntu1
+    - libc-dev-bin=2.27-3ubuntu1
+    - libc6=2.27-3ubuntu1
+    - libc6-dev=2.27-3ubuntu1
+    - libcap-ng0=0.7.7-3.1
+    - libcap2=1:2.25-1.2
+    - libcc1-0=8.3.0-6ubuntu1~18.04.1
+    - libcilkrts5=7.4.0-1ubuntu1~18.04.1
+    - libcom-err2=1.44.1-1ubuntu1.1
+    - libcomerr2=1.44.1-1ubuntu1.1
+    - libcryptsetup12=2:2.0.2-1ubuntu1.1
+    - libcurl3-gnutls=7.58.0-2ubuntu3.7
+    - libdb5.3=5.3.28-13.1ubuntu1.1
+    - libdebconfclient0=0.213ubuntu1
+    - libdevmapper1.02.1=2:1.02.145-4.1ubuntu3.18.04.1
+    - libdpkg-perl=1.19.0.5ubuntu2.1
+    - libedit2=3.1-20170329-1
+    - libelf1=0.170-0.4ubuntu0.1
+    - liberror-perl=0.17025-1
+    - libexpat1=2.2.5-3ubuntu0.1
+    - libext2fs2=1.44.1-1ubuntu1.1
+    - libfakeroot=1.22-2ubuntu1
+    - libfdisk1=2.31.1-0.4ubuntu3.3
+    - libffi6=3.2.1-8
+    - libfuse2=2.9.7-1ubuntu1
+    - libgcc-7-dev=7.4.0-1ubuntu1~18.04.1
+    - libgcc1=1:8.3.0-6ubuntu1~18.04.1
+    - libgcrypt20=1.8.1-4ubuntu1.1
+    - libgdbm-compat4=1.14.1-6
+    - libgdbm5=1.14.1-6
+    - libgdk-pixbuf2.0-0=2.36.11-2
+    - libgdk-pixbuf2.0-common=2.36.11-2
+    - libglib2.0-0=2.56.4-0ubuntu0.18.04.4
+    - libglib2.0-bin=2.56.4-0ubuntu0.18.04.4
+    - libglib2.0-data=2.56.4-0ubuntu0.18.04.4
+    - libgmp10=2:6.1.2+dfsg-2
+    - libgnutls30=3.5.18-1ubuntu1.1
+    - libgomp1=8.3.0-6ubuntu1~18.04.1
+    - libgpg-error0=1.27-6
+    - libgssapi-krb5-2=1.16-2ubuntu0.1
+    - libgssapi3-heimdal=7.5.0+dfsg-1
+    - libhcrypto4-heimdal=7.5.0+dfsg-1
+    - libheimbase1-heimdal=7.5.0+dfsg-1
+    - libheimntlm0-heimdal=7.5.0+dfsg-1
+    - libhogweed4=3.4-1
+    - libhx509-5-heimdal=7.5.0+dfsg-1
+    - libicu60=60.2-3ubuntu3
+    - libidn11=1.33-2.1ubuntu1.2
+    - libidn2-0=2.0.4-1.1build2
+    - libip4tc0=1.6.1-2ubuntu2
+    - libisl19=0.19-1
+    - libitm1=8.3.0-6ubuntu1~18.04.1
+    - libjbig0=2.1-3.1build1
+    - libjpeg-turbo8=1.5.2-0ubuntu5.18.04.1
+    - libjpeg8=8c-2ubuntu8
+    - libjson-c3=0.12.1-1.3
+    - libk5crypto3=1.16-2ubuntu0.1
+    - libkeyutils1=1.5.9-9.2ubuntu2
+    - libkmod2=24-1ubuntu3.2
+    - libkrb5-26-heimdal=7.5.0+dfsg-1
+    - libkrb5-3=1.16-2ubuntu0.1
+    - libkrb5support0=1.16-2ubuntu0.1
+    - libldap-2.4-2=2.4.45+dfsg-1ubuntu1.2
+    - libldap-common=2.4.45+dfsg-1ubuntu1.2
+    - liblockfile-bin=1.14-1.1
+    - liblockfile1=1.14-1.1
+    - liblsan0=8.3.0-6ubuntu1~18.04.1
+    - liblz4-1=0.0~r131-2ubuntu3
+    - liblzma5=5.2.2-1.3
+    - liblzo2-2=2.08-1.2
+    - libmount1=2.31.1-0.4ubuntu3.3
+    - libmpc3=1.1.0-1
+    - libmpdec2=2.4.2-1ubuntu1
+    - libmpfr6=4.0.1-1
+    - libmpx2=8.3.0-6ubuntu1~18.04.1
+    - libncurses5=6.1-1ubuntu1.18.04
+    - libncursesw5=6.1-1ubuntu1.18.04
+    - libnettle6=3.4-1
+    - libnghttp2-14=1.30.0-1ubuntu1
+    - libnpth0=1.5-3
+    - libp11-kit0=0.23.9-2
+    - libpam-modules=1.1.8-3.6ubuntu2.18.04.1
+    - libpam-modules-bin=1.1.8-3.6ubuntu2.18.04.1
+    - libpam-runtime=1.1.8-3.6ubuntu2.18.04.1
+    - libpam0g=1.1.8-3.6ubuntu2.18.04.1
+    - libpcre3=2:8.39-9
+    - libperl5.26=5.26.1-6ubuntu0.3
+    - libpng16-16=1.6.34-1ubuntu0.18.04.2
+    - libprocps6=2:3.3.12-3ubuntu1.1
+    - libpsl5=0.19.1-5build1
+    - libpython3-stdlib=3.6.7-1~18.04
+    - libpython3.6-minimal=3.6.8-1~18.04.1
+    - libpython3.6-stdlib=3.6.8-1~18.04.1
+    - libquadmath0=8.3.0-6ubuntu1~18.04.1
+    - libreadline7=7.0-3
+    - libroken18-heimdal=7.5.0+dfsg-1
+    - librtmp1=2.4+20151223.gitfa8646d.1-1
+    - libsasl2-2=2.1.27~101-g0780600+dfsg-3ubuntu2
+    - libsasl2-modules-db=2.1.27~101-g0780600+dfsg-3ubuntu2
+    - libseccomp2=2.4.1-0ubuntu0.18.04.2
+    - libselinux1=2.7-2build2
+    - libsemanage-common=2.7-2build2
+    - libsemanage1=2.7-2build2
+    - libsepol1=2.7-1
+    - libslang2=2.3.1a-3ubuntu1
+    - libsmartcols1=2.31.1-0.4ubuntu3.3
+    - libsqlite3-0=3.22.0-1ubuntu0.1
+    - libss2=1.44.1-1ubuntu1.1
+    - libssl1.0.0=1.0.2n-1ubuntu5.3
+    - libssl1.1=1.1.1-1ubuntu2.1~18.04.3
+    - libstdc++-7-dev=7.4.0-1ubuntu1~18.04.1
+    - libstdc++6=8.3.0-6ubuntu1~18.04.1
+    - libsystemd0=237-3ubuntu10.24
+    - libtasn1-6=4.13-2
+    - libtiff5=4.0.9-5ubuntu0.2
+    - libtinfo5=6.1-1ubuntu1.18.04
+    - libtsan0=8.3.0-6ubuntu1~18.04.1
+    - libubsan0=7.4.0-1ubuntu1~18.04.1
+    - libudev1=237-3ubuntu10.24
+    - libunistring2=0.9.9-0ubuntu2
+    - libusb-0.1-4=2:0.1.12-31
+    - libuuid1=2.31.1-0.4ubuntu3.3
+    - libwind0-heimdal=7.5.0+dfsg-1
+    - libwrap0=7.6.q-27
+    - libx11-6=2:1.6.4-3ubuntu0.2
+    - libx11-data=2:1.6.4-3ubuntu0.2
+    - libxau6=1:1.0.8-1
+    - libxcb1=1.13-2~ubuntu18.04
+    - libxdmcp6=1:1.1.2-3
+    - libxml2=2.9.4+dfsg1-6.1ubuntu1.2
+    - libzstd1=1.3.3+dfsg-2ubuntu1
+    - linux-libc-dev=4.15.0-54.58
+    - lockfile-progs=0.1.17build1
+    - login=1:4.5-1ubuntu2
+    - lsb-base=9.20170808ubuntu1
+    - make=4.1-9.1ubuntu1
+    - mawk=1.3.3-17ubuntu3
+    - mime-support=3.60ubuntu1
+    - mount=2.31.1-0.4ubuntu3.3
+    - multiarch-support=2.27-3ubuntu1
+    - ncurses-base=6.1-1ubuntu1.18.04
+    - ncurses-bin=6.1-1ubuntu1.18.04
+    - openssh-client=1:7.6p1-4ubuntu0.3
+    - openssl=1.1.1-1ubuntu2.1~18.04.3
+    - optipng=0.7.6-1.1
+    - passwd=1:4.5-1ubuntu2
+    - patch=2.7.6-2ubuntu1
+    - perl=5.26.1-6ubuntu0.3
+    - perl-base=5.26.1-6ubuntu0.3
+    - perl-modules-5.26=5.26.1-6ubuntu0.3
+    - pinentry-curses=1.1.0-1
+    - pkgbinarymangler=138.18.04.1
+    - policyrcd-script-zg2=0.1-3
+    - procps=2:3.3.12-3ubuntu1.1
+    - python3=3.6.7-1~18.04
+    - python3-minimal=3.6.7-1~18.04
+    - python3.6=3.6.8-1~18.04.1
+    - python3.6-minimal=3.6.8-1~18.04.1
+    - readline-common=7.0-3
+    - sed=4.4-2
+    - sensible-utils=0.0.12
+    - shared-mime-info=1.9-2
+    - snapd=2.39.2+18.04
+    - socat=1.7.3.2-2ubuntu2
+    - squashfs-tools=1:4.3-6ubuntu0.18.04.1
+    - squashfuse=0.1.100-0ubuntu2
+    - sudo=1.8.21p2-3ubuntu1
+    - systemd=237-3ubuntu10.24
+    - systemd-sysv=237-3ubuntu10.24
+    - sysv-rc=2.88dsf-59.3ubuntu2
+    - sysvinit-utils=2.88dsf-59.10ubuntu1
+    - tar=1.29b-2ubuntu0.1
+    - tzdata=2019b-0ubuntu0.18.04
+    - ubuntu-keyring=2018.09.18.1~18.04.0
+    - udev=237-3ubuntu10.24
+    - util-linux=2.31.1-0.4ubuntu3.3
+    - xz-utils=5.2.2-1.3
+    - zlib1g=1:1.2.11.dfsg-0ubuntu2
+    installed-snaps:
+    - core=7270
+    - core18=1049
+    - snapcraft=3059
+    override-build: |
+      set -eux
+      for deb in *.deb; do dpkg-deb -x $deb .; done
+      find usr/share/locale-langpack -type f -not -name "gtk30*.mo" -exec rm '{}' \;
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share
+      cp -R usr/share/locale-langpack $SNAPCRAFT_PART_INSTALL/usr/share/
+    override-pull: |
+      set -eux
+      apt download "language-pack-gnome-*-base"
+    plugin: nil
+    prime: []
+    stage: []
+    stage-packages: []
+    uname: 'Linux 4.4.0-155-generic #182-Ubuntu SMP Tue Jul 2 14:43:15 UTC 2019 x86_64
+      x86_64 x86_64 GNU/Linux'
+architectures:
+- amd64
+image-info:
+  build_url: https://launchpad.net/~ubuntu-desktop/+snap/gnome-3-28-1804/+build/613428
+build-packages:
+- libxdmcp6=1:1.1.2-3
+- libgdk-pixbuf2.0-0=2.36.11-2
+- libicu60=60.2-3ubuntu3
+- libelf1=0.170-0.4ubuntu0.1
+- libx11-6=2:1.6.4-3ubuntu0.2
+- libtiff5=4.0.9-5ubuntu0.2
+- libxau6=1:1.0.8-1
+- libxcb1=1.13-2~ubuntu18.04
+- libglib2.0-bin=2.56.4-0ubuntu0.18.04.4
+- libjpeg8=8c-2ubuntu8
+- shared-mime-info=1.9-2
+- libx11-data=2:1.6.4-3ubuntu0.2
+- libgdk-pixbuf2.0-common=2.36.11-2
+- libjpeg-turbo8=1.5.2-0ubuntu5.18.04.1
+- libglib2.0-data=2.56.4-0ubuntu0.18.04.4
+- libjbig0=2.1-3.1build1
+- libxml2=2.9.4+dfsg1-6.1ubuntu1.2
+- gtk-update-icon-cache=3.22.30-1ubuntu3
+- libglib2.0-0=2.56.4-0ubuntu0.18.04.4
+build-snaps:
+- core18=1049

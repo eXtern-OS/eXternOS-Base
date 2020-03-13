@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# $Progeny$
+
+# Copyright 2004 Progeny Linux Systems, Inc.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE COPYRIGHT HOLDER(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+
+set -e
+
+
+
+# Deal with /etc/discover.conf.
+
+if [ -f /etc/discover.conf ]; then
+    if [ `fgrep '<conffile>' /etc/discover.conf | wc -l` -gt 0 ]; then
+        # Discover 2 conffile; move it to the new location.
+        if [ -f /etc/discover.conf.d/00discover ]; then
+            mv /etc/discover.conf /etc/discover.conf.d/00discover.dpkg-old
+        else
+            mkdir -p /etc/discover.conf.d
+            mv /etc/discover.conf /etc/discover.conf.d/00discover
+        fi
+    else
+        # Discover 1 conffile; prepare it for migration.
+        mv /etc/discover.conf /etc/discover-v1.conf
+    fi
+fi

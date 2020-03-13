@@ -1,0 +1,31 @@
+#!/bin/sh
+## ----------------------------------------------------------------------
+## debian/postrm : postremoval script for libxml-sax-perl
+## ----------------------------------------------------------------------
+
+## ----------------------------------------------------------------------
+set -e
+
+## ----------------------------------------------------------------------
+if [ "$1" = purge ]
+then
+    rm -f /etc/perl/XML/SAX/ParserDetails.ini
+    rmdir --parents --ignore-fail-on-non-empty /etc/perl/XML/SAX
+    rm -rf /var/lib/libxml-sax-perl
+    if which ucf >/dev/null 2>&1
+    then
+        ucf --purge /etc/perl/XML/SAX/ParserDetails.ini
+    fi
+    if which ucfr >/dev/null 2>&1
+    then
+        ucfr --purge libxml-sax-perl /etc/perl/XML/SAX/ParserDetails.ini
+    fi
+fi
+
+## ---------------------------------------------------------------------- 
+## automatically generated debhelper commands
+
+
+exit 0
+
+## ----------------------------------------------------------------------

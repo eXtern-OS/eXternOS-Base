@@ -1,0 +1,49 @@
+#!/bin/sh
+
+case "$reason" in
+BOUND)
+	echo "DEVICE=$interface" >> /run/net-$interface.conf
+	echo "PROTO=dhcp" >> /run/net-$interface.conf
+	echo "IPV4PROTO=dhcp" >> /run/net-$interface.conf
+	echo "IPV4ADDR=$new_ip_address" >> /run/net-$interface.conf
+	echo "IPV4NETMASK=$new_subnet_mask" >> /run/net-$interface.conf
+	echo "IPV4BROADCAST=$new_broadcast_address" >> /run/net-$interface.conf
+	echo "IPV4GATEWAY=$new_routers" >> /run/net-$interface.conf
+	echo "IPV4DNS0=$new_domain_name_servers" >> /run/net-$interface.conf
+	echo "ROOTSERVER=$new_routers" >> /run/net-$interface.conf
+	if [ -n "$host_name"]; then
+		echo "HOSTNAME=$new_host_name" >> /run/net-$interface.conf
+	fi
+	if [ -n "$domain_name"]; then
+		echo "DNSDOMAIN=$new_domain_name" >> /run/net-$interface.conf
+	fi
+	if [ -n "$new_domain_search" ]; then
+		if [ -n "$new_domain_name" ]; then
+			domain_in_search_list=""
+			for domain in $new_domain_search; do
+				if [ "$domain" = "${new_domain_name}" ] ||
+					[ "$domain" = "${new_domain_name}." ]; then
+					domain_in_search_list="Yes"
+				fi
+			done
+			if [ -z "$domain_in_search_list" ]; then
+				new_domain_search="$new_domain_name $new_domain_search"
+			fi
+		fi
+		echo "DOMAINSEARCH=${new_domain_search}" >> /run/net-$interface.conf
+	elif [ -n "$new_domain_name" ]; then
+		echo "DOMAINSEARCH=${new_domain_name}" >> /run/net-$interface.conf
+	fi
+	;;
+BOUND6)
+	echo "DEVICE6=$interface" > /run/net6-$interface.conf
+	echo "IPV6PROTO=dhcp6" >> /run/net6-$interface.conf
+	echo "IPV6ADDR=$new_ip6_address" >> /run/net6-$interface.conf
+	echo "IPV6NETMASK=$new_ip6_prefixlen" >> /run/net6-$interface.conf
+	echo "IPV6DNS0=$new_dhcp6_name_servers" >> /run/net6-$interface.conf
+	if [ -n "$new_dhcp6_domain_search" ]; then
+		echo "IPV6DOMAINSEARCH=$new_dhcp6_domain_search" >> /run/net6-$interface.conf
+	fi
+	;;
+esac
+

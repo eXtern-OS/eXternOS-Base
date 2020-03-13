@@ -1,0 +1,20 @@
+# vim:syntax=apparmor
+# nvidia access requirements
+  
+  # configuration queries
+  capability ipc_lock,
+
+  # libvdpau config file for nvidia workarounds
+  /etc/vdpau_wrapper.cfg r,
+
+  # device files
+  /dev/nvidia0    rw,
+  /dev/nvidiactl  rw,
+
+  @{PROC}/interrupts r,
+  @{PROC}/sys/vm/max_map_count r,
+  @{PROC}/driver/nvidia/params r,
+  @{PROC}/modules r,
+
+  owner @{HOME}/.nv/GLCache/ r,
+  owner @{HOME}/.nv/GLCache/** rwk,

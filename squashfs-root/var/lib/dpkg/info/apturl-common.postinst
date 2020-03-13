@@ -1,0 +1,31 @@
+#!/bin/sh
+
+set -e
+
+# Move a conffile without triggering a dpkg question
+mv_conffile() {
+    local OLDCONFFILE="$1"
+    local NEWCONFFILE="$2"
+
+    [ -e "$OLDCONFFILE" ] || return 0
+
+    echo "Preserving user changes to $NEWCONFFILE ..."
+    mv -f "$NEWCONFFILE" "$NEWCONFFILE".dpkg-new
+    mv -f "$OLDCONFFILE" "$NEWCONFFILE"
+}
+
+case "$1" in
+configure)
+    if dpkg --compare-versions "$2" le "0.4.1ubuntu4"; then
+        mv_conffile "/etc/firefox-3.0/pref/apturl.js" "/etc/firefox/pref/apturl.js"
+    fi
+esac
+
+
+# Automatically added by dh_python3:
+if which py3compile >/dev/null 2>&1; then
+	py3compile -p apturl-common -V 3.2-
+fi
+
+# End automatically added section
+

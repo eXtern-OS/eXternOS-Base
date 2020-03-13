@@ -1,0 +1,43 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+    configure)
+        # register gedit as a gnome-text-editor in the alternatives system
+        update-alternatives \
+            --install \
+                /usr/bin/gnome-text-editor \
+                gnome-text-editor \
+                /usr/bin/gedit \
+                50 \
+            --slave \
+                /usr/share/man/man1/gnome-text-editor.1.gz \
+                gnome-text-editor.1.gz \
+                /usr/share/man/man1/gedit.1.gz
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 0
+    ;;
+esac
+
+
+# Automatically added by dh_python3:
+if which py3compile >/dev/null 2>&1; then
+	py3compile -p gedit -V 3.2-
+fi
+
+# End automatically added section
+
+# Automatically added by dh_python3:
+if which py3compile >/dev/null 2>&1; then
+	py3compile -p gedit /usr/lib/x86_64-linux-gnu/gedit/plugins -V 3.6
+fi
+
+# End automatically added section
+

@@ -1,0 +1,20 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    install|upgrade)
+        # avoid attempts to start polkit.service while we are unconfigured and
+        # might not yet have our D-Bus policy in /etc
+        if [ -d /run/systemd/system ]; then
+            systemctl mask --runtime polkit.service
+        fi
+        ;;
+
+    abort-upgrade)
+        if [ -d /run/systemd/system ]; then
+            systemctl unmask --runtime polkit.service
+        fi
+        ;;
+esac
+
+

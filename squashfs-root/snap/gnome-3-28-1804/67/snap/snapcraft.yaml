@@ -1,0 +1,113 @@
+name: gnome-3-28-1804
+version: git
+version-script: |
+  echo $(git describe --tags).$(git describe --always)
+summary: Shared GNOME 3.28 Ubuntu stack
+description: |
+ This snap includes a GNOME 3.28 stack (the base libraries and desktop 
+ integration components) and shares it through the content interface. 
+ It's built using the Ubuntu xenial backport binaries.
+confinement: strict
+grade: stable
+icon: icon.png
+base: core18
+
+# the recommended mountpoint for that content is /gnome-platform
+slots:
+    gnome-3-28-1804:
+      interface: content
+      read:
+        - /
+
+parts:
+  deb:
+    plugin: nil
+    stage-packages:
+      - libatk1.0-0
+      - libcanberra-gtk3-0
+      - libcanberra-pulse
+      - libclutter-1.0-0
+      - libclutter-gst-3.0-0
+      - libclutter-gtk-1.0-0
+      - libcogl20
+      - libdb5.3
+      - libgail-3-0
+      - libgck-1-0
+      - libgcr-base-3-1
+      - libgcr-ui-3-1
+      - libgdk-pixbuf2.0-0
+      - libgee-0.8-2
+      - libgirepository-1.0-1
+      - libglib2.0-0
+      - libgl1-mesa-dri
+      - libgnome-desktop-3-17
+      - libgoa-1.0-0b
+      - libgstreamer-plugins-base1.0-0
+      - libgstreamer-plugins-good1.0-0
+      - libgstreamer1.0-0
+      - libgtk-3-0
+      - libgtksourceview-3.0-1
+      - libgspell-1-1
+      - libpeas-1.0-0
+      - gir1.2-peas-1.0
+      - gir1.2-gtk-3.0
+      - gir1.2-gtksource-3.0
+      - gir1.2-glib-2.0
+      - gir1.2-pango-1.0
+      - gir1.2-ggit-1.0
+      - gir1.2-gucharmap-2.90
+      - gir1.2-vte-2.91
+      - libmpc3
+      - libpango-1.0-0
+      - libsoup-gnome2.4-1
+      - libsoup2.4-1
+      - libwebkit2gtk-4.0-37
+      - libxml2
+      - libllvm4.0
+      - python3-dbus
+      - python3-gi
+      - python3-gi-cairo
+      # desktop integration components
+      - unity-gtk3-module
+      - fcitx-frontend-gtk3
+      - ibus-gtk3
+      - libc-bin
+      - locales-all
+      - libglib2.0-bin
+      - libgtk-3-bin
+      - shared-mime-info
+      - xdg-user-dirs
+      - libcanberra-gtk3-module
+      - ubuntu-settings
+      - fonts-noto-color-emoji
+    build-packages:
+      - gtk-update-icon-cache
+      - libglib2.0-bin
+      - shared-mime-info
+    override-build: |
+      set -eux
+      snapcraftctl build
+      glib-compile-schemas $SNAPCRAFT_PART_INSTALL/usr/share/glib-2.0/schemas
+      update-mime-database $SNAPCRAFT_PART_INSTALL/usr/share/mime
+      for dir in $SNAPCRAFT_PART_INSTALL/usr/share/icons/*; do
+        if [ -f "$dir/index.theme" ]; then
+          gtk-update-icon-cache --force "$dir"
+        fi
+      done
+  # In Ubuntu compiled locales for GTK are installed by langpacks, not by
+  # libgtk-3-common. Fetch all the langpacks and keep only the GTK locales.
+  gtk3-locales:
+    after: [ deb ]
+    plugin: nil
+    build-packages:
+      - apt
+      - dpkg
+    override-pull: |
+      set -eux
+      apt download "language-pack-gnome-*-base"
+    override-build: |
+      set -eux
+      for deb in *.deb; do dpkg-deb -x $deb .; done
+      find usr/share/locale-langpack -type f -not -name "gtk30*.mo" -exec rm '{}' \;
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share
+      cp -R usr/share/locale-langpack $SNAPCRAFT_PART_INSTALL/usr/share/

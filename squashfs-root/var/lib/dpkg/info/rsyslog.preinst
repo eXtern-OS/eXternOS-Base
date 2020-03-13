@@ -1,0 +1,27 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "install" ] && [ -n "$2" ] ; then
+	[ -f /etc/logrotate.d/rsyslog.disabled ] && mv -f /etc/logrotate.d/rsyslog.disabled /etc/logrotate.d/rsyslog
+fi
+
+disable_profile() {
+    APP_CONFFILE="/etc/apparmor.d/usr.sbin.rsyslogd"
+    APP_DISABLE="/etc/apparmor.d/disable/usr.sbin.rsyslogd"
+    # Create a symlink to the yet-to-be-unpacked profile
+    if [ ! -e "$APP_CONFFILE" ]; then
+        mkdir -p `dirname $APP_DISABLE` 2>/dev/null || true
+        ln -sf $APP_CONFFILE $APP_DISABLE
+    fi
+}
+
+if [ "$1" = "install" ]; then
+    # Disable AppArmor profile on install
+    disable_profile
+fi
+
+# Automatically added by dh_installdeb/11.1.6ubuntu1
+dpkg-maintscript-helper rm_conffile /etc/init/rsyslog.conf 8.16.0-1ubuntu9\~ rsyslog -- "$@"
+# End automatically added section
+

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<page xmlns="http://projectmallard.org/1.0/" xmlns:ui="http://projectmallard.org/ui/1.0/" type="topic" style="task" id="memory-map-use" xml:lang="de">
+
+  <info>
+    <revision pkgversion="3.11" date="2014-01-28" status="candidate"/>
+    <link type="guide" xref="index#memory" group="memory"/>
+
+    <include xmlns="http://www.w3.org/2001/XInclude" href="legal.xml"/>
+
+    <credit type="author copyright">
+      <name>Phil Bull</name>
+      <email>philbull@gmail.com</email>
+      <years>2011</years>
+    </credit>
+
+    <credit type="author copyright">
+      <name>Michael Hill</name>
+      <email>mdhillca@gmail.com</email>
+      <years>2011, 2014</years>
+    </credit>
+
+    <desc>Die Speicherbelegung eines Prozesses anzeigen.</desc>
+  
+    <mal:credit xmlns:mal="http://projectmallard.org/1.0/" type="translator copyright">
+      <mal:name>Christian Kirbach</mal:name>
+      <mal:email>christian.kirbach@gmail.com</mal:email>
+      <mal:years>2014, 2015</mal:years>
+    </mal:credit>
+  
+    <mal:credit xmlns:mal="http://projectmallard.org/1.0/" type="translator copyright">
+      <mal:name>Benjamin Steinwender</mal:name>
+      <mal:email>b@stbe.at</mal:email>
+      <mal:years>2014</mal:years>
+    </mal:credit>
+  
+    <mal:credit xmlns:mal="http://projectmallard.org/1.0/" type="translator copyright">
+      <mal:name>Mario Blättermann</mal:name>
+      <mal:email>mario.blaettermann@gmail.com</mal:email>
+      <mal:years>2017</mal:years>
+    </mal:credit>
+  </info>
+
+  <title>Verwendung von Speicherfeldern</title>
+
+  <p><gui>Virtueller Speicher</gui> ist eine Darstellungsform der Kombination von <gui>Physikalischem Arbeitsspeicher</gui> und <link xref="mem-swap">Auslagerungsspeicher</link> eines Systems. Er ermöglicht laufenden Prozessen mit <em>mehr</em> als dem vorhandenen physikalischen Speicher zu arbeiten, indem Teile des physikalischen Speichers in Dateien auf einem Datenträger <gui>abgebildet</gui> werden. Sobald das System mehr Speicherseiten als verfügbar benötigt, werden einige der bestehenden Seiten <em>ausgelagert</em> oder in den Auslagerungsspeicher geschrieben.</p>
+
+  <p>Die <gui>Speicherabbildung</gui> zeigt die gesamte virtuelle Speicherbelegung des Prozesses und kann dazu eingesetzt werden, den Speicherverbrauch einer oder mehrere laufender Instanzen eines Programms festzustellen, die korrekte Verwendung von gemeinsam verwendeten Bibliotheken sicherzustellen, die Ergebnisse einer Anpassung verschiedener Geschwindigkeitsoptimierungsparameter eines Programms zu beurteilen und Probleme wie Speicherlecks eines Programms zu diagnostizieren.</p>
+
+  <p>So zeigen Sie die <link xref="memory-map-what">Speicherabbildung</link> eines Prozesses an:</p>
+
+  <steps>
+    <item><p>Klicken Sie auf den Reiter <gui>Prozesse</gui>.</p></item>
+    <item><p>Klicken Sie mit der rechten Maustaste auf den gewünschten Prozess in der <gui>Prozessliste</gui>.</p></item>
+    <item><p>Klicken Sie auf <gui>Speicherfelder</gui>.</p></item>
+  </steps>
+
+<section id="read">
+  <title>Die Speichernutzung eines Prozesses deuten</title>
+
+  <list>
+    <item>
+      <p>Adressen werden hexadezimal (Basis 16) angegeben.</p>
+    </item>
+    <item>
+      <p>Größen werden in Form von <link xref="units">IEC-Binärpräfixen</link> angegeben.</p>
+    </item>
+    <item>
+      <p>Zur Laufzeit kann ein Prozess dynamisch mehr Speicher in einem <em>Heap</em> genannten Bereich belegen. Argumente und Variablen werden in einem anderen Bereich namens <em>Stack</em> abgelegt.</p>
+    </item>
+    <item>
+      <p>Das Programm selbst und jede der gemeinsam verwendeten Bibliotheken hat jeweils drei Einträge. Einen für das Lesen-und-ausführen Textsegment, einen für das Lesen-und-schreiben Datensegment und einen für das Nur-lesen Datensegment. Beide Datensegmente müssen bei Auslagerung auf Datenträger geschrieben werden.</p>
+    </item>
+  </list>
+
+<table shade="rows" ui:expanded="false">
+<title>Eigenschaften</title>
+  <tr>
+	  <td><p>Dateiname</p></td>
+	  <td><p>Der Ort der gemeinsam verwendeten Bibliothek, die derzeit vom Prozess verwendet wird. Wenn dieses Feld leer ist, so beschreibt die Speicherinformation in dieser Zeile den Speicher, der dem Prozess zugeordnet ist, dessen Name über der Speicherabbildungstabelle angezeigt wird.</p></td>
+  </tr>
+  <tr>
+	  <td><p>VM-Beginn</p></td>
+	  <td><p>Die Adresse, an der das Speichersegment startet. VM-Start, VM-End und VM-Offset geben gemeinsam den Ort auf dem Datenträger an, auf den die gemeinsam verwendete Bibliothek abgebildet wird.</p></td>
+  </tr>
+  <tr>
+	  <td><p>VM-Ende</p></td>
+	  <td><p>Die Adresse, an der das Speichersegment endet.</p></td>
+  </tr>
+  <tr>
+	  <td><p>VM-Größe</p></td>
+	  <td><p>Die Größe des Speichersegments.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Optionen</p></td>
+	  <td><p>Die folgenden Flags beschreiben die verschiedenen Arten von Speichersegmentzugriffen, die ein Prozess besitzen kann:</p>
+    <terms>
+      <item>
+        <title><gui>p</gui></title>
+        <p>Das Speichersegment ist nur dem Prozess vorbehalten. Andere Prozesse haben keinen Zugriff.</p>
+      </item>
+      <item>
+        <title><gui>r</gui></title>
+        <p>Der Prozess hat Berechtigungen aus dem Speichersegment zu lesen.</p>
+      </item>
+      <item>
+        <title><gui>s</gui></title>
+        <p>Das Speichersegment wird mit anderen Prozessen gemeinsam verwendet.</p>
+      </item>
+      <item>
+        <title><gui>w</gui></title>
+        <p>Der Prozess hat Berechtigungen in das Speichersegment zu schreiben.</p>
+      </item>
+      <item>
+        <title><gui>x</gui></title>
+        <p>Der Prozess hat die Berechtigung Anweisungen auszuführen, die sich im Speichersegment befinden.</p>
+      </item>
+    </terms>
+    </td>
+  </tr>
+  <tr>
+	  <td><p>VM-Versatz</p></td>
+	  <td><p>Der Ort der Adresse im Speichersegment, gemessen ab Beginn des virtuellen Speichers.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Privat, Gemeinsam, Unverändert, Verändert</p></td>
+<!--	  <td><p>Text pages are flagged read-execute in memory and don't need to
+  be written to swap since they can be re-loaded from their original location
+  on disk. Data pages have read-write permissions, and if modified when in
+  memory, they are labeled <em>dirty</em>, and when designated for swapping,
+  must be paged out.</p></td>
+-->
+          <td><list><item><p><em>Private</em> Seiten sind nur einem Prozess vorbehalten</p></item>
+          <item><p><em>Gemeinsame</em> Seiten können von mehreren Prozessen verwendet werden</p></item>
+          <item><p><em>Unveränderte</em> Seiten sind noch nicht im Speicher geändert worden und dürfen verworfen werden, wenn sie zur Auslagerung bestimmt werden</p></item>
+          <item><p><em>Veränderte</em> Seiten sind im Speicher geändert worden und müssen auf den Datenträger geschrieben werden, wenn sie zur Auslagerung bestimmt werden</p></item></list></td>
+  </tr>
+  <tr>
+	  <td><p>Gerät</p></td>
+	  <td><p>Die »major«- und »minor«-Zahl des Geräts, auf dem die gemeinsam verwendete Bibliothek abgelegt ist. Gemeinsam geben diese eine Systempartition an.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Inode</p></td>
+	  <td><p>Das Inode auf dem Gerät, von dem der Ort der gemeinsam verwendete Bibliothek in den Arbeitsspeicher geladen wird. Ein Inode ist die Struktur, die das Dateisystem verwendet, um eine Datei zu speichern. Die zugeordnete Zahl ist eindeutig.</p></td>
+  </tr>
+</table>
+
+</section>
+</page>

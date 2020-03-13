@@ -1,0 +1,26 @@
+#! /bin/sh
+
+set -e
+
+case "$1" in
+    configure)
+        if [ -z "`getent group lpadmin`" ]; then
+            addgroup --system lpadmin
+        fi
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 0
+    ;;
+esac
+
+
+
+exit 0
+
+

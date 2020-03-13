@@ -1,0 +1,42 @@
+#!/bin/sh
+
+OPTION=FRAMEBUFFER
+PREREQ=""
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+copy_modules_dir kernel/drivers/char/agp
+copy_modules_dir kernel/drivers/gpu
+copy_modules_dir kernel/ubuntu/i915
+
+manual_add_modules fbcon
+manual_add_modules vesafb
+manual_add_modules vga16fb
+
+for x in ${MODULESDIR}/initrd/*; do
+	x=${x##*/}
+	x=${x%.*}
+	case ${x} in
+	'*')
+		break
+		;;
+	*fb)
+		fbcon=y
+		;;
+	esac
+
+	manual_add_modules ${x}
+done

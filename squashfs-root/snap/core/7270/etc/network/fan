@@ -1,0 +1,39 @@
+# FAN overlay network map.
+
+# The FAN is a very fast overlay network system for docker in cloud
+# environments with limited IP addresses. The FAN multiplies host
+# addresses by mapping them to a larger overlay network. It eliminates
+# the need for a central database and myriad tunnels by mapping
+# addresses mathematically.
+
+# This map file specifies the list of maps which can be enabled in
+# /etc/network/interfaces or using the "fanctl config" command. See also
+# fanatic(1) for a tool that will configure docker to use your fans.
+# The only absolute rule is that all your participating machines use
+# the same mapping for active fans.
+
+# The map translates a local address range to an overlay range.
+
+# RFC1918 - we recommend you use these for easy interop with other
+# FAN users on small private networks. They provide around 250 IP's
+# per 192.168.0.0/16 address, or 16 per 172.16.0.0/12 address.
+
+# local          overlay       options
+192.168.0.0/16   250.0.0.0/8
+172.16.0.0/12    251.0.0.0/8
+
+# RFC1918 VPC - we recommend you use the higher ranges of 10.0.0.0/8
+# for your docker-centric VPC. This example provides 1,000 IP's per
+# base IP in 10.254.0.0/16.
+
+10.254.0.0/16    252.0.0.0/8
+10.254.0.0/16    253.0.0.0/8
+10.254.0.0/16    254.0.0.0/8
+
+# CUSTOM
+#
+# You can map large ranges onto your own, smaller, ranges for address
+# space expansion purposes. We recommend you adopt a common mapping for
+# your entire institution.
+
+# local          overlay

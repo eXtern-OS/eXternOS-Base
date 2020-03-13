@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<page xmlns="http://projectmallard.org/1.0/" xmlns:ui="http://projectmallard.org/ui/1.0/" type="topic" style="task" id="memory-map-use" xml:lang="pt">
+
+  <info>
+    <revision pkgversion="3.11" date="2014-01-28" status="candidate"/>
+    <link type="guide" xref="index#memory" group="memory"/>
+
+    <include xmlns="http://www.w3.org/2001/XInclude" href="legal.xml"/>
+
+    <credit type="author copyright">
+      <name>Phil Bull</name>
+      <email>philbull@gmail.com</email>
+      <years>2011</years>
+    </credit>
+
+    <credit type="author copyright">
+      <name>Michael Hill</name>
+      <email>mdhillca@gmail.com</email>
+      <years>2011, 2014</years>
+    </credit>
+
+    <desc>Ver o mapa de cor de um processo.</desc>
+  </info>
+
+  <title>Usar mapas de cor</title>
+
+  <p>A <gui>Memória virtual</gui> é a representação combinada da <gui>memória física</gui> e o <link xref="mem-swap">espaço de swap</link> num sistema. Permite executar processos que possam aceder a <em>mais</em> memória da física <gui>mapeando</gui> localizações da memória física a ficheiros no disco. Quando o sistema precisa mais páginas de cor das que há disponíveis, algumas das páginas existentes se <em>paginarão</em>, isto é, se é escreverão no espaço de swap.</p>
+
+  <p>O <gui>mapa de cor</gui> mostra a memória virtual total utilizada pelo processo, e pode-se usar para determinar o custo em memória de executar uma ou várias instâncias do programa, para assegurar-se do correcto uso de bibliotecas partilhadas, para ver o resultado de ajustar vários parâmetros de configuração do rendimento que o programa possa ter ou para diagnosticar problemas como fugas de cor.</p>
+
+  <p>Para mostrar o <link xref="memory-map-what">mapa de cor</link> de um processo:</p>
+
+  <steps>
+    <item><p>Carregue no separador <gui>Processos</gui>.</p></item>
+    <item><p>Carregue com o botão direito na <gui>lista de processos</gui>.</p></item>
+    <item><p>Carregue em <gui>Mapas de cor</gui>.</p></item>
+  </steps>
+
+<section id="read">
+  <title>Ler o mapa de cor</title>
+
+  <list>
+    <item>
+      <p>As direcções mostram-se em hexadecimal (base 16).</p>
+    </item>
+    <item>
+      <p>O tamanho mostra-se em <link xref="units">prefixos binários IEC</link>.</p>
+    </item>
+    <item>
+      <p>Ao executar-se, o processo pode reservar memória dinamicamente numa área chamada <em>montículo</em>, e guardar argumentos e variáveis em outra área chamada <em>pilha</em>.</p>
+    </item>
+    <item>
+      <p>O programa em si e a cada uma das bibliotecas partilhadas têm três entradas a cada um, uma para o segmento de texto ler-executar, uma o segmento de dados ler-escrever e uma para o segmento de dados de só leitura. Ambos segmentos de dados se devem paginar ao realizar o swap.</p>
+    </item>
+  </list>
+
+<table shade="rows" ui:expanded="false">
+<title>Propriedades</title>
+  <tr>
+	  <td><p>Nome de ficheiro</p></td>
+	  <td><p>A localização de uma biblioteca partilhada que actualmente está a ser utilizada pelo processo. Se este campo está vazio, a informação da memória em esta bicha descreve a memória da que é proprietária o processo cujo nome se mostra em cima da tabela do mapa de cor.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Início MV</p></td>
+	  <td><p>A direcção na que começa o segmento de cor. Início MV, Fim MV e Deslocação MV especificam a localização no disco na que está a biblioteca partilhada.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Fim MV</p></td>
+	  <td><p>A direcção onde o segmento de cor termina.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Tamanho MV</p></td>
+	  <td><p>O tamanho do segmento de cor.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Opções</p></td>
+	  <td><p>As seguintes opções descrevem os diferentes tipos de acesso aos segmentos de cor que o processo pode ter:</p>
+    <terms>
+      <item>
+        <title><gui>p</gui></title>
+        <p>O segmento de cor é privado ao processo, e não é acessível por outros processos.</p>
+      </item>
+      <item>
+        <title><gui>r</gui></title>
+        <p>O processo tem permissão de leitura  no segmento de cor.</p>
+      </item>
+      <item>
+        <title><gui>s</gui></title>
+        <p>O segmento de cor é partilhado com outros processos.</p>
+      </item>
+      <item>
+        <title><gui>w</gui></title>
+        <p>O processo tem permissão de escrita no segmento de cor.</p>
+      </item>
+      <item>
+        <title><gui>x</gui></title>
+        <p>O processo tem permissão para executar instruções contidas nesse segmento de cor.</p>
+      </item>
+    </terms>
+    </td>
+  </tr>
+  <tr>
+	  <td><p>Deslocação MV</p></td>
+	  <td><p>A localização da direcção com o segmento de cor, medido desde Início MV.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Privada, partilhada, limpa, suja</p></td>
+<!--	  <td><p>Text pages are flagged read-execute in memory and don't need to
+  be written to swap since they can be re-loaded from their original location
+  on disk. Data pages have read-write permissions, and if modified when in
+  memory, they are labeled <em>dirty</em>, and when designated for swapping,
+  must be paged out.</p></td>
+-->
+          <td><list><item><p>Às páginas <em>privadas</em> acedidas por um processo</p></item>
+          <item><p>Às páginas <em>partilhadas</em> pode aceder mais de um processo</p></item>
+          <item><p>As páginas <em>limpas</em> ainda não se modificaram na memória e se podem descartar ao marcar para a paginação</p></item>
+          <item><p>As páginas <em>sujas</em> modificaram-se na memória e devem-se escrever no disco ao marcar para a paginação</p></item></list></td>
+  </tr>
+  <tr>
+	  <td><p>Dispositivo</p></td>
+	  <td><p>Os números maior e menor do dispositivo no que se encontra a biblioteca partilhada. Juntos especificam uma partição no sistema.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Nó-i</p></td>
+	  <td><p>O nó-i do dispositivo desde o que se carrega a biblioteca partilhada em a memória. Um nó-i é a estrutura que o sistema de ficheiros utiliza para guardar um ficheiro e o número que tem alocado é único.</p></td>
+  </tr>
+</table>
+
+</section>
+</page>

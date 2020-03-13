@@ -1,0 +1,33 @@
+#!/bin/sh
+# postinst script for secureboot-db
+#
+
+set -e
+
+keystore="/usr/share/secureboot/updates"
+vars="KEK-8be4df61-93ca-11d2-aa0d-00e098032b8c db-d719b2cb-3d3a-4596-a3bc-dad00e67656f dbx-d719b2cb-3d3a-4596-a3bc-dad00e67656f"
+
+case "$1" in
+    configure)
+        # unclear why the kernel makes these immutable by default now, but
+        # correct for it
+        for var in $vars; do
+            if [ -e /sys/firmware/efi/efivars/$var ]; then
+                chattr -i /sys/firmware/efi/efivars/$var || true
+            fi
+        done
+        sbkeysync --no-default-keystores --keystore "$keystore" --verbose || true
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+
+
+exit 0

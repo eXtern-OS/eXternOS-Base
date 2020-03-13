@@ -1,0 +1,29 @@
+#!/bin/sh
+
+set -e
+
+case "$IFACE" in
+lo)	exit 0 ;;
+fan-*)	exit 0 ;;
+esac
+
+case "$ADDRFAM" in
+inet) ;;
+*) exit 0 ;;
+esac
+
+# NOTE: NetworkManager simply does not call out to the normal
+#       down hooks as it only checks _after_ the interface has
+#       been lost.  Roll with this.
+case "$PHASE::$METHOD" in
+post-up::static|post-up::dhcp|post-up::NetworkManager)          ;;
+pre-down::static|pre-down::dhcp|post-down::NetworkManager)      ;;
+*) exit 0 ;;
+esac
+
+case "$MODE" in
+start|stop)	;;
+*) exit 0 ;;
+esac
+
+/usr/sbin/fanctl net "$MODE" "$IFACE"

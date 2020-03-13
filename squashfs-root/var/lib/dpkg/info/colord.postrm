@@ -1,0 +1,31 @@
+#! /bin/sh
+
+set -e
+
+dpkg-maintscript-helper rm_conffile \
+    /etc/colord.conf 1.2.12-1~ colord -- "$@"
+
+case "$1" in
+    purge)
+# We don't remove the colord and scanner users on purge.
+# This should change once bug #621833 is resolved.
+
+# Remove colord's state directory
+	rm -rf /var/lib/colord
+	;;
+esac	
+
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/bash_completion.d/colormgr-completion.bash 1.0.3-1~ -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/dbus-1/system.d/org.freedesktop.colord-sane.conf 1.0.3-1~ -- "$@"
+# End automatically added section
+# Automatically added by dh_systemd_start
+if [ -d /run/systemd/system ]; then
+	systemctl --system daemon-reload >/dev/null || true
+fi
+# End automatically added section
+
+
+exit 0

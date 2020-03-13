@@ -1,0 +1,34 @@
+#!/bin/sh
+
+URL="$1"
+
+if test -n "$BROWSER"; then
+    ${BROWSER} "$1"
+    ret="$?"
+    if [ "$ret" -ne 126 ] && [ "$ret" -ne 127 ]; then
+	exit "$ret"
+    fi
+fi
+
+if test -n "$DISPLAY"; then
+    if test -n "$GNOME_DESKTOP_SESSION_ID"; then
+        if test -x /usr/bin/gnome-www-browser; then
+            exec /usr/bin/gnome-www-browser ${URL:+"$URL"}
+        elif test -x /usr/bin/x-www-browser; then
+            exec /usr/bin/x-www-browser ${URL:+"$URL"}
+        elif test -x /usr/bin/gnome-terminal && test -x /usr/bin/www-browser; then
+            exec /usr/bin/gnome-terminal -e "/usr/bin/www-browser ${URL:+\"$URL\"}"
+        fi
+    fi
+    if test -x /usr/bin/x-www-browser; then
+        exec /usr/bin/x-www-browser ${URL:+"$URL"}
+    elif test -x /usr/bin/x-terminal-emulator && test -x /usr/bin/www-browser; then
+        exec /usr/bin/x-terminal-emulator -e /usr/bin/www-browser ${URL:+"$URL"}
+    fi
+elif test -x /usr/bin/www-browser; then
+    exec /usr/bin/www-browser ${URL:+"$URL"}
+fi
+
+printf "Couldn't find a suitable web browser!\n" >&2
+printf "Set the BROWSER environment variable to your desired browser.\n" >&2
+exit 1;

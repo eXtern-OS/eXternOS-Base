@@ -1,0 +1,1225 @@
+
+# Description: Allows snap-update-ns to construct the mount namespace specific
+# to a particular snap (see the name below). This specifically includes the
+# precise locations of the layout elements.
+
+# vim:syntax=apparmor
+
+#include <tunables/global>
+
+profile snap-update-ns.gnome-characters (attach_disconnected) {
+  # The next four rules mirror those above. We want to be able to read
+  # and map snap-update-ns into memory but it may come from a variety of places.
+  /usr/lib{,exec,64}/snapd/snap-update-ns mr,
+  /var/lib/snapd/hostfs/usr/lib{,exec,64}/snapd/snap-update-ns mr,
+  /{,var/lib/snapd/}snap/{core,snapd}/*/usr/lib/snapd/snap-update-ns mr,
+  /var/lib/snapd/hostfs/{,var/lib/snapd/}snap/core/*/usr/lib/snapd/snap-update-ns mr,
+
+  # Allow reading the dynamic linker cache.
+  /etc/ld.so.cache r,
+  # Allow reading, mapping and executing the dynamic linker.
+  /{,usr/}lib{,32,64,x32}/{,@{multiarch}/}ld-*.so mrix,
+  # Allow reading and mapping various parts of the standard library and
+  # dynamically loaded nss modules and what not.
+  /{,usr/}lib{,32,64,x32}/{,@{multiarch}/}libc{,-[0-9]*}.so* mr,
+  /{,usr/}lib{,32,64,x32}/{,@{multiarch}/}libpthread{,-[0-9]*}.so* mr,
+
+  # Common devices accesses
+  /dev/null rw,
+  /dev/full rw,
+  /dev/zero rw,
+  /dev/random r,
+  /dev/urandom r,
+
+  # Allow reading the command line (snap-update-ns uses it in pre-Go bootstrap code).
+  @{PROC}/@{pid}/cmdline r,
+
+  # Allow reading file descriptor paths
+  @{PROC}/@{pid}/fd/* r,
+  # Allow reading /proc/version. For release.go WSL detection.
+  @{PROC}/version r,
+
+  # Allow reading somaxconn, required in newer distro releases
+  @{PROC}/sys/net/core/somaxconn r,
+  # but silence noisy denial of inet/inet6
+  deny network inet,
+  deny network inet6,
+
+  # Allow reading the os-release file (possibly a symlink to /usr/lib).
+  /{etc/,usr/lib/}os-release r,
+
+  # Allow creating/grabbing global and per-snap lock files.
+  /run/snapd/lock/gnome-characters.lock rwk,
+  /run/snapd/lock/.lock rwk,
+
+  # Allow reading stored mount namespaces,
+  /run/snapd/ns/ r,
+  /run/snapd/ns/gnome-characters.mnt r,
+
+  # Allow reading per-snap desired mount profiles. Those are written by
+  # snapd and represent the desired layout and content connections.
+  /var/lib/snapd/mount/snap.gnome-characters.fstab r,
+  /var/lib/snapd/mount/snap.gnome-characters.user-fstab r,
+
+  # Allow reading and writing actual per-snap mount profiles. Note that
+  # the wildcard in the rule to allow an atomic write + rename strategy.
+  # Those files are written by snap-update-ns and represent the actual
+  # mount profile at a given moment.
+  /run/snapd/ns/snap.gnome-characters.fstab{,.*} rw,
+
+  # NOTE: at this stage the /snap directory is stable as we have called
+  # pivot_root already.
+
+  # Needed to perform mount/unmounts.
+  capability sys_admin,
+  # Needed for mimic construction.
+  capability chown,
+  # Needed for dropping to calling user when processing per-user mounts
+  capability setuid,
+  capability setgid,
+  # Allow snap-update-ns to override file ownership and permission checks.
+  # This is required because writable mimics now preserve the permissions
+  # of the original and hence we may be asked to create a directory when the
+  # parent is a tmpfs without DAC write access.
+  capability dac_override,
+
+  # Allow freezing and thawing the per-snap cgroup freezers
+  /sys/fs/cgroup/freezer/snap.gnome-characters/freezer.state rw,
+
+  # Allow the content interface to bind fonts from the host filesystem
+  mount options=(ro bind) /var/lib/snapd/hostfs/usr/share/fonts/ -> /snap/gnome-characters/*/**,
+  mount options=(rw private) -> /snap/gnome-characters/*/**,
+  umount /snap/gnome-characters/*/**,
+
+  # set up user mount namespace
+  mount options=(rslave) -> /,
+
+  # Allow traversing from the root directory and several well-known places.
+  # Specific directory permissions are added by snippets below.
+  / r,
+  /etc/ r,
+  /snap/ r,
+  /tmp/ r,
+  /usr/ r,
+  /var/ r,
+  /var/snap/ r,
+
+  # Allow reading timezone data.
+  /usr/share/zoneinfo/** r,
+
+  # Don't allow anyone to touch /snap/bin
+  audit deny mount /snap/bin/** -> /**,
+  audit deny mount /** -> /snap/bin/**,
+
+  # Don't allow bind mounts to /media which has special
+  # sharing and propagates mount events outside of the snap namespace.
+  audit deny mount -> /media,
+
+  # Allow receiving signals from unconfined (eg, systemd)
+  signal (receive) peer=unconfined,
+  # Allow sending and receiving signals from ourselves.
+  signal peer=@{profile_name},
+
+  # Commonly needed permissions for writable mimics.
+  /tmp/ r,
+  /tmp/.snap/{,**} rw,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#0)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Adwaita/ -> /snap/gnome-characters/296/data-dir/themes/Adwaita/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Adwaita/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Adwaita/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Adwaita/,
+
+  # Writable mimic /snap/gtk-common-themes/1313/share/themes
+
+  # .. permissions for traversing the prefix that is assumed to exist
+
+  # .. variant with mimic at /
+
+  # Allow reading the mimic directory, it must exist in the first place.
+
+  / r,
+
+  # Allow setting the read-only directory aside via a bind mount.
+
+  /tmp/.snap/ rw,
+
+  mount options=(rbind, rw) / -> /tmp/.snap/,
+
+  # Allow mounting tmpfs over the read-only directory.
+
+  mount fstype=tmpfs options=(rw) tmpfs -> /,
+
+  # Allow creating empty files and directories for bind mounting things
+  # to reconstruct the now-writable parent directory.
+
+  /tmp/.snap/*/ rw,
+
+  /*/ rw,
+
+  mount options=(rbind, rw) /tmp/.snap/*/ -> /*/,
+
+  /tmp/.snap/* rw,
+
+  /* rw,
+
+  mount options=(bind, rw) /tmp/.snap/* -> /*,
+
+  # Allow unmounting the auxiliary directory.
+  # TODO: use fstype=tmpfs here for more strictness (LP: #1613403)
+
+  mount options=(rprivate) -> /tmp/.snap/,
+
+  umount /tmp/.snap/,
+
+  # Allow unmounting the destination directory as well as anything
+  # inside.  This lets us perform the undo plan in case the writable
+  # mimic fails.
+
+  mount options=(rprivate) -> /,
+
+  mount options=(rprivate) -> /*,
+
+  mount options=(rprivate) -> /*/,
+
+  umount /,
+
+  umount /*,
+
+  umount /*/,
+
+  # .. variant with mimic at /snap/
+
+  /snap/ r,
+
+  /tmp/.snap/snap/ rw,
+
+  mount options=(rbind, rw) /snap/ -> /tmp/.snap/snap/,
+
+  mount fstype=tmpfs options=(rw) tmpfs -> /snap/,
+
+  /tmp/.snap/snap/*/ rw,
+
+  /snap/*/ rw,
+
+  mount options=(rbind, rw) /tmp/.snap/snap/*/ -> /snap/*/,
+
+  /tmp/.snap/snap/* rw,
+
+  /snap/* rw,
+
+  mount options=(bind, rw) /tmp/.snap/snap/* -> /snap/*,
+
+  mount options=(rprivate) -> /tmp/.snap/snap/,
+
+  umount /tmp/.snap/snap/,
+
+  mount options=(rprivate) -> /snap/,
+
+  mount options=(rprivate) -> /snap/*,
+
+  mount options=(rprivate) -> /snap/*/,
+
+  umount /snap/,
+
+  umount /snap/*,
+
+  umount /snap/*/,
+
+  # .. variant with mimic at /snap/gtk-common-themes/
+
+  /snap/gtk-common-themes/ r,
+
+  /tmp/.snap/snap/gtk-common-themes/ rw,
+
+  mount options=(rbind, rw) /snap/gtk-common-themes/ -> /tmp/.snap/snap/gtk-common-themes/,
+
+  mount fstype=tmpfs options=(rw) tmpfs -> /snap/gtk-common-themes/,
+
+  /tmp/.snap/snap/gtk-common-themes/*/ rw,
+
+  /snap/gtk-common-themes/*/ rw,
+
+  mount options=(rbind, rw) /tmp/.snap/snap/gtk-common-themes/*/ -> /snap/gtk-common-themes/*/,
+
+  /tmp/.snap/snap/gtk-common-themes/* rw,
+
+  /snap/gtk-common-themes/* rw,
+
+  mount options=(bind, rw) /tmp/.snap/snap/gtk-common-themes/* -> /snap/gtk-common-themes/*,
+
+  mount options=(rprivate) -> /tmp/.snap/snap/gtk-common-themes/,
+
+  umount /tmp/.snap/snap/gtk-common-themes/,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/*,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/*/,
+
+  umount /snap/gtk-common-themes/,
+
+  umount /snap/gtk-common-themes/*,
+
+  umount /snap/gtk-common-themes/*/,
+
+  # .. variant with mimic at /snap/gtk-common-themes/1313/
+
+  /snap/gtk-common-themes/1313/ r,
+
+  /tmp/.snap/snap/gtk-common-themes/1313/ rw,
+
+  mount options=(rbind, rw) /snap/gtk-common-themes/1313/ -> /tmp/.snap/snap/gtk-common-themes/1313/,
+
+  mount fstype=tmpfs options=(rw) tmpfs -> /snap/gtk-common-themes/1313/,
+
+  /tmp/.snap/snap/gtk-common-themes/1313/*/ rw,
+
+  /snap/gtk-common-themes/1313/*/ rw,
+
+  mount options=(rbind, rw) /tmp/.snap/snap/gtk-common-themes/1313/*/ -> /snap/gtk-common-themes/1313/*/,
+
+  /tmp/.snap/snap/gtk-common-themes/1313/* rw,
+
+  /snap/gtk-common-themes/1313/* rw,
+
+  mount options=(bind, rw) /tmp/.snap/snap/gtk-common-themes/1313/* -> /snap/gtk-common-themes/1313/*,
+
+  mount options=(rprivate) -> /tmp/.snap/snap/gtk-common-themes/1313/,
+
+  umount /tmp/.snap/snap/gtk-common-themes/1313/,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/1313/,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/1313/*,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/1313/*/,
+
+  umount /snap/gtk-common-themes/1313/,
+
+  umount /snap/gtk-common-themes/1313/*,
+
+  umount /snap/gtk-common-themes/1313/*/,
+
+  # .. variant with mimic at /snap/gtk-common-themes/1313/share/
+
+  /snap/gtk-common-themes/1313/share/ r,
+
+  /tmp/.snap/snap/gtk-common-themes/1313/share/ rw,
+
+  mount options=(rbind, rw) /snap/gtk-common-themes/1313/share/ -> /tmp/.snap/snap/gtk-common-themes/1313/share/,
+
+  mount fstype=tmpfs options=(rw) tmpfs -> /snap/gtk-common-themes/1313/share/,
+
+  /tmp/.snap/snap/gtk-common-themes/1313/share/*/ rw,
+
+  /snap/gtk-common-themes/1313/share/*/ rw,
+
+  mount options=(rbind, rw) /tmp/.snap/snap/gtk-common-themes/1313/share/*/ -> /snap/gtk-common-themes/1313/share/*/,
+
+  /tmp/.snap/snap/gtk-common-themes/1313/share/* rw,
+
+  /snap/gtk-common-themes/1313/share/* rw,
+
+  mount options=(bind, rw) /tmp/.snap/snap/gtk-common-themes/1313/share/* -> /snap/gtk-common-themes/1313/share/*,
+
+  mount options=(rprivate) -> /tmp/.snap/snap/gtk-common-themes/1313/share/,
+
+  umount /tmp/.snap/snap/gtk-common-themes/1313/share/,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/1313/share/,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/1313/share/*,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/1313/share/*/,
+
+  umount /snap/gtk-common-themes/1313/share/,
+
+  umount /snap/gtk-common-themes/1313/share/*,
+
+  umount /snap/gtk-common-themes/1313/share/*/,
+
+  # .. variant with mimic at /snap/gtk-common-themes/1313/share/themes/
+
+  /snap/gtk-common-themes/1313/share/themes/ r,
+
+  /tmp/.snap/snap/gtk-common-themes/1313/share/themes/ rw,
+
+  mount options=(rbind, rw) /snap/gtk-common-themes/1313/share/themes/ -> /tmp/.snap/snap/gtk-common-themes/1313/share/themes/,
+
+  mount fstype=tmpfs options=(rw) tmpfs -> /snap/gtk-common-themes/1313/share/themes/,
+
+  /tmp/.snap/snap/gtk-common-themes/1313/share/themes/*/ rw,
+
+  /snap/gtk-common-themes/1313/share/themes/*/ rw,
+
+  mount options=(rbind, rw) /tmp/.snap/snap/gtk-common-themes/1313/share/themes/*/ -> /snap/gtk-common-themes/1313/share/themes/*/,
+
+  /tmp/.snap/snap/gtk-common-themes/1313/share/themes/* rw,
+
+  /snap/gtk-common-themes/1313/share/themes/* rw,
+
+  mount options=(bind, rw) /tmp/.snap/snap/gtk-common-themes/1313/share/themes/* -> /snap/gtk-common-themes/1313/share/themes/*,
+
+  mount options=(rprivate) -> /tmp/.snap/snap/gtk-common-themes/1313/share/themes/,
+
+  umount /tmp/.snap/snap/gtk-common-themes/1313/share/themes/,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/1313/share/themes/,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/1313/share/themes/*,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/1313/share/themes/*/,
+
+  umount /snap/gtk-common-themes/1313/share/themes/,
+
+  umount /snap/gtk-common-themes/1313/share/themes/*,
+
+  umount /snap/gtk-common-themes/1313/share/themes/*/,
+
+  # Writable mimic /snap/gnome-characters/296/data-dir/themes
+
+  # .. variant with mimic at /snap/gnome-characters/
+
+  /snap/gnome-characters/ r,
+
+  /tmp/.snap/snap/gnome-characters/ rw,
+
+  mount options=(rbind, rw) /snap/gnome-characters/ -> /tmp/.snap/snap/gnome-characters/,
+
+  mount fstype=tmpfs options=(rw) tmpfs -> /snap/gnome-characters/,
+
+  /tmp/.snap/snap/gnome-characters/*/ rw,
+
+  /snap/gnome-characters/*/ rw,
+
+  mount options=(rbind, rw) /tmp/.snap/snap/gnome-characters/*/ -> /snap/gnome-characters/*/,
+
+  /tmp/.snap/snap/gnome-characters/* rw,
+
+  /snap/gnome-characters/* rw,
+
+  mount options=(bind, rw) /tmp/.snap/snap/gnome-characters/* -> /snap/gnome-characters/*,
+
+  mount options=(rprivate) -> /tmp/.snap/snap/gnome-characters/,
+
+  umount /tmp/.snap/snap/gnome-characters/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/*,
+
+  mount options=(rprivate) -> /snap/gnome-characters/*/,
+
+  umount /snap/gnome-characters/,
+
+  umount /snap/gnome-characters/*,
+
+  umount /snap/gnome-characters/*/,
+
+  # .. variant with mimic at /snap/gnome-characters/296/
+
+  /snap/gnome-characters/296/ r,
+
+  /tmp/.snap/snap/gnome-characters/296/ rw,
+
+  mount options=(rbind, rw) /snap/gnome-characters/296/ -> /tmp/.snap/snap/gnome-characters/296/,
+
+  mount fstype=tmpfs options=(rw) tmpfs -> /snap/gnome-characters/296/,
+
+  /tmp/.snap/snap/gnome-characters/296/*/ rw,
+
+  /snap/gnome-characters/296/*/ rw,
+
+  mount options=(rbind, rw) /tmp/.snap/snap/gnome-characters/296/*/ -> /snap/gnome-characters/296/*/,
+
+  /tmp/.snap/snap/gnome-characters/296/* rw,
+
+  /snap/gnome-characters/296/* rw,
+
+  mount options=(bind, rw) /tmp/.snap/snap/gnome-characters/296/* -> /snap/gnome-characters/296/*,
+
+  mount options=(rprivate) -> /tmp/.snap/snap/gnome-characters/296/,
+
+  umount /tmp/.snap/snap/gnome-characters/296/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/*,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/*/,
+
+  umount /snap/gnome-characters/296/,
+
+  umount /snap/gnome-characters/296/*,
+
+  umount /snap/gnome-characters/296/*/,
+
+  # .. variant with mimic at /snap/gnome-characters/296/data-dir/
+
+  /snap/gnome-characters/296/data-dir/ r,
+
+  /tmp/.snap/snap/gnome-characters/296/data-dir/ rw,
+
+  mount options=(rbind, rw) /snap/gnome-characters/296/data-dir/ -> /tmp/.snap/snap/gnome-characters/296/data-dir/,
+
+  mount fstype=tmpfs options=(rw) tmpfs -> /snap/gnome-characters/296/data-dir/,
+
+  /tmp/.snap/snap/gnome-characters/296/data-dir/*/ rw,
+
+  /snap/gnome-characters/296/data-dir/*/ rw,
+
+  mount options=(rbind, rw) /tmp/.snap/snap/gnome-characters/296/data-dir/*/ -> /snap/gnome-characters/296/data-dir/*/,
+
+  /tmp/.snap/snap/gnome-characters/296/data-dir/* rw,
+
+  /snap/gnome-characters/296/data-dir/* rw,
+
+  mount options=(bind, rw) /tmp/.snap/snap/gnome-characters/296/data-dir/* -> /snap/gnome-characters/296/data-dir/*,
+
+  mount options=(rprivate) -> /tmp/.snap/snap/gnome-characters/296/data-dir/,
+
+  umount /tmp/.snap/snap/gnome-characters/296/data-dir/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/*,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/*/,
+
+  umount /snap/gnome-characters/296/data-dir/,
+
+  umount /snap/gnome-characters/296/data-dir/*,
+
+  umount /snap/gnome-characters/296/data-dir/*/,
+
+  # .. variant with mimic at /snap/gnome-characters/296/data-dir/themes/
+
+  /snap/gnome-characters/296/data-dir/themes/ r,
+
+  /tmp/.snap/snap/gnome-characters/296/data-dir/themes/ rw,
+
+  mount options=(rbind, rw) /snap/gnome-characters/296/data-dir/themes/ -> /tmp/.snap/snap/gnome-characters/296/data-dir/themes/,
+
+  mount fstype=tmpfs options=(rw) tmpfs -> /snap/gnome-characters/296/data-dir/themes/,
+
+  /tmp/.snap/snap/gnome-characters/296/data-dir/themes/*/ rw,
+
+  /snap/gnome-characters/296/data-dir/themes/*/ rw,
+
+  mount options=(rbind, rw) /tmp/.snap/snap/gnome-characters/296/data-dir/themes/*/ -> /snap/gnome-characters/296/data-dir/themes/*/,
+
+  /tmp/.snap/snap/gnome-characters/296/data-dir/themes/* rw,
+
+  /snap/gnome-characters/296/data-dir/themes/* rw,
+
+  mount options=(bind, rw) /tmp/.snap/snap/gnome-characters/296/data-dir/themes/* -> /snap/gnome-characters/296/data-dir/themes/*,
+
+  mount options=(rprivate) -> /tmp/.snap/snap/gnome-characters/296/data-dir/themes/,
+
+  umount /tmp/.snap/snap/gnome-characters/296/data-dir/themes/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/*,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/*/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/*,
+
+  umount /snap/gnome-characters/296/data-dir/themes/*/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#1)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Adwaita-dark/ -> /snap/gnome-characters/296/data-dir/themes/Adwaita-dark/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Adwaita-dark/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Adwaita-dark/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Adwaita-dark/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#2)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/HighContrast/ -> /snap/gnome-characters/296/data-dir/themes/HighContrast/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/HighContrast/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/HighContrast/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/HighContrast/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#3)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Ambiance/ -> /snap/gnome-characters/296/data-dir/themes/Ambiance/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Ambiance/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Ambiance/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Ambiance/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#4)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Radiance/ -> /snap/gnome-characters/296/data-dir/themes/Radiance/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Radiance/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Radiance/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Radiance/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#5)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Arc/ -> /snap/gnome-characters/296/data-dir/themes/Arc/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Arc/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Arc/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Arc/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#6)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Arc-Dark/ -> /snap/gnome-characters/296/data-dir/themes/Arc-Dark/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Arc-Dark/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Arc-Dark/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Arc-Dark/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#7)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Arc-Darker/ -> /snap/gnome-characters/296/data-dir/themes/Arc-Darker/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Arc-Darker/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Arc-Darker/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Arc-Darker/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#8)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Breeze/ -> /snap/gnome-characters/296/data-dir/themes/Breeze/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Breeze/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Breeze/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Breeze/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#9)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Breeze-Dark/ -> /snap/gnome-characters/296/data-dir/themes/Breeze-Dark/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Breeze-Dark/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Breeze-Dark/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Breeze-Dark/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#10)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Communitheme/ -> /snap/gnome-characters/296/data-dir/themes/Communitheme/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Communitheme/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Communitheme/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Communitheme/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#11)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Yaru/ -> /snap/gnome-characters/296/data-dir/themes/Yaru/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Yaru/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Yaru/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Yaru/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#12)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Yaru-dark/ -> /snap/gnome-characters/296/data-dir/themes/Yaru-dark/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Yaru-dark/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Yaru-dark/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Yaru-dark/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#13)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/elementary/ -> /snap/gnome-characters/296/data-dir/themes/elementary/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/elementary/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/elementary/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/elementary/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#14)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Ambiant-MATE/ -> /snap/gnome-characters/296/data-dir/themes/Ambiant-MATE/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Ambiant-MATE/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Ambiant-MATE/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Ambiant-MATE/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#15)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Ambiant-MATE-Dark/ -> /snap/gnome-characters/296/data-dir/themes/Ambiant-MATE-Dark/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Ambiant-MATE-Dark/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Ambiant-MATE-Dark/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Ambiant-MATE-Dark/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#16)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Radiant-MATE/ -> /snap/gnome-characters/296/data-dir/themes/Radiant-MATE/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Radiant-MATE/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Radiant-MATE/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Radiant-MATE/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#17)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Matcha-aliz/ -> /snap/gnome-characters/296/data-dir/themes/Matcha-aliz/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Matcha-aliz/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Matcha-aliz/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Matcha-aliz/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#18)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Matcha-azul/ -> /snap/gnome-characters/296/data-dir/themes/Matcha-azul/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Matcha-azul/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Matcha-azul/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Matcha-azul/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#19)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Matcha-dark-aliz/ -> /snap/gnome-characters/296/data-dir/themes/Matcha-dark-aliz/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Matcha-dark-aliz/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Matcha-dark-aliz/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Matcha-dark-aliz/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#20)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Matcha-dark-azul/ -> /snap/gnome-characters/296/data-dir/themes/Matcha-dark-azul/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Matcha-dark-azul/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Matcha-dark-azul/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Matcha-dark-azul/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#21)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Matcha-dark-sea/ -> /snap/gnome-characters/296/data-dir/themes/Matcha-dark-sea/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Matcha-dark-sea/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Matcha-dark-sea/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Matcha-dark-sea/,
+
+  # Read-only content sharing gnome-characters:gtk-3-themes -> gtk-common-themes:gtk-3-themes (r#22)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/themes/Matcha-sea/ -> /snap/gnome-characters/296/data-dir/themes/Matcha-sea/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/themes/Matcha-sea/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/themes/Matcha-sea/,
+
+  umount /snap/gnome-characters/296/data-dir/themes/Matcha-sea/,
+
+  # Mount the document portal
+
+  mount options=(bind) /run/user/[0-9]*/doc/by-app/snap.gnome-characters/ -> /run/user/[0-9]*/doc/,
+
+  umount /run/user/[0-9]*/doc/,
+
+
+  # Read-only access to /usr/share/fonts
+
+  mount options=(bind) /var/lib/snapd/hostfs/usr/share/fonts/ -> /usr/share/fonts/,
+
+  remount options=(bind, ro) /usr/share/fonts/,
+
+  umount /usr/share/fonts/,
+
+
+  # Read-only access to /usr/local/share/fonts
+
+  mount options=(bind) /var/lib/snapd/hostfs/usr/local/share/fonts/ -> /usr/local/share/fonts/,
+
+  remount options=(bind, ro) /usr/local/share/fonts/,
+
+  umount /usr/local/share/fonts/,
+
+
+  # Read-only access to /var/cache/fontconfig
+
+  mount options=(bind) /var/lib/snapd/hostfs/var/cache/fontconfig/ -> /var/cache/fontconfig/,
+
+  remount options=(bind, ro) /var/cache/fontconfig/,
+
+  umount /var/cache/fontconfig/,
+
+
+  # Read-only content sharing gnome-characters:gnome-3-28-1804 -> gnome-3-28-1804:gnome-3-28-1804 (r#0)
+
+  mount options=(bind) /snap/gnome-3-28-1804/67/ -> /snap/gnome-characters/296/gnome-platform/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/gnome-platform/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/gnome-platform/,
+
+  umount /snap/gnome-characters/296/gnome-platform/,
+
+  # Writable mimic /snap/gnome-3-28-1804
+
+  # .. variant with mimic at /snap/gnome-3-28-1804/
+
+  /snap/gnome-3-28-1804/ r,
+
+  /tmp/.snap/snap/gnome-3-28-1804/ rw,
+
+  mount options=(rbind, rw) /snap/gnome-3-28-1804/ -> /tmp/.snap/snap/gnome-3-28-1804/,
+
+  mount fstype=tmpfs options=(rw) tmpfs -> /snap/gnome-3-28-1804/,
+
+  /tmp/.snap/snap/gnome-3-28-1804/*/ rw,
+
+  /snap/gnome-3-28-1804/*/ rw,
+
+  mount options=(rbind, rw) /tmp/.snap/snap/gnome-3-28-1804/*/ -> /snap/gnome-3-28-1804/*/,
+
+  /tmp/.snap/snap/gnome-3-28-1804/* rw,
+
+  /snap/gnome-3-28-1804/* rw,
+
+  mount options=(bind, rw) /tmp/.snap/snap/gnome-3-28-1804/* -> /snap/gnome-3-28-1804/*,
+
+  mount options=(rprivate) -> /tmp/.snap/snap/gnome-3-28-1804/,
+
+  umount /tmp/.snap/snap/gnome-3-28-1804/,
+
+  mount options=(rprivate) -> /snap/gnome-3-28-1804/,
+
+  mount options=(rprivate) -> /snap/gnome-3-28-1804/*,
+
+  mount options=(rprivate) -> /snap/gnome-3-28-1804/*/,
+
+  umount /snap/gnome-3-28-1804/,
+
+  umount /snap/gnome-3-28-1804/*,
+
+  umount /snap/gnome-3-28-1804/*/,
+
+  # Writable mimic /snap/gnome-characters/296
+
+  # Read-only content sharing gnome-characters:sound-themes -> gtk-common-themes:sound-themes (r#0)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/sounds/communitheme/ -> /snap/gnome-characters/296/data-dir/sounds/communitheme/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/sounds/communitheme/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/sounds/communitheme/,
+
+  umount /snap/gnome-characters/296/data-dir/sounds/communitheme/,
+
+  # Writable mimic /snap/gtk-common-themes/1313/share/sounds
+
+  # .. variant with mimic at /snap/gtk-common-themes/1313/share/sounds/
+
+  /snap/gtk-common-themes/1313/share/sounds/ r,
+
+  /tmp/.snap/snap/gtk-common-themes/1313/share/sounds/ rw,
+
+  mount options=(rbind, rw) /snap/gtk-common-themes/1313/share/sounds/ -> /tmp/.snap/snap/gtk-common-themes/1313/share/sounds/,
+
+  mount fstype=tmpfs options=(rw) tmpfs -> /snap/gtk-common-themes/1313/share/sounds/,
+
+  /tmp/.snap/snap/gtk-common-themes/1313/share/sounds/*/ rw,
+
+  /snap/gtk-common-themes/1313/share/sounds/*/ rw,
+
+  mount options=(rbind, rw) /tmp/.snap/snap/gtk-common-themes/1313/share/sounds/*/ -> /snap/gtk-common-themes/1313/share/sounds/*/,
+
+  /tmp/.snap/snap/gtk-common-themes/1313/share/sounds/* rw,
+
+  /snap/gtk-common-themes/1313/share/sounds/* rw,
+
+  mount options=(bind, rw) /tmp/.snap/snap/gtk-common-themes/1313/share/sounds/* -> /snap/gtk-common-themes/1313/share/sounds/*,
+
+  mount options=(rprivate) -> /tmp/.snap/snap/gtk-common-themes/1313/share/sounds/,
+
+  umount /tmp/.snap/snap/gtk-common-themes/1313/share/sounds/,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/1313/share/sounds/,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/1313/share/sounds/*,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/1313/share/sounds/*/,
+
+  umount /snap/gtk-common-themes/1313/share/sounds/,
+
+  umount /snap/gtk-common-themes/1313/share/sounds/*,
+
+  umount /snap/gtk-common-themes/1313/share/sounds/*/,
+
+  # Writable mimic /snap/gnome-characters/296/data-dir/sounds
+
+  # .. variant with mimic at /snap/gnome-characters/296/data-dir/sounds/
+
+  /snap/gnome-characters/296/data-dir/sounds/ r,
+
+  /tmp/.snap/snap/gnome-characters/296/data-dir/sounds/ rw,
+
+  mount options=(rbind, rw) /snap/gnome-characters/296/data-dir/sounds/ -> /tmp/.snap/snap/gnome-characters/296/data-dir/sounds/,
+
+  mount fstype=tmpfs options=(rw) tmpfs -> /snap/gnome-characters/296/data-dir/sounds/,
+
+  /tmp/.snap/snap/gnome-characters/296/data-dir/sounds/*/ rw,
+
+  /snap/gnome-characters/296/data-dir/sounds/*/ rw,
+
+  mount options=(rbind, rw) /tmp/.snap/snap/gnome-characters/296/data-dir/sounds/*/ -> /snap/gnome-characters/296/data-dir/sounds/*/,
+
+  /tmp/.snap/snap/gnome-characters/296/data-dir/sounds/* rw,
+
+  /snap/gnome-characters/296/data-dir/sounds/* rw,
+
+  mount options=(bind, rw) /tmp/.snap/snap/gnome-characters/296/data-dir/sounds/* -> /snap/gnome-characters/296/data-dir/sounds/*,
+
+  mount options=(rprivate) -> /tmp/.snap/snap/gnome-characters/296/data-dir/sounds/,
+
+  umount /tmp/.snap/snap/gnome-characters/296/data-dir/sounds/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/sounds/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/sounds/*,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/sounds/*/,
+
+  umount /snap/gnome-characters/296/data-dir/sounds/,
+
+  umount /snap/gnome-characters/296/data-dir/sounds/*,
+
+  umount /snap/gnome-characters/296/data-dir/sounds/*/,
+
+  # Read-only content sharing gnome-characters:sound-themes -> gtk-common-themes:sound-themes (r#1)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/sounds/Yaru/ -> /snap/gnome-characters/296/data-dir/sounds/Yaru/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/sounds/Yaru/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/sounds/Yaru/,
+
+  umount /snap/gnome-characters/296/data-dir/sounds/Yaru/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#0)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/Adwaita/ -> /snap/gnome-characters/296/data-dir/icons/Adwaita/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/Adwaita/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/Adwaita/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/Adwaita/,
+
+  # Writable mimic /snap/gtk-common-themes/1313/share/icons
+
+  # .. variant with mimic at /snap/gtk-common-themes/1313/share/icons/
+
+  /snap/gtk-common-themes/1313/share/icons/ r,
+
+  /tmp/.snap/snap/gtk-common-themes/1313/share/icons/ rw,
+
+  mount options=(rbind, rw) /snap/gtk-common-themes/1313/share/icons/ -> /tmp/.snap/snap/gtk-common-themes/1313/share/icons/,
+
+  mount fstype=tmpfs options=(rw) tmpfs -> /snap/gtk-common-themes/1313/share/icons/,
+
+  /tmp/.snap/snap/gtk-common-themes/1313/share/icons/*/ rw,
+
+  /snap/gtk-common-themes/1313/share/icons/*/ rw,
+
+  mount options=(rbind, rw) /tmp/.snap/snap/gtk-common-themes/1313/share/icons/*/ -> /snap/gtk-common-themes/1313/share/icons/*/,
+
+  /tmp/.snap/snap/gtk-common-themes/1313/share/icons/* rw,
+
+  /snap/gtk-common-themes/1313/share/icons/* rw,
+
+  mount options=(bind, rw) /tmp/.snap/snap/gtk-common-themes/1313/share/icons/* -> /snap/gtk-common-themes/1313/share/icons/*,
+
+  mount options=(rprivate) -> /tmp/.snap/snap/gtk-common-themes/1313/share/icons/,
+
+  umount /tmp/.snap/snap/gtk-common-themes/1313/share/icons/,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/1313/share/icons/,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/1313/share/icons/*,
+
+  mount options=(rprivate) -> /snap/gtk-common-themes/1313/share/icons/*/,
+
+  umount /snap/gtk-common-themes/1313/share/icons/,
+
+  umount /snap/gtk-common-themes/1313/share/icons/*,
+
+  umount /snap/gtk-common-themes/1313/share/icons/*/,
+
+  # Writable mimic /snap/gnome-characters/296/data-dir/icons
+
+  # .. variant with mimic at /snap/gnome-characters/296/data-dir/icons/
+
+  /snap/gnome-characters/296/data-dir/icons/ r,
+
+  /tmp/.snap/snap/gnome-characters/296/data-dir/icons/ rw,
+
+  mount options=(rbind, rw) /snap/gnome-characters/296/data-dir/icons/ -> /tmp/.snap/snap/gnome-characters/296/data-dir/icons/,
+
+  mount fstype=tmpfs options=(rw) tmpfs -> /snap/gnome-characters/296/data-dir/icons/,
+
+  /tmp/.snap/snap/gnome-characters/296/data-dir/icons/*/ rw,
+
+  /snap/gnome-characters/296/data-dir/icons/*/ rw,
+
+  mount options=(rbind, rw) /tmp/.snap/snap/gnome-characters/296/data-dir/icons/*/ -> /snap/gnome-characters/296/data-dir/icons/*/,
+
+  /tmp/.snap/snap/gnome-characters/296/data-dir/icons/* rw,
+
+  /snap/gnome-characters/296/data-dir/icons/* rw,
+
+  mount options=(bind, rw) /tmp/.snap/snap/gnome-characters/296/data-dir/icons/* -> /snap/gnome-characters/296/data-dir/icons/*,
+
+  mount options=(rprivate) -> /tmp/.snap/snap/gnome-characters/296/data-dir/icons/,
+
+  umount /tmp/.snap/snap/gnome-characters/296/data-dir/icons/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/*,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/*/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/*,
+
+  umount /snap/gnome-characters/296/data-dir/icons/*/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#1)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/hicolor/ -> /snap/gnome-characters/296/data-dir/icons/hicolor/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/hicolor/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/hicolor/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/hicolor/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#2)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/HighContrast/ -> /snap/gnome-characters/296/data-dir/icons/HighContrast/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/HighContrast/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/HighContrast/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/HighContrast/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#3)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/Humanity/ -> /snap/gnome-characters/296/data-dir/icons/Humanity/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/Humanity/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/Humanity/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/Humanity/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#4)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/Humanity-Dark/ -> /snap/gnome-characters/296/data-dir/icons/Humanity-Dark/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/Humanity-Dark/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/Humanity-Dark/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/Humanity-Dark/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#5)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/ubuntu-mono-dark/ -> /snap/gnome-characters/296/data-dir/icons/ubuntu-mono-dark/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/ubuntu-mono-dark/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/ubuntu-mono-dark/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/ubuntu-mono-dark/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#6)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/ubuntu-mono-light/ -> /snap/gnome-characters/296/data-dir/icons/ubuntu-mono-light/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/ubuntu-mono-light/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/ubuntu-mono-light/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/ubuntu-mono-light/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#7)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/DMZ-Black/ -> /snap/gnome-characters/296/data-dir/icons/DMZ-Black/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/DMZ-Black/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/DMZ-Black/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/DMZ-Black/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#8)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/DMZ-White/ -> /snap/gnome-characters/296/data-dir/icons/DMZ-White/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/DMZ-White/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/DMZ-White/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/DMZ-White/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#9)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/communitheme/ -> /snap/gnome-characters/296/data-dir/icons/communitheme/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/communitheme/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/communitheme/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/communitheme/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#10)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/Suru/ -> /snap/gnome-characters/296/data-dir/icons/Suru/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/Suru/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/Suru/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/Suru/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#11)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/Yaru/ -> /snap/gnome-characters/296/data-dir/icons/Yaru/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/Yaru/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/Yaru/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/Yaru/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#12)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/elementary/ -> /snap/gnome-characters/296/data-dir/icons/elementary/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/elementary/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/elementary/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/elementary/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#13)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/Ambiant-MATE/ -> /snap/gnome-characters/296/data-dir/icons/Ambiant-MATE/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/Ambiant-MATE/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/Ambiant-MATE/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/Ambiant-MATE/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#14)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/Radiant-MATE/ -> /snap/gnome-characters/296/data-dir/icons/Radiant-MATE/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/Radiant-MATE/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/Radiant-MATE/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/Radiant-MATE/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#15)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/Papirus-Adapta-Maia/ -> /snap/gnome-characters/296/data-dir/icons/Papirus-Adapta-Maia/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/Papirus-Adapta-Maia/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/Papirus-Adapta-Maia/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/Papirus-Adapta-Maia/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#16)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/Papirus-Adapta-Nokto-Maia/ -> /snap/gnome-characters/296/data-dir/icons/Papirus-Adapta-Nokto-Maia/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/Papirus-Adapta-Nokto-Maia/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/Papirus-Adapta-Nokto-Maia/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/Papirus-Adapta-Nokto-Maia/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#17)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/Papirus-Dark-Maia/ -> /snap/gnome-characters/296/data-dir/icons/Papirus-Dark-Maia/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/Papirus-Dark-Maia/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/Papirus-Dark-Maia/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/Papirus-Dark-Maia/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#18)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/Papirus-Light-Maia/ -> /snap/gnome-characters/296/data-dir/icons/Papirus-Light-Maia/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/Papirus-Light-Maia/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/Papirus-Light-Maia/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/Papirus-Light-Maia/,
+
+  # Read-only content sharing gnome-characters:icon-themes -> gtk-common-themes:icon-themes (r#19)
+
+  mount options=(bind) /snap/gtk-common-themes/1313/share/icons/Papirus-Maia/ -> /snap/gnome-characters/296/data-dir/icons/Papirus-Maia/,
+
+  remount options=(bind, ro) /snap/gnome-characters/296/data-dir/icons/Papirus-Maia/,
+
+  mount options=(rprivate) -> /snap/gnome-characters/296/data-dir/icons/Papirus-Maia/,
+
+  umount /snap/gnome-characters/296/data-dir/icons/Papirus-Maia/,
+
+}

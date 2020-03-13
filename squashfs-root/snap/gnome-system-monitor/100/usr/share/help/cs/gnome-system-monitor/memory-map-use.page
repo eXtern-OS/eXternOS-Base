@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<page xmlns="http://projectmallard.org/1.0/" xmlns:ui="http://projectmallard.org/ui/1.0/" type="topic" style="task" id="memory-map-use" xml:lang="cs">
+
+  <info>
+    <revision pkgversion="3.11" date="2014-01-28" status="candidate"/>
+    <link type="guide" xref="index#memory" group="memory"/>
+
+    <include xmlns="http://www.w3.org/2001/XInclude" href="legal.xml"/>
+
+    <credit type="author copyright">
+      <name>Phil Bull</name>
+      <email>philbull@gmail.com</email>
+      <years>2011</years>
+    </credit>
+
+    <credit type="author copyright">
+      <name>Michael Hill</name>
+      <email>mdhillca@gmail.com</email>
+      <years>2011, 2014</years>
+    </credit>
+
+    <desc>Jak zobrazit mapu paměti používané procesem.</desc>
+  </info>
+
+  <title>Používání map paměti</title>
+
+  <p><gui>Virtuální paměť</gui> představuje kombinaci <gui>fyzické paměti</gui> a <link xref="mem-swap">odkládacího prostoru</link> v systému. Umožňuje běžícím procesům přístup k <em>většímu množství</em> paměti, než fyzicky existuje, díky <gui>mapování</gui> míst ve fyzické paměti do souborů na disku. Když operační systém potřebuje více stránek paměti, než je k dispozici, jsou některé stávající stránky <em>odhozeny</em> nebo zapsány do odkládacího prostoru.</p>
+
+  <p><gui>Mapa paměti</gui> zobrazuje celkovou virtuální pamět použitou procesem a může být využita k určení nároků na paměť při běhu jedné nebo více instancí programu, abyste se ujistili o využití správných sdílených knihoven, abyste viděli výsledky různých vylaďovacích parametrů, které program má nebo abyste diagnostikovali problémy typu uniků paměti.</p>
+
+  <p>Když chcete zobrazit <link xref="memory-map-what">mapu paměti</link> procesu:</p>
+
+  <steps>
+    <item><p>Klikněte na kartu <gui>Procesy</gui>.</p></item>
+    <item><p>Klikněte v <gui>seznamu procesů</gui> na požadovaný proces.</p></item>
+    <item><p>Klikněte na <gui>Mapa paměti</gui>.</p></item>
+  </steps>
+
+<section id="read">
+  <title>Čtení mapy paměti</title>
+
+  <list>
+    <item>
+      <p>Adresy jsou zobrazeny v šestnáctkové (hexadecimální) soustavě.</p>
+    </item>
+    <item>
+      <p>Velikost je zobrazena pomocí <link xref="units">binárních předpon IEC</link>.</p>
+    </item>
+    <item>
+      <p>Za běhu může proces dostat přiděleno dynamicky více paměti do oblasti nazývané <em>halda</em> a ukládat argumenty a proměnné do další oblasti nazývané <em>zásobník</em>.</p>
+    </item>
+    <item>
+      <p>Program sám o sobě a každá ze sdílených knihoven mají po třech záznamech. Jeden pro kódový segment s právem číst-spouštět, jeden pro datový segment s právem číst-zapisovat a jeden pro datový segment jen pro čtení. Oba datové segmenty mohou být, když jsou odloženy na disk, odhozeny.</p>
+    </item>
+  </list>
+
+<table shade="rows" ui:expanded="false">
+<title>Vlastnosti</title>
+  <tr>
+	  <td><p>Název souboru</p></td>
+	  <td><p>Umístění sdílené knihovny, která je právě používána procesem. Pokud je toto pole prázdné, popisuje informace v tomto řádku paměť, která je vlastněna procesem, jehož název je uveden nad tabulkou s mapou paměti.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Začátek VP</p></td>
+	  <td><p>Adresa, na které paměťový segment začíná. Dohromady s Konec VP a Posun VP určuje umístění na disku, do kterého je sdílená knihovna mapována.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Konec VP</p></td>
+	  <td><p>Adresa, na které paměťový segment končí.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Velikost VP</p></td>
+	  <td><p>Velikost paměťového segmentu.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Příznaky</p></td>
+	  <td><p>Následující příznaky popisují různé typy přístupu k paměťového segmentu, které může proces mít:</p>
+    <terms>
+      <item>
+        <title><gui>p</gui></title>
+        <p>Paměťový segment je pro proces soukromý a pro žádný jiný proces není přístupný.</p>
+      </item>
+      <item>
+        <title><gui>r</gui></title>
+        <p>Proces má oprávnění z paměťového segmentu číst.</p>
+      </item>
+      <item>
+        <title><gui>s</gui></title>
+        <p>Paměťový segment je sdílený s jinými procesy.</p>
+      </item>
+      <item>
+        <title><gui>w</gui></title>
+        <p>Proces má oprávnění do paměťového segmentu zapisovat.</p>
+      </item>
+      <item>
+        <title><gui>x</gui></title>
+        <p>Proces má oprávnění provádět strojové instrukce, které jsou v paměťovém segmentu obsaženy.</p>
+      </item>
+    </terms>
+    </td>
+  </tr>
+  <tr>
+	  <td><p>Posun VP</p></td>
+	  <td><p>Místo adresy v rámci paměťového segmentu, měřeno od začátku VP.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Soukromá, sdílená, čistá, špinavá</p></td>
+<!--	  <td><p>Text pages are flagged read-execute in memory and don't need to
+  be written to swap since they can be re-loaded from their original location
+  on disk. Data pages have read-write permissions, and if modified when in
+  memory, they are labeled <em>dirty</em>, and when designated for swapping,
+  must be paged out.</p></td>
+-->
+          <td><list><item><p><em>Soukromé</em> stránky jsou přístupné jen pro jeden proces</p></item>
+          <item><p><em>Sdílené</em> stránky jsou přístupné více než jednomu procesu</p></item>
+          <item><p><em>Čisté</em> stránky nebyly za dobu, co jsou v paměti, změněny a mohou být zahozeny, když jsou navrženy k odložení</p></item>
+          <item><p><em>Šipnavé</em> stránky byly za dobu, co jsou v paměti, změněny a musí být zapsány na disk, když jsou navrženy k odložení</p></item></list></td>
+  </tr>
+  <tr>
+	  <td><p>Zařízení</p></td>
+	  <td><p>Hlavní a vedlejší číslo zařízení, na kterém se nachází název souboru se sdílenou knihovnou. Obě čísla dohromady určují oddíl v systému.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Inode</p></td>
+	  <td><p>Inod na zařízení, ze kterého byla sdílená knihovna načtena do paměti. Inod je struktura souborového systému, která se používá k uchování souboru a číslo, která má přiřazené, je jedinečné.</p></td>
+  </tr>
+</table>
+
+</section>
+</page>

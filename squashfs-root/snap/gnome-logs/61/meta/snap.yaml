@@ -1,0 +1,49 @@
+name: gnome-logs
+version: 3.32.0-4-ge8f3f37ca8
+summary: A log viewer for the systemd journal
+description: |
+  Logs makes it easy to view and filter log messages and events.
+  Filter logs by category and importance to get the information you want. Use
+  the integrated search to get more relevant results.
+base: core18
+architectures:
+- amd64
+confinement: strict
+grade: stable
+plugs:
+  gnome-3-28-1804:
+    default-provider: gnome-3-28-1804
+    interface: content
+    target: $SNAP/gnome-platform
+  gtk-3-themes:
+    default-provider: gtk-common-themes
+    interface: content
+    target: $SNAP/data-dir/themes
+  icon-themes:
+    default-provider: gtk-common-themes
+    interface: content
+    target: $SNAP/data-dir/icons
+  sound-themes:
+    default-provider: gtk-common-themes
+    interface: content
+    target: $SNAP/data-dir/sounds
+slots:
+  gnome-logs:
+    bus: session
+    interface: dbus
+    name: org.gnome.Logs
+apps:
+  gnome-logs:
+    command: snap/command-chain/snapcraft-runner $SNAP/command-gnome-logs.wrapper
+    environment:
+      GSETTINGS_SCHEMA_DIR: $SNAP/share/glib-2.0/schemas
+      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/lib/gnome-logs
+    plugs:
+    - log-observe
+    - desktop
+    - desktop-legacy
+    - network
+    - home
+    - gsettings
+    - unity7
+    - wayland

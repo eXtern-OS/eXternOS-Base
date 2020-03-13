@@ -1,0 +1,23 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+install|upgrade)
+    # Remove compat symlinks for dhcp3-client which might have been
+    # created during upgrades.
+    if dpkg --compare-versions "$2" lt "0.6.28-3"; then
+        if [ -L /etc/dhcp3/dhclient-enter-hooks.d/avahi-autoipd ]; then
+            rm -f /etc/dhcp3/dhclient-enter-hooks.d/avahi-autoipd
+        fi
+        if [ -L /etc/dhcp3/dhclient-exit-hooks.d/zzz_avahi-autoipd ]; then
+            rm -f /etc/dhcp3/dhclient-exit-hooks.d/zzz_avahi-autoipd
+        fi
+    fi
+esac
+
+# Automatically added by dh_installdeb/11.1.6ubuntu1
+dpkg-maintscript-helper mv_conffile /etc/dhcp3/dhclient-enter-hooks.d/avahi-autoipd /etc/dhcp/dhclient-enter-hooks.d/avahi-autoipd 0.6.25-4\~ avahi-autoipd -- "$@"
+dpkg-maintscript-helper mv_conffile /etc/dhcp3/dhclient-exit-hooks.d/zzz_avahi-autoipd /etc/dhcp/dhclient-exit-hooks.d/zzz_avahi-autoipd 0.6.25-4\~ avahi-autoipd -- "$@"
+# End automatically added section
+

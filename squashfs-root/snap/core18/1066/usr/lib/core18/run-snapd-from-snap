@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# This script will try to find a suiteable snapd snap and start
+# snapd and its associated services from it.
+
+set -eux
+
+# run_on_unseeded will mount/run snapd on an unseeded system
+run_on_unseeded() {
+    SEED_SNAPD="$(find /var/lib/snapd/seed/snaps/ -name "snapd_*.snap")"
+    if [ ! -e "$SEED_SNAPD" ]; then
+        echo "Cannot find a seeded snapd"
+        ls /var/lib/snapd/seed/snaps
+        exit 1
+    fi
+
+    # mount snapd snap and run snapd directly, it will do
+    # the seeding and as part of this will restart snapd
+    # which will give it the right systemd unit.
+    TMPD=$(mktemp -d)
+    trap "umount $TMPD; rmdir $TMPD" EXIT
+    mount "$SEED_SNAPD" "$TMPD"
+
+    # snapd will write all its needed snapd.{service,socket}
+    # units and restart once it seeded the snapd snap. We create
+    # a systemd socket unit so that systemd own the socket, otherwise
+    # the socket file would be removed by snapd on exit and the snapd.seeded
+    # service will fail because it has nothing to talk to anymore.
+    systemd-run --unit=snapd-seeding --service-type=notify --socket-property ListenStream=/run/snapd.socket --socket-property ListenStream=/run/snapd-snap.socket "$TMPD"/usr/lib/snapd/snapd
+    # we need to start the snapd service from above explicitly, systemd-run
+    # only enables the socket but does not start the service.
+    systemctl start --wait snapd-seeding.service
+    # at this point the snapd.socket is available
+    systemctl stop snapd-seeding.socket
+
+    # At this point snap is available and seeding is at the point where
+    # were snapd to installed and restarted successfully. Show progress
+    # now. Even without showing progress we *must* wait here until
+    # seeding is done to ensure that console-conf is only started
+    # after this script has finished.
+    # (redirect stdin because that is what snap checks for pty)
+    /usr/bin/snap watch --last=seed < /dev/console | tee -a /dev/console
+}
+
+# Unseeded systems need to be seeded first, this will start snapd
+# and snapd will restart itself after the seeding.
+if [ ! -e /var/lib/snapd/state.json ]; then
+    if ! run_on_unseeded; then
+        echo "cannot run snapd from the seed"
+        exit 1
+    fi
+    exit 0
+fi
+

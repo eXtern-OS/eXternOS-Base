@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = configure ]; then
+    # If setcap is installed, try setting cap_net_raw+ep,
+    # which allows us to install our binaries without the setuid
+    # bit.
+    if command -v setcap > /dev/null; then
+        if ! setcap cap_net_raw+ep /usr/bin/mtr-packet; then
+            echo "Setcap failed on /usr/bin/mtr-packet, falling back to setuid" >&2
+            chmod u+s /usr/bin/mtr-packet
+        fi
+    else
+        echo "Setcap is not installed, falling back to setuid" >&2
+        chmod u+s /usr/bin/mtr-packet
+    fi
+fi
+
+
+
+exit 0

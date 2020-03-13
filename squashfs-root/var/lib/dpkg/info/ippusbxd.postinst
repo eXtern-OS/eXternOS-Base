@@ -1,0 +1,40 @@
+#!/bin/sh
+set -e
+# Automatically added by dh_apparmor/UNDECLARED
+aa_is_enabled() {
+   if command aa-enabled >/dev/null 2>&1; then
+      # apparmor >= 2.10.95-2
+      aa-enabled --quiet 2>/dev/null
+   else
+      # apparmor << 2.10.95-2
+      # (This should be removed once Debian Stretch and Ubuntu 18.04 are out.)
+      rc=0
+      aa-status --enabled 2>/dev/null || rc=$?
+      [ "$rc" = 0 ] || [ "$rc" = 2 ]
+   fi
+}
+
+if [ "$1" = "configure" ]; then
+    APP_PROFILE="/etc/apparmor.d/usr.sbin.ippusbxd"
+    if [ -f "$APP_PROFILE" ]; then
+        # Add the local/ include
+        LOCAL_APP_PROFILE="/etc/apparmor.d/local/usr.sbin.ippusbxd"
+
+        test -e "$LOCAL_APP_PROFILE" || {
+            tmp=`mktemp`
+        cat <<EOM > "$tmp"
+# Site-specific additions and overrides for usr.sbin.ippusbxd.
+# For more details, please see /etc/apparmor.d/local/README.
+EOM
+            mkdir `dirname "$LOCAL_APP_PROFILE"` 2>/dev/null || true
+            mv -f "$tmp" "$LOCAL_APP_PROFILE"
+            chmod 644 "$LOCAL_APP_PROFILE"
+        }
+
+        # Reload the profile, including any abstraction updates
+        if aa_is_enabled; then
+            apparmor_parser -r -T -W "$APP_PROFILE" || true
+        fi
+    fi
+fi
+# End automatically added section

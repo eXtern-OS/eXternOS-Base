@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+# Automatically added by dh_installsystemd/11.1.6ubuntu1
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# In case this system is running systemd, we need to ensure that all
+	# necessary tmpfiles (if any) are created before starting.
+	if [ -d /run/systemd/system ] ; then
+		systemd-tmpfiles --create /usr/lib/tmpfiles.d/gvfsd-fuse-tmpfiles.conf >/dev/null || true
+	fi
+fi
+# End automatically added section

@@ -1,0 +1,29 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "purge" ]; then
+	# Remove lease database
+	rm -f /var/lib/dhcp/dhclient*.leases
+	rm -f /var/lib/dhcp/dhclient*.lease
+
+	# Try to remove directory
+	if [ -d /var/lib/dhcp ]; then
+		rmdir --ignore-fail-on-non-empty /var/lib/dhcp/
+	fi
+
+	rmdir --ignore-fail-on-non-empty /etc/dhcp
+
+fi
+
+# Automatically added by dh_apparmor/2.12-4ubuntu5.1
+if [ "$1" = "purge" ] && ! [ -e "/etc/apparmor.d/sbin.dhclient" ] ; then
+    rm -f "/etc/apparmor.d/disable/sbin.dhclient" || true
+    rm -f "/etc/apparmor.d/force-complain/sbin.dhclient" || true
+    rm -f "/etc/apparmor.d/local/sbin.dhclient" || true
+    rmdir /etc/apparmor.d/disable 2>/dev/null || true
+    rmdir /etc/apparmor.d/local   2>/dev/null || true
+    rmdir /etc/apparmor.d         2>/dev/null || true
+fi
+# End automatically added section
+

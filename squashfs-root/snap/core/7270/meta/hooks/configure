@@ -1,0 +1,142 @@
+#!/bin/sh -e
+#
+# Copyright (C) 2017 Canonical Ltd
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# check if we have core support and exit cleanly if not
+if ! systemctl --version >/dev/null 2>&1; then
+    echo "Cannot run systemctl - is core-support available?"
+    exit 0
+fi
+
+# list of services we can disable and enable
+SERVICES="ssh rsyslog"
+
+switch_handle_power_key() {
+    dir="/etc/systemd/logind.conf.d"
+    path="$dir/00-snap-core.conf"
+
+    # Make sure the conf dir exists
+    if [ ! -d $dir ]; then
+        mkdir -p $dir
+    fi
+
+    case $1 in
+        ignore|poweroff|reboot|halt|kexec|suspend|hibernate|hybrid-sleep|lock)
+            cat <<EOF > $path
+[Login]
+HandlePowerKey=$1
+EOF
+            ;;
+        *)
+            echo "WARNING: invalid action '$1' supplied for system.power-key-action option"
+            exit 1
+            ;;
+    esac
+
+}
+
+switch_service() {
+	case "$1" in
+		false)
+			# When the unit is already enabled but not active a call with
+			# --now does start the unit so we have to check for that  case
+		        # and explicitly start the unit.
+                        if systemctl status "$2.service"|grep -q "Loaded: masked"; then
+                                systemctl unmask "$2.service"
+                        fi
+			if [ "$(systemctl is-enabled "$2.service")" = "disabled" ]; then
+				systemctl enable "$2.service"
+			fi
+			if [ "$(systemctl is-active "$2.service")" = "inactive" ]; then
+				systemctl start "$2.service"
+			fi
+			;;
+		true)
+			# A simple `systemctl disable --now ssh.service` doesn't work
+			# and fails with an error message. Because of that we're going
+			# in two steps here and disable first and then stopping the
+			# service unit.
+			systemctl disable "$2.service"
+                        # we need to mask the unit so that there is a symlink
+                        # with the service name in /etc/systemd/system. If
+                        # there is nothing the "writable-path" magic will
+                        # copy the "$2.service" symlink on boot because the
+                        # directory /etc/systemd/system is "synced"
+			systemctl mask "$2.service"
+			systemctl stop "$2.service"
+			;;
+		*)
+			echo "ERROR: Invalid value '$1' provided for option service.$2.disable"
+			exit 1
+	esac
+}
+
+update_pi_config_value() {
+    path="$1"
+    key="$2"
+    value="$3"
+
+    if [ -z "$value" ]; then
+        # empty - unset an option
+        if grep -q "^[ \t]*${key}=" "$path"; then
+            sed "/^[ \t#]*${key}=/ s/^#*/#/" "$path" > "${path}.tmp"
+            mv "${path}.tmp" "$path"
+        fi
+    else
+        if ! grep -q "^[ \t]*${key}=${value}$" "$path"; then
+            # non-empty - set an option
+            export key value
+            gawk --sandbox -v pat="^[ \t#]*$key=.*" -f - "$path" >"${path}.tmp" <<'EOF'
+$0 ~ pat {
+     gsub(pat, sprintf("%s=%s",ENVIRON["key"],ENVIRON["value"]))
+     ok=1
+}
+{
+    print
+}
+END {
+    if (!ok)
+        printf("%s=%s\n",ENVIRON["key"],ENVIRON["value"])
+}
+EOF
+            mv "${path}.tmp" "$path"
+        fi
+    fi
+}
+
+for service in $SERVICES; do
+    value=$(snapctl get service."$service".disable)
+    if [ -n "$value" ]; then
+        switch_service "$value" "$service"
+    fi
+done
+
+powerkey=$(snapctl get system.power-key-action)
+if [ -n "$powerkey" ]; then
+    switch_handle_power_key "$powerkey"
+fi
+
+PI_CONFIG_KEYS="disable_overscan framebuffer_width framebuffer_height
+ framebuffer_depth framebuffer_ignore_alpha overscan_left overscan_right
+ overscan_top overscan_bottom overscan_scale display_rotate hdmi_group
+ hdmi_mode hdmi_drive avoid_warnings gpu_mem_256 gpu_mem_512 gpu_mem
+ sdtv_aspect config_hdmi_boost hdmi_force_hotplug"
+PI_CONFIG="${TEST_UBOOT_CONFIG:-/boot/uboot/config.txt}"
+if [ -f "$PI_CONFIG" ]; then
+    for key in $PI_CONFIG_KEYS; do
+        value=$(snapctl get "pi-config.$(echo "$key"|tr _ -)")
+        update_pi_config_value "$PI_CONFIG" "$key" "$value"
+    done
+fi

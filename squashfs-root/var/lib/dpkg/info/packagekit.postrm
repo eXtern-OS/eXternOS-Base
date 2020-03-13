@@ -1,0 +1,26 @@
+#!/bin/sh
+# postrm script for packagekit
+set -e
+
+if [ "$1" = "purge" ]; then
+
+        if [ -x /etc/init.d/dbus ]; then
+                invoke-rc.d dbus force-reload || true
+        fi
+
+        # Remove PK transaction db and desktop cache
+        rm -rf /var/lib/PackageKit
+        rm -rf /var/cache/PackageKit
+
+fi
+
+# Automatically added by dh_installsystemd/11.1.6ubuntu2
+if [ -d /run/systemd/system ]; then
+	systemctl --system daemon-reload >/dev/null || true
+fi
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/PackageKit/events/post-transaction.d/README 1.0.1-1 -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/PackageKit/events/pre-transaction.d/README 1.0.1-1 -- "$@"
+# End automatically added section
+

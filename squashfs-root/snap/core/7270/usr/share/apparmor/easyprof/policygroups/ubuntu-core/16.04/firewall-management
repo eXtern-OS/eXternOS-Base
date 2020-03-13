@@ -1,0 +1,54 @@
+# Description: Can configure firewall. This is restricted because it gives
+# privileged access to networking and should only be used with trusted apps.
+# Usage: reserved
+
+#include <abstractions/nameservice>
+
+capability net_admin,
+
+/{,usr/}{,s}bin/iptables{,-save,-restore} ixr,
+/{,usr/}{,s}bin/ip6tables{,-save,-restore} ixr,
+/{,usr/}{,s}bin/iptables-apply ixr,
+/{,usr/}{,s}bin/xtables-multi ixr, # ip[6]tables*
+
+# ping - child profile would be nice but seccomp causes problems with that
+/{,usr/}{,s}bin/ping ixr,
+/{,usr/}{,s}bin/ping6 ixr,
+capability net_raw,
+capability setuid,
+network inet raw,
+network inet6 raw,
+
+# iptables (note, we don't want to allow loading modules, but
+# we can allow reading @{PROC}/sys/kernel/modprobe). Also,
+# snappy needs to have iptable_filter and ip6table_filter loaded,
+# they don't autoload.
+unix (bind) type=stream addr="@xtables",
+@{PROC}/sys/kernel/modprobe r,
+
+@{PROC}/@{pid}/net/ r,
+@{PROC}/@{pid}/net/** r,
+
+# sysctl
+/{,usr/}{,s}bin/sysctl ixr,
+@{PROC}/sys/ r,
+@{PROC}/sys/net/ r,
+@{PROC}/sys/net/core/ r,
+@{PROC}/sys/net/core/** r,
+@{PROC}/sys/net/ipv{4,6}/ r,
+@{PROC}/sys/net/ipv{4,6}/** r,
+@{PROC}/sys/net/netfilter/ r,
+@{PROC}/sys/net/netfilter/** r,
+@{PROC}/sys/net/nf_conntrack_max r,
+
+# various firewall related sysctl files
+@{PROC}/sys/net/ipv4/conf/*/rp_filter w,
+@{PROC}/sys/net/ipv{4,6}/conf/*/accept_source_route w,
+@{PROC}/sys/net/ipv{4,6}/conf/*/accept_redirects w,
+@{PROC}/sys/net/ipv4/icmp_echo_ignore_broadcasts w,
+@{PROC}/sys/net/ipv4/icmp_ignore_bogus_error_responses w,
+@{PROC}/sys/net/ipv4/icmp_echo_ignore_all w,
+@{PROC}/sys/net/ipv4/ip_forward w,
+@{PROC}/sys/net/ipv4/conf/*/log_martians w,
+@{PROC}/sys/net/ipv4/tcp_syncookies w,
+@{PROC}/sys/net/ipv6/conf/*/forwarding w,

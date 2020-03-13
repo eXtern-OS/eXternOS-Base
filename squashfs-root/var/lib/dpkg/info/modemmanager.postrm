@@ -1,0 +1,26 @@
+#!/bin/sh
+set -e
+
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/dbus-1/system.d/org.freedesktop.ModemManager.conf 1.0.0-3\~ modemmanager -- "$@"
+# End automatically added section
+# Automatically added by dh_systemd_start/11.1.6ubuntu2
+if [ -d /run/systemd/system ]; then
+	systemctl --system daemon-reload >/dev/null || true
+fi
+# End automatically added section
+# Automatically added by dh_systemd_enable/11.1.6ubuntu2
+if [ "$1" = "remove" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper mask 'ModemManager.service' >/dev/null || true
+	fi
+fi
+
+if [ "$1" = "purge" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper purge 'ModemManager.service' >/dev/null || true
+		deb-systemd-helper unmask 'ModemManager.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+

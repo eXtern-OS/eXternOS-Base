@@ -1,0 +1,28 @@
+#!/bin/sh
+
+set -e
+
+# Automatically added by dh_systemd_start/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	if [ -d /run/systemd/system ]; then
+		systemctl --system daemon-reload >/dev/null || true
+		if [ -n "$2" ]; then
+			_dh_action=restart
+		else
+			_dh_action=start
+		fi
+		deb-systemd-invoke $_dh_action 'flatpak-system-helper.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+
+
+if [ "$1" = configure ]; then
+    # Run a do-nothing command (it just lists configured remotes) for
+    # its side-effect of initializing the shared system-wide repository.
+    flatpak remote-list --system >/dev/null || :
+fi
+
+exit 0
+
+# vim:set sw=4 sts=4 et:

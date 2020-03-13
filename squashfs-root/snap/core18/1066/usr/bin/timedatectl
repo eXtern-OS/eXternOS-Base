@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# wrapper to make sure timedatectl works with the
+# writable-paths setup on ubuntu core (making the symlink
+# absolute instead of using a relative path)
+# LP: #1650688 for details
+
+set -e
+
+TIMEDATECTL=/usr/bin/timedatectl.real
+
+case $1 in
+    set-timezone)
+        $TIMEDATECTL set-timezone $2
+        # do special handling on core devices (there /etc/localtime
+        # is a symlink to /etc/writable/localtime)
+        if [ -L /etc/writable/localtime ]; then
+            # make a .tmp link and mv it to have "kind of" atomic
+            # writing here in case of a power loss midway through
+            ln -s /usr/share/zoneinfo/$2 /etc/writable/localtime.tmp
+            mv /etc/writable/localtime.tmp /etc/writable/localtime
+        fi
+        ;;
+    *)
+        $TIMEDATECTL $@
+        ;;
+esac

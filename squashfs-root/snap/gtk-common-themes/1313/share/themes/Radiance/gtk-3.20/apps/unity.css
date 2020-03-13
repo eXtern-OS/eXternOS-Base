@@ -1,0 +1,99 @@
+/* Decorations */
+
+UnityDecoration {
+    -UnityDecoration-extents: 28px 0 0 0;
+    -UnityDecoration-input-extents: 10px;
+
+    -UnityDecoration-shadow-offset-x: 1px;
+    -UnityDecoration-shadow-offset-y: 5px;
+    -UnityDecoration-active-shadow-color: alpha (@active_shadow_color, 0.78);
+    -UnityDecoration-active-shadow-radius: 30px;
+    -UnityDecoration-inactive-shadow-color: @inactive_shadow_color;
+    -UnityDecoration-inactive-shadow-radius: 25px;
+
+    -UnityDecoration-glow-size: 10px;
+    -UnityDecoration-glow-color: rgb (221, 72, 20);
+
+    -UnityDecoration-title-indent: 10px;
+    -UnityDecoration-title-fade: 35px;
+    -UnityDecoration-title-alignment: 0.0;
+}
+
+/* Definitions of UnityDecoration .top (and :backdrop) are now shared with
+ * Gtk .titlebar (and :backdrop); .left and .right are not used by this theme */
+
+UnityDecoration .left,
+UnityDecoration .right {
+    background-color: shade (@bg_color, 0.7);
+    background-size: 1px 70px;
+    background-repeat: repeat-x;
+
+    /* start color: mix of the top border color and bg-image gradient end */
+    background-image: -gtk-gradient (linear, left top, left bottom,
+                                     color-stop (0, #a89686),
+                                     color-stop (0.5, #a89686),
+                                     color-stop (1, shade (@bg_color, 0.7)));
+}
+
+UnityDecoration .left:backdrop,
+UnityDecoration .right:backdrop {
+    /* start color: mix of the top border color and bg-image gradient end */
+    background-image: -gtk-gradient (linear, left top, left bottom,
+                                     color-stop (0, #b5a395),
+                                     color-stop (0.5, #b5a395),
+                                     color-stop (1, shade (@bg_color, 0.7)));
+}
+
+UnityDecoration .bottom {
+    background-image: none;
+    background-color: shade (@bg_color, 0.7);
+}
+
+/* Panel Style */
+
+UnityPanelWidget,
+.unity-panel {
+    background-image: -gtk-gradient (linear, left top, left bottom,
+                                     from (shade (#edebe6, 1.06)),
+                                     to (@dark_bg_color));
+    border-top-color: shade (#edebe6, 1.08);
+    border-style: solid;
+    border-width: 1px 0 0 0;
+
+    color: shade (@dark_bg_color, 0.4);
+    text-shadow: 1px 0 shade (@dark_bg_color, 1.06), -1px 0 shade (@dark_bg_color, 1.06),
+                 0 1px shade (@dark_bg_color, 1.06), 0 -1px shade (@dark_bg_color, 1.06);
+}
+
+UnityPanelWidget:backdrop,
+.unity-panel:backdrop {
+    color: #a39e9a;
+}
+
+.unity-panel.menubar,
+.unity-panel .menubar {
+}
+
+.unity-panel.menuitem,
+.unity-panel .menuitem {
+    border-width: 1px 1px 0 1px;
+    -gtk-icon-shadow: 0 -1px shade (@dark_bg_color, 1.06);
+}
+
+.unity-panel.menubar.menuitem:hover,
+.unity-panel.menubar .menuitem *:hover {
+    background-image: -gtk-gradient (linear, left top, left bottom,
+                                     from (shade (@dark_bg_color, 1.5)),
+                                     to (shade (@dark_bg_color, 1.02)));
+}
+
+
+@keyframes playbackmenuitem_spinner {
+    to { -gtk-icon-transform: rotate(1turn); }
+}
+
+.menu IdoPlaybackMenuItem.menuitem:active {
+    -gtk-icon-source: -gtk-icontheme("process-working-symbolic");
+    animation: playbackmenuitem_spinner 1s infinite linear;
+    color: @selected_bg_color;
+}

@@ -1,0 +1,34 @@
+#!/bin/sh
+set -e
+
+run_vlc_cache_gen() {
+    if ! test -d /usr/lib/x86_64-linux-gnu/vlc/plugins
+    then
+        return
+    fi
+    files=`find /usr/lib/x86_64-linux-gnu/vlc/plugins -name '*.so' -type f -print -quit`
+    if test -n "$files"
+    then
+        # run vlc-cache-gen since there are plugins
+        if ! /usr/lib/x86_64-linux-gnu/vlc/vlc-cache-gen /usr/lib/x86_64-linux-gnu/vlc/plugins
+        then
+            echo "WARNING: Regenerating VLC plugin cache failed."
+            echo "Please run '/usr/lib/x86_64-linux-gnu/vlc/vlc-cache-gen /usr/lib/x86_64-linux-gnu/vlc/plugins' manually."
+        fi
+    else
+        # no plugins, so remove plugins.dat
+        rm -f /usr/lib/x86_64-linux-gnu/vlc/plugins/plugins.dat
+    fi
+}
+
+case "$1" in
+    triggered)
+        run_vlc_cache_gen
+        exit 0
+        ;;
+    configure)
+        dpkg-trigger /usr/lib/x86_64-linux-gnu/vlc/plugins
+        ;;
+esac
+
+

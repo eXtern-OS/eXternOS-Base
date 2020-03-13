@@ -1,0 +1,20 @@
+#!/bin/sh
+set -e
+
+. /usr/share/debconf/confmodule
+
+if [ "$1" = configure ]; then
+    db_get shared/memtest86-run-lilo
+    if [ "$RET" = true ] &&
+	[ -x /sbin/lilo ] && [ -r /etc/lilo.conf ] &&
+	grep "image.*=.*/boot/memtest86+.bin" /etc/lilo.conf >/dev/null
+    then
+	lilo
+    fi
+
+    if [ -e /boot/grub/grub.cfg ] && type update-grub >/dev/null 2>&1 && ! systemd-detect-virt --quiet --container; then
+	update-grub
+    fi
+fi
+
+

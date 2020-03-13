@@ -1,0 +1,34 @@
+#! /bin/sh
+# preinst for whoopsie
+
+set -e
+
+WHOOPSIE_DEFAULT_FILE=/etc/default/whoopsie
+
+if [ "$1" = upgrade ]; then
+
+	# transition for conffile removing
+	if [ -f $WHOOPSIE_DEFAULT_FILE ]; then
+		# transition upstart or systemd job enablement
+		if grep -sqi "report_crashes[[:space:]]*=[[:space:]]*false" $WHOOPSIE_DEFAULT_FILE; then
+			touch ${WHOOPSIE_DEFAULT_FILE}.disable
+		fi
+		# transition metrics reporting
+		if grep -sqi "report_metrics[[:space:]]*=[[:space:]]*true" $WHOOPSIE_DEFAULT_FILE; then
+			cat >/etc/whoopsie << EOF
+[General]
+report_metrics=true
+EOF
+		fi
+	fi
+fi
+
+# Automatically added by dh_installdeb/11.1.6ubuntu1
+dpkg-maintscript-helper rm_conffile /etc/cron.daily/whoopsie 0.1.25 -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu1
+dpkg-maintscript-helper rm_conffile /etc/default/whoopsie 0.2.47 -- "$@"
+# End automatically added section
+
+
+exit 0

@@ -1,0 +1,22 @@
+#!/bin/sh
+# postinst script for packagekit
+set -e
+
+if [ -x /etc/init.d/dbus ]; then
+	invoke-rc.d dbus force-reload || true
+fi
+
+if [ -x /usr/bin/dbus-send ]; then
+	dbus-send --system --dest=org.freedesktop.PackageKit \
+	                   --type=method_call \
+			   /org/freedesktop/PackageKit \
+			   org.freedesktop.PackageKit.SuggestDaemonQuit || true
+fi
+
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/PackageKit/events/post-transaction.d/README 1.0.1-1 -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/PackageKit/events/pre-transaction.d/README 1.0.1-1 -- "$@"
+# End automatically added section
+
+
+exit 0

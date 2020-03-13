@@ -1,0 +1,115 @@
+# --------------------------------------------------------------------
+# 1st column: Mount point
+# 2nd column: Path relative to root of persistent storage (or auto)
+# 3rd column: type => persistent|synced|temporary
+# 4th column: action => none|transition (transition requires persistent)
+# 5th column: mount flags
+#
+# See writable-paths(5) for full details.
+# --------------------------------------------------------------------
+
+/home                                   user-data               persistent  transition  none
+/snap                                   auto                    persistent  none  none
+/tmp                                    none                    temporary   none        defaults
+/mnt                                    none                    temporary   none        defaults
+/media                                  none                    temporary   none        defaults
+/var/crash                              auto                    persistent  none        none
+/var/lib/AccountsService/users          auto                    persistent  none        none
+# snap data
+/var/snap                              auto                    persistent  transition  none
+/var/lib/bluetooth                      auto                    persistent  none        none
+# cloud-init
+/etc/cloud                              auto                    synced  none        none
+/var/lib/cloud                          auto                    persistent  none        none
+/var/lib/colord                         auto                    persistent  transition  none
+/var/lib/dbus                           auto                    persistent  none        none
+/var/lib/dhcp                           auto                    persistent  none        none
+/var/lib/logrotate                      auto                    persistent  none        none
+/var/lib/sudo                           auto                    temporary   none        defaults,mode=0700
+/var/lib/system-image                   auto                    persistent  none        none
+/var/lib/upower                         auto                    persistent  none        none
+/var/lib/lightdm                        auto                    persistent  none        none
+/var/lib/lightdm-data                   auto                    persistent  none        none
+/var/log                                auto                    persistent  transition  none
+/var/lib/NetworkManager                 auto                    temporary   none        defaults
+/var/lib/usermetrics                    auto                    persistent  none        none
+/var/lib/ubuntu-location-service        auto                    persistent  none        none
+# for various clouds like GCE
+/etc/sysctl.d                           auto                    persistent  transition  none
+/etc/default/keyboard                   auto                    persistent  transition  none
+# apparmor cache is not pregenerated in the image builds
+/etc/apparmor.d/cache                   auto                    persistent  none        none
+# needed by apparmor - use transition since some core apps are
+# pre-installed on the image
+/var/cache/apparmor                     auto                    persistent  transition  none
+/var/lib/apparmor                       auto                    persistent  transition  none
+/var/lib/whoopsie                       auto                    persistent  transition  none
+# required by update-initramfs
+/var/tmp                                auto                    persistent  transition  none
+# ssh
+/etc/ssh                                auto                    persistent  transition  none
+/etc/init                               auto                    persistent  transition  none
+# used for various writable files (timezone, localtime, ...)
+/etc/writable                           auto                    synced      none        none
+# ureadahead
+/var/lib/ureadahead                     auto                    persistent  transition  none
+# required by update-initramfs
+/var/lib/initramfs-tools                auto                    persistent  transition  none
+# systemd
+/etc/systemd/system                     auto                    synced      none        none
+# needed for usb tethering
+/var/lib/misc                           auto                    persistent  transition  none
+# walinuxagent
+/var/lib/waagent                        auto                    persistent  transition  none
+# ssh keys
+/root                                   auto                    persistent  transition  none
+# passwordless sudo
+/etc/sudoers.d                          auto                    persistent  transition  none
+/etc/hosts                              auto                    persistent  transition  none
+/var/lib/extrausers                     auto                    persistent  transition  none
+/etc/network/interfaces.d               auto                    persistent  transition  none
+# needed to persist ntp enabled/disabled
+/etc/network/if-up.d                    auto                    persistent  transition  none
+/etc/NetworkManager/system-connections  auto                    persistent  none        none
+# snappy security policy, etc
+/var/lib/snapd                         auto                     synced      none        none
+# udev
+/etc/udev/rules.d                       auto                    persistent  transition  none
+# random seed
+/var/lib/systemd/random-seed            auto                    persistent  transition  none
+# rfkill dir
+/var/lib/systemd/rfkill                 auto                    persistent  transition  none
+# dbus bus policy
+/etc/dbus-1/system.d                    auto                    persistent  transition  none
+/etc/modprobe.d                         auto                    synced      none        none
+/etc/ppp                                auto                    persistent  transition  none
+/var/lib/tpm                            auto                    persistent  transition  none
+/var/lib/opencryptoki                   auto                    persistent  transition  none
+/etc/modules-load.d                     auto                    persistent  transition  none
+# LP: 1562784
+/etc/systemd/network                    auto                    persistent  transition  none
+# netplan dirs
+/etc/netplan                            auto                    persistent  transition  none
+/var/lib/console-conf                   auto                    persistent  transition  none
+/etc/systemd/system.conf.d              auto                    persistent  transition  none
+/etc/systemd/user.conf.d                auto                    persistent  transition  none
+/etc/systemd/logind.conf.d              auto                    persistent  transition  none
+/etc/iproute2                           auto                    persistent  transition  none
+/etc/rc0.d                              auto                    persistent  transition  none
+/etc/rc1.d                              auto                    persistent  transition  none
+/etc/rc2.d                              auto                    persistent  transition  none
+/etc/rc3.d                              auto                    persistent  transition  none
+/etc/rc4.d                              auto                    persistent  transition  none
+/etc/rc5.d                              auto                    persistent  transition  none
+/etc/rc6.d                              auto                    persistent  transition  none
+/etc/rcS.d                              auto                    persistent  transition  none
+/etc/init.d                             auto                    persistent  transition  none
+/etc/rsyslog.d                          auto                    persistent  transition  none
+/etc/systemd/timesyncd.conf             auto                    persistent  transition  none
+/etc/default/swapfile                   auto                    persistent  transition  none
+# allow system wide proxy setting
+/etc/environment                        auto                    persistent  transition  none
+# https://github.com/snapcore/snapd/pull/3866
+/var/cache/snapd                         auto                   synced      none        none
+# make update-motd writable for branding purposes
+/etc/update-motd.d                      auto                    persistent  transition  none

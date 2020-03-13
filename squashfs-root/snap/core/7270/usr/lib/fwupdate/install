@@ -1,0 +1,48 @@
+#!/bin/sh
+
+DISTRIBUTOR=ubuntu
+
+efi_vars_dir=/sys/firmware/efi/vars
+EFI_GLOBAL_VARIABLE=8be4df61-93ca-11d2-aa0d-00e098032b8c
+SB="$efi_vars_dir/SecureBoot-$EFI_GLOBAL_VARIABLE/data"
+
+#if we have SB enabled, don't bother to install the unsigned file
+if [ -e "$SB" ] && \
+   [ "$(( $(printf 0x%x \'"$(cat $SB | cut -b1)") & 1 ))" = 1 ]; then
+   SECURE_BOOT="1"
+fi
+
+if [ ! -d "$efi_vars_dir" ]; then
+  echo "System not running in EFI mode, not installing to EFI system partition."
+  exit 0
+fi
+
+for BINARY in $(find /usr/lib/fwupdate -name '*.efi' -printf "%f\n"); do
+  ESP="/boot/efi/EFI/$DISTRIBUTOR"
+  ESP_FILE="$ESP/$BINARY"
+  SIGNED_FILE="/usr/lib/fwupdate/$BINARY.signed"
+  UNSIGNED_FILE="/usr/lib/fwupdate/$BINARY"
+
+  if [ -f "$ESP_FILE" ]; then
+    ESP_MD5=$(md5sum $ESP_FILE | sed 's, .*,,')
+  fi
+
+  if [ -f "$SIGNED_FILE" ]; then
+    COMPARE=$SIGNED_FILE
+  elif [ -z "$SECURE_BOOT" ]; then
+    COMPARE=$UNSIGNED_FILE
+  fi
+
+  mkdir -p $ESP/fw
+
+  if [ -n "$COMPARE" ]; then
+  	COMPARE_MD5=$(md5sum $COMPARE | sed 's, .*,,')
+  	if [ "$COMPARE_MD5" != "$ESP_MD5" ]; then
+          rm -f $ESP_FILE
+          echo "Installing $BINARY to EFI system partition."
+          cp $COMPARE $ESP_FILE
+  	fi
+  else
+    echo "Signed binary for $BINARY is not available, not installing binary to EFI system partition."
+  fi
+done

@@ -1,0 +1,30 @@
+#! /bin/sh
+set -e
+
+TARGET=/usr/share/icons/default/index.theme
+ICONDIR=/etc/X11/cursors
+
+# breeze_cursors with 102 (DMZ+2) priority
+update-alternatives --install $TARGET x-cursor-theme \
+    $ICONDIR/breeze_cursors.theme 102
+
+# Breeze_Snow with 41 (Oxygen+1) priority
+update-alternatives --install $TARGET x-cursor-theme \
+    $ICONDIR/Breeze_Snow.theme 41
+
+case "$1" in
+    configure)
+        # On upgrade from a version that was badly managing the
+        # x-cursor-theme, remove the old ones from the alternatives.
+        version="$2"
+        if [ -n "$version" ] && \
+                dpkg --compare-versions "$version" lt "4:5.4.1-2~"; then
+            update-alternatives --remove x-cursor-theme \
+                /usr/share/icons/Breeze_Snow/index.theme    || true
+            update-alternatives --remove x-cursor-theme \
+                /usr/share/icons/breeze_cursors/index.theme || true
+        fi
+        ;;
+esac
+
+

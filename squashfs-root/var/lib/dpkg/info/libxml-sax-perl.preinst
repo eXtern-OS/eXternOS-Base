@@ -1,0 +1,34 @@
+#!/bin/sh
+## ----------------------------------------------------------------------
+## debian/preinst : preinstallation script for libxml-sax-perl
+## ----------------------------------------------------------------------
+
+## ----------------------------------------------------------------------
+set -e
+
+if [ "$1" = "upgrade" ] && dpkg --compare-versions "$2" le 0.16.0.1
+then
+    # find out the md5sum of an unmodified ParserDetails.ini
+
+    [ -d /var/lib/libxml-sax-perl ] || mkdir --parents /var/lib/libxml-sax-perl
+    update-perl-sax-parsers --quiet --update --file - | md5sum - \
+        > /var/lib/libxml-sax-perl/ParserDetails.ini.md5sum
+fi
+
+if [ "$1" = "install" ] && [ -n "$2" ] && \
+   dpkg --compare-versions "$2" le 0.16.0.1
+then
+    # upgrading from a removed but nonpurged state
+    # an unmodified ParserDetails.ini is an empty file
+    # we don't have update-perl-sax-parsers available yet
+    [ -d /var/lib/libxml-sax-perl ] || mkdir --parents /var/lib/libxml-sax-perl
+    md5sum - < /dev/null > /var/lib/libxml-sax-perl/ParserDetails.ini.md5sum
+fi
+
+## ---------------------------------------------------------------------- 
+## automatically generated debhelper commands
+
+
+exit 0
+
+## ----------------------------------------------------------------------

@@ -1,0 +1,22 @@
+#!/bin/sh -e
+# postrm for rsync
+
+if [ "$1" = "purge" ] ; then
+    update-rc.d rsync remove >/dev/null
+fi
+
+## from /usr/share/debhelper/autoscripts/postrm-systemd :
+
+if [ "$1" = "remove" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper mask rsync.service >/dev/null
+	fi
+fi
+
+if [ "$1" = "purge" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper purge rsync.service >/dev/null
+		deb-systemd-helper unmask rsync.service >/dev/null
+	fi
+fi
+exit 0

@@ -1,0 +1,60 @@
+name: gnome-calculator
+version: 3.32.1
+summary: GNOME Calculator
+description: |
+  GNOME Calculator is an application that solves mathematical equations.
+  Though it at first appears to be a simple calculator with only basic
+  arithmetic operations, you can switch into Advanced, Financial, or
+  Programming mode to find a surprising set of capabilities.
+
+  The Advanced calculator supports many operations, including:
+  logarithms, factorials, trigonometric and hyperbolic functions,
+  modulus division, complex numbers, random number generation, prime
+  factorization and unit conversions.
+
+  Financial mode supports several computations, including periodic interest
+  rate, present and future value, double declining and straight line
+  depreciation, and many others.
+
+  Programming mode supports conversion between common bases (binary, octal,
+  decimal, and hexadecimal), boolean algebra, one’s and two’s complementation,
+  character to character code conversion, and more.
+base: core18
+architectures:
+- amd64
+confinement: strict
+grade: stable
+plugs:
+  gnome-3-28-1804:
+    default-provider: gnome-3-28-1804
+    interface: content
+    target: $SNAP/gnome-platform
+  gtk-3-themes:
+    default-provider: gtk-common-themes
+    interface: content
+    target: $SNAP/data-dir/themes
+  icon-themes:
+    default-provider: gtk-common-themes
+    interface: content
+    target: $SNAP/data-dir/icons
+  sound-themes:
+    default-provider: gtk-common-themes
+    interface: content
+    target: $SNAP/data-dir/sounds
+slots:
+  gnome-calculator:
+    bus: session
+    interface: dbus
+    name: org.gnome.Calculator
+apps:
+  gnome-calculator:
+    command: snap/command-chain/snapcraft-runner $SNAP/command-gnome-calculator.wrapper
+    environment:
+      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/lib/gnome-calculator
+    plugs:
+    - desktop
+    - desktop-legacy
+    - gsettings
+    - network
+    - unity7
+    - wayland

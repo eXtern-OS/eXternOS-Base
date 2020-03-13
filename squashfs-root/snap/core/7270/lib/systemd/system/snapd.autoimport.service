@@ -1,0 +1,14 @@
+[Unit]
+Description=Auto import assertions from block devices
+After=snapd.service snapd.socket snapd.seeded.service
+# don't run on classic
+ConditionKernelCommandLine=snap_core
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/snap auto-import
+
+[Install]
+WantedBy=multi-user.target
+# This cannot be started on firstboot
+# X-Snapd-Snap: do-not-start

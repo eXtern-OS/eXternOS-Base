@@ -1,0 +1,55 @@
+name: gnome-system-monitor
+version: 3.32.1-3-g0ea89b4922
+summary: System Monitor
+description: |
+  GNOME System Monitor is a GNOME process viewer and system monitor with
+  an attractive, easy-to-use interface, It has features, such as a tree
+  view for process dependencies, icons for processes, the ability to hide
+  processes that you don't want to see, graphical time histories of
+  CPU/memory/swap usage, the ability to kill/renice processes needing root
+  access, as well as the standard features that you might expect from a
+  process viewer.
+base: core18
+architectures:
+- amd64
+confinement: strict
+grade: stable
+plugs:
+  gnome-3-28-1804:
+    default-provider: gnome-3-28-1804
+    interface: content
+    target: $SNAP/gnome-platform
+  gtk-3-themes:
+    default-provider: gtk-common-themes
+    interface: content
+    target: $SNAP/data-dir/themes
+  icon-themes:
+    default-provider: gtk-common-themes
+    interface: content
+    target: $SNAP/data-dir/icons
+  sound-themes:
+    default-provider: gtk-common-themes
+    interface: content
+    target: $SNAP/data-dir/sounds
+slots:
+  gnome-system-monitor:
+    bus: session
+    interface: dbus
+    name: org.gnome.SystemMonitor
+apps:
+  gnome-system-monitor:
+    command: snap/command-chain/snapcraft-runner $SNAP/command-gnome-system-monitor.wrapper
+    environment:
+      GSETTINGS_SCHEMA_DIR: $SNAP/share/glib-2.0/schemas
+      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/lib/gnome-system-monitor
+    plugs:
+    - desktop
+    - desktop-legacy
+    - gsettings
+    - unity7
+    - mount-observe
+    - network-observe
+    - hardware-observe
+    - system-observe
+    - process-control
+    - wayland

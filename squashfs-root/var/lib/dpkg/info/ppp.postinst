@@ -1,0 +1,86 @@
+#!/bin/sh
+set -e
+
+everything() {
+
+# install /etc/ppp/pap-secrets and /etc/ppp/chap-secrets from templates,
+# if necessary
+for file in pap-secrets chap-secrets; do
+  if [ -f /etc/ppp/$file ]; then
+    TAG=$(head --lines=1 /etc/ppp/$file)
+    if [ "$TAG" = "#GENERATED-BY-DEBIAN-INSTALLER#" ]; then
+      (sed -e "s/-HOSTNAME-/$HOST/g" /usr/share/ppp/$file; \
+        cat /etc/ppp/$file) > /etc/ppp/$file.tmp
+      mv /etc/ppp/$file.tmp /etc/ppp/$file
+    fi
+  else
+    sed -e "s/-HOSTNAME-/$HOST/g" < /usr/share/ppp/$file > /etc/ppp/$file
+  fi
+  chmod 600 /etc/ppp/$file
+done
+
+# install template provider files
+if [ ! -f /etc/ppp/peers/provider ]; then
+  install -g dip -m 640 /usr/share/ppp/provider.peer \
+			/etc/ppp/peers/provider
+fi
+if [ ! -f /etc/chatscripts/provider ]; then
+  install -g dip -m 640 /usr/share/ppp/provider.chatscript \
+			/etc/chatscripts/provider
+fi
+
+# fix the log files permissions
+LOG_FILES="/var/log/ppp.log /var/log/ppp-connect-errors"
+for file in $LOG_FILES; do
+  [ -e $file ] || continue
+  chown root:adm $file
+  chmod 640 $file
+done
+
+}
+
+case "$1" in
+    configure)
+	everything
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+    echo "postinst called with unknown argument '$1'" >&2
+    exit 1
+    ;;
+esac
+
+# Automatically added by dh_installdeb/11.1.6ubuntu1
+dpkg-maintscript-helper rm_conffile /etc/bash_completion.d/pon 2.4.7-1\+2\~ -- "$@"
+# End automatically added section
+# Automatically added by dh_installinit/11.1.6ubuntu1
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	if [ -x "/etc/init.d/pppd-dns" ]; then
+		update-rc.d pppd-dns defaults >/dev/null || exit 1
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_installsystemd/11.1.6ubuntu1
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# This will only remove masks created by d-s-h on package removal.
+	deb-systemd-helper unmask 'pppd-dns.service' >/dev/null || true
+
+	# was-enabled defaults to true, so new installations run enable.
+	if deb-systemd-helper --quiet was-enabled 'pppd-dns.service'; then
+		# Enables the unit on first installation, creates new
+		# symlinks on upgrades if the unit file has changed.
+		deb-systemd-helper enable 'pppd-dns.service' >/dev/null || true
+	else
+		# Update the statefile to add new symlinks (if any), which need to be
+		# cleaned up on purge. Also remove old symlinks.
+		deb-systemd-helper update-state 'pppd-dns.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+
+
+exit 0
+

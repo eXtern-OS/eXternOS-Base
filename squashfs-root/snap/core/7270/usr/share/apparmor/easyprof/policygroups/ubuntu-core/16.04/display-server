@@ -1,0 +1,66 @@
+# Description: Can access the system as a display server. This is restricted
+# because it gives access to the graphics and input systems.
+# Usage: reserved
+
+# Currently this is mir-specific. When have an X or wayland server, update
+# accordingly.
+
+# This shouldn't be needed, but is harmless
+/usr/share/applications/ r,
+
+# This is arguably via capabilities assignment...
+# TODO: is this required?
+/dev/tty* rw,
+
+# This allows interacting with graphics hardware and therefore must be
+# reserved.
+capability sys_admin,
+/dev/dri/** rw,
+/sys/class/drm/ r,
+/sys/class/drm/** r,
+/sys/devices/**/drm/ r,
+/sys/devices/**/drm/** r,
+
+# This is arguably via capabilities assignment...
+# This allows snooping input events and therefore must be reserved.
+/dev/input/* rw,
+/sys/class/input/ r,
+/sys/class/input/** r,
+/sys/devices/**/input/ r,
+/sys/devices/**/input/** r,
+
+# Socket to talk on
+/run/mir_socket rw,
+
+# TODO: investigate. tvoss claims it shouldn't be needed
+# This allows access to all anonymous seqpacket addresses which breaks
+# application isolation (therefore only privileged apps may use this cap)
+unix (receive, send) type=seqpacket addr=none,
+
+# For non-opengl apps
+/dev/shm/\#* rw,
+
+# udev
+# FIXME: these are way too loose
+/sys/devices/**/ r,
+/run/udev/data/* r,
+/sys/devices/**/uevent rw,
+
+# FIXME: can this be fine-tuned at all?
+capability sys_ptrace,
+ptrace peer=**,
+
+# TODO: investigate (what is this chowning to?)
+capability chown,
+capability fowner,
+
+# TODO: investigate. These are usually the result of wrong directory
+# permissions
+capability dac_override,
+capability dac_read_search,
+
+# TODO: investigate
+capability sys_tty_config,
+
+# TODO: investigate
+network netlink raw,

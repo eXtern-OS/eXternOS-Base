@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<page xmlns="http://projectmallard.org/1.0/" xmlns:ui="http://projectmallard.org/ui/1.0/" type="topic" style="task" id="memory-map-use" xml:lang="sv">
+
+  <info>
+    <revision pkgversion="3.11" date="2014-01-28" status="candidate"/>
+    <link type="guide" xref="index#memory" group="memory"/>
+
+    <include xmlns="http://www.w3.org/2001/XInclude" href="legal.xml"/>
+
+    <credit type="author copyright">
+      <name>Phil Bull</name>
+      <email>philbull@gmail.com</email>
+      <years>2011</years>
+    </credit>
+
+    <credit type="author copyright">
+      <name>Michael Hill</name>
+      <email>mdhillca@gmail.com</email>
+      <years>2011, 2014</years>
+    </credit>
+
+    <desc>Visa minneskartan av en process.</desc>
+  
+    <mal:credit xmlns:mal="http://projectmallard.org/1.0/" type="translator copyright">
+      <mal:name>Isak Östlund</mal:name>
+      <mal:email>translate@catnip.nu</mal:email>
+      <mal:years>2017</mal:years>
+    </mal:credit>
+  </info>
+
+  <title>Att använda minneskartor</title>
+
+  <p><gui>Virtuellt minne</gui> är en representation av det <gui>fysiska minnet</gui> tillsammans med <link xref="mem-swap">växlingsutrymmet</link> i ett system. Det ger processer som körs tillgång till <em>mer</em> än den tillgängliga mängden fysiskt minne genom <gui>mappning</gui> av platser i det fysiska minnet till filer på disk. När systemet behöver fler minnessidor än vad som är tillgängligt så kommer några sidor att <em>växlas ut</em> eller skrivas till växlingsutrymmet.</p>
+
+  <p><gui>Minneskartan</gui> visar den totala mängd minne som används av processen, och kan användas för att fastställa minnesförbrukningen av att köra en eller flera instanser av programmet, för att säkerställa användningen av korrekt delade bibliotek, för att se resultaten av justeringen på diverse prestandarelaterade parametrar som programmet kan ha, eller för att diagnostisera problem som minnesläckor.</p>
+
+  <p>För att visa <link xref="memory-map-what">minneskartan</link> av en process:</p>
+
+  <steps>
+    <item><p>Klicka på fliken <gui>Processer</gui>.</p></item>
+    <item><p>Högerklicka på önskad process i <gui>processlistan</gui>.</p></item>
+    <item><p>Klicka på <gui>Minneskartor</gui>.</p></item>
+  </steps>
+
+<section id="read">
+  <title>Att läsa minneskartan</title>
+
+  <list>
+    <item>
+      <p>Adresser visas hexadecimalt (bas 16).</p>
+    </item>
+    <item>
+      <p>Storlekar visas i <link xref="units">binära prefix enligt IEC</link>.</p>
+    </item>
+    <item>
+      <p>Under körning kan processen dynamiskt allokera mer minne till ett område som kallas <em>heap</em>, samt lagra argument och variabler i ett annat område kallat <em>stack</em>.</p>
+    </item>
+    <item>
+      <p>Själva programmet och varje delat bibliotek har tre poster vardera. En för textsegmentet läsa-köra, en för datasegmentet läsa-skriva, och en för skrivskyddade datasegment. Båda datasegmenten behöver växlas ut vid växlingstillfället.</p>
+    </item>
+  </list>
+
+<table shade="rows" ui:expanded="false">
+<title>Egenskaper</title>
+  <tr>
+	  <td><p>Filnamn</p></td>
+	  <td><p>Platsen för ett delat bibliotek som för tillfället används av processen. Ifall detta fält är tomt så beskriver minnesinformationen i den här raden det minne som ägs av processen vars namn visas ovanför tabellen för minneskarta.</p></td>
+  </tr>
+  <tr>
+	  <td><p>VM-start</p></td>
+	  <td><p>Adressen där minnessegmentet börjar. VM-start, VM-slut, och VM-avstånd anger tillsammans platsen på disken dit det delade biblioteket har mappats.</p></td>
+  </tr>
+  <tr>
+	  <td><p>VM-slut</p></td>
+	  <td><p>Adressen där minnessegmentet slutar.</p></td>
+  </tr>
+  <tr>
+	  <td><p>VM-storlek</p></td>
+	  <td><p>Storleken på minnessegmentet.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Flaggor</p></td>
+	  <td><p>Följande flaggor beskriver de olika typer av åtkomster till minnessegment som en process kan ha:</p>
+    <terms>
+      <item>
+        <title><gui>p</gui></title>
+        <p>Minnessegmentet är privat för processen och är inte tillgängligt för andra processer.</p>
+      </item>
+      <item>
+        <title><gui>r</gui></title>
+        <p>Processen har tillstånd att läsa från minnessegmentet.</p>
+      </item>
+      <item>
+        <title><gui>s</gui></title>
+        <p>Minnessegmentet är delat med andra processer.</p>
+      </item>
+      <item>
+        <title><gui>w</gui></title>
+        <p>Processen har tillstånd att skriva till minnessegmentet.</p>
+      </item>
+      <item>
+        <title><gui>x</gui></title>
+        <p>Processen har tillstånd att utföra instruktioner som finns i minnessegmentet.</p>
+      </item>
+    </terms>
+    </td>
+  </tr>
+  <tr>
+	  <td><p>VM-avstånd</p></td>
+	  <td><p>Adressens plats i minnessegmentet, mätt från VM-start.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Privat, Delat, Rent, Smutsigt</p></td>
+<!--	  <td><p>Text pages are flagged read-execute in memory and don't need to
+  be written to swap since they can be re-loaded from their original location
+  on disk. Data pages have read-write permissions, and if modified when in
+  memory, they are labeled <em>dirty</em>, and when designated for swapping,
+  must be paged out.</p></td>
+-->
+          <td><list><item><p><em>privata</em> sidor nås endast av en process</p></item>
+          <item><p><em>delade</em> sidor kan nås av fler än en process</p></item>
+          <item><p><em>rena</em> sidor har ännu inte ändrats i minnet och kan kasseras när de ska växlas ut</p></item>
+          <item><p><em>smutsiga</em> sidor har ändrats i minnet och måste skrivas till disk när de ska växlas ut</p></item></list></td>
+  </tr>
+  <tr>
+	  <td><p>Enhet</p></td>
+	  <td><p>De större och mindre nummer för den enhet där filnamnet för det delade biblioteket ligger. Tillsammans anger dessa en partition på systemet.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Inod</p></td>
+	  <td><p>Enhetens inod därifrån det delade biblioteket läses in i minnet. En inod är den struktur som filsystemet använder för att lagra en fil, och siffran som tilldelats är unik.</p></td>
+  </tr>
+</table>
+
+</section>
+</page>

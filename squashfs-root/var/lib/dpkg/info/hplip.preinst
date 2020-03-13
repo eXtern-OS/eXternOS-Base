@@ -1,0 +1,60 @@
+#! /bin/sh
+
+set -e
+
+rm_udevrule() {
+    PKG="$1"
+    CONFFILE="$2"
+
+    if [ -e "$CONFFILE" ]; then
+        md5sum="$(md5sum "$CONFFILE" | awk '{print $1}')"
+        old_md5sum="$(dpkg-query -W -f='${Conffiles}' $PKG | sed -n -e "\' $CONFFILE ' { s/ obsolete$//; s/.* //; p }")"
+        if [ "$md5sum" = "$old_md5sum" ]; then
+            rm -f "$CONFFILE"
+        fi
+    fi
+}
+
+case "$1" in
+    upgrade|install|abort-upgrade)
+	# Remove symlink, dpkg doesn't like it at all
+	if [ -h /usr/share/doc/hplip ]; then
+		rm -f /usr/share/doc/hplip
+	fi
+
+	# Stop and remove any daemon from old HPLIP installations
+	if [ -x /etc/init.d/hplip ]; then
+		pkill hpiod || true
+		if pgrep hpiod >/dev/null; then sleep 3; pkill -9 hpiod || true; fi
+		if pgrep hpiod >/dev/null; then
+			echo 'Old HPLIP daemon (hpiod) should have been stopped, but did not.  Please kill manually before hplip can proceed'
+		    exit 1
+		fi
+		rm -fR /etc/init.d/hplip
+	        update-rc.d -f hplip remove
+	fi
+
+	# Remove obsolete config file for HPLIP startup script
+	rm -f /etc/default/hplip
+
+	# Remove obsolete udev rules
+	rm_udevrule hplip /etc/udev/rules.d/55-hpmud.rules
+	rm_udevrule hplip /etc/udev/rules.d/45-hplip.rules
+	rm_udevrule hplip /etc/udev/rules.d/024_hpmud.rules
+	rm_udevrule hplip /etc/udev/rules.d/56-hpmud_support.rules
+	rm_udevrule hplip /etc/udev/rules.d/z60_hplip.rules
+	rm_udevrule hplip /etc/udev/rules.d/86-hpmud_plugin.rules
+	rm_udevrule hplip /etc/udev/rules.d/56-hpmud_add_printer.rules
+	rm_udevrule hplip /etc/udev/rules.d/40-hplip.rules
+
+    ;;
+
+    *)
+        echo "preinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+
+
+exit 0

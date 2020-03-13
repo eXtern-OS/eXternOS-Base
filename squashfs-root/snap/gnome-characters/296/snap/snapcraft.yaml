@@ -1,0 +1,118 @@
+name: gnome-characters
+version: git
+summary: A character map application
+description: |
+  Characters is a simple utility application to find and
+  insert unusual characters.
+
+grade: stable # must be 'stable' to release into candidate/stable channels
+confinement: strict
+base: core18
+
+plugs:
+  gnome-3-28-1804:
+    interface: content
+    target: $SNAP/gnome-platform
+    default-provider: gnome-3-28-1804
+  gtk-3-themes:
+    interface: content
+    target: $SNAP/data-dir/themes
+    default-provider: gtk-common-themes
+  icon-themes:
+    interface: content
+    target: $SNAP/data-dir/icons
+    default-provider: gtk-common-themes
+  sound-themes:
+    interface: content
+    target: $SNAP/data-dir/sounds
+    default-provider: gtk-common-themes
+
+slots:
+  # for GtkApplication registration
+  gnome-characters:
+    interface: dbus
+    bus: session
+    name: org.gnome.Characters
+
+apps:
+  gnome-characters:
+    command: desktop-launch ${SNAP}/usr/share/org.gnome.Characters/org.gnome.Characters
+    plugs:
+      - browser-support
+      - desktop
+      - desktop-legacy
+      - gsettings
+      - home
+      - unity7
+      - wayland
+    desktop: usr/share/applications/org.gnome.Characters.desktop
+    environment:
+      GSETTINGS_SCHEMA_DIR: $SNAP/share/glib-2.0/schemas
+      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/org.gnome.Characters
+
+parts:
+  desktop-gnome-platform:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: gtk
+    plugin: make
+    make-parameters: ["FLAVOR=gtk3"]
+    build-packages:
+      - build-essential
+      - libgtk-3-dev
+    override-build: |
+      snapcraftctl build
+      mkdir -pv $SNAPCRAFT_PART_INSTALL/gnome-platform
+  gnome-characters:
+    after: [desktop-gnome-platform]
+    source-type: git
+    source: .
+    plugin: meson
+    meson-parameters: [--buildtype=release, --prefix=/snap/gnome-characters/current/usr]
+    organize:
+      snap/gnome-characters/current/usr: usr
+    override-pull: |
+      snapcraftctl pull
+      sed -i.bak -e 's|=@appid@$|=${SNAP}/meta/gui/org.gnome.Characters.svg|g' data/org.gnome.Characters.desktop.in
+      sed -i.bak -e 's|=@bindir@/gnome-characters$|=${SNAP}/usr/share/org.gnome.Characters/org.gnome.Characters|g' data/org.gnome.Characters.desktop.in
+      sed -i.bak -e 's|@GJS@|/snap/gnome-characters/current/usr/bin/gjs|g' src/org.gnome.Characters.in
+      sed -i.bak -e 's|@GJS@|/snap/gnome-characters/current/usr/bin/gjs|g' src/org.gnome.Characters.BackgroundService.in
+    override-build: |
+      snapcraftctl build
+      mkdir -p $SNAPCRAFT_PART_INSTALL/meta/gui/
+      cp ../src/data/icons/hicolor/scalable/apps/org.gnome.Characters.svg $SNAPCRAFT_PART_INSTALL/meta/gui/
+      rm -f $SNAPCRAFT_PART_INSTALL/snap/gnome-characters/current/usr/bin/gnome-characters
+    build-packages:
+      - desktop-file-utils
+      - gettext
+      - gsettings-desktop-schemas-dev
+      - itstool
+      - appstream-util
+      - libglib2.0-dev
+      - libgtk-3-dev
+      - libgirepository1.0-dev
+      - libgjs-dev
+      - gjs
+      - gperf
+      - libgdk-pixbuf2.0-dev
+      - libpango1.0-dev
+      - libunistring-dev
+
+  libraries:
+    plugin: nil
+    stage-packages:
+      - gjs
+      - gir1.2-gdkpixbuf-2.0
+      - gir1.2-glib-2.0
+      - gir1.2-gtk-3.0
+      - gir1.2-gnomedesktop-3.0
+      - libreadline5
+      - libunistring2
+      - fonts-noto-color-emoji
+    prime:
+      - "usr/bin/gjs*"
+      - "usr/lib/*/girepository-1.0*"
+      - "usr/lib/*/libmozjs*"
+      - "usr/lib/*.*"
+      - "lib/*/libreadline.so*"
+      - "usr/lib/*/libunistring.so*"
+      - "usr/share/fonts/truetype/noto"

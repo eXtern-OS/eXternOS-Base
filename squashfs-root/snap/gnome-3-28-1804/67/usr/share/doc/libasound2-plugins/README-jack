@@ -1,0 +1,46 @@
+JACK <--> ALSA PCM plugin
+=========================
+
+This plugin converts the ALSA API over JACK (Jack Audio Connection
+Kit, http://jackit.sf.net) API.  ALSA native applications can work
+transparently together with jackd for both playback and capture.
+
+	ALSA apps (playback) -> ALSA-lib -> JACK plugin -> JACK deamon
+	ALSA apps (capture) <- ALSA-lib <- JACK plugin <- JACK daemon
+
+This plugin provides the PCM type "jack".  The typical configuration
+looks like below:
+
+	pcm.jack {
+		type jack
+		playback_ports {
+			0 alsa_pcm:playback_1
+			1 alsa_pcm:playback_2
+		}
+		capture_ports {
+			0 alsa_pcm:capture_1
+			1 alsa_pcm:pcapture_2
+		}
+	}
+
+Put the above to ~/.asoundrc (or /etc/asound.conf), and use "jack" PCM
+with your ALSA apps.  For example,
+
+	% aplay -Djack foo.wav
+
+The jack plugin can have two config options: playback_ports and
+capture_ports.  Both are compound type config, including the following
+format:
+	{
+		channel	port-name
+		channel port-name
+		...
+	}
+The first argument is the channel number (zero-based) and the second
+is the corresponding JACK port name.
+
+The plugin is installed in /usr/lib/alsa-lib directory as default,
+which is the default search path of additional plugins for alsa-lib.
+On a 64bit system like x86-64, the proper prefix option (typically,
+--prefix=/usr/lib64) must be given to configure script.
+

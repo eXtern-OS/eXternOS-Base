@@ -1,0 +1,8 @@
+#! /bin/sh
+
+set -e
+
+DIVERT=`dpkg-divert --list breeze | grep default-default-testpage.pdf` || true
+if [ ! "$DIVERT" ]; then
+  dpkg-divert --package breeze --add /usr/share/cups/data/default-testpage.pdf
+fi

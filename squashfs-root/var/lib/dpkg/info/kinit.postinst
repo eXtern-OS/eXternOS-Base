@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = configure ]; then
+    # Set the capabilities
+    if command -v setcap > /dev/null && \
+       setcap "CAP_SYS_RESOURCE=+ep" \
+            "/usr/lib/x86_64-linux-gnu/libexec/kf5/start_kdeinit"; then
+        echo "Sucessfully set capabilities for start_kdeinit"
+    else
+        echo "Failed to set capabilities for start_kdeinit" >&2
+    fi
+fi
+
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/xdg/kinit.categories -- "$@"
+# End automatically added section
+
+
+exit 0
+

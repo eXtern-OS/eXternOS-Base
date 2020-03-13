@@ -1,0 +1,79 @@
+#!/bin/sh -e
+
+RULES_PATH="/etc/ufw"
+USER_PATH="$RULES_PATH"
+OLD_USER_PATH="/lib/ufw"
+UFW_CONF="/etc/ufw/ufw.conf"
+case "$1" in
+    remove)
+        ;;
+
+    purge)
+        if [ -e /usr/share/debconf/confmodule ]; then
+            . /usr/share/debconf/confmodule
+            db_purge
+        fi
+
+        for f in before.rules before6.rules after.rules after6.rules
+        do
+            if which ucf > /dev/null 2>&1; then
+                ucf -p $RULES_PATH/$f
+            fi
+            rm -f $RULES_PATH/$f
+            rm -f $RULES_PATH/$f.ucf-old $RULES_PATH/$f.ucf-new $RULES_PATH/$f.ucf-dist
+        done
+        rm -f $RULES_PATH/ufw.rules $RULES_PATH/ufw.rules.dpkg-old
+        rm -f $USER_PATH/user.rules $USER_PATH/user6.rules
+        rm -f $OLD_USER_PATH/user.rules $OLD_USER_PATH/user6.rules
+        rm -f "$UFW_CONF"
+        rm -f $RULES_PATH/after.init $RULES_PATH/before.init
+        ;;
+
+    upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+        ;;
+
+    *)
+        echo "postrm called with unknown argument '$1'" >&2
+        exit 1
+        ;;
+esac
+
+# Automatically added by dh_installinit/11.1.6ubuntu2
+if [ "$1" = "purge" ] ; then
+	update-rc.d ufw remove >/dev/null
+fi
+
+
+# In case this system is running systemd, we make systemd reload the unit files
+# to pick up changes.
+if [ -d /run/systemd/system ] ; then
+	systemctl --system daemon-reload >/dev/null || true
+fi
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/bash_completion.d/ufw 0.34-1~ ufw -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/init/ufw.conf 0.35-5~ ufw -- "$@"
+# End automatically added section
+# Automatically added by dh_installdebconf/11.1.6ubuntu2
+if [ "$1" = purge ] && [ -e /usr/share/debconf/confmodule ]; then
+	. /usr/share/debconf/confmodule
+	db_purge
+fi
+# End automatically added section
+# Automatically added by dh_systemd_enable/11.1.6ubuntu2
+if [ "$1" = "remove" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper mask 'ufw.service' >/dev/null || true
+	fi
+fi
+
+if [ "$1" = "purge" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper purge 'ufw.service' >/dev/null || true
+		deb-systemd-helper unmask 'ufw.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+

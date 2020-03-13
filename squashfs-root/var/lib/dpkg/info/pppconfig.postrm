@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# $Id: postrm,v 1.1.1.1 2004/05/07 03:12:59 john Exp $
+
+# Postrm for pppconfig by John Hasler 1999-2003
+# Any possessor of a copy of this program may treat it as if it
+# were in the public domain.  I waive all rights.
+
+set -e
+
+if [ "$1" = "purge" ] ; then
+        rm -rf /lib/pppconfig
+	rm -rf /etc/ppp/resolv
+	rm -rf /var/run/pppconfig
+	rm -rf /var/run/pppconfig/resolv*
+	rm -rf /var/run/pppconfig/0dns*
+        update-rc.d dns-clean remove > /dev/null
+fi
+if [ -x "`which update-menus`" ] ; then
+        update-menus
+fi
+
+# Automatically added by dh_systemd_enable
+if [ "$1" = "remove" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper mask dns-clean.service >/dev/null
+	fi
+fi
+
+if [ "$1" = "purge" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper purge dns-clean.service >/dev/null
+		deb-systemd-helper unmask dns-clean.service >/dev/null
+	fi
+fi
+# End automatically added section
+
+exit 0

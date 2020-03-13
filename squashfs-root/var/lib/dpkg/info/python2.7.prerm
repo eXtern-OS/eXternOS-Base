@@ -1,0 +1,22 @@
+#! /bin/sh
+
+set -e
+
+case "$1" in
+    remove|upgrade)
+        ;;
+    deconfigure)
+        ;;
+    failed-upgrade)
+        ;;
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+rmdir /usr/local/lib/python2.7/site-packages 2>/dev/null && \
+        rmdir /usr/local/lib/python2.7 2>/dev/null || \
+        true
+
+

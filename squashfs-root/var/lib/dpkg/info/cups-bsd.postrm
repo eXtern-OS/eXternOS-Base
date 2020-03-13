@@ -1,0 +1,30 @@
+#! /bin/sh
+
+set -e
+
+case "$1" in
+    purge)
+        # Remove inetd entry
+	if [ -x "`which update-inetd 2>/dev/null`" ]; then
+            update-inetd --pattern cups-lpd --remove printer 2>/dev/null || true
+        fi
+
+        ;;
+
+    remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+
+        ;;
+
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 0
+
+esac
+
+# Automatically added by dh_installdebconf/11.1.6ubuntu1
+if [ "$1" = purge ] && [ -e /usr/share/debconf/confmodule ]; then
+	. /usr/share/debconf/confmodule
+	db_purge
+fi
+# End automatically added section
+

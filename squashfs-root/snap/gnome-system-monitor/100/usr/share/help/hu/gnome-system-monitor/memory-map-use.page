@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<page xmlns="http://projectmallard.org/1.0/" xmlns:ui="http://projectmallard.org/ui/1.0/" type="topic" style="task" id="memory-map-use" xml:lang="hu">
+
+  <info>
+    <revision pkgversion="3.11" date="2014-01-28" status="candidate"/>
+    <link type="guide" xref="index#memory" group="memory"/>
+
+    <include xmlns="http://www.w3.org/2001/XInclude" href="legal.xml"/>
+
+    <credit type="author copyright">
+      <name>Phil Bull</name>
+      <email>philbull@gmail.com</email>
+      <years>2011</years>
+    </credit>
+
+    <credit type="author copyright">
+      <name>Michael Hill</name>
+      <email>mdhillca@gmail.com</email>
+      <years>2011, 2014</years>
+    </credit>
+
+    <desc>Egy folyamat memóriatérképének megjelenítése.</desc>
+  
+    <mal:credit xmlns:mal="http://projectmallard.org/1.0/" type="translator copyright">
+      <mal:name>Kelemen Gábor</mal:name>
+      <mal:email>kelemeng at gnome dot hu</mal:email>
+      <mal:years>2014.</mal:years>
+    </mal:credit>
+  </info>
+
+  <title>Memóriatérképek használata</title>
+
+  <p>A <gui>virtuális memória</gui> a <gui>fizikai memória</gui> és a <link xref="mem-swap">swap terület</link> egyesített ábrázolása a rendszeren. Ez a fizikai memóriában lévő helyek lemezen lévő fájlokra való <gui>leképezésével</gui> lehetővé teszi a folyamatoknak, hogy a meglévő fizikai memóriánál <em>többet</em> érjenek el. Ha a rendszernek az elérhetőnél több memórialapra van szüksége, akkor a meglévő lapok egy része a swap területre kerül kiírásra.</p>
+
+  <p>A <gui>memóriatérkép</gui> megjeleníti a folyamat teljes virtuálismemória-használatát, és használatával megállapítható a program egy vagy több példányának memóriaköltsége, ellenőrizhető a megfelelő megosztott programkönyvtárak használata, illetve a program esetlegesen elérhető  teljesítményhangolási paramétereinek hatása, vagy felismerhetők a memóriaszivárgáshoz hasonló problémák.</p>
+
+  <p>Egy folyamat <link xref="memory-map-what">memóriatérképének</link> megjelenítéséhez:</p>
+
+  <steps>
+    <item><p>Kattintson a <gui>Folyamatok</gui> lapra.</p></item>
+    <item><p>Kattintson a jobb egérgombbal a kívánt folyamatra a <gui>folyamatlistában</gui>.</p></item>
+    <item><p>Válassza a <gui>Memóriatérképek</gui> menüpontot.</p></item>
+  </steps>
+
+<section id="read">
+  <title>A memóriatérkép olvasása</title>
+
+  <list>
+    <item>
+      <p>A címek hexadecimális (16-os alapú) formátumban jelennek meg.</p>
+    </item>
+    <item>
+      <p>A méretek <link xref="units">IEC bináris előtagokkal</link> jelennek meg.</p>
+    </item>
+    <item>
+      <p>Futási időben a folyamat több memóriát foglalhat dinamikusan a <em>heap</em> területen, és az argumentumokat és változókat egy másik, <em>stack</em> nevű területen tárolhatja.</p>
+    </item>
+    <item>
+      <p>Maga a program és az egyes megosztott programkönyvtárak mind három bejegyzéssel rendelkeznek, egy az olvasható-végrehajtható szövegszakaszhoz, egy az írható-olvasható adatszakaszhoz és egy a csak olvasható adatszakaszhoz. Mindkét adatszakaszt ki kell lapozni swapeléskor.</p>
+    </item>
+  </list>
+
+<table shade="rows" ui:expanded="false">
+<title>Tulajdonságok</title>
+  <tr>
+	  <td><p>Fájlnév</p></td>
+	  <td><p>A folyamat által használt megosztott programkönyvtár helye. Ha ez a mező üres, akkor a sor memóriainformációi a memóriatérkép-táblázat tetején látható nevű folyamat által birtokolt memóriát írnak le.</p></td>
+  </tr>
+  <tr>
+	  <td><p>VM-kezdet</p></td>
+	  <td><p>A memóriaszakasz kezdetének címe. A VM-kezdet, VM-vég és VM-eltolás együtt megadják a konkrét lemezterületet, ahová a megosztott programkönyvtár leképezésre kerül.</p></td>
+  </tr>
+  <tr>
+	  <td><p>VM-vég</p></td>
+	  <td><p>A memóriaszakasz végét jelző cím.</p></td>
+  </tr>
+  <tr>
+	  <td><p>VM-méret</p></td>
+	  <td><p>A memóriaszakasz mérete.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Flag-ek</p></td>
+	  <td><p>A következő flag-ek írják le a folyamat által birtokolható memóriaszakasz-hozzáférést:</p>
+    <terms>
+      <item>
+        <title><gui>p</gui></title>
+        <p>A memóriaszakasz a folyamaté, és nem érhető el más folyamatok által.</p>
+      </item>
+      <item>
+        <title><gui>r</gui></title>
+        <p>A folyamat olvashatja a memóriaszakaszt.</p>
+      </item>
+      <item>
+        <title><gui>s</gui></title>
+        <p>A memóriaszakasz meg van osztva más folyamatokkal.</p>
+      </item>
+      <item>
+        <title><gui>w</gui></title>
+        <p>A folyamat írhat a memóriaszakaszba.</p>
+      </item>
+      <item>
+        <title><gui>x</gui></title>
+        <p>A folyamat végrehajthatja a memóriaszakaszban lévő utasításokat.</p>
+      </item>
+    </terms>
+    </td>
+  </tr>
+  <tr>
+	  <td><p>VM-eltolás</p></td>
+	  <td><p>A cím helye a memóriaszakaszon belül, a VM-kezdettől mérve.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Saját, osztott, tiszta, piszkos</p></td>
+<!--	  <td><p>Text pages are flagged read-execute in memory and don't need to
+  be written to swap since they can be re-loaded from their original location
+  on disk. Data pages have read-write permissions, and if modified when in
+  memory, they are labeled <em>dirty</em>, and when designated for swapping,
+  must be paged out.</p></td>
+-->
+          <td><list><item><p>A <em>saját</em> lapok egy folyamat által érhetők el</p></item>
+          <item><p>Az <em>osztott</em> lapok több folyamat által érhetők el.</p></item>
+          <item><p>A <em>tiszta</em> lapok még nem lettek módosítva a memóriában, és eldobhatók amikor kiswapelésre lesznek kijelölve</p></item>
+          <item><p>A <em>piszkos</em> lapok módosítva lettek a memóriában, és lemezre kell írni őket, amikor kiswapelésre kerülnek kijelölésre</p></item></list></td>
+  </tr>
+  <tr>
+	  <td><p>Eszköz</p></td>
+	  <td><p>Az osztott programkönyvtár fájlját tartalmazó eszköz major és minor számai. Ezek együtt egy partíciót adnak meg a rendszeren.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Inode</p></td>
+	  <td><p>Az eszközön lévő inode, amelyből a megosztott programkönyvtár helye a memóriába töltődik. Az inode egy a fájlok tárolásához használt, a fájlrendszeren lévő adatszerkezet, és a hozzárendelt szám egyedi.</p></td>
+  </tr>
+</table>
+
+</section>
+</page>

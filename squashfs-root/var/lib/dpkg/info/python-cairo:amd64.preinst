@@ -1,0 +1,26 @@
+#!/bin/sh -e
+
+
+
+PYCENTRAL=/usr/bin/pycentral
+
+case "$1" in
+    upgrade)
+        if dpkg --compare-versions "$2" lt 1.8.4-2; then
+            if [ -x $PYCENTRAL ]; then
+                # explicitly remove old python-central files
+                pycentral pkgremove python-cairo
+            fi
+            # be really really sure about it, in case we update
+            # from 1.8.4-1
+            for pyversion in 2.4 2.5; do
+                if [ -d /usr/lib/python$pyversion/site-packages/cairo/ ]; then
+                    rm -f /usr/lib/python$pyversion/site-packages/cairo/__init__.py*
+                    rmdir --ignore-fail-on-non-empty /usr/lib/python$pyversion/site-packages/cairo
+                fi
+            done
+        fi
+    ;;
+    *)
+    ;;
+esac

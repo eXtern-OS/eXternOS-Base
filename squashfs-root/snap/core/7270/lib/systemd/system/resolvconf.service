@@ -1,0 +1,16 @@
+[Unit]
+Description=Nameserver information manager
+Documentation=man:resolvconf(8)
+DefaultDependencies=no
+Before=network-pre.target
+Wants=network-pre.target
+
+[Service]
+RemainAfterExit=yes
+ExecStartPre=/bin/mkdir -p /run/resolvconf/interface
+ExecStartPre=/bin/touch /run/resolvconf/postponed-update
+ExecStart=/sbin/resolvconf --enable-updates
+ExecStop=/sbin/resolvconf --disable-updates
+
+[Install]
+WantedBy=sysinit.target

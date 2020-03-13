@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+# Automatically added by dh_installdeb/11.1.6ubuntu1
+dpkg-maintscript-helper mv_conffile /etc/dhcp3/dhclient-enter-hooks.d/avahi-autoipd /etc/dhcp/dhclient-enter-hooks.d/avahi-autoipd 0.6.25-4\~ avahi-autoipd -- "$@"
+dpkg-maintscript-helper mv_conffile /etc/dhcp3/dhclient-exit-hooks.d/zzz_avahi-autoipd /etc/dhcp/dhclient-exit-hooks.d/zzz_avahi-autoipd 0.6.25-4\~ avahi-autoipd -- "$@"
+# End automatically added section
+
+
+if [ "$1" = "purge" ]; then
+    deluser --quiet --system avahi-autoipd > /dev/null || true
+    delgroup --quiet --system avahi-autoipd > /dev/null || true
+    # Cleanup /var/lib/avahi-autoipd, see #527925
+    f=/var/lib/avahi-autoipd
+    if [ -d "$f" ]; then
+        rm -f "$f"/??\:??\:??\:??\:??\:??
+        rmdir "$f" || { chown root:root "$f" && chmod 00700 "$f"; }
+    fi
+fi
+

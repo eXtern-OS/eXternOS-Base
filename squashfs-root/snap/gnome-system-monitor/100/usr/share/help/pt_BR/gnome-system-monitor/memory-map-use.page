@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<page xmlns="http://projectmallard.org/1.0/" xmlns:ui="http://projectmallard.org/ui/1.0/" type="topic" style="task" id="memory-map-use" xml:lang="pt-BR">
+
+  <info>
+    <revision pkgversion="3.11" date="2014-01-28" status="candidate"/>
+    <link type="guide" xref="index#memory" group="memory"/>
+
+    <include xmlns="http://www.w3.org/2001/XInclude" href="legal.xml"/>
+
+    <credit type="author copyright">
+      <name>Phil Bull</name>
+      <email>philbull@gmail.com</email>
+      <years>2011</years>
+    </credit>
+
+    <credit type="author copyright">
+      <name>Michael Hill</name>
+      <email>mdhillca@gmail.com</email>
+      <years>2011, 2014</years>
+    </credit>
+
+    <desc>Veja o mapa de memória de um processo.</desc>
+  
+    <mal:credit xmlns:mal="http://projectmallard.org/1.0/" type="translator copyright">
+      <mal:name>Rafael Fontenelle</mal:name>
+      <mal:email>rafaelff@gnome.org</mal:email>
+      <mal:years>2017</mal:years>
+    </mal:credit>
+  </info>
+
+  <title>Usando mapas de memória</title>
+
+  <p><gui>Memória virtual</gui>é uma representação da combinação de <gui>memória física</gui> e <link xref="mem-swap">espaço de swap</link> em um sistema. Ela permite que processos em execução acessem <em>mais</em> do que a memória física existente <gui>mapeando</gui> localizações na memória física para arquivos no disco. Quando o sistema precisa de mais páginas de memória do que está disponível, algumas das páginas existentes serão <em>paginadas</em> ou escritas no espaço de swap.</p>
+
+  <p>O <gui>mapa de memória</gui> exibe o uso total de memória virtual do processo e pode ser usado para determinar o custo de memória de executar uma única ou múltiplas instâncias do programa, para garantir o uso das bibliotecas compartilhadas corretas, para ver os resultados de ajustar vários parâmetros de afinação de desempenho que o programa pode ter, ou para diagnosticar problemas como vazamentos de memória.</p>
+
+  <p>Para exibir o <link xref="memory-map-what">mapa de memória</link> de um processo:</p>
+
+  <steps>
+    <item><p>Clique na aba <gui>Processos</gui>.</p></item>
+    <item><p>Clique com botão direito do mouse no processo desejado na <gui>lista de processos</gui>.</p></item>
+    <item><p>Clique em <gui>Mapas de memória</gui>.</p></item>
+  </steps>
+
+<section id="read">
+  <title>Lendo o mapa de memória</title>
+
+  <list>
+    <item>
+      <p>Endereços são exibidos em hexadecimal (base 16).</p>
+    </item>
+    <item>
+      <p>Tamanhos são exibidos em <link xref="units">prefixos binários da IEC</link>.</p>
+    </item>
+    <item>
+      <p>Em tempo real, o processo pode alocar mais memória dinamicamente em uma área chamada de <em>heap</em>, e armazenar argumentos e variáveis em uma outra área chamada de <em>stack</em> (ou pilha).</p>
+    </item>
+    <item>
+      <p>O programa em si e cada uma das bibliotecas compartilhadas possui três entradas, uma para segmento do texto leitura-execução, um para o segmento de dados de leitura-escrita e um para um segmento de dados de somente leitura. Ambos segmentos de dados precisam ser paginados em tempo de swap.</p>
+    </item>
+  </list>
+
+<table shade="rows" ui:expanded="false">
+<title>Propriedades</title>
+  <tr>
+	  <td><p>Nome do arquivo</p></td>
+	  <td><p>A localização de uma biblioteca compartilhada que está sendo usada pelo processo. Se esse campo estiver em branco, a informação da memória nesta linha descreve memória que é propriedade do processo cujo nome é exibido acima na tabela de mapa de memória.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Início da VM</p></td>
+	  <td><p>O endereço no qual o segmento de memória começa. Início da VM, Fim da VM e Deslocamento da VM juntos especificam a localização no disco à qual a biblioteca compartilhada está mapeada.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Fim da VM</p></td>
+	  <td><p>O endereço no qual termina o segmento de memória.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Tamanho da VM</p></td>
+	  <td><p>O tamanho do segmento de memória.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Sinalizadores</p></td>
+	  <td><p>Os sinalizadores a seguir descrevem os diferentes tipos de acesso de segmento de memória que o processo pode ter:</p>
+    <terms>
+      <item>
+        <title><gui>p</gui></title>
+        <p>O segmento de memória é privado para o processo e não está acessível a outros processos.</p>
+      </item>
+      <item>
+        <title><gui>r</gui></title>
+        <p>O processo possui permissão para ler a partir do segmento de memória.</p>
+      </item>
+      <item>
+        <title><gui>s</gui></title>
+        <p>O segmento de memória é compartilhado com outros processos.</p>
+      </item>
+      <item>
+        <title><gui>w</gui></title>
+        <p>O processo possui permissão para escrever no segmento de memória.</p>
+      </item>
+      <item>
+        <title><gui>x</gui></title>
+        <p>O processo possui permissão para executar instruções que estão contida no segmento de memória.</p>
+      </item>
+    </terms>
+    </td>
+  </tr>
+  <tr>
+	  <td><p>Deslocamento da VM</p></td>
+	  <td><p>A localização do endereço no segmento de memória, medido a partir do Início da VM.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Privada, Compartilhada, Limpa, Suja</p></td>
+<!--	  <td><p>Text pages are flagged read-execute in memory and don't need to
+  be written to swap since they can be re-loaded from their original location
+  on disk. Data pages have read-write permissions, and if modified when in
+  memory, they are labeled <em>dirty</em>, and when designated for swapping,
+  must be paged out.</p></td>
+-->
+          <td><list><item><p>páginas <em>privadas</em> são acessadas por um processo</p></item>
+          <item><p>páginas <em>compartilhadas</em> podem ser acessadas por mais de um processo</p></item>
+          <item><p>páginas <em>limpas</em> ainda não foram modificadas enquanto na memória e podem ser descartadas quando atribuídas para ir para “swap”</p></item>
+          <item><p>páginas <em>sujas</em> foram modificadas enquanto na memória e devem ser escritas para o disco quando atribuídas para ir para “swap”</p></item></list></td>
+  </tr>
+  <tr>
+	  <td><p>Dispositivo</p></td>
+	  <td><p>Os números maiores e menores do dispositivo no qual o nome de arquivo de biblioteca compartilhada está localizado. Juntos, esses especificam uma partição no sistema.</p></td>
+  </tr>
+  <tr>
+	  <td><p>Inode</p></td>
+	  <td><p>O inode no dispositivo do qual a localização de biblioteca compartilhada é carregada para a memória. Um inode é a estrutura que o sistema de arquivos usa para armazenar um arquivo, e o número atribuído a ele é único.</p></td>
+  </tr>
+</table>
+
+</section>
+</page>

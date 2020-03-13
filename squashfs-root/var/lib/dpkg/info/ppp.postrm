@@ -1,0 +1,67 @@
+#!/bin/sh
+set -e
+
+delete_etc_files() {
+    rm -f /etc/ppp/pap-secrets /etc/ppp/chap-secrets /etc/ppp/resolv.conf \
+	/etc/ppp/peers/provider /etc/chatscripts/provider
+    rmdir --ignore-fail-on-non-empty /etc/ppp/peers/ /etc/ppp/ \
+	/etc/ppp/ip-up.d/ /etc/ppp/ip-down.d/ \
+	/etc/chatscripts/
+}
+
+delete_var_files() {
+    rm -f /var/log/ppp.log /var/log/ppp-connect-errors \
+	/var/log/ppp-ipupdown.log
+}
+
+case "$1" in
+    remove)
+    ;;
+
+    purge)
+    delete_etc_files
+    delete_var_files
+    ;;
+
+    upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+    ;;
+
+    *)
+    echo "postrm called with unknown argument '$1'" >&2
+    exit 1
+    ;;
+esac
+
+# Automatically added by dh_installinit/11.1.6ubuntu1
+if [ "$1" = "purge" ] ; then
+	update-rc.d pppd-dns remove >/dev/null
+fi
+
+
+# In case this system is running systemd, we make systemd reload the unit files
+# to pick up changes.
+if [ -d /run/systemd/system ] ; then
+	systemctl --system daemon-reload >/dev/null || true
+fi
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu1
+dpkg-maintscript-helper rm_conffile /etc/bash_completion.d/pon 2.4.7-1\+2\~ -- "$@"
+# End automatically added section
+# Automatically added by dh_installsystemd/11.1.6ubuntu1
+if [ "$1" = "remove" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper mask 'pppd-dns.service' >/dev/null || true
+	fi
+fi
+
+if [ "$1" = "purge" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper purge 'pppd-dns.service' >/dev/null || true
+		deb-systemd-helper unmask 'pppd-dns.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+
+
+exit 0
+

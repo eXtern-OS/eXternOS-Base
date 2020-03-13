@@ -1,0 +1,86 @@
+#!/bin/sh
+
+# Remove a no-longer used conffile (from http://wiki.debian.org/DpkgConffileHandling)
+rm_conffile() {
+    PKGNAME="$1"
+    CONFFILE="$2"
+    if [ -e "$CONFFILE" ]; then
+        md5sum="`md5sum \"$CONFFILE\" | sed -e \"s/ .*//\"`"
+        old_md5sum="`dpkg-query -W -f='${Conffiles}' $PKGNAME | sed -n -e \"\\\\'^ $CONFFILE[[:space:]]'{s/ obsolete$//;s/.* //p}\"`"
+        if [ "$md5sum" != "$old_md5sum" ]; then
+            echo "Obsolete conffile $CONFFILE has been modified by you."
+            echo "Saving as $CONFFILE.dpkg-bak ..."
+            mv -f "$CONFFILE" "$CONFFILE".dpkg-bak
+        else
+            echo "Removing obsolete conffile $CONFFILE ..."
+            rm -f "$CONFFILE"
+        fi
+    fi
+}
+
+rm_confdir() {
+    DIRNAME="$1"
+    if [ -d "$DIRNAME" ]; then
+        rmdir --ignore-fail-on-non-empty "$DIRNAME"
+    fi
+}
+
+case "$1" in
+install|upgrade)
+    if dpkg --compare-versions "$2" lt-nl 0.141; then
+        rm_conffile acpi-support /etc/acpi/events/asus-brightness-up
+        rm_conffile acpi-support /etc/acpi/events/asus-brightness-down
+        rm_conffile acpi-support /etc/acpi/asus-brn-down.sh
+        rm_conffile acpi-support /etc/acpi/asus-brn-up.sh
+    fi
+    if dpkg --compare-versions "$2" lt-nl 0.142; then
+        rm_conffile acpi-support /etc/acpi/asus-touchpad.sh
+        rm_conffile acpi-support /etc/acpi/batterybtn.sh
+        rm_conffile acpi-support /etc/acpi/ejectbtn.sh
+        rm_conffile acpi-support /etc/acpi/events/ac
+        rm_conffile acpi-support /etc/acpi/events/asus-f8sv-touchpad
+        rm_conffile acpi-support /etc/acpi/events/asus-media-eject
+        rm_conffile acpi-support /etc/acpi/events/asus-rotate
+        rm_conffile acpi-support /etc/acpi/events/asus-touchpad
+        rm_conffile acpi-support /etc/acpi/events/asus-video
+        rm_conffile acpi-support /etc/acpi/events/battery
+        rm_conffile acpi-support /etc/acpi/events/lenovo-touchpad
+        rm_conffile acpi-support /etc/acpi/events/lenovo-touchpad2
+        rm_conffile acpi-support /etc/acpi/events/lidbtn
+        rm_conffile acpi-support /etc/acpi/events/panasonic-lockbtn
+        rm_conffile acpi-support /etc/acpi/events/sleepbtn
+        rm_conffile acpi-support /etc/acpi/events/tosh-battery
+        rm_conffile acpi-support /etc/acpi/events/tosh-hibernate
+        rm_conffile acpi-support /etc/acpi/events/tosh-ibutton
+        rm_conffile acpi-support /etc/acpi/events/tosh-lock
+        rm_conffile acpi-support /etc/acpi/events/tosh-mail
+        rm_conffile acpi-support /etc/acpi/events/tosh-media
+        rm_conffile acpi-support /etc/acpi/events/tosh-next
+        rm_conffile acpi-support /etc/acpi/events/tosh-play
+        rm_conffile acpi-support /etc/acpi/events/tosh-prev
+        rm_conffile acpi-support /etc/acpi/events/tosh-stop
+        rm_conffile acpi-support /etc/acpi/events/tosh-www
+        rm_conffile acpi-support /etc/acpi/events/videobtn
+        rm_conffile acpi-support /etc/acpi/hibernate.sh
+        rm_conffile acpi-support /etc/acpi/lid.sh
+        rm_conffile acpi-support /etc/acpi/lockbtn.sh
+        rm_conffile acpi-support /etc/acpi/mailbtn.sh
+        rm_conffile acpi-support /etc/acpi/mediabtn.sh
+        rm_conffile acpi-support /etc/acpi/nextbtn.sh
+        rm_conffile acpi-support /etc/acpi/playbtn.sh
+        rm_conffile acpi-support /etc/acpi/power.sh
+        rm_conffile acpi-support /etc/acpi/prevbtn.sh
+        rm_conffile acpi-support /etc/acpi/rotatescreen.sh
+        rm_conffile acpi-support /etc/acpi/screenblank.sh
+        rm_conffile acpi-support /etc/acpi/sleepbtn.sh
+        rm_conffile acpi-support /etc/acpi/sleep.sh
+        rm_conffile acpi-support /etc/acpi/stopbtn.sh
+        rm_conffile acpi-support /etc/acpi/thinkpad-stretchortouchpad.sh
+        rm_conffile acpi-support /etc/acpi/videobtn.sh
+        rm_conffile acpi-support /etc/acpi/webbtn.sh
+        rm_conffile acpi-support /etc/init.d/acpi-support
+    fi
+esac
+
+
+

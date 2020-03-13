@@ -1,0 +1,53 @@
+#! /bin/sh
+
+set -e
+
+# Kill any pre-compiled python crap
+kill_python_crappage() {
+	[ -d /usr/share/hplip ] && \
+		find /usr/share/hplip \
+			\( -name '*.pyc' -o -name '*.pyo' \) \
+			-exec rm -f {} \;
+	:
+}
+
+
+case "$1" in
+	failed-upgrade|abort-install|abort-upgrade)
+		# Remove the symlink, no matter what. If it is
+		# needed, dpkg will recreate it.  This is in an
+		# downgrade/failed upgrade unwind path
+		if [ -h /usr/share/doc/hplip ]; then
+			rm -f /usr/share/doc/hplip
+		fi
+		# and kill any crap left over for failed-upgrade
+		kill_python_crappage
+	;;
+	upgrade)
+		# support downgrading
+		if [ -h /usr/share/doc/hplip ]; then
+			rm -f /usr/share/doc/hplip
+		fi
+	;;
+	remove|disappear)
+		kill_python_crappage
+	;;
+	purge)
+		kill_python_crappage
+
+		for i in /var/run/hplip /var/log/hp/tmp; do
+			dpkg-statoverride --remove $i || true
+		done
+
+    		[ -d /var/run/hplip ] && rm -fr /var/run/hplip
+		[ -d /var/log/hp/tmp ] && rm -fr /var/log/hp/tmp
+	;;
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 1
+
+esac
+
+
+
+exit 0

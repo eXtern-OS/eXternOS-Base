@@ -1,0 +1,30 @@
+#! /bin/sh
+
+set -e
+
+run_update_cracklib () {
+    if [ -r /etc/cracklib/cracklib.conf ]; then
+        update-cracklib > /dev/null
+    fi
+}
+
+if [ "$1" = "triggered" ]; then
+    run_update_cracklib
+    exit 0
+fi
+
+[ "$1" = "configure" ] || exit 0
+
+run_update_cracklib
+
+# /etc/cron.daily/cracklib -> cracklib-runtime transition
+if dpkg --compare-versions "$2" le "2.7-17"; then
+    if [ -e /etc/cron.daily/cracklib ]; then
+        rm -f /etc/cron.daily/cracklib-runtime
+        mv /etc/cron.daily/cracklib /etc/cron.daily/cracklib-runtime
+    fi
+fi
+
+
+
+exit 0

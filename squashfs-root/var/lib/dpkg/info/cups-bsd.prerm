@@ -1,0 +1,29 @@
+#! /bin/sh
+
+set -e
+
+if [ -L /etc/printcap ]; then
+    rm -f /etc/printcap
+fi
+
+case "$1" in
+    remove|upgrade|deconfigure)
+	# Remove documentation links
+	rm -rf /usr/share/doc/cups-bsd
+
+	# Disable inetd entry
+	if [ -x "`which update-inetd 2>/dev/null`" ]; then
+	    update-inetd --pattern cups-lpd --disable printer
+	fi
+        ;;
+    failed-upgrade)
+        ;;
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 0
+    ;;
+esac
+
+
+
+exit 0

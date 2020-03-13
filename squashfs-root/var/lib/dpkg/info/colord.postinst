@@ -1,0 +1,58 @@
+#!/bin/sh
+
+set -e
+
+dpkg-maintscript-helper rm_conffile \
+    /etc/colord.conf 1.2.12-1~ colord -- "$@"
+
+
+case "$1" in
+    configure)
+    
+# create the scanner group if it isn't already there
+# We need to check for the existence of the group to avoid system/non-system
+# group discrepencies. (Bug #648287, LP: #989921)
+        if ! getent group scanner >/dev/null; then
+	    addgroup --quiet --system scanner
+        fi
+
+# ...create colord user if it isn't already there...
+        adduser --system --group --home /var/lib/colord colord \
+	    --quiet --gecos "colord colour management daemon"
+
+# ...add system-wide icc profiles directory...
+        mkdir -p /var/lib/colord/icc
+# ...finally, ensure /var/lib/colord has the right permissions
+	chown -R colord:colord /var/lib/colord
+# Restore selinux context (Bug #695085)
+        if which restorecon >/dev/null 2>&1; then
+            restorecon /var/lib/colord /var/lib/colord/icc
+        fi
+
+	;;
+esac	
+
+# Automatically added by dh_installinit
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ]; then
+	# In case this system is running systemd, we need to ensure that all
+	# necessary tmpfiles (if any) are created before starting.
+	if [ -d /run/systemd/system ] ; then
+		systemd-tmpfiles --create /usr/lib/tmpfiles.d/colord.conf >/dev/null || true
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_systemd_start
+if [ -d /run/systemd/system ]; then
+	systemctl --system daemon-reload >/dev/null || true
+	deb-systemd-invoke start colord.service >/dev/null || true
+fi
+# End automatically added section
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/dbus-1/system.d/org.freedesktop.colord-sane.conf 1.0.3-1~ -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/bash_completion.d/colormgr-completion.bash 1.0.3-1~ -- "$@"
+# End automatically added section
+
+
+exit 0

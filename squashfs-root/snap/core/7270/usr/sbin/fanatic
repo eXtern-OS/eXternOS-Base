@@ -1,0 +1,1597 @@
+#!/bin/sh
+#
+# fanatic -- intialise a with a default fan setup.
+#
+
+if [ `id -u` -ne 0 ]; then
+	exec sudo -- "$0" "$@"
+fi
+
+network_overlay_default='250.0.0.0/8'
+##network_type='ipip'
+##network_mtu=1480
+network_type='vxlan'
+network_mtu=1450
+network_mode='compact'
+#network_overlay_width='8'
+network_underlay_width='16'
+
+usage()
+{
+	echo "Usage: $0 $@" 1>&2
+	exit 2
+}
+fail()
+{
+	echo "$0: $@" 1>&2
+	exit 1
+}
+end()
+{
+	echo "$0: $@"
+	exit 0
+}
+progress()
+{
+	[ "$interactive" -eq 0 ] && echo "$@"
+}
+
+detect_network()
+{
+       local a1="$1"
+
+	[ "$a1" = "default" ] && a1=`ip route show 0.0.0.0/0 | awk '{print $5; exit}'`
+       RET="$a1"
+
+	a1="`ip -4 addr show dev "$a1" | grep inet | awk -F '[/ ]*' '{print $3; exit}'`"
+	[ "$a1" = "" ] && fail "$a1: device address not found"
+
+       RET2="$a1"
+}
+
+twiddle_fan_config()
+{
+	local cmd="$1"
+	local tag="$2"
+	local overlay="$3"
+	local underlay="$4"
+
+	local conf="/etc/network/fan"
+
+	# First check we have a valid mapping from underlay to overlay, if not
+	# we need to make one.
+	mapping_present=$( awk -v overlay="$overlay" -v underlay="$underlay" '($1 == underlay && $2 == overlay) { print }' "$conf" 2>/dev/null | wc -l )
+	mapping_mine=$( awk -v overlay="$overlay" -v underlay="$underlay" '($1 == underlay && $2 == overlay && $0 ~ /# fanatic configured/) { print }' "$conf" 2>/dev/null | wc -l )
+
+	# We also want to know if there is a valid configuration for it.
+	config_present=$( fanctl config show -u "$underlay" -o "$overlay" | wc -l )
+	config_mine=$( fanctl config show -u "$underlay" -o "$overlay" | grep "comment='fanatic configured'" | wc -l )
+
+	#echo "twiddle_fan_config cmd<$cmd> mapping_present<$mapping_present> mapping_mine<$mapping_mine> config_present<$config_present> config_mine<$config_mine>"
+
+	case "$cmd" in
+	add-check)
+		if [ "$config_mine" != 0 ]; then
+			return 1
+		fi
+		if [ "$config_present" != 0 ]; then
+			return 1
+		fi
+		return 0
+		;;
+	add)
+		if [ "$config_mine" != 0 ]; then
+			fail "$conf: fan already configured unable to configure"
+		fi
+		if [ "$config_present" != 0 ]; then
+			fail "$conf: fan configured manually unable to configure"
+		fi
+
+		if [ "$mapping_present" = 0 ]; then
+			cat - <<EOL >>"$conf"
+$underlay $overlay 		# fanatic configured
+EOL
+		fi
+
+		fanctl config set -u "$underlay" -o "$overlay" --dhcp --enable --comment='fanatic configured'
+		;;
+	remove-check)
+		if [ "$config_present" = 0 ]; then
+			return 1
+		fi
+		if [ "$config_mine" = 0 ]; then
+			return 1
+		fi
+		return 0
+		;;
+	remove)
+		if [ "$config_present" = 0 ]; then
+			fail "$conf: not configured"
+		fi
+		if [ "$config_mine" = 0 ]; then
+			fail "$conf: configured manually not removing"
+		fi
+
+		fanctl config set -u "$underlay" -o "$overlay"
+
+		# Remove the configuration if we added it.
+		if [ "$mapping_mine" != 0 ]; then
+			sed -i.bak -e "\@$underlay[ \t][ \t]*$overlay[ \t].*# fanatic configured@d" "$conf"
+		fi
+		;;
+	esac
+}
+
+enable_fan()
+{
+	local device="$1"
+	local overlay="$2"
+	local underlay="$3"
+
+	if twiddle_fan_config add-check "$device" "$overlay" "$underlay"; then
+#		if [ "$interactive" -eq 1 ]; then
+#			while :
+#			do
+#				read -p "Create fan network $overlay $underlay [Yn]: " confirm
+#				case "$confirm" in
+#				n*|N*)		fail "Abort" ;;
+#				y*|Y*)		break ;;
+#				'')		break ;;
+#				esac
+#			done
+#		fi
+		progress "configuring fan underlay:$underlay overlay:$overlay"
+		twiddle_fan_config add "$device" "$overlay" "$underlay"
+		if ! fanctl up -o "$overlay" -u "$underlay" --auto; then
+			twiddle_fan_config remove "$device" "$overlay" \
+				"$underlay"
+			fail "unable to bring fan up, unable to configure"
+		fi
+	fi
+}
+
+disable_fan()
+{
+	local device="$1"
+	local overlay="$2"
+	local underlay="$3"
+
+	local fan_bridge=$( fan_to_bridge "$overlay" "$underlay" "$network_mode" )
+
+	if twiddle_lxd_config remove-check "$device" "$fan_bridge"; then
+		fail "LXD still configured, unable to disable fan"
+	fi
+	if twiddle_docker_config remove-check "$device" "$fan_bridge"; then
+		fail "docker still configured, unable to disable fan"
+	fi
+
+	if twiddle_fan_config remove-check "$device" "$overlay" "$underlay"; then
+#		if [ "$interactive" -eq 1 ]; then
+#			while :
+#			do
+#				read -p "Remove fan network for $overlay $underlay [Yn]: " confirm
+#				case "$confirm" in
+#				n*|N*)		return ;;
+#				y*|Y*)		break ;;
+#				'')		break ;;
+#				esac
+#			done
+#		fi
+		progress "de-configuring fan underlay:$underlay overlay:$overlay"
+		fanctl down -o "$overlay" -u "$underlay" || fail "unable to bring fan down, unable to deconfigure"
+		twiddle_fan_config remove "$device" "$overlay" "$underlay"
+	fi
+}
+
+twiddle_docker_config_old()
+{
+	local cmd="$1"
+	local tag="$2"
+
+	dconf="/etc/default/docker"
+
+	configured=$( egrep "^DOCKER_OPTS=" "$dconf" 2>/dev/null | wc -l )
+	myconfig=$( egrep "# autoconfig start -- fanatic $tag --" "$dconf" 2>/dev/null | wc -l )
+
+	#echo "configured<$configured> myconfig<$myconfig>"
+
+	case "$cmd" in
+	add)
+		local bridge="$3"
+		local cidr="$4"
+		local mtu="$5"
+
+		if [ "$configured" != 0 ]; then
+			fail "$0: $dconf: configured already, unable to configure"
+		fi
+		if [ "$configured" != 0 -a "$myconfig" != "$configured" ]; then
+			fail "$0: $dconf: docker already configured for fan use"
+		fi
+
+		# Determine the docker version.
+		local dockerver=$( docker -v | awk '{ print $3 }' | sed -e 's/,$//' )
+		local dockerflags
+
+		if dpkg --compare-versions "$dockerver" lt 1.10; then
+			dockerflags=-d
+		fi
+
+		# Add the configuration
+		sed -i.bak -e '/#DOCKER_OPTS=/a\
+# autoconfig start -- fanatic '"$tag"' --\
+DOCKER_OPTS="'"$dockerflags"' -b '"$bridge"' --mtu='"$mtu"' --iptables=false --fixed-cidr='"$cidr"'"\
+# autoconfig end -- fanatic '"$tag"' --
+' "$dconf"
+		;;
+	remove)
+		if [ "$configured" = 0 ]; then
+			fail "$0: $dconf: not configured"
+		fi
+		if [ "$myconfig" != "$configured" ]; then
+			fail "$0: $dconf: configured manually not removing"
+		fi
+
+		# Add the configuration
+		sed -i.bak -e '/# autoconfig start -- fanatic '"$tag"' --/,/# autoconfig end -- fanatic '"$tag"' --/d' "$dconf"
+		;;
+	remove-check)
+		if [ "$configured" = 0 ]; then
+			return 1
+		fi
+		if [ "$myconfig" != "$configured" ]; then
+			return 1
+		fi
+		return 0
+		;;
+	esac
+}
+
+twiddle_docker_config_1_12()
+{
+	local cmd="$1"
+	local tag="$2"
+	local fan_bridge="$3"
+
+	local conf="$(docker network inspect $fan_bridge 2>/dev/null)"
+
+	case "$cmd" in
+	add)
+		local fan_cidr="$4"
+		local fan_mtu="$5"
+		local fan_overlay="$6"
+		local fan_host="$7"
+		local fan_rsvd="$(echo $fan_cidr | cut -d/ -f1)"
+
+		docker -D network create --driver bridge \
+			-o "com.docker.network.bridge.name=$fan_bridge" \
+			-o "com.docker.network.driver.mtu=$fan_mtu" \
+			--subnet $fan_overlay \
+			--ip-range $fan_cidr \
+			--gateway $fan_host \
+			--aux-address "reserved0=$fan_rsvd" \
+			"$fan_bridge"
+		return $?
+		;;
+	remove)
+		local clist=$(echo "$conf"|awk '/Containers/{print $NF}')
+
+		if [ "$clist" != "{}," ]; then
+			fail "$0: $fan_bridge still has bound containers!"
+		fi
+		docker network rm "$fan_bridge"
+		return $?
+		;;
+	remove-check)
+		if [ ! -e /usr/bin/docker -o "$conf" = "[]" ]; then
+			return 1
+		fi
+		return 0
+		;;
+	esac
+
+	return 1
+}
+
+twiddle_docker_config()
+{
+	# Always fail this if docker is not installed
+	type docker >/dev/null 2>&1 || return 1
+
+	local dver=$(docker -v | awk '{sub(/,/, "", $3); print $3}')
+
+	if dpkg --compare-versions "$dver" lt 1.12; then
+		twiddle_docker_config_old "$@"
+	else
+		twiddle_docker_config_1_12 "$@"
+	fi
+
+	return $?
+}
+
+enable_docker()
+{
+	local device="$1"
+	local overlay="$2"
+	local underlay="$3"
+	local underlay_addr="$4"
+
+	local fan_bridge=$( fan_to_bridge "$overlay" "$underlay" "$network_mode" )
+	local fan_cidr=$( fan_to_docker_cidr "$overlay" "$underlay_addr" "$network_mode" )
+
+	# Do not attempt to configure docker if it is not installed.
+	if [ ! -e /usr/bin/docker ]; then
+		echo "Docker not installed, unable to configure"
+		return
+	fi
+
+	# If we are alreday configured, skip.
+	if twiddle_docker_config remove-check "$device" "$fan_bridge"; then
+		echo "Docker already configured"
+		return
+	fi
+
+	if [ "$interactive" -eq 1 ]; then
+		while :
+		do
+			read -p "Create docker networking for underlay:$underlay overlay:$overlay [Yn]: " confirm
+			case "$confirm" in
+			n*|N*)		return ;;
+			y*|Y*)		break ;;
+			'')		break ;;
+			esac
+		done
+	fi
+	progress "configuring docker for underlay:$underlay overlay:$overlay ($fan_bridge $fan_cidr)"
+
+	local fan_host=$( fan_to_host_ip "$overlay" "$underlay_addr" "$network_mode" )
+	twiddle_docker_config add "$device" "$fan_bridge" "$fan_cidr" "$network_mtu" "$overlay" "$fan_host"
+
+	# Restart docker for this to take effect.
+	[ "$O_docker_restart" = '' ] && service docker restart
+}
+
+disable_docker()
+{
+	local device="$1"
+	local overlay="$2"
+	local underlay="$3"
+	local underlay_addr="$4"
+
+	local fan_bridge=$( fan_to_bridge "$overlay" "$underlay" "$network_mode" )
+	if twiddle_docker_config remove-check "$device" "$fan_bridge"; then
+		if [ "$interactive" -eq 1 ]; then
+			while :
+			do
+				read -p "Remove docker networking for underlay:$underlay overlay:$overlay [Yn]: " confirm
+				case "$confirm" in
+				n*|N*)		return ;;
+				y*|Y*)		break ;;
+				'')		break ;;
+				esac
+			done
+		fi
+		progress "de-configuring docker underlay:$underlay overlay:$overlay"
+		twiddle_docker_config remove "$device" "$fan_bridge"
+
+		# Restart docker for this to take effect.
+		[ "$O_docker_restart" = '' ] && service docker restart
+	fi
+}
+
+twiddle_lxd_config()
+{
+	local cmd="$1"
+	local tag="$2"
+	local bridge="$3"
+
+	local who
+	configured=0
+	who=$( lxc profile get "$bridge" 'user.profile_autoconfig' 2>/dev/null )
+	[ "$?" -eq 0 ] && configured=1
+	myconfig=0
+	[ "$who" = 'fanatic' ] && myconfig=1
+	
+	#echo "configured<$configured> myconfig<$myconfig>"
+
+	case "$cmd" in
+	add)
+		local mtu="$4"
+
+		if [ "$configured" != 0 ]; then
+			fail "$0: configured already, unable to configure"
+		fi
+
+		# Add the configuration
+		lxc profile create "$bridge"
+		lxc profile edit "$bridge" <<EOL
+name: $bridge
+config:
+  user.profile_autoconfig: fanatic
+devices:
+  eth0:
+    nictype: bridged
+    parent: $bridge
+    type: nic
+    mtu: $mtu
+EOL
+		;;
+	remove)
+		if [ "$configured" = 0 ]; then
+			fail "$0: $lconf: not configured"
+		fi
+		if [ "$myconfig" != "$configured" ]; then
+			fail "$0: $lconf: configured manually not removing"
+		fi
+
+		lxc profile delete "$bridge"
+		;;
+	remove-check)
+		if [ "$configured" = 0 ]; then
+			return 1
+		fi
+		if [ "$myconfig" != "$configured" ]; then
+			return 1
+		fi
+		return 0
+		;;
+	esac
+}
+
+enable_lxd()
+{
+	local device="$1"
+	local overlay="$2"
+	local underlay="$3"
+
+	local fan_bridge=$( fan_to_bridge "$overlay" "$underlay" "$network_mode" )
+	
+	# Do not attempt to configure LXD if it is not installed.
+	if [ ! -e /usr/bin/lxd ]; then
+		echo "LXD not installed, unable to configure"
+		return
+	fi
+
+	# If we are alreday configured, skip.
+	if twiddle_lxd_config remove-check "$device" "$fan_bridge"; then
+		echo "LXD already configured"
+		return
+	fi
+
+	if [ "$interactive" -eq 1 ]; then
+		while :
+		do
+			read -p "Create LXD networking for underlay:$underlay overlay:$overlay [Yn]: " confirm
+			case "$confirm" in
+			n*|N*)		return ;;
+			y*|Y*)		break ;;
+			'')		break ;;
+			esac
+		done
+	fi
+	progress "configuring LXD for underlay:$underlay overlay:$overlay ($fan_bridge)"
+	twiddle_lxd_config add "$device" "$fan_bridge" "$network_mtu"
+}
+
+disable_lxd()
+{
+	local device="$1"
+	local overlay="$2"
+	local underlay="$3"
+
+	local fan_bridge=$( fan_to_bridge "$overlay" "$underlay" "$network_mode" )
+
+	if twiddle_lxd_config remove-check "$device" "$fan_bridge"; then
+		if [ "$interactive" -eq 1 ]; then
+			while :
+			do
+				read -p "Remove LXD networking for underlay:$underlay overlay:$overlay [Yn]: " confirm
+				case "$confirm" in
+				n*|N*)		return ;;
+				y*|Y*)		break ;;
+				'')		break ;;
+				esac
+			done
+		fi
+		progress "de-configuring LXD underlay:$underlay overlay:$overlay"
+		twiddle_lxd_config remove "$device" "$fan_bridge"
+	fi
+}
+
+identify_remote()
+{
+	local rip="$O_remote"
+
+	echo "This host IP address: ${network_underlay_addr%/*}"
+
+	[ "$rip" = 'none' ] && end 'Testing skipped'
+	if [ "$rip" = '' ]; then
+		while :
+		do
+			read -p "Remote test host IP address (none to skip): " rip
+			case "$rip" in
+			[0-9]*.[0-9]*.[0-9]*.[0-9]*)	break ;;
+			''|none)			end 'Testing skipped' ;;
+			*)
+				echo "$nrip: badly formed IP address"
+				;;
+			esac
+		done
+	fi
+	remote_ip="$rip"
+}
+
+#
+# TEST-GROUP: test_local_all
+#
+test_local_all()
+{
+	local device="$1"
+	local overlay="$2"
+	local underlay="$3"
+
+	test_local_lxd "$@"
+	test_local_docker "$@"
+}
+
+#
+# TEST-GROUP: test_all
+#
+test_all()
+{
+	local device="$1"
+	local overlay="$2"
+	local underlay="$3"
+	local ip_th="$4"
+
+	test_host "$@"
+}
+
+test_host()
+{
+	local device="$1"
+	local overlay="$2"
+	local underlay="$3"
+	local ip_th="$4"
+
+	__ip_to_num_width "$underlay"
+	local underlay_width="$RET2"
+
+	underlay_th="$ip_th/$underlay_width"
+
+	local ip=$( fan_to_host_ip $overlay $underlay "$network_mode" )
+	local ip_tho=$( fan_to_host_ip $overlay $underlay_th "$network_mode" )
+
+	echo "host test: starting ..."
+
+	__ip_to_num_width "$ip"
+	local ip_num="$RET"
+	__ip_to_num_width "$ip_tho"
+	local ip_num_tho="$RET"
+
+	local rc
+	if [ "$ip_num" -lt "$ip_num_tho" ]; then
+		local_test 'master' "$ip" "$ip_tho"
+		rc="$?"
+	else
+		local_test 'slave' "$ip" "$ip_tho"
+		rc="$?"
+	fi
+	echo "host test: test complete $( rc_to_result "$rc" ) (local=$rc)"
+}
+
+# library: IP address manipulation.
+__ip_split()
+{
+	eval `echo "$1" | {
+		IFS=./ read a b c d e f
+		echo ip_a="$a" ip_b="$b" ip_c="$c" ip_d="$d" ip_e="$e"
+	}`
+}
+
+__width_to_mask()
+{
+	local width="$1"
+	local mask=""
+	local zeros="$(( (32-$width)/4 ))"
+
+	while [ "$width" -ge 4 ]; do
+		mask="${mask}F"
+		width="$(($width - 4))"
+	done
+	case "$width" in
+	3)	mask="${mask}E" ;;
+	2)	mask="${mask}C" ;;
+	1)	mask="${mask}8" ;;
+	esac
+
+	while [ "$zeros" -gt 0 ]; do
+		mask="${mask}0"
+		zeros="$(($zeros - 1))"
+	done
+
+	#printf "%x %x\n" "$((0x$mask))" "$(( (~0x$mask) & 0xffffffff ))"
+
+	RET="$(( 0x$mask ))"
+}
+
+__ip_to_num_width()
+{
+	local ip_a
+	local ip_b
+	local ip_c
+	local ip_d
+	local ip_e
+	local ip_f
+
+	__ip_split "$1"
+
+	RET="$(( ($ip_a << 24) | ($ip_b << 16) | ($ip_c << 8) | $ip_d ))"
+	RET2="$ip_e"
+}
+
+__num_to_ip()
+{
+	local ip_num="$1"
+	local ip_sep="$2"
+
+	[ "$ip_sep" = '' ] && ip_sep='.'
+
+	RET="$(( (($ip_num >> 24) & 0xff) ))$ip_sep$(( (($ip_num >> 16) & 0xff) ))$ip_sep$(( (($ip_num >> 8) & 0xff) ))$ip_sep$(( $ip_num & 0xff ))"
+}
+# library: end
+
+# library: Bridges.
+__fan_to_bridge_ipnum()
+{
+	local overlay="$1"
+	local underlay="$2"
+	local mode="$3"
+
+	__ip_to_num_width "$overlay"
+	local overlay_ipnum="$RET"
+	local overlay_width="$RET2"
+
+	__ip_to_num_width "$underlay"
+	local underlay_ipnum="$RET"
+	local underlay_width="$RET2"
+	__width_to_mask "$underlay_width"
+	local underlay_mask="$(( ~ $RET ))"
+	local underlay_shift="$(( $underlay_width - $overlay_width ))"
+
+	local bridge_name_ipnum="$(( $overlay_ipnum | (($underlay_ipnum & $underlay_mask) << $underlay_shift) ))"
+	RET2="$bridge_name_ipnum"
+
+	case "$mode" in
+	compact)
+		bridge_name_ipnum="$overlay_ipnum"
+		;;
+	esac
+
+	local subnet_width="$(( $overlay_width + ( 32 - $underlay_width ) ))"
+	RET3="$subnet_width"
+
+	RET="$bridge_name_ipnum"
+}
+
+fan_to_bridge()
+{
+	__fan_to_bridge_ipnum "$@"
+
+        __num_to_ip "$RET" "-"
+        RET=${RET%-0}; RET=${RET%-0}; RET=${RET%-0};
+
+	echo "fan-$RET"
+}
+
+fan_to_host_ip()
+{
+	__fan_to_bridge_ipnum "$@"
+
+        __num_to_ip "$(( $RET2 + 1 ))"
+
+	echo "$RET"
+}
+
+fan_to_docker_cidr()
+{
+
+	__fan_to_bridge_ipnum "$@"
+	local width="$RET3"
+
+        __num_to_ip "$(( $RET2 ))"
+
+	echo "$RET/$width"
+}
+# library: end
+
+# test-payload: start
+dns_lookup_forwarder()
+{
+	local role="$1"
+	RET=""
+
+	local nic1=$(cat /proc/net/route|awk '$2=="00000000"{print $1; exit}')
+	echo "$role: detected primary route through $nic1"
+
+	local dns1=""
+	local timeout=30
+	while [ $timeout -gt 0 ]; do
+		dns1=$(awk '$1=="nameserver"{print $2; exit}' /etc/resolv.conf)
+		if [ "$dns1" != "" ]; then
+			break
+		fi
+		echo "$role: waiting for primary nameserver..."
+		sleep 2
+		timeout=$(( timeout - 2 ))
+	done
+	if [ "$dns1" = "" ]; then
+		echo "$role: failed to obtain DNS"
+		return 1
+	fi
+	if [ "$dns1" = "127.0.0.53" ]; then
+		local dns2=""
+		timeout=30
+		while [ $timeout -gt 0 ]; do
+			dns2=$(systemd-resolve --status $nic1| \
+				awk '/DNS Servers:/{print; exit}')
+			if [ "$dns2" != "" ]; then
+				break
+			fi
+			echo "$role: waiting for systemd resolver..."
+			sleep 2
+			timeout=$(( timeout - 2 ))
+		done
+		if [ "$dns2" = "" ]; then
+			echo "$role: systemd-resolve failure!"
+			return 1
+		fi
+		dns2=$(echo "$dns2"|awk '{sub(/.*DNS Servers: */, ""); print}')
+		echo "$role: DNS: systemd($dns2)"
+		RET="$dns2"
+	else
+		echo "$role: DNS: $dns1"
+	fi
+	return 0
+}
+
+nc_receive()
+{
+	local ip="$1"
+	local port="$2"
+
+	echo "receiving on $ip:$port ..." 1>&2
+	nc -d -n -l "$ip" "$port"
+}
+nc_send()
+{
+	local ip="$1"
+	local port="$2"
+	local data="$3"
+	local N_opt=""
+
+	# Newer nc requires -N to shutdown connection correctly
+	if [ "$(nc -h 2>&1 | grep -- -N)" != "" ]; then
+		N_opt="-N"
+	fi
+
+	local file=0
+	[ "$#" -eq 2 ] && file=1
+		
+	local cnt=30
+	echo "sending to $ip:$port ..." 1>&2
+	while [ $cnt -gt 0 ]
+	do
+		if [ "$file" -eq 0 ]; then
+			echo "$data" | nc $N_opt -n "$ip" "$port"
+		else
+			nc $N_opt -n "$ip" "$port"
+		fi
+		if [ $? -eq 0 ]; then
+			# short delay to allow receive side to terminate
+			sleep 1
+			break
+		fi
+		sleep 2
+		cnt=$(( cnt-1 ))
+	done
+
+	if [ $cnt -lt 1 ]; then
+		fail "nc_send: failed to send -- timeout"
+	fi
+}
+
+rc_to_result()
+{
+	if [ "$1" -eq 0 ]; then
+		echo 'PASS'
+	else
+		echo 'FAIL'
+	fi
+}
+test_report()
+{
+	local which="$1"
+	local rc="$2"
+	local ts="$3"
+
+	echo "$which ... $( rc_to_result "$rc" )"
+	if [ "$rc" != 0 ]; then
+		echo "--- transcript start ---"
+		cat "$ts"
+		echo "--- transcript end ---"
+	fi
+
+	rm -f "$ts"
+}
+__payload_prepare()
+{
+	local master="$1"
+	local lip="$2"
+	local rip="$3"
+
+	local update=1
+
+	if ! dns_lookup_forwarder "$master"; then
+		return 1
+	fi
+
+	# PREPARE: ensure we have the appropriate tools
+	if ! type ping >/dev/null 2>&1; then
+		echo "$test $master: installing ping ..."
+		if [ "$update" = 1 ]; then
+			apt-get -qq update
+			update=0
+		fi
+		apt-get -qq install -y iputils-ping 2>&1 || return 1
+	fi
+	if ! type nc >/dev/null 2>&1; then
+		echo "$test $master: installing nc ..."
+		if [ "$update" = 1 ]; then
+			apt-get -q update
+			update=0
+		fi
+		apt-get -qq install -y netcat-openbsd 2>&1 || return 1
+	fi
+
+	return 0
+}
+__payload_test()
+{
+	local master="$1"
+	local lip="$2"
+	local rip="$3"
+
+	local out="/tmp/fantic-test-transcript.$$"
+	local rc
+	local rc_all=0
+
+	# TEST: ping test
+	echo "test $master: ping test ($rip) ..."
+	(
+		ping -c 5 "$rip"
+	) >"$out" 2>&1
+	rc=$?
+	rc_all=$(($rc_all + $rc))
+	test_report "test $master: ping test" "$rc" "$out"
+
+	# TEST: short data test
+	echo "test $master: short data test ($lip -> $rip) ..."
+	(
+		if [ "$master" = 'master' ]; then
+			nc_send "$rip" 9999 "HELLO $lip" || fail "test $master: unable to send data to $rip"
+			data=$( nc_receive "$lip" 9999 )
+		else
+			data=$( nc_receive "$lip" 9999 )
+			nc_send "$rip" 9999 "HELLO $lip"
+
+		fi
+		if [ "$data" != "HELLO $rip" ]; then
+			fail "test $master: bad data receieved from $rip"
+		fi
+	) >"$out" 2>&1
+	rc=$?
+	rc_all=$(($rc_all + $rc))
+	test_report "test $master: short data" "$rc" "$out"
+
+	# TEST: long data test
+	echo "test $master: long data test ($lip -> $rip) ..."
+	(
+		local md5sum=$( cat /bin/* | md5sum - | awk '{print $1}' )
+		local rsum_expected
+		local rsum_is
+
+		if [ "$master" = 'slave' ]; then
+			nc_send "$rip" 9991 "$md5sum" || fail "test $master: unable to send md5sum data to $rip"
+			cat /bin/* | nc_send "$rip" 9991 || fail "test $master: unable to send file data to $rip"
+
+			rsum_expected=$( nc_receive "$lip" 9992 )
+			rsum_is=$( nc_receive "$lip" 9992 | md5sum - | awk '{print $1}' )
+		else
+			rsum_expected=$( nc_receive "$lip" 9991 )
+			rsum_is=$( nc_receive "$lip" 9991 | md5sum - | awk '{print $1}' )
+
+			nc_send "$rip" 9992 "$md5sum" || fail "test $master: unable to send md5sum data to $rip"
+			cat /bin/* | nc_send "$rip" 9992 || fail "test $master: unable to send file data to $rip"
+		fi
+		echo "rsum_expected<$rsum_expected> rsum_is<$rsum_is>"
+		if [ "$rsum_expected" != "$rsum_is" ]; then
+			fail "test $master: bad data receieved from $rip ($rsum_expected != $rsum_is)"
+		fi
+	) >"$out" 2>&1
+	rc=$?
+	rc_all=$(($rc_all + $rc))
+	test_report "test $master: long data" "$rc" "$out"
+	##test_report "test $master: long data" "1" "$out"
+
+	return $rc_all
+}
+# test-payload: end
+local_prepare()
+{
+	(
+		__payload_prepare "$@"
+	)
+}
+local_test()
+{
+	(
+		__payload_test "$@"
+	)
+}
+payload_init()
+{
+	sed -n -e '/^# test-payload: start/,/^# test-payload: end/p' "$0";
+}
+payload_prepare()
+{
+	local master="$1"
+	local lip="$2"
+	local rip="$3"
+
+	echo "__payload_prepare '$master' '$lip' '$rip'"
+}
+payload_test()
+{
+	local master="$1"
+	local lip="$2"
+	local rip="$3"
+
+	echo "__payload_test '$master' '$lip' '$rip'"
+}
+
+get_local_lxd_storage()
+{
+	local list=""
+
+	list="$(lxc storage list 2>/dev/null)" || return 1
+
+	echo "$list" | awk '
+		FNR>3 && /^\|/{
+			split($0, A, " ?| ?")
+			print A[2]
+		}
+	' | head -1
+
+	return 0
+}
+
+test_local_lxd()
+{
+	local device="$1"
+	local overlay="$2"
+	local underlay="$3"
+	local rc
+
+	local fan_bridge=$( fan_to_bridge "$overlay" "$underlay" "$network_mode" )
+	local ip=$( fan_to_host_ip $overlay $underlay "$network_mode" )
+	local name="fanatic-test"
+
+	if ! twiddle_lxd_config remove-check "$device" "$fan_bridge"; then
+		return 0
+	fi
+
+	if [ "$interactive" -eq 1 ]; then
+		while :
+		do
+			echo "Test LXD networking for underlay:$underlay overlay:$overlay"
+			read -p "(NOTE: potentially triggers large image downloads) [Yn]: " confirm
+			case "$confirm" in
+			n*|N*)		return ;;
+			y*|Y*)		break ;;
+			'')		break ;;
+			esac
+		done
+	fi
+	
+	# Prepare the local host.
+	local_prepare 'master' "$ip" "$ip_container"
+	rc=$?
+	if [ $rc -ne 0 ]; then
+		echo "local lxd test: prepare master failed!"
+		return $rc
+	fi
+
+	#local series=$( lsb_release -sr )
+	local series='lts'
+	local storage_opt="$(get_local_lxd_storage)"
+
+	if [ "$storage_opt" != "" ]; then
+		storage_opt="--storage $storage_opt"
+	fi
+	echo "local lxd test: creating test container (Ubuntu:$series) ..."
+	lxc launch "ubuntu:$series" fanatic-test $storage_opt -p "$fan_bridge"
+
+	# wait for eth0 -- XXX: needs to timeout
+	while :
+	do
+		echo "lxd test: Waiting for addresses on eth0 ..."
+		ip_container="$(lxc exec fanatic-test -- ip -4 addr show dev eth0 | grep inet | awk -F '[/ ]*' '{print $3; exit}')"
+		[ "$ip_container" != '' ] && break
+		sleep 2
+	done
+
+	# Prepare the payload container.
+	{
+		payload_init
+		payload_prepare 'slave' "$ip_container" "$ip"
+		local rc=$?
+		exit $rc
+	} | lxc exec "$name" /bin/sh
+	rc=$?
+	if [ $rc -ne 0 ]; then
+		echo "local lxd test: prepare slave failed!"
+		echo "local lxd test: destroying test container ..."
+		lxc stop "$name"
+		lxc delete "$name"
+		return $rc
+	fi
+
+	# Fire off the test payload in the LXC container.
+	(
+		{
+			payload_init
+			payload_test 'slave' "$ip_container" "$ip"
+		} | lxc exec "$name" /bin/sh
+		local rc="$?"
+		exit "$rc"
+	) &
+
+	local rc1
+	local rc2
+
+	# Run the payload locally as master.
+	local_test 'master' "$ip" "$ip_container"
+	rc1="$?"
+	[ "$rc1" -ne 0 ] && rc="$rc1"
+
+	# Wait for the LXD container payload to report.
+	wait $!
+	rc2="$?"
+	[ "$rc2" -ne 0 ] && rc="$rc2"
+
+	echo "local lxd test: destroying test container ..."
+	lxc stop "$name"
+	lxc delete "$name"
+
+	echo "local lxd test: test complete $( rc_to_result "$rc" ) (master=$rc1 slave=$rc2)"
+	return "$rc"
+}
+
+test_local_docker()
+{
+	local device="$1"
+	local overlay="$2"
+	local underlay="$3"
+
+	local fan_bridge=$( fan_to_bridge "$overlay" "$underlay" "$network_mode" )
+	local ip=$( fan_to_host_ip "$overlay" "$underlay" "$network_mode" )
+	local name="fanatic-test"
+	local rc=0
+
+	if ! twiddle_docker_config remove-check "$device" "$fan_bridge"; then
+		return
+	fi
+
+	if [ "$interactive" -eq 1 ]; then
+		while :
+		do
+			echo "Test docker networking for underlay:$underlay overlay:$overlay"
+			read -p "(NOTE: potentially triggers large image downloads) [Yn]: " confirm
+			case "$confirm" in
+			n*|N*)		return ;;
+			y*|Y*)		break ;;
+			'')		break ;;
+			esac
+		done
+	fi
+
+
+	# Check if we have images already...
+	local images=$( docker images -q ubuntu | wc -l )
+	if [ "$images" -eq 0 ]; then
+		echo "local docker test: pulling container images ..."
+		docker pull ubuntu
+		rc=$?
+		if [ $rc -ne 0 ]; then
+			echo "local docker test: docker pull ubuntu failure!"
+			echo "local docker test: skipping test."
+			return $rc
+		fi
+	fi
+
+	local dver=$(docker -v | awk '{sub(/,/, "", $3); print $3}')
+	local net_opt=""
+	if dpkg --compare-versions "$dver" ge 1.12; then
+		net_opt="--network $fan_bridge"
+	fi
+
+	# Just in case, if there is still a container with our target name
+	# around, kill it (we are fanatic after all)...
+	if [ "$(docker ps | grep "$name")" != "" ]; then
+		echo "local docker test: stopping existing container..."
+		docker stop "$name"
+	fi
+	if [ "$(docker inspect "$name" 2>/dev/null)" != "[]" ]; then
+		echo "local docker test: removing existing container..."
+		docker rm "$name"
+	fi
+
+	# Prepare the local host.
+	local dns_opt=""
+	if ! dns_lookup_forwarder 'master'; then
+		return 1
+	fi
+	if [ "$RET" != '' ]; then
+		echo "local docker test: *** Using DNS override ***"
+		dns_opt="--dns=$RET"
+		echo "  $dns_opt"
+	fi
+
+	local_prepare 'master' "$ip" "$ip_container"
+	rc=$?
+
+	if [ $rc -ne 0 ]; then
+		echo "local docker test: prepare master failed!"
+		return $rc
+	fi
+
+	# Start a test container.
+	echo "local docker test: creating test container ..."
+	docker run --name "$name" $net_opt $dns_opt -d ubuntu sleep 3600
+	rc=$?
+	if [ $rc -ne 0 ]; then
+		echo "local docker test: container failed to start!"
+		echo "local docker test: skipping other tests."
+		docker rm "$name"
+		return $rc
+	fi
+
+	if [ "$net_opt" != "" ]; then
+		ip_container=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$name")
+	else
+	        ip_container=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$name")
+	fi
+
+	# Prepare the payload container.
+	{
+		payload_init
+		payload_prepare 'slave' "$ip_container" "$ip"
+		local rc=$?
+		exit $rc
+	} | docker exec -i "$name" /bin/sh
+	rc=$?
+
+	if [ $rc -ne 0 ]; then
+		echo "local docker test: prepare slave failed!"
+		echo "local docker test: destroying test container ..."
+		docker stop "$name"
+		docker rm "$name"
+		return $rc
+	fi
+
+	# Fire off the test payload in the LXC container.
+	(
+		{
+			payload_init
+			payload_test 'slave' "$ip_container" "$ip"
+		} | docker exec -i "$name" /bin/sh
+		local rc="$?"
+		exit "$rc"
+	) &
+
+	local rc1
+	local rc2
+
+	# Run the payload locally as master.
+	local_test 'master' "$ip" "$ip_container"
+	rc1="$?"
+	[ "$rc1" -ne 0 ] && rc="$rc1"
+
+	# Wait for the docker container payload to report.
+	wait $!
+	rc2="$?"
+	[ "$rc2" -ne 0 ] && rc="$rc2"
+
+	echo "local docker test: destroying test container ..."
+	docker stop "$name"
+	docker rm "$name"
+
+	echo "local docker test: test complete $( rc_to_result "$rc" ) (master=$rc1 slave=$rc2)"
+	return "$rc"
+}
+
+overlay_device()
+{
+	local format="$1"
+	local a1="$2"
+
+	case "$format" in
+	A)		overlay="$a1" ;;
+	*)		fail "$overlay: unknown overlay network format" ;;
+	esac
+}
+
+underlay_device()
+{
+	local format="$1"
+	local a1="$2"
+	local a2="$3"
+
+	case "$format" in
+	A)		underlay="$a1" ;;
+	B)		[ "$a1" = "default" ] && a1=`ip route show 0.0.0.0/0 | awk '{print $5; exit}'`
+			a1="`ip -4 addr show dev "$a1" | grep inet | awk -F '[/ ]*' '{print $3; exit}'`"
+			[ "$a1" = "" ] && fail "$a1: device address not found"
+			underlay="$a1/$a2" 
+			;;
+	*)		fail "$underlay: unknown underlay network format" ;;
+	esac
+}
+
+__underlay_lookup_address()
+{
+	local ipnum="$1"
+	local width="$2"
+
+	__width_to_mask "$width"
+	local tmp
+	local interface
+	local what
+	local address
+	local address_mask="$RET"
+	local address_ipnum
+	local address_ipnum_prefix
+	local address_prefix
+
+	address_prefix="$(( $ipnum & $address_mask ))"
+	# If an address on the network was specified find exactly that.
+	if [ "$ipnum" -ne "$address_prefix" ]; then
+		address_prefix="$ipnum"
+		address_mask="$(( ~0 ))"
+	fi
+
+	ip -o addr show | \
+	while read tmp interface what address tmp
+	do
+		case "$what" in
+		inet)
+			__ip_to_num_width "$address"
+			address_ipnum="$RET"
+			address_ipnum_prefix="$(( $RET & $address_mask ))"
+			if [ "$address_ipnum_prefix" -eq "$address_prefix" ]; then
+				__num_to_ip "$address_ipnum"
+				echo "$RET/$width"
+			fi
+			;;
+		esac
+	done
+}
+
+underlay_lookup_address()
+{
+	eval RET=\'`__underlay_lookup_address "$@"`\'
+}
+
+networks_decode_addresses()
+{
+	local overlay="$1"
+	local underlay="$2"
+
+	local format="`echo "$overlay" | sed -n \
+		-e 's@^\([0-9][0-9]*\)$@A \1.0.0.0/8@p' \
+		-e 's@^\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\/[0-9][0-9]*\)$@A \1@p'
+	`"
+	overlay_device $format
+
+	local format="`echo "$underlay" | sed -n \
+		-e 's@^\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\)$@A \1/16@p' \
+		-e 's@^\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\/[0-9][0-9]*\)$@A \1@p' \
+		-e 's@^\([a-z][a-z]*[0-9][0-9]*\|default\)$@B \1 16@p' \
+		-e 's@^\([a-z][a-z]*[0-9][0-9]*\|default\)/\([0-9][0-9]*\)$@B \1 \2@p' \
+	`"
+	underlay_device $format
+
+	# Find matching address(es) ...
+        __ip_to_num_width "$underlay"
+        local underlay_raw_ipnum="$RET"
+        local underlay_width="$RET2"
+
+        underlay_lookup_address "$underlay_raw_ipnum" "$underlay_width"
+}
+
+# Default the network interface to the one connected to our default route.
+parse_commandline()
+{
+	local operation="$1"
+	shift
+
+	TEMP=$(getopt \
+		-n "fanatic: $operation:" \
+		-o 'u:o:r:' -l 'underlay:,overlay:,remote:' \
+		-l 'no-docker-restart' \
+		-- "$@"
+	)
+	if [ "$?" != 0 ]; then
+		fail "$operation: invalid options"
+	fi
+
+	eval set -- "$TEMP"
+
+	O_underlay=''
+	O_overlay=''
+	O_remote=''
+	O_docker_restart=''
+
+	# Legacy mode.
+	if [ "$1" = '--' ]; then
+		shift
+
+		if [ "$#" -eq 0 ]; then
+			return
+		fi
+
+		if [ "$#" -lt 2 ]; then
+			fail "$operation: invalid options"
+		fi
+		O_overlay="$1"
+		O_underlay="$2"
+		shift 2
+
+		if [ "$#" -lt 1 ]; then
+			return
+		fi
+		O_remote="$1"
+		shift
+
+		if [ "$#" -gt 1 ]; then
+			fail "$operation: invalid options"
+		fi
+
+		return
+	fi
+
+	while [ "$#" -gt 0 ]
+	do
+		case "$1" in
+		--)
+			shift
+			break
+			;;
+		-u|--underlay)
+			O_underlay="$2"
+			shift 2
+			;;
+		-o|--overlay)
+			O_overlay="$2"
+			shift 2
+			;;
+		-r|--remote)
+			O_remote="$2"
+			shift 2
+			;;
+		--no-docker-restart)
+			O_docker_restart=n
+			shift
+			;;
+		esac
+	done
+}
+
+identify_network()
+{
+	local operation="$1"
+
+	local underlay="$O_underlay"
+	local overlay="$O_overlay"
+
+	local provided=1
+	if [ "$overlay" = '' ]; then
+		provided=0
+		overlay='default'
+	fi
+	if [ "$underlay" = '' ]; then
+		provided=0
+		underlay='default'
+	fi
+
+	# Clear out the overlay/underlay specifiers.
+	if [ "$overlay" = 'default' -o "$overlay" = '-' ]; then
+		overlay="$network_overlay_default"
+	fi
+
+	if [ "$underlay" = 'default' -o "$underlay" = '-' ]; then
+		# Work up a network prefix match for the default device.
+		detect_network 'default'
+		local underlay_addr="$RET2"
+
+		__ip_to_num_width "$underlay_addr"
+		local underlay_addr_num="$RET"
+
+		__width_to_mask "$network_underlay_width"
+		local underlay_mask="$RET"
+
+		local underlay_prefix_num="$(( $underlay_addr_num & $underlay_mask ))"
+		__num_to_ip "$underlay_prefix_num"
+
+		underlay="$RET/$network_underlay_width"
+
+	fi
+
+	networks_decode_addresses "$overlay" "$underlay"
+
+	#echo "overlay<$overlay> underlay<$underlay> RET<$RET>"
+
+	network_tag=$( echo "$overlay" | sed -e 's@/@_@g' )
+	network_overlay="$overlay"
+	network_underlay="$underlay"
+	network_underlay_addr="${RET%% *}"
+
+	if [ "$provided" -eq 0 ]; then
+		local over
+		local under
+		read -p "$operation fan underlay (hit return to accept, or specify alternative) [$underlay]: " under
+		read -p "$operation fan overlay (hit return to accept, or specify alternative) [$overlay]: " over
+		if [ "$under" != '' -o "$over" != '' ]; then
+			O_underlay="${under:-$underlay}"
+			O_overlay="${over:-$overlay}"
+			identify_network "$operation"
+		fi
+	fi
+}
+
+welcome()
+{
+	cat - <<EOM
+Welcome to the fanatic fan networking wizard.  This will help you set
+up an example fan network and optionally configure docker and/or LXD to
+use this network.  See fanatic(8) (man 8 fanatic) for more details.
+
+EOM
+}
+
+help()
+{
+	echo "Usage: $0 [<command>] [<options>...]"
+	echo ""
+	welcome
+
+	echo "Basic commands:"
+	echo "  configure        - interactively create Fan configuration"
+	echo "  deconfigure      - interactively deconfigure Fan configuration"
+	echo "  test             - interactively test Fan configuration"
+	echo "  help             - display this help"
+
+	echo ""
+	echo "Non-interactive commands (see fanatic(8) for more details):"
+	echo "  enable-fan -u <underlay> -o <overlay>"
+	echo "  disable-fan -u <underlay> -o <overlay>"
+	echo "  enable-lxd -u <underlay> -o <overlay>"
+	echo "  disable-lxd -u <underlay> -o <overlay>"
+	echo "  enable-docker -u <underlay> -o <overlay>"
+	echo "  disable-docker -u <underlay> -o <overlay>"
+	echo "  test-host -u <underlay> -o <overlay> -r <remote host IP>"
+	echo "  test-local-lxd -u <underlay> -o <overlay>"
+	echo "  test-local-docker -u <underlay> -o <overlay>"
+}
+
+interactive=0
+cmd="$1"
+[ "$#" -ge 1 ] && shift 1
+[ "$cmd" = '' ] && cmd='configure'
+
+case "$cmd" in	
+-?|-h|--help|help)
+	help "$@"
+	exit 0
+	;;
+configure)
+	interactive=1
+	parse_commandline 'Configure' "$@"
+
+	#echo "O_underlay<$O_underlay> O_overlay<$O_overlay> O_remote<$O_remote>"
+
+	[ "$interactive" -eq 1 ] && welcome
+
+
+	identify_network 'Configure'
+	#echo "network_overlay<$network_overlay> network_underlay<$network_underlay>"
+
+	enable_fan "$network_tag" "$network_overlay" "$network_underlay"
+	enable_lxd "$network_tag" "$network_overlay" "$network_underlay"
+	enable_docker "$network_tag" "$network_overlay" "$network_underlay" "$network_underlay_addr"
+
+	test_local_all "$network_tag" "$network_overlay" "$network_underlay_addr"
+
+	identify_remote
+	#echo "remote_ip<$remote_up>"
+
+	test_all "$network_tag" "$network_overlay" "$network_underlay_addr" "$remote_ip"
+	;;
+deconfigure|unconfigure)
+	interactive=1
+	parse_commandline 'Deconfigure' "$@"
+
+	identify_network 'Deconfigure'
+	disable_docker "$network_tag" "$network_overlay" "$network_underlay" "$network_underlay_addr"
+	disable_lxd "$network_tag" "$network_overlay" "$network_underlay"
+	disable_fan "$network_tag" "$network_overlay" "$network_underlay"
+	;;
+enable-fan)
+	parse_commandline 'Reconfigure' "$@"
+	identify_network 'Reconfigure'
+	enable_fan "$network_tag" "$network_overlay" "$network_underlay"
+	;;
+disable-fan)
+	parse_commandline 'Reconfigure' "$@"
+	identify_network 'Reconfigure'
+	disable_fan "$network_tag" "$network_overlay" "$network_underlay"
+	;;
+enable-docker)
+	parse_commandline 'Reconfigure' "$@"
+	identify_network 'Reconfigure'
+	enable_docker "$network_tag" "$network_overlay" "$network_underlay" "$network_underlay_addr"
+	;;
+disable-docker)
+	parse_commandline 'Reconfigure' "$@"
+	identify_network 'Reconfigure'
+	disable_docker "$network_tag" "$network_overlay" "$network_underlay" "$network_underlay_addr"
+	;;
+enable-lxd)
+	parse_commandline 'Reconfigure' "$@"
+	identify_network 'Reconfigure'
+	enable_lxd "$network_tag" "$network_overlay" "$network_underlay"
+	;;
+disable-lxd)
+	parse_commandline 'Reconfigure' "$@"
+	identify_network 'Reconfigure'
+	disable_lxd "$network_tag" "$network_overlay" "$network_underlay"
+	;;
+test)
+	parse_commandline 'Reconfigure' "$@"
+	identify_network 'Test'
+	
+	test_local_all "$network_tag" "$network_overlay" "$network_underlay_addr"
+
+	identify_remote
+	test_all "$network_tag" "$network_overlay" "$network_underlay_addr" "$remote_ip"
+	;;
+test-host)
+	parse_commandline 'Reconfigure' "$@"
+	identify_network 'Test'
+	identify_remote
+	test_host "$network_tag" "$network_overlay" "$network_underlay_addr" "$remote_ip"
+	;;
+test-local-lxd)
+	parse_commandline 'Reconfigure' "$@"
+	identify_network 'Test'
+	test_local_lxd "$network_tag" "$network_overlay" "$network_underlay_addr"
+	;;
+test-local-docker)
+	parse_commandline 'Reconfigure' "$@"
+	identify_network 'Test'
+	test_local_docker "$network_tag" "$network_overlay" "$network_underlay_addr"
+	;;
+*)
+	usage "$cmd: unknown command"
+	;;
+esac

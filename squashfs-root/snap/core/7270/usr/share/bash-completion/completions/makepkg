@@ -1,0 +1,24 @@
+# Slackware Linux makepkg completion                       -*- shell-script -*-
+
+_makepkg()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case "$prev" in
+        -l|--linkadd|-c|--chown)
+            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-l --linkadd -p --prepend -c --chown' \
+            -- "$cur" ) )
+        return 0
+    fi
+
+    _filedir
+} && complete -F _makepkg makepkg
+
+# ex: ts=4 sw=4 et filetype=sh

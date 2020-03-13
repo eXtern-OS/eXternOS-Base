@@ -1,0 +1,33 @@
+#!/bin/sh
+#  Author: Jamie Strandboge <jamie@ubuntu.com>
+#  Copyright (C) 2015 Canonical Ltd.
+#
+#  This script is distributed under the terms and conditions of the GNU General
+#  Public License, Version 3 or later. See http://www.gnu.org/copyleft/gpl.html
+#  for details.
+
+set -e
+
+cat <<EOM
+This script has been replaced by snappy-debug. Please use:
+
+$ sudo snappy install snappy-debug
+$ sudo snappy-debug.security scanlog
+
+Alternatively, you can use 'scmp_sys_resolver' to resolve syscall numbers. Eg:
+$ scmp_sys_resolver 108
+getegid
+
+You must use scmp_sys_resolver on the same architecture as the device where the
+seccomp denial was logged.
+EOM
+
+logfile="/var/log/syslog"
+
+usage() {
+    cat <<EOM
+Usage: `basename $0` <logfile>
+
+If <logfile> is unspecified, use '$logfile'. If <logfile> is '-', use <stdin>.
+EOM
+}

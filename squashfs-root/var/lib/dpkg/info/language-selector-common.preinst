@@ -1,0 +1,49 @@
+#!/bin/sh
+
+set -e
+
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/fonts/conf.avail/69-language-selector-ko-kr.conf 0.75 -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/fonts/conf.avail/29-language-selector-ko-kr.conf 0.75 -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/fonts/conf.avail/69-language-selector-ka-ge.conf 0.86~ -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/fonts/conf.avail/69-language-selector-ja-jp.conf 0.100~ -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper mv_conffile /etc/profile.d/cedilla-brazil.sh /etc/profile.d/cedilla-portuguese.sh 0.153~ -- "$@"
+# End automatically added section
+
+
+dpkg-maintscript-helper rm_conffile \
+	/etc/fonts/conf.avail/69-language-selector-ko-kr.conf 0.75 -- "$@"
+dpkg-maintscript-helper rm_conffile \
+	/etc/fonts/conf.avail/29-language-selector-ko-kr.conf 0.75 -- "$@"
+dpkg-maintscript-helper rm_conffile \
+    /etc/fonts/conf.avail/69-language-selector-ka-ge.conf 0.86~ -- "$@"
+
+case "$1" in
+install|upgrade)
+  # old versions had a symlink to "none" meaning unconfigured
+  # new versions just don't have a symlink
+  if dpkg --compare-versions "$2" lt "0.1.27"; then
+    if [ -L /etc/fonts/language-selector.conf ]; then
+      if [ "$(readlink /etc/fonts/language-selector.conf)" = "/usr/share/language-selector/fontconfig/none" ]; then
+        rm /etc/fonts/language-selector.conf
+      fi
+    fi
+  fi
+
+  # Remove old symlinks now that the hack has gone away. This should be in the
+  # preinst becaue we're unconditionally installing symlinks with the same
+  # name, for now.
+  if dpkg --compare-versions "$2" lt-nl "0.86"; then
+      rm -f /etc/fonts/conf.d/69-language-selector-*.conf
+  fi
+  ;;
+
+esac

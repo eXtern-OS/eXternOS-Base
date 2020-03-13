@@ -1,0 +1,34 @@
+#!/bin/sh -e
+# initramfs local-premount script to set a
+# mac address on the dragonboard
+
+PREREQ=""
+
+# Output pre-requisites
+prereqs()
+{
+        echo "$PREREQ"
+}
+
+case "$1" in
+    prereqs)
+        prereqs
+        exit 0
+        ;;
+esac
+
+if [ -e /proc/device-tree/model ]; then
+    if grep -q "APQ 8016" /proc/device-tree/model; then
+        if grep -q androidboot.serialno /proc/cmdline; then
+            # shellcheck disable=SC2013
+            for i in $(cat /proc/cmdline); do
+                case "$i" in
+                  androidboot.serialno=*)
+                    echo "0200${i#androidboot.serialno=}"| \
+                      sed 's/.\{2\}/&:/g;s/.$//' >/run/macaddr0
+                  ;;
+                esac
+            done
+        fi
+    fi
+fi

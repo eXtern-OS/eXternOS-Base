@@ -1,0 +1,30 @@
+#!/bin/sh
+
+set -e
+
+# Purge actions
+if [ "$1" = purge ] ; then
+	# Get rid of configuration file
+	if [ -f /etc/pnm2ppa.conf ]; then
+		rm -f /etc/pnm2ppa.conf
+	fi
+	# We're pretty sure that the pnm2ppa magicfilter files were generated
+	# or installed by pnm2ppa packages.
+	if [ -d /etc/magicfilter ] ; then
+		for i in /etc/magicfilter/p?m2ppa*-filter ; do
+			rm -f $i || true
+		done
+
+		# If there are no files in the magicfilter directory, remove.
+		# rmdir will fail if there are files...  Not an error.
+		rmdir /etc/magicfilter 2> /dev/null || true
+	fi
+fi
+
+# Automatically added by dh_installdebconf
+if [ "$1" = purge ] && [ -e /usr/share/debconf/confmodule ]; then
+	. /usr/share/debconf/confmodule
+	db_purge
+fi
+# End automatically added section
+

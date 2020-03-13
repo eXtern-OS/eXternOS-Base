@@ -1,0 +1,40 @@
+#! /bin/sh
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+case "$1" in
+    remove)
+	if grep -q '^dm_mod\s' /proc/modules; then
+		cryptmap="$(dmsetup table | sed -nr 's/^([a-zA-Z0-9_-]+): [0-9]+ [0-9]+ crypt .*$/\1/p' | tr '\n' ' ')"
+		if [ -n "$cryptmap" ]; then
+				db_fset cryptsetup/prerm_active_mappings seen false
+				db_subst cryptsetup/prerm_active_mappings cryptmap "$cryptmap"
+				db_input high cryptsetup/prerm_active_mappings || true
+				db_go || true
+				db_get cryptsetup/prerm_active_mappings
+				if [ "$RET" = "false" ]; then
+					exit 1
+				fi
+		fi
+	fi
+    ;;
+esac
+
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper mv_conffile /etc/init/cryptdisks-enable.conf /etc/init/cryptdisks.conf 2:1.6.1-1ubuntu1~ -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper mv_conffile /etc/init/cryptdisks-early.conf /etc/init/cryptdisks-udev.conf 2:1.4.3-4 -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/init/cryptdisks.conf 2:1.7.2-0ubuntu4~ -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/init/cryptdisks-udev.conf 2:1.7.2-0ubuntu4~ -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/bash_completion.d/cryptdisks 2:1.7.0-3 -- "$@"
+# End automatically added section
+

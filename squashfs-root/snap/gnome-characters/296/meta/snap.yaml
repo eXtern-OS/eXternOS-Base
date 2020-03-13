@@ -1,0 +1,47 @@
+name: gnome-characters
+version: v3.32.1+git2.3367201
+summary: A character map application
+description: |
+  Characters is a simple utility application to find and
+  insert unusual characters.
+base: core18
+architectures:
+- amd64
+confinement: strict
+grade: stable
+plugs:
+  gnome-3-28-1804:
+    default-provider: gnome-3-28-1804
+    interface: content
+    target: $SNAP/gnome-platform
+  gtk-3-themes:
+    default-provider: gtk-common-themes
+    interface: content
+    target: $SNAP/data-dir/themes
+  icon-themes:
+    default-provider: gtk-common-themes
+    interface: content
+    target: $SNAP/data-dir/icons
+  sound-themes:
+    default-provider: gtk-common-themes
+    interface: content
+    target: $SNAP/data-dir/sounds
+slots:
+  gnome-characters:
+    bus: session
+    interface: dbus
+    name: org.gnome.Characters
+apps:
+  gnome-characters:
+    command: snap/command-chain/snapcraft-runner $SNAP/command-gnome-characters.wrapper
+    environment:
+      GSETTINGS_SCHEMA_DIR: $SNAP/share/glib-2.0/schemas
+      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/lib/x86_64-linux-gnu/org.gnome.Characters
+    plugs:
+    - browser-support
+    - desktop
+    - desktop-legacy
+    - gsettings
+    - home
+    - unity7
+    - wayland

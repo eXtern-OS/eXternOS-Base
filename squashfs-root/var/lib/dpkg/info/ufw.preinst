@@ -1,0 +1,28 @@
+#!/bin/sh -e
+
+if [ "$1" = "upgrade" ] && [ -f /etc/ufw/ufw.conf ]; then
+    if dpkg --compare-versions "$2" lt 0.29.1-1 ; then
+        level=`grep '^LOGLEVEL=.*' /etc/ufw/ufw.conf | cut -f 2 -d '=' | tr A-Z a-z`
+        if [ -z "$level" ]; then
+            # Convert old-style logging mechanism to the new. This is
+            # primarly useful for Ubuntu 8.04 LTS to Ubuntu 10.04 LTS
+            # upgrades, but also will cover some other odd situations.
+            if grep -q '^\-A ufw-after-input -m limit --limit 3/min --limit-burst 10 -j LOG --log-prefix "\[UFW BLOCK INPUT\]: "$' /etc/ufw/after.rules ; then
+                level="low"
+            else
+                level="off"
+            fi
+            echo "# AUTOMATICALLY ADDED ON UPGRADE:" >> /etc/ufw/ufw.conf
+            echo "# set to one of 'off', 'low', 'medium', 'high'" >> /etc/ufw/ufw.conf
+            echo "LOGLEVEL=$level" >> /etc/ufw/ufw.conf
+        fi
+    fi
+fi
+
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/init/ufw.conf 0.35-5~ ufw -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/bash_completion.d/ufw 0.34-1~ ufw -- "$@"
+# End automatically added section
+

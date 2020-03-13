@@ -1,0 +1,45 @@
+UPMIX PLUGIN
+============
+
+The upmix plugin is an easy-to-use plugin for upmixing to 4 or
+6-channel stream.  The number of channels to be expanded is determined
+by the slave PCM or explicitly via channel option.  For example, the
+following PCM defines upmixing to 5.1 from 1-6 channels input:
+
+	pcm.upmix51 {
+		type upmix
+		slave.pcm "surround51"
+	}
+
+You can use this PCM as a default one by defining below:
+
+	pcm.!default "plug:upmix51"
+
+The upmix plugin copies left and right channels to rear left and right
+with a certain delay.  The delay size can be specified by "delay" PCM
+option in msec.  For example, to set 10ms delay in the above case:
+
+	pcm.upmix51 {
+		type upmix
+		slave.pcm "surround51"
+		delay 10
+	}
+
+As default, 15ms delay is used.
+
+The channel option specifies the number of channels of output.  Either
+4 or 6 channels are supported.  When 0 is passed, the plugin tries 4
+or 6 channels appropriately suitable for the slave pcm.  The channel
+option is useful if the slave PCM has no strict input condition (like
+plug or route plugin).
+
+	pcm.myupmix {
+		type upmix
+		slave.pcm "something"
+		channels 6
+	}
+
+The center and LFE channels are the average of sum of left and right
+signals.
+
+The accepted format is currently only S16.

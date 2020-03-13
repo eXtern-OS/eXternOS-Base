@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/grub.d/10_freebsd 2.00-14~ -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/grub.d/10_hurd 2.00-14~ -- "$@"
+# End automatically added section
+# Automatically added by dh_installinit/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	if [ -x "/etc/init.d/grub-common" ]; then
+		update-rc.d grub-common start 99 2 3 4 5 . >/dev/null
+		invoke-rc.d grub-common start || exit 1
+	fi
+fi
+# End automatically added section

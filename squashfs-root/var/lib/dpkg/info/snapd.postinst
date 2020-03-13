@@ -1,0 +1,224 @@
+#!/bin/sh
+
+set -e
+
+# "powerpc" is not supported unfortunately, do nothing here# 
+if [ "$DPKG_MAINTSCRIPT_ARCH" = powerpc ]; then
+    exit 0
+fi
+
+case "$1" in
+    configure)
+        # ensure /var/lib/snapd/lib/gl is cleared
+        if dpkg --compare-versions "$2" lt-nl "2.0.7"; then
+            ldconfig
+        fi
+
+        # Ensure that we undo the damage done by the snap.mount unit that was present
+        # in snapd 2.31.
+        #
+        # We found that update scripts make systemd stop inactive mount units and this
+        # in turn stops all the units that depend on it so when the snap.mount unit is
+        # stopped all the per-snap mount units gets stopped along with them.  The 2.31
+        # release was only out briefly in xenial-proposed and bionic but to keep the
+        # affected users safe let's start all the per-snap mount units so that snaps no
+        # longer appear as broken after update.
+        if dpkg --compare-versions "$2" ge-nl "2.31" && \
+                dpkg --compare-versions "$2" lt-nl "2.32"; then
+            units=$(systemctl list-unit-files --full | grep '^snap[-.]' | cut -f1 -d ' ' | grep -vF snap.mount.service || true)
+            mounts=$(echo "$units" | grep '^snap[-.].*\.mount$' || true)
+            for unit in $mounts; do
+                # ensure its really a snap mount unit or systemd unit
+                if ! grep -q 'What=/var/lib/snapd/snaps/' "/etc/systemd/system/$unit" && ! grep -q 'X-Snappy=yes' "/etc/systemd/system/$unit"; then
+                    echo "Skipping non-snapd systemd unit $unit"
+                    continue
+                fi
+
+                echo "Starting $unit"
+                deb-systemd-invoke start "$unit" || true
+            done
+        fi
+
+        # In commit 0dce4704a5d (2017-03-28, snapd v2.23.6) we renamed
+        # /etc/apparmor.d/usr.lib.snap-confine to usr.lib.snap-confine.real
+        # to fix LP: #1673247 - however some people (developers?) still have
+        # the old usr.lib.snap-confine file. This seems to be loaded instead
+        # of the correct usr.lib.snap-confine.real profile. To fix this we
+        # use the rather blunt approach to rename the file forcefully.
+        if test -f /etc/apparmor.d/usr.lib.snapd.snap-confine && test -f /etc/apparmor.d/usr.lib.snapd.snap-confine.real; then
+            mv /etc/apparmor.d/usr.lib.snapd.snap-confine /etc/apparmor.d/usr.lib.snapd.snap-confine.dpkg-bak
+        fi
+
+        # Ensure that the void directory has correct permissions.
+        chmod 111 /var/lib/snapd/void
+esac
+
+# Automatically added by dh_apparmor/2.12-4ubuntu5.1
+aa_is_enabled() {
+   if command aa-enabled >/dev/null 2>&1; then
+      # apparmor >= 2.10.95-2
+      aa-enabled --quiet 2>/dev/null
+   else
+      # apparmor << 2.10.95-2
+      # (This should be removed once Debian Stretch and Ubuntu 18.04 are out.)
+      rc=0
+      aa-status --enabled 2>/dev/null || rc=$?
+      [ "$rc" = 0 ] || [ "$rc" = 2 ]
+   fi
+}
+
+if [ "$1" = "configure" ]; then
+    APP_PROFILE="/etc/apparmor.d/usr.lib.snapd.snap-confine.real"
+    if [ -f "$APP_PROFILE" ]; then
+        # Add the local/ include
+        LOCAL_APP_PROFILE="/etc/apparmor.d/local/usr.lib.snapd.snap-confine.real"
+
+        test -e "$LOCAL_APP_PROFILE" || {
+            mkdir -p `dirname "$LOCAL_APP_PROFILE"`
+            install --mode 644 /dev/null "$LOCAL_APP_PROFILE"
+        }
+
+        # Reload the profile, including any abstraction updates
+        if aa_is_enabled; then
+            apparmor_parser -r -T -W "$APP_PROFILE" || true
+        fi
+    fi
+fi
+# End automatically added section
+# Automatically added by dh_systemd_enable/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# This will only remove masks created by d-s-h on package removal.
+	deb-systemd-helper unmask 'snapd.autoimport.service' >/dev/null || true
+
+	# was-enabled defaults to true, so new installations run enable.
+	if deb-systemd-helper --quiet was-enabled 'snapd.autoimport.service'; then
+		# Enables the unit on first installation, creates new
+		# symlinks on upgrades if the unit file has changed.
+		deb-systemd-helper enable 'snapd.autoimport.service' >/dev/null || true
+	else
+		# Update the statefile to add new symlinks (if any), which need to be
+		# cleaned up on purge. Also remove old symlinks.
+		deb-systemd-helper update-state 'snapd.autoimport.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_systemd_enable/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# This will only remove masks created by d-s-h on package removal.
+	deb-systemd-helper unmask 'snapd.core-fixup.service' >/dev/null || true
+
+	# was-enabled defaults to true, so new installations run enable.
+	if deb-systemd-helper --quiet was-enabled 'snapd.core-fixup.service'; then
+		# Enables the unit on first installation, creates new
+		# symlinks on upgrades if the unit file has changed.
+		deb-systemd-helper enable 'snapd.core-fixup.service' >/dev/null || true
+	else
+		# Update the statefile to add new symlinks (if any), which need to be
+		# cleaned up on purge. Also remove old symlinks.
+		deb-systemd-helper update-state 'snapd.core-fixup.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_systemd_enable/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# This will only remove masks created by d-s-h on package removal.
+	deb-systemd-helper unmask 'snapd.seeded.service' >/dev/null || true
+
+	# was-enabled defaults to true, so new installations run enable.
+	if deb-systemd-helper --quiet was-enabled 'snapd.seeded.service'; then
+		# Enables the unit on first installation, creates new
+		# symlinks on upgrades if the unit file has changed.
+		deb-systemd-helper enable 'snapd.seeded.service' >/dev/null || true
+	else
+		# Update the statefile to add new symlinks (if any), which need to be
+		# cleaned up on purge. Also remove old symlinks.
+		deb-systemd-helper update-state 'snapd.seeded.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_systemd_enable/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# This will only remove masks created by d-s-h on package removal.
+	deb-systemd-helper unmask 'snapd.service' >/dev/null || true
+
+	# was-enabled defaults to true, so new installations run enable.
+	if deb-systemd-helper --quiet was-enabled 'snapd.service'; then
+		# Enables the unit on first installation, creates new
+		# symlinks on upgrades if the unit file has changed.
+		deb-systemd-helper enable 'snapd.service' >/dev/null || true
+	else
+		# Update the statefile to add new symlinks (if any), which need to be
+		# cleaned up on purge. Also remove old symlinks.
+		deb-systemd-helper update-state 'snapd.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_systemd_enable/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# This will only remove masks created by d-s-h on package removal.
+	deb-systemd-helper unmask 'snapd.snap-repair.timer' >/dev/null || true
+
+	# was-enabled defaults to true, so new installations run enable.
+	if deb-systemd-helper --quiet was-enabled 'snapd.snap-repair.timer'; then
+		# Enables the unit on first installation, creates new
+		# symlinks on upgrades if the unit file has changed.
+		deb-systemd-helper enable 'snapd.snap-repair.timer' >/dev/null || true
+	else
+		# Update the statefile to add new symlinks (if any), which need to be
+		# cleaned up on purge. Also remove old symlinks.
+		deb-systemd-helper update-state 'snapd.snap-repair.timer' >/dev/null || true
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_systemd_enable/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# This will only remove masks created by d-s-h on package removal.
+	deb-systemd-helper unmask 'snapd.socket' >/dev/null || true
+
+	# was-enabled defaults to true, so new installations run enable.
+	if deb-systemd-helper --quiet was-enabled 'snapd.socket'; then
+		# Enables the unit on first installation, creates new
+		# symlinks on upgrades if the unit file has changed.
+		deb-systemd-helper enable 'snapd.socket' >/dev/null || true
+	else
+		# Update the statefile to add new symlinks (if any), which need to be
+		# cleaned up on purge. Also remove old symlinks.
+		deb-systemd-helper update-state 'snapd.socket' >/dev/null || true
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_systemd_enable/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# This will only remove masks created by d-s-h on package removal.
+	deb-systemd-helper unmask 'snapd.system-shutdown.service' >/dev/null || true
+
+	# was-enabled defaults to true, so new installations run enable.
+	if deb-systemd-helper --quiet was-enabled 'snapd.system-shutdown.service'; then
+		# Enables the unit on first installation, creates new
+		# symlinks on upgrades if the unit file has changed.
+		deb-systemd-helper enable 'snapd.system-shutdown.service' >/dev/null || true
+	else
+		# Update the statefile to add new symlinks (if any), which need to be
+		# cleaned up on purge. Also remove old symlinks.
+		deb-systemd-helper update-state 'snapd.system-shutdown.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_systemd_start/11.1.6ubuntu2
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	if [ -d /run/systemd/system ]; then
+		systemctl --system daemon-reload >/dev/null || true
+		deb-systemd-invoke start 'snapd.autoimport.service' 'snapd.core-fixup.service' 'snapd.failure.service' 'snapd.seeded.service' 'snapd.service' 'snapd.snap-repair.service' 'snapd.snap-repair.timer' 'snapd.socket' 'snapd.system-shutdown.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/grub.d/09_snappy 1.7.3ubuntu1 -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/ld.so.conf.d/snappy.conf 2.0.7~ -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/apparmor.d/usr.lib.snapd.snap-confine 2.23.6~ -- "$@"
+# End automatically added section
+

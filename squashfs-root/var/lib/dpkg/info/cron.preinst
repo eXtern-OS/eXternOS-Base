@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+# /etc/init.d/cron symlink gets replaced with a real file on upgrade
+if [ "$1" = upgrade ] && [ -L /etc/init.d/cron ]; then
+    echo "Removing obsolete /etc/init.d/cron symlink..."
+    rm /etc/init.d/cron
+fi
+
+# Automatically added by dh_installdeb/10.10.7ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/init/cron.conf 3.0pl1-128ubuntu5~ cron -- "$@"
+# End automatically added section
+

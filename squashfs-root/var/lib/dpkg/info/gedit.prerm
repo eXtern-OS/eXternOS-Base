@@ -1,0 +1,19 @@
+#! /bin/sh
+
+set -e
+
+if [ "$1" = remove ]; then
+        update-alternatives --remove gnome-text-editor /usr/bin/gedit || true
+fi
+
+
+# Automatically added by dh_python3:
+if which py3clean >/dev/null 2>&1; then
+	py3clean -p gedit 
+else
+	dpkg -L gedit | perl -ne 's,/([^/]*)\.py$,/__pycache__/\1.*, or next; unlink $_ or die $! foreach glob($_)'
+	find /usr/lib/python3/dist-packages/ -type d -name __pycache__ -empty -print0 | xargs --null --no-run-if-empty rmdir
+fi
+
+# End automatically added section
+

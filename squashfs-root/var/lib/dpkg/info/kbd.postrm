@@ -1,0 +1,31 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+    remove)
+        for file in dumpkeys loadkeys; do
+            if [ -L /usr/bin/$file ]; then
+                rm /usr/bin/$file
+            fi
+        done
+        ;;
+esac
+
+# see kbd.preinst for why this is conditional.
+if [ ! -e /etc/kbd/config ] && [ ! -e /etc/kbd/remap ]; then
+    dpkg-maintscript-helper rm_conffile \
+            /etc/kbd/config 2.0.3-2~ kbd -- "$@"
+    dpkg-maintscript-helper rm_conffile \
+            /etc/kbd/remap 2.0.3-2~ kbd -- "$@"
+    dpkg-maintscript-helper rm_conffile \
+            /etc/init.d/kbd 2.0.3-2~ kbd -- "$@"
+fi
+
+# Automatically added by dh_installdeb/11.1.2ubuntu1
+dpkg-maintscript-helper rm_conffile /etc/init.d/console-screen.kbd.sh -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/init.d/kbd -- "$@"
+# End automatically added section
+
+
+# vim:sw=4:sts=4:et:

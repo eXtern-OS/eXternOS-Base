@@ -1,0 +1,30 @@
+#! /bin/sh
+
+set -e
+
+
+case "$1" in
+  configure)
+    if command -v update-initramfs >/dev/null 2>&1; then
+	    update-initramfs -u
+    fi
+    # Activate existing arrays now.
+    udevadm trigger --subsystem-match=block --action=change
+
+    if [ -f /etc/init.d/dmraid ]; then
+  	update-rc.d -f dmraid remove
+	rm -f /etc/init.d/dmraid
+    fi
+  ;;
+  abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+
+
+exit 0

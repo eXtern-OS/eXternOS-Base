@@ -1,0 +1,34 @@
+# Description: Allows unrestricted access to the system
+# Usage: reserved
+
+# vim:syntax=apparmor
+
+#include <tunables/global>
+
+# Define vars with unconfined since autopilot rules may reference them
+###VAR###
+
+# TODO: when v3 userspace lands, use:
+# ###PROFILEATTACH### (unconfined) {}
+
+# v2 compatible wildly permissive profile
+###PROFILEATTACH### (attach_disconnected) {
+  capability,
+  network,
+  / rwkl,
+  /** rwlkm,
+  # Ubuntu Core is a minimal system so don't use 'pix' here. There are few
+  # profiles to transition to, and those that exist either won't work right
+  # anyway (eg, ubuntu-core-launcher) or would need to be modified to work
+  # with snaps (dhclient).
+  /** ix,
+
+  mount,
+  remount,
+  umount,
+  pivot_root,
+  dbus,
+  signal,
+  ptrace,
+  unix,
+}

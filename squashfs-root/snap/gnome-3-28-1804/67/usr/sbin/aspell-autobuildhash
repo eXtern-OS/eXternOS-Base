@@ -1,0 +1,392 @@
+#!/usr/bin/perl -w
+#
+#  script for aspell hash autorebuild in Debian systems
+#
+# Copyright 2004-2016 Agustin Martin Domingo <agmartin@debian.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------------
+
+use strict;
+
+my $debug;
+my $dry_run;
+my $force;
+my $triggered;
+my $usrlibdir   = "/usr/lib/aspell";
+my $usrsharedir = "/usr/share/aspell";
+my $varlibdir   = "/var/lib/aspell";
+my $compatdir   = "$varlibdir";
+my $datadir     = "$usrlibdir";             # The data dir
+my $program     = "aspell-autobuildhash";
+
+sub usage {
+  print STDERR "\nUsage:\taspell-autobuildhash [options]\n"
+    . "\n"
+    . "Options:\n"
+    . "\t--debug         Show debugging info about aspell-autobuildhash\n"
+    . "\t                internal work. Will also enable aspell affix validation.\n"
+    . "\t--dry-run       Show what would be done, but do nothing real.\n"
+    . "\t--force         Do the job regardless of versions comparisons.\n"
+    . "\t--triggered     Tell the script that is run in the triggers stage.\n";
+}
+
+sub debugprint {
+  print STDERR "@_\n" if $debug;
+}
+
+sub mymessage{
+  my $lang     = shift;
+  my $message  = join(" ",@_);
+  my $question = "dictionaries-common/ispell-autobuildhash-message";
+
+  subst($question,"xxpell","aspell");
+  subst($question,"XXpell","Aspell");
+  subst($question,"hashfile","$lang");
+  subst($question,"errormsg","$message");
+  fset ($question,"seen","false");
+  title("dictionaries-common: Running aspell-autobuildhash");
+  input("critical",$question);
+  go ();
+}
+
+sub myerror {
+  mymessage @_;
+  exit 1;
+}
+
+# ---------------------------------------------------------------------
+#      Handle autorebuilding
+# ---------------------------------------------------------------------
+
+sub autorebuild {
+  my $lang            = shift ||                         # The dictionary name
+    myerror("aspell-autobuildhash","No argument passed to function autorebuild");
+  my $old_remove_data = shift;
+  my $langsfile       = "$usrsharedir/$lang.contents";   # The subdicts file
+  my $options         = " --per-conf=/dev/null ";        # Make sure no personal conf is used at all
+  my %new_remove_data = ();
+  my @sublangs        = ();
+
+  $options     .= " --dont-validate-affixes " unless $debug;
+
+  myerror "$program: aspell data dir $datadir does not exist" unless ( -d $datadir );
+
+  # Import registered removal data.
+  foreach my $entry ( keys %{$old_remove_data} ){
+    $new_remove_data{$entry}++;
+    $new_remove_data{'fake-remove'}{$entry}++;
+  }
+
+  # Check if there is a contents file for this compat name
+  if ( -e $langsfile ){
+    open (my $LANGSFILE, "< $langsfile") || die "Could not open $langsfile for reading";
+    @sublangs = <$LANGSFILE>;
+    close $LANGSFILE;
+  } else {
+    push @sublangs, $lang;
+  }
+  chomp @sublangs;
+
+  foreach ( @sublangs ){
+    next if m/^\s*$/;
+    next if m/^\s*\#/;
+    s/^\s+//;
+    s/\s+$//;
+
+    my $sublang = $_;
+    my $base    = "$usrsharedir/$sublang";     # The wordlist basename
+    my $hash    = "$varlibdir/$sublang.rws";   # The hash file
+    my $link    = "$usrlibdir/$sublang.rws";   # The link to the hash file
+    my $msg     = '';
+    my $unpack  = '';
+
+    print STDERR "aspell-autobuildhash: processing: $lang [$sublang].\n";
+
+    if ( -e "$base.mwl.gz" ){
+      $unpack = "zcat $base.mwl.gz";
+    } elsif ( -e "$base.wl.gz") {
+      $unpack = "zcat $base.wl.gz";
+    } elsif ( -e "$base.cwl.gz") {
+      $unpack = "zcat $base.cwl.gz | precat";
+    } else {
+      mymessage($lang,"$program: Could not find any of $base.{mwl,wl,cwl}.gz");
+      return;
+    }
+
+    #$unpack = "$unpack | aspell clean strict";
+    my $command = "$unpack | aspell $options --local-data-dir=$datadir --lang=$lang create master $hash";
+    if ( $dry_run ){
+      print STDERR "$command\n";
+      $new_remove_data{'fake-remove'}{"$hash"}++;
+      $new_remove_data{'fake-remove'}{"$link"}++;
+    } else {
+      debugprint(" - command: $command");
+      if ( system ("$command") == 0 ){
+	$new_remove_data{'remove'}{$hash}++;
+	if ( -w  "$usrlibdir" ){
+	  symlink($hash,$link) unless -e $link;
+	} else {
+	  print STDERR "$program warning: Non writable \"$usrlibdir\". Not setting symlink";
+	}
+	if ( -l "$link" ){
+	  # Make sure link is recorded
+	  $new_remove_data{'remove'}{"$link"}++;
+	}
+      } else {
+	$msg = "$program: Could not build the hash file for $sublang" ;
+      }
+    }
+
+    if ( $msg ){                 # Do not break postinst if hash cannot be built
+      mymessage ($lang,$msg);    # Just inform about that
+      return;
+    }
+  }
+  $new_remove_data{'status'} = "ok";
+  return \%new_remove_data;
+}
+
+# ---------------------------------------------------------------------
+#                   Get aspell compat version
+# ---------------------------------------------------------------------
+
+sub get_aspell_compat {
+  my $aspell_compat;
+  my $aspellcompatfile = "/usr/share/aspell/aspell.compat";
+
+  if ( -e $aspellcompatfile ){
+    open (my $COMPAT,"$aspellcompatfile");
+    chomp ( $aspell_compat = <$COMPAT> );
+    close $COMPAT;
+  }
+  return $aspell_compat;
+}
+
+# ---------------------------------------------------------------------
+#                        The main program
+# ---------------------------------------------------------------------
+
+use Debian::DictionariesCommon qw(dico_checkroot dico_activate_trigger);
+use Debconf::Client::ConfModule q(:all);
+use Getopt::Long;
+
+# Options processing
+GetOptions ('debug'     => \$debug,
+	    'dry-run'   => \$dry_run,
+	    'force'     => \$force,
+	    'triggered' => \$triggered
+) or usage();
+
+# Check if we are root
+dico_checkroot() unless $dry_run;
+
+# Honour 'DICT_COMMON_DEBUG' environment variable.
+unless ( $debug ){
+  $debug++ if defined $ENV{'DICT_COMMON_DEBUG'};
+}
+
+my %old_remove_data = ();
+my $aspell_compat   = get_aspell_compat();
+
+unless ( $triggered or $force ) {
+  exit if dico_activate_trigger("aspell-autobuildhash");
+}
+
+$force++ unless $aspell_compat;
+
+if ( system("which aspell > /dev/null 2>&1" ) == 0 ){
+  foreach my $compat ( <$compatdir/*.compat> ){
+    my $lang =  $compat;
+    $lang    =~ s/\.compat$//;
+    $lang    =~ s/.*\///;
+
+    # Parse compat file
+    open (my $COMPAT,"$compat");
+    my $lang_compat =  <$COMPAT>;
+    close $COMPAT;
+    chomp $lang_compat if $lang_compat;
+    $lang_compat = 0 unless $lang_compat;
+
+    # Parse dict remove file if available
+    my $remove_file     = "$varlibdir/$lang.remove";
+    my %old_remove_data = ();
+    if ( -e "$remove_file" ){
+      open (my $REMOVE,"$remove_file");
+      while (<$REMOVE>){
+        chomp;
+        next if m/^\s*$/;
+        s/^\s+//;
+        s/\s+$//;
+        if ( -e "$_" ){
+          $old_remove_data{$_}++;
+        } else {
+          debugprint "$program: \"$_\" in $remove_file not found. Upgrading info.";
+        }
+      }
+      close $REMOVE;
+    }
+
+    #
+    if ( $force || $aspell_compat ne $lang_compat ){
+      print STDERR "--\n" if ( $debug or $dry_run );
+      debugprint "$lang => compat: \"$compat\", aspell_compat: [$aspell_compat]; lang_compat: [$lang_compat]";
+      my $new_remove_data = autorebuild($lang,\%old_remove_data);
+      if ( defined $new_remove_data->{'status'} ){
+	my $newcompat = $aspell_compat || 0;
+	if ( $dry_run ){
+	  print STDERR "$newcompat > $compat\n";
+	  print STDERR "Remove: \n", join("\n",sort keys %{$new_remove_data->{'fake-remove'}}) ,"\n";
+	} else {
+	  # Update compat file
+	  open (my $COMPAT,">","$compat");
+	  print $COMPAT "$newcompat\n";
+	  close $COMPAT;
+	  debugprint "Updated $compat to $newcompat";
+	  # Update remove file
+	  open (my $REMOVE,">","$remove_file")
+	    or die "$program: Could not open \"$remove_file\" for write.";
+	  print $REMOVE join("\n",sort keys %{$new_remove_data->{'remove'}}),"\n";
+	  close $REMOVE;
+	}
+      } else {
+	debugprint " *=* $compat not updated because of an error";
+      }
+    }
+  }
+} else {
+  debugprint "$program:  aspell is not installed. Doing nothing";
+}
+
+__END__
+
+=head1 NAME
+
+B<aspell-autobuildhash> - Autobuilding aspell hash files for some dicts
+
+=head1 SYNOPSIS
+
+ aspell-autobuildhash [--force]
+
+   Options:
+    --debug      Show extra info about aspell-autobuildhash internal
+                 work. Will also enable aspell affix validation.
+    --dry-run    Show what would be done, but do nothing real.
+    --force      Rebuild the hash file for all dicts providing a
+                 compat file skipping the test.
+    --triggered  Tell the script that is run in the triggers stage.
+
+=head1 DESCRIPTION
+
+B<aspell-autobuildhash> is a script that will manage aspell hash files
+autobuild, intended to be called from the dictionaries-common tools.
+Depending on the aspell
+compatibility level and on the compatibility level used for the hash file
+if present, will decide whether it must be rebuilt or not. This script will
+only work on aspell packages prepared to use it, it will do nothing for other
+aspell dict packages.
+
+=head1 OPTIONS
+
+ --debug      Show some extra information about aspell-autobuildhash
+              internal work. Will also enable aspell affix validation.
+ --dry-run    Show what would be done, but do nothing real.
+ --force      Rebuild the hash file for all dicts providing a compat
+              file regardless of the compatibility levels found.
+ --triggered  Tell the script that is run in the triggers stage. When
+              run under dpkg control, do not try to set the
+              'aspell-autobuildhash' trigger, but run real
+              B<aspell-autobuildhash> code. When not run under dpkg
+              control, real code will always be run and '--triggered'
+              option has no real effect.
+
+=head1 PACKAGE MAINTAINERS
+
+To use this system, B<aspell-autobuildhash> expects a F<$lang.compat> file
+in F</var/lib/aspell> (I<$lang> stands for the lang basename with variant
+if any, e.g. I<$lang> is something like I<gl-minimos> or I<en>))
+containing aspell compatibility version for last successful build
+or "0" or en empty file if hash is to be rebuild, as is for dictionary
+installation and upgrades.
+
+When upgrading B<aspell>, script will check if version in I<$lang.compat>
+is different from I<aspell.compat> and rebuild if so, updating
+I<$lang.compat> with the new value.
+
+Wordlists should previously be compressed either with gzip
+(and their extensions set as F<.mwl.gz> or F<.wl.gz>) or preferably
+first with aspell prezip and then gzipped (with F<.cwl.gz> extension).
+This applies both for plain wordlists and munched wordlists
+(in the ispell way) if you use affix compression.
+
+If your package will provide a single hash, install prezipped+gzipped
+wordlist as F</usr/share/aspell/$lang.cwl.gz> or, if prezip is not used,
+as F</usr/share/aspell/$lang.mwl.gz>.
+
+If your package will provide more than one aspell hash for the same $lang,
+you will need to place each compressed wordlist as e.g.
+F</usr/share/aspell/$subdict.cwl.gz>, and the common F<$lang.compat> as
+above. Then create a F</usr/share/aspell/$lang.contents> file with the
+base names of the subdicts, one in a line. For English that will contain,
+amongst other possible lines
+
+ en-common
+ en-variant_0
+ en-variant_1
+ en-variant_2
+ en_CA-w_accents-only
+
+No need to use this file if a single hash is being created.
+
+Dictionaries-common scripts will call internally this script and create a
+single hash file at F</var/lib/ispell/$lang.rws>, or hash files at
+F</var/lib/ispell/$subdict.rws>. You must set a symlink to that
+files from F</usr/lib/aspell/$lang.rws> or
+F</usr/lib/aspell/$subdict.rws> as appropriate.
+
+Aspell dictionary packages using this script must make sure that
+I<$lang.compat> is reset on every new install/upgrade, so hash is rebuilt.
+They must also make sure that I<$lang.compat> and all of
+F</var/lib/aspell/$lang.rws> or F</var/lib/aspell/$subdict.rws>
+are removed on package removal.
+
+As of version C<1.10>, B<installdeb-aspell> script will understand
+C<'auto-compat'> and C<'auto-contents'> fields in F<$dict.info-aspell>
+file to help with this by adding needed debhelper snippets.
+Put in that entry the base name(s) of your compat and contents file(s)
+and carefully check resulting maintainer scripts after build.
+
+Note that you are no longer suggested to ship empty files at
+any of F</var/lib/aspell/$lang.compat>, F</var/lib/aspell/$lang.rws>
+or F</var/lib/aspell/$subdict.rws>, but explicitly create/update them
+on install and explicitly remove them on removal.
+
+B<aspell> maintainer should also call this script from package postinst.
+When comparing versions it will get the aspell version from file
+F</usr/share/aspell/aspell.compat>.
+
+=head1 AUTHORS
+
+Agustin Martin <agmartin@debian.org>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2004-2013 Agustin Martin <agmartin@debian.org>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+=cut

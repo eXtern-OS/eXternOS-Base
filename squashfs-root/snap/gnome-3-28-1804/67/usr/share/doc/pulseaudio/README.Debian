@@ -1,0 +1,26 @@
+pulseaudio for Debian (and Ubuntu)
+-----------------------------------
+
+By default pulseaudio is configured for using a per-user session daemon
+(see comments in /etc/default/pulseaudio). If you wish to prevent per-
+user session daemons from being invoked, remember to edit
+/etc/pulse/client.conf (or create ~/.pulse/client.conf) and ensure that
+"autospawn = no" is present and uncommented.
+
+PulseAudio's default configuration uses high quality sample rate conversion
+that may be overly CPU intensive. If PulseAudio's CPU usage is unacceptable on
+your hardware, please change the resample-method option in
+/etc/pulse/daemon.conf to either src-linear or trivial. See daemon.conf for
+more details.
+
+Configuration for chroot usage
+==============================
+
+If you want to use PulseAudio from within a chroot, you need to mount
+the host /run/udev and /run/dbus folders for the PulseAudio automatic
+soundcards feature to work.  Please see the following bug report for a
+complete explanation:
+
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=649884
+
+ -- Luca Capello <luca@pca.it>, Thu, 24 Nov 2011 16:07:04 +0100

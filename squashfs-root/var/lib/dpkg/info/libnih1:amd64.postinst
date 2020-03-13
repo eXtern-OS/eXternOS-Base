@@ -1,0 +1,53 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = configure ]; then
+    # A dependent library of Upstart has changed, so restart Upstart
+    # such that it can safely unmount the root filesystem (LP: #740390)
+
+    # Query running version of Upstart, but only when we know
+    # that initctl will work.
+    #
+    # The calculated version string may be the null string if
+    # Upstart is not running (where for example an alternative
+    # init is running outside a chroot environment) or if the
+    # query failed for some reason. However, the version check
+    # below handles a null version string correctly.
+    UPSTART_VERSION_RUNNING=$(initctl version 2>/dev/null |\
+        awk '{print $3}'|tr -d ')' || :)
+
+    if ischroot; then
+        # Do not honour re-exec when requested from within a
+        # chroot since:
+        #
+        # (a) The version of Upstart outside might not support it.
+        # (b) An isolated environment such as a chroot should
+        #     not be able to modify its containing environment.
+        #
+        # A sufficiently new Upstart will actually handle a re-exec
+        # request coming from telinit within a chroot correctly (by
+        # doing nothing) but it's simple enough to perform the check
+        # here and save Upstart the effort.
+        :
+    elif dpkg --compare-versions "$UPSTART_VERSION_RUNNING" ge 1.6.1; then
+        # We are not running inside a chroot and the running version
+        # of Upstart supports stateful re-exec, so we can
+        # restart immediately.
+        #
+        # XXX: Note that the check on the running version must
+        # remain *indefinitely* since it's the only safe way to
+        # know if stateful re-exec is supported: simply checking
+        # packaged version numbers is not sufficient since
+        # the package could be upgraded multiple times without a
+        # reboot.
+        telinit u || :
+    else
+        # Before we shutdown or reboot, we need to re-exec so that we
+        # can safely remount the root filesystem; we can't just do that
+        # here because we lose state.
+        touch /var/run/init.upgraded || :
+    fi
+fi
+
+

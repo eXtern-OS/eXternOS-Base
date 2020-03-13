@@ -1,0 +1,45 @@
+#!/bin/sh
+
+set -e
+
+. /etc/default/swapfile
+
+# check defaults
+[ -n "$SIZE" ] || exit 0
+[ -n "$FILE" ] || exit 0
+
+create_swapfile() {
+  local FILE=$1
+  local SIZE=$2
+  fallocate -l $((1024*1024*SIZE)) "$FILE"
+  mkswap "$FILE" >/dev/null 2>&1
+  chmod 0600 "$FILE"
+}
+
+delete_swapfile() {
+  if grep -q "$FILE" /proc/swaps; then
+    swapoff "$1"
+  fi
+  rm -f "$1"
+}
+
+# SIZE is zero (or smaller), drop out
+# (and delete possibly existing file)
+if [ "$SIZE" -le "0" ]; then
+    [ -e "$FILE" ] && delete_swapfile "$FILE"
+    exit 0
+fi
+
+# file does not exist, create it
+if [ ! -e "$FILE" ]; then
+  create_swapfile "$FILE" "$SIZE"
+fi
+
+# file exists but has the wrong size
+if [ "$(stat -c %s "$FILE")" -ne "$((1024*1024*SIZE))" ]; then
+  delete_swapfile "$FILE"
+  create_swapfile "$FILE" "$SIZE"
+fi
+
+# swap on if we aren't already
+grep -q "$FILE" /proc/swaps || swapon "$FILE"

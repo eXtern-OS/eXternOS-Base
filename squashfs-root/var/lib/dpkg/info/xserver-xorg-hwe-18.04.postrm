@@ -1,0 +1,43 @@
+#!/bin/sh
+# Debian xserver-xorg package post-removal script
+# Copyright 1998--2001, 2003 Branden Robinson.
+# Licensed under the GNU General Public License, version 2.  See the file
+# /usr/share/common-licenses/GPL or <http://www.gnu.org/copyleft/gpl.txt>.
+# Acknowledgements to Stephen Early, Mark Eichin, and Manoj Srivastava.
+
+
+set -e
+
+THIS_PACKAGE=xserver-xorg
+THIS_SCRIPT=postrm
+
+CONFIG_DIR=/etc/X11
+SERVER_SYMLINK="$CONFIG_DIR/X"
+XF86CONFIG="$CONFIG_DIR/XF86Config-4"
+XORGCONFIG="$CONFIG_DIR/xorg.conf"
+CONFIG_AUX_DIR=/var/lib/x11
+SERVER_SYMLINK_CHECKSUM="$CONFIG_AUX_DIR/${SERVER_SYMLINK##*/}.md5sum"
+SERVER_SYMLINK_ROSTER="$CONFIG_AUX_DIR/${SERVER_SYMLINK##*/}.roster"
+XF86CONFIG_CHECKSUM="$CONFIG_AUX_DIR/${XF86CONFIG##*/}.md5sum"
+XORGCONFIG_CHECKSUM="$CONFIG_AUX_DIR/${XORGCONFIG##*/}.md5sum"
+XF86CONFIG_ROSTER="$CONFIG_AUX_DIR/${XF86CONFIG##*/}.roster"
+XORGCONFIG_ROSTER="$CONFIG_AUX_DIR/${XORGCONFIG##*/}.roster"
+THIS_SERVER=/usr/bin/Xorg
+
+# clean up non-conffile configuration files and related materials on purge
+if [ "$1" = "purge" ]; then
+  rm -f "$SERVER_SYMLINK"
+  rm -f "$XORGCONFIG_CHECKSUM" "$XORGCONFIG_ROSTER"
+  rm -f "$SERVER_SYMLINK_CHECKSUM" "$SERVER_SYMLINK_ROSTER"
+  rm -f "$XORGCONFIG" "$XF86CONFIG"
+
+  for DIR in "$CONFIG_DIR" "$CONFIG_AUX_DIR"; do
+      rmdir "$DIR" 2> /dev/null || true
+  done
+fi
+
+
+
+exit 0
+
+# vim:set ai et sts=2 sw=2 tw=0:

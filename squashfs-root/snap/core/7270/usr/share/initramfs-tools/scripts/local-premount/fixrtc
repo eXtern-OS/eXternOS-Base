@@ -1,0 +1,127 @@
+#!/bin/sh -e
+# initramfs local-premount script for fixrtc
+
+PREREQ=""
+
+# Output pre-requisites
+prereqs()
+{
+        echo "$PREREQ"
+}
+
+case "$1" in
+    prereqs)
+        prereqs
+        exit 0
+        ;;
+esac
+
+# use the fixrtc cmdline option in your bootloader to
+# automatically set the hardware clock to the date of
+# the last mount of your root filesystem to avoid fsck
+# to get confused by the superblock being in the future
+
+BROKEN_CLOCK=""
+ROOTDEV=""
+# System partition is currently used by ubuntu touch only
+SYSTEMPART=""
+
+for x in $(cat /proc/cmdline); do
+        case ${x} in
+        root=*)
+                value=${x#*=}
+
+                # Find the device node path depending on the form of root= :
+                case ${value} in
+                UUID=*)
+                        ROOTDEV=/dev/disk/by-uuid/${value#UUID=}
+                        ;;
+                LABEL=*)
+                        ROOTDEV=/dev/disk/by-label/${value#LABEL=}
+                        ;;
+                *)
+                        ROOTDEV=${value}
+                        ;;
+                esac
+        ;;
+        systempart=*)
+                value=${x#*=}
+
+                # Find the device node path depending on the form of root= :
+                case ${value} in
+                UUID=*)
+                        SYSTEMPART=/dev/disk/by-uuid/${value#UUID=}
+                        ;;
+                LABEL=*)
+                        SYSTEMPART=/dev/disk/by-label/${value#LABEL=}
+                        ;;
+                *)
+                        SYSTEMPART=${value}
+                        ;;
+                esac
+                # if systempart= is defined we do not want root=/dev/ram
+                # been taken into account
+                [ "$ROOTDEV" = "/dev/ram" ] && ROOTDEV=""
+        ;;
+        fixrtc)
+                BROKEN_CLOCK=1
+        ;;
+        esac
+done
+
+# Touch devices might not have a valid 'root', so use system part if available
+if [ -z "$ROOTDEV" -a -n "$SYSTEMPART" ]; then
+        ROOTDEV=$SYSTEMPART
+fi
+
+if [ -n "$BROKEN_CLOCK" -a -n "$ROOTDEV" ]; then
+        # need udev settle for /dev/disk/by-* symlinks to be added
+        udevadm settle
+
+        wait-for-root "$ROOTDEV" "${ROOTDELAY:-180}"
+
+        ROOTDISK=$(readlink -f "$ROOTDEV")
+
+        MOUNTDATESTR=$(dumpe2fs -h "$ROOTDISK" 2>/dev/null|grep "Last mount time")
+        # Trim whitespace for busybox
+        MOUNTDATE=`echo ${MOUNTDATESTR#*:}`
+
+        CREATEDATESTR=$(dumpe2fs -h "$ROOTDISK" 2>/dev/null|grep "Filesystem created") || true
+        # Trim whitespace for busybox
+        CREATEDATE=`echo ${CREATEDATESTR#*:}`
+
+        hwclock -s || true
+
+        # make sure we're also compatible with busybox, if available
+        DATE="/bin/date -D%c"
+        date -D%c 2>/dev/null || DATE=/bin/date
+
+        if [ "$MOUNTDATE" = "n/a" ]; then
+            # some versions of mkfs set n/a now, date is not happy with this so
+            # let us use some half way sane epoch instead
+            MOUNTDATE="Fri Jan 1 00:00:00 1999"
+        fi
+        TIMESTR=$MOUNTDATE
+        TIME=$(${DATE} --utc --date "${TIMESTR}" +%s)
+
+        CURTIME=$(${DATE} --utc +%s)
+
+        # in case the created time is newer than last mount, use that instead
+        if [ -n "$CREATEDATE" ]; then
+                CREATETIME=$(${DATE} --utc --date "${CREATEDATE}" +%s)
+                if [ "$CREATETIME" -gt "$TIME" ]; then
+                        TIMESTR=$CREATEDATE
+                        TIME=$CREATETIME
+                fi
+        fi
+
+        if [ "$TIME" -gt "$CURTIME" ]; then
+                ${DATE} --set="${TIMESTR} 1 minute" >/dev/null 2>&1
+        fi
+
+fi
+
+# This script is best-effort.  If we couldn't fudge the clock as desired,
+# just try to carry on boot anyway:
+# It will probably fail, but we won't have made the situation any worse.
+exit 0

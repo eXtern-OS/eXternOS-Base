@@ -1,0 +1,44 @@
+#!/bin/sh
+
+set -e
+
+chrooted() {
+	if [ "$(stat -c %d/%i /)" = "$(stat -Lc %d/%i /proc/1/root 2>/dev/null)" ]; then
+		# the devicenumber/inode pair of / is the same as that of
+		# /sbin/init's root, so we're *not* in a chroot and hence
+		# return false.
+		return 1
+	fi
+	return 0
+}
+
+case "${1}" in
+	configure)
+		if [ -c /dev/cuse ] && ! chrooted
+		then
+			chmod 0600 /dev/cuse > /dev/null 2>&1
+		fi
+		if ! dpkg-statoverride --list /bin/fusermount > /dev/null 2>&1
+		then
+			chmod 4755 /bin/fusermount
+		fi
+
+		if [ -x /usr/sbin/update-initramfs ]
+		then
+			update-initramfs -u
+		fi
+		;;
+
+	abort-upgrade|abort-remove|abort-deconfigure)
+
+		;;
+
+	*)
+		echo "postinst called with unknown argument \`${1}'" >&2
+		exit 1
+		;;
+esac
+
+
+
+exit 0

@@ -1,0 +1,23 @@
+# bash completion for reptyr(1)                            -*- shell-script -*-
+
+_reptyr()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -l)
+            return 0
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return 0
+    fi
+
+    [[ $prev != +([0-9]) ]] && _pids
+} &&
+complete -F _reptyr reptyr
+
+# ex: ts=4 sw=4 et filetype=sh

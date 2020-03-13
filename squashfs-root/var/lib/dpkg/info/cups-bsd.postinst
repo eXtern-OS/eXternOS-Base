@@ -1,0 +1,41 @@
+#! /bin/sh
+
+set -e
+
+# Debconf
+. /usr/share/debconf/confmodule
+
+case "$1" in
+    configure)
+
+	# Set documentation symlinks
+	if [ -d /usr/share/doc/cups ]; then
+	    if [ ! -e /usr/share/doc/cups-bsd ]; then
+		ln -sf cups-common /usr/share/doc/cups-bsd
+	    fi
+	fi
+
+	if [ -x "`which update-inetd 2>/dev/null`" ]; then
+	    # Add cups-lpd to inetd.conf
+	    db_get cups-bsd/setuplpd
+	    if [ "$RET" = "true" ]; then
+	        update-inetd --add 'printer stream tcp nowait lp /usr/lib/cups/daemon/cups-lpd cups-lpd'
+	    fi
+	fi
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 0
+    ;;
+esac
+
+
+
+exit 0
+
+

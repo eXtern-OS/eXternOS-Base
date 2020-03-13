@@ -1,0 +1,50 @@
+#!/bin/sh
+
+set -e
+
+. /usr/share/debconf/confmodule
+db_version 2.0
+
+case "$1" in
+configure|reconfigure)
+	if dpkg --compare-versions "$2" lt "1.0.23+dfsg-1ubuntu4"; then
+		if [ -L /etc/modprobe.d/blacklist-oss ]; then
+			mv /etc/modprobe.d/blacklist-oss \
+			   /etc/modprobe.d/blacklist-oss.conf
+		fi
+		if [ -L /etc/modprobe.d/blacklist-alsa ]; then
+			mv /etc/modprobe.d/blacklist-alsa \
+			   /etc/modprobe.d/blacklist-alsa.conf
+		fi
+	fi
+	db_get linux-sound-base/sound_system || :
+	case "$RET" in
+	OSS)
+		rm -f /etc/modprobe.d/blacklist-oss.conf
+		rm -f /etc/modprobe.d/blacklist-oss
+		rm -f /etc/modprobe.d/linux-sound-base_noOSS
+		ln -sf /lib/linux-sound-base/noALSA.modprobe.conf \
+			/etc/modprobe.d/blacklist-alsa.conf
+		;;
+	ALSA)
+		rm -f /etc/modprobe.d/blacklist-alsa.conf
+		rm -f /etc/modprobe.d/blacklist-alsa
+		rm -f /etc/modprobe.d/linux-sound-base_noALSA
+		ln -sf /lib/linux-sound-base/noOSS.modprobe.conf \
+			/etc/modprobe.d/blacklist-oss.conf
+		;;
+	esac
+	;;
+abort-upgrade|abort-remove|abort-deconfigure)
+	# We don't have to do anything because we didn't do anything in prerm
+	exit 0
+	;;
+*)
+	echo "postinst called with unknown argument \`$1'" >&2
+	exit 1
+	;;
+esac
+
+
+
+db_stop || :

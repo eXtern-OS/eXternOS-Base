@@ -1,0 +1,40 @@
+#!/bin/sh
+# postinst script for libmtp
+
+set -e
+
+PACKAGE=libmtp9
+
+case "$1" in
+configure)
+    # PART A: Remove broken link (0.3.7-3 upgrade, bug #527206)
+    oldlink=/etc/udev/rules.d/libmtp8.rules
+    if [ -L $oldlink -a ! -f $oldlink ] ; then
+        rm -f $oldlink
+    fi
+
+    # PART B: Remove broken link, libmtp5 leftover (bug #531538)
+    oldlink2=/etc/udev/rules.d/libmtp.rules
+    if [ -L $oldlink2 -a ! -f $oldlink2 ] ; then
+        rm -f $oldlink2
+    fi
+    
+    # PART C: Remove broken link, libmtp7 leftover
+    oldlink3=/etc/udev/rules.d/libmtp7.rules
+    if [ -L $oldlink3 -a ! -f $oldlink3 ] ; then
+        rm -f $oldlink3
+    fi
+
+    # PART D
+    # Check if package version is 0.3.7-3 or less
+    # Do not mix with package-default rules file: /lib/udev/rules.d/libmtp8.rules
+    # If rules file is in /etc/udev/, move it to correct path /etc/udev/rules.d/ 
+    # and with 45- prefix.
+    dpkg-maintscript-helper mv_conffile \
+        /etc/udev/$PACKAGE.rules /etc/udev/rules.d/45-$PACKAGE.rules \
+            0.3.7-3 libmtp8 -- "$@"
+esac
+
+
+
+exit 0

@@ -1,0 +1,17 @@
+#!/usr/bin/pulseaudio -nF
+#
+# Work around for PA not allowing access to A2DP profiles in the user session
+# because GDM already has it open.
+# LP: #1703415
+
+# load system wide configuration
+.include /etc/pulse/default.pa
+
+### unload driver modules for Bluetooth hardware
+.ifexists module-bluetooth-policy.so
+  unload-module module-bluetooth-policy
+.endif
+
+.ifexists module-bluetooth-discover.so
+  unload-module module-bluetooth-discover
+.endif

@@ -1,0 +1,28 @@
+#!/bin/sh
+
+set -e
+
+for i in brl-sk-all.ktb
+do
+	dpkg-maintscript-helper rm_conffile /etc/brltty/$i 4.4-9~ brltty -- "$@"
+done
+
+# Make sure the brltty systemd service is disabled when upgrading from xenial
+# or earlier, and disable it if upgrading from 5.3.1-2ubuntu4.
+if [ "$1" = "upgrade" ]; then
+	if dpkg --compare-versions "$2" le "5.3.1-2ubuntu3"; then
+		if [ -f /etc/default/brltty ]; then
+			. /etc/default/brltty
+		fi
+
+		if [ -n "$RUN_BRLTTY" ] && [ "$RUN_BRLTTY" = "no" ]; then
+			deb-systemd-helper disable brltty.service > /dev/null || true
+		fi
+	elif [ "$2" = "5.3.1-2ubuntu4" ]; then
+		deb-systemd-helper disable brltty.service > /dev/null || true
+	fi
+fi
+
+
+
+

@@ -1,0 +1,71 @@
+#! /bin/sh
+# postinst script for pulseaudio
+
+set -e
+
+# summary of how this script can be called:
+#        * <postinst> `configure' <most-recently-configured-version>
+#        * <old-postinst> `abort-upgrade' <new version>
+#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#          <new-version>
+#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#          <failed-install-package> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+PULSEAUDIO=/usr/bin/pulseaudio
+
+trigger_udev() {
+	if ! which udevadm >/dev/null 2>&1 ; then
+		return 0;
+	fi
+	udevadm control --reload-rules || true
+	udevadm trigger --subsystem-match=sound --action=change || true
+}
+
+case "$1" in
+  configure)
+    if ! getent passwd pulse >/dev/null; then
+      adduser --disabled-password  --quiet --system \
+        --home /var/run/pulse --no-create-home\
+        --gecos "PulseAudio daemon" --group pulse
+      adduser --quiet pulse audio
+    fi
+    if ! getent group pulse-access >/dev/null; then
+      addgroup --quiet --system pulse-access
+    fi
+    trigger_udev
+  ;;
+  abort-upgrade|abort-remove|abort-deconfigure)
+  ;;
+  *)
+    echo "postinst called with unknown argument \`$1'" >&2
+    exit 1
+  ;;
+esac
+
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/default/pulseaudio 1:8.0-0ubuntu3\~ -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/init.d/pulseaudio 1:8.0-0ubuntu3\~ -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/xdg/autostart/pulseaudio-kde.desktop 1:6.0-0ubuntu1\~vivid1\~ -- "$@"
+dpkg-maintscript-helper mv_conffile /etc/bash_completion.d/pulseaudio-bash-completion.sh /etc/bash_completion.d/pulseaudio 1:8.0-0ubuntu3\~ -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/bash_completion.d/pulseaudio 1:8.0-0ubuntu3\~ -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/init/pulseaudio.conf 1:8.0-0ubuntu3\~ -- "$@"
+# End automatically added section
+
+
+# This has to be after the debhelper block, so that dpkg-maintscript-helper
+# has had a chance to remove the init file
+# This init file was removed in 5.0-3, remove the links if
+# no version with local modifications remain
+if [ "$1" = "configure" ] ; then
+    if dpkg --compare-versions "$2" lt "5.0-3~" ; then
+        if [ ! -f /etc/init.d/pulseaudio ] ; then
+            update-rc.d pulseaudio remove
+        fi
+    fi
+fi
+
+
+exit 0

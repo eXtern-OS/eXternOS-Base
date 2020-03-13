@@ -1,0 +1,158 @@
+#!/bin/sh
+
+set -e
+
+# Source debconf library.
+. /usr/share/debconf/confmodule
+
+CONFIGDIR=/etc/console-setup
+CONFIGFILE=/etc/default/console-setup
+
+# turn around bug in dpkg (#17624)
+# The following line should be uncommented before the next stable
+# release of Debian.
+#if dpkg --compare-versions "$2" lt-nl 1.82; then
+    # Replace directory with symlink.
+    if \
+        [ ! -L /usr/share/doc/console-setup ] \
+        && [ -d /usr/share/doc/console-setup ]
+    then
+	if rmdir /usr/share/doc/console-setup 2>/dev/null; then
+	    ln -sf keyboard-configuration /usr/share/doc/console-setup
+	fi
+    fi
+#fi
+
+if [ "$1" = "configure" -a ! -L "$CONFIGFILE" ]; then
+    
+    db_get console-setup/codesetcode
+    codeset="$RET"
+    db_get console-setup/fontface47
+    fontface="$RET"
+    db_metaget console-setup/use_system_font description
+    if [ "$fontface" = "$RET" ]; then
+	fontface=''
+    fi
+    db_metaget console-setup/guess_font description
+    if [ "$fontface" = "$RET" ]; then
+	fontface=guess
+    fi
+    db_get console-setup/fontsize
+    fontsize="$RET"
+    if [ -z "$fontface" ]; then
+	fontsize=''
+    fi
+
+    db_get console-setup/charmap47
+    charmap="${RET:-UTF-8}"
+
+    if [ ! -e $CONFIGFILE ]; then
+        case `uname` in
+            *Linux*) consoles='/dev/tty[1-6]' ;;
+            *FreeBSD*) consoles='/dev/ttyv[0-5]' ;;
+        esac
+        sed "s|^ *ACTIVE_CONSOLES=.*|ACTIVE_CONSOLES=\"${consoles}\"|" \
+            /usr/share/console-setup/console-setup >$CONFIGFILE || true
+    fi
+
+    . $CONFIGFILE || true
+
+    CONSOLE_MAP=${CONSOLE_MAP:-$ACM}
+
+# If $CONFFILE is produced by an old version of console-setup(-mini)
+    if \
+	grep "^ *XKBLAYOUT=" $CONFIGFILE >/dev/null || \
+	! grep "^ *CHARMAP=" $CONFIGFILE >/dev/null
+    then
+	cp -a $CONFIGFILE $CONFIGFILE.tmp
+
+	cat /usr/share/console-setup/console-setup >$CONFIGFILE.tmp
+
+	cat >>$CONFIGFILE.tmp <<EOF
+
+######################################################################
+# You can remove the lines that follow.  They contain the contents of
+# this file before version 1.47 of console-setup.
+######################################################################
+EOF
+	sed 's/^/# /' <$CONFIGFILE >>$CONFIGFILE.tmp
+
+	mv -f $CONFIGFILE.tmp $CONFIGFILE
+    fi
+
+    # Ensure we do not mess up the config file's ownership and permissions.
+    cp -a -f $CONFIGFILE $CONFIGFILE.tmp
+
+    # If the admin deleted or commented some variables but then set
+    # them via debconf, (re-)add them to the conffile.
+    for var in \
+	ACTIVE_CONSOLES CHARMAP CODESET FONTFACE FONTSIZE
+    do
+        if ! grep "^ *${var}=" $CONFIGFILE >/dev/null; then
+	    echo "${var}=" >>$CONFIGFILE
+	fi
+    done
+
+    if [ "$FONT" ] && ! grep "^ *FONT=" $CONFIGFILE >/dev/null; then
+	echo "FONT=" >>$CONFIGFILE
+    fi
+    if [ "$FONT_MAP" ] && ! grep "^ *FONT_MAP=" $CONFIGFILE >/dev/null; then
+	echo "FONT_MAP=" >>$CONFIGFILE
+    fi
+    if \
+	[ "$CONSOLE_MAP" ] \
+	&& ! grep "^ *CONSOLE_MAP=" $CONFIGFILE >/dev/null \
+	&& ! grep "^ *ACM=" $CONFIGFILE >/dev/null
+    then
+	echo "CONSOLE_MAP=" >>$CONFIGFILE
+    fi
+    
+    sed \
+	-e "s|^ *ACTIVE_CONSOLES=.*|ACTIVE_CONSOLES=\"${ACTIVE_CONSOLES:-guess}\"|" \
+	-e "s|^ *FONT=.*|FONT=\"$FONT\"|" \
+	-e "s|^ *FONT_MAP=.*|FONT_MAP=\"$FONT_MAP\"|" \
+	-e "s|^ *CONSOLE_MAP=.*|CONSOLE_MAP=\"$CONSOLE_MAP\"|" \
+	-e "s|^ *ACM=.*|CONSOLE_MAP=\"$CONSOLE_MAP\"|" \
+	-e "s|^ *CHARMAP=.*|CHARMAP=\"$charmap\"|" \
+	-e "s|^ *CODESET=.*|CODESET=\"$codeset\"|" \
+	-e "s|^ *FONTFACE=.*|FONTFACE=\"$fontface\"|" \
+	-e "s|^ *FONTSIZE=.*|FONTSIZE=\"$fontsize\"|" \
+	<$CONFIGFILE >$CONFIGFILE.tmp
+    
+    mv -f $CONFIGFILE.tmp $CONFIGFILE
+
+    db_set console-setup/store_defaults_in_debconf_db true
+fi
+
+# The second setupcon may start background processes inheriting file
+# descriptors from debconf.
+db_stop
+
+# We redirect the output so that postinst does not block when ScrollLock is on
+# This works even if we are not on the console
+setupcon --save-only >/dev/null 2>/dev/null || true
+if type plymouth >/dev/null && plymouth --ping; then
+    # setting the keymap breaks with plymouth in raw mode, and setting the
+    # font will currently also break if on vgacon
+    :
+elif [ -d /lib/debian-installer ]; then
+    setupcon --force >/dev/null 2>/dev/null || true
+else
+    if ! setupcon >/dev/null 2>/dev/null; then
+        cat >&2 <<EOF
+Your console font configuration will be updated the next time your system
+boots. If you want to update it now, run 'setupcon' from a virtual console.
+EOF
+    fi
+fi
+
+# Automatically added by dh_installdeb/11.1.6ubuntu2
+dpkg-maintscript-helper rm_conffile /etc/init/console-font.conf 1.142ubuntu8~ console-setup -- "$@"
+# End automatically added section
+
+
+if type update-initramfs >/dev/null 2>&1; then
+    update-initramfs -u
+fi
+
+exit 0

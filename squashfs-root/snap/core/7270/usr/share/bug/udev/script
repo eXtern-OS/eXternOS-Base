@@ -1,0 +1,32 @@
+#!/bin/sh
+
+REPORTBUG_VERSION=$(dpkg-query -f '${source:Version}' -W reportbug)
+
+
+# Depending on whether reportbug is new enough, we either write the output of
+# our various commands to a file and attach them to the report (this needs
+# reportbug ≥ 6.5.0) or just write them to the body of the bug report.
+if dpkg --compare-versions "$REPORTBUG_VERSION" ge "6.5.0"; then
+
+    # We don’t clean up this directory because there is no way to know when
+    # reportbug finished running, and reportbug needs the files around.
+    # Given that those are just a couple of kilobytes in size and people
+    # generally don’t file a lot of bugs, I don’t think it’s a big deal.
+    DIR=$(mktemp -d)
+
+    echo "-- BEGIN ATTACHMENTS --" >&3
+
+    udevadm info --export-db >$DIR/udev-database.txt
+    echo "$DIR/udev-database.txt" >&3
+
+    echo "-- END ATTACHMENTS --" >&3
+else
+    _header() {
+        echo "--------------" >&3
+        echo "$1:" >&3
+        echo "--------------" >&3
+    }
+
+    _header "udev database"
+    udevadm info --export-db >&3
+fi

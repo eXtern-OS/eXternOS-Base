@@ -1,0 +1,27 @@
+#!/bin/sh
+
+set -e
+
+# Prepare to move a conffile without triggering a dpkg question
+prep_mv_conffile() {
+    local PKGNAME="$1"
+    local CONFFILE="$2"
+
+    [ -e "$CONFFILE" ] || return 0
+
+    local md5sum="$(md5sum $CONFFILE | sed -e 's/ .*//')"
+    local old_md5sum="$(dpkg-query -W -f='${Conffiles}' $PKGNAME | \
+            sed -n -e "\' $CONFFILE ' { s/ obsolete$//; s/.* //; p }")"
+    if [ "$md5sum" = "$old_md5sum" ]; then
+        rm -f "$CONFFILE"
+    fi
+}
+
+case "$1" in
+install|upgrade)
+    if dpkg --compare-versions "$2" le "0.4.1ubuntu4"; then
+        prep_mv_conffile apturl-common "/etc/firefox-3.0/pref/apturl.js"
+    fi
+esac
+
+

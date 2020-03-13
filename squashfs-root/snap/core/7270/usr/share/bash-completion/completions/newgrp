@@ -1,0 +1,16 @@
+# newgrp(1) completion                                     -*- shell-script -*-
+
+_newgrp()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    if [[ "$cur" == "-" ]]; then
+        COMPREPLY=( - )
+    else
+        _allowed_groups "$cur"
+    fi
+} &&
+complete -F _newgrp newgrp
+
+# ex: ts=4 sw=4 et filetype=sh

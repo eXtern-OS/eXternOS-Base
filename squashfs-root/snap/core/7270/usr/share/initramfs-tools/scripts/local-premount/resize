@@ -1,0 +1,132 @@
+#! /bin/sh -e
+# initramfs local-premount script for resizing writable
+
+PREREQ=""
+
+# Output pre-requisites
+prereqs()
+{
+        echo "$PREREQ"
+}
+
+case "$1" in
+    prereqs)
+        prereqs
+        exit 0
+        ;;
+esac
+
+TMPFILE="/run/initramfs/old-table.txt"
+LOGFILE="/run/initramfs/resize-writable.log"
+
+wait-for-root "LABEL=writable" "${ROOTDELAY:-180}" >/dev/null || true
+
+# shellcheck disable=SC2013
+for opt in $(cat /proc/cmdline); do
+    case $opt in
+        debug)
+            LOGFILE="/dev/kmsg"
+        ;;
+    esac
+done
+
+writable_part="$(findfs LABEL=writable)"
+
+syspath="$(dirname "$(realpath /sys/class/block/"$(basename "$writable_part")")")"
+device="$(realpath /dev/block/"$(cat "$syspath"/dev)")"
+partition=$(cat "$syspath"/"$(basename "$writable_part")"/partition)
+
+device_size="$(($(cat "$syspath"/size)/2))"
+sum_size="$(($(grep "$(basename "$device")[a-z0-9]" /proc/partitions|\
+    tr -s ' '|cut -d' ' -f4|tr '\n' '+'|sed 's/+$//')))"
+
+get_end()
+{
+    NUM=$1
+    lastpart="$(grep -cE ^'[0-9]{1,}': $TMPFILE)"
+    if [ "$lastpart" = "$NUM" ]; then
+        endsize="$(parted -ms "$DEV" print| grep ^/ | cut -d: -f2)"
+    else
+        # we are not at the end ! get the start of the next partition
+        # (minus 1 byte) instead of using the absolute end of the disk
+        endsize=$(($(parted -ms "$DEV" unit B print|grep ^$((NUM+1)):|\
+            cut -d: -f2|sed 's/B$//')-1))
+    fi
+    echo "$endsize"
+}
+
+do_gpt()
+{
+    DISK=$1
+
+    PARTNUM="$(sgdisk -p "$DISK"|grep writable|sed -r 's/^([^ ]*[ ]*){1}([^ ]*).*/\2/')"
+    GUID="$(sgdisk -i "$PARTNUM" "$DISK"|grep unique| sed 's/^.*: //g')"
+    FIRST="$(sgdisk -i "$PARTNUM" "$DISK"|grep ^First| sed 's/^.*: //g;s/ .*$//')"
+
+    {
+        echo "fixing backup GPT"
+        sgdisk --move-second-header "$DISK"
+        
+        echo "Deleting partition $PARTNUM"
+        sgdisk -d "$PARTNUM" "$DISK"
+        
+        echo "Creating partition $PARTNUM at $FIRST"
+        sgdisk -n "$PARTNUM":"$FIRST":0 "$DISK"
+        
+        echo "Setting GUID of partition $PARTNUM to $GUID"
+        sgdisk -u "$PARTNUM":"$GUID" "$DISK"
+        
+        echo "Setting name of $PARTNUM to writable"
+        sgdisk -c "$PARTNUM":writable "$DISK"
+        
+        sgdisk -p "$DISK" >/run/initramfs/new-gpt-table.txt 2>/dev/null
+    } >>$LOGFILE 2>&1
+}
+
+do_mbr()
+{
+    DEV=$1
+    PART=$2
+    endsize=$(get_end "$PART")
+    parted -s "$DEV" resizepart "$PART" "$endsize"
+}
+
+
+free_space=$((device_size-sum_size))
+min_free_space=$((device_size/10))
+
+# this should never be empty, else argument checking of resize2fs 
+# will recognize it as empty string (due to the quoting of the arg below) and fail
+resizeopts="-p"
+
+if [ "$min_free_space" -lt "$free_space" ]; then
+    echo "initrd: found more than 10% free space on disk, resizing ${writable_part}" >/dev/kmsg || true
+    echo "initrd: partition to full disk size, see ${LOGFILE} for details" >/dev/kmsg || true
+    # back up the original partition table for later use or debugging
+    parted -ms "$device" unit B print >$TMPFILE 2>/dev/null
+    # grow our selected partition to max space available
+    table="$(parted -ms "$device" print| grep ^/| cut -d: -f6)"
+    case $table in
+        gpt)
+            # do_gpt needs the device name
+            do_gpt "$device" >>$LOGFILE 2>&1       
+            ;;
+        mbr|msdos)
+            # do_mbr needs the device node and partition number
+            do_mbr "$device" "$partition" >>$LOGFILE 2>&1
+            resizeopts="-fp"
+            ;;
+        *)
+            echo "unknown partition table type, not resizing" >>$LOGFILE
+            exit 0
+            ;;
+    esac
+    # make sure the partitions are ready for further use
+    {
+        udevadm settle
+        # check the filesystem before attempting re-size
+        e2fsck -fy "$writable_part"
+        # resize the filesystem to full size of the partition
+        resize2fs "$resizeopts" "$writable_part"
+    } >>$LOGFILE 2>&1
+fi
