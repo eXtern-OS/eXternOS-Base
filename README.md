@@ -10,3 +10,4 @@ This repository containts the filesystem base as it comes in the releases of eXt
 Ubiquity: https://github.com/anesuc/ubiquity  
 Photos: https://github.com/anesuc/photos  
 Live: https://github.com/anesuc/live  
+Tips (App): https://github.com/anesuc/externos-tips-app
