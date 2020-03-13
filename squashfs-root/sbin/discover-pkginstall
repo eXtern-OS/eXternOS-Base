@@ -1,0 +1,190 @@
+#! /bin/sh
+
+# $Progeny$
+
+# Copyright 2002 Hewlett-Packard Company
+# Copyright 2004 Progeny Linux Systems, Inc.
+# Copyright 2006 Petter Reinholdtsen
+#
+# Based on discover-modprobe, modified to install debian packages instead
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE COPYRIGHT HOLDER(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+
+set -e
+
+# Make sure the debconf question is asked in a sub-process, to avoid
+# locking the debconf database when installing packages.
+if [ true = "$DISCOVER_PKGINSTALL_ASKING" ] ; then
+    . /usr/share/debconf/confmodule
+    pkglist="`echo $@ | sed 's/ /, /g'`"
+    db_subst discover/install_hw_packages PACKAGES "$pkglist"
+    db_set discover/install_hw_packages "$pkglist"
+    db_fset discover/install_hw_packages seen false
+    db_input medium discover/install_hw_packages || [ $? -eq 30 ]
+    db_go
+    db_get discover/install_hw_packages
+    db_stop
+    echo $RET | sed 's/,//g' 1>&8
+    exit 0
+fi
+
+# Too bad we don't have something like sysexits.h for POSIX sh...
+
+EX_USAGE=64
+
+# These defaults are only used if discover-config can not be found.
+# This is the case if /usr isn't mounted yet.
+
+sysconfdir=/etc
+discover=discover
+types="all"
+
+if [ -x /usr/bin/discover-config ]; then
+    sysconfdir="$(discover-config --sysconfdir)"
+fi
+
+if [ -x /sbin/discover ]; then
+    discover=/sbin/discover
+elif [ -x /usr/bin/discover ]; then
+    discover=/usr/bin/discover
+elif [ -x /bin/discover-static ]; then
+    discover=/bin/discover-static
+fi
+
+conf="${sysconfdir}/discover-pkginstall.conf"
+
+[ -e ${conf} ] && . "${conf}"
+
+usage ()
+{
+    cat <<EOF
+usage: $0 [-lnv]
+
+Install packages based on detected hardware.  It will use the
+discover-data database to map from hardware to debian packages, install
+the packages by default.  Packages using module-assistant will be
+automatically built and the result installed if module-assistant is
+installed or pulled in as a dependency.
+
+  -l  list packages
+  -v  be verbose
+  -n  only echo commands, do not run them
+
+EOF
+}
+
+###############################################################################
+
+nop=
+verbose=false
+listonly=false
+while getopts lnv ch; do
+    case $ch in
+    l)
+        listonly=true
+        ;;
+    n)
+        nop=echo
+        ;;
+    v)
+        verbose=true
+        ;;
+    ?)
+        usage
+        exit ${EX_USAGE}
+    esac
+done
+shift $((${OPTIND} - 1))
+
+###############################################################################
+
+${verbose} && printf "Discovering hardware: "
+
+if [ -e /etc/debian_version ] ; then
+    version="$(cat /etc/debian_version)"
+    if [ testing/unstable != "$version" ] &&
+       [ lenny/sid != "$version" ] ; then 
+        dataversion="--data-version=$(cat /etc/debian_version)"
+    fi
+fi
+
+packages=$(${discover} --data-path=package/debian/name \
+	${dataversion} ${types} | grep -E -v '^ *$' | sort -u)
+
+${verbose} && echo ${packages}
+
+# Build kernel modules from all module-assistant packages.
+assist_modules() {
+    # Check if any packages supported by module-assistant is installed
+    if [ ! -x /usr/bin/module-assistant ] ; then
+	return # module-assistant not installed, no need to continue
+    fi
+    prepared=false
+    for pkg in $packages ; do
+	# Check if this package is supported by module-assistant
+	if module-assistant --text-mode --non-inter list $pkg |
+	    grep -q 'package not installed' ; then
+	    if [ false = "$prepared" ] ; then
+                # Would like to use --non-inter here, but then prepare
+                # exits using 254
+		if module-assistant --text-mode prepare ; then
+		    prepared=true
+		else
+		    echo error: Failed to prepare module-assistant.
+		    return
+		fi
+	    fi
+	    ${verbose} && echo "info: invoking module-assistant to handle $pkg."
+	    module-assistant --text-mode --non-inter \
+		build,install,clean $pkg
+	fi
+    done
+}
+
+if [ "$packages" ] ; then
+    if [ true = "$listonly" ] ; then
+        echo $packages
+    else
+        # Trick to avoid locking the debconf database when installing
+        # packages.  The redirects are gross hacks to work around
+        # debconf file descriptor handling
+        tempfile=$(tempfile)
+        DISCOVER_PKGINSTALL_ASKING=true $0 $packages 8>$tempfile
+        packages=$(cat $tempfile)
+        rm $tempfile
+
+        if [ "$packages" ] ; then
+            if [ -x /usr/bin/debconf-apt-progress ] ; then
+                if [ "$DI_PROGRESS_BAR_VISIBLE" ]; then
+                    debconf_apt_progress_opts=--no-progress
+                else
+                    debconf_apt_progress_opts=
+                fi
+                $nop debconf-apt-progress $debconf_apt_progress_opts -- apt-get install -q -y $packages
+            else
+                $nop apt-get install -y $packages
+            fi
+            assist_modules
+        fi
+    fi
+else
+    ${verbose} && echo "info: no hardware specific packages found for this machine"
+fi
+
+exit 0

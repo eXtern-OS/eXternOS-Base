@@ -1,0 +1,60 @@
+#! /bin/sh
+set -e
+
+# Exits zero if a device was configured, otherwise non-zero.
+
+cat <<EOF
+=== BRAILLE CONFIGURATION ===
+
+Please specify the type of braille device you wish to configure.
+See http://access.ubuntu.com/braille for details.
+Note that USB devices not connected via a USB serial converter will be
+detected automatically, so if you have one of these you can press X.
+
+B - Bluetooth
+S - Serial
+U - USB serial
+X - Exit
+EOF
+printf "Device type (b/s/u/x): "
+read device_type
+echo
+
+case "$device_type" in
+	[bB]) 
+		echo "== Bluetooth device configuration =="
+		echo 
+		printf "Bluetooth device address: "
+		read b_address
+		echo 
+		echo "Configuring bluetooth braille device on address" \
+			"$b_address" 
+		/lib/brltty/brltty.sh -b auto -d "bluetooth:$b_address"
+		;;
+	[sS]) 
+		echo "== Serial device configuration =="
+		echo
+		printf "Serial port (0-9 for ttyS0-9): "
+		read s_port
+		printf "Device type (brltty model code): "
+		read s_model	echo 
+		echo "Configuring serial braille device on ttyS$s_port" 
+		/lib/brltty/brltty.sh -b "$s_model" -d "serial:ttyS$s_port"
+		;;
+	[uU]) 
+		echo "== USB serial device configuration =="
+		echo
+		printf "USB serial port: "
+		read u_port
+		printf "Device type (brltty model code): "
+		read u_model	
+		echo 
+		echo "Configuring serial braille device on ttyUSB$u_port" 
+		/lib/brltty/brltty.sh -b "$u_model" -d "serial:ttyUSB$u_port"
+		;;
+	*)
+		exit 1
+		;;
+esac
+
+exit 0

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+PCI_ID="${ID_PATH##pci-}"
+
+# We only care about nvidia and fglrx here
+if [ -d "/sys/bus/pci/drivers/nvidia/$PCI_ID/" ]; then
+    DEVICE="$(cat /sys/bus/pci/drivers/nvidia/$PCI_ID/device)"
+    VENDOR="$(cat /sys/bus/pci/drivers/nvidia/$PCI_ID/vendor)"
+elif [ -d "/sys/bus/pci/drivers/fglrx/$PCI_ID/" ]; then
+    DEVICE="$(cat /sys/bus/pci/drivers/fglrx_pci/$PCI_ID/device)"
+    VENDOR="$(cat /sys/bus/pci/drivers/fglrx_pci/$PCI_ID/vendor)"
+else
+    exit 0
+fi
+
+touch "/run/u-d-c-gpu-$PCI_ID-$VENDOR-$DEVICE"

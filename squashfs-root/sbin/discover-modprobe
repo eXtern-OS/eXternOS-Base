@@ -1,0 +1,174 @@
+#! /bin/sh
+
+# $Progeny$
+
+# Copyright 2002 Hewlett-Packard Company
+# Copyright 2004 Progeny Linux Systems, Inc.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE COPYRIGHT HOLDER(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+
+# Too bad we don't have something like sysexits.h for POSIX sh...
+
+EX_USAGE=64
+
+# These defaults are only used if discover-config can not be found.
+# This is the case if /usr isn't mounted yet.
+
+sysconfdir=/etc
+localstatedir=/lib
+discover=discover
+
+if [ -x /usr/bin/discover-config ]; then
+    sysconfdir="$(discover-config --sysconfdir)"
+    localstatedir="$(discover-config --localstatedir)"
+fi
+
+if [ -x /sbin/discover ]; then
+    discover=/sbin/discover
+elif [ -x /usr/bin/discover ]; then
+    discover=/usr/bin/discover
+elif [ -x /bin/discover-static ]; then
+    discover=/bin/discover-static
+fi
+
+conf="${sysconfdir}/discover-modprobe.conf"
+crashdir="${localstatedir}/discover"
+crashfile="${crashdir}/crash"
+
+. "${conf}"
+
+if [ -f /lib/lsb/init-functions ]; then
+  . /lib/lsb/init-functions
+else
+  log_begin_msg()   { echo "$@"; }
+  log_success_msg() { echo "$@"; }
+  log_warning_msg() { echo "$@"; }
+fi
+. /etc/default/rcS
+
+[ -d "${crashdir}" ] || mkdir -p "${crashdir}"
+
+skip ()
+{
+    echo ${skip} | grep -q $1
+    return $?
+}
+
+usage ()
+{
+    cat <<EOF
+usage: $0 [-nv]
+EOF
+}
+
+# Determine if the module is already loaded
+is_loaded() {
+    module="$(echo "$1" | sed 's/-/_/g')"
+    if sed 's/^\([^ ]\+\).*/\1/;s/-/_/g' /proc/modules | grep -q "^${module}\$" ; then
+        true
+    else
+        false
+    fi
+}
+
+###############################################################################
+
+nop=
+verbose=false
+while getopts nv ch; do
+    case $ch in
+    n)
+        nop=echo
+        ;;
+    v)
+        verbose=true
+        ;;
+    ?)
+        usage
+        exit ${EX_USAGE}
+    esac
+done
+shift $((${OPTIND} - 1))
+
+###############################################################################
+
+module_details=$(${discover} --data-path=linux/module/name --data-path=linux/module/options --format="%s %s" --data-version=`uname -r` ${types} | grep -E -v '^ *$')
+
+# Poor man's uniq.
+module_details_uniq=""
+for module_info in ${module_details}; do
+    echo ${module_details_uniq} | grep -Fw "$module_info" > /dev/null 2>&1
+    if [ $? -eq 1 ]; then
+        module_details_uniq="${module_details_uniq} ${module_info}"
+    fi
+done
+module_details=${module_details_uniq}
+
+${verbose} && log_begin_msg "Discovering hardware: ${module_details}"
+
+if [ -f "${crashfile}" ]; then
+    # The system crashed trying to load a module during the last boot
+    # cycle, so add an appropriate "skip" line to
+    # ${sysconfdir}/discover.conf.
+    crashmodule=$(cat "${crashfile}")
+    printf 'skip="${skip} %s"\n' ${crashmodule} >> "${conf}"
+    rm -f "${crashfile}"
+    sync
+fi
+
+# Load the modules.
+for module_info in ${module_details}; do
+    module_name=$(echo ${module_info} | sed 's/^\([^ ]\+\).*/\1/')
+    if [ ${module_name} = "ignore" ] || [ ${module_name} = "unknown" ]; then
+        continue
+    fi
+
+    if skip ${module_name}; then
+        ${verbose} && log_warning_msg "Skipping ${module_name}; edit ${conf} to re-enable it."
+        continue
+    fi
+
+    if ! (modprobe -l "${module_name}*" | grep -q -E "${module_name}\.o|${module_name}\.ko"); then
+        ${verbose} && log_warning_msg "Skipping ${module_name}; assuming it is compiled into the kernel."
+        continue
+    fi
+
+    if is_loaded ${module_name} ; then
+        log_warning_msg "Skipping Module ${module_name}. It's already loaded." >&2
+        continue
+    fi
+
+    ${verbose} && log_begin_msg "Loading ${module_info}:"
+
+    # Note the module being loaded in "${crashfile}". If loading the
+    # module crashes the machine, this file will exist at the next
+    # boot, and we'll add an appropriate "skip" line to
+    # discover-modprobe.conf so we don't try to load it again.
+    echo ${module_name} > "${crashfile}"
+    sync
+
+    ${nop} modprobe ${module_info}
+
+    # The module loaded without incident, so we can safely remove the crash
+    # file.
+    rm -f "${crashfile}"
+    sync
+done
+
+exit 0

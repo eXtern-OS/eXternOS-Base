@@ -1,0 +1,48 @@
+#!/bin/sh
+
+# cryptdisks_start - wrapper around cryptsetup which parses
+# /etc/crypttab, just like mount parses /etc/fstab.
+
+# Initial code and (c) 2007 Jon Dowland <jon@alcopop.org>
+# License: GNU General Public License, v2 or any later
+# (https://www.gnu.org/copyleft/gpl.html)
+
+set -e
+
+if [ $# -lt 1 ]; then
+	echo "usage: $0 <name>" >&2
+	echo >&2
+	echo "reads /etc/crypttab and starts the mapping corresponding to <name>" >&2
+	exit 1
+fi
+
+. /lib/cryptsetup/cryptdisks.functions
+
+INITSTATE="manual"
+DEFAULT_LOUD="yes"
+
+if [ -x "/usr/bin/id" ] && [ "$(/usr/bin/id -u)"  != "0" ]; then
+	log_warning_msg "$0 needs root privileges"
+	exit 1
+fi
+
+log_action_begin_msg "Starting crypto disk"
+mount_fs
+
+count=0
+tablen="$(egrep -vc "^[[:space:]]*(#|$)" "$TABFILE")"
+egrep -v "^[[:space:]]*(#|$)" "$TABFILE" | while read dst src key opts; do
+	count=$(( $count + 1 ))
+	if [ "$1" = "$dst" ]; then
+		ret=0
+		handle_crypttab_line_start "$dst" "$src" "$key" "$opts" <&3 || ret=$?
+	elif [ $count -ge $tablen ]; then
+		ret=1
+		device_msg "$1" "failed, not found in crypttab"
+	else
+		continue
+	fi
+	umount_fs
+	log_action_end_msg $ret
+	exit $ret
+done 3<&1
