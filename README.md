@@ -7,7 +7,4 @@ This repository containts the filesystem base as it comes in the releases of eXt
 
 ## Related Repositories
 
-Ubiquity: https://github.com/anesuc/ubiquity  
-Photos: https://github.com/anesuc/photos  
-Live: https://github.com/anesuc/live  
-Tips (App): https://github.com/anesuc/externos-tips-app
+All other repositories for each of the sub-projects for eXtern OS can be found here: https://github.com/eXtern-OS/
