@@ -9,6 +9,6 @@ This repository containts the filesystem base as it comes in the releases of eXt
 
 All other repositories for each of the sub-projects for eXtern OS can be found here: https://github.com/eXtern-OS/
 
-[eXtern OS Official Website](https://www.google.com)
+[eXtern OS Official Website](https://www.externos.io)
 
 ![eXtern OS Image](eXtern-OS-Image-new-min.png)
