@@ -11,4 +11,4 @@ All other repositories for each of the sub-projects for eXtern OS can be found h
 
 [eXtern OS Official Website](https://externos.io)
 
-![eXtern OS Image](eXtern-OS-Image-new-min.png)
+![eXtern OS Image](eXtern-OS-Beta-3-Preview.png)
