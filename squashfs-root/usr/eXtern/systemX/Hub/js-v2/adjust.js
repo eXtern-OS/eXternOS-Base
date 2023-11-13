@@ -91,6 +91,7 @@ var oldWinY = screen.height-oldWinHeight+15;;
 
 var blurTimeout;
 
+/*
 win.showFixed = function () {
 	
 	win.opened = true;
@@ -116,9 +117,9 @@ win.showFixed = function () {
 	
 	
 }
-
+*/
 win.hideFixed = function () {
-	win.resizeTo(1, 1);
+	/*win.resizeTo(1, 1);
 	win.moveTo(0, screen.height);
 	
 	console.log("hubId: ",hubId);
@@ -131,7 +132,7 @@ win.hideFixed = function () {
 	setTimeout(function(){
 	win.opened = false;
 	window.opened = false;
-	}, 50);
+	}, 50);*/
 }
 
 function toggleHub() {
@@ -153,9 +154,9 @@ if (win.opened) {
 
 window.opened = false;
 
-win.show();
-setTimeout(function(){ win.show(); }, 2000);
-setTimeout(function(){win.hideFixed(); }, 1000);
+//win.show();
+//setTimeout(function(){ win.show(); }, 2000);
+//setTimeout(function(){win.hideFixed(); }, 1000);
 
 function loadInfoOnConnection() {
     
@@ -207,9 +208,7 @@ function ltrim(str) {
   if(!str) return str;
   return str.replace(/^\s+/g, '');
 }
-
-const hubChannel = new BroadcastChannel("hubChannel"); //Comms channel between desktop and hub
-
+/*
     var childProcess = require('child_process');
 var spawn = childProcess.spawn;
 var child = spawn('node', ['/usr/eXtern/systemX/Controller/keyEventsListerner.js']);
@@ -244,19 +243,13 @@ child.stdout.on('data', function(data) {
 			//win.hide();
 			win.opened = false;
 			console.log("here x");
-			//win.hideFixed();
-			hubChannel.postMessage({
-				type: "hide-hub",
-			});
+			win.hideFixed();
 			console.log("here x2");
 		} else {
 			win.ignoreFirstBlurTrigger = true;
 			//win.show();
 			console.log("here xa");
-			//win.showFixed();
-			hubChannel.postMessage({
-				type: "open-hub",
-			});
+			win.showFixed();
 			win.opened = true;
 			console.log("here xa2");
 		}
@@ -325,7 +318,7 @@ gui.App.on('open', function (argString) {
 	openApp(appAOfInterest,filesToOpen);
     }
 });
-
+*/
 //const ioHook = require('iohook');
 /*ioHook.on("keypress", event => {
 
@@ -366,6 +359,41 @@ $(document).keyup(function(e) {
 		$("#searchOuter > input").select();
 	}
 });
+
+
+win.showFixed = function () {
+	
+	win.opened = true;
+	window.opened = true;
+	$("body").removeClass("hiddenOpacity"); //Was added so that the wallpaper can allign properly while window is hidden
+	//if (hubId != null) {
+		$("background").show();
+		
+		blurTimeout = setTimeout(function(){
+		//executeNativeCommand("xprop -f _KDE_NET_WM_BLUR_BEHIND_REGION 32c -set _KDE_NET_WM_BLUR_BEHIND_REGION 0 -id "+hubId);
+		$("background").fadeOut();
+		console.log("applied blur for: ",hubId);
+		}, 600);
+	//}
+	//win.moveTo(oldWinX, oldWinY);
+	//win.resizeTo(oldWinWidth, oldWinHeight);
+	setTimeout(function(){
+	win.opened = true;
+	window.opened = true;
+	//$('#file_context_menu').removeClass('animated fadeInUp');
+    	$('#animateOpen').removeClass('hidden');
+    	//win.focus();
+	}, 50);
+	
+	
+}
+
+
+blurTimeout = setTimeout(function(){
+
+	console.log("SHOOOOOWING ");
+	win.showFixed();
+	}, 10000);
 
 
 

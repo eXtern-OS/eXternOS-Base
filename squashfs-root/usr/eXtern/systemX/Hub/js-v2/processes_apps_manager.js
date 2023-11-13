@@ -1216,11 +1216,30 @@ console.log("currentWinIdB",currentWinId);
 }
 
 
-function openApp(appName,files,appGeometry) {
+function openApp(appName,files,appGeometry,AppObj) {
 
 	console.log("openApp: ",appName);
 
 if (appName.indexOf("[[{linux.}]") == 0) {
+
+	console.log("appName open",appName);
+
+	//console.log("$(window).scrollTop(): ",$(window).scrollTop());
+	//console.log("$(AppObj).offset(): ",$(AppObj).offset())
+//win.hide();
+	//runApp(appName,files,null,appGeometry);
+	console.log("apps: ",apps)
+	const appObj = apps.find(appx => appx.id === appName)
+
+	let startPos = AppObj ? $(AppObj).offset() : null;
+
+	$(AppObj).addClass("hiddenOpacity");
+
+	parent.launchApp(appName,files, appGeometry, startPos, appObj, `apps/${appName}/${appObj.main}`, function () {
+		$(AppObj).removeClass("hiddenOpacity");
+	});
+
+
 
     var exec = require('child_process').exec,
                    child;
@@ -1233,7 +1252,7 @@ if (appName.indexOf("[[{linux.}]") == 0) {
     } else {
         if (stdout.indexOf("failed") == -1) {
 		//win.hide();
-		win.hideFixed();
+		//win.hideFixed();
 		win.opened = false;
             //console.log("successfully unmounted");
             //listAvailableDrives();
@@ -1294,15 +1313,22 @@ if (!Array.isArray(files)) {
 }
 
 	console.log("appName open",appName);
-//win.hide();
-	runApp(appName,files,null,appGeometry);
 
-	//if (appName !="extern.files.app") {
-    //setTimeout(function(){ runApp(appName,files); }, 300);
-	/*} else {
-		showApp(nextFilesProcess);
-		setTimeout(function(){ runApp(appName,files); }, 300); //Prepare next files process
-	}*/
+	//console.log("$(window).scrollTop(): ",$(window).scrollTop());
+	//console.log("$(AppObj).offset(): ",$(AppObj).offset())
+//win.hide();
+	//runApp(appName,files,null,appGeometry);
+	const appObj = apps.find(appx => appx.id === appName)
+
+	let startPos = AppObj ? $(AppObj).offset() : null;
+
+	$(AppObj).addClass("hiddenOpacity");
+
+	parent.launchApp(appName,files, appGeometry, startPos, appObj, `apps/${appName}/${appObj.main}`, function () {
+		$(AppObj).removeClass("hiddenOpacity");
+	});
+
+	
 
 }
     

@@ -510,7 +510,7 @@ console.log("runningApps",runningApps);
     for (var i = 2; i  <  runningApps.length; i++) {
         //runningApps[i].name;
 	if (runningApps[i].windowObject.loadedApp != undefined) {
-        	$("#runningAppsManager").append('<div class="media p-l-5"><div class="pull-left"><img width="40" src="'+runningApps[i].physicalLocation+runningApps[i].realID+'/'+runningApps[i].options.icon+'" alt=""></div><div class="media-body"><small class="text-muted">Currently Active</small><br/><a class="t-overflow" href="#">'+runningApps[i].name+'</a></div></div>');
+        	$("#runningAppsManager").append('<div class="media p-l-5"><div class="pull-left"><img width="40" src="'+runningApps[i].physicalLocation+runningApps[i].realID+'/'+runningApps[i].options.icon+'" alt=""></div><div class="media-body"><small class="text-muted">Currently Active</small><br/><a class="t-overflow" href="javascript:void(0);">'+runningApps[i].name+'</a></div></div>');
 		addedApps = true;
 	}
     }
@@ -586,8 +586,8 @@ if (typeof accessedApps[realAppName] !== 'undefined')
     
     if (app.id !="extern.welcome.app" && app.id !="extern.itai.app" && app.id !="extern.liverun.app"  && app.id !="extern.hud.app" ) { 
 allInstalledApps.push(app);
-        $("#all-apps-b").append('<a name="'+realAppName+'" app-id="'+app.id+'" class="appBox shortcut tile" href="#" version="'+app.version
-+'" developer="'+app.author+'" description="'+app.description+'" onclick="openApp(`'+app.id+'`)" disk="Unavailable" Accessed="'+appAccessTimes+'"><img src="../apps/'+app.id+'/'+app.window.icon+'" alt=""><div class="runIconDiv hidden"><span class="icon" style=" color:rgba(255,255,255,0.8);font-weight: bold; text-shadow: 0 0 10px rgba(255, 255, 255, 0.9);">&#61815;</span></div><p class="appTextOverflow">'+app.name+'</p><p class="AppCategoryText"><span class="icon" style=" color:rgba(255,255,255,0.8); text-shadow: 0 0 10px rgba(0, 0, 0, 0.9); font-weight: bold; text-shadow: 0 0 10px rgba(0, 0, 0, 0.9);">&'+categoryIcon+'</span> '+app.category+'</p></a>');
+        $("#all-apps-b").append('<a name="'+realAppName+'" app-id="'+app.id+'" class="appBox shortcut tile" href="javascript:void(0);" version="'+app.version
++'" developer="'+app.author+'" description="'+app.description+'" onclick="openApp(`'+app.id+'`,null,null,this)" disk="Unavailable" Accessed="'+appAccessTimes+'"><img src="../apps/'+app.id+'/'+app.window.icon+'" alt=""><div class="runIconDiv hidden"><span class="icon" style=" color:rgba(255,255,255,0.8);font-weight: bold; text-shadow: 0 0 10px rgba(255, 255, 255, 0.9);">&#61815;</span></div><p class="appTextOverflow">'+app.name+'</p><p class="AppCategoryText"><span class="icon" style=" color:rgba(255,255,255,0.8); text-shadow: 0 0 10px rgba(0, 0, 0, 0.9); font-weight: bold; text-shadow: 0 0 10px rgba(0, 0, 0, 0.9);">&'+categoryIcon+'</span> '+app.category+'</p></a>');
     
     //console.log("REALL APP: ",$( "[name='"+realAppName+"'] img"));
     getBase64Image($( "[name='"+realAppName+"'] img")[0],app.id);
@@ -622,18 +622,25 @@ var hoveringOverApp = false;
 
 $( ".quickButtons" )
   .mouseenter(function() {
+      console.log("$(this)[0].childNodes: ",$(this)[0].childNodes);
+      $(this).find(".left").fadeTo( 100 , 1);
+      $(this).find(".right").fadeTo( 100 , 1);
     //This is a dodgy way to do it, FIXME
+    /*
        arrowA = $(this)[0].childNodes[2].id;
         arrowB = $(this)[0].childNodes[3].id;    
           $("#"+arrowA).fadeTo( 100 , 1);
         $("#"+arrowB).fadeTo( 100 , 1);
+        */
   })
   .mouseleave(function() {
+    $(this).find(".left").fadeTo( 50 , 0);
+    $(this).find(".right").fadeTo( 50 , 0);
     //This is a dodgy way to do it, FIXME
-       arrowA = $(this)[0].childNodes[2].id;
+       /*arrowA = $(this)[0].childNodes[2].id;
         arrowB = $(this)[0].childNodes[3].id;    
           $("#"+arrowA).fadeTo( 50 , 0);
-        $("#"+arrowB).fadeTo( 50 , 0);
+        $("#"+arrowB).fadeTo( 50 , 0);*/
   });
 
 function openSettings() {
@@ -799,7 +806,7 @@ linux_apps.list().forEach(function(app){
       
       if (data.Icon != null) {
 
-	$("#other-apps-b").append('<a name="linux.'+app+'" class="appBox shortcut tile" href="#" version="'+appVersion
+	$("#other-apps-b").append('<a name="linux.'+app+'" class="appBox shortcut tile" href="javascript:void(0);" version="'+appVersion
 +'" developer="'+author+'" description="'+data.Comment+'" onclick="openApp(`[[{linux.}]'+app+'`)" disk="Unavailable" Accessed="'+appAccessTimes+'"><img class="linux-'+data.Icon+'" src="../apps/extern.files.app/icons/flash package.png" alt=""><div class="runIconDiv hidden"><span class="icon" style=" color:rgba(255,255,255,0.8);font-weight: bold; text-shadow: 0 0 10px rgba(255, 255, 255, 0.9);">&#61815;</span></div><p class="appTextOverflow">'+data.Name+'</p><p class="AppCategoryText"><span class="icon" style=" color:rgba(255,255,255,0.8); text-shadow: 0 0 10px rgba(0, 0, 0, 0.9); font-weight: bold; text-shadow: 0 0 10px rgba(0, 0, 0, 0.9);">&'+categoryIcon+'</span> '+appCategory+'</p></a>');
 
 var iconProcessed = false;

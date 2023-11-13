@@ -5,7 +5,7 @@
 var fs = require('fs-extra'),
     path = require('path'),
     async = require('async');
-var win = nw.Window.get();
+var win = {}; //nw.Window.get();
 //win.showDevTools();
 //console.log("showDevTools()");
 var getSize = require('get-folder-size');

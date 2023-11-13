@@ -130,8 +130,8 @@ function enableThisDisplayOnly(displayID) {
 
 
 setTimeout(function(){ load_all_monitors() }, 5000);
-var win = nw.Window.get(); 
-win.setShowInTaskbar(false);
-win.x = 0;
-win.y = screen.height-win.height+15;//screen.height-win.height-exploreBarHeight;
+//var win = nw.Window.get(); 
+//win.setShowInTaskbar(false);
+//win.x = 0;
+//win.y = screen.height-win.height+15;//screen.height-win.height-exploreBarHeight;
 //console.log("Screen height:"+screen.width);

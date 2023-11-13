@@ -48,28 +48,11 @@ console.log("posY",posY);
 console.log("posY win",win);
 
 
-win.on("blur", function () {
-win.hideFixed(); //win.hide();
-console.log("blur is called");
-if (win.opened && !win.ignoreFirstBlurTrigger) {
-console.log("ok close");
-//window.exploreBarWin.openHubs();
-//console.log("blur called");
-$("#searchOuter > input").focus();
-setTimeout(function(){ 
-$("#searchOuter > input").focus();
-//win.opened = false;
-updateExplorebar();
-/*
-if (canHideHub)
-win.hideFixed(); //win.hide();
-*/
-}, 100);
-win.hidingNow = false;
-}
-win.ignoreFirstBlurTrigger = false;
-});
 
+
+
+/*
+Not relevant to v2 yet
 win.on("focus", function () {
 
 setTimeout(function(){ win.ignoreFirstBlurTrigger = false; }, 100);
@@ -86,11 +69,7 @@ win.x = 0;
 console.log("win.window.screenY A",win.window.screenY);
 //}, 1000);
 });
-
-win.on('close', function() {
-  //this.hide(); // Pretend to be closed already
-  win.hideFixed();
-});
+*/
 
 
 function moveGTKWindowButtonsToRight() {
@@ -418,7 +397,7 @@ function updateExplorebar() {
 			console.log("sending message");
 
 			explorebarCommsChannel.postMessage({
-				type: "init-objects",
+				type: "init-objects-v2",
 				sysWinId: explorebarSysWinId,
 				systemSortedApps: systemSortedApps,
 				accessedApps: accessedApps,
@@ -429,28 +408,6 @@ function updateExplorebar() {
 				opened: win.opened,
 				apps: allInstalledApps
 			});
-}
-
-function updateExplorebarv2() {
-	if (systemSetupCompleted)
-		var canOpenHub = true;
-	else
-		var canOpenHub = false;
-
-	console.log("sending message");
-
-	explorebarCommsChannel.postMessage({
-		type: "init-objects-v2",
-		sysWinId: explorebarSysWinId,
-		systemSortedApps: systemSortedApps,
-		accessedApps: accessedApps,
-		canOpenHub: canOpenHub,
-		runningApps: runningAppsNew,
-		height: win.height,
-		width: win.width,
-		opened: win.opened,
-		apps: allInstalledApps
-	});
 }
 
 function updateExplorebarGenericInstance() {
@@ -488,19 +445,6 @@ function exploreBar() {
 		console.log("evX",ev);
 
 		if (ev.data.type == "explorebarReady-v2") {
-
-			console.log("type: ",typeof ev.data);
-
-
-
-			updateExplorebarv2();
-
-			console.log("runningApps2",runningApps);
-//				
-
-
-
-		} else if (ev.data.type == "explorebarReady") {
 
 			console.log("type: ",typeof ev.data);
 
@@ -718,7 +662,7 @@ new_win.on('blur', function() {
 	console.log("on blur called");
 new_win.setAlwaysOnTop(true);
 	//win.opened = false;
-	updateExplorebar();
+	//updateExplorebar();
 });
     });
     
