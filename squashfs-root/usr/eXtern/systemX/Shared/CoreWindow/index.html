@@ -10,7 +10,13 @@
             
         <!-- CSS -->
         <link href="../../Shared/CoreCSS/bootstrap.min.css" rel="stylesheet">
-        <link href="../../Shared/CoreCSS/animate.min.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/fonts/fontawesome.min.5.8.1.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/form.css" rel="stylesheet">
+        <!--<link href="../../Shared/CoreCSS/icons.css" rel="stylesheet">-->
+        <link href="../../Shared/CoreCSS/app-style.css" rel="stylesheet">
+        <link href="../../Shared/CoreCSS/generics.css" rel="stylesheet">
+        <script defer src="https://friconix.com/cdn/friconix.js"> </script>
+        <!--<link href="../../Shared/CoreCSS/animate.min.css" rel="stylesheet">
         <link href="../../Shared/CoreCSS/font-awesome.min.css" rel="stylesheet">
         <link href="../../Shared/CoreCSS/form.css" rel="stylesheet">
         <link href="../../Shared/CoreCSS/calendar.css" rel="stylesheet">
@@ -18,15 +24,26 @@
         <link href="../../Shared/CoreCSS/icons.css" rel="stylesheet">
         <link href="../../Shared/CoreCSS/generics.css" rel="stylesheet">
     	<link href="../../Shared/CoreCSS/slick.css" rel="stylesheet"> 
-      	<link href="../../Shared/CoreCSS/slick-theme.css" rel="stylesheet">
+      	<link href="../../Shared/CoreCSS/slick-theme.css" rel="stylesheet">-->
     <link href="../../Shared/CoreCSS/app-control.css" rel="stylesheet">
+    <link href="../../Shared/CoreCSS/scrollbar.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/news-sources.css">
+        <link rel="stylesheet" href="css/tui-image-editor.css">
+        <link type="stylesheet" href="css/tui-color-picker.css" rel="stylesheet">
+        <style>
+            @import url(http://fonts.googleapis.com/css?family=Noto+Sans);
+            html, body {
+                height: 100%;
+                margin: 0;
+            }
+        </style>
 
     </head>
 
 	<!-- Do not change anything (unless you know what you are doing) except the title under id="sub_title" -->
-    <body id="body_settings" class="winBorder zeroOpacity hidden">
-<div id="outerBody" class="bg_settings" style="overflow-y: hidden; overflow-x:hidden;">
-            <div id="hoverDetection" class="hidden"></div>
+    <body id="body_settings" class="winBorder zeroOpacity hidden" ondrop="return false;" ondragover="return false;">
+<div id="outerBody" style="overflow-y: hidden; overflow-x:hidden; cursor: default;">
+            <div id="hoverDetection"></div>
             
             <div id="windowTitleBar" class="bar_bg drag_enabled"> <!--Draggable top bar-->
 				<p id="tile-text" style="font-size: 16px;">
@@ -36,24 +53,162 @@
 				<!--<i id = "close_button" style="font-size: 18px;" class="fa fa-circle-thin" aria-hidden="true"></i>-->
             </div> 
 
-				<div id = "minimize_button" class="window_buttonsX controlButton hiddenOpacity tooltips"  data-placement="left" data-original-title="Minimize Window"> <!--Minimize Button-->
-					<span class="icon" style="text-shadow: 0 0 25px rgba(0,0,0,0.9);">&#61701;</span>
-				</div>
+            
 
-				<div id = "maximize_button" class="window_buttonsX controlButton hiddenOpacity tooltips"  data-placement="left" data-original-title="Enlarge Window"> <!--Enlarge Button-->
-					<img src="../CoreIMG/icons/actions/maximize.png">
-				</div>
+            
 
-<div id = "close_button" class="controlButton hiddenOpacity tooltips"  data-placement="left" data-original-title="Close Window"><img src="../CoreIMG/icons/actions/close-icon.png"></div>
+              
+				<a id = "minimize_button" href="#" class="window_buttonsX controlButton hiddenOpacity"  data-placement="left" title="Minimize Window"> <!--Minimize Button-->
+					<i class="fas fa-window-minimize" aria-hidden="true"></i>
+					<!--<span class="icon" style="text-shadow: 0 0 25px rgba(0,0,0,0.9);">&#61701;</span>-->
+				</a>
+
+				<a id = "maximize_button" href="#" class="window_buttonsX controlButton hiddenOpacity"  data-placement="left" title="Enlarge Window"> <!--Enlarge Button-->
+					<!--<img src="../CoreIMG/icons/actions/maximize.png">  fa-clone #61754;-->
+					<i class="fas fa-square"></i>
+				</a>
+
+                <a id = "new_tab_instance_button" href="#" onclick="toggleInstanceTabs()" class="window_buttonsX controlButton tooltips btn btn-alt"  data-placement="left" data-original-title="Instance Tabs" style="display: none;"> <!--Minimize Button-->
+					<!--<i class="fas fa-angle-left"></i>-->
+                    <i class="fi-xnllxl-chevron"></i>
+					<!--<span class="icon" style="text-shadow: 0 0 25px rgba(0,0,0,0.9);">&#61701;</span>-->
+                </a>
+
+<div id = "close_button" class="controlButton hiddenOpacity"  data-placement="left" title="Close Window">
+    <i class="fas fa-circle"></i>
+</div>
 		<!-- End of restricted editting area-->
         
         <div class="clearfix"></div>
 
-                <div class="modal hidden" style="height: 100%; position: absolute; display: block; backdrop-filter: blur(10px); /*z-index: 0;*/"> <!-- Style for just preview -->
+		<div id="tui-image-editor" class="imageEditorElement hidden hiddenOpacity"></div>
+		<div id="editorButtons"class="imageEditorElement row hidden hiddenOpacity"><a id="cancelEdit" href="#" class="btn btn-alt" onclick="App.closeImageEditor(false)"><i class="fa fa-times" aria-hidden="true"></i> Cancel</a> <a id="doneEdit" href="#" class="btn btn-alt" onclick="App.closeImageEditor(true)"><i class="fa fa-check" aria-hidden="true"></i> Done</a> </div>
+
+                <div class="modal hidden" style="height: 100%; position: absolute; display: flex; align-items: center;/*z-index: 0;*/"> <!-- Style for just preview -->
+
+			
+
+                        <div id="NewsSourcesSelector" class="modal-dialog hidden hiddenOpacity" style="width: 90em; margin-top: 9em;">
+                            <div class="modal-content" style="width: 90em;">
+                                <div class="modal-header">
+                                    <button style="width: 10px;" type="button" onclick="App.closeNewsSourcesModal()" class="close" data-dismiss="modal" aria-hidden="true">
+                                        <i style="font-size: 18px;" class="fa fa-circle-thin" aria-hidden="true"></i>
+                                    </button>
+                                    <h4 class="modal-title" style="font-size: 14px;">News Sources</h4>
+                                </div>
+                                <div class="modal-body" style="font-size: 13px;">
+                                    <div class="tab-container tile" style=" background: none; box-shadow: none;">
+                                        <div class="tab-content" style="height: 35em;">
+                                            <div class="tab-pane active verticalCenter" id="files">
+                                                <div id="mainNewsCategories">
+                                                <div class="row" style="margin-bottom: 20px;">
+                                                    <div class="col-md-6 col-md-offset-3">
+                                                        <input type="text" class="form-control input-sm" style="text-align: center;" placeholder="Search">
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row" style="margin-bottom: 20px;">
+                                                    <h3 class="block-title">Suggestions</h3>
+                                                </div>
+                                                
+                                                <div class="row" style="overflow-y: scroll; height: calc(100% - 100px); padding-left: 60px;">
+                                                    <!-- Suggestions/results here -->
+                                                    <a href="#" onclick="openNewsCategory('World News')" class="btn btn-alt newsSuggestion" ><img src="../CoreIMG/news-thumbnails/suggestions/world_news.png"/> <span>World News</span></a>
+                                                    <a href="#" onclick="openNewsCategory('Breaking News')" class="btn btn-alt newsSuggestion" ><img src="../CoreIMG/news-thumbnails/suggestions/breaking_news.png"/> <span>Breaking News</span></a>
+                                                    <a href="#" onclick="openNewsCategory('Entertainment')" class="btn btn-alt newsSuggestion" ><img src="../CoreIMG/news-thumbnails/suggestions/entertainment_news.png"/> <span>Entertainment</span></a>
+                                                    <a href="#" onclick="openNewsCategory('Sports News')" class="btn btn-alt newsSuggestion" ><img src="../CoreIMG/news-thumbnails/suggestions/sports_news.png"/> <span>Sports News</span></a>
+                                                    <a href="#" onclick="openNewsCategory('Business News')" class="btn btn-alt newsSuggestion" ><img src="../CoreIMG/news-thumbnails/suggestions/business_news.png"/> <span>Business News</span></a>
+                                                    <a href="#" onclick="openNewsCategory('Technology')" class="btn btn-alt newsSuggestion" ><img src="../CoreIMG/news-thumbnails/suggestions/technology_news.png"/> <span>Technology</span></a>
+                                                    <a href="#" onclick="openNewsCategory('Auto News')" class="btn btn-alt newsSuggestion" ><img src="../CoreIMG/news-thumbnails/suggestions/auto_news.png"/> <span>Auto News</span></a>
+                                                    <a href="#" onclick="openNewsCategory('Lifestyle News')" class="btn btn-alt newsSuggestion" ><img src="../CoreIMG/news-thumbnails/suggestions/lifestyle_news.png"/> <span>Lifestyle News</span></a>
+                                                    <a href="#" onclick="openNewsCategory('Political News')" class="btn btn-alt newsSuggestion" ><img src="../CoreIMG/news-thumbnails/suggestions/political_news.png"/> <span>Political News</span></a>
+
+                                                </div>
+                                            </div>
+
+                                            <div id="newsCategoryView" style="display: none">
+                                                <a href="#" class="pull-left" onclick="closeNewsCategoryView()" style="font-size: 20px;"><i class="fas fa-chevron-left"></i> News Categories</a>
+              <div class="col-md-12" style="/*overflow-y: scroll;*/ /*margin-left: 30%;*/ font-size: 18px; height: 100%; overflow-y: scroll;">
+                  <div class="newsItem media p-l-5" style="width: 300px;">
+<div class="pull-left"><i class="far fa-newspaper" style="font-size: 45px; color: #ffffffd1; margin-bottom: 10px;"></i></div><div class="media-body" style="width: 230px; display: inline-block;"><small class="text-muted">World News</small><br/><a class="t-overflow" href="#">CNN (Top Stories)</a></div>
+<img class="newsSourceImg" src="img/cnn.com.png"/>
+<div class="addNewsOuter"><button class="addNews addSource tn btn-alt m-r-5" source="CNN : Top Stories" name="CNN (Top Stories)"><span class="icon pull-left">&#61943;</span> Add "CNN (Top Stories)"</button></div></div>
+
+                  <div class="newsItem media p-l-5" style="width: 300px;">
+<div class="pull-left"><i class="far fa-newspaper" style="font-size: 45px; color: #ffffffd1; margin-bottom: 10px;"></i></div><div class="media-body" style="width: 230px; display: inline-block;"><small class="text-muted">World News</small><br/><a class="t-overflow" href="#">CNN (World)</a></div>
+<img class="newsSourceImg" src="img/cnn.com.png"/>
+<div class="addNewsOuter"><button class="addNews addSource tn btn-alt m-r-5" source="CNN : World" name="CNN (World)"><span class="icon pull-left">&#61943;</span> Add "CNN (World)"</button></div></div>
+
+                  <div class="newsItem media p-l-5" style="width: 300px;">
+<div class="pull-left"><i class="far fa-newspaper" style="font-size: 45px; color: #ffffffd1; margin-bottom: 10px;"></i></div><div class="media-body" style="width: 230px; display: inline-block;"><small class="text-muted">Technology News</small><br/><a class="t-overflow" href="#">The Verge</a></div>
+<img class="newsSourceImg" src="img/theverge.com.png"/>
+<div class="addNewsOuter"><button class="addNews addSource tn btn-alt m-r-5" source="The Verge" name="The Verge"><span class="icon pull-left">&#61943;</span> Add "The Verge"</button></div></div>
+
+                  <div class="newsItem media p-l-5" style="width: 300px;">
+<div class="pull-left"><i class="far fa-newspaper" style="font-size: 45px; color: #ffffffd1; margin-bottom: 10px;"></i></div><div class="media-body" style="width: 230px; display: inline-block;"><small class="text-muted">Technology News</small><br/><a class="t-overflow" href="#">TechCrunch</a></div>
+<img class="newsSourceImg" src="img/techcrunch.com.png"/>
+<div class="addNewsOuter"><button class="addNews addSource tn btn-alt m-r-5" source="TechCrunch" name="TechCrunch"><span class="icon pull-left">&#61943;</span> Add "TechCrunch"</button></div></div>
+
+                  <div class="newsItem media p-l-5" style="width: 300px;">
+<div class="pull-left"><i class="far fa-newspaper" style="font-size: 45px; color: #ffffffd1; margin-bottom: 10px;"></i></div><div class="media-body" style="width: 230px; display: inline-block;"><small class="text-muted">Technology News</small><br/><a class="t-overflow" href="#">TechCrunch (Startups)</a></div>
+<img class="newsSourceImg" src="img/techcrunch.com.png"/>
+<div class="addNewsOuter"><button class="addNews addSource tn btn-alt m-r-5" source="TechCrunch : Startups" name="TechCrunch (Startups)"><span class="icon pull-left">&#61943;</span> Add "TechCrunch (Startups)"</button></div></div>
+
+<!-- Removing this, too much TechCrunch haha
+                  <div class="newsItem media p-l-5" style="width: 300px;">
+<div class="pull-left"><span class="icon" style="font-size: 35px;">&#61940;</span></div><div class="media-body" style="width: 230px; display: inline-block;"><small class="text-muted">Technology News</small><br/><a class="t-overflow" href="#">TechCrunch (Fundings & Exits)</a></div>
+<img class="newsSourceImg" src="img/techcrunch.com.png"/>
+<div class="addNewsOuter"><button class="addNews addSource tn btn-alt m-r-5" source="TechCrunch : Fundings & Exit" name="TechCrunch (Startups)"><span class="icon pull-left">&#61943;</span> Add "TechCrunch (Fundings & Exits)"</button></div></div>-->
+
+                  <div class="newsItem media p-l-5" style="width: 300px;">
+<div class="pull-left"><i class="far fa-newspaper" style="font-size: 45px; color: #ffffffd1; margin-bottom: 10px;"></i></div><div class="media-body" style="width: 230px; display: inline-block;"><small class="text-muted">Technology News</small><br/><a class="t-overflow" href="#">TechCrunch (Social)</a></div>
+<img class="newsSourceImg" src="img/techcrunch.com.png"/>
+<div class="addNewsOuter"><button class="addNews addSource tn btn-alt m-r-5" source="TechCrunch : Social" name="TechCrunch (Social)"><span class="icon pull-left">&#61943;</span> Add "TechCrunch (Social)"</button></div></div>
+                  
+                  <!--<div class="media p-l-5"><div class="pull-left"><span class="icon" style="font-size: 35px;">&#61940;</span></div><div class="media-body" style="width: 260px; display: inline-block;"><small class="text-muted">World News</small><br/><a class="t-overflow" href="#">CNN (World)</a></div><div class="pull-right" style="text-align: center; margin-top: 5px;"><button class="addNews tn btn-alt m-r-5" source="CNN : World">Add</button></div></div>
+                  
+                  <div class="media p-l-5"><div class="pull-left"><span class="icon" style="font-size: 35px;">&#61940;</span></div><div class="media-body" style="width: 260px; display: inline-block;"><small class="text-muted">Technology News</small><br/><a class="t-overflow" href="#">The Verge</a></div><div class="pull-right" style="text-align: center; margin-top: 5px;"><button class="addNews tn btn-alt m-r-5" source="The Verge">Add</button></div></div>
+                  
+                  <div class="media p-l-5"><div class="pull-left"><span class="icon" style="font-size: 35px;">&#61940;</span></div><div class="media-body" style="width: 260px; display: inline-block;"><small class="text-muted">Technology News</small><br/><a class="t-overflow" href="#">TechCrunch</a></div><div class="pull-right" style="text-align: center; margin-top: 5px;"><button class="addNews tn btn-alt m-r-5" source="TechCrunch">Add</button></div></div>
+                  
+                  <div class="media p-l-5"><div class="pull-left"><span class="icon" style="font-size: 35px;">&#61940;</span></div><div class="media-body" style="width: 260px; display: inline-block;"><small class="text-muted">Technology News</small><br/><a class="t-overflow" href="#">TechCrunch (Startups)</a></div><div class="pull-right" style="text-align: center; margin-top: 5px;"><button class="addNews tn btn-alt m-r-5" source="TechCrunch : Startups">Add</button></div></div>
+                  
+                  <div class="media p-l-5"><div class="pull-left"><span class="icon" style="font-size: 35px;">&#61940;</span></div><div class="media-body" style="width: 260px; display: inline-block;"><small class="text-muted">Technology News</small><br/><a class="t-overflow" href="#">TechCrunch (Fundings & Exits)</a></div><div class="pull-right" style="text-align: center; margin-top: 5px;"><button class="addNews tn btn-alt m-r-5" source="TechCrunch : Fundings & Exits">Add</button></div></div>
+                  
+                  <div class="media p-l-5"><div class="pull-left"><span class="icon" style="font-size: 35px;">&#61940;</span></div><div class="media-body" style="width: 260px; display: inline-block;"><small class="text-muted">Technology News</small><br/><a class="t-overflow" href="#">TechCrunch (Social)</a></div><div class="pull-right" style="text-align: center; margin-top: 5px;"><button class="addNews tn btn-alt m-r-5" source="TechCrunch : Social">Add</button></div></div>
+                  
+                  <div class="media p-l-5"><div class="pull-left"><span class="icon" style="font-size: 35px;">&#61940;</span></div><div class="media-body" style="width: 260px; display: inline-block;"><small class="text-muted">Australian News</small><br/><a class="t-overflow" href="#">ABC News (Top Stories)</a></div><div class="pull-right" style="text-align: center; margin-top: 5px;"><button class="addNews tn btn-alt m-r-5" source="ABC News AU : Top Stories">Add</button></div></div>-->
+               
+              </div>
+                                            </div>
+
+
+                                            </div>
+                                            <div class="tab-pane" id="home">
+                                                <!--Section 2 -->
+                                            </div>
+                                            
+                                        </div>
+                                        
+                                        <ul class="nav tab nav-tabs">
+                                            <li class="active"><a href="#files">All</a></li>
+                                            <li><a href="#home">Added</a></li>
+                                        </ul>
+                                    </div>
+
+                                    
+                                    
+                                </div>
+                                <div style="padding: 15px 15px; border-top: 1px solid rgba(255, 255, 255, 0.11);     text-align: center;">
+                                    <button style="width: 200px;margin-top: 0;" type="button" onclick="App.closeNewsSourcesModal()" class="btn btn-alt m-r-5" data-dismiss="modal">Done</button>
+                                </div>
+                            </div>
+                        </div>
+
                         <div id="AppInstaller" class="modal-dialog hidden">
                             <div class="modal-content" style="width: 500px;">
                                 <div class="modal-header">
-                                    <button style="width: 10px;" type="button" onclick="closePopupDialogue()" class="close" data-dismiss="modal" aria-hidden="true">
+                                    <button style="width: 10px;" type="button" class="close" data-dismiss="modal" aria-hidden="true">
                                         <i style="font-size: 18px;" class="fa fa-circle-thin" aria-hidden="true"></i>
                                     </button>
                                     <h4 class="modal-title" style="font-size: 14px;">App Installer</h4>
@@ -64,6 +219,23 @@
                                 <div style="padding: 15px 15px; border-top: 1px solid rgba(255, 255, 255, 0.11);">
                                     <button style="width: 200px;margin-top: 0;" type="button" class="btn btn-alt m-r-5" onclick="win.installApp()">Install</button>
                                     <button style="width: 200px;margin-top: 0;" type="button" onclick="win.dontInstallApp()" class="btn btn-alt m-r-5 pull-right" data-dismiss="modal">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="customDialogBox" class="modal-dialog hidden hiddenOpacity" style="width: fit-content;">
+                            <div class="modal-content" style="width: 700px;">
+                                <div class="modal-header" style="text-align: center;">
+                                    <button id="closeCustomModal" onclick="handleCloseCustomModal()" style="width: 10px;" type="button" onclick="App.closeCustomModal()" class="close" data-dismiss="modal" aria-hidden="true">
+                                        <i style="font-size: 18px;" class="fas fa-circle" aria-hidden="true"></i>
+                                    </button>
+                                    <h4 id="customDialogBoxTitle" class="modal-title" style="font-size: 14px;"><!--Modal title here --></h4>
+                                </div>
+                                <div id="customDialogBoxMessage" class="modal-body" style="font-size: 13px;">
+                                   <!-- Modal body here -->
+                                </div>
+                                <div id="customDialogBoxButtons" style="padding: 15px 15px; border-top: 1px solid rgba(255, 255, 255, 0.11);  min-height: 50px;">
+                                    <!-- Modal button options here -->
                                 </div>
                             </div>
                         </div>
@@ -114,11 +286,25 @@
                         
 
                 </div>
-            
-
+            <div id="appPreview" class="hidden">
+		<img src="../CoreIMG/icons/abrowser.png">
+	</div>
+	<img id="loadingAnimation" class="hidden" src="../CoreIMG/loading.gif">
         
-        <section id="main" style="width: 100%;" class="p-absolute" role="main" >
-            
+        <section id="main" style="width: 100%; height: 100% " class="p-absolute" role="main" >
+            <div class="tab-container tile" style="height: 100%; margin: 0;">
+                        <ul id="tabsBodySelector" class="tab pull-right tab-vertical nav nav-tabs" style="display: none; margin-top: 40px !important;">
+                            <li id="app_tab_elector_0" class="active"><a href="#app_tab_0"><i class="fas fa-object-ungroup pull-left"></i> <span class="pull-left">App</span> </a><i class="fas fa-circle instanceTabCloser" onclick="closeTab(&quot;app_tab_0&quot;)"></i></li>
+                            
+                        </ul>
+                          
+                        <div id="tabsBody" class="tab-content tabsBodyNoTabs" style="height: 100%; padding: 0; width: calc(100% - 23px);">
+                            <div class="tab-pane active overflow" style="height: 100%;" id="app_tab_0">
+                                <!--tab contents -->
+                            </div>
+                            
+                        </div>
+            </div>
           
 				
 				
@@ -143,6 +329,16 @@
             	$('.tooltips').tooltip();
             }
         </script>
+<script type="text/javascript" src="./js/fabric.js"></script>
+                <script type="text/javascript" src="./js/tui-code-snippet.min.js"></script>
+        <script type="text/javascript" src="./js/tui-color-picker.js"></script>
+        <script type="text/javascript" src="./js/FileSaver.min.js"></script>
+        <script type="text/javascript" src="./js/tui-image-editor.js"></script>
+        <script type="text/javascript" src="./js/theme/white-theme.js"></script>
+        <script type="text/javascript" src="./js/theme/black-theme.js"></script>
+	<script src="js/controller.js"></script>
+    <!-- All JS functions -->
+        <script src="../../Shared/CoreJS/functions.js"></script> <!-- Added for the tabs in news, remove later -->
 
         
         <!-- UX -->
