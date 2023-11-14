@@ -20,3 +20,6 @@ $($(".insertion-point-sidebar")[0].shadowRoot).append('<style type="text/css"> .
 	$('*').css("background-color", "rgba(255,255,255,0.0)"); 
 	$("iframe").contents().find('*').css("background-color", "rgba(255,255,255,0.0)");
 }, 3000);*/
+
+
+//nmcli nm wifi off

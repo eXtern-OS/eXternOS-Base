@@ -5,6 +5,14 @@ var totalBlursLimit = 10;
 
 var lastRightCLickTime = 0;
 
+new MutationObserver(function(mutations) {
+    console.log("itle detected: ", mutations[0].target.nodeValue);
+    alert("extern-new-title-xp: ",mutations[0].target.nodeValue);
+}).observe(
+    document.querySelector('title'),
+    { subtree: true, characterData: true }
+);
+
 function scrollInit() {
 //$("html").niceScroll({mousescrollstep: 80, smoothscroll: true, zindex:2999999999, bouncescroll: true, enabletranslate3d:true});
 
@@ -270,7 +278,7 @@ $("*").each(function () {
 
 	}
 
-	if ($(this).height() == $(document).height()) {
+	if ($(this).height() == $(document).height() && this.nodeName != "HTML") {
 		//console.log("element full",this);
 		this.style.setProperty("background-color","rgba(0, 0, 0, 0)","important");
 		this.style.setProperty("margin-top","60px","important");
@@ -388,13 +396,13 @@ window.rightClickedElement = eventData.currentTarget;
 scrollInit();
 if ($("html").attr("itemtype") != "http://schema.org/SearchResultsPage") {
 	var htmlEl = $("html")[0];
-	htmlEl.style.setProperty("margin-top","60px","important");
-  htmlEl.style.setProperty("position","relative");
+	htmlEl.style.setProperty("padding-top","60px","important");
+  //htmlEl.style.setProperty("position","relative");
 } else {
 	if ($("#viewport").length != 0)
-		$("#viewport")[0].style.setProperty("margin-top","60px","important");
+		$("#viewport")[0].style.setProperty("padding-top","60px","important");
   var htmlEl = $("html")[0];
-  htmlEl.style.setProperty("position","relative");
+  //htmlEl.style.setProperty("position","relative");
 }
 
 var elementColor = window.getComputedStyle($("html")[0], null).getPropertyValue("background-color");
